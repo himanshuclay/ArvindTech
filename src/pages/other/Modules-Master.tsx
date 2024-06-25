@@ -39,44 +39,60 @@ const initialInventory: FormField[] = [
 ];
 
 type TransformedField = {
-  textbox: { labeltext: string; value: string | undefined }[];
-  date: { labeldate: string; value: string | undefined }[];
-  options: { labeltext: string; options: string }[];
-  status?: string;
-  successorTaskId?: string;
+  id: number;
+  labeltext?: string;
+  textbox?: string;
+  number?: number;
+  email?: string;
+  selection?: string;
+  radio?: number;
+  file?: string;
+  labeldate?: string;
+  date?: string;
+  labelsubtask?: string;
+  subtask?: string;
 };
 
 const transformTaskData = (tasks: FormField[][]): TransformedField[] => {
   return tasks.map((task, taskIndex) => {
-    const transformedFields = task.reduce<TransformedField>((acc, field) => {
+    const transformedFields: TransformedField = { id: taskIndex + 1 };
+
+    task.forEach((field) => {
       switch (field.type) {
         case 'text':
-          acc.textbox.push({ labeltext: field.labeltext, value: field.placeholder });
+          transformedFields.textbox = field.placeholder || '';
           break;
-        case 'date':
-          acc.date.push({ labeldate: field.labeltext, value: field.actualDate || field.plannedDate || field.extendedDate });
+        case 'checkbox':
+          transformedFields.selection = field.labeltext;
           break;
         case 'select':
         case 'radio':
         case 'multiselect':
-          acc.options.push({ labeltext: field.labeltext, options: field.options?.join(', ') || '' });
+          transformedFields.selection = field.options?.join(', ') || '';
+          transformedFields.radio = parseInt(field.options?.[0] || '0', 10);
+          break;
+        case 'file':
+          transformedFields.file = field.labeltext;
+          break;
+        case 'date':
+          transformedFields.labeldate = field.labeltext;
+          transformedFields.date = field.actualDate || field.plannedDate || field.extendedDate || '';
           break;
         case 'status':
-          acc.status = field.status;
+          transformedFields.selection = field.status;
           break;
         case 'successorTask':
-          acc.successorTaskId = field.successorTaskId;
+          transformedFields.subtask = field.successorTaskId;
+          break;
+        case 'custom':
+          transformedFields.textbox = field.placeholder || '';
           break;
         default:
           break;
       }
-      return acc;
-    }, { textbox: [], date: [], options: [] });
+    });
 
-    return {
-      id: taskIndex,
-      ...transformedFields,
-    };
+    return transformedFields;
   });
 };
 
@@ -84,7 +100,7 @@ const saveTasksToServer = async (tasks: FormField[][]) => {
   const transformedData = transformTaskData(tasks);
 
   try {
-    const response = await fetch('https://n6enuz2bzvjizpqpmojfdy54hu0kanhl.lambda-url.ap-south-1.on.aws/api/Lead/createtask', {
+    const response = await fetch('https://votlvqv4xbzjwjfgncyfiew5uu0sxfaa.lambda-url.ap-south-1.on.aws/api/Authentication/createtask', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -104,7 +120,7 @@ const saveTasksToServer = async (tasks: FormField[][]) => {
 
 const fetchTasksFromServer = async () => {
   try {
-    const response = await fetch('https://n6enuz2bzvjizpqpmojfdy54hu0kanhl.lambda-url.ap-south-1.on.aws/api/Lead/gettask');
+    const response = await fetch('https://votlvqv4xbzjwjfgncyfiew5uu0sxfaa.lambda-url.ap-south-1.on.aws/api/Authentication/gettask');
     if (!response.ok) {
       throw new Error('Failed to fetch tasks');
     }
@@ -226,273 +242,252 @@ const App: React.FC = () => {
         setSavedTasks(updatedTasks);
       }
       setIsModalOpen(false);
-      setEditField(null);
-      setSelectedTaskIdx(null);
-      setSelectedFieldIdx(null);
     }
   };
 
   const renderField = (field: FormField, taskIndex: number, fieldIndex: number) => {
+    const renderFieldContent = () => {
+      switch (field.type) {
+        case 'text':
+          return (
+            <>
+              <div>{field.labeltext}</div>
+              <div>Placeholder: {field.placeholder}</div>
+            </>
+          );
+        case 'checkbox':
+          return <div>{field.labeltext}</div>;
+        case 'select':
+        case 'radio':
+        case 'multiselect':
+          return (
+            <>
+              <div>{field.labeltext}</div>
+              <div>Options: {field.options?.join(', ')}</div>
+            </>
+          );
+        case 'file':
+          return <div>{field.labeltext}</div>;
+        case 'status':
+          return (
+            <>
+              <div>{field.labeltext}</div>
+              <div>Status: {field.status}</div>
+            </>
+          );
+        case 'date':
+          return (
+            <>
+              <div>{field.labeltext}</div>
+              <div>Date: {field.actualDate || field.plannedDate || field.extendedDate}</div>
+            </>
+          );
+        case 'successorTask':
+          return (
+            <>
+              <div>{field.labeltext}</div>
+              <div>Successor Task ID: {field.successorTaskId}</div>
+            </>
+          );
+        case 'custom':
+          return (
+            <>
+              <div>{field.labeltext}</div>
+              <div>Custom Placeholder: {field.placeholder}</div>
+            </>
+          );
+        default:
+          return null;
+      }
+    };
+
     return (
-      <Form.Group>
-        <Form.Label>{field.labeltext}</Form.Label>
-        {(() => {
-          switch (field.type) {
-            case 'text':
-              return <Form.Control type="text" placeholder={field.placeholder} />;
-            case 'checkbox':
-              return <Form.Check type="checkbox" label={field.labeltext} />;
-            case 'select':
-              return (
-                <div>
-                  <Form.Control as="select">
-                    {field.options?.map((option, idx) => (
-                      <option key={idx}>{option}</option>
-                    ))}
-                  </Form.Control>
-                </div>
-              );
-            case 'file':
-              return <Form.File label={field.labeltext as any} />;
-            case 'radio':
-              return (
-                <>
-                  {field.options?.map((option, idx) => (
-                    <Form.Check key={idx} type="radio" label={option} name={field.id} />
-                  ))}
-                </>
-              );
-            case 'multiselect':
-              return (
-                <Form.Control as="select" multiple>
-                  {field.options?.map((option, idx) => (
-                    <option key={idx}>{option}</option>
-                  ))}
-                </Form.Control>
-              );
-            case 'status':
-              return (
-                <Form.Control as="select" value={field.status}>
-                  {field.options?.map((option, idx) => (
-                    <option key={idx} value={option}>
-                      {option}
-                    </option>
-                  ))}
-                </Form.Control>
-              );
-            case 'date':
-              return <Form.Control type="date" value={field.actualDate || field.plannedDate || field.extendedDate} />;
-            case 'successorTask':
-              return <Form.Control type="text" placeholder={field.placeholder} />;
-            case 'custom':
-              return (
-                <Form.Group>
-                  <Form.Label>Custom </Form.Label>
-                  <Form.Control className='my-2' type="date" value={field.actualDate || field.plannedDate || field.extendedDate} />
-                  <Form.Label>{field.labeltext}</Form.Label>
-                  <Form.Control className='my-1' as="select">
-                    <option value="select"></option>
-                    {field.options?.map((option, idx) => (
-                      <option key={idx}>{option}</option>
-                    ))}
-                  </Form.Control>
-                  <>
-                    {field.options?.map((option, idx) => (
-                      <Form.Check key={idx} type="radio" label={option} name={field.id} />
-                    ))}
-                  </>
-                </Form.Group>
-              );
-            default:
-              return null;
-          }
-        })()}
-      </Form.Group>
+      <ListGroup.Item key={field.id} className="d-flex justify-content-between align-items-center">
+        {renderFieldContent()}
+        <div>
+          <Button
+            variant="primary"
+            size="sm"
+            className="mr-2"
+            onClick={() => handleEditField(field, taskIndex, fieldIndex)}
+          >
+            Edit
+          </Button>
+          <Button variant="danger" size="sm" onClick={() => handleDeleteField(taskIndex, fieldIndex)}>
+            Delete
+          </Button>
+        </div>
+      </ListGroup.Item>
     );
   };
 
-
-
   return (
-    <div className="container">
-      <div className="d-flex p-2 bg-white align-items-center my-2">
-        Task Builder
-      </div>
-      <div className="row">
-        <div className="col-md-12 row">
-          <DragDropContext onDragEnd={handleDragEnd}>
-            <div className="row">
-              <div className="col-md-6">
-                <h3>Available Fields</h3>
-                <Droppable droppableId="inventory">
-                  {(provided: DroppableProvided) => (
-                    <div ref={provided.innerRef} {...provided.droppableProps} className="list-group mb-4">
-                      {inventory.map((field, index) => (
-                        <Draggable key={field.id} draggableId={field.id} index={index}>
-                          {(provided: DraggableProvided) => (
-                            <div
-                              ref={provided.innerRef}
-                              {...provided.draggableProps}
-                              {...provided.dragHandleProps}
-                              className="list-group-item"
-                            >
-                              {field.labeltext}
-                            </div>
-                          )}
-                        </Draggable>
-                      ))}
-                      {provided.placeholder}
-                    </div>
-                  )}
-                </Droppable>
-              </div>
-              <div className="col-md-6">
-                <h3>Build Your Task</h3>
-                <Droppable droppableId="taskFields">
-                  {(provided: DroppableProvided) => (
-                    <div ref={provided.innerRef} {...provided.droppableProps} className="list-group mb-4">
-                      {taskFields.map((field, index) => (
-                        <Draggable key={field.id} draggableId={field.id} index={index}>
-                          {(provided: DraggableProvided) => (
-                            <div
-                              ref={provided.innerRef}
-                              {...provided.draggableProps}
-                              {...provided.dragHandleProps}
-                              className="list-group-item"
-                            >
-                              <div className="row align-items-end">
-                                <div className='col-8'>{renderField(field, -1, index)}</div>
-                                <div className="col-4">
-                                  <div className='me-2 btn' size="sm" onClick={() => handleEditField(field, -1, index)}>
-                                    <i className='ri-pencil-fill text-primary'></i>
-                                  </div>
-                                  <div className='btn' size="sm" onClick={() => handleDeleteField(-1, index)}>
-                                  <i className='ri-delete-bin-fill text-danger'></i>
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-
-                          )}
-                        </Draggable>
-                      ))}
-                      {provided.placeholder}
-                    </div>
-                  )}
-                </Droppable>
-              </div>
+    <div className="App">
+      <div className="container mt-4">
+        <h1 className="mb-4">Dynamic Form Builder</h1>
+        <DragDropContext onDragEnd={handleDragEnd}>
+          <div className="row">
+            <div className="col-md-6">
+              <h3>Available Fields</h3>
+              <Droppable droppableId="inventory">
+                {(provided: DroppableProvided) => (
+                  <div ref={provided.innerRef} {...provided.droppableProps} className="list-group mb-4">
+                    {inventory.map((field, index) => (
+                      <Draggable key={field.id} draggableId={field.id} index={index}>
+                        {(provided: DraggableProvided) => (
+                          <div
+                            ref={provided.innerRef}
+                            {...provided.draggableProps}
+                            {...provided.dragHandleProps}
+                            className="list-group-item"
+                          >
+                            {field.labeltext}
+                          </div>
+                        )}
+                      </Draggable>
+                    ))}
+                    {provided.placeholder}
+                  </div>
+                )}
+              </Droppable>
             </div>
-          </DragDropContext>
-        </div>
-        <div className="col-md-6">
+            <div className="col-md-6">
+              <h3>Build Your Task</h3>
+              <Droppable droppableId="taskFields">
+                {(provided: DroppableProvided) => (
+                  <div ref={provided.innerRef} {...provided.droppableProps} className="list-group mb-4">
+                    {taskFields.map((field, index) => (
+                      <Draggable key={field.id} draggableId={field.id} index={index}>
+                        {(provided: DraggableProvided) => (
+                          <div
+                            ref={provided.innerRef}
+                            {...provided.draggableProps}
+                            {...provided.dragHandleProps}
+                            className="list-group-item"
+                          >
+                            {renderField(field, -1, index)}
+                          </div>
+                        )}
+                      </Draggable>
+                    ))}
+                    {provided.placeholder}
+                  </div>
+                )}
+              </Droppable>
+            </div>
+          </div>
+        </DragDropContext>
+        <Button variant="primary" onClick={handleSaveTask}>
+          Save Task
+        </Button>
+        <Modal show={isModalOpen} onHide={() => setIsModalOpen(false)}>
+          <Modal.Header closeButton>
+            <Modal.Title>Edit Field</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            {editField && (
+              <Form>
+                <Form.Group>
+                  <Form.Label>Label Text</Form.Label>
+                  <Form.Control
+                    type="text"
+                    value={editField.labeltext}
+                    onChange={e => setEditField({ ...editField, labeltext: e.target.value })}
+                  />
+                </Form.Group>
+                {(editField.type === 'text' || editField.type === 'custom') && (
+                  <Form.Group>
+                    <Form.Label>Placeholder</Form.Label>
+                    <Form.Control
+                      type="text"
+                      value={editField.placeholder}
+                      onChange={e => setEditField({ ...editField, placeholder: e.target.value })}
+                    />
+                  </Form.Group>
+                )}
+                {(editField.type === 'select' ||
+                  editField.type === 'radio' ||
+                  editField.type === 'multiselect') && (
+                    <Form.Group>
+                      <Form.Label>Options</Form.Label>
+                      <Form.Control
+                        type="text"
+                        value={editField.options?.join(', ')}
+                        onChange={e => setEditField({ ...editField, options: e.target.value.split(', ') })}
+                      />
+                    </Form.Group>
+                  )}
+                {editField.type === 'status' && (
+                  <Form.Group>
+                    <Form.Label>Status</Form.Label>
+                    <Form.Control
+                      type="text"
+                      value={editField.status}
+                      onChange={e => setEditField({ ...editField, status: e.target.value })}
+                    />
+                  </Form.Group>
+                )}
+                {editField.type === 'date' && (
+                  <Form.Group>
+                    <Form.Label>Date</Form.Label>
+                    <Form.Control
+                      type="date"
+                      value={editField.actualDate || editField.plannedDate || editField.extendedDate}
+                      onChange={e =>
+                        setEditField({
+                          ...editField,
+                          actualDate: editField.actualDate ? e.target.value : undefined,
+                          plannedDate: editField.plannedDate ? e.target.value : undefined,
+                          extendedDate: editField.extendedDate ? e.target.value : undefined,
+                        })
+                      }
+                    />
+                  </Form.Group>
+                )}
+                {editField.type === 'successorTask' && (
+                  <Form.Group>
+                    <Form.Label>Successor Task ID</Form.Label>
+                    <Form.Control
+                      type="text"
+                      value={editField.successorTaskId}
+                      onChange={e => setEditField({ ...editField, successorTaskId: e.target.value })}
+                    />
+                  </Form.Group>
+                )}
+              </Form>
+            )}
+          </Modal.Body>
+          <Modal.Footer>
+            <Button variant="secondary" onClick={() => setIsModalOpen(false)}>
+              Close
+            </Button>
+            <Button variant="primary" onClick={handleEditSave}>
+              Save Changes
+            </Button>
+          </Modal.Footer>
+        </Modal>
+        <div className="mt-4">
           <h3>Saved Tasks</h3>
           {savedTasks.map((task, taskIndex) => (
-            <Card key={taskIndex} className="p-3 mb-3">
-              <h4>Task {taskIndex + 1}</h4>
-              {task.map((field, fieldIndex) => (
-                <div key={field.id} className="mb-3">
-                  <div className="d-flex justify-content-between align-items-center">
-
-                    {renderField(field, taskIndex, fieldIndex)}
-                    <div>
-                      <Button variant="outline-primary" size="sm" onClick={() => handleEditField(field, taskIndex, fieldIndex)}>
-                        Edit
-                      </Button>
-                      <Button variant="outline-danger" size="sm" onClick={() => handleDeleteField(taskIndex, fieldIndex)}>
-                        Delete
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-              ))}
-              <Button variant="outline-danger" size="sm" onClick={() => handleDeleteTask(taskIndex)}>
-                Delete Task
-              </Button>
+            <Card key={taskIndex} className="mb-4">
+              <Card.Header>
+                Task {taskIndex + 1}
+                <Button
+                  variant="danger"
+                  size="sm"
+                  className="float-right"
+                  onClick={() => handleDeleteTask(taskIndex)}
+                >
+                  Delete Task
+                </Button>
+              </Card.Header>
+              <ListGroup variant="flush">
+                {task.map((field, fieldIndex) => renderField(field, taskIndex, fieldIndex))}
+              </ListGroup>
             </Card>
           ))}
         </div>
       </div>
-      <Modal show={isModalOpen} onHide={() => setIsModalOpen(false)}>
-        <Modal.Header closeButton>
-          <Modal.Title>Edit Field</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          {editField && (
-            <Form>
-              <Form.Group>
-                <Form.Label>Label</Form.Label>
-                <Form.Control
-                  type="text"
-                  value={editField.labeltext}
-                  onChange={(e) => setEditField({ ...editField, labeltext: e.target.value })}
-                />
-              </Form.Group>
-              {(editField.type === 'text' || editField.type === 'successorTask') && (
-                <Form.Group>
-                  <Form.Label>Placeholder</Form.Label>
-                  <Form.Control
-                    type="text"
-                    value={editField.placeholder}
-                    onChange={(e) => setEditField({ ...editField, placeholder: e.target.value })}
-                  />
-                </Form.Group>
-              )}
-              {editField.type === 'date' && (
-                <Form.Group>
-                  <Form.Label>Date</Form.Label>
-                  <Form.Control
-                    type="date"
-                    value={editField.actualDate || editField.plannedDate || editField.extendedDate}
-                    onChange={(e) => {
-                      const newDate = e.target.value;
-                      setEditField({
-                        ...editField,
-                        actualDate: newDate,
-                        plannedDate: newDate,
-                        extendedDate: newDate,
-                      });
-                    }}
-                  />
-                </Form.Group>
-              )}
-              {(editField.type === 'select' || editField.type === 'radio' || editField.type === 'multiselect') && (
-                <Form.Group>
-                  <Form.Label>Options</Form.Label>
-                  <Form.Control
-                    type="text"
-                    value={editField.options?.join(', ')}
-                    onChange={(e) => setEditField({ ...editField, options: e.target.value.split(',').map(option => option.trim()) })}
-                  />
-                </Form.Group>
-              )}
-              {editField.type === 'status' && (
-                <Form.Group>
-                  <Form.Label>Status</Form.Label>
-                  <Form.Control
-                    as="select"
-                    value={editField.status}
-                    onChange={(e) => setEditField({ ...editField, status: e.target.value })}
-                  >
-                    {editField.options?.map((option, idx) => (
-                      <option key={idx} value={option}>
-                        {option}
-                      </option>
-                    ))}
-                  </Form.Control>
-                </Form.Group>
-              )}
-            </Form>
-          )}
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={() => setIsModalOpen(false)}>
-            Close
-          </Button>
-          <Button variant="primary" onClick={handleEditSave}>
-            Save Changes
-          </Button>
-        </Modal.Footer>
-      </Modal>
     </div>
   );
 };
