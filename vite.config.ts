@@ -6,6 +6,9 @@ import path from 'path'
 export default defineConfig({
   base: '',
   plugins: [react(),],
+  server: {
+    port: 3000,
+  },
   define: { 'process.env': {}, },
   resolve: {
     alias: {
