@@ -257,7 +257,7 @@ const Topbar = ({ toggleMenu, navOpen }: TopbarProps) => {
 							{/* Logo Dark */}
 							<Link to="/" className="logo-dark">
 								<span className="logo-lg">
-									<img src={logoDark} alt="dark logo" />
+									<img src={logoDark} alt="dark logo" style={{height: '50px'}} />
 								</span>
 								<span className="logo-sm">
 									<img src={logoSm} alt="small logo" />
@@ -311,11 +311,11 @@ const Topbar = ({ toggleMenu, navOpen }: TopbarProps) => {
 						<li className="dropdown notification-list">
 							<NotificationDropdown notifications={Notifications} />
 						</li>
-						<li className="d-none d-sm-inline-block">
+						{/* <li className="d-none d-sm-inline-block">
 							<button className="nav-link" onClick={handleRightSideBar}>
 								<i className="ri-settings-3-line fs-22" />
 							</button>
-						</li>
+						</li> */}
 						<li className="d-none d-sm-inline-block">
 							<div
 								className="nav-link"
@@ -329,7 +329,7 @@ const Topbar = ({ toggleMenu, navOpen }: TopbarProps) => {
 							<ProfileDropdown
 								menuItems={profileMenus}
 								userImage={profilePic}
-								username="Thomson"
+								username="Shikhar"
 							/>
 						</li>
 					</ul>

@@ -12,6 +12,7 @@
     "start": "PORT=3000 react-scripts start"
   },
   "dependencies": {
+    "@elsa-workflows/elsa-workflow-designer": "^0.0.61",
     "@hookform/resolvers": "^3.1.1",
     "apexcharts": "3.35.4",
     "axios": "^0.21.1",

@@ -24,6 +24,8 @@ const PricingPages = React.lazy(() => import('../pages/other/Pricing'))
 const MaintenancePages = React.lazy(() => import('../pages/other/Maintenance'))
 const StarterPages = React.lazy(() => import('../pages/other/Starter'))
 const TemplateMaster = React.lazy(() => import('../pages/other/Modules-Master.tsx'))
+const Notification = React.lazy(() => import('../pages/other/Notification.tsx'))
+const ModuleList = React.lazy(() => import('../pages/other/Module-list.tsx'))
 const EmployeeMaster = React.lazy(() => import('../pages/other/Employee-Master.tsx'))
 const ContactListPages = React.lazy(() => import('../pages/other/ContactList'))
 const TimelinePages = React.lazy(() => import('../pages/other/Timeline'))
@@ -177,6 +179,18 @@ const customPagesRoutes = {
 			path: '/pages/Modules-Master',
 			name: 'Modules Master',
 			element: <TemplateMaster />,
+			route: PrivateRoute,
+		},
+		{
+			path: '/pages/Notification',
+			name: 'Notification',
+			element: <Notification />,
+			route: PrivateRoute,
+		},
+		{
+			path: '/pages/Module-list',
+			name: 'Modules List',
+			element: <ModuleList />,
 			route: PrivateRoute,
 		},
 		{

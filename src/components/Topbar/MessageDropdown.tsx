@@ -62,7 +62,7 @@ const MessageDropdown = ({ messages }: MessageDropDownProps) => {
 	}
 	return (
 		<>
-			<Dropdown show={dropDownOpen} onToggle={toggleDropDown}>
+			{/* <Dropdown show={dropDownOpen} onToggle={toggleDropDown}>
 				<Dropdown.Toggle
 					as="a"
 					className="nav-link dropdown-toggle arrow-none"
@@ -92,7 +92,6 @@ const MessageDropdown = ({ messages }: MessageDropDownProps) => {
 						</Row>
 					</div>
 					<SimpleBar style={{ maxHeight: 300 }}>
-						{/* item*/}
 						{(messages || []).map((message, idx) => {
 							return (
 								<Link
@@ -128,7 +127,6 @@ const MessageDropdown = ({ messages }: MessageDropDownProps) => {
 							)
 						})}
 					</SimpleBar>
-					{/* All*/}
 					<Link
 						to="#"
 						className="dropdown-item text-center text-primary text-decoration-underline fw-bold notify-item border-top border-light py-2"
@@ -136,7 +134,7 @@ const MessageDropdown = ({ messages }: MessageDropDownProps) => {
 						View All
 					</Link>
 				</Dropdown.Menu>
-			</Dropdown>
+			</Dropdown> */}
 		</>
 	)
 }

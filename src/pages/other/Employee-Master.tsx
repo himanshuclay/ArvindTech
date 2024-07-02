@@ -1,5 +1,5 @@
 import React, { useState, useEffect, ChangeEvent } from 'react';
-import { Button, Form, Offcanvas, Table } from 'react-bootstrap';
+import { Button, Form, Offcanvas, Table, InputGroup, FormControl, Pagination } from 'react-bootstrap';
 
 interface Employee {
     name: string;
@@ -27,6 +27,9 @@ const EmployeeForm: React.FC = () => {
     const [employees, setEmployees] = useState<Employee[]>([]);
     const [show, setShow] = useState(false);
     const [editingIndex, setEditingIndex] = useState<number | null>(null);
+    const [searchQuery, setSearchQuery] = useState('');
+    const [currentPage, setCurrentPage] = useState(1);
+    const [rowsPerPage, setRowsPerPage] = useState(5);
 
     useEffect(() => {
         const storedEmployees = localStorage.getItem('employees');
@@ -77,15 +80,17 @@ const EmployeeForm: React.FC = () => {
         });
         handleClose();
     };
+
     const handleEdit = (index: number) => {
         setEditingIndex(index);
         setEmployee(employees[index]);
         handleShow();
     };
+
     const handleClose = () => {
         setShow(false);
-        setEditingIndex(null); // Clear editing index when closing the form
-        setEmployee({  // Reset the form fields
+        setEditingIndex(null);
+        setEmployee({
             name: '',
             id: '',
             department: '',
@@ -97,6 +102,61 @@ const EmployeeForm: React.FC = () => {
         });
     };
 
+    const handleSearch = (e: ChangeEvent<HTMLInputElement>) => {
+        setSearchQuery(e.target.value);
+        setCurrentPage(1); // Reset to first page on search
+    };
+
+    const handleRowsPerPageChange = (e: ChangeEvent<HTMLSelectElement>) => {
+        setRowsPerPage(Number(e.target.value));
+        setCurrentPage(1); // Reset to first page on rows per page change
+    };
+
+    const filteredEmployees = employees.filter(employee =>
+        employee.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        employee.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        employee.department.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        employee.designation.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        employee.currentProject.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        employee.dataAccessLevel.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        employee.gender.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+
+    const indexOfLastEmployee = currentPage * rowsPerPage;
+    const indexOfFirstEmployee = indexOfLastEmployee - rowsPerPage;
+    const currentEmployees = filteredEmployees.slice(indexOfFirstEmployee, indexOfLastEmployee);
+
+    const totalPages = Math.ceil(filteredEmployees.length / rowsPerPage);
+
+    const convertToCSV = (data: Employee[]) => {
+        const csvRows = [
+            ['Name', 'ID', 'Department', 'Designation', 'App Access', 'Current Project', 'Data Access Level', 'Gender'],
+            ...data.map(emp => [
+                emp.name,
+                emp.id,
+                emp.department,
+                emp.designation,
+                emp.appAccess ? 'Enabled' : 'Disabled',
+                emp.currentProject,
+                emp.dataAccessLevel,
+                emp.gender
+            ])
+        ];
+
+        return csvRows.map(row => row.join(',')).join('\n');
+    };
+
+    const downloadCSV = () => {
+        const csvData = convertToCSV(employees);
+        const blob = new Blob([csvData], { type: 'text/csv' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'employees.csv';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+    };
 
     return (
         <div className="container">
@@ -110,13 +170,18 @@ const EmployeeForm: React.FC = () => {
                                     type="search"
                                     className="form-control"
                                     placeholder="Search employee..."
+                                    value={searchQuery}
+                                    onChange={handleSearch}
                                 />
                                 <span className="ri-search-line search-icon text-muted" />
                             </div>
                         </form>
                     </div>
-                    <Button variant="primary" onClick={handleShow}>
+                    <Button variant="primary" onClick={handleShow} className="me-2">
                         Add Employee
+                    </Button>
+                    <Button variant="secondary" onClick={downloadCSV}>
+                        Download CSV
                     </Button>
                 </div>
             </div>
@@ -215,13 +280,29 @@ const EmployeeForm: React.FC = () => {
                     </Form>
                 </Offcanvas.Body>
             </Offcanvas>
+            <div className="d-flex justify-content-between align-items-center my-2">
+                <div>
+                    <Form.Select value={rowsPerPage} onChange={handleRowsPerPageChange}>
+                        <option value={5}>5 rows</option>
+                        <option value={10}>10 rows</option>
+                        <option value={20}>20 rows</option>
+                    </Form.Select>
+                </div>
+                <Pagination>
+                    <Pagination.First onClick={() => setCurrentPage(1)} disabled={currentPage === 1} />
+                    <Pagination.Prev onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))} disabled={currentPage === 1} />
+                    <Pagination.Item active>{currentPage}</Pagination.Item>
+                    <Pagination.Next onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))} disabled={currentPage === totalPages} />
+                    <Pagination.Last onClick={() => setCurrentPage(totalPages)} disabled={currentPage === totalPages} />
+                </Pagination>
+            </div>
             <Table className='bg-white' striped bordered hover>
                 <thead>
                     <tr>
                         <th>Name</th>
                         <th>ID</th>
                         <th>Department</th>
-                        <th>Designation</th>
+                        {/* <th>Designation</th> */}
                         <th>App Access</th>
                         <th>Current Project</th>
                         <th>Data Access Level</th>
@@ -230,18 +311,18 @@ const EmployeeForm: React.FC = () => {
                     </tr>
                 </thead>
                 <tbody>
-                    {employees.map((emp, index) => (
+                    {currentEmployees.map((emp, index) => (
                         <tr key={index}>
                             <td>{emp.name}</td>
                             <td>{emp.id}</td>
                             <td>{emp.department}</td>
-                            <td>{emp.designation}</td>
+                            {/* <td>{emp.designation}</td> */}
                             <td>{emp.appAccess ? 'Enabled' : 'Disabled'}</td>
                             <td>{emp.currentProject}</td>
                             <td>{emp.dataAccessLevel}</td>
                             <td>{emp.gender}</td>
                             <td>
-                                <i className='btn ri-edit-line' onClick={() => handleEdit(index)}></i>
+                                <i className='btn ri-edit-line' onClick={() => handleEdit(index + indexOfFirstEmployee)}></i>
                             </td>
                         </tr>
                     ))}

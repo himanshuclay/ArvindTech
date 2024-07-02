@@ -70,10 +70,10 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
 			logo: ThemeSettings.topbar.logo.show,
 		},
 		sidebar: {
-			theme:
-				params['menu_theme'] == 'light'
-					? ThemeSettings.sidebar.theme.light
-					: ThemeSettings.sidebar.theme.dark,
+			theme: ThemeSettings.sidebar.theme.light,
+				// params['menu_theme'] == 'light'
+				// 	? ThemeSettings.sidebar.theme.light
+				// 	: ThemeSettings.sidebar.theme.dark,
 			size: ThemeSettings.sidebar.size.default,
 			user: ThemeSettings.sidebar.user.hidden,
 		},

@@ -47,7 +47,7 @@ const LanguageDropdown = () => {
 
 	return (
 		<>
-			<Dropdown show={dropDownOpen} onToggle={toggleDropDown}>
+			{/* <Dropdown show={dropDownOpen} onToggle={toggleDropDown}>
 				<Dropdown.Toggle
 					className="nav-link dropdown-toggle arrow-none"
 					as="a"
@@ -81,7 +81,7 @@ const LanguageDropdown = () => {
 						)
 					})}
 				</Dropdown.Menu>
-			</Dropdown>
+			</Dropdown> */}
 		</>
 	)
 }

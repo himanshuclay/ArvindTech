@@ -24,18 +24,18 @@ type FormField = {
 };
 
 const initialInventory: FormField[] = [
-  { id: '1', type: 'text', labeltext: 'Text Box', placeholder: 'Enter text' },
-  { id: '2', type: 'checkbox', labeltext: 'Checkbox' },
-  { id: '3', type: 'select', labeltext: 'Select', options: ['Option 1', 'Option 2'] },
-  { id: '4', type: 'file', labeltext: 'File Upload' },
-  { id: '5', type: 'radio', labeltext: 'Radio', options: ['Option 1', 'Option 2'] },
-  { id: '6', type: 'multiselect', labeltext: 'Multi Select', options: ['Option 1', 'Option 2'] },
-  { id: '7', type: 'status', labeltext: 'Task Status', options: ['completed', 'pending'] },
-  { id: '8', type: 'date', labeltext: 'Actual Date' },
-  { id: '9', type: 'date', labeltext: 'Planned Date' },
-  { id: '10', type: 'date', labeltext: 'Extended Date' },
-  { id: '11', type: 'text', labeltext: 'Successor Task', placeholder: 'Enter successor task ID' },
-  { id: '12', type: 'custom', labeltext: 'Custom Field', placeholder: 'Enter text' },
+  { id: '5', type: 'text', labeltext: 'Text Box', placeholder: 'Enter text' },
+  { id: '6', type: 'checkbox', labeltext: 'Checkbox' },
+  { id: '7', type: 'select', labeltext: 'Select', options: ['Option 1', 'Option 2'] },
+  { id: '8', type: 'file', labeltext: 'File Upload' },
+  { id: '9', type: 'radio', labeltext: 'Radio', options: ['Option 1', 'Option 2'] },
+  { id: '10', type: 'multiselect', labeltext: 'Multi Select', options: ['Option 1', 'Option 2'] },
+  { id: '11', type: 'status', labeltext: 'Task Status', options: ['completed', 'pending'] },
+  { id: '12', type: 'date', labeltext: 'Actual Date' },
+  { id: '13', type: 'date', labeltext: 'Planned Date' },
+  { id: '14', type: 'date', labeltext: 'Extended Date' },
+  { id: '15', type: 'text', labeltext: 'Successor Task', placeholder: 'Enter successor task ID' },
+  { id: '16', type: 'custom', labeltext: 'Custom Field', placeholder: 'Enter text' },
 ];
 
 type TransformedField = {
@@ -52,6 +52,8 @@ type TransformedField = {
   labelsubtask?: string;
   subtask?: string;
 };
+
+
 
 const transformTaskData = (tasks: FormField[][]): TransformedField[] => {
   return tasks.map((task, taskIndex) => {
@@ -96,11 +98,24 @@ const transformTaskData = (tasks: FormField[][]): TransformedField[] => {
   });
 };
 
+
+
+type APIError = {
+  type: string;
+  title: string;
+  status: number;
+  errors: {
+    [key: string]: string[];
+  };
+  traceId: string;
+};
+
 const saveTasksToServer = async (tasks: FormField[][]) => {
   const transformedData = transformTaskData(tasks);
+  console.log('Transformed Data:', JSON.stringify(transformedData, null, 2));
 
   try {
-    const response = await fetch('https://votlvqv4xbzjwjfgncyfiew5uu0sxfaa.lambda-url.ap-south-1.on.aws/api/Authentication/createtask', {
+    const response = await fetch('https://n6enuz2bzvjizpqpmojfdy54hu0kanhl.lambda-url.ap-south-1.on.aws/api/Lead/createtask', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -109,8 +124,19 @@ const saveTasksToServer = async (tasks: FormField[][]) => {
     });
 
     if (!response.ok) {
-      throw new Error('Failed to save tasks');
+      const errors: APIError = await response.json();
+      let errorMessage = `Error: ${errors.title}\n`;
+
+      if (errors.errors) {
+        for (const [key, value] of Object.entries(errors.errors)) {
+          errorMessage += `${key}: ${value.join(', ')}\n`;
+        }
+      }
+
+      alert(errorMessage);
+      throw new Error(errorMessage);
     }
+
     console.log('Payload being sent:', JSON.stringify({ tasks: transformedData }));
     console.log('Tasks saved successfully');
   } catch (error) {
@@ -118,9 +144,13 @@ const saveTasksToServer = async (tasks: FormField[][]) => {
   }
 };
 
+
+
+
+
 const fetchTasksFromServer = async () => {
   try {
-    const response = await fetch('https://votlvqv4xbzjwjfgncyfiew5uu0sxfaa.lambda-url.ap-south-1.on.aws/api/Authentication/gettask');
+    const response = await fetch('https://n6enuz2bzvjizpqpmojfdy54hu0kanhl.lambda-url.ap-south-1.on.aws/api/Lead/gettask');
     if (!response.ok) {
       throw new Error('Failed to fetch tasks');
     }
@@ -141,6 +171,37 @@ const App: React.FC = () => {
   const [editField, setEditField] = useState<FormField | null>(null);
   const [selectedTaskIdx, setSelectedTaskIdx] = useState<number | null>(null);
   const [selectedFieldIdx, setSelectedFieldIdx] = useState<number | null>(null);
+  const [formData, setFormData] = useState({
+    taskName: '',
+    taskOwnerName: '',
+    projectName: '',
+    problemSolver: '',
+  });
+
+  const handleFormChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const handleFormSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    // Save form data
+    const newTaskFields: FormField[] = [
+      { id: `${taskFields.length + 1}`, type: 'text', labeltext: `Task Name - ${formData.taskName}` },
+      { id: `${taskFields.length + 2}`, type: 'text', labeltext: `Task owner Name - ${formData.taskOwnerName}` },
+      { id: `${taskFields.length + 3}`, type: 'text', labeltext: `Project Name - ${formData.projectName}` },
+      { id: `${taskFields.length + 4}`, type: 'text', labeltext: `Problem Solver - ${formData.problemSolver}` },
+    ];
+     
+
+    setTaskFields(newTaskFields);
+
+  }
+
 
   useEffect(() => {
     const loadTasks = async () => {
@@ -151,6 +212,7 @@ const App: React.FC = () => {
 
     loadTasks();
   }, []);
+
 
   const handleDragEnd = (result: DropResult) => {
     if (!result.destination) return;
@@ -187,6 +249,7 @@ const App: React.FC = () => {
     result.splice(endIndex, 0, removed);
     return result;
   };
+
 
   const handleSaveTask = () => {
     const updatedTasks = [...savedTasks, taskFields];
@@ -252,7 +315,7 @@ const App: React.FC = () => {
           return (
             <>
               <div>{field.labeltext}</div>
-              <div>Placeholder: {field.placeholder}</div>
+              {/* <div>Placeholder: {field.placeholder}</div> */}
             </>
           );
         case 'checkbox':
@@ -308,7 +371,7 @@ const App: React.FC = () => {
           <Button
             variant="primary"
             size="sm"
-            className="mr-2"
+            className="me-2"
             onClick={() => handleEditField(field, taskIndex, fieldIndex)}
           >
             Edit
@@ -324,24 +387,74 @@ const App: React.FC = () => {
   return (
     <div className="App">
       <div className="container mt-4">
-        <h1 className="mb-4">Dynamic Form Builder</h1>
+        <div className="d-flex p-2 bg-white mt-2 mb-2">Create Task</div>
+        <Form className='row mt-2 mb-3 p-2 bg-white rounded' onSubmit={handleFormSubmit}>
+          <Form.Group className='col-6 my-1'>
+            <Form.Label>Task Name</Form.Label>
+            <Form.Control
+              type="text"
+              name="taskName"
+              value={formData.taskName}
+              onChange={handleFormChange}
+              required
+            />
+          </Form.Group>
+          <Form.Group className='col-6 my-1'>
+            <Form.Label>Task owner Name</Form.Label>
+            <Form.Control
+              type="text"
+              name="taskOwnerName"
+              value={formData.taskOwnerName}
+              onChange={handleFormChange}
+              required
+            />
+          </Form.Group>
+          <Form.Group className='col-6 my-1'>
+            <Form.Label>Project Name</Form.Label>
+            <Form.Control
+              type="text"
+              name="projectName"
+              value={formData.projectName}
+              onChange={handleFormChange}
+              required
+            />
+          </Form.Group>
+          <Form.Group className='col-6 my-1'>
+            <Form.Label>Select Process</Form.Label>
+            <Form.Control
+              type="text"
+              name="problemSolver"
+              value={formData.problemSolver}
+              onChange={handleFormChange}
+              required
+            />
+          </Form.Group>
+          <div className="d-flex col-12 justify-content-end my-2">
+            <Button variant="primary" type="submit">
+              Add Task Details
+            </Button>
+          </div>
+        </Form>
+
         <DragDropContext onDragEnd={handleDragEnd}>
           <div className="row">
-            <div className="col-md-6">
-              <h3>Available Fields</h3>
+            <div className="col-md-6 p-2">
+              <h4>Available Fields</h4>
               <Droppable droppableId="inventory">
                 {(provided: DroppableProvided) => (
-                  <div ref={provided.innerRef} {...provided.droppableProps} className="list-group mb-4">
+                  <div ref={provided.innerRef} {...provided.droppableProps} className="row mb-4">
                     {inventory.map((field, index) => (
                       <Draggable key={field.id} draggableId={field.id} index={index}>
                         {(provided: DraggableProvided) => (
-                          <div
-                            ref={provided.innerRef}
-                            {...provided.draggableProps}
-                            {...provided.dragHandleProps}
-                            className="list-group-item"
-                          >
-                            {field.labeltext}
+                          <div className='col-6'>
+                            <div
+                              ref={provided.innerRef}
+                              {...provided.draggableProps}
+                              {...provided.dragHandleProps}
+                              className="card p-2 m-1"
+                            >
+                              {field.labeltext}
+                            </div>
                           </div>
                         )}
                       </Draggable>
@@ -351,11 +464,11 @@ const App: React.FC = () => {
                 )}
               </Droppable>
             </div>
-            <div className="col-md-6">
-              <h3>Build Your Task</h3>
+            <div className="col-md-6 bg-white p-2 rounded">
+              <h4>Build Your Task</h4>
               <Droppable droppableId="taskFields">
                 {(provided: DroppableProvided) => (
-                  <div ref={provided.innerRef} {...provided.droppableProps} className="list-group mb-4">
+                  <div ref={provided.innerRef} {...provided.droppableProps} className="list-group h-100">
                     {taskFields.map((field, index) => (
                       <Draggable key={field.id} draggableId={field.id} index={index}>
                         {(provided: DraggableProvided) => (
@@ -377,9 +490,12 @@ const App: React.FC = () => {
             </div>
           </div>
         </DragDropContext>
-        <Button variant="primary" onClick={handleSaveTask}>
-          Save Task
-        </Button>
+        <div className="d-flex justify-content-end p-2 col-12">
+          <Button variant="primary" onClick={handleSaveTask}>
+            Save Task
+          </Button>
+        </div>
+
         <Modal show={isModalOpen} onHide={() => setIsModalOpen(false)}>
           <Modal.Header closeButton>
             <Modal.Title>Edit Field</Modal.Title>
@@ -468,23 +584,29 @@ const App: React.FC = () => {
         </Modal>
         <div className="mt-4">
           <h3>Saved Tasks</h3>
+
           {savedTasks.map((task, taskIndex) => (
-            <Card key={taskIndex} className="mb-4">
-              <Card.Header>
-                Task {taskIndex + 1}
-                <Button
-                  variant="danger"
-                  size="sm"
-                  className="float-right"
-                  onClick={() => handleDeleteTask(taskIndex)}
-                >
-                  Delete Task
-                </Button>
-              </Card.Header>
-              <ListGroup variant="flush">
-                {task.map((field, fieldIndex) => renderField(field, taskIndex, fieldIndex))}
-              </ListGroup>
-            </Card>
+            <div className='col-6'>
+              <Card key={taskIndex} className="mb-4">
+                <Card.Header>
+                  <div className="d-flex justify-content-between align-items-center">
+                  </div>
+                </Card.Header>
+                <ListGroup variant="flush">
+                  {task.map((field, fieldIndex) => renderField(field, taskIndex, fieldIndex))}
+                </ListGroup>
+                <div className="d-flex justify-content-end col-12 p-2">
+                  <Button
+                    variant="danger"
+                    size="sm"
+                    onClick={() => handleDeleteTask(taskIndex)}
+                  >
+                    Delete Task
+                  </Button>
+                </div>
+              </Card>
+            </div>
+
           ))}
         </div>
       </div>

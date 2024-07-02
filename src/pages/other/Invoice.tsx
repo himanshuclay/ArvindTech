@@ -26,7 +26,7 @@ const Invoice = () => {
 								<div className="col-sm-6">
 									<div className="float-end mt-3">
 										<p>
-											<b>Hello, Thomson</b>
+											<b>Hello, Shikhar</b>
 										</p>
 										<p className="text-muted fs-13">
 											Please find below a cost-breakdown for the recent work
@@ -69,7 +69,7 @@ const Invoice = () => {
 								<div className="col-6">
 									<h6 className="fs-14">Shipping Address</h6>
 									<address>
-										Thomson
+									Shikhar
 										<br />
 										795 Folsom Ave, Suite 600
 										<br />

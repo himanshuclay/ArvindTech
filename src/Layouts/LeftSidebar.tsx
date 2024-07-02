@@ -33,7 +33,7 @@ const LeftSidebar = () => {
 				{/* Brand Logo Dark */}
 				<a href="index.html" className="logo logo-dark">
 					<span className="logo-lg">
-						<img src={logoDark} alt="dark logo" />
+						<img src={logoDark} alt="dark logo" style={{height: '50px'}}/>
 					</span>
 					<span className="logo-sm">
 						<img src={logoSm} alt="small logo" />

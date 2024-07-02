@@ -58,7 +58,7 @@ export const chatMessages = [
 	{
 		id: 2,
 		userPic: profilePic,
-		userName: 'Thomson',
+		userName: 'Shikhar',
 		text: 'Hi, How are you? What about our next meeting?',
 		postedOn: '10:01',
 	},
@@ -72,7 +72,7 @@ export const chatMessages = [
 	{
 		id: 4,
 		userPic: profilePic,
-		userName: 'Thomson',
+		userName: 'Shikhar',
 		text: "Wow that's great!",
 		postedOn: '10:03',
 	},

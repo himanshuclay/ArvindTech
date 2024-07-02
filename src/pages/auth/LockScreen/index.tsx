@@ -52,7 +52,7 @@ const LockScreen = () => {
 		<>
 			<PageBreadcrumb title="Lock Screen" />
 			<AuthLayout
-				authTitle="Hi ! Thomson"
+				authTitle="Hi ! Shikhar"
 				helpText="Enter your password to access the admin."
 				starterClass
 				userImage={avatar1}
