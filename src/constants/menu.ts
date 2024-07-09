@@ -59,10 +59,38 @@ const MENU_ITEMS: MenuItemTypes[] = [
 		parentKey: 'pages',
 	},
 	{
+		key: 'Mess-Master',
+		label: 'Mess Master',
+		url: '/pages/MessMaster',
+		icon: 'ri-restaurant-line',
+		parentKey: 'pages',
+	},
+	{
 		key: 'Notification',
 		label: 'Notification',
 		url: '/pages/Notification',
 		icon: 'ri-notification-3-line',
+		parentKey: 'pages',
+	},
+	{
+		key: 'Projects',
+		label: 'Projects',
+		url: '/pages/Projects',
+		icon: 'ri-file-chart-line',
+		parentKey: 'pages',
+	},
+	{
+		key: 'Roles',
+		label: 'Roles Master',
+		url: '/pages/Roles',
+		icon: 'ri-user-settings-line',
+		parentKey: 'pages',
+	},
+	{
+		key: 'pages-Starter',
+		label: 'Process Creation',
+		url: '/pages/starter',
+		icon: 'ri-list-settings-line',
 		parentKey: 'pages',
 	},
 	{
@@ -71,13 +99,7 @@ const MENU_ITEMS: MenuItemTypes[] = [
 		isTitle: false,
 		icon: 'ri-pages-line',
 		children: [
-			{
-				key: 'pages-Starter',
-				label: 'Process Creation',
-				url: '/pages/starter',
-				icon: 'ri-list-settings-line',
-				parentKey: 'pages',
-			},
+
 			// {
 			// 	key: 'Modules-Master',
 			// 	label: 'Task Creator',

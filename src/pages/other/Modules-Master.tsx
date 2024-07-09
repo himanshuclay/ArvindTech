@@ -36,6 +36,7 @@ const initialInventory: FormField[] = [
   { id: '14', type: 'date', labeltext: 'Extended Date' },
   { id: '15', type: 'text', labeltext: 'Successor Task', placeholder: 'Enter successor task ID' },
   { id: '16', type: 'custom', labeltext: 'Custom Field', placeholder: 'Enter text' },
+  { id: '16', type: 'paragraph', labeltext: 'Paragraph', placeholder: 'Enter text' },
 ];
 
 type TransformedField = {
@@ -51,6 +52,7 @@ type TransformedField = {
   date?: string;
   labelsubtask?: string;
   subtask?: string;
+  paragraph?: string;
 };
 
 
@@ -196,7 +198,7 @@ const App: React.FC = () => {
       { id: `${taskFields.length + 3}`, type: 'text', labeltext: `Project Name - ${formData.projectName}` },
       { id: `${taskFields.length + 4}`, type: 'text', labeltext: `Problem Solver - ${formData.problemSolver}` },
     ];
-     
+
 
     setTaskFields(newTaskFields);
 
@@ -278,6 +280,8 @@ const App: React.FC = () => {
     const updatedTasks = savedTasks.filter((_, idx) => idx !== taskIndex);
     setSavedTasks(updatedTasks);
   };
+
+  
 
   const handleEditField = (field: FormField, taskIndex: number, fieldIndex: number) => {
     setEditField(field);
@@ -496,7 +500,7 @@ const App: React.FC = () => {
           </Button>
         </div>
 
-        <Modal show={isModalOpen} onHide={() => setIsModalOpen(false)}>
+        <Modal size='lg' show={isModalOpen} onHide={() => setIsModalOpen(false)}>
           <Modal.Header closeButton>
             <Modal.Title>Edit Field</Modal.Title>
           </Modal.Header>
@@ -508,7 +512,7 @@ const App: React.FC = () => {
                   <Form.Control
                     type="text"
                     value={editField.labeltext}
-                    onChange={e => setEditField({ ...editField, labeltext: e.target.value })}
+                    onChange={(e) => setEditField({ ...editField, labeltext: e.target.value })}
                   />
                 </Form.Group>
                 {(editField.type === 'text' || editField.type === 'custom') && (
@@ -517,29 +521,72 @@ const App: React.FC = () => {
                     <Form.Control
                       type="text"
                       value={editField.placeholder}
-                      onChange={e => setEditField({ ...editField, placeholder: e.target.value })}
+                      onChange={(e) => setEditField({ ...editField, placeholder: e.target.value })}
                     />
                   </Form.Group>
                 )}
                 {(editField.type === 'select' ||
-                  editField.type === 'radio' ||
                   editField.type === 'multiselect') && (
                     <Form.Group>
                       <Form.Label>Options</Form.Label>
-                      <Form.Control
-                        type="text"
-                        value={editField.options?.join(', ')}
-                        onChange={e => setEditField({ ...editField, options: e.target.value.split(', ') })}
-                      />
+                      {editField.options?.map((option, index) => (
+                        <div key={index} className="d-flex mb-2">
+                          <Form.Control
+                            type="text"
+                            value={option}
+                            onChange={(e) => {
+                              const newOptions = [...editField.options!];
+                              newOptions[index] = e.target.value;
+                              setEditField({ ...editField, options: newOptions });
+                            }}
+                          />
+                          <Button
+                            variant="danger"
+                            size="sm"
+                            className="ms-2"
+                            onClick={() => {
+                              const newOptions = editField.options?.filter((_, i) => i !== index);
+                              setEditField({ ...editField, options: newOptions });
+                            }}
+                          >
+                            Delete
+                          </Button>
+                        </div>
+                      ))}
+                      <Button
+                        variant="primary"
+                        size="sm"
+                        onClick={() => setEditField({ ...editField, options: [...(editField.options || []), ''] })}
+                      >
+                        Add Option
+                      </Button>
                     </Form.Group>
                   )}
+                {editField.type === 'radio' && (
+                  <Form.Group>
+                    <Form.Label>Options</Form.Label>
+                    {[0, 1].map((_, index) => (
+                      <div key={index} className="d-flex mb-2">
+                        <Form.Control
+                          type="text"
+                          value={editField.options ? editField.options[index] : ''}
+                          onChange={(e) => {
+                            const newOptions = editField.options ? [...editField.options] : ['', ''];
+                            newOptions[index] = e.target.value;
+                            setEditField({ ...editField, options: newOptions });
+                          }}
+                        />
+                      </div>
+                    ))}
+                  </Form.Group>
+                )}
                 {editField.type === 'status' && (
                   <Form.Group>
                     <Form.Label>Status</Form.Label>
                     <Form.Control
                       type="text"
                       value={editField.status}
-                      onChange={e => setEditField({ ...editField, status: e.target.value })}
+                      onChange={(e) => setEditField({ ...editField, status: e.target.value })}
                     />
                   </Form.Group>
                 )}
@@ -549,7 +596,7 @@ const App: React.FC = () => {
                     <Form.Control
                       type="date"
                       value={editField.actualDate || editField.plannedDate || editField.extendedDate}
-                      onChange={e =>
+                      onChange={(e) =>
                         setEditField({
                           ...editField,
                           actualDate: editField.actualDate ? e.target.value : undefined,
@@ -566,7 +613,7 @@ const App: React.FC = () => {
                     <Form.Control
                       type="text"
                       value={editField.successorTaskId}
-                      onChange={e => setEditField({ ...editField, successorTaskId: e.target.value })}
+                      onChange={(e) => setEditField({ ...editField, successorTaskId: e.target.value })}
                     />
                   </Form.Group>
                 )}
@@ -582,6 +629,9 @@ const App: React.FC = () => {
             </Button>
           </Modal.Footer>
         </Modal>
+
+
+
         <div className="mt-4">
           <h3>Saved Tasks</h3>
 
@@ -600,6 +650,7 @@ const App: React.FC = () => {
                     variant="danger"
                     size="sm"
                     onClick={() => handleDeleteTask(taskIndex)}
+                    className=''
                   >
                     Delete Task
                   </Button>

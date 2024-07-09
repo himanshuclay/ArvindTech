@@ -323,6 +323,18 @@ const MENU_ITEMS: MenuItemType[] = [
 				parentKey: 'pages',
 			},
 			{
+				key: 'Projects',
+				label: 'Projects',
+				url: '/pages/Projects',
+				parentKey: 'pages',
+			},
+			{
+				key: 'Roles',
+				label: 'Roles master',
+				url: '/pages/Roles',
+				parentKey: 'pages',
+			},
+			{
 				key: 'Modules-List',
 				label: 'Modules List',
 				url: '/pages/Module-list',

@@ -14,6 +14,10 @@ const NotificationsPage: React.FC = () => {
   const [notifications, setNotifications] = useState<Notification[]>([
     { id: 1, subject: 'Notification 1', message: 'This is notification 1', date: '2024-07-01', isRead: false },
     { id: 2, subject: 'Notification 2', message: 'This is notification 2', date: '2024-07-02', isRead: false },
+    { id: 3, subject: 'Notification 1', message: 'This is notification 1', date: '2024-07-01', isRead: false },
+    { id: 4, subject: 'Notification 2', message: 'This is notification 2', date: '2024-07-02', isRead: false },
+    { id: 5, subject: 'Notification 1', message: 'This is notification 1', date: '2024-07-01', isRead: false },
+    { id: 6, subject: 'Notification 2', message: 'This is notification 2', date: '2024-07-02', isRead: false },
     // Add more notifications as needed
   ]);
 

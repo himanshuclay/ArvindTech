@@ -27,6 +27,9 @@ const TemplateMaster = React.lazy(() => import('../pages/other/Modules-Master.ts
 const Notification = React.lazy(() => import('../pages/other/Notification.tsx'))
 const ModuleList = React.lazy(() => import('../pages/other/Module-list.tsx'))
 const EmployeeMaster = React.lazy(() => import('../pages/other/Employee-Master.tsx'))
+const MessMaster = React.lazy(() => import('../pages/other/MessMaster.tsx'))
+const Projects = React.lazy(() => import('../pages/other/Projects.tsx'))
+const Roles = React.lazy(() => import('../pages/other/Roles.tsx'))
 const ContactListPages = React.lazy(() => import('../pages/other/ContactList'))
 const TimelinePages = React.lazy(() => import('../pages/other/Timeline'))
 
@@ -197,6 +200,24 @@ const customPagesRoutes = {
 			path: '/pages/Employee-Master',
 			name: 'Employee Master',
 			element: <EmployeeMaster />,
+			route: PrivateRoute,
+		},
+		{
+			path: '/pages/MessMaster',
+			name: 'Mess Master',
+			element: <MessMaster />,
+			route: PrivateRoute,
+		},
+		{
+			path: '/pages/Projects',
+			name: 'Projects',
+			element: <Projects />,
+			route: PrivateRoute,
+		},
+		{
+			path: '/pages/Roles',
+			name: 'Roles Master',
+			element: <Roles />,
 			route: PrivateRoute,
 		},
 		{
