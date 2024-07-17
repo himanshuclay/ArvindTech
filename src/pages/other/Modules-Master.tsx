@@ -21,6 +21,7 @@ type FormField = {
   plannedDate?: string;
   extendedDate?: string;
   successorTaskId?: string;
+  CustomSelect?: string;
 };
 
 const initialInventory: FormField[] = [
@@ -37,6 +38,7 @@ const initialInventory: FormField[] = [
   { id: '15', type: 'text', labeltext: 'Successor Task', placeholder: 'Enter successor task ID' },
   { id: '16', type: 'custom', labeltext: 'Custom Field', placeholder: 'Enter text' },
   { id: '16', type: 'paragraph', labeltext: 'Paragraph', placeholder: 'Enter text' },
+  { id: '17', type: 'CustomSelect', labeltext: 'CustomSelect', placeholder: 'Enter text' },
 ];
 
 type TransformedField = {
@@ -53,6 +55,7 @@ type TransformedField = {
   labelsubtask?: string;
   subtask?: string;
   paragraph?: string;
+  CustomSelect?: string;
 };
 
 
@@ -85,6 +88,9 @@ const transformTaskData = (tasks: FormField[][]): TransformedField[] => {
         case 'status':
           transformedFields.selection = field.status;
           break;
+        case 'CustomSelect':
+          transformedFields.CustomSelect = field.CustomSelect;
+          break;
         case 'successorTask':
           transformedFields.subtask = field.successorTaskId;
           break;
@@ -112,37 +118,12 @@ type APIError = {
   traceId: string;
 };
 
-const saveTasksToServer = async (tasks: FormField[][]) => {
-  const transformedData = transformTaskData(tasks);
-  console.log('Transformed Data:', JSON.stringify(transformedData, null, 2));
-
+const saveTasksToServer = (tasks: any[]) => {
   try {
-    const response = await fetch('https://n6enuz2bzvjizpqpmojfdy54hu0kanhl.lambda-url.ap-south-1.on.aws/api/Lead/createtask', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ tasks: transformedData }),
-    });
-
-    if (!response.ok) {
-      const errors: APIError = await response.json();
-      let errorMessage = `Error: ${errors.title}\n`;
-
-      if (errors.errors) {
-        for (const [key, value] of Object.entries(errors.errors)) {
-          errorMessage += `${key}: ${value.join(', ')}\n`;
-        }
-      }
-
-      alert(errorMessage);
-      throw new Error(errorMessage);
-    }
-
-    console.log('Payload being sent:', JSON.stringify({ tasks: transformedData }));
-    console.log('Tasks saved successfully');
+    localStorage.setItem('tasks', JSON.stringify(tasks));
+    console.log('Tasks saved to local storage successfully.');
   } catch (error) {
-    console.error('Error saving tasks:', error);
+    console.error('Error saving tasks to local storage:', error);
   }
 };
 
@@ -150,20 +131,25 @@ const saveTasksToServer = async (tasks: FormField[][]) => {
 
 
 
-const fetchTasksFromServer = async () => {
+
+
+const fetchTasksFromServer = (): any[] => {
   try {
-    const response = await fetch('https://n6enuz2bzvjizpqpmojfdy54hu0kanhl.lambda-url.ap-south-1.on.aws/api/Lead/gettask');
-    if (!response.ok) {
-      throw new Error('Failed to fetch tasks');
+    const tasks = JSON.parse(localStorage.getItem('tasks') || '[]');
+    if (tasks) {
+      console.log('Tasks fetched from local storage successfully.');
+      return tasks;
+    } else {
+      console.log('No tasks found in local storage.');
+      return [];
     }
-    const data = await response.json();
-    console.log('Full response data:', data);
-    return data.tasks || [];
   } catch (error) {
-    console.error('Error fetching tasks:', error);
+    console.error('Error fetching tasks from local storage:', error);
     return [];
   }
 };
+
+
 
 const App: React.FC = () => {
   const [inventory, setInventory] = useState<FormField[]>(initialInventory);
@@ -175,9 +161,9 @@ const App: React.FC = () => {
   const [selectedFieldIdx, setSelectedFieldIdx] = useState<number | null>(null);
   const [formData, setFormData] = useState({
     taskName: '',
-    taskOwnerName: '',
+    ModuleName: '',
     projectName: '',
-    problemSolver: '',
+    processes: '',
   });
 
   const handleFormChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -194,9 +180,9 @@ const App: React.FC = () => {
     // Save form data
     const newTaskFields: FormField[] = [
       { id: `${taskFields.length + 1}`, type: 'text', labeltext: `Task Name - ${formData.taskName}` },
-      { id: `${taskFields.length + 2}`, type: 'text', labeltext: `Task owner Name - ${formData.taskOwnerName}` },
+      { id: `${taskFields.length + 2}`, type: 'text', labeltext: `Module Name - ${formData.ModuleName}` },
       { id: `${taskFields.length + 3}`, type: 'text', labeltext: `Project Name - ${formData.projectName}` },
-      { id: `${taskFields.length + 4}`, type: 'text', labeltext: `Problem Solver - ${formData.problemSolver}` },
+      { id: `${taskFields.length + 4}`, type: 'text', labeltext: `Select Process - ${formData.processes}` },
     ];
 
 
@@ -214,6 +200,7 @@ const App: React.FC = () => {
 
     loadTasks();
   }, []);
+  
 
 
   const handleDragEnd = (result: DropResult) => {
@@ -281,7 +268,8 @@ const App: React.FC = () => {
     setSavedTasks(updatedTasks);
   };
 
-  
+
+
 
   const handleEditField = (field: FormField, taskIndex: number, fieldIndex: number) => {
     setEditField(field);
@@ -363,6 +351,24 @@ const App: React.FC = () => {
               <div>Custom Placeholder: {field.placeholder}</div>
             </>
           );
+        case 'CustomSelect':
+          return (
+            <>
+              {/* <div>{field.labeltext}</div> */}
+              {/* <div>Custom Placeholder: {field.placeholder}</div> */}
+              <div className='form-group'>
+                <div className='label mb-1'>Custom Select</div>
+                <select className='form-control' style={{ width: '200px' }} name="" id="">
+                  <option value="">Role Master</option>
+                  <option value="">Employee Master</option>
+                  <option value="">Project Master</option>
+                  <option value="">Mess Master</option>
+                  <option value="">Tender Master</option>
+                </select>
+              </div>
+            </>
+          );
+
         default:
           return null;
       }
@@ -393,6 +399,78 @@ const App: React.FC = () => {
       <div className="container mt-4">
         <div className="d-flex p-2 bg-white mt-2 mb-2">Create Task</div>
         <Form className='row mt-2 mb-3 p-2 bg-white rounded' onSubmit={handleFormSubmit}>
+        <Form.Group className='col-6 my-1'>
+            <Form.Label>Select Project</Form.Label>
+            <Form.Control
+              as="select"
+              name="projectName"
+              value={formData.projectName}
+              onChange={handleFormChange}
+              required
+            >
+              <option value="">Select Project</option>
+              {['Godhara Bridge(M.P)', 'Kaveri Side Road(U.P)', 'Nagina Dam(UK)', 'Credit and Debit balance resolution', 'Bill Processing at HO'].map((option, index) => (
+                <option key={index} value={option}>
+                  {option}
+                </option>
+              ))}
+            </Form.Control>
+          </Form.Group>
+          {/* <Form.Group className='col-6 my-1'>
+            <Form.Label>Task owner Name</Form.Label>
+            <Form.Control
+              type="text"
+              name="ModuleName"
+              value={formData.ModuleName}
+              onChange={handleFormChange}
+              required
+            />
+          </Form.Group> */}
+          <Form.Group className='col-6 my-1'>
+            <Form.Label>Select Module</Form.Label>
+            <Form.Control
+              as="select"
+              name="ModuleName"
+              value={formData.ModuleName}
+              onChange={handleFormChange}
+              required
+            >
+              <option value="">Select Modules</option>
+              {['Accounts', 'Procurement', 'Business Development', 'Mechanical', 'Mobilization'].map((option, index) => (
+                <option key={index} value={option}>
+                  {option}
+                </option>
+              ))}
+            </Form.Control>
+          </Form.Group>
+          {/* <Form.Group className='col-6 my-1'>
+            <Form.Label>Project Name</Form.Label>
+            <Form.Control
+              type="select"
+              name="projectName"
+              value={formData.projectName}
+              onChange={handleFormChange}
+              required
+            />
+          </Form.Group> */}
+
+          <Form.Group className='col-6 my-1'>
+            <Form.Label>Select Process</Form.Label>
+            <Form.Control
+              as="select"
+              name="processes"
+              value={formData.processes}
+              onChange={handleFormChange}
+              required
+            >
+              <option value="">Select Process</option>
+              {['Mess Weekly Payments', 'Mess Monthly Reconciliation', 'Monthly Budget FR [PNC]', 'Credit and Debit balance resolution', 'Bill Processing at HO'].map((option, index) => (
+                <option key={index} value={option}>
+                  {option}
+                </option>
+              ))}
+            </Form.Control>
+          </Form.Group>
           <Form.Group className='col-6 my-1'>
             <Form.Label>Task Name</Form.Label>
             <Form.Control
@@ -401,38 +479,10 @@ const App: React.FC = () => {
               value={formData.taskName}
               onChange={handleFormChange}
               required
+              placeholder='Enter Task Name'
             />
           </Form.Group>
-          <Form.Group className='col-6 my-1'>
-            <Form.Label>Task owner Name</Form.Label>
-            <Form.Control
-              type="text"
-              name="taskOwnerName"
-              value={formData.taskOwnerName}
-              onChange={handleFormChange}
-              required
-            />
-          </Form.Group>
-          <Form.Group className='col-6 my-1'>
-            <Form.Label>Project Name</Form.Label>
-            <Form.Control
-              type="text"
-              name="projectName"
-              value={formData.projectName}
-              onChange={handleFormChange}
-              required
-            />
-          </Form.Group>
-          <Form.Group className='col-6 my-1'>
-            <Form.Label>Select Process</Form.Label>
-            <Form.Control
-              type="text"
-              name="problemSolver"
-              value={formData.problemSolver}
-              onChange={handleFormChange}
-              required
-            />
-          </Form.Group>
+
           <div className="d-flex col-12 justify-content-end my-2">
             <Button variant="primary" type="submit">
               Add Task Details
@@ -523,6 +573,18 @@ const App: React.FC = () => {
                       value={editField.placeholder}
                       onChange={(e) => setEditField({ ...editField, placeholder: e.target.value })}
                     />
+                  </Form.Group>
+                )}
+                {editField.type === 'customSelect' && (
+                  <Form.Group key={editField.id}>
+                    <Form.Label>{editField.labeltext}</Form.Label>
+                    <Form.Control as="select">
+                      {editField.options?.map((option, idx) => (
+                        <option key={idx} value={option}>
+                          {option}
+                        </option>
+                      ))}
+                    </Form.Control>
                   </Form.Group>
                 )}
                 {(editField.type === 'select' ||

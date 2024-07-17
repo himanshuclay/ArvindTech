@@ -42,6 +42,8 @@ const NotificationsPage: React.FC = () => {
     setNotifications(notifications.filter(n => n.id !== id));
   };
 
+  
+
   // Handler for deleting all notifications
   const handleDeleteAll = () => {
     setNotifications([]);

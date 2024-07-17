@@ -23,3 +23,25 @@
 .progress-xl {
     height: 15px;
 }
+
+/* HTML: <div class="loader"></div> */
+
+.loader-container
+{
+   display: flex;
+   justify-content: center;
+   align-items: center;
+   height: calc(100vh - 285px);
+   flex-direction: column;
+}
+
+.loader {
+    width: 50px;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    border: 8px solid lightblue;
+    border-right-color: rgb(23, 7, 92);
+    animation: l2 1s infinite linear;
+    height: 50px;
+  }
+  @keyframes l2 {to{transform: rotate(1turn)}}
