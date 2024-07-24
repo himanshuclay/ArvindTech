@@ -175,10 +175,9 @@ const BanksPage: React.FC = () => {
 
 
             {loading ? (
-                <div className="d-flex justify-content-center mt-5">
-                    <div className="spinner-border" role="status">
-                        <span className="sr-only">Loading...</span>
-                    </div>
+                <div className='loader-container'>
+                    <div className="loader"></div>
+                    <div className='mt-2'>Please Wait!</div>
                 </div>
             ) : (
                 <Table striped bordered hover responsive className="mb-0">

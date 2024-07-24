@@ -1,138 +1,175 @@
 import React, { useState, useEffect, ChangeEvent } from 'react';
 import { Button, Form, Offcanvas, Table, Pagination } from 'react-bootstrap';
+import axios from 'axios';
 
 interface MessMaster {
+    id: number;
     project_Id: number;
     messName: string;
     managerId: number;
-    status: number;
-    createdDate: string;
+    status: boolean;
     createdBy: string;
-    updatedDate: string;
     updatedBy: string;
 }
 
-const MessPage: React.FC = () => {
-    const [messData, setMessData] = useState<MessMaster>({
+const MessMasterPage: React.FC = () => {
+    const [messMaster, setMessMaster] = useState<MessMaster>({
+        id: 0,
         project_Id: 0,
         messName: '',
         managerId: 0,
-        status: 0,
-        createdDate: '',
+        status: true,
         createdBy: '',
-        updatedDate: '',
         updatedBy: ''
     });
 
-    const [messList, setMessList] = useState<MessMaster[]>([]);
+    const [messMasterList, setMessMasterList] = useState<MessMaster[]>([]);
     const [show, setShow] = useState(false);
     const [editingIndex, setEditingIndex] = useState<number | null>(null);
     const [searchQuery, setSearchQuery] = useState('');
-    const [currentPage, setCurrentPage] = useState(1);
-    const [rowsPerPage, setRowsPerPage] = useState(5);
+    const [currentPage, setCurrentPage] = useState<number>(1);
+    const [rowsPerPage, setRowsPerPage] = useState(10);
+    const [loading, setLoading] = useState<boolean>(false);
 
     useEffect(() => {
-        const storedMessList = localStorage.getItem('messList');
-        if (storedMessList) {
-            setMessList(JSON.parse(storedMessList));
+        fetchMessMaster();
+    }, [currentPage]);
+
+    const fetchMessMaster = async () => {
+        setLoading(true);
+        try {
+            const params = new URLSearchParams({ PageIndex: currentPage.toString() });
+            const url = `https://localhost:44344/api/MessMaster/GetMess?${params.toString()}`;
+
+            const response = await axios.get(url, {
+                headers: {
+                    'accept': '*/*'
+                }
+            });
+
+            if (response && response.status === 200 && response.data.isSuccess) {
+                setMessMasterList(response.data.messMasterList);
+            } else {
+                console.error('Failed to fetch mess master list: Invalid response status');
+            }
+        } catch (error) {
+            console.error('An error occurred while fetching the mess master list:', error);
+            if (error.response) {
+                console.error('Error response data:', error.response.data);
+                console.error('Error response status:', error.response.status);
+                console.error('Error response headers:', error.response.headers);
+            }
+        } finally {
+            setLoading(false);
         }
-    }, []);
-
-    useEffect(() => {
-        localStorage.setItem('messList', JSON.stringify(messList));
-    }, [messList]);
+    };
 
     const handleShow = () => setShow(true);
 
     const handleChange = (e: ChangeEvent<HTMLInputElement> | ChangeEvent<HTMLSelectElement>) => {
-        const { name, value } = e.target as HTMLInputElement | HTMLSelectElement;
-        setMessData({
-            ...messData,
-            [name]: value
-        });
+        const { name, value, type, checked } = e.target as HTMLInputElement | HTMLSelectElement;
+        if (type === 'checkbox') {
+            setMessMaster({
+                ...messMaster,
+                [name]: checked
+            });
+        } else {
+            setMessMaster({
+                ...messMaster,
+                [name]: value
+            });
+        }
     };
 
-    const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        if (editingIndex !== null) {
-            const updatedMessList = [...messList];
-            updatedMessList[editingIndex] = messData;
-            setMessList(updatedMessList);
-        } else {
-            setMessList([...messList, { ...messData, project_Id: messList.length + 1 }]);
+
+        const payload = { ...messMaster, updatedBy: messMaster.createdBy };
+
+        try {
+            const response = await axios.post('https://localhost:44344/api/MessMaster/InsertMess', payload, {
+                headers: {
+                    'accept': '*/*',
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (response.status === 200 || response.status === 201) {
+                const newMessMaster = response.data;
+
+                if (editingIndex !== null) {
+                    const updatedMessMasterList = [...messMasterList];
+                    updatedMessMasterList[editingIndex] = newMessMaster;
+                    setMessMasterList(updatedMessMasterList);
+                } else {
+                    setMessMasterList([...messMasterList, { ...newMessMaster, id: messMasterList.length + 1 }]);
+                }
+                handleClose();
+            } else {
+                console.error('Failed to submit mess master');
+            }
+        } catch (error) {
+            if (axios.isAxiosError(error) && error.response) {
+                console.error('An error occurred while submitting the mess master:', error.response.data);
+            } else {
+                console.error('An error occurred while submitting the mess master:', error);
+            }
         }
-        setMessData({
-            project_Id: 0,
-            messName: '',
-            managerId: 0,
-            status: 0,
-            createdDate: '',
-            createdBy: '',
-            updatedDate: '',
-            updatedBy: ''
-        });
-        handleClose();
     };
 
     const handleEdit = (index: number) => {
         setEditingIndex(index);
-        setMessData(messList[index]);
+        setMessMaster(messMasterList[index]);
         handleShow();
     };
 
     const handleClose = () => {
         setShow(false);
         setEditingIndex(null);
-        setMessData({
+        setMessMaster({
+            id: 0,
             project_Id: 0,
             messName: '',
             managerId: 0,
-            status: 0,
-            createdDate: '',
+            status: true,
             createdBy: '',
-            updatedDate: '',
             updatedBy: ''
         });
     };
 
     const handleSearch = (e: ChangeEvent<HTMLInputElement>) => {
         setSearchQuery(e.target.value);
-        setCurrentPage(1); // Reset to first page on search
+        setCurrentPage(1);
     };
 
     const handleRowsPerPageChange = (e: ChangeEvent<HTMLSelectElement>) => {
         setRowsPerPage(Number(e.target.value));
-        setCurrentPage(1); // Reset to first page on rows per page change
+        setCurrentPage(1);
     };
 
-    const filteredMessList = messList.filter(mess =>
-        mess.messName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        mess.managerId.toString().includes(searchQuery) ||
-        mess.status.toString().includes(searchQuery) ||
-        mess.createdDate.toLowerCase().includes(searchQuery) ||
-        mess.createdBy.toLowerCase().includes(searchQuery) ||
-        mess.updatedDate.toLowerCase().includes(searchQuery) ||
-        mess.updatedBy.toLowerCase().includes(searchQuery)
+    const filteredMessMasters = messMasterList.filter(messMaster =>
+        (messMaster.messName || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (messMaster.project_Id !== null && messMaster.project_Id !== undefined && messMaster.project_Id.toString().includes(searchQuery)) ||
+        (messMaster.managerId !== null && messMaster.managerId !== undefined && messMaster.managerId.toString().includes(searchQuery)) ||
+        (messMaster.status !== null && messMaster.status !== undefined && messMaster.status.toString().includes(searchQuery)) ||
+        (messMaster.createdBy || '').toLowerCase().includes(searchQuery.toLowerCase())
     );
 
-    const indexOfLastMess = currentPage * rowsPerPage;
-    const indexOfFirstMess = indexOfLastMess - rowsPerPage;
-    const currentMessList = filteredMessList.slice(indexOfFirstMess, indexOfLastMess);
+    const indexOfLastMessMaster = currentPage * rowsPerPage;
+    const indexOfFirstMessMaster = indexOfLastMessMaster - rowsPerPage;
+    const currentMessMasters = filteredMessMasters.slice(indexOfFirstMessMaster, indexOfLastMessMaster);
 
-    const totalPages = Math.ceil(filteredMessList.length / rowsPerPage);
+    const totalPages = Math.ceil(filteredMessMasters.length / rowsPerPage);
 
     const convertToCSV = (data: MessMaster[]) => {
         const csvRows = [
-            ['Project Id', 'Mess Name', 'Manager Id', 'Status', 'Created Date', 'Created By', 'Updated Date', 'Updated By'],
+            ['Mess Name', 'Project ID', 'Manager ID', 'Status', 'Created By'],
             ...data.map(mess => [
-                mess.project_Id.toString(),
                 mess.messName,
+                mess.project_Id.toString(),
                 mess.managerId.toString(),
                 mess.status.toString(),
-                mess.createdDate,
-                mess.createdBy,
-                mess.updatedDate,
-                mess.updatedBy
+                mess.createdBy
             ])
         ];
 
@@ -140,12 +177,12 @@ const MessPage: React.FC = () => {
     };
 
     const downloadCSV = () => {
-        const csvData = convertToCSV(messList);
+        const csvData = convertToCSV(messMasterList);
         const blob = new Blob([csvData], { type: 'text/csv' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = 'messList.csv';
+        a.download = 'mess_masters.csv';
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
@@ -154,15 +191,16 @@ const MessPage: React.FC = () => {
     return (
         <div className="container">
             <div className="d-flex bg-white p-2 my-2 justify-content-between align-items-center">
-                <span><i className="ri-projector-line me-2"></i><span className='fw-bold'>Mess List</span></span>
+                <span><i className="ri-projector-line me-2"></i><span className='fw-bold'>Mess Master List</span></span>
                 <div className="d-flex">
                     <div className="app-search d-none d-lg-block me-4">
                         <form>
+                           
                             <div className="input-group">
                                 <input
                                     type="search"
                                     className="form-control"
-                                    placeholder="Search mess..."
+                                    placeholder="Search Bank..."
                                     value={searchQuery}
                                     onChange={handleSearch}
                                 />
@@ -170,140 +208,140 @@ const MessPage: React.FC = () => {
                             </div>
                         </form>
                     </div>
-                    <Button variant="primary" onClick={handleShow} className="me-2">
-                        Add Mess
-                    </Button>
-                    <Button variant="secondary" onClick={downloadCSV}>
-                        Download CSV
-                    </Button>
+                    <Button variant="primary" onClick={handleShow}><i className="ri-add-line"></i> Add Mess </Button>
+                    <Button variant="secondary" className="ms-2" onClick={downloadCSV}><i className="ri-download-line"></i> Export CSV</Button>
                 </div>
             </div>
+            {loading ? (
+                <div className='loader-container'>
+                    <div className="loader"></div>
+                    <div className='mt-2'>Please Wait!</div>
+                </div>
+            ) : (
+                <Table striped bordered hover responsive className="mb-0">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Mess Name</th>
+                            <th>Project ID</th>
+                            <th>Manager ID</th>
+                            <th>Status</th>
+                            <th>Created By</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {currentMessMasters.map((mess, index) => (
+                            <tr key={index}>
+                                <td>{index + 1 + (currentPage - 1) * rowsPerPage}</td>
+                                <td>{mess.messName}</td>
+                                <td>{mess.project_Id}</td>
+                                <td>{mess.managerId}</td>
+                                <td>{mess.status ? 'Active' : 'Inactive'}</td>
+                                <td>{mess.createdBy}</td>
+                                <td>
+                                    <Button variant="warning" size="sm" className="me-2" onClick={() => handleEdit(index)}>
+                                        <i className="ri-edit-line"></i>
+                                    </Button>
+                                </td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </Table>
+            )}
+            <div className="d-flex justify-content-between align-items-center mt-2">
+                <Pagination>
+                    <Pagination.First onClick={() => setCurrentPage(1)} disabled={currentPage === 1} />
+                    <Pagination.Prev onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))} disabled={currentPage === 1} />
+                    {Array.from({ length: totalPages }, (_, i) => i + 1).map(pageNumber => (
+                        <Pagination.Item key={pageNumber} active={pageNumber === currentPage} onClick={() => setCurrentPage(pageNumber)}>
+                            {pageNumber}
+                        </Pagination.Item>
+                    ))}
+                    <Pagination.Next onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))} disabled={currentPage === totalPages} />
+                    <Pagination.Last onClick={() => setCurrentPage(totalPages)} disabled={currentPage === totalPages} />
+                </Pagination>
+                <Form.Group controlId="rowsPerPageSelect" className="d-flex align-items-center">
+                    <Form.Label className="me-2 mb-0">Rows per page:</Form.Label>
+                    <Form.Control as="select" value={rowsPerPage} onChange={handleRowsPerPageChange}>
+                        <option value="5">5</option>
+                        <option value="10">10</option>
+                        <option value="15">15</option>
+                        <option value="20">20</option>
+                    </Form.Control>
+                </Form.Group>
+            </div>
 
-            <Offcanvas show={show} onHide={handleClose} >
+            <Offcanvas show={show} onHide={handleClose} placement="end">
                 <Offcanvas.Header closeButton>
-                    <Offcanvas.Title>Mess Form</Offcanvas.Title>
+                    <Offcanvas.Title>{editingIndex !== null ? 'Edit Mess Master' : 'Add Mess Master'}</Offcanvas.Title>
                 </Offcanvas.Header>
                 <Offcanvas.Body>
                     <Form onSubmit={handleSubmit}>
-                        <Form.Group controlId="messName" className="mb-3">
-                            <Form.Label>Mess Name:</Form.Label>
+                        <Form.Group className="mb-3">
+                            <Form.Label>Mess Name</Form.Label>
                             <Form.Control
                                 type="text"
+                                placeholder="Enter Mess Name"
                                 name="messName"
-                                value={messData.messName}
+                                value={messMaster.messName}
                                 onChange={handleChange}
+                                required
                             />
                         </Form.Group>
-                        <Form.Group controlId="managerId" className="mb-3">
-                            <Form.Label>Manager Id:</Form.Label>
+                        <Form.Group className="mb-3">
+                            <Form.Label>Project ID</Form.Label>
                             <Form.Control
                                 type="number"
+                                placeholder="Enter Project ID"
+                                name="project_Id"
+                                value={messMaster.project_Id}
+                                onChange={handleChange}
+                                required
+                            />
+                        </Form.Group>
+                        <Form.Group className="mb-3">
+                            <Form.Label>Manager ID</Form.Label>
+                            <Form.Control
+                                type="number"
+                                placeholder="Enter Manager ID"
                                 name="managerId"
-                                value={messData.managerId}
+                                value={messMaster.managerId}
                                 onChange={handleChange}
+                                required
                             />
                         </Form.Group>
-                        <Form.Group controlId="status" className="mb-3">
-                            <Form.Label>Status:</Form.Label>
-                            <Form.Control
-                                type="number"
+                        <Form.Group className="mb-3">
+                            <Form.Check
+                                type="checkbox"
+                                label="Active"
                                 name="status"
-                                value={messData.status}
+                                checked={messMaster.status}
                                 onChange={handleChange}
                             />
                         </Form.Group>
-                        <Form.Group controlId="createdDate" className="mb-3">
-                            <Form.Label>Created Date:</Form.Label>
-                            <Form.Control
-                                type="date"
-                                name="createdDate"
-                                value={messData.createdDate}
-                                onChange={handleChange}
-                            />
-                        </Form.Group>
-                        <Form.Group controlId="createdBy" className="mb-3">
-                            <Form.Label>Created By:</Form.Label>
+                        <Form.Group className="mb-3">
+                            <Form.Label>Created By</Form.Label>
                             <Form.Control
                                 type="text"
+                                placeholder="Enter Creator's Name"
                                 name="createdBy"
-                                value={messData.createdBy}
+                                value={messMaster.createdBy}
                                 onChange={handleChange}
+                                required
                             />
                         </Form.Group>
-                        <Form.Group controlId="updatedDate" className="mb-3">
-                            <Form.Label>Updated Date:</Form.Label>
-                            <Form.Control
-                                type="date"
-                                name="updatedDate"
-                                value={messData.updatedDate}
-                                onChange={handleChange}
-                            />
-                        </Form.Group>
-                        <Form.Group controlId="updatedBy" className="mb-3">
-                            <Form.Label>Updated By:</Form.Label>
-                            <Form.Control
-                                type="text"
-                                name="updatedBy"
-                                value={messData.updatedBy}
-                                onChange={handleChange}
-                            />
-                        </Form.Group>
-                        <Button variant="primary" type="submit">
-                            Submit
+                        <Button variant="primary" type="submit" className="me-2">
+                            {editingIndex !== null ? 'Update Mess Master' : 'Add Mess Master'}
+                        </Button>
+                        <Button variant="secondary" onClick={handleClose}>
+                            Cancel
                         </Button>
                     </Form>
                 </Offcanvas.Body>
             </Offcanvas>
-            <div className="d-flex justify-content-between align-items-center my-2">
-                <div>
-                    <Form.Select value={rowsPerPage} onChange={handleRowsPerPageChange}>
-                        <option value={5}>5 rows</option>
-                        <option value={10}>10 rows</option>
-                        <option value={20}>20 rows</option>
-                    </Form.Select>
-                </div>
-                <Pagination>
-                    <Pagination.First onClick={() => setCurrentPage(1)} disabled={currentPage === 1} />
-                    <Pagination.Prev onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))} disabled={currentPage === 1} />
-                    <Pagination.Item active>{currentPage}</Pagination.Item>
-                    <Pagination.Next onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))} disabled={currentPage === totalPages} />
-                    <Pagination.Last onClick={() => setCurrentPage(totalPages)} disabled={currentPage === totalPages} />
-                </Pagination>
-            </div>
-            <Table className='bg-white' striped bordered hover>
-                <thead>
-                    <tr>
-                        <th>Project Id</th>
-                        <th>Mess Name</th>
-                        <th>Manager Id</th>
-                        <th>Status</th>
-                        <th>Created Date</th>
-                        <th>Created By</th>
-                        <th>Updated Date</th>
-                        <th>Updated By</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {currentMessList.map((mess, index) => (
-                        <tr key={index}>
-                            <td>{mess.project_Id}</td>
-                            <td>{mess.messName}</td>
-                            <td>{mess.managerId}</td>
-                            <td>{mess.status}</td>
-                            <td>{mess.createdDate}</td>
-                            <td>{mess.createdBy}</td>
-                            <td>{mess.updatedDate}</td>
-                            <td>{mess.updatedBy}</td>
-                            <td>
-                                <i className='btn ri-edit-line' onClick={() => handleEdit(index + indexOfFirstMess)}></i>
-                            </td>
-                        </tr>
-                    ))}
-                </tbody>
-            </Table>
         </div>
     );
 };
 
-export default MessPage;
+export default MessMasterPage;
