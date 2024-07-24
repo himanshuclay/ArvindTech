@@ -37,8 +37,8 @@ const initialInventory: FormField[] = [
   { id: '14', type: 'date', labeltext: 'Extended Date' },
   { id: '15', type: 'text', labeltext: 'Successor Task', placeholder: 'Enter successor task ID' },
   { id: '16', type: 'custom', labeltext: 'Custom Field', placeholder: 'Enter text' },
-  { id: '16', type: 'paragraph', labeltext: 'Paragraph', placeholder: 'Enter text' },
-  { id: '17', type: 'CustomSelect', labeltext: 'CustomSelect', placeholder: 'Enter text' },
+  { id: '16', type: 'paragraph', labeltext: 'Paragraph' },
+  { id: '17', type: 'CustomSelect', labeltext: 'CustomSelect', placeholder: 'Enter text', options: ['Option 1', 'Option 2'] },
 ];
 
 type TransformedField = {
@@ -157,6 +157,7 @@ const App: React.FC = () => {
   const [savedTasks, setSavedTasks] = useState<FormField[][]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editField, setEditField] = useState<FormField | null>(null);
+  const [subFields, setSubFields] = useState<{ [key: string]: boolean }>({});
   const [selectedTaskIdx, setSelectedTaskIdx] = useState<number | null>(null);
   const [selectedFieldIdx, setSelectedFieldIdx] = useState<number | null>(null);
   const [formData, setFormData] = useState({
@@ -165,6 +166,7 @@ const App: React.FC = () => {
     projectName: '',
     processes: '',
   });
+
 
   const handleFormChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -199,8 +201,23 @@ const App: React.FC = () => {
     };
 
     loadTasks();
+    const initialSubFields = initialInventory.reduce((acc, field) => {
+      acc[field.id] = true;
+      return acc;
+    }, {} as { [key: string]: boolean });
+    setSubFields(initialSubFields);
   }, []);
-  
+
+  const handleSubfieldChange = (id: string, index: number, checked: boolean) => {
+    setSubFields(prevState => ({
+      ...prevState,
+      [id]: {
+        ...prevState[id],
+        [index]: checked
+      }
+    }));
+  };
+
 
 
   const handleDragEnd = (result: DropResult) => {
@@ -305,10 +322,10 @@ const App: React.FC = () => {
       switch (field.type) {
         case 'text':
           return (
-            <>
+            <div className='col-6'>
               <div>{field.labeltext}</div>
               {/* <div>Placeholder: {field.placeholder}</div> */}
-            </>
+            </div>
           );
         case 'checkbox':
           return <div>{field.labeltext}</div>;
@@ -316,44 +333,44 @@ const App: React.FC = () => {
         case 'radio':
         case 'multiselect':
           return (
-            <>
+            <div className='col-6'>
               <div>{field.labeltext}</div>
               <div>Options: {field.options?.join(', ')}</div>
-            </>
+            </div>
           );
         case 'file':
-          return <div>{field.labeltext}</div>;
+          return <div className='col-6'>{field.labeltext}</div>;
         case 'status':
           return (
-            <>
+            <div className='col-6'>
               <div>{field.labeltext}</div>
               <div>Status: {field.status}</div>
-            </>
+            </div>
           );
         case 'date':
           return (
-            <>
+            <div className='col-6'>
               <div>{field.labeltext}</div>
               <div>Date: {field.actualDate || field.plannedDate || field.extendedDate}</div>
-            </>
+            </div>
           );
         case 'successorTask':
           return (
-            <>
+            <div className='col-6'>
               <div>{field.labeltext}</div>
               <div>Successor Task ID: {field.successorTaskId}</div>
-            </>
+            </div>
           );
         case 'custom':
           return (
-            <>
+            <div className='col-6'>
               <div>{field.labeltext}</div>
               <div>Custom Placeholder: {field.placeholder}</div>
-            </>
+            </div>
           );
         case 'CustomSelect':
           return (
-            <>
+            <div className='col-6'>
               {/* <div>{field.labeltext}</div> */}
               {/* <div>Custom Placeholder: {field.placeholder}</div> */}
               <div className='form-group'>
@@ -366,7 +383,7 @@ const App: React.FC = () => {
                   <option value="">Tender Master</option>
                 </select>
               </div>
-            </>
+            </div>
           );
 
         default:
@@ -375,20 +392,16 @@ const App: React.FC = () => {
     };
 
     return (
-      <ListGroup.Item key={field.id} className="d-flex justify-content-between align-items-center">
+      <ListGroup.Item key={field.id} className="row m-0 justify-content-between align-items-center">
         {renderFieldContent()}
-        <div>
-          <Button
-            variant="primary"
-            size="sm"
-            className="me-2"
+        <div className='col-sm-12 col-md-4'>
+          <i
+            className="me-2 ri-pencil-fill text-primary p-1 cursor-pointer fs-4"
             onClick={() => handleEditField(field, taskIndex, fieldIndex)}
           >
-            Edit
-          </Button>
-          <Button variant="danger" size="sm" onClick={() => handleDeleteField(taskIndex, fieldIndex)}>
-            Delete
-          </Button>
+          </i>
+          <i className='ri-delete-bin-fill text-danger p-1 cursor-pointer fs-4' onClick={() => handleDeleteField(taskIndex, fieldIndex)}>
+          </i>
         </div>
       </ListGroup.Item>
     );
@@ -398,114 +411,96 @@ const App: React.FC = () => {
     <div className="App">
       <div className="container mt-4">
         <div className="d-flex p-2 bg-white mt-2 mb-2">Create Task</div>
-        <Form className='row mt-2 mb-3 p-2 bg-white rounded' onSubmit={handleFormSubmit}>
-        <Form.Group className='col-6 my-1'>
-            <Form.Label>Select Project</Form.Label>
-            <Form.Control
-              as="select"
-              name="projectName"
-              value={formData.projectName}
-              onChange={handleFormChange}
-              required
-            >
-              <option value="">Select Project</option>
-              {['Godhara Bridge(M.P)', 'Kaveri Side Road(U.P)', 'Nagina Dam(UK)', 'Credit and Debit balance resolution', 'Bill Processing at HO'].map((option, index) => (
-                <option key={index} value={option}>
-                  {option}
-                </option>
-              ))}
-            </Form.Control>
-          </Form.Group>
-          {/* <Form.Group className='col-6 my-1'>
-            <Form.Label>Task owner Name</Form.Label>
-            <Form.Control
-              type="text"
-              name="ModuleName"
-              value={formData.ModuleName}
-              onChange={handleFormChange}
-              required
-            />
-          </Form.Group> */}
-          <Form.Group className='col-6 my-1'>
-            <Form.Label>Select Module</Form.Label>
-            <Form.Control
-              as="select"
-              name="ModuleName"
-              value={formData.ModuleName}
-              onChange={handleFormChange}
-              required
-            >
-              <option value="">Select Modules</option>
-              {['Accounts', 'Procurement', 'Business Development', 'Mechanical', 'Mobilization'].map((option, index) => (
-                <option key={index} value={option}>
-                  {option}
-                </option>
-              ))}
-            </Form.Control>
-          </Form.Group>
-          {/* <Form.Group className='col-6 my-1'>
-            <Form.Label>Project Name</Form.Label>
-            <Form.Control
-              type="select"
-              name="projectName"
-              value={formData.projectName}
-              onChange={handleFormChange}
-              required
-            />
-          </Form.Group> */}
 
-          <Form.Group className='col-6 my-1'>
-            <Form.Label>Select Process</Form.Label>
-            <Form.Control
-              as="select"
-              name="processes"
-              value={formData.processes}
-              onChange={handleFormChange}
-              required
-            >
-              <option value="">Select Process</option>
-              {['Mess Weekly Payments', 'Mess Monthly Reconciliation', 'Monthly Budget FR [PNC]', 'Credit and Debit balance resolution', 'Bill Processing at HO'].map((option, index) => (
-                <option key={index} value={option}>
-                  {option}
-                </option>
-              ))}
-            </Form.Control>
-          </Form.Group>
-          <Form.Group className='col-6 my-1'>
-            <Form.Label>Task Name</Form.Label>
-            <Form.Control
-              type="text"
-              name="taskName"
-              value={formData.taskName}
-              onChange={handleFormChange}
-              required
-              placeholder='Enter Task Name'
-            />
-          </Form.Group>
-
-          <div className="d-flex col-12 justify-content-end my-2">
-            <Button variant="primary" type="submit">
-              Add Task Details
-            </Button>
-          </div>
-        </Form>
 
         <DragDropContext onDragEnd={handleDragEnd}>
-          <div className="row">
-            <div className="col-md-6 p-2">
+          <div className='row m-0'>
+            <Form className='row col-md-12 p-2 bg-white rounded align-items-end m-0' onSubmit={handleFormSubmit}>
+              {/* <Form.Group className='col-4 my-1'>
+                <Form.Label>Select Project</Form.Label>
+                <Form.Control
+                  as="select"
+                  name="projectName"
+                  value={formData.projectName}
+                  onChange={handleFormChange}
+                  required
+                >
+                  <option value="">Select Project</option>
+                  {['Godhara Bridge(M.P)', 'Kaveri Side Road(U.P)', 'Nagina Dam(UK)', 'Credit and Debit balance resolution', 'Bill Processing at HO'].map((option, index) => (
+                    <option key={index} value={option}>
+                      {option}
+                    </option>
+                  ))}
+                </Form.Control>
+              </Form.Group> */}
+              <Form.Group className='col-md-3 my-1'>
+                <Form.Label>Select Module</Form.Label>
+                <Form.Control
+                  as="select"
+                  name="ModuleName"
+                  value={formData.ModuleName}
+                  onChange={handleFormChange}
+                  required
+                >
+                  <option value="">Select Modules</option>
+                  {['Accounts', 'Procurement', 'Business Development', 'Mechanical', 'Mobilization'].map((option, index) => (
+                    <option key={index} value={option}>
+                      {option}
+                    </option>
+                  ))}
+                </Form.Control>
+              </Form.Group>
+              <Form.Group className='col-md-3 my-1'>
+                <Form.Label>Select Process</Form.Label>
+                <Form.Control
+                  as="select"
+                  name="processes"
+                  value={formData.processes}
+                  onChange={handleFormChange}
+                  required
+                >
+                  <option value="">Select Process</option>
+                  {['Mess Weekly Payments', 'Mess Monthly Reconciliation', 'Monthly Budget FR [PNC]', 'Credit and Debit balance resolution', 'Bill Processing at HO'].map((option, index) => (
+                    <option key={index} value={option}>
+                      {option}
+                    </option>
+                  ))}
+                </Form.Control>
+              </Form.Group>
+              <Form.Group className='col-md-3 my-1'>
+                <Form.Label>Task Name</Form.Label>
+                <Form.Control
+                  type="text"
+                  name="taskName"
+                  value={formData.taskName}
+                  onChange={handleFormChange}
+                  required
+                  placeholder='Enter Task Name'
+                />
+              </Form.Group>
+
+              <div className="d-flex col-md-3 justify-content-end">
+                <Button variant="primary" type="submit" style={{
+                  height: 'max-content'
+                }}>
+                  Add Task Details
+                </Button>
+              </div>
+            </Form>
+            <div className="col-md-12 p-2 bg-white my-1">
               <h4>Available Fields</h4>
               <Droppable droppableId="inventory">
                 {(provided: DroppableProvided) => (
-                  <div ref={provided.innerRef} {...provided.droppableProps} className="row mb-4">
+                  <div ref={provided.innerRef} {...provided.droppableProps} className="row">
                     {inventory.map((field, index) => (
                       <Draggable key={field.id} draggableId={field.id} index={index}>
                         {(provided: DraggableProvided) => (
-                          <div className='col-6'>
+                          <div className='' style={{ width: 'max-content' }}>
                             <div
                               ref={provided.innerRef}
                               {...provided.draggableProps}
                               {...provided.dragHandleProps}
-                              className="card p-2 m-1"
+                              className="card my-1 drag-field"
                             >
                               {field.labeltext}
                             </div>
@@ -518,11 +513,13 @@ const App: React.FC = () => {
                 )}
               </Droppable>
             </div>
-            <div className="col-md-6 bg-white p-2 rounded">
+          </div>
+          <div className="row bg-white p-2 rounded m-0">
+            <div className='col-12'>
               <h4>Build Your Task</h4>
               <Droppable droppableId="taskFields">
                 {(provided: DroppableProvided) => (
-                  <div ref={provided.innerRef} {...provided.droppableProps} className="list-group h-100">
+                  <div ref={provided.innerRef} {...provided.droppableProps} className="list-group row flex-row m-0">
                     {taskFields.map((field, index) => (
                       <Draggable key={field.id} draggableId={field.id} index={index}>
                         {(provided: DraggableProvided) => (
@@ -530,7 +527,8 @@ const App: React.FC = () => {
                             ref={provided.innerRef}
                             {...provided.draggableProps}
                             {...provided.dragHandleProps}
-                            className="list-group-item"
+                            className="list-group-item col-md-6 col-sm-12 border-none my-1 p-1"
+                            style={{ border: '1px' }}
                           >
                             {renderField(field, -1, index)}
                           </div>
@@ -539,9 +537,27 @@ const App: React.FC = () => {
                     ))}
                     {provided.placeholder}
                   </div>
+
                 )}
               </Droppable>
             </div>
+            <Form.Group className='col-6 my-1'>
+              <Form.Label>Set Finish Point</Form.Label>
+              <Form.Control
+                as="select"
+                name="processes"
+                value={formData.processes}
+                onChange={handleFormChange}
+                required
+              >
+                <option value="">Select Field</option>
+                {taskFields.map((field, index) => (
+                  <option key={index} value={field.labeltext}>
+                    {field.labeltext}
+                  </option>
+                ))}
+              </Form.Control>
+            </Form.Group>
           </div>
         </DragDropContext>
         <div className="d-flex justify-content-end p-2 col-12">
@@ -575,29 +591,38 @@ const App: React.FC = () => {
                     />
                   </Form.Group>
                 )}
-                {editField.type === 'customSelect' && (
+                {editField.type === 'CustomSelect' && (
                   <Form.Group key={editField.id}>
                     <Form.Label>{editField.labeltext}</Form.Label>
-                    <Form.Control as="select">
+                    {/* <Form.Control as="select">
                       {editField.options?.map((option, idx) => (
                         <option key={idx} value={option}>
                           {option}
                         </option>
                       ))}
-                    </Form.Control>
+                    </Form.Control> */}
+                    <select className='form-control' style={{ width: '200px' }} name="" id="">
+                      <option value="">Accounts_Officer</option>
+                      <option value="">Accounts_Officer[HO]</option>
+                      <option value="">Financial_Advisor[HO]</option>
+                      <option value="">Computer_Operator[HO]</option>
+                      <option value="">Cashier[HO]</option>
+                    </select>
+
                   </Form.Group>
                 )}
-                {(editField.type === 'select' ||
-                  editField.type === 'multiselect') && (
-                    <Form.Group>
-                      <Form.Label>Options</Form.Label>
-                      {editField.options?.map((option, index) => (
-                        <div key={index} className="d-flex mb-2">
+                {(editField.type === 'select' || editField.type === 'multiselect') && (
+                  <Form.Group>
+                    <Form.Label className='mt-2'>Options</Form.Label>
+                    {editField.options?.map((option, index) => (
+                      <div key={index} className="d-flex mb-2 row align-items-center">
+                        <div className='col-12 d-flex'>
                           <Form.Control
                             type="text"
+                            className='form-checkbox-success form-check'
                             value={option}
                             onChange={(e) => {
-                              const newOptions = [...editField.options!];
+                              const newOptions = [...editField.options];
                               newOptions[index] = e.target.value;
                               setEditField({ ...editField, options: newOptions });
                             }}
@@ -613,17 +638,52 @@ const App: React.FC = () => {
                           >
                             Delete
                           </Button>
+                          <div className='form-check form-switch ms-2 d-flex align-items-center'>
+                            <input
+                              type="checkbox"
+                              className='form-check-input me-1'
+                              checked={subFields[editField.id]?.[index] || false}
+                              onChange={(e) => {
+                                handleSubfieldChange(editField.id, index, e.target.checked);
+                              }}
+                            />
+                            <label className='form-check-label'>
+                            </label>
+                            Add
+                          </div>
                         </div>
-                      ))}
-                      <Button
-                        variant="primary"
-                        size="sm"
-                        onClick={() => setEditField({ ...editField, options: [...(editField.options || []), ''] })}
-                      >
-                        Add Option
-                      </Button>
-                    </Form.Group>
-                  )}
+                        {subFields[editField.id]?.[index] && (
+                          <div className='col-12 row m-0'>
+                            <Form.Group className='col-6 my-2'>
+                              <Form.Label>Label Text</Form.Label>
+                              <Form.Control
+                                type="text"
+                              // value={editField.labeltext}
+                              // onChange={(e) => setEditField({ ...editField, labeltext: e.target.value })}
+                              />
+                            </Form.Group>
+                            <Form.Group className='col-6 my-2'>
+                              <Form.Label>Placeholder</Form.Label>
+                              <Form.Control
+                                type="text"
+                              // value={editField.placeholder}
+                              // onChange={(e) => setEditField({ ...editField, placeholder: e.target.value })}
+                              />
+                            </Form.Group>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                    <Button
+                      variant="primary"
+                      size="sm"
+                      onClick={() => setEditField({ ...editField, options: [...(editField.options || []), ''] })}
+                    >
+                      Add Option
+                    </Button>
+                  </Form.Group>
+                )}
+
                 {editField.type === 'radio' && (
                   <Form.Group>
                     <Form.Label>Options</Form.Label>
@@ -694,12 +754,11 @@ const App: React.FC = () => {
 
 
 
-        <div className="mt-4">
+        <div className="mt-4 row m-0">
           <h3>Saved Tasks</h3>
-
           {savedTasks.map((task, taskIndex) => (
-            <div className='col-6'>
-              <Card key={taskIndex} className="mb-4">
+            <div className='col-md-6 col-sm-12'>
+              <Card key={taskIndex} className="mb-4 row m-1">
                 <Card.Header>
                   <div className="d-flex justify-content-between align-items-center">
                   </div>
@@ -728,3 +787,4 @@ const App: React.FC = () => {
 };
 
 export default App;
+

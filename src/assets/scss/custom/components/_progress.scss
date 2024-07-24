@@ -45,3 +45,22 @@
     height: 50px;
   }
   @keyframes l2 {to{transform: rotate(1turn)}}
+
+  .drag-field
+  {
+    font-size: 12px;
+    padding: 8px;
+    color: rgb(70, 70, 70);
+    transition: 400ms ease-in-out;
+    cursor: pointer;
+    border-left: 2px solid rgb(255, 255, 255);
+    font-family: poppins;
+    font-weight: 600;
+  }
+
+  .drag-field:hover
+  {
+    box-shadow: rgba(50, 50, 93, 0.25) 0px 13px 27px -5px, rgba(0, 0, 0, 0.3) 0px 8px 16px -8px;
+    color: rgb(23, 7, 92);
+    border-left: 2px solid rgb(23, 7, 92);
+  }
