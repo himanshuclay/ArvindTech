@@ -64,3 +64,50 @@
     color: rgb(23, 7, 92);
     border-left: 2px solid rgb(23, 7, 92);
   }
+  .custom-shadow
+  {
+      box-shadow: rgba(0, 0, 0, 0.15) 0px 2px 8px;
+      border: none!important;
+  }
+  
+  .timeliner 
+  {
+    padding-left: 10px!important;
+    border-left: 1px dotted rgb(23, 7, 92)!important;
+    border-radius: 0px!important;
+    position: relative;
+  }
+
+  .top-round
+  {
+    position: absolute;
+    width: 10px;
+    height: 5px;
+    border-bottom-left-radius: 5px;
+    border-bottom-right-radius: 5px;
+    background-color: rgb(23, 7, 92);
+    top: -7px;
+    left: -5px
+  }
+
+  .bottom-round
+  {
+    position: absolute;
+    width: 10px;
+    height: 5px;
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
+    background-color: rgb(23, 7, 92);
+    bottom: -5px;
+    left: -5px
+  }
+
+  .list-group .timeliner:first-child .top-round
+  {
+    display: none;
+  }
+
+  .list-group .timeliner:last-child .bottom-round
+  {
+    display: none;
+  }

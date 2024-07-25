@@ -392,9 +392,9 @@ const App: React.FC = () => {
     };
 
     return (
-      <ListGroup.Item key={field.id} className="row m-0 justify-content-between align-items-center">
+      <ListGroup.Item key={field.id} className="row m-0 justify-content-between align-items-center d-flex custom-shadow" style={{width: 'max-content'}}>
         {renderFieldContent()}
-        <div className='col-sm-12 col-md-4'>
+        <div className='col-sm-12 col-md-4 justify-content-end d-flex'>
           <i
             className="me-2 ri-pencil-fill text-primary p-1 cursor-pointer fs-4"
             onClick={() => handleEditField(field, taskIndex, fieldIndex)}
@@ -519,7 +519,7 @@ const App: React.FC = () => {
               <h4>Build Your Task</h4>
               <Droppable droppableId="taskFields">
                 {(provided: DroppableProvided) => (
-                  <div ref={provided.innerRef} {...provided.droppableProps} className="list-group row flex-row m-0">
+                  <div ref={provided.innerRef} {...provided.droppableProps} className="list-group  m-0">
                     {taskFields.map((field, index) => (
                       <Draggable key={field.id} draggableId={field.id} index={index}>
                         {(provided: DraggableProvided) => (
@@ -527,10 +527,12 @@ const App: React.FC = () => {
                             ref={provided.innerRef}
                             {...provided.draggableProps}
                             {...provided.dragHandleProps}
-                            className="list-group-item col-md-6 col-sm-12 border-none my-1 p-1"
+                            className="list-group-item col-md-6 col-sm-12 border-none my-1 p-1 timeliner"
                             style={{ border: '1px' }}
                           >
                             {renderField(field, -1, index)}
+                            <div className='top-round'></div>
+                            <div className='bottom-round'></div>
                           </div>
                         )}
                       </Draggable>
@@ -608,7 +610,6 @@ const App: React.FC = () => {
                       <option value="">Computer_Operator[HO]</option>
                       <option value="">Cashier[HO]</option>
                     </select>
-
                   </Form.Group>
                 )}
                 {(editField.type === 'select' || editField.type === 'multiselect') && (
