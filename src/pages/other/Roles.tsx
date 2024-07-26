@@ -266,6 +266,8 @@ const ModuleMaster: React.FC = () => {
                     <Pagination.Last onClick={() => setCurrentPage(totalPages)} disabled={currentPage === totalPages} />
                 </Pagination>
             </div>
+             
+
             <Table className='bg-white' striped bordered hover>
                 <thead>
                     <tr>

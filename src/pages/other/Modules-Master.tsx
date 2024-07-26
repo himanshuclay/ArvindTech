@@ -9,6 +9,7 @@ import {
 } from 'react-beautiful-dnd';
 import { Button, Form, Modal, ListGroup, Card } from 'react-bootstrap';
 import axios from 'axios';
+import { Console } from 'console';
 
 type FormField = {
   id: string;
@@ -151,6 +152,10 @@ const fetchTasksFromServer = (): any[] => {
   }
 };
 
+interface EmployeeName {
+  employeeName: string;
+}
+
 
 
 const App: React.FC = () => {
@@ -162,12 +167,36 @@ const App: React.FC = () => {
   const [subFields, setSubFields] = useState<{ [key: string]: boolean }>({});
   const [selectedTaskIdx, setSelectedTaskIdx] = useState<number | null>(null);
   const [selectedFieldIdx, setSelectedFieldIdx] = useState<number | null>(null);
+  const [employeeNames, setEmployeeNames] = useState<EmployeeName[]>([]);
   const [formData, setFormData] = useState({
     taskName: '',
     ModuleName: '',
     projectName: '',
     processes: '',
   });
+
+  const fetchEmployeeNames = async (): Promise<EmployeeName[]> => {
+    try {
+      const response = await axios.get('https://localhost:44306/api/EmployeeMaster/GetEmployee?PageIndex=1', {
+        headers: {
+          'accept': '*/*',
+        },
+      });
+
+      if (response.data.isSuccess) {
+        // Map the response to only get the employee names
+        return response.data.employeeMasterList.map((employee: any) => ({
+          employeeName: employee.employeeName,
+        }));
+      } else {
+        console.error(response.data.message);
+        return [];
+      }
+    } catch (error) {
+      console.error('Error fetching employee data:', error);
+      return [];
+    }
+  };
 
 
   const handleFormChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -191,6 +220,7 @@ const App: React.FC = () => {
 
 
     setTaskFields(newTaskFields);
+    localStorage.setItem('taskFields', JSON.stringify(newTaskFields));
 
   }
 
@@ -201,6 +231,13 @@ const App: React.FC = () => {
       console.log('Fetched tasks:', fetchedTasks);
       setSavedTasks(fetchedTasks);
     };
+
+    const getEmployeeNames = async () => {
+      const employeeNameData = await fetchEmployeeNames();
+      setEmployeeNames(employeeNameData);
+    };
+
+    getEmployeeNames();
 
     loadTasks();
     const initialSubFields = initialInventory.reduce((acc, field) => {
@@ -251,11 +288,19 @@ const App: React.FC = () => {
     }
   };
 
+
+
   const reorder = (list: FormField[], startIndex: number, endIndex: number): FormField[] => {
     const result = Array.from(list);
     const [removed] = result.splice(startIndex, 1);
     result.splice(endIndex, 0, removed);
     return result;
+  };
+
+  const [isVisible, setIsVisible] = useState(true);
+
+  const toggleVisibility = () => {
+    setIsVisible(!isVisible);
   };
 
 
@@ -370,6 +415,12 @@ const App: React.FC = () => {
               <div>Custom Placeholder: {field.placeholder}</div>
             </div>
           );
+
+        case 'taskName':
+          return (
+
+            <div>{formData.taskName}</div>
+          );
         case 'CustomSelect':
           return (
             <div className='col-6'>
@@ -377,12 +428,19 @@ const App: React.FC = () => {
               {/* <div>Custom Placeholder: {field.placeholder}</div> */}
               <div className='form-group'>
                 <div className='label mb-1'>Custom Select</div>
-                <select className='form-control' style={{ width: '200px' }} name="" id="">
+                {/* <select className='form-control' style={{ width: '200px' }} name="" id="">
                   <option value="">Role Master</option>
                   <option value="">Employee Master</option>
                   <option value="">Project Master</option>
                   <option value="">Mess Master</option>
                   <option value="">Tender Master</option>
+                </select> */}
+                <select className='form-control' id="employee-select" style={{ width: '200px' }}>
+                  {employeeNames.map((employee, index) => (
+                    <option key={index} value={employee.employeeName}>
+                      {employee.employeeName}
+                    </option>
+                  ))}
                 </select>
               </div>
             </div>
@@ -394,7 +452,7 @@ const App: React.FC = () => {
     };
 
     return (
-      <ListGroup.Item key={field.id} className="row m-0 justify-content-between align-items-center d-flex custom-shadow position-relative" id='task-area' style={{width: 'max-content'}}>
+      <ListGroup.Item key={field.id} className="row m-0 justify-content-between align-items-center d-flex custom-shadow position-relative" id='task-area' style={{ width: 'max-content' }}>
         <div className='ri-add-circle-fill cursor-pointer text-primary add-more'></div>
         {renderFieldContent()}
         <div className='col-sm-12 col-md-4 justify-content-end d-flex'>
@@ -760,26 +818,35 @@ const App: React.FC = () => {
 
         <div className="mt-4 row m-0">
           <h3>Saved Tasks</h3>
+          <div>Process Name - {formData.processes}</div>
           {savedTasks.map((task, taskIndex) => (
             <div className='col-md-6 col-sm-12'>
               <Card key={taskIndex} className="mb-4 row m-1">
                 <Card.Header>
                   <div className="d-flex justify-content-between align-items-center">
+                    <span>ACC.T{taskIndex + 1}.{ }</span>
+                    <Button variant="primary" size="sm" onClick={toggleVisibility}>
+                    {isVisible ? 'Hide' : 'Show'}
+                  </Button>
                   </div>
                 </Card.Header>
-                <ListGroup variant="flush">
-                  {task.map((field, fieldIndex) => renderField(field, taskIndex, fieldIndex))}
-                </ListGroup>
-                <div className="d-flex justify-content-end col-12 p-2">
-                  <Button
-                    variant="danger"
-                    size="sm"
-                    onClick={() => handleDeleteTask(taskIndex)}
-                    className=''
-                  >
-                    Delete Task
-                  </Button>
-                </div>
+                {isVisible && (
+                  <>
+                    <ListGroup variant="flush">
+                      {task.map((field, fieldIndex) => renderField(field, taskIndex, fieldIndex))}
+                    </ListGroup>
+                    <div className="d-flex justify-content-end col-12 p-2">
+                      <Button
+                        variant="danger"
+                        size="sm"
+                        onClick={() => handleDeleteTask(taskIndex)}
+                        className=''
+                      >
+                        Delete Task
+                      </Button>
+                    </div>
+                  </>
+                )}
               </Card>
             </div>
 
