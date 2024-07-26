@@ -33,10 +33,10 @@ const initialInventory: FormField[] = [
   { id: '8', type: 'file', labeltext: 'File Upload' },
   { id: '9', type: 'radio', labeltext: 'Radio', options: ['Option 1', 'Option 2'] },
   { id: '10', type: 'multiselect', labeltext: 'Multi Select', options: ['Option 1', 'Option 2'] },
-  { id: '11', type: 'status', labeltext: 'Task Status', options: ['completed', 'pending'] },
-  { id: '12', type: 'date', labeltext: 'Actual Date' },
-  { id: '13', type: 'date', labeltext: 'Planned Date' },
-  { id: '14', type: 'date', labeltext: 'Extended Date' },
+  // { id: '11', type: 'status', labeltext: 'Task Status', options: ['completed', 'pending'] },
+  // { id: '12', type: 'date', labeltext: 'Actual Date' },
+  // { id: '13', type: 'date', labeltext: 'Planned Date' },
+  { id: '14', type: 'date', labeltext: 'Date' },
   { id: '15', type: 'text', labeltext: 'Successor Task', placeholder: 'Enter successor task ID' },
   { id: '16', type: 'custom', labeltext: 'Custom Field', placeholder: 'Enter text' },
   { id: '16', type: 'paragraph', labeltext: 'Paragraph' },
@@ -471,7 +471,7 @@ const App: React.FC = () => {
   };
 
   return (
-    <div className="App">
+    <div className="App" id ="taskTop">
       <div className="container mt-4">
         <div className="d-flex p-2 bg-white mt-2 mb-2">Create Task</div>
 
@@ -828,7 +828,8 @@ const App: React.FC = () => {
 
         <div className="mt-4 row m-0">
           <h3>Saved Tasks</h3>
-          <div>Process Name - {formData.processes}</div>
+          <div></div>
+          <div className="d-flex p-2 bg-white mt-2 mb-2 justify-content-between align-items-center"><span className='text-primary ms-1'>Process Name - {formData.processes}</span> <a href="#taskTop" className='btn btn-primary'> add task</a> </div>
           {savedTasks.map((task, taskIndex) => (
             <div className='col-md-6 col-sm-12'>
               <Card key={taskIndex} className="mb-4 row m-1">
@@ -869,6 +870,11 @@ const App: React.FC = () => {
             </div>
 
           ))}
+          <div className="d-flex justify-content-end p-2 col-12">
+          <Button variant="primary">
+            Apply Process
+          </Button>
+        </div>
         </div>
       </div>
     </div>
