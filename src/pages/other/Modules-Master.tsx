@@ -297,10 +297,12 @@ const App: React.FC = () => {
     return result;
   };
 
-  const [isVisible, setIsVisible] = useState(true);
+  const [visibility, setVisibility] = useState<Record<number, boolean>>(
+    savedTasks.reduce((acc, _, index) => ({ ...acc, [index]: true }), {})
+  );
 
-  const toggleVisibility = () => {
-    setIsVisible(!isVisible);
+  const toggleVisibility = (taskIndex: number) => {
+    setVisibility(prev => ({ ...prev, [taskIndex]: !prev[taskIndex] }));
   };
 
 
@@ -581,6 +583,14 @@ const App: React.FC = () => {
               <Droppable droppableId="taskFields">
                 {(provided: DroppableProvided) => (
                   <div ref={provided.innerRef} {...provided.droppableProps} className="list-group  m-0">
+                    {taskFields.length === 0 &&
+                    (
+                      <div className='col-12 align-items-center justify-content-center d-flex flex-column' style={{height: '200px'}}>
+                        <i className="ri-arrow-turn-back-line fs-1"></i>
+                        <span>Please Select Task Fields</span>
+                      </div>
+                    )
+                    }
                     {taskFields.map((field, index) => (
                       <Draggable key={field.id} draggableId={field.id} index={index}>
                         {(provided: DraggableProvided) => (
@@ -825,12 +835,20 @@ const App: React.FC = () => {
                 <Card.Header>
                   <div className="d-flex justify-content-between align-items-center">
                     <span>ACC.T{taskIndex + 1}.{ }</span>
-                    <Button variant="primary" size="sm" onClick={toggleVisibility}>
-                    {isVisible ? 'Hide' : 'Show'}
-                  </Button>
+                    <Button
+                      size="sm"
+                      onClick={() => toggleVisibility(taskIndex)}
+                      className='bg-white border-light rounded-circle'
+                    >
+                      {visibility[taskIndex] ? (
+                        <i className="ri-arrow-down-double-line text-primary fs-3"></i>
+                      ) : (
+                        <i className="ri-arrow-up-double-line text-primary fs-3"></i>
+                      )}
+                    </Button>
                   </div>
                 </Card.Header>
-                {isVisible && (
+                {visibility[taskIndex] && (
                   <>
                     <ListGroup variant="flush">
                       {task.map((field, fieldIndex) => renderField(field, taskIndex, fieldIndex))}
