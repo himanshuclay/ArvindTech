@@ -28,17 +28,18 @@ const MessMasterPage: React.FC = () => {
     const [editingIndex, setEditingIndex] = useState<number | null>(null);
     const [searchQuery, setSearchQuery] = useState('');
     const [currentPage, setCurrentPage] = useState<number>(1);
-    const [rowsPerPage, setRowsPerPage] = useState(10);
+    const [rowsPerPage, setRowsPerPage] = useState<number>(10);
+    const [totalCount, setTotalCount] = useState<number>(0);
     const [loading, setLoading] = useState<boolean>(false);
 
     useEffect(() => {
-        fetchMessMaster();
-    }, [currentPage]);
+        fetchMessMaster(currentPage, rowsPerPage);
+    }, [currentPage, rowsPerPage]);
 
-    const fetchMessMaster = async () => {
+    const fetchMessMaster = async (page: number, rows: number) => {
         setLoading(true);
         try {
-            const params = new URLSearchParams({ PageIndex: currentPage.toString() });
+            const params = new URLSearchParams({ PageIndex: page.toString(), RowsPerPage: rows.toString() });
             const url = `https://localhost:44344/api/MessMaster/GetMess?${params.toString()}`;
 
             const response = await axios.get(url, {
@@ -49,6 +50,7 @@ const MessMasterPage: React.FC = () => {
 
             if (response && response.status === 200 && response.data.isSuccess) {
                 setMessMasterList(response.data.messMasterList);
+                setTotalCount(response.data.totalCount);
             } else {
                 console.error('Failed to fetch mess master list: Invalid response status');
             }
@@ -87,12 +89,24 @@ const MessMasterPage: React.FC = () => {
         const payload = { ...messMaster, updatedBy: messMaster.createdBy };
 
         try {
-            const response = await axios.post('https://localhost:44344/api/MessMaster/InsertMess', payload, {
-                headers: {
-                    'accept': '*/*',
-                    'Content-Type': 'application/json'
-                }
-            });
+            let response;
+            if (editingIndex !== null) {
+                // Update existing mess master
+                response = await axios.post('https://localhost:44344/api/MessMaster/UpdateMess', payload, {
+                    headers: {
+                        'accept': '*/*',
+                        'Content-Type': 'application/json'
+                    }
+                });
+            } else {
+                // Insert new mess master
+                response = await axios.post('https://localhost:44344/api/MessMaster/InsertMess', payload, {
+                    headers: {
+                        'accept': '*/*',
+                        'Content-Type': 'application/json'
+                    }
+                });
+            }
 
             if (response.status === 200 || response.status === 201) {
                 const newMessMaster = response.data;
@@ -147,19 +161,7 @@ const MessMasterPage: React.FC = () => {
         setCurrentPage(1);
     };
 
-    const filteredMessMasters = messMasterList.filter(messMaster =>
-        (messMaster.messName || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
-        (messMaster.project_Id !== null && messMaster.project_Id !== undefined && messMaster.project_Id.toString().includes(searchQuery)) ||
-        (messMaster.managerId !== null && messMaster.managerId !== undefined && messMaster.managerId.toString().includes(searchQuery)) ||
-        (messMaster.status !== null && messMaster.status !== undefined && messMaster.status.toString().includes(searchQuery)) ||
-        (messMaster.createdBy || '').toLowerCase().includes(searchQuery.toLowerCase())
-    );
-
-    const indexOfLastMessMaster = currentPage * rowsPerPage;
-    const indexOfFirstMessMaster = indexOfLastMessMaster - rowsPerPage;
-    const currentMessMasters = filteredMessMasters.slice(indexOfFirstMessMaster, indexOfLastMessMaster);
-
-    const totalPages = Math.ceil(filteredMessMasters.length / rowsPerPage);
+    const totalPages = Math.ceil(totalCount / rowsPerPage);
 
     const convertToCSV = (data: MessMaster[]) => {
         const csvRows = [
@@ -195,7 +197,6 @@ const MessMasterPage: React.FC = () => {
                 <div className="d-flex">
                     <div className="app-search d-none d-lg-block me-4">
                         <form>
-                           
                             <div className="input-group">
                                 <input
                                     type="search"
@@ -208,37 +209,38 @@ const MessMasterPage: React.FC = () => {
                             </div>
                         </form>
                     </div>
-                    <Button variant="primary" onClick={handleShow}><i className="ri-add-line"></i> Add Mess </Button>
-                    <Button variant="secondary" className="ms-2" onClick={downloadCSV}><i className="ri-download-line"></i> Export CSV</Button>
+                    <Button variant="primary" onClick={handleShow}>
+                        <i className="ri-add-line align-bottom me-1"></i> Add Mess Master
+                    </Button>
+                    <Button variant="success" onClick={downloadCSV} className="ms-2">
+                        <i className="ri-file-download-line align-bottom me-1"></i> Download CSV
+                    </Button>
                 </div>
             </div>
             {loading ? (
-                <div className='loader-container'>
-                    <div className="loader"></div>
-                    <div className='mt-2'>Please Wait!</div>
+                <div className="text-center mt-4">
+                    <div className="spinner-border text-primary" role="status">
+                        <span className="visually-hidden">Loading...</span>
+                    </div>
                 </div>
             ) : (
-                <Table striped bordered hover responsive className="mb-0">
+                <Table striped bordered hover responsive>
                     <thead>
                         <tr>
-                            <th>#</th>
                             <th>Mess Name</th>
                             <th>Project ID</th>
                             <th>Manager ID</th>
                             <th>Status</th>
-                            <th>Created By</th>
-                            <th>Actions</th>
+                            <th>Action</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {currentMessMasters.map((mess, index) => (
+                        {messMasterList.map((mess, index) => (
                             <tr key={index}>
-                                <td>{index + 1 + (currentPage - 1) * rowsPerPage}</td>
                                 <td>{mess.messName}</td>
                                 <td>{mess.project_Id}</td>
                                 <td>{mess.managerId}</td>
                                 <td>{mess.status ? 'Active' : 'Inactive'}</td>
-                                <td>{mess.createdBy}</td>
                                 <td>
                                     <Button variant="warning" size="sm" className="me-2" onClick={() => handleEdit(index)}>
                                         <i className="ri-edit-line"></i>
@@ -249,7 +251,33 @@ const MessMasterPage: React.FC = () => {
                     </tbody>
                 </Table>
             )}
-            <div className="d-flex justify-content-between align-items-center mt-2">
+     
+
+{/* <div className="d-flex justify-content-between align-items-center my-2">
+                <div>
+                    <Form.Select value={rowsPerPage} onChange={handleRowsPerPageChange}>
+                        <option value={5}>5 rows</option>
+                        <option value={10}>10 rows</option>
+                        <option value={20}>20 rows</option>
+                    </Form.Select>
+                </div>
+                <Pagination>
+                    <Pagination.First onClick={() => setCurrentPage(1)} disabled={currentPage === 1} />
+                    <Pagination.Prev onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))} disabled={currentPage === 1} />
+                    <Pagination.Item active>{currentPage}</Pagination.Item>
+                    <Pagination.Next onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))} disabled={currentPage === totalPages} />
+                    <Pagination.Last onClick={() => setCurrentPage(totalPages)} disabled={currentPage === totalPages} />
+                </Pagination>
+            </div> */}
+
+
+
+
+          
+
+
+
+<div className="d-flex justify-content-between align-items-center mt-2">
                 <Pagination>
                     <Pagination.First onClick={() => setCurrentPage(1)} disabled={currentPage === 1} />
                     <Pagination.Prev onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))} disabled={currentPage === 1} />

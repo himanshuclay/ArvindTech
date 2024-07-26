@@ -1,5 +1,6 @@
 import React, { useState, useEffect, ChangeEvent } from 'react';
-import { Button, Form, Offcanvas, Table, InputGroup, FormControl, Pagination } from 'react-bootstrap';
+import { Button, Form, Offcanvas, Table, Pagination } from 'react-bootstrap';
+import axios from 'axios';
 
 interface Employee {
     id: number;
@@ -37,7 +38,7 @@ interface Employee {
     updatedBy: string;
 }
 
-const EmployeeForm: React.FC = () => {
+const EmployeePage: React.FC = () => {
     const [employee, setEmployee] = useState<Employee>({
         id: 0,
         employeeName: '',
@@ -47,8 +48,8 @@ const EmployeeForm: React.FC = () => {
         hrUpdateMobileNumber: '',
         genderID: 0,
         fatherName: '',
-        dob: new Date().toISOString(),
-        doj: new Date().toISOString(),
+        dob: '',
+        doj: '',
         currentProjectID: 0,
         appAccessID: 0,
         exemptStatusID: 0,
@@ -74,31 +75,41 @@ const EmployeeForm: React.FC = () => {
         updatedBy: ''
     });
 
-    const [employees, setEmployees] = useState<Employee[]>([]);
+    const [employeeList, setEmployeeList] = useState<Employee[]>([]);
     const [show, setShow] = useState(false);
     const [editingIndex, setEditingIndex] = useState<number | null>(null);
     const [searchQuery, setSearchQuery] = useState('');
-    const [currentPage, setCurrentPage] = useState(1);
-    const [rowsPerPage, setRowsPerPage] = useState(5);
+    const [currentPage, setCurrentPage] = useState<number>(1);
+    const [rowsPerPage, setRowsPerPage] = useState<number>(10);
+    const [totalCount, setTotalCount] = useState<number>(0);
+    const [loading, setLoading] = useState<boolean>(false);
 
     useEffect(() => {
-        fetchEmployees();
-    }, []);
+        fetchEmployee(currentPage, rowsPerPage);
+    }, [currentPage, rowsPerPage]);
 
-    const fetchEmployees = async () => {
+    const fetchEmployee = async (page: number, rows: number) => {
+        setLoading(true);
         try {
-            const response = await fetch('https://localhost:44344/api/EmployeeMaster/GetEmployee?PageIndex=1', {
-                method: 'GET',
+            const params = new URLSearchParams({ PageIndex: page.toString(), RowsPerPage: rows.toString() });
+            const url = `https://localhost:44344/api/EmployeeMaster/GetEmployee?${params.toString()}`;
+
+            const response = await axios.get(url, {
                 headers: {
-                    'Accept': '*/*'
+                    'accept': '*/*'
                 }
             });
-            const data = await response.json();
-            if (data.isSuccess) {
-                setEmployees(data.employeeMasterList);
+
+            if (response && response.status === 200 && response.data.isSuccess) {
+                setEmployeeList(response.data.employeeMasterList);
+                setTotalCount(response.data.totalCount);
+            } else {
+                console.error('Failed to fetch employee list: Invalid response status');
             }
         } catch (error) {
-            console.error('Error fetching employees:', error);
+            console.error('An error occurred while fetching the employee list:', error);
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -107,39 +118,69 @@ const EmployeeForm: React.FC = () => {
     const handleChange = (e: ChangeEvent<HTMLInputElement> | ChangeEvent<HTMLSelectElement>) => {
         const { name, value, type, checked } = e.target as HTMLInputElement | HTMLSelectElement;
         if (type === 'checkbox') {
-            setEmployee(prev => ({ ...prev, [name]: checked ? 1 : 0 }));
+            setEmployee({
+                ...employee,
+                [name]: checked
+            });
         } else {
-            setEmployee(prev => ({ ...prev, [name]: value }));
+            setEmployee({
+                ...employee,
+                [name]: value
+            });
         }
     };
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
+
+        const payload = { ...employee, updatedBy: employee.createdBy };
+
         try {
-            const response = await fetch('https://localhost:44344/api/EmployeeMaster/InsertEmployee', {
-                method: 'POST',
-                headers: {
-                    'Accept': '*/*',
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(employee)
-            });
-            const data = await response.json();
-            if (data.isSuccess) {
-                // If successful, refresh the employee list
-                fetchEmployees();
+            let response;
+            if (editingIndex !== null) {
+                // Update existing employee
+                response = await axios.post('https://localhost:44344/api/EmployeeMaster/UpdateEmployee', payload, {
+                    headers: {
+                        'accept': '*/*',
+                        'Content-Type': 'application/json'
+                    }
+                });
+            } else {
+                // Insert new employee
+                response = await axios.post('https://localhost:44344/api/EmployeeMaster/InsertEmployee', payload, {
+                    headers: {
+                        'accept': '*/*',
+                        'Content-Type': 'application/json'
+                    }
+                });
+            }
+
+            if (response.status === 200 || response.status === 201) {
+                const newEmployee = response.data;
+
+                if (editingIndex !== null) {
+                    const updatedEmployeeList = [...employeeList];
+                    updatedEmployeeList[editingIndex] = newEmployee;
+                    setEmployeeList(updatedEmployeeList);
+                } else {
+                    setEmployeeList([...employeeList, newEmployee]);
+                }
                 handleClose();
             } else {
-                console.error('Error inserting employee:', data.message);
+                console.error('Failed to submit employee');
             }
         } catch (error) {
-            console.error('Error submitting employee:', error);
+            if (axios.isAxiosError(error) && error.response) {
+                console.error('An error occurred while submitting the employee:', error.response.data);
+            } else {
+                console.error('An error occurred while submitting the employee:', error);
+            }
         }
     };
 
     const handleEdit = (index: number) => {
         setEditingIndex(index);
-        setEmployee(employees[index]);
+        setEmployee(employeeList[index]);
         handleShow();
     };
 
@@ -155,8 +196,8 @@ const EmployeeForm: React.FC = () => {
             hrUpdateMobileNumber: '',
             genderID: 0,
             fatherName: '',
-            dob: new Date().toISOString(),
-            doj: new Date().toISOString(),
+            dob: '',
+            doj: '',
             currentProjectID: 0,
             appAccessID: 0,
             exemptStatusID: 0,
@@ -185,51 +226,37 @@ const EmployeeForm: React.FC = () => {
 
     const handleSearch = (e: ChangeEvent<HTMLInputElement>) => {
         setSearchQuery(e.target.value);
-        setCurrentPage(1); // Reset to first page on search
+        setCurrentPage(1);
     };
 
     const handleRowsPerPageChange = (e: ChangeEvent<HTMLSelectElement>) => {
         setRowsPerPage(Number(e.target.value));
-        setCurrentPage(1); // Reset to first page on rows per page change
+        setCurrentPage(1);
     };
 
-    const filteredEmployees = employees.filter(employee =>
-        employee.employeeName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        employee.employeeID.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        employee.departmentID.toString().includes(searchQuery.toLowerCase()) ||
-        employee.designation.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        employee.currentProjectID.toString().includes(searchQuery.toLowerCase()) ||
-        employee.salaryBankName.toLowerCase().includes(searchQuery.toLowerCase())
-    );
-
-    const indexOfLastEmployee = currentPage * rowsPerPage;
-    const indexOfFirstEmployee = indexOfLastEmployee - rowsPerPage;
-    const currentEmployees = filteredEmployees.slice(indexOfFirstEmployee, indexOfLastEmployee);
-
-    const totalPages = Math.ceil(filteredEmployees.length / rowsPerPage);
+    const totalPages = Math.ceil(totalCount / rowsPerPage);
 
     const convertToCSV = (data: Employee[]) => {
         const csvRows = [
-            ['ID', 'Employee Name', 'Employee ID', 'Department ID', 'Designation', 'HR Mobile Number', 'Gender ID', 'Father Name', 'DOB', 'DOJ', 'Current Project ID', 'App Access ID', 'Exempt Status ID', 'Performance Review ID', 'Pincode', 'State', 'District', 'Area ID', 'Address', 'Salary IFSC Code', 'Salary Bank Name', 'Salary Branch Name', 'Salary Bank Account Number', 'Reimbursement IFSC Code', 'Reimbursement Bank Name', 'Reimbursement Branch Name', 'Reimbursement Bank Account Number', 'Expense IFSC Code', 'Expense Bank Name', 'Expense Branch Name', 'Expense Bank Account Number', 'Created By', 'Updated By'],
+            ['Employee Name', 'Employee ID', 'Department ID', 'Designation', 'HR Mobile Number', 'Gender ID', 'Father Name', 'DOB', 'DOJ', 'Current Project ID', 'App Access ID', 'Exempt Status ID', 'Performance Review ID', 'Pincode', 'State', 'District', 'Area ID', 'Address', 'Salary IFSC Code', 'Salary Bank Name', 'Salary Branch Name', 'Salary Bank Account Number', 'Reimbursement IFSC Code', 'Reimbursement Bank Name', 'Reimbursement Branch Name', 'Reimbursement Bank Account Number', 'Expense IFSC Code', 'Expense Bank Name', 'Expense Branch Name', 'Expense Bank Account Number', 'Created By'],
             ...data.map(emp => [
-                emp.id,
                 emp.employeeName,
                 emp.employeeID,
-                emp.departmentID,
+                emp.departmentID.toString(),
                 emp.designation,
                 emp.hrUpdateMobileNumber,
-                emp.genderID,
+                emp.genderID.toString(),
                 emp.fatherName,
                 emp.dob,
                 emp.doj,
-                emp.currentProjectID,
-                emp.appAccessID,
-                emp.exemptStatusID,
-                emp.performanceReviewID,
+                emp.currentProjectID.toString(),
+                emp.appAccessID.toString(),
+                emp.exemptStatusID.toString(),
+                emp.performanceReviewID.toString(),
                 emp.pincode,
                 emp.state,
                 emp.district,
-                emp.areaID,
+                emp.areaID.toString(),
                 emp.address,
                 emp.salaryIFSCCode,
                 emp.salaryBankName,
@@ -243,8 +270,7 @@ const EmployeeForm: React.FC = () => {
                 emp.expenseBankName,
                 emp.expenseBranchName,
                 emp.expenseBankAccountNumber,
-                emp.createdBy,
-                emp.updatedBy
+                emp.createdBy
             ])
         ];
 
@@ -252,21 +278,25 @@ const EmployeeForm: React.FC = () => {
     };
 
     const downloadCSV = () => {
-        const csvData = convertToCSV(employees);
-        const blob = new Blob([csvData], { type: 'text/csv' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = 'employees.csv';
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
+        const csvData = convertToCSV(employeeList);
+        const blob = new Blob([csvData], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement('a');
+        if (link.download !== undefined) {
+            const url = URL.createObjectURL(blob);
+            link.setAttribute('href', url);
+            link.setAttribute('download', 'employees.csv');
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
     };
 
     return (
-        <div className="container">
+        <div>
+            
             <div className="d-flex bg-white p-2 my-2 justify-content-between align-items-center">
-                <span><i className="ri-team-line me-2"></i><span className='fw-bold'>Employees List</span></span>
+                <span><i className="ri-file-list-line me-2"></i><span className='fw-bold'>Employee List</span></span>
                 <div className="d-flex">
                     <div className="app-search d-none d-lg-block me-4">
                         <form>
@@ -274,7 +304,7 @@ const EmployeeForm: React.FC = () => {
                                 <input
                                     type="search"
                                     className="form-control"
-                                    placeholder="Search employee..."
+                                    placeholder="Search module..."
                                     value={searchQuery}
                                     onChange={handleSearch}
                                 />
@@ -283,441 +313,467 @@ const EmployeeForm: React.FC = () => {
                         </form>
                     </div>
                     <Button variant="primary" onClick={handleShow} className="me-2">
-                        Add Employee
+                        Add Eployee 
                     </Button>
                     <Button variant="secondary" onClick={downloadCSV}>
                         Download CSV
                     </Button>
                 </div>
             </div>
+          
+            {loading ? <p>Loading...</p> : (
+                <div className='overflow-auto'>
+                    <Table striped bordered hover>
+                        <thead>
+                            <tr>
+                                <th>Employee Name</th>
+                                <th>Employee ID</th>
+                                <th>Department ID</th>
+                                <th>Designation</th>
+                                <th>Hr Update Mobile Number</th>
+                                <th>Gender ID</th>
+                                <th>Father Name</th>
+                                <th>Date of Birth</th>
+                                <th>Date of Joining</th>
+                                <th>Current Project ID</th>
+                                <th>App Access ID</th>
+                                <th>Exempt Status ID</th>
+                                <th>Performance Review ID</th>
+                                <th>State</th>
+                                <th>District</th>
+                                <th>Area ID</th>
+                                <th>Address</th>
+                                <th>Salary IFSCCode</th>
+                                <th>Salary BankName</th>
+                                <th>Salary BranchName</th>
+                                <th>Salary Bank Account Number</th>
+                                <th>Reimbursement IFSCCode</th>
+                                <th>Reimbursement BankName</th>
+                                <th>Reimbursement BranchName</th>
+                                <th>Reimbursement BnkAccountNumber</th>
+                                <th>Expense IFSCCode</th>
+                                <th>Expense BankName</th>
+                                <th>Expense BranchName</th>
+                                <th>Expense Bank AccountNumber</th>
+                                <th>CreatedBy</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {employeeList.filter(emp => emp.employeeName.toLowerCase().includes(searchQuery.toLowerCase())).map((emp, index) => (
+                                <tr key={emp.id}>
+                                    <td>{emp.employeeName}</td>
+                                    <td>{emp.employeeID}</td>
+                                    <td>{emp.departmentID}</td>
+                                    <td>{emp.designation}</td>
+                                    <td>{emp.hrUpdateMobileNumber}</td>
+                                    <td>{emp.genderID}</td>
+                                    <td>{emp.fatherName}</td>
+                                    <td>{emp.dob}</td>
+                                    <td>{emp.doj}</td>
+                                    <td>{emp.currentProjectID}</td>
+                                    <td>{emp.appAccessID}</td>
+                                    <td>{emp.exemptStatusID}</td>
+                                    <td>{emp.performanceReviewID}</td>
+                                    <td>{emp.pincode}</td>
+                                    <td>{emp.state}</td>
+                                    <td>{emp.district}</td>
+                                    <td>{emp.areaID}</td>
+                                    <td>{emp.salaryIFSCCode}</td>
+                                    <td>{emp.salaryBankName}</td>
+                                    <td>{emp.salaryBranchName}</td>
+                                    <td>{emp.salaryBankAccountNumber}</td>
+                                    <td>{emp.reimbursementIFSCCode}</td>
+                                    <td>{emp.reimbursementBankName}</td>
+                                    <td>{emp.reimbursementBranchName}</td>
+                                    <td>{emp.reimbursementBankAccountNumber}</td>
+                                    <td>{emp.expenseIFSCCode}</td>
+                                    <td>{emp.expenseBankName}</td>
+                                    <td>{emp.expenseBranchName}</td>
+                                    <td>{emp.expenseBankAccountNumber}</td>
+                                    <td>{emp.createdBy}</td>
+                                    <td>
+                                        <Button variant="info" onClick={() => handleEdit(index)}>Edit</Button>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </Table>
+                </div>
 
+            )}
+           
+           <div className="d-flex justify-content-between align-items-center my-2">
+                <div>
+                    <Form.Select value={rowsPerPage} onChange={handleRowsPerPageChange}>
+                        <option value={5}>5 rows</option>
+                        <option value={10}>10 rows</option>
+                        <option value={20}>20 rows</option>
+                    </Form.Select>
+                </div>
+                <Pagination>
+                    <Pagination.First onClick={() => setCurrentPage(1)} disabled={currentPage === 1} />
+                    <Pagination.Prev onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))} disabled={currentPage === 1} />
+                    <Pagination.Item active>{currentPage}</Pagination.Item>
+                    <Pagination.Next onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))} disabled={currentPage === totalPages} />
+                    <Pagination.Last onClick={() => setCurrentPage(totalPages)} disabled={currentPage === totalPages} />
+                </Pagination>
+            </div>
             <Offcanvas show={show} onHide={handleClose}>
                 <Offcanvas.Header closeButton>
-                    <Offcanvas.Title>Employee Form</Offcanvas.Title>
+                    <Offcanvas.Title>{editingIndex !== null ? 'Edit Employee' : 'Add Employee'}</Offcanvas.Title>
                 </Offcanvas.Header>
                 <Offcanvas.Body>
                     <Form onSubmit={handleSubmit}>
-                        <Form.Group controlId="employeeName" className="mb-3">
-                            <Form.Label>Employee Name:</Form.Label>
+                        <Form.Group className="mb-3">
+                            <Form.Label>Employee Name</Form.Label>
                             <Form.Control
                                 type="text"
+                                placeholder="Enter Employee Name"
                                 name="employeeName"
                                 value={employee.employeeName}
                                 onChange={handleChange}
+                                required
                             />
                         </Form.Group>
-                        <Form.Group controlId="employeeID" className="mb-3">
-                            <Form.Label>Employee ID:</Form.Label>
+                        <Form.Group className="mb-3">
+                            <Form.Label>Employee ID</Form.Label>
                             <Form.Control
                                 type="text"
+                                placeholder="Enter Employee ID"
                                 name="employeeID"
                                 value={employee.employeeID}
                                 onChange={handleChange}
+                                required
                             />
                         </Form.Group>
-                        <Form.Group controlId="departmentID" className="mb-3">
-                            <Form.Label>Department ID:</Form.Label>
+                        <Form.Group className="mb-3">
+                            <Form.Label>departmentID ID</Form.Label>
                             <Form.Control
-                                type="number"
+                                type="text"
+                                placeholder="Enter Department ID"
                                 name="departmentID"
                                 value={employee.departmentID}
                                 onChange={handleChange}
+                                required
                             />
                         </Form.Group>
-                        <Form.Group controlId="designation" className="mb-3">
-                            <Form.Label>Designation:</Form.Label>
+                        <Form.Group className="mb-3">
+                            <Form.Label>Designation ID</Form.Label>
                             <Form.Control
                                 type="text"
+                                placeholder="Enter Designation"
                                 name="designation"
                                 value={employee.designation}
                                 onChange={handleChange}
+                                required
                             />
                         </Form.Group>
-                        <Form.Group controlId="hrUpdateMobileNumber" className="mb-3">
-                            <Form.Label>HR Update Mobile Number:</Form.Label>
+                        <Form.Group className="mb-3">
+                            <Form.Label>Hr update Mobile Number</Form.Label>
                             <Form.Control
                                 type="text"
+                                placeholder="Enter hr update Mobile Number"
                                 name="hrUpdateMobileNumber"
                                 value={employee.hrUpdateMobileNumber}
                                 onChange={handleChange}
+                                required
                             />
                         </Form.Group>
-                        <Form.Group controlId="genderID" className="mb-3">
-                            <Form.Label>Gender ID:</Form.Label>
+                        <Form.Group className="mb-3">
+                            <Form.Label>Gender Id</Form.Label>
                             <Form.Control
-                                type="number"
+                                type="text"
+                                placeholder="Enter Gender"
                                 name="genderID"
                                 value={employee.genderID}
                                 onChange={handleChange}
-                            >
-                                <option value="0">Select Gender</option>
-                                <option value="1">Male</option>
-                                <option value="2">Female</option>
-                                <option value="3">Other</option>
-                            </Form.Control>
+                                required
+                            />
                         </Form.Group>
-                        <Form.Group controlId="fatherName" className="mb-3">
-                            <Form.Label>Father's Name:</Form.Label>
+                        <Form.Group className="mb-3">
+                            <Form.Label> Father Name</Form.Label>
                             <Form.Control
                                 type="text"
+                                placeholder="Enter Gender"
                                 name="fatherName"
                                 value={employee.fatherName}
                                 onChange={handleChange}
+                                required
                             />
                         </Form.Group>
-                        <Form.Group controlId="dob" className="mb-3">
-                            <Form.Label>Date of Birth:</Form.Label>
+                        {/* Repeat for other fields such as departmentID, designation, etc. */}
+                        <Form.Group className="mb-3">
+                            <Form.Label>Date of Birth</Form.Label>
                             <Form.Control
                                 type="date"
                                 name="dob"
-                                value={employee.dob.split('T')[0]} // Format date
+                                value={employee.dob.split('T')[0]}
                                 onChange={handleChange}
+                                required
                             />
                         </Form.Group>
-                        <Form.Group controlId="doj" className="mb-3">
-                            <Form.Label>Date of Joining:</Form.Label>
+                        <Form.Group className="mb-3">
+                            <Form.Label>Date of Joining</Form.Label>
                             <Form.Control
                                 type="date"
                                 name="doj"
-                                value={employee.doj.split('T')[0]} // Format date
+                                value={employee.doj.split('T')[0]}
                                 onChange={handleChange}
+                                required
                             />
                         </Form.Group>
-                        <Form.Group controlId="currentProjectID" className="mb-3">
-                            <Form.Label>Current Project ID:</Form.Label>
+                        <Form.Group className="mb-3">
+                            <Form.Label> Project Id</Form.Label>
                             <Form.Control
-                                type="number"
+                                type="text"
+                                placeholder="Enter Project Id"
                                 name="currentProjectID"
                                 value={employee.currentProjectID}
                                 onChange={handleChange}
+                                required
                             />
                         </Form.Group>
-                        <Form.Group controlId="appAccessID" className="mb-3">
-                            <Form.Label>App Access ID:</Form.Label>
+                        <Form.Group className="mb-3">
+                            <Form.Label> App Access Id</Form.Label>
                             <Form.Control
-                                type="number"
+                                type="text"
+                                placeholder="Enter App Access ID"
                                 name="appAccessID"
                                 value={employee.appAccessID}
                                 onChange={handleChange}
+                                required
                             />
                         </Form.Group>
-                        <Form.Group controlId="exemptStatusID" className="mb-3">
-                            <Form.Label>Exempt Status ID:</Form.Label>
+                        <Form.Group className="mb-3">
+                            <Form.Label> Exempt Status Id</Form.Label>
                             <Form.Control
-                                type="number"
+                                type="text"
+                                placeholder="Enter Exempt Status ID"
                                 name="exemptStatusID"
                                 value={employee.exemptStatusID}
                                 onChange={handleChange}
+                                required
                             />
                         </Form.Group>
-                        <Form.Group controlId="performanceReviewID" className="mb-3">
-                            <Form.Label>Performance Review ID:</Form.Label>
+                        <Form.Group className="mb-3">
+                            <Form.Label> Performance Review Id</Form.Label>
                             <Form.Control
-                                type="number"
+                                type="text"
+                                placeholder="Enter performance Review ID"
                                 name="performanceReviewID"
                                 value={employee.performanceReviewID}
                                 onChange={handleChange}
+                                required
                             />
                         </Form.Group>
-                        <Form.Group controlId="pincode" className="mb-3">
-                            <Form.Label>Pincode:</Form.Label>
+                        <Form.Group className="mb-3">
+                            <Form.Label> Pin code</Form.Label>
                             <Form.Control
                                 type="text"
+                                placeholder="Enter PinCode"
                                 name="pincode"
                                 value={employee.pincode}
                                 onChange={handleChange}
+                                required
                             />
                         </Form.Group>
-                        <Form.Group controlId="state" className="mb-3">
-                            <Form.Label>State:</Form.Label>
+                        <Form.Group className="mb-3">
+                            <Form.Label>  State</Form.Label>
                             <Form.Control
                                 type="text"
+                                placeholder="Enter State"
                                 name="state"
                                 value={employee.state}
                                 onChange={handleChange}
+                                required
                             />
                         </Form.Group>
-                        <Form.Group controlId="district" className="mb-3">
-                            <Form.Label>District:</Form.Label>
+                        <Form.Group className="mb-3">
+                            <Form.Label>  District</Form.Label>
                             <Form.Control
                                 type="text"
+                                placeholder="Enter District"
                                 name="district"
                                 value={employee.district}
                                 onChange={handleChange}
+                                required
                             />
                         </Form.Group>
-                        <Form.Group controlId="areaID" className="mb-3">
-                            <Form.Label>Area ID:</Form.Label>
+                        <Form.Group className="mb-3">
+                            <Form.Label>  Area Id</Form.Label>
                             <Form.Control
-                                type="number"
+                                type="text"
+                                placeholder="Enter Area Id"
                                 name="areaID"
                                 value={employee.areaID}
                                 onChange={handleChange}
+                                required
                             />
                         </Form.Group>
-                        <Form.Group controlId="address" className="mb-3">
-                            <Form.Label>Address:</Form.Label>
+                        <Form.Group className="mb-3">
+                            <Form.Label>  Address</Form.Label>
                             <Form.Control
                                 type="text"
+                                placeholder="Enter Address"
                                 name="address"
                                 value={employee.address}
                                 onChange={handleChange}
+                                required
                             />
                         </Form.Group>
-                        <Form.Group controlId="salaryIFSCCode" className="mb-3">
-                            <Form.Label>Salary IFSC Code:</Form.Label>
+                        <Form.Group className="mb-3">
+                            <Form.Label>  Salary IFSC code</Form.Label>
                             <Form.Control
                                 type="text"
+                                placeholder="Enter Salary IFSC code"
                                 name="salaryIFSCCode"
                                 value={employee.salaryIFSCCode}
                                 onChange={handleChange}
+                                required
                             />
                         </Form.Group>
-                        <Form.Group controlId="salaryBankName" className="mb-3">
-                            <Form.Label>Salary Bank Name:</Form.Label>
+                        <Form.Group className="mb-3">
+                            <Form.Label>  Salary  Bank Name</Form.Label>
                             <Form.Control
                                 type="text"
+                                placeholder="Enter  Salary  Bank Name"
                                 name="salaryBankName"
                                 value={employee.salaryBankName}
                                 onChange={handleChange}
+                                required
                             />
                         </Form.Group>
-                        <Form.Group controlId="salaryBranchName" className="mb-3">
-                            <Form.Label>Salary Branch Name:</Form.Label>
+                        <Form.Group className="mb-3">
+                            <Form.Label>  Salary  Branch Name</Form.Label>
                             <Form.Control
                                 type="text"
+                                placeholder="Enter  Salary  Branch Name"
                                 name="salaryBranchName"
                                 value={employee.salaryBranchName}
                                 onChange={handleChange}
+                                required
                             />
                         </Form.Group>
-                        <Form.Group controlId="salaryBankAccountNumber" className="mb-3">
-                            <Form.Label>Salary Bank Account Number:</Form.Label>
+                        <Form.Group className="mb-3">
+                            <Form.Label>  Salary  Bank Account number</Form.Label>
                             <Form.Control
                                 type="text"
+                                placeholder="Enter  Salary  Bank Account number "
                                 name="salaryBankAccountNumber"
                                 value={employee.salaryBankAccountNumber}
                                 onChange={handleChange}
+                                required
                             />
                         </Form.Group>
-                        <Form.Group controlId="reimbursementIFSCCode" className="mb-3">
-                            <Form.Label>Reimbursement IFSC Code:</Form.Label>
+                        <Form.Group className="mb-3">
+                            <Form.Label>  Reimbursement IFSCCode</Form.Label>
                             <Form.Control
                                 type="text"
+                                placeholder="Enter  Reimbursement IFSCCode "
                                 name="reimbursementIFSCCode"
                                 value={employee.reimbursementIFSCCode}
                                 onChange={handleChange}
+                                required
                             />
                         </Form.Group>
-                        <Form.Group controlId="reimbursementBankName" className="mb-3">
-                            <Form.Label>Reimbursement Bank Name:</Form.Label>
+                        <Form.Group className="mb-3">
+                            <Form.Label>  Reimbursement BankName</Form.Label>
                             <Form.Control
                                 type="text"
+                                placeholder="Enter  Reimbursement BankName "
                                 name="reimbursementBankName"
                                 value={employee.reimbursementBankName}
                                 onChange={handleChange}
+                                required
                             />
                         </Form.Group>
-                        <Form.Group controlId="reimbursementBranchName" className="mb-3">
-                            <Form.Label>Reimbursement Branch Name:</Form.Label>
+                        <Form.Group className="mb-3">
+                            <Form.Label>  Reimbursement BranchName</Form.Label>
                             <Form.Control
                                 type="text"
+                                placeholder="Enter  Reimbursement BranchName "
                                 name="reimbursementBranchName"
                                 value={employee.reimbursementBranchName}
                                 onChange={handleChange}
+                                required
                             />
                         </Form.Group>
-                        <Form.Group controlId="reimbursementBankAccountNumber" className="mb-3">
-                            <Form.Label>Reimbursement Bank Account Number:</Form.Label>
+                        <Form.Group className="mb-3">
+                            <Form.Label>  Reimbursement Bank Account Number</Form.Label>
                             <Form.Control
                                 type="text"
+                                placeholder="Enter  Reimbursement Bank   Account Number "
                                 name="reimbursementBankAccountNumber"
                                 value={employee.reimbursementBankAccountNumber}
                                 onChange={handleChange}
+                                required
                             />
                         </Form.Group>
-                        <Form.Group controlId="expenseIFSCCode" className="mb-3">
-                            <Form.Label>Expense IFSC Code:</Form.Label>
+                        <Form.Group className="mb-3">
+                            <Form.Label>  Expense IFSCCode</Form.Label>
                             <Form.Control
                                 type="text"
+                                placeholder="Enter  Expense IFSCCode "
                                 name="expenseIFSCCode"
                                 value={employee.expenseIFSCCode}
                                 onChange={handleChange}
+                                required
                             />
                         </Form.Group>
-                        <Form.Group controlId="expenseBankName" className="mb-3">
-                            <Form.Label>Expense Bank Name:</Form.Label>
+                        <Form.Group className="mb-3">
+                            <Form.Label>  Expense BankName</Form.Label>
                             <Form.Control
                                 type="text"
+                                placeholder="Enter  Expense BankName "
                                 name="expenseBankName"
                                 value={employee.expenseBankName}
                                 onChange={handleChange}
+                                required
                             />
                         </Form.Group>
-                        <Form.Group controlId="expenseBranchName" className="mb-3">
-                            <Form.Label>Expense Branch Name:</Form.Label>
+                        <Form.Group className="mb-3">
+                            <Form.Label>  Expense BranchName</Form.Label>
                             <Form.Control
                                 type="text"
+                                placeholder="Enter  Expense BranchName "
                                 name="expenseBranchName"
                                 value={employee.expenseBranchName}
                                 onChange={handleChange}
+                                required
                             />
                         </Form.Group>
-                        <Form.Group controlId="expenseBankAccountNumber" className="mb-3">
-                            <Form.Label>Expense Bank Account Number:</Form.Label>
+                        <Form.Group className="mb-3">
+                            <Form.Label>  Expense Bank Account Number</Form.Label>
                             <Form.Control
                                 type="text"
+                                placeholder="Enter  Expense Bank Account Number "
                                 name="expenseBankAccountNumber"
                                 value={employee.expenseBankAccountNumber}
                                 onChange={handleChange}
+                                required
                             />
                         </Form.Group>
-                        <Form.Group controlId="createdBy" className="mb-3">
-                            <Form.Label>Created By:</Form.Label>
+                        <Form.Group className="mb-3">
+                            <Form.Label>  CreatedBy</Form.Label>
                             <Form.Control
                                 type="text"
+                                placeholder="Enter CreatedBy "
                                 name="createdBy"
                                 value={employee.createdBy}
                                 onChange={handleChange}
+                                required
                             />
                         </Form.Group>
-                        <Form.Group controlId="updatedBy" className="mb-3">
-                            <Form.Label>Updated By:</Form.Label>
-                            <Form.Control
-                                type="text"
-                                name="updatedBy"
-                                value={employee.updatedBy}
-                                onChange={handleChange}
-                            />
-                        </Form.Group>
+                        {/* Include other fields as needed */}
                         <Button variant="primary" type="submit">
-                            Save Employee
+                            {editingIndex !== null ? 'Update' : 'Add'}
                         </Button>
                     </Form>
                 </Offcanvas.Body>
             </Offcanvas>
-
-            <Table striped bordered hover>
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Name</th>
-                        <th>Employee ID</th>
-                        <th>Department ID</th>
-                        <th>Designation</th>
-                        <th>HR Mobile Number</th>
-                        <th>Gender ID</th>
-                        <th>Father's Name</th>
-                        <th>DOB</th>
-                        <th>DOJ</th>
-                        <th>Current Project ID</th>
-                        <th>App Access ID</th>
-                        <th>Exempt Status ID</th>
-                        <th>Performance Review ID</th>
-                        <th>Pincode</th>
-                        <th>State</th>
-                        <th>District</th>
-                        <th>Area ID</th>
-                        <th>Address</th>
-                        <th>Salary IFSC Code</th>
-                        <th>Salary Bank Name</th>
-                        <th>Salary Branch Name</th>
-                        <th>Salary Bank Account Number</th>
-                        <th>Reimbursement IFSC Code</th>
-                        <th>Reimbursement Bank Name</th>
-                        <th>Reimbursement Branch Name</th>
-                        <th>Reimbursement Bank Account Number</th>
-                        <th>Expense IFSC Code</th>
-                        <th>Expense Bank Name</th>
-                        <th>Expense Branch Name</th>
-                        <th>Expense Bank Account Number</th>
-                        <th>Created By</th>
-                        <th>Updated By</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {currentEmployees.map((emp, index) => (
-                        <tr key={emp.id}>
-                            <td>{emp.id}</td>
-                            <td>{emp.employeeName}</td>
-                            <td>{emp.employeeID}</td>
-                            <td>{emp.departmentID}</td>
-                            <td>{emp.designation}</td>
-                            <td>{emp.hrUpdateMobileNumber}</td>
-                            <td>{emp.genderID}</td>
-                            <td>{emp.fatherName}</td>
-                            <td>{emp.dob}</td>
-                            <td>{emp.doj}</td>
-                            <td>{emp.currentProjectID}</td>
-                            <td>{emp.appAccessID}</td>
-                            <td>{emp.exemptStatusID}</td>
-                            <td>{emp.performanceReviewID}</td>
-                            <td>{emp.pincode}</td>
-                            <td>{emp.state}</td>
-                            <td>{emp.district}</td>
-                            <td>{emp.areaID}</td>
-                            <td>{emp.address}</td>
-                            <td>{emp.salaryIFSCCode}</td>
-                            <td>{emp.salaryBankName}</td>
-                            <td>{emp.salaryBranchName}</td>
-                            <td>{emp.salaryBankAccountNumber}</td>
-                            <td>{emp.reimbursementIFSCCode}</td>
-                            <td>{emp.reimbursementBankName}</td>
-                            <td>{emp.reimbursementBranchName}</td>
-                            <td>{emp.reimbursementBankAccountNumber}</td>
-                            <td>{emp.expenseIFSCCode}</td>
-                            <td>{emp.expenseBankName}</td>
-                            <td>{emp.expenseBranchName}</td>
-                            <td>{emp.expenseBankAccountNumber}</td>
-                            <td>{emp.createdBy}</td>
-                            <td>{emp.updatedBy}</td>
-                            <td>
-                                <Button variant="warning" onClick={() => handleEdit(index)}>
-                                    Edit
-                                </Button>
-                            </td>
-                        </tr>
-                    ))}
-                </tbody>
-            </Table>
-
-            <div className="d-flex justify-content-between align-items-center mt-4">
-                <Pagination>
-                    <Pagination.Prev
-                        onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-                    />
-                    {Array.from({ length: totalPages }, (_, i) => (
-                        <Pagination.Item
-                            key={i + 1}
-                            active={i + 1 === currentPage}
-                            onClick={() => setCurrentPage(i + 1)}
-                        >
-                            {i + 1}
-                        </Pagination.Item>
-                    ))}
-                    <Pagination.Next
-                        onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
-                    />
-                </Pagination>
-
-                <Form.Group controlId="rowsPerPage" className="d-flex align-items-center">
-                    <Form.Label className="me-2">Rows per page:</Form.Label>
-                    <Form.Control
-                        as="select"
-                        value={rowsPerPage}
-                        onChange={handleRowsPerPageChange}
-                    >
-                        {[5, 10, 15].map(rows => (
-                            <option key={rows} value={rows}>
-                                {rows}
-                            </option>
-                        ))}
-                    </Form.Control>
-                </Form.Group>
-            </div>
         </div>
     );
 };
 
-export default EmployeeForm;
+export default EmployeePage;
