@@ -66,8 +66,16 @@
   }
   .custom-shadow
   {
-      box-shadow: rgba(0, 0, 0, 0.15) 0px 2px 8px;
-      border: none!important;
+    box-shadow: rgba(0, 0, 0, 0.15) 0px 2px 8px;
+    border: 1px solid #d5d5d5;
+    border-radius: 8px;
+    min-width: 300px;
+  }
+
+  .custom-shadow .col-6 div:first-child
+  {
+    font-weight: 600;
+    color: #6b6b6b!important;
   }
   
   .timeliner 
@@ -108,6 +116,29 @@
   }
 
   .list-group .timeliner:last-child .bottom-round
+  {
+    display: none;
+  }
+
+  .add-more
+  {
+    position: absolute;
+    bottom: -8px;
+    right: -8px;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    justify-content: center;
+    font-size: 18px;
+  }
+  .list-group-flush .custom-shadow
+  {
+    min-width: 100%;
+    box-shadow: none;
+    border-bottom: 1px solid #ececec;
+  }
+
+  .list-group-flush .custom-shadow .add-more
   {
     display: none;
   }

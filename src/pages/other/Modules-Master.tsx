@@ -8,6 +8,7 @@ import {
   DroppableProvided,
 } from 'react-beautiful-dnd';
 import { Button, Form, Modal, ListGroup, Card } from 'react-bootstrap';
+import axios from 'axios';
 
 type FormField = {
   id: string;
@@ -133,6 +134,7 @@ const saveTasksToServer = (tasks: any[]) => {
 
 
 
+
 const fetchTasksFromServer = (): any[] => {
   try {
     const tasks = JSON.parse(localStorage.getItem('tasks') || '[]');
@@ -181,10 +183,10 @@ const App: React.FC = () => {
 
     // Save form data
     const newTaskFields: FormField[] = [
-      { id: `${taskFields.length + 1}`, type: 'text', labeltext: `Task Name - ${formData.taskName}` },
-      { id: `${taskFields.length + 2}`, type: 'text', labeltext: `Module Name - ${formData.ModuleName}` },
-      { id: `${taskFields.length + 3}`, type: 'text', labeltext: `Project Name - ${formData.projectName}` },
-      { id: `${taskFields.length + 4}`, type: 'text', labeltext: `Select Process - ${formData.processes}` },
+      { id: '99', type: 'text', labeltext: `Task Name - ${formData.taskName}` },
+      { id: '100', type: 'text', labeltext: `Module Name - ${formData.ModuleName}` },
+      { id: '101', type: 'text', labeltext: `Project Name - ${formData.projectName}` },
+      { id: '102', type: 'text', labeltext: `Select Process - ${formData.processes}` },
     ];
 
 
@@ -392,15 +394,16 @@ const App: React.FC = () => {
     };
 
     return (
-      <ListGroup.Item key={field.id} className="row m-0 justify-content-between align-items-center d-flex custom-shadow" style={{width: 'max-content'}}>
+      <ListGroup.Item key={field.id} className="row m-0 justify-content-between align-items-center d-flex custom-shadow position-relative" id='task-area' style={{width: 'max-content'}}>
+        <div className='ri-add-circle-fill cursor-pointer text-primary add-more'></div>
         {renderFieldContent()}
         <div className='col-sm-12 col-md-4 justify-content-end d-flex'>
           <i
-            className="me-2 ri-pencil-fill text-primary p-1 cursor-pointer fs-4"
+            className="me-2 ri-pencil-fill text-primary cursor-pointer fs-4"
             onClick={() => handleEditField(field, taskIndex, fieldIndex)}
           >
           </i>
-          <i className='ri-delete-bin-fill text-danger p-1 cursor-pointer fs-4' onClick={() => handleDeleteField(taskIndex, fieldIndex)}>
+          <i className='ri-delete-bin-fill text-danger cursor-pointer fs-4' onClick={() => handleDeleteField(taskIndex, fieldIndex)}>
           </i>
         </div>
       </ListGroup.Item>
@@ -527,7 +530,7 @@ const App: React.FC = () => {
                             ref={provided.innerRef}
                             {...provided.draggableProps}
                             {...provided.dragHandleProps}
-                            className="list-group-item col-md-6 col-sm-12 border-none my-1 p-1 timeliner"
+                            className="list-group-item col-md-12 col-sm-12 border-none my-1 p-1 timeliner d-flex"
                             style={{ border: '1px' }}
                           >
                             {renderField(field, -1, index)}
