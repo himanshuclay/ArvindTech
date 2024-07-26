@@ -163,6 +163,7 @@ const App: React.FC = () => {
   const [taskFields, setTaskFields] = useState<FormField[]>([]);
   const [savedTasks, setSavedTasks] = useState<FormField[][]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isapplyModalOpen, setIsapplyModalOpen] = useState(false);
   const [editField, setEditField] = useState<FormField | null>(null);
   const [subFields, setSubFields] = useState<{ [key: string]: boolean }>({});
   const [selectedTaskIdx, setSelectedTaskIdx] = useState<number | null>(null);
@@ -335,7 +336,10 @@ const App: React.FC = () => {
   };
 
 
+  const applyprocess = () => {
 
+    setIsapplyModalOpen(true);
+  };
 
   const handleEditField = (field: FormField, taskIndex: number, fieldIndex: number) => {
     setEditField(field);
@@ -471,7 +475,7 @@ const App: React.FC = () => {
   };
 
   return (
-    <div className="App" id ="taskTop">
+    <div className="App" id="taskTop">
       <div className="container mt-4">
         <div className="d-flex p-2 bg-white mt-2 mb-2">Create Task</div>
 
@@ -584,12 +588,12 @@ const App: React.FC = () => {
                 {(provided: DroppableProvided) => (
                   <div ref={provided.innerRef} {...provided.droppableProps} className="list-group  m-0">
                     {taskFields.length === 0 &&
-                    (
-                      <div className='col-12 align-items-center justify-content-center d-flex flex-column' style={{height: '200px'}}>
-                        <i className="ri-arrow-turn-back-line fs-1"></i>
-                        <span>Please Select Task Fields</span>
-                      </div>
-                    )
+                      (
+                        <div className='col-12 align-items-center justify-content-center d-flex flex-column' style={{ height: '200px' }}>
+                          <i className="ri-arrow-turn-back-line fs-1"></i>
+                          <span>Please Select Task Fields</span>
+                        </div>
+                      )
                     }
                     {taskFields.map((field, index) => (
                       <Draggable key={field.id} draggableId={field.id} index={index}>
@@ -835,7 +839,7 @@ const App: React.FC = () => {
               <Card key={taskIndex} className="mb-4 row m-1">
                 <Card.Header>
                   <div className="d-flex justify-content-between align-items-center">
-                    <span>ACC.T{taskIndex + 1}.{ }</span>
+                    <span>ACC.01.T{taskIndex + 1}.{ }</span>
                     <Button
                       size="sm"
                       onClick={() => toggleVisibility(taskIndex)}
@@ -871,12 +875,45 @@ const App: React.FC = () => {
 
           ))}
           <div className="d-flex justify-content-end p-2 col-12">
-          <Button variant="primary">
-            Apply Process
-          </Button>
-        </div>
+            <Button variant="primary" onClick={applyprocess}>
+              Apply Process
+            </Button>
+          </div>
         </div>
       </div>
+
+      <Modal size='lg' show={isapplyModalOpen} onHide={() => setIsapplyModalOpen(false)}>
+        <Modal.Header closeButton>
+          <Modal.Title>Edit Field</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+
+        <Form.Group className='col-md-6 my-1'>
+                <Form.Label>Select Projects</Form.Label>
+                <Form.Control
+                  as="select"
+                  name="processes"
+                  value={formData.processes}
+                  onChange={handleFormChange}
+                  required
+                >
+                  <option value="">Select Projects</option>
+                  {['PNC_Gwalior', 'UPSC_Gujrat', 'PNC_lucknow', 'PNC_Kanpur', 'PNC_Delhi'].map((option, index) => (
+                    <option key={index} value={option}>
+                      {option}
+                    </option>
+                  ))}
+                </Form.Control>
+              </Form.Group>
+
+        </Modal.Body>
+        <Modal.Footer>
+        <Button className='btn-primary' variant="Primary" onClick={() => setIsapplyModalOpen(false)}>
+              Save
+        </Button>
+        </Modal.Footer>
+      </Modal>
+
     </div>
   );
 };
