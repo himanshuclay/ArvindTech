@@ -9,7 +9,7 @@ import {
 } from 'react-beautiful-dnd';
 import { Button, Form, Modal, ListGroup, Card } from 'react-bootstrap';
 import axios from 'axios';
-import { Console } from 'console';
+import Select from 'react-select'
 
 type FormField = {
   id: string;
@@ -25,6 +25,14 @@ type FormField = {
   successorTaskId?: string;
   CustomSelect?: string;
 };
+
+const projectOptions = [
+  { value: 'PNC_Gwalior', label: 'PNC_Gwalior' },
+  { value: 'UPSC_Gujrat', label: 'UPSC_Gujrat' },
+  { value: 'PNC_Lucknow', label: 'PNC_Lucknow' },
+  { value: 'PNC_Kanpur', label: 'PNC_Kanpur' },
+  { value: 'PNC_Delhi', label: 'PNC_Delhi' }
+];
 
 const initialInventory: FormField[] = [
   { id: '5', type: 'text', labeltext: 'Text Box', placeholder: 'Enter text' },
@@ -882,18 +890,18 @@ const App: React.FC = () => {
         </div>
       </div>
 
-      <Modal size='lg' show={isapplyModalOpen} onHide={() => setIsapplyModalOpen(false)}>
+      <Modal size='md' show={isapplyModalOpen} onHide={() => setIsapplyModalOpen(false)}>
         <Modal.Header closeButton>
           <Modal.Title>Edit Field</Modal.Title>
         </Modal.Header>
         <Modal.Body>
 
-        <Form.Group className='col-md-6 my-1'>
-                <Form.Label>Select Projects</Form.Label>
-                <Form.Control
+          <Form.Group className='col-md-8 my-1'>
+            <Form.Label>Select Projects</Form.Label>
+            {/* <Form.Control
                   as="select"
-                  name="processes"
-                  value={formData.processes}
+                  name="projectName"
+                  value={formData.projectName}
                   onChange={handleFormChange}
                   required
                 >
@@ -903,14 +911,20 @@ const App: React.FC = () => {
                       {option}
                     </option>
                   ))}
-                </Form.Control>
-              </Form.Group>
+                </Form.Control> */}
+            <Select
+              className="select2 select2-multiple z-3"
+              options={projectOptions}
+              isMulti={true}
+              placeholder="Select Projects"
+            />
+          </Form.Group>
 
         </Modal.Body>
         <Modal.Footer>
-        <Button className='btn-primary' variant="Primary" onClick={() => setIsapplyModalOpen(false)}>
-              Save
-        </Button>
+          <Button className='btn-primary' variant="Primary" onClick={() => setIsapplyModalOpen(false)}>
+            Save
+          </Button>
         </Modal.Footer>
       </Modal>
 
