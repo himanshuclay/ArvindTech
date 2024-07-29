@@ -79,14 +79,14 @@ const MENU_ITEMS: MenuItemTypes[] = [
 				key: 'ModuleMaster',
 				label: 'Module Master',
 				url: '/pages/ModuleMaster',
-				icon: 'ri-user-settings-line',
+				icon: 'ri-slideshow-line',
 				parentKey: 'pages',
 			},
 			{
 				key: 'ProcessMaster',
 				label: 'Process Master',
 				url: '/pages/ProcessMaster',
-				icon: 'ri-user-settings-line',
+				icon: 'ri-bubble-chart-line',
 				parentKey: 'pages',
 			},
 		
@@ -95,7 +95,7 @@ const MENU_ITEMS: MenuItemTypes[] = [
 				key: 'TaskMaster',
 				label: 'Task Master',
 				url: '/pages/TaskMaster',
-				icon: 'ri-user-settings-line',
+				icon: 'ri-pie-chart-2-line',
 				parentKey: 'pages',
 			},
 			{
@@ -110,7 +110,7 @@ const MENU_ITEMS: MenuItemTypes[] = [
 				key: 'DoerMaster',
 				label: 'Doer Master',
 				url: '/pages/DoerMaster',
-				icon: 'ri-user-settings-line',
+				icon: 'ri-brain-line',
 				parentKey: 'pages',
 			},
 		
@@ -118,7 +118,7 @@ const MENU_ITEMS: MenuItemTypes[] = [
 				key: 'FormMaster',
 				label: 'Form Master',
 				url: '/pages/FormMaster',
-				icon: 'ri-user-settings-line',
+				icon: 'ri-survey-line',
 				parentKey: 'pages',
 			},
 			{
@@ -142,7 +142,7 @@ const MENU_ITEMS: MenuItemTypes[] = [
 				key: 'TicketMaster',
 				label: 'Ticket Master',
 				url: '/pages/TicketMaster',
-				icon: 'ri-user-settings-line',
+				icon: 'ri-coupon-2-line',
 				parentKey: 'pages',
 			},
 		
@@ -150,7 +150,7 @@ const MENU_ITEMS: MenuItemTypes[] = [
 				key: 'SystemLogs',
 				label: 'System Logs',
 				url: '/pages/SystemLogs',
-				icon: 'ri-user-settings-line',
+				icon: 'ri-login-circle-line',
 				parentKey: 'pages',
 			},
 		
@@ -177,7 +177,7 @@ const MENU_ITEMS: MenuItemTypes[] = [
 				label: ' Checklist Master',
 				url: '/pages/ChecklistMaster',
 				
-				icon: 'ri-user-settings-line',
+				icon: 'ri-list-check-3',
 				parentKey: 'pages',
 			},
 		

@@ -1,96 +1,100 @@
 import React, { useState, useEffect, ChangeEvent } from 'react';
-import { Button, Form, Offcanvas, Table, InputGroup, FormControl, Pagination } from 'react-bootstrap';
+import { Button, Form, Offcanvas, Table, Pagination } from 'react-bootstrap';
+import axios from 'axios';
 
-interface Module {
-    displayName: string;
-    fmsType: string;
-    departmentId: string;
-    misExempt: boolean;
-    status2: string;
-    ownerName: string;
+interface Role {
+    id: number;
+    roleName: string;
+    moduleID: number;
+    createdBy: string;
+    updatedBy: string;
 }
 
-const ModuleMaster: React.FC = () => {
-    const [module, setModule] = useState<Module>({
-        displayName: '',
-        fmsType: '',
-        departmentId: '',
-        misExempt: false,
-        status2: '',
-        ownerName: ''
+const RoleMaster: React.FC = () => {
+    const [role, setRole] = useState<Role>({
+        id: 0,
+        roleName: '',
+        moduleID: 0,
+        createdBy: '',
+        updatedBy: ''
     });
 
-    const [modules, setModules] = useState<Module[]>([]);
+    const [roles, setRoles] = useState<Role[]>([]);
     const [show, setShow] = useState(false);
     const [editingIndex, setEditingIndex] = useState<number | null>(null);
     const [searchQuery, setSearchQuery] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
     const [rowsPerPage, setRowsPerPage] = useState(5);
+    const [loading, setLoading] = useState<boolean>(false);
+
 
     useEffect(() => {
-        const storedModules = localStorage.getItem('modules');
-        if (storedModules) {
-            setModules(JSON.parse(storedModules));
+        fetchRoles();
+    }, [currentPage, rowsPerPage]);
+
+    const fetchRoles = async () => {
+        setLoading(true);
+
+        try {
+            const response = await axios.get('https://localhost:7074/api/RoleMaster/GetRole', {
+                params: {
+                    PageIndex: currentPage
+                }
+            });
+            if (response.data.isSuccess) {
+                setRoles(response.data.roleMasterListResponses);
+                console.log(response.data.roleMasterListResponses);
+            } else {
+                console.error(response.data.message);
+            }
+        } catch (error) {
+            console.error('Error fetching roles:', error);
         }
-    }, []);
-
-    useEffect(() => {
-        localStorage.setItem('modules', JSON.stringify(modules));
-    }, [modules]);
+        finally {
+            setLoading(false); // End loading
+        }
+    };
 
     const handleShow = () => setShow(true);
 
     const handleChange = (e: ChangeEvent<HTMLInputElement> | ChangeEvent<HTMLSelectElement>) => {
-        const { name, value, type, checked } = e.target as HTMLInputElement | HTMLSelectElement;
-        if (type === 'checkbox') {
-            setModule({
-                ...module,
-                [name]: checked
-            });
-        } else {
-            setModule({
-                ...module,
-                [name]: value
-            });
-        }
+        const { name, value } = e.target as HTMLInputElement | HTMLSelectElement;
+        setRole({
+            ...role,
+            [name]: value
+        });
     };
 
-    const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        if (editingIndex !== null) {
-            const updatedModules = [...modules];
-            updatedModules[editingIndex] = module;
-            setModules(updatedModules);
-        } else {
-            setModules([...modules, module]);
+        try {
+            if (editingIndex !== null) {
+                await axios.post('https://localhost:7074/api/RoleMaster/UpdateRole', role);
+            } else {
+                await axios.post('https://localhost:7074/api/RoleMaster/InsertRole', role);
+            }
+            fetchRoles();
+            handleClose();
+        } catch (error) {
+            console.error('Error submitting role:', error);
         }
-        setModule({
-            displayName: '',
-            fmsType: '',
-            departmentId: '',
-            misExempt: false,
-            status2: '',
-            ownerName: ''
-        });
-        handleClose();
     };
 
     const handleEdit = (index: number) => {
         setEditingIndex(index);
-        setModule(modules[index]);
+        setRole(roles[index]);
         handleShow();
     };
 
     const handleClose = () => {
         setShow(false);
         setEditingIndex(null);
-        setModule({
-            displayName: '',
-            fmsType: '',
-            departmentId: '',
-            misExempt: false,
-            status2: '',
-            ownerName: ''
+        setRole({
+            id: 0,
+            roleName: '',
+            moduleID: 0,
+            createdBy: '',
+            updatedBy: ''
         });
     };
 
@@ -104,30 +108,25 @@ const ModuleMaster: React.FC = () => {
         setCurrentPage(1); // Reset to first page on rows per page change
     };
 
-    const filteredModules = modules.filter(module =>
-        module.displayName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        module.fmsType.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        module.departmentId.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        module.status2.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        module.ownerName.toLowerCase().includes(searchQuery.toLowerCase())
+    const filteredRoles = roles.filter(role =>
+        role.roleName.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
-    const indexOfLastModule = currentPage * rowsPerPage;
-    const indexOfFirstModule = indexOfLastModule - rowsPerPage;
-    const currentModules = filteredModules.slice(indexOfFirstModule, indexOfLastModule);
+    const indexOfLastRole = currentPage * rowsPerPage;
+    const indexOfFirstRole = indexOfLastRole - rowsPerPage;
+    const currentRoles = filteredRoles.slice(indexOfFirstRole, indexOfLastRole);
 
-    const totalPages = Math.ceil(filteredModules.length / rowsPerPage);
+    const totalPages = Math.ceil(filteredRoles.length / rowsPerPage);
 
-    const convertToCSV = (data: Module[]) => {
+    const convertToCSV = (data: Role[]) => {
         const csvRows = [
-            ['Display Name', 'Account', 'FMS Type', 'Department ID', 'MIS Exempt', 'Statu2s', 'Module Owner Name'],
-            ...data.map(mod => [
-                mod.displayName,
-                mod.fmsType,
-                mod.departmentId,
-                mod.misExempt ? 'Yes' : 'No',
-                mod.status2,
-                mod.ownerName
+            ['ID', 'Role Name', 'Module ID', 'Created By', 'Updated By'],
+            ...data.map(role => [
+                role.id.toString(),
+                role.roleName,
+                role.moduleID.toString(),
+                role.createdBy,
+                role.updatedBy
             ])
         ];
 
@@ -135,21 +134,24 @@ const ModuleMaster: React.FC = () => {
     };
 
     const downloadCSV = () => {
-        const csvData = convertToCSV(modules);
-        const blob = new Blob([csvData], { type: 'text/csv' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = 'modules.csv';
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
+        const csvData = convertToCSV(roles);
+        const blob = new Blob([csvData], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement('a');
+        if (link.download !== undefined) {
+            const url = URL.createObjectURL(blob);
+            link.setAttribute('href', url);
+            link.setAttribute('download', 'Roles.csv');
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
     };
 
     return (
         <div className="container">
             <div className="d-flex bg-white p-2 my-2 justify-content-between align-items-center">
-                <span><i className="ri-file-list-line me-2"></i><span className='fw-bold'>Modules List</span></span>
+                <span><i className="ri-file-list-line me-2"></i><span className='fw-bold'>Roles List</span></span>
                 <div className="d-flex">
                     <div className="app-search d-none d-lg-block me-4">
                         <form>
@@ -157,7 +159,7 @@ const ModuleMaster: React.FC = () => {
                                 <input
                                     type="search"
                                     className="form-control"
-                                    placeholder="Search module..."
+                                    placeholder="Search role..."
                                     value={searchQuery}
                                     onChange={handleSearch}
                                 />
@@ -166,80 +168,56 @@ const ModuleMaster: React.FC = () => {
                         </form>
                     </div>
                     <Button variant="primary" onClick={handleShow} className="me-2">
-                        Add Module
+                        Add Role
                     </Button>
-                    <Button variant="secondary" onClick={downloadCSV}>
+                    <Button variant="primary" onClick={downloadCSV} className="me-2">
                         Download CSV
                     </Button>
                 </div>
             </div>
 
-            <Offcanvas show={show} onHide={handleClose} >
+            <Offcanvas show={show} onHide={handleClose}>
                 <Offcanvas.Header closeButton>
-                    <Offcanvas.Title>Module Form</Offcanvas.Title>
+                    <Offcanvas.Title>Role Form</Offcanvas.Title>
                 </Offcanvas.Header>
                 <Offcanvas.Body>
                     <Form onSubmit={handleSubmit}>
-                        <Form.Group controlId="displayName" className="mb-3">
-                            <Form.Label>Module Display Name:</Form.Label>
+                        <Form.Group controlId="roleName" className="mb-3">
+                            <Form.Label>Role Name:</Form.Label>
                             <Form.Control
                                 type="text"
-                                name="displayName"
-                                value={module.displayName}
+                                name="roleName"
+                                value={role.roleName}
                                 onChange={handleChange}
                                 required
                             />
                         </Form.Group>
-                        <Form.Group controlId="fmsType" className="mb-3">
-                            <Form.Label>FMS Type:</Form.Label>
+                        <Form.Group controlId="moduleID" className="mb-3">
+                            <Form.Label>Module ID:</Form.Label>
                             <Form.Control
-                                type="text"
-                                name="fmsType"
-                                value={module.fmsType}
+                                type="number"
+                                name="moduleID"
+                                value={role.moduleID}
                                 onChange={handleChange}
                                 required
                             />
                         </Form.Group>
-                        <Form.Group controlId="departmentId" className="mb-3">
-                            <Form.Label>Department ID:</Form.Label>
+                        <Form.Group controlId="createdBy" className="mb-3">
+                            <Form.Label>Created By:</Form.Label>
                             <Form.Control
                                 type="text"
-                                name="departmentId"
-                                value={module.departmentId}
+                                name="createdBy"
+                                value={role.createdBy}
                                 onChange={handleChange}
                                 required
                             />
                         </Form.Group>
-                        <Form.Group controlId="misExempt" className="mb-3">
-                            <Form.Check
-                                type="checkbox"
-                                label="MIS Exempt"
-                                name="misExempt"
-                                checked={module.misExempt}
-                                onChange={handleChange}
-                            />
-                        </Form.Group>
-                        <Form.Group controlId="status2" className="mb-3">
-                            <Form.Label>Status:</Form.Label>
-                            <Form.Control
-                                as="select"
-                                name="status2"
-                                value={module.status2}
-                                onChange={handleChange}
-                                required
-
-                            >
-                                <option value="">Select Status</option>
-                                <option value="Yes">Yes</option>
-                                <option value="No">No</option>
-                            </Form.Control>
-                        </Form.Group>
-                        <Form.Group controlId="ownerName" className="mb-3">
-                            <Form.Label>Module Owner Name:</Form.Label>
+                        <Form.Group controlId="updatedBy" className="mb-3">
+                            <Form.Label>Updated By:</Form.Label>
                             <Form.Control
                                 type="text"
-                                name="ownerName"
-                                value={module.ownerName}
+                                name="updatedBy"
+                                value={role.updatedBy}
                                 onChange={handleChange}
                                 required
                             />
@@ -250,6 +228,7 @@ const ModuleMaster: React.FC = () => {
                     </Form>
                 </Offcanvas.Body>
             </Offcanvas>
+
             <div className="d-flex justify-content-between align-items-center my-2">
                 <div>
                     <Form.Select value={rowsPerPage} onChange={handleRowsPerPageChange}>
@@ -266,36 +245,40 @@ const ModuleMaster: React.FC = () => {
                     <Pagination.Last onClick={() => setCurrentPage(totalPages)} disabled={currentPage === totalPages} />
                 </Pagination>
             </div>
-            <Table className='bg-white' striped bordered hover>
-                <thead>
-                    <tr>
-                        <th>Display Name</th>
-                        <th>FMS Type</th>
-                        <th>Department ID</th>
-                        <th>MIS Exempt</th>
-                        <th>Status</th>
-                        <th>Module Owner Name</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {currentModules.map((mod, index) => (
-                        <tr key={index}>
-                            <td>{mod.displayName}</td>
-                            <td>{mod.fmsType}</td>
-                            <td>{mod.departmentId}</td>
-                            <td>{mod.misExempt ? 'Yes' : 'No'}</td>
-                            <td>{mod.status2}</td>
-                            <td>{mod.ownerName}</td>
-                            <td>
-                                <i className='btn ri-edit-line' onClick={() => handleEdit(index + indexOfFirstModule)}></i>
-                            </td>
-                        </tr>
-                    ))}
-                </tbody>
-            </Table>
+
+            <div className="overflow-auto">
+                {loading ? (
+                    <div className='loader-container'>
+                        <div className="loader"></div>
+                        <div className='mt-2'>Please Wait!</div>
+                    </div>
+                ) : (
+
+                    <Table className='bg-white' striped bordered hover>
+                        <thead>
+                            <tr>
+                                <th>Role Name</th>
+                                <th>Module ID</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {currentRoles.map((role, index) => (
+                                <tr key={index}>
+                                    <td>{role.roleName}</td>
+                                    <td>{role.moduleID}</td>
+                                    <td>
+                                        <i className='btn ri-edit-line' onClick={() => handleEdit(index)}></i>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </Table>
+                )}
+
+            </div>
         </div>
     );
 };
 
-export default ModuleMaster;
+export default RoleMaster;

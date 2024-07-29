@@ -2,71 +2,59 @@ import React, { useState, useEffect, ChangeEvent } from 'react';
 import { Button, Form, Offcanvas, Table, Pagination } from 'react-bootstrap';
 import axios from 'axios';
 
-interface ModuleMaster {
+interface Module {
     id: number;
     moduleDisplayName: string;
     fmsType: string;
     moduleID: string;
     misExemptID: number;
     statusID: number;
-    moduleOwnerNameID: number;
+    moduleOwnerID: string;
+    moduleOwnerName: string;
     createdBy: string;
     updatedBy: string;
 }
 
-const ModuleMasterPage: React.FC = () => {
-    const [moduleMaster, setModuleMaster] = useState<ModuleMaster>({
+const ModuleMaster: React.FC = () => {
+    const [module, setModule] = useState<Module>({
         id: 0,
         moduleDisplayName: '',
         fmsType: '',
         moduleID: '',
         misExemptID: 0,
         statusID: 0,
-        moduleOwnerNameID: 0,
+        moduleOwnerID: '',
+        moduleOwnerName: '',
         createdBy: '',
         updatedBy: ''
     });
 
-    const [moduleMasterList, setModuleMasterList] = useState<ModuleMaster[]>([]);
+    const [modules, setModules] = useState<Module[]>([]);
     const [show, setShow] = useState(false);
     const [editingIndex, setEditingIndex] = useState<number | null>(null);
     const [searchQuery, setSearchQuery] = useState('');
-    const [currentPage, setCurrentPage] = useState<number>(1);
-    const [rowsPerPage, setRowsPerPage] = useState<number>(10);
-    const [totalCount, setTotalCount] = useState<number>(0);
-    const [loading, setLoading] = useState<boolean>(false);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [rowsPerPage, setRowsPerPage] = useState(5);
 
     useEffect(() => {
-        fetchModuleMaster(currentPage, rowsPerPage);
+        fetchModules();
     }, [currentPage, rowsPerPage]);
 
-    const fetchModuleMaster = async (page: number, rows: number) => {
-        setLoading(true);
+    const fetchModules = async () => {
         try {
-            const params = new URLSearchParams({ id: '1', PageIndex: page.toString(), RowsPerPage: rows.toString() });
-            const url = `https://localhost:44306/api/ModuleMaster/GetModule?${params.toString()}`;
-
-            const response = await axios.get(url, {
-                headers: {
-                    'accept': '*/*'
+            const response = await axios.get('https://localhost:7074/api/ModuleMaster/GetModule', {
+                params: {
+                    PageIndex: currentPage
                 }
             });
-
-            if (response && response.status === 200 && response.data.isSuccess) {
-                setModuleMasterList(response.data.moduleMasterList);
-                setTotalCount(response.data.totalCount);
+            if (response.data.isSuccess) {
+                setModules(response.data.moduleMasterList);
+                console.log(response.data.moduleMasterList);
             } else {
-                console.error('Failed to fetch module master list: Invalid response status');
+                console.error(response.data.message);
             }
         } catch (error) {
-            console.error('An error occurred while fetching the module master list:', error);
-            if (error.response) {
-                console.error('Error response data:', error.response.data);
-                console.error('Error response status:', error.response.status);
-                console.error('Error response headers:', error.response.headers);
-            }
-        } finally {
-            setLoading(false);
+            console.error('Error fetching modules:', error);
         }
     };
 
@@ -75,13 +63,13 @@ const ModuleMasterPage: React.FC = () => {
     const handleChange = (e: ChangeEvent<HTMLInputElement> | ChangeEvent<HTMLSelectElement>) => {
         const { name, value, type, checked } = e.target as HTMLInputElement | HTMLSelectElement;
         if (type === 'checkbox') {
-            setModuleMaster({
-                ...moduleMaster,
+            setModule({
+                ...module,
                 [name]: checked
             });
         } else {
-            setModuleMaster({
-                ...moduleMaster,
+            setModule({
+                ...module,
                 [name]: value
             });
         }
@@ -89,69 +77,37 @@ const ModuleMasterPage: React.FC = () => {
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-
-        const payload = { ...moduleMaster, updatedBy: moduleMaster.createdBy };
-
         try {
-            let response;
             if (editingIndex !== null) {
-                // Update existing module master
-                response = await axios.post('https://localhost:44306/api/ModuleMaster/UpdateModule', payload, {
-                    headers: {
-                        'accept': '*/*',
-                        'Content-Type': 'application/json'
-                    }
-                });
+                await axios.post('https://localhost:7074/api/ModuleMaster/UpdateModule', module);
             } else {
-                // Insert new module master
-                response = await axios.post('https://localhost:44306/api/ModuleMaster/InsertModule', payload, {
-                    headers: {
-                        'accept': '*/*',
-                        'Content-Type': 'application/json'
-                    }
-                });
+                await axios.post('https://localhost:7074/api/ModuleMaster/InsertModule', module);
             }
-
-            if (response.status === 200 || response.status === 201) {
-                const newModuleMaster = response.data;
-
-                if (editingIndex !== null) {
-                    const updatedModuleMasterList = [...moduleMasterList];
-                    updatedModuleMasterList[editingIndex] = newModuleMaster;
-                    setModuleMasterList(updatedModuleMasterList);
-                } else {
-                    setModuleMasterList([...moduleMasterList, { ...newModuleMaster, id: moduleMasterList.length + 1 }]);
-                }
-                handleClose();
-            } else {
-                console.error('Failed to submit module master');
-            }
+            fetchModules();
+            handleClose();
         } catch (error) {
-            if (axios.isAxiosError(error) && error.response) {
-                console.error('An error occurred while submitting the module master:', error.response.data);
-            } else {
-                console.error('An error occurred while submitting the module master:', error);
-            }
+            console.error('Error submitting module:', error);
         }
     };
 
     const handleEdit = (index: number) => {
         setEditingIndex(index);
-        setModuleMaster(moduleMasterList[index]);
+        setModule(modules[index]);
         handleShow();
     };
 
     const handleClose = () => {
         setShow(false);
         setEditingIndex(null);
-        setModuleMaster({
+        setModule({
             id: 0,
             moduleDisplayName: '',
             fmsType: '',
             moduleID: '',
             misExemptID: 0,
             statusID: 0,
-            moduleOwnerNameID: 0,
+            moduleOwnerID: '',
+            moduleOwnerName: '',
             createdBy: '',
             updatedBy: ''
         });
@@ -159,27 +115,41 @@ const ModuleMasterPage: React.FC = () => {
 
     const handleSearch = (e: ChangeEvent<HTMLInputElement>) => {
         setSearchQuery(e.target.value);
-        setCurrentPage(1);
+        setCurrentPage(1); // Reset to first page on search
     };
 
     const handleRowsPerPageChange = (e: ChangeEvent<HTMLSelectElement>) => {
         setRowsPerPage(Number(e.target.value));
-        setCurrentPage(1);
+        setCurrentPage(1); // Reset to first page on rows per page change
     };
 
-    const totalPages = Math.ceil(totalCount / rowsPerPage);
+    const filteredModules = modules.filter(module =>
+        module.moduleDisplayName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        module.moduleID.toLowerCase().includes(searchQuery.toLowerCase())||
+        module.fmsType.toLowerCase().includes(searchQuery.toLowerCase())||
+        module.moduleOwnerID.toLowerCase().includes(searchQuery.toLowerCase())||
+        module.moduleOwnerName.toLowerCase().includes(searchQuery.toLowerCase())
+    );
 
-    const convertToCSV = (data: ModuleMaster[]) => {
+    const indexOfLastModule = currentPage * rowsPerPage;
+    const indexOfFirstModule = indexOfLastModule - rowsPerPage;
+    const currentModules = filteredModules.slice(indexOfFirstModule, indexOfLastModule);
+
+    const totalPages = Math.ceil(filteredModules.length / rowsPerPage);
+
+    const convertToCSV = (data: Module[]) => {
         const csvRows = [
-            ['Module Display Name', 'FMS Type', 'Module ID', 'MIS Exempt ID', 'Status ID', 'Module Owner Name ID', 'Created By'],
-            ...data.map(module => [
-                module.moduleDisplayName,
-                module.fmsType,
-                module.moduleID,
-                module.misExemptID.toString(),
-                module.statusID.toString(),
-                module.moduleOwnerNameID.toString(),
-                module.createdBy
+            ['ID', 'Module Display Name', 'FMS Type', 'Module ID', 'MIS Exempt ID', 'Status ID', 'Module Owner Name ID', 'Created By', 'Updated By'],
+            ...data.map(mod => [
+                mod.id.toString(),
+                mod.moduleDisplayName,
+                mod.fmsType,
+                mod.moduleID,
+                mod.misExemptID.toString(),
+                mod.statusID.toString(),
+                mod.moduleOwnerNameID.toString(),
+                mod.createdBy,
+                mod.updatedBy
             ])
         ];
 
@@ -187,21 +157,24 @@ const ModuleMasterPage: React.FC = () => {
     };
 
     const downloadCSV = () => {
-        const csvData = convertToCSV(moduleMasterList);
-        const blob = new Blob([csvData], { type: 'text/csv' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = 'module_masters.csv';
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
+        const csvData = convertToCSV(modules);
+        const blob = new Blob([csvData], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement('a');
+        if (link.download !== undefined) {
+            const url = URL.createObjectURL(blob);
+            link.setAttribute('href', url);
+            link.setAttribute('download', 'Modules.csv');
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
     };
 
     return (
         <div className="container">
             <div className="d-flex bg-white p-2 my-2 justify-content-between align-items-center">
-                <span><i className="ri-projector-line me-2"></i><span className='fw-bold'>Module Master List</span></span>
+                <span><i className="ri-file-list-line me-2"></i><span className='fw-bold'>Modules List</span></span>
                 <div className="d-flex">
                     <div className="app-search d-none d-lg-block me-4">
                         <form>
@@ -209,7 +182,7 @@ const ModuleMasterPage: React.FC = () => {
                                 <input
                                     type="search"
                                     className="form-control"
-                                    placeholder="Search Module..."
+                                    placeholder="Search module..."
                                     value={searchQuery}
                                     onChange={handleSearch}
                                 />
@@ -217,55 +190,108 @@ const ModuleMasterPage: React.FC = () => {
                             </div>
                         </form>
                     </div>
-                    <Button variant="primary" onClick={handleShow}>
-                        <i className="ri-add-line align-bottom me-1"></i> Add Module Master
+                    <Button variant="primary" onClick={handleShow} className="me-2">
+                        Add Module
                     </Button>
-                    <Button variant="success" onClick={downloadCSV} className="ms-2">
-                        <i className="ri-file-download-line align-bottom me-1"></i> Download CSV
+                    <Button variant="primary" onClick={downloadCSV} className="me-2">
+                        Download CSV
                     </Button>
                 </div>
             </div>
-            {loading ? (
-                <div className="text-center mt-4">
-                    <div className="spinner-border text-primary" role="status">
-                        <span className="visually-hidden">Loading...</span>
-                    </div>
-                </div>
-            ) : (
-                <Table striped bordered hover responsive>
-                    <thead>
-                        <tr>
-                            <th>Module Display Name</th>
-                            <th>FMS Type</th>
-                            <th>Module ID</th>
-                            <th>MIS Exempt ID</th>
-                            <th>Status ID</th>
-                            <th>Module Owner Name ID</th>
-                            <th>Created By</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {moduleMasterList.map((module, index) => (
-                            <tr key={index}>
-                                <td>{module.moduleDisplayName}</td>
-                                <td>{module.fmsType}</td>
-                                <td>{module.moduleID}</td>
-                                <td>{module.misExemptID}</td>
-                                <td>{module.statusID}</td>
-                                <td>{module.moduleOwnerNameID}</td>
-                                <td>{module.createdBy}</td>
-                                <td>
-                                    <Button variant="warning" size="sm" onClick={() => handleEdit(index)}>
-                                        Edit
-                                    </Button>
-                                </td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </Table>
-            )}
-             <div className="d-flex justify-content-between align-items-center my-2">
+
+            <Offcanvas show={show} onHide={handleClose}>
+                <Offcanvas.Header closeButton>
+                    <Offcanvas.Title>Module Form</Offcanvas.Title>
+                </Offcanvas.Header>
+                <Offcanvas.Body>
+                    <Form onSubmit={handleSubmit}>
+                        <Form.Group controlId="moduleDisplayName" className="mb-3">
+                            <Form.Label>Module Display Name:</Form.Label>
+                            <Form.Control
+                                type="text"
+                                name="moduleDisplayName"
+                                value={module.moduleDisplayName}
+                                onChange={handleChange}
+                                required
+                            />
+                        </Form.Group>
+                        <Form.Group controlId="moduleID" className="mb-3">
+                            <Form.Label>Module ID:</Form.Label>
+                            <Form.Control
+                                type="text"
+                                name="moduleID"
+                                value={module.moduleID}
+                                onChange={handleChange}
+                                required
+                            />
+                        </Form.Group>
+                        <Form.Group controlId="fmsType" className="mb-3">
+                            <Form.Label>FMS Type:</Form.Label>
+                            <Form.Control
+                                type="text"
+                                name="fmsType"
+                                value={module.fmsType}
+                                onChange={handleChange}
+                                required
+                            />
+                        </Form.Group>
+                        <Form.Group controlId="misExemptID" className="mb-3">
+                            <Form.Label>MIS Exempt ID:</Form.Label>
+                            <Form.Control
+                                type="number"
+                                name="misExemptID"
+                                value={module.misExemptID}
+                                onChange={handleChange}
+                                required
+                            />
+                        </Form.Group>
+                        <Form.Group controlId="statusID" className="mb-3">
+                            <Form.Label>Status ID:</Form.Label>
+                            <Form.Control
+                                type="number"
+                                name="statusID"
+                                value={module.statusID}
+                                onChange={handleChange}
+                                required
+                            />
+                        </Form.Group>
+                        <Form.Group controlId="moduleOwnerNameID" className="mb-3">
+                            <Form.Label>Module Owner Name ID:</Form.Label>
+                            <Form.Control
+                                type="number"
+                                name="moduleOwnerNameID"
+                                value={module.moduleOwnerNameID}
+                                onChange={handleChange}
+                                required
+                            />
+                        </Form.Group>
+                        <Form.Group controlId="createdBy" className="mb-3">
+                            <Form.Label>Created By:</Form.Label>
+                            <Form.Control
+                                type="text"
+                                name="createdBy"
+                                value={module.createdBy}
+                                onChange={handleChange}
+                                required
+                            />
+                        </Form.Group>
+                        <Form.Group controlId="updatedBy" className="mb-3">
+                            <Form.Label>Updated By:</Form.Label>
+                            <Form.Control
+                                type="text"
+                                name="updatedBy"
+                                value={module.updatedBy}
+                                onChange={handleChange}
+                                required
+                            />
+                        </Form.Group>
+                        <Button variant="primary" type="submit">
+                            Submit
+                        </Button>
+                    </Form>
+                </Offcanvas.Body>
+            </Offcanvas>
+            <div className="d-flex justify-content-between align-items-center my-2">
                 <div>
                     <Form.Select value={rowsPerPage} onChange={handleRowsPerPageChange}>
                         <option value={5}>5 rows</option>
@@ -281,48 +307,42 @@ const ModuleMasterPage: React.FC = () => {
                     <Pagination.Last onClick={() => setCurrentPage(totalPages)} disabled={currentPage === totalPages} />
                 </Pagination>
             </div>
-            <Offcanvas show={show} onHide={handleClose} placement='end'>
-                <Offcanvas.Header closeButton>
-                    <Offcanvas.Title>{editingIndex !== null ? 'Edit Module Master' : 'Add Module Master'}</Offcanvas.Title>
-                </Offcanvas.Header>
-                <Offcanvas.Body>
-                    <Form onSubmit={handleSubmit}>
-                        <Form.Group className="mb-3">
-                            <Form.Label>Module Display Name</Form.Label>
-                            <Form.Control type="text" name="moduleDisplayName" value={moduleMaster.moduleDisplayName} onChange={handleChange} required />
-                        </Form.Group>
-                        <Form.Group className="mb-3">
-                            <Form.Label>FMS Type</Form.Label>
-                            <Form.Control type="text" name="fmsType" value={moduleMaster.fmsType} onChange={handleChange} required />
-                        </Form.Group>
-                        <Form.Group className="mb-3">
-                            <Form.Label>Module ID</Form.Label>
-                            <Form.Control type="text" name="moduleID" value={moduleMaster.moduleID} onChange={handleChange} required />
-                        </Form.Group>
-                        <Form.Group className="mb-3">
-                            <Form.Label>MIS Exempt ID</Form.Label>
-                            <Form.Control type="number" name="misExemptID" value={moduleMaster.misExemptID} onChange={handleChange} required />
-                        </Form.Group>
-                        <Form.Group className="mb-3">
-                            <Form.Label>Status ID</Form.Label>
-                            <Form.Control type="number" name="statusID" value={moduleMaster.statusID} onChange={handleChange} required />
-                        </Form.Group>
-                        <Form.Group className="mb-3">
-                            <Form.Label>Module Owner Name ID</Form.Label>
-                            <Form.Control type="number" name="moduleOwnerNameID" value={moduleMaster.moduleOwnerNameID} onChange={handleChange} required />
-                        </Form.Group>
-                        <Form.Group className="mb-3">
-                            <Form.Label>Created By</Form.Label>
-                            <Form.Control type="text" name="createdBy" value={moduleMaster.createdBy} onChange={handleChange} required />
-                        </Form.Group>
-                        <Button variant="primary" type="submit">
-                            {editingIndex !== null ? 'Update' : 'Save'}
-                        </Button>
-                    </Form>
-                </Offcanvas.Body>
-            </Offcanvas>
+            <div className="overflow-auto">
+            <Table className='bg-white' striped bordered hover>
+                <thead>
+                    <tr>
+                        <th>Module Display Name</th>
+                        <th>Module ID</th>
+                        <th>FMS Type</th>
+                        <th>MIS Exempt ID</th>
+                        <th>Status ID</th>
+                        <th>Module Owner ID</th>
+                        <th>Module Owner Name</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {currentModules.map((mod, index) => (
+                        <tr key={index}>
+                            <td>{mod.moduleDisplayName}</td>
+                            <td>{mod.moduleID}</td>
+                            <td>{mod.fmsType}</td>
+                            <td>{mod.misExempt}</td>
+                            <td>{mod.statusID}</td>
+                            <td>{mod.moduleOwnerID}</td>
+                            <td>{mod.moduleOwnerName}</td>
+                            <td>
+                                <i className='btn ri-edit-line' onClick={() => handleEdit(index)}></i>
+                            </td>
+                        </tr>
+                    ))}
+                </tbody>
+            </Table>
+            </div>
+          
         </div>
     );
 };
 
-export default ModuleMasterPage;
+export default ModuleMaster;
+
