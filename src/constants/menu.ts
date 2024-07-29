@@ -14,11 +14,11 @@ export interface MenuItemTypes {
 }
 
 const MENU_ITEMS: MenuItemTypes[] = [
-	{
-		key: 'Main',
-		label: 'Main',
-		isTitle: true,
-	},
+	// {
+	// 	key: 'Main',
+	// 	label: 'Main',
+	// 	isTitle: true,
+	// },
 	{
 		key: 'dashboard',
 		label: 'Dashboards',
@@ -73,7 +73,7 @@ const MENU_ITEMS: MenuItemTypes[] = [
 		key: 'systemmaster',
 		label: 'System Master',
 		isTitle: false,
-		icon: 'ri-pages-line',
+		icon: 'ri-settings-fill',
 		children: [
 			{
 				key: 'ModuleMaster',
@@ -176,6 +176,7 @@ const MENU_ITEMS: MenuItemTypes[] = [
 				key: 'ChecklistMaster',
 				label: ' Checklist Master',
 				url: '/pages/ChecklistMaster',
+				
 				icon: 'ri-user-settings-line',
 				parentKey: 'pages',
 			},
@@ -188,7 +189,7 @@ const MENU_ITEMS: MenuItemTypes[] = [
 		key: 'master',
 		label: 'Business Master',
 		isTitle: false,
-		icon: 'ri-pages-line',
+		icon: 'ri-settings-4-line',
 		children: [
 			//////////////////////////////////////////////////////////////////////////
 			{
@@ -245,96 +246,7 @@ const MENU_ITEMS: MenuItemTypes[] = [
 	
 		],
 	},
-	{
-		key: 'pages',
-		label: 'Pages',
-		isTitle: false,
-		icon: 'ri-pages-line',
-		children: [
-			
-			// {
-			// 	key: 'Modules-Master',
-			// 	label: 'Task Creator',
-			// 	url: '/pages/Modules-Master',
-			// 	icon: 'ri-file-settings-line',
-			// 	parentKey: 'pages',
-			// },
-			// {
-			// 	key: 'Modules-List',
-			// 	label: 'Modules List',
-			// 	url: '/pages/Module-list',
-			// 	icon: 'ri-file-settings-line',
-			// 	parentKey: 'pages',
-			// },
-			// {
-			// 	key: 'Employee-Master',
-			// 	label: 'Employee Master',
-			// 	url: '/pages/Employee-Master',
-			// 	icon: 'ri-user-settings-line',
-			// 	parentKey: 'pages',
-			// },
-			// {
-			// 	key: 'pages-ContactList',
-			// 	label: 'Contact List',
-			// 	url: '/pages/contact-list',
-			// 	parentKey: 'pages',
-			// },
-			// {
-			// 	key: 'pages-profile',
-			// 	label: 'Profile',
-			// 	url: '/pages/profile',
-			// 	parentKey: 'pages',
-			// },
-			// {
-			// 	key: 'pages-timeline',
-			// 	label: 'Timeline',
-			// 	url: '/pages/timeline',
-			// 	parentKey: 'pages',
-			// },
-			// {
-			// 	key: 'pages-invoice',
-			// 	label: 'Invoice',
-			// 	url: '/pages/invoice',
-			// 	parentKey: 'pages',
-			// },
-			// {
-			// 	key: 'pages-faq',
-			// 	label: 'FAQ',
-			// 	url: '/pages/faq',
-			// 	parentKey: 'pages',
-			// },
-			// {
-			// 	key: 'pages-pricing',
-			// 	label: 'Pricing',
-			// 	url: '/pages/pricing',
-			// 	parentKey: 'pages',
-			// },
-			// {
-			// 	key: 'pages-maintenance',
-			// 	label: 'Maintenance',
-			// 	url: '/pages/maintenance',
-			// 	parentKey: 'pages',
-			// },
-			// {
-			// 	key: 'error-404',
-			// 	label: 'Error 404',
-			// 	url: '/pages/error-404',
-			// 	parentKey: 'pages',
-			// },
-			// {
-			// 	key: 'error-404-alt',
-			// 	label: 'Error 404-alt',
-			// 	url: '/pages/error-404-alt',
-			// 	parentKey: 'pages',
-			// },
-			// {
-			// 	key: 'error-500',
-			// 	label: 'Error 500',
-			// 	url: '/pages/error-500',
-			// 	parentKey: 'pages',
-			// },
-		],
-	},
+	
 	// {
 	// 	key: 'auth',
 	// 	label: 'Authentication',

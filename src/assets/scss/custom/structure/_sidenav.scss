@@ -99,6 +99,7 @@ html[data-bs-theme="dark"] {
     .side-nav-link {
         display: block;
         list-style: none;
+        font-weight: bold;
         position: relative;
         white-space: nowrap;
         color: $menu-item-color;
@@ -179,7 +180,7 @@ html[data-bs-theme="dark"] {
 
         >a {
             color: $menu-item-active-color;
-            font-weight: $font-weight-medium;
+            font-weight: bold;
             background-color: $menu-item-active-bg;
 
             &:hover,

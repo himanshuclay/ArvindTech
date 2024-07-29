@@ -44,7 +44,7 @@ const ModuleMasterPage: React.FC = () => {
         setLoading(true);
         try {
             const params = new URLSearchParams({ id: '1', PageIndex: page.toString(), RowsPerPage: rows.toString() });
-            const url = `https://localhost:44344/api/ModuleMaster/GetModule?${params.toString()}`;
+            const url = `https://localhost:44306/api/ModuleMaster/GetModule?${params.toString()}`;
 
             const response = await axios.get(url, {
                 headers: {
@@ -96,7 +96,7 @@ const ModuleMasterPage: React.FC = () => {
             let response;
             if (editingIndex !== null) {
                 // Update existing module master
-                response = await axios.post('https://localhost:44344/api/ModuleMaster/UpdateModule', payload, {
+                response = await axios.post('https://localhost:44306/api/ModuleMaster/UpdateModule', payload, {
                     headers: {
                         'accept': '*/*',
                         'Content-Type': 'application/json'
@@ -104,7 +104,7 @@ const ModuleMasterPage: React.FC = () => {
                 });
             } else {
                 // Insert new module master
-                response = await axios.post('https://localhost:44344/api/ModuleMaster/InsertModule', payload, {
+                response = await axios.post('https://localhost:44306/api/ModuleMaster/InsertModule', payload, {
                     headers: {
                         'accept': '*/*',
                         'Content-Type': 'application/json'
