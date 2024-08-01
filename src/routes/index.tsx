@@ -30,6 +30,25 @@ const EmployeeMaster = React.lazy(() => import('../pages/other/Employee-Master.t
 const MessMaster = React.lazy(() => import('../pages/other/MessMaster.tsx'))
 const Projects = React.lazy(() => import('../pages/other/Projects.tsx'))
 const Roles = React.lazy(() => import('../pages/other/Roles.tsx'))
+const Tender = React.lazy(() => import('../pages/other/Tender.tsx'))
+const Vender = React.lazy(() => import('../pages/other/Vender.tsx'))
+const Bank = React.lazy(() => import('../pages/other/Bank.tsx'))
+// const ModuleMaster = React.lazy(() => import('../pages/other/ModuleMaster.tsx'))
+const ProcessMaster = React.lazy(() => import('../pages/other/ProcessMaster.tsx'))
+const TaskMaster = React.lazy(() => import('../pages/other/TaskMaster.tsx'))
+const DoerMaster = React.lazy(() => import('../pages/other/DoerMaster.tsx'))
+const FormMaster = React.lazy(() => import('../pages/other/FormMaster.tsx'))
+const LnMaster = React.lazy(() => import('../pages/other/LnMaster.tsx'))
+const ChkLnMaster = React.lazy(() => import('../pages/other/ChkLnMaster.tsx'))
+const TicketMaster = React.lazy(() => import('../pages/other/TicketMaster.tsx'))
+const SystemLogs = React.lazy(() => import('../pages/other/SystemLogs.tsx'))
+// const ChkTaskMaster = React.lazy(() => import('../pages/other/ChkTaskMaster.tsx'))
+// const ChecklistMaster = React.lazy(() => import('../pages/other/ChecklistCollection.tsx'))
+// const AddressMaster = React.lazy(() => import('../pages/other/AddressMaster.tsx'))
+
+
+
+
 const ContactListPages = React.lazy(() => import('../pages/other/ContactList'))
 const TimelinePages = React.lazy(() => import('../pages/other/Timeline'))
 
@@ -220,6 +239,104 @@ const customPagesRoutes = {
 			element: <Roles />,
 			route: PrivateRoute,
 		},
+		{
+			path: '/pages/Tender',
+			name: 'Tender Master',
+			element: <Tender />,
+			route: PrivateRoute,
+		},
+		{
+			path: '/pages/Vender',
+			name: 'Vender Master',
+			element: <Vender />,
+			route: PrivateRoute,
+		},
+		{
+			path: '/pages/Bank',
+			name: 'Bank Master',
+			element: <Bank />,
+			route: PrivateRoute,
+		},
+		// {
+		// 	path: '/pages/ModuleMaster',
+		// 	name: 'Module Master',
+		// 	element: <ModuleMaster />,
+		// 	route: PrivateRoute,
+		// },
+		{
+			path: '/pages/ProcessMaster',
+			name: 'Process Master',
+			element: <ProcessMaster />,
+			route: PrivateRoute,
+		},
+		{
+			path: '/pages/TaskMaster',
+			name: 'Task Master',
+			element: <TaskMaster />,
+			route: PrivateRoute,
+		},
+		{
+			path: '/pages/DoerMaster',
+			name: 'Doer Master',
+			element: <DoerMaster />,
+			route: PrivateRoute,
+		},
+		{
+			path: '/pages/FormMaster',
+			name: 'Form Master',
+			element: <FormMaster />,
+			route: PrivateRoute,
+		},
+		{
+			path: '/pages/LnMaster',
+			name: 'LN Master',
+			element: <LnMaster />,
+			route: PrivateRoute,
+		},
+		{
+			path: '/pages/ChkLnMaster',
+			name: 'CHK LN Master',
+			element: <ChkLnMaster />,
+			route: PrivateRoute,
+		},
+		{
+			path: '/pages/TicketMaster',
+			name: 'Ticket Master',
+			element: <TicketMaster />,
+			route: PrivateRoute,
+		},
+		
+		{
+			path: '/pages/SystemLogs',
+			name: 'System Logs',
+			element: <SystemLogs />,
+			route: PrivateRoute,
+		},
+		// {
+		// 	path: '/pages/ChkTaskMaster',
+		// 	name: 'CHK Task Master',
+		// 	element: <ModuleMaster />,
+		// 	route: PrivateRoute,
+		// },
+		// {
+		// 	path: '/pages/ChkInputMaster',
+		// 	name: 'CHK Input Master',
+		// 	element: <ChkTaskMaster />,
+		// 	route: PrivateRoute,
+		// },
+		// {
+		// 	path: '/pages/ChecklistMaster',
+		// 	name: 'CheckList Master',
+		// 	element: <ChecklistMaster />,
+		// 	route: PrivateRoute,
+		// },
+		// {
+		// 	path: '/pages/AddressMaster',
+		// 	name: 'Address Master',
+		// 	element: <AddressMaster />,
+		// 	route: PrivateRoute,
+		// },
+		///////////////////////////////////////////////////////////////////////////////////////////
 		{
 			path: '/pages/contact-list',
 			name: 'Contact List',

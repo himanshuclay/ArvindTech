@@ -72,11 +72,6 @@
     min-width: 300px;
   }
 
-  .custom-shadow .col-6 div:first-child
-  {
-    font-weight: 600;
-    color: #6b6b6b!important;
-  }
   
   .timeliner 
   {
@@ -84,6 +79,7 @@
     border-left: 1px dotted rgb(23, 7, 92)!important;
     border-radius: 0px!important;
     position: relative;
+    border: none;
   }
 
   .top-round
@@ -142,3 +138,49 @@
   {
     display: none;
   }
+
+  .custom-details
+  {
+    border-left: 0px!important;
+    width: 100%!important;
+    margin: 0px!important;
+    display: flex!important;
+    justify-content: flex-end!important;
+    position: absolute;
+    background-color: transparent!important;
+  }
+  .list-group .custom-details:nth-child(1)
+  {
+    top: -21px
+  }
+  .list-group .custom-details:nth-child(2)
+  {
+    top: -42px
+  }
+  .list-group .custom-details:nth-child(3)
+  {
+    top: -63px
+  }
+  .custom-details .top-round, .custom-details .bottom-round
+  {
+    display: none;
+  }
+  .custom-details .custom-shadow
+  {
+    box-shadow: none;
+    border: none;
+    padding: 0px!important;
+    // width: 100%;
+    border-radius: 0px!important;
+  }
+  .custom-details .custom-shadow .ri-add-circle-fill , .custom-details .custom-shadow .action
+  {
+   display: none!important;
+  }
+  .custom-details .custom-shadow .col-new
+  {
+    width: max-content!important;
+    font-weight: 600!important;
+    font-size: 12px;
+  }
+

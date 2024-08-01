@@ -7,9 +7,10 @@ import {
   DraggableProvided,
   DroppableProvided,
 } from 'react-beautiful-dnd';
-import { Button, Form, Modal, ListGroup, Card } from 'react-bootstrap';
+import { Button, Form, Modal, ListGroup, Card, FormGroup,Toast } from 'react-bootstrap';
 import axios from 'axios';
 import Select from 'react-select'
+import CustomFlatpickr from '@/components/CustomFlatpickr';
 
 type FormField = {
   id: string;
@@ -69,7 +70,6 @@ type TransformedField = {
 };
 
 
-
 const transformTaskData = (tasks: FormField[][]): TransformedField[] => {
   return tasks.map((task, taskIndex) => {
     const transformedFields: TransformedField = { id: taskIndex + 1 };
@@ -115,6 +115,21 @@ const transformTaskData = (tasks: FormField[][]): TransformedField[] => {
     return transformedFields;
   });
 };
+
+interface Option {
+  text: string;
+  color: string;
+}
+
+interface Field {
+  type: string;
+  labeltext: string;
+  options?: Option[];
+}
+
+interface Props {
+  field: Field;
+}
 
 
 
@@ -171,18 +186,36 @@ const App: React.FC = () => {
   const [taskFields, setTaskFields] = useState<FormField[]>([]);
   const [savedTasks, setSavedTasks] = useState<FormField[][]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
   const [isapplyModalOpen, setIsapplyModalOpen] = useState(false);
   const [editField, setEditField] = useState<FormField | null>(null);
   const [subFields, setSubFields] = useState<{ [key: string]: boolean }>({});
   const [selectedTaskIdx, setSelectedTaskIdx] = useState<number | null>(null);
   const [selectedFieldIdx, setSelectedFieldIdx] = useState<number | null>(null);
   const [employeeNames, setEmployeeNames] = useState<EmployeeName[]>([]);
+  const [showToast, setShowToast] = useState(false);
   const [formData, setFormData] = useState({
     taskName: '',
     ModuleName: '',
     projectName: '',
     processes: '',
+    Date: '',
   });
+
+  const [options, setOptions] = useState<Option[]>([
+    { text: 'Red Option', color: '#FF0000' },
+    { text: 'Green Option', color: '#00FF00' },
+    { text: 'Blue Option', color: '#0000FF' },
+  ]);
+
+  const handleSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const selectedOption = e.target.options[e.target.selectedIndex];
+    const color = selectedOption.getAttribute('data-color');
+    const text = selectedOption.value;
+
+    console.log('Selected text:', text);
+    console.log('Selected color:', color);
+  };
 
   const fetchEmployeeNames = async (): Promise<EmployeeName[]> => {
     try {
@@ -223,8 +256,9 @@ const App: React.FC = () => {
     const newTaskFields: FormField[] = [
       { id: '99', type: 'text', labeltext: `Task Name - ${formData.taskName}` },
       { id: '100', type: 'text', labeltext: `Module Name - ${formData.ModuleName}` },
-      { id: '101', type: 'text', labeltext: `Project Name - ${formData.projectName}` },
-      { id: '102', type: 'text', labeltext: `Select Process - ${formData.processes}` },
+      // { id: '101', type: 'text', labeltext: `Project Name - ${formData.projectName}` },
+      { id: '102', type: 'text', labeltext: `Process - ${formData.processes}` },
+      // { id: '103', type: 'date', labeltext: `Date&Time - ${formData.Date}` },
     ];
 
 
@@ -343,11 +377,30 @@ const App: React.FC = () => {
     setSavedTasks(updatedTasks);
   };
 
+  const handleTextChange = (index: number, value: string) => {
+    const newOptions = [...(editField.options || [])];
+    newOptions[index] = { ...newOptions[index], text: value };
+    setEditField({ ...editField, options: newOptions });
+  };
+
+  const handleColorChange = (index: number, value: string) => {
+    const newOptions = [...(editField.options || [])];
+    newOptions[index] = { ...newOptions[index], color: value };
+    setEditField({ ...editField, options: newOptions });
+  };
+
 
   const applyprocess = () => {
 
     setIsapplyModalOpen(true);
   };
+
+  const showTaskData = () => {
+    setIsTaskModalOpen(true);
+    setIsapplyModalOpen(false);
+    setShowToast(true);
+    setTimeout(() => setShowToast(false), 9000);
+  }
 
   const handleEditField = (field: FormField, taskIndex: number, fieldIndex: number) => {
     setEditField(field);
@@ -377,13 +430,45 @@ const App: React.FC = () => {
       setIsModalOpen(false);
     }
   };
+  const SuccessToast: React.FC<{ show: boolean; onClose: () => void }> = ({ show, onClose }) => {
+    return (
+      <Toast
+        show={show}
+        onClose={onClose}
+        delay={9000} // Toast will auto-hide after 3 seconds
+        autohide
+        style={{
+          position: 'fixed',
+          top: 20,
+          right: 20,
+          zIndex: 105000,
+        }}
+      >
+        <Toast.Header className='col-12 d-flex justify-content-between'>
+        <i className="ri-thumb-up-fill text-primary fs-2"></i>
+          <div onClick={onClose}></div>
+        </Toast.Header>
+        <Toast.Body className='bg-primary text-white fs-4'>Process has been successfully applied for selected projects</Toast.Body>
+      </Toast>
+    );
+  };
+
+  const colors = ['#FF5733', '#33FF57', '#3357FF', '#FF33A1', '#A133FF', '#33FFF5', '#F5FF33', '#FF8633', '#FF33F5', '#33FFA5'];
+
+  // Utility function to ensure option is an object
+  const ensureOptionIsObject = (option: string | Option, index: number): Option => {
+    if (typeof option === 'string') {
+      return { text: option, color: colors[index % colors.length] };
+    }
+    return option;
+  };
 
   const renderField = (field: FormField, taskIndex: number, fieldIndex: number) => {
     const renderFieldContent = () => {
       switch (field.type) {
         case 'text':
           return (
-            <div className='col-6'>
+            <div className='col-6 col-new'>
               <div>{field.labeltext}</div>
               {/* <div>Placeholder: {field.placeholder}</div> */}
             </div>
@@ -396,7 +481,27 @@ const App: React.FC = () => {
           return (
             <div className='col-6'>
               <div>{field.labeltext}</div>
-              <div>Options: {field.options?.join(', ')}</div>
+              <div>
+                Options:
+                {field.options?.map((option, index) => {
+                  const optionObject = ensureOptionIsObject(option, index);
+                  return (
+                    <span key={index} style={{ display: 'flex', alignItems: 'center' }}>
+                      <div
+                        style={{
+                          width: '10px',
+                          height: '10px',
+                          borderRadius: '50%',
+                          backgroundColor: optionObject.color,
+                          marginRight: '8px'
+                        }}
+                      ></div>
+                      {optionObject.text}
+                      {/* (Color Code: {optionObject.color}) */}
+                    </span>
+                  );
+                })}
+              </div>
             </div>
           );
         case 'file':
@@ -441,7 +546,7 @@ const App: React.FC = () => {
               {/* <div>{field.labeltext}</div> */}
               {/* <div>Custom Placeholder: {field.placeholder}</div> */}
               <div className='form-group'>
-                <div className='label mb-1'>Custom Select</div>
+                <div className='label mb-1'>{field.labeltext}</div>
                 {/* <select className='form-control' style={{ width: '200px' }} name="" id="">
                   <option value="">Role Master</option>
                   <option value="">Employee Master</option>
@@ -466,10 +571,10 @@ const App: React.FC = () => {
     };
 
     return (
-      <ListGroup.Item key={field.id} className="row m-0 justify-content-between align-items-center d-flex custom-shadow position-relative" id='task-area' style={{ width: 'max-content' }}>
+      <ListGroup.Item key={field.id} className="row m-0 justify-content-between align-items-center d-flex custom-shadow position-relative" id='task-area'>
         <div className='ri-add-circle-fill cursor-pointer text-primary add-more'></div>
         {renderFieldContent()}
-        <div className='col-sm-12 col-md-4 justify-content-end d-flex'>
+        <div className='col-sm-12 col-md-4 justify-content-end d-flex action'>
           <i
             className="me-2 ri-pencil-fill text-primary cursor-pointer fs-4"
             onClick={() => handleEditField(field, taskIndex, fieldIndex)}
@@ -509,7 +614,7 @@ const App: React.FC = () => {
                 </Form.Control>
               </Form.Group> */}
               <Form.Group className='col-md-3 my-1'>
-                <Form.Label>Select Module</Form.Label>
+                <Form.Label>Module Name</Form.Label>
                 <Form.Control
                   as="select"
                   name="ModuleName"
@@ -526,7 +631,7 @@ const App: React.FC = () => {
                 </Form.Control>
               </Form.Group>
               <Form.Group className='col-md-3 my-1'>
-                <Form.Label>Select Process</Form.Label>
+                <Form.Label>Process Name</Form.Label>
                 <Form.Control
                   as="select"
                   name="processes"
@@ -534,13 +639,26 @@ const App: React.FC = () => {
                   onChange={handleFormChange}
                   required
                 >
-                  <option value="">Select Process</option>
+                  <option value="">Process</option>
                   {['Mess Weekly Payments', 'Mess Monthly Reconciliation', 'Monthly Budget FR [PNC]', 'Credit and Debit balance resolution', 'Bill Processing at HO'].map((option, index) => (
                     <option key={index} value={option}>
                       {option}
                     </option>
                   ))}
                 </Form.Control>
+              </Form.Group>
+              <Form.Group className='col-md-3 my-1'>
+                <Form.Label>Date & time</Form.Label>
+                <CustomFlatpickr
+                  className="form-control"
+                  placeholder="Date & Time"
+                  value={formData.Date}
+                  onChange={handleFormChange}
+                  options={{
+                    enableTime: true,
+                    dateFormat: 'Y-m-d H:i',
+                  }}
+                />
               </Form.Group>
               <Form.Group className='col-md-3 my-1'>
                 <Form.Label>Task Name</Form.Label>
@@ -554,7 +672,7 @@ const App: React.FC = () => {
                 />
               </Form.Group>
 
-              <div className="d-flex col-md-3 justify-content-end">
+              <div className="d-flex col-md-12 justify-content-end mt-2">
                 <Button variant="primary" type="submit" style={{
                   height: 'max-content'
                 }}>
@@ -591,18 +709,16 @@ const App: React.FC = () => {
           </div>
           <div className="row bg-white p-2 rounded m-0">
             <div className='col-12'>
-              <h4>Build Your Task</h4>
+              <h4 style={{ height: '40px' }}>Build Your Task</h4>
               <Droppable droppableId="taskFields">
                 {(provided: DroppableProvided) => (
-                  <div ref={provided.innerRef} {...provided.droppableProps} className="list-group  m-0">
-                    {taskFields.length === 0 &&
-                      (
-                        <div className='col-12 align-items-center justify-content-center d-flex flex-column' style={{ height: '200px' }}>
-                          <i className="ri-arrow-turn-back-line fs-1"></i>
-                          <span>Please Select Task Fields</span>
-                        </div>
-                      )
-                    }
+                  <div ref={provided.innerRef} {...provided.droppableProps} className="list-group position-relative  m-0">
+                    {taskFields.length === 0 && (
+                      <div className='col-12 align-items-center justify-content-center d-flex flex-column' style={{ height: '200px' }}>
+                        <i className="ri-arrow-turn-back-line fs-1"></i>
+                        <span>Please Select Task Fields</span>
+                      </div>
+                    )}
                     {taskFields.map((field, index) => (
                       <Draggable key={field.id} draggableId={field.id} index={index}>
                         {(provided: DraggableProvided) => (
@@ -610,8 +726,11 @@ const App: React.FC = () => {
                             ref={provided.innerRef}
                             {...provided.draggableProps}
                             {...provided.dragHandleProps}
-                            className="list-group-item col-md-12 col-sm-12 border-none my-1 p-1 timeliner d-flex"
-                            style={{ border: '1px' }}
+                            className={
+                              ['99', '100', '102', '103'].includes(field.id)
+                                ? 'custom-details list-group-item col-md-12 col-sm-12 border-none my-1 p-0 timeliner d-flex'
+                                : 'list-group-item col-md-12 col-sm-12 border-none my-1 p-1 timeliner d-flex'
+                            }
                           >
                             {renderField(field, -1, index)}
                             <div className='top-round'></div>
@@ -636,11 +755,13 @@ const App: React.FC = () => {
                 required
               >
                 <option value="">Select Field</option>
-                {taskFields.map((field, index) => (
-                  <option key={index} value={field.labeltext}>
-                    {field.labeltext}
-                  </option>
-                ))}
+                {taskFields
+                  .filter(field => !['99', '100', '102', '103'].includes(field.id))
+                  .map((field, index) => (
+                    <option key={index} value={field.labeltext}>
+                      {field.labeltext}
+                    </option>
+                  ))}
               </Form.Control>
             </Form.Group>
           </div>
@@ -674,8 +795,33 @@ const App: React.FC = () => {
                       value={editField.placeholder}
                       onChange={(e) => setEditField({ ...editField, placeholder: e.target.value })}
                     />
+                    <Form.Label>Available Colors</Form.Label>
+                    <Form.Control as="select" onChange={handleSelectChange}>
+                      {options.map((option, index) => (
+                        <option
+                          key={index}
+                          value={option.text}
+                          data-color={option.color} // Save color in a data attribute
+                          style={{ color: option.color }} // Apply color to text
+                        >
+                          {option.text}
+                        </option>
+                      ))}
+                    </Form.Control>
                   </Form.Group>
                 )}
+
+                {(editField.type === 'file') &&
+                  (<Form.Group className='mt-2'>
+                    <Form.Control
+                      type='file'
+                    >
+
+                    </Form.Control>
+                  </Form.Group>
+
+                  )
+                }
                 {editField.type === 'CustomSelect' && (
                   <Form.Group key={editField.id}>
                     <Form.Label>{editField.labeltext}</Form.Label>
@@ -695,21 +841,33 @@ const App: React.FC = () => {
                     </select>
                   </Form.Group>
                 )}
+
                 {(editField.type === 'select' || editField.type === 'multiselect') && (
                   <Form.Group>
                     <Form.Label className='mt-2'>Options</Form.Label>
                     {editField.options?.map((option, index) => (
                       <div key={index} className="d-flex mb-2 row align-items-center">
                         <div className='col-12 d-flex'>
+                          <div
+                            style={{
+                              width: '5px',
+                              height: 'auto',
+                              backgroundColor: option.color,
+                            }}
+                          ></div>
                           <Form.Control
                             type="text"
+                            required
                             className='form-checkbox-success form-check'
-                            value={option}
-                            onChange={(e) => {
-                              const newOptions = [...editField.options];
-                              newOptions[index] = e.target.value;
-                              setEditField({ ...editField, options: newOptions });
-                            }}
+                            value={option.text}
+                            onChange={(e) => handleTextChange(index, e.target.value)}
+                          />
+                          <Form.Control
+                            type="color"
+                            value={option.color}
+                            required
+                            onChange={(e) => handleColorChange(index, e.target.value)}
+                            style={{ marginLeft: '8px', width: '40px' }}
                           />
                           <Button
                             variant="danger"
@@ -722,51 +880,22 @@ const App: React.FC = () => {
                           >
                             Delete
                           </Button>
-                          <div className='form-check form-switch ms-2 d-flex align-items-center'>
-                            <input
-                              type="checkbox"
-                              className='form-check-input me-1'
-                              checked={subFields[editField.id]?.[index] || false}
-                              onChange={(e) => {
-                                handleSubfieldChange(editField.id, index, e.target.checked);
-                              }}
-                            />
-                            <label className='form-check-label'>
-                            </label>
-                            Add
-                          </div>
                         </div>
-                        {subFields[editField.id]?.[index] && (
-                          <div className='col-12 row m-0'>
-                            <Form.Group className='col-6 my-2'>
-                              <Form.Label>Label Text</Form.Label>
-                              <Form.Control
-                                type="text"
-                              // value={editField.labeltext}
-                              // onChange={(e) => setEditField({ ...editField, labeltext: e.target.value })}
-                              />
-                            </Form.Group>
-                            <Form.Group className='col-6 my-2'>
-                              <Form.Label>Placeholder</Form.Label>
-                              <Form.Control
-                                type="text"
-                              // value={editField.placeholder}
-                              // onChange={(e) => setEditField({ ...editField, placeholder: e.target.value })}
-                              />
-                            </Form.Group>
-                          </div>
-                        )}
                       </div>
                     ))}
                     <Button
                       variant="primary"
                       size="sm"
-                      onClick={() => setEditField({ ...editField, options: [...(editField.options || []), ''] })}
+                      onClick={() => {
+                        const newOption = { text: 'Options', color: '#000000' };
+                        setEditField({ ...editField, options: [...(editField.options || []), newOption] });
+                      }}
                     >
                       Add Option
                     </Button>
                   </Form.Group>
                 )}
+
 
                 {editField.type === 'radio' && (
                   <Form.Group>
@@ -890,13 +1019,71 @@ const App: React.FC = () => {
         </div>
       </div>
 
-      <Modal size='md' show={isapplyModalOpen} onHide={() => setIsapplyModalOpen(false)}>
+      <SuccessToast show={showToast} onClose={() => setShowToast(false)} />
+
+      <Modal size='lg' show={isTaskModalOpen} onHide={() => setIsTaskModalOpen(false)}>
+        <Modal.Header closeButton>
+          <Modal.Title>Applied Tasks Status</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <div role="alert" className="fade alert alert-primary">Process Has been Applied Successfully For Selected Project</div>
+
+          {savedTasks.map((task, taskIndex) => (
+            <div className='col-md-6 col-sm-12'>
+              <Card key={taskIndex} className="mb-4 row m-1 timeliner" style={{boxShadow : 'rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px' }}>
+                <Card.Header>
+                  <div className="d-flex justify-content-between align-items-center">
+                    <span>ACC.01.T{taskIndex + 1}.{ }</span>
+                    {/* <Button
+                      size="sm"
+                      onClick={() => toggleVisibility(taskIndex)}
+                      className='bg-white border-light rounded-circle'
+                    >
+                      {visibility[taskIndex] ? (
+                        <i className="ri-arrow-down-double-line text-primary fs-3"></i>
+                      ) : (
+                        <i className="ri-arrow-up-double-line text-primary fs-3"></i>
+                      )}
+                    </Button> */}
+                  </div>
+                </Card.Header>
+                {visibility[taskIndex] && (
+                  <>
+                    <ListGroup variant="flush">
+                      {task.map((field, fieldIndex) => renderField(field, taskIndex, fieldIndex))}
+                    </ListGroup>
+                    {/* <div className="d-flex justify-content-end col-12 p-2">
+                      <Button
+                        variant="danger"
+                        size="sm"
+                        onClick={() => handleDeleteTask(taskIndex)}
+                        className=''
+                      >
+                        Delete Task
+                      </Button>
+                    </div> */}
+                  </>
+                )}
+              </Card>
+            </div>
+
+          ))}
+
+        </Modal.Body>
+        <Modal.Footer>
+          <Button className='btn-primary' variant="Primary" onClick={() => setIsTaskModalOpen(false)}>
+            Save
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
+      <Modal size='lg' show={isapplyModalOpen} onHide={() => setIsapplyModalOpen(false)}>
         <Modal.Header closeButton>
           <Modal.Title>Edit Field</Modal.Title>
         </Modal.Header>
         <Modal.Body>
 
-          <Form.Group className='col-md-8 my-1'>
+          <Form.Group className=' my-1'>
             <Form.Label>Select Projects</Form.Label>
             {/* <Form.Control
                   as="select"
@@ -913,16 +1100,28 @@ const App: React.FC = () => {
                   ))}
                 </Form.Control> */}
             <Select
-              className="select2 select2-multiple z-3"
+              className="select2 select2-multiple z-3 col-6"
               options={projectOptions}
               isMulti={true}
               placeholder="Select Projects"
             />
+
+            <div className="mb-3 col-6 mt-3">
+              <label className="form-label">Date & Time</label>
+              <CustomFlatpickr
+                className="form-control"
+                placeholder="Date & Time"
+                options={{
+                  enableTime: true,
+                  dateFormat: 'Y-m-d H:i',
+                }}
+              />
+            </div>
           </Form.Group>
 
         </Modal.Body>
         <Modal.Footer>
-          <Button className='btn-primary' variant="Primary" onClick={() => setIsapplyModalOpen(false)}>
+          <Button className='btn-primary' variant="Primary" onClick={showTaskData}>
             Save
           </Button>
         </Modal.Footer>
