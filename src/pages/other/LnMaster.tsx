@@ -175,17 +175,10 @@ const BanksPage: React.FC = () => {
 
 
             {loading ? (
-<<<<<<< HEAD
-               <div className='loader-container'>
-               <div className="loader"></div>
-               <div className='mt-2'>Please Wait!</div>
-           </div>
-=======
                 <div className='loader-container'>
                 <div className="loader"></div>
                 <div className='mt-2'>Please Wait!</div>
             </div>
->>>>>>> sumit-dev
             ) : (
                 <Table striped bordered hover responsive className="mb-0">
                     <thead>
@@ -327,8 +320,4 @@ const BanksPage: React.FC = () => {
     );
 };
 
-<<<<<<< HEAD
 export default BanksPage;
-=======
-export default BanksPage;
->>>>>>> sumit-dev
