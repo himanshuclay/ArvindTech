@@ -2,16 +2,6 @@ import React, { useState, useEffect, ChangeEvent } from 'react';
 import { Button, Form, Offcanvas, Table, Pagination } from 'react-bootstrap';
 import axios from 'axios';
 
-<<<<<<< HEAD
-interface ProcessMaster {
-    id: number;
-    moduleID: number;
-    processDisplayName: string;
-    dashboardTab: string;
-    processID: string;
-    processInput: string;
-    procssOutput: string;
-=======
 interface Process {
     id: number;
     moduleName: string;
@@ -24,22 +14,10 @@ interface Process {
     processFlowchart: string;
     processOwnerID: string;
     processOwnerName: string;
->>>>>>> sumit-dev
     createdBy: string;
     updatedBy: string;
 }
 
-<<<<<<< HEAD
-const ProcessMasterPage: React.FC = () => {
-    const [processMaster, setProcessMaster] = useState<ProcessMaster>({
-        id: 0,
-        moduleID: 0,
-        processDisplayName: '',
-        dashboardTab: '',
-        processID: '',
-        processInput: '',
-        procssOutput: '',
-=======
 const ProcessMaster: React.FC = () => {
     const [process, setProcess] = useState<Process>({
         id: 0,
@@ -53,53 +31,10 @@ const ProcessMaster: React.FC = () => {
         processFlowchart: '',
         processOwnerID: '',
         processOwnerName: '',
->>>>>>> sumit-dev
         createdBy: '',
         updatedBy: ''
     });
 
-<<<<<<< HEAD
-    const [processMasterList, setProcessMasterList] = useState<ProcessMaster[]>([]);
-    const [show, setShow] = useState(false);
-    const [editingIndex, setEditingIndex] = useState<number | null>(null);
-    const [searchQuery, setSearchQuery] = useState('');
-    const [currentPage, setCurrentPage] = useState<number>(1);
-    const [rowsPerPage, setRowsPerPage] = useState<number>(10);
-    const [totalCount, setTotalCount] = useState<number>(0);
-    const [loading, setLoading] = useState<boolean>(false);
-
-    useEffect(() => {
-        fetchProcessMaster(currentPage, rowsPerPage);
-    }, [currentPage, rowsPerPage]);
-
-    const fetchProcessMaster = async (page: number, rows: number) => {
-        setLoading(true);
-        try {
-            const params = new URLSearchParams({ PageIndex: page.toString(), RowsPerPage: rows.toString() });
-            const url = `https://localhost:44306/api/ProcessMaster/GetProcess?id=1&${params.toString()}`;
-
-            const response = await axios.get(url, {
-                headers: {
-                    'accept': '*/*'
-                }
-            });
-
-            if (response && response.status === 200 && response.data.isSuccess) {
-                setProcessMasterList(response.data.processMasterList);
-                setTotalCount(response.data.totalCount);
-            } else {
-                console.error('Failed to fetch process master list: Invalid response status');
-            }
-        } catch (error) {
-            console.error('An error occurred while fetching the process master list:', error);
-            if (error.response) {
-                console.error('Error response data:', error.response.data);
-                console.error('Error response status:', error.response.status);
-                console.error('Error response headers:', error.response.headers);
-            }
-        } finally {
-            setLoading(false);
-=======
     const [processes, setProcesses] = useState<Process[]>([]);
     const [show, setShow] = useState(false);
     const [editingIndex, setEditingIndex] = useState<number | null>(null);
@@ -131,7 +66,6 @@ const ProcessMaster: React.FC = () => {
         }
         finally {
             setLoading(false); // End loading
->>>>>>> sumit-dev
         }
     };
 
@@ -140,15 +74,6 @@ const ProcessMaster: React.FC = () => {
     const handleChange = (e: ChangeEvent<HTMLInputElement> | ChangeEvent<HTMLSelectElement>) => {
         const { name, value, type, checked } = e.target as HTMLInputElement | HTMLSelectElement;
         if (type === 'checkbox') {
-<<<<<<< HEAD
-            setProcessMaster({
-                ...processMaster,
-                [name]: checked
-            });
-        } else {
-            setProcessMaster({
-                ...processMaster,
-=======
             setProcess({
                 ...process,
                 [name]: checked
@@ -156,7 +81,6 @@ const ProcessMaster: React.FC = () => {
         } else {
             setProcess({
                 ...process,
->>>>>>> sumit-dev
                 [name]: value
             });
         }
@@ -164,52 +88,6 @@ const ProcessMaster: React.FC = () => {
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-<<<<<<< HEAD
-
-        const payload = { ...processMaster, updatedBy: processMaster.createdBy };
-        console.log(payload)
-
-        try {
-            let response;
-            if (editingIndex !== null) {
-                // Update existing process master
-                response = await axios.post('https://localhost:44306/api/ProcessMaster/UpdateProcess', payload, {
-                    headers: {
-                        'accept': '*/*',
-                        'Content-Type': 'application/json'
-                    }
-                });
-            } else {
-                // Insert new process master
-                response = await axios.post('https://localhost:44306/api/ProcessMaster/InsertProcess', payload, {
-                    headers: {
-                        'accept': '*/*',
-                        'Content-Type': 'application/json'
-                    }
-                });
-            }
-
-            if (response.status === 200 || response.status === 201) {
-                const newProcessMaster = response.data;
-
-                if (editingIndex !== null) {
-                    const updatedProcessMasterList = [...processMasterList];
-                    updatedProcessMasterList[editingIndex] = newProcessMaster;
-                    setProcessMasterList(updatedProcessMasterList);
-                } else {
-                    setProcessMasterList([...processMasterList, { ...newProcessMaster, id: processMasterList.length + 1 }]);
-                }
-                handleClose();
-            } else {
-                console.error('Failed to submit process master');
-            }
-        } catch (error) {
-            if (axios.isAxiosError(error) && error.response) {
-                console.error('An error occurred while submitting the process master:', error.response.data);
-            } else {
-                console.error('An error occurred while submitting the process master:', error);
-            }
-=======
         try {
             if (editingIndex !== null) {
                 await axios.post('https://localhost:7074/api/ProcessMaster/UpdateProcess', process);
@@ -220,33 +98,18 @@ const ProcessMaster: React.FC = () => {
             handleClose();
         } catch (error) {
             console.error('Error submitting process:', error);
->>>>>>> sumit-dev
         }
     };
 
     const handleEdit = (index: number) => {
         setEditingIndex(index);
-<<<<<<< HEAD
-        setProcessMaster(processMasterList[index]);
-=======
         setProcess(processes[index]);
->>>>>>> sumit-dev
         handleShow();
     };
 
     const handleClose = () => {
         setShow(false);
         setEditingIndex(null);
-<<<<<<< HEAD
-        setProcessMaster({
-            id: 0,
-            moduleID: 0,
-            processDisplayName: '',
-            dashboardTab: '',
-            processID: '',
-            processInput: '',
-            procssOutput: '',
-=======
         setProcess({
             id: 0,
             moduleName: '',
@@ -259,7 +122,6 @@ const ProcessMaster: React.FC = () => {
             processFlowchart: '',
             processOwnerID: '',
             processOwnerName: '',
->>>>>>> sumit-dev
             createdBy: '',
             updatedBy: ''
         });
@@ -267,33 +129,11 @@ const ProcessMaster: React.FC = () => {
 
     const handleSearch = (e: ChangeEvent<HTMLInputElement>) => {
         setSearchQuery(e.target.value);
-<<<<<<< HEAD
-        setCurrentPage(1);
-=======
         setCurrentPage(1); // Reset to first page on search
->>>>>>> sumit-dev
     };
 
     const handleRowsPerPageChange = (e: ChangeEvent<HTMLSelectElement>) => {
         setRowsPerPage(Number(e.target.value));
-<<<<<<< HEAD
-        setCurrentPage(1);
-    };
-
-    const totalPages = Math.ceil(totalCount / rowsPerPage);
-
-    const convertToCSV = (data: ProcessMaster[]) => {
-        const csvRows = [
-            ['Process Display Name', 'Module ID', 'Dashboard Tab', 'Process ID', 'Process Input', 'Process Output', 'Created By'],
-            ...data.map(process => [
-                process.processDisplayName,
-                process.moduleID.toString(),
-                process.dashboardTab,
-                process.processID,
-                process.processInput,
-                process.procssOutput,
-                process.createdBy
-=======
         setCurrentPage(1); // Reset to first page on rows per page change
     };
 
@@ -331,7 +171,6 @@ const ProcessMaster: React.FC = () => {
                 proc.processOwnerName,
                 proc.createdBy,
                 proc.updatedBy
->>>>>>> sumit-dev
             ])
         ];
 
@@ -339,17 +178,6 @@ const ProcessMaster: React.FC = () => {
     };
 
     const downloadCSV = () => {
-<<<<<<< HEAD
-        const csvData = convertToCSV(processMasterList);
-        const blob = new Blob([csvData], { type: 'text/csv' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = 'process_masters.csv';
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-=======
         const csvData = convertToCSV(processes);
         const blob = new Blob([csvData], { type: 'text/csv;charset=utf-8;' });
         const link = document.createElement('a');
@@ -362,17 +190,12 @@ const ProcessMaster: React.FC = () => {
             link.click();
             document.body.removeChild(link);
         }
->>>>>>> sumit-dev
     };
 
     return (
         <div className="container">
             <div className="d-flex bg-white p-2 my-2 justify-content-between align-items-center">
-<<<<<<< HEAD
-                <span><i className="ri-projector-line me-2"></i><span className='fw-bold'>Process Master List</span></span>
-=======
                 <span><i className="ri-file-list-line me-2"></i><span className='fw-bold'>Processes List</span></span>
->>>>>>> sumit-dev
                 <div className="d-flex">
                     <div className="app-search d-none d-lg-block me-4">
                         <form>
@@ -380,11 +203,7 @@ const ProcessMaster: React.FC = () => {
                                 <input
                                     type="search"
                                     className="form-control"
-<<<<<<< HEAD
-                                    placeholder="Search Process Master..."
-=======
                                     placeholder="Search process..."
->>>>>>> sumit-dev
                                     value={searchQuery}
                                     onChange={handleSearch}
                                 />
@@ -392,55 +211,6 @@ const ProcessMaster: React.FC = () => {
                             </div>
                         </form>
                     </div>
-<<<<<<< HEAD
-                    <Button variant="primary" onClick={handleShow}>
-                        <i className="ri-add-line align-bottom me-1"></i> Add Process Master
-                    </Button>
-                    <Button variant="success" onClick={downloadCSV} className="ms-2">
-                        <i className="ri-file-download-line align-bottom me-1"></i> Download CSV
-                    </Button>
-                </div>
-            </div>
-            {loading ? (
-                <div className="text-center mt-4">
-                    <div className="spinner-border text-primary" role="status">
-                        <span className="visually-hidden">Loading...</span>
-                    </div>
-                </div>
-            ) : (
-                <Table striped bordered hover responsive>
-                    <thead>
-                        <tr>
-                            <th>Process Display Name</th>
-                            <th>Module ID</th>
-                            <th>Dashboard Tab</th>
-                            <th>Process ID</th>
-                            <th>Process Input</th>
-                            <th>Process Output</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {processMasterList.map((process, index) => (
-                            <tr key={index}>
-                                <td>{process.processDisplayName}</td>
-                                <td>{process.moduleID}</td>
-                                <td>{process.dashboardTab}</td>
-                                <td>{process.processID}</td>
-                                <td>{process.processInput}</td>
-                                <td>{process.procssOutput}</td>
-                                <td>
-                                    <Button variant="warning" size="sm" className="me-2" onClick={() => handleEdit(index)}>
-                                        <i className="ri-edit-line"></i>
-                                    </Button>
-                                </td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </Table>
-            )}
-           <div className="d-flex justify-content-between align-items-center my-2">
-=======
                     <Button variant="primary" onClick={handleShow} className="me-2">
                         Add Process
                     </Button>
@@ -583,7 +353,6 @@ const ProcessMaster: React.FC = () => {
                 </Offcanvas.Body>
             </Offcanvas>
             <div className="d-flex justify-content-between align-items-center my-2">
->>>>>>> sumit-dev
                 <div>
                     <Form.Select value={rowsPerPage} onChange={handleRowsPerPageChange}>
                         <option value={5}>5 rows</option>
@@ -599,100 +368,6 @@ const ProcessMaster: React.FC = () => {
                     <Pagination.Last onClick={() => setCurrentPage(totalPages)} disabled={currentPage === totalPages} />
                 </Pagination>
             </div>
-<<<<<<< HEAD
-            <Offcanvas show={show} onHide={handleClose} placement="end">
-                <Offcanvas.Header closeButton>
-                    <Offcanvas.Title>{editingIndex !== null ? 'Edit Process Master' : 'Add Process Master'}</Offcanvas.Title>
-                </Offcanvas.Header>
-                <Offcanvas.Body>
-                    <Form onSubmit={handleSubmit}>
-                        <Form.Group className="mb-3">
-                            <Form.Label>Process Display Name</Form.Label>
-                            <Form.Control
-                                type="text"
-                                placeholder="Enter Process Display Name"
-                                name="processDisplayName"
-                                value={processMaster.processDisplayName}
-                                onChange={handleChange}
-                                required
-                            />
-                        </Form.Group>
-                        <Form.Group className="mb-3">
-                            <Form.Label>Module ID</Form.Label>
-                            <Form.Control
-                                type="number"
-                                placeholder="Enter Module ID"
-                                name="moduleID"
-                                value={processMaster.moduleID}
-                                onChange={handleChange}
-                                required
-                            />
-                        </Form.Group>
-                        <Form.Group className="mb-3">
-                            <Form.Label>Dashboard Tab</Form.Label>
-                            <Form.Control
-                                type="text"
-                                placeholder="Enter Dashboard Tab"
-                                name="dashboardTab"
-                                value={processMaster.dashboardTab}
-                                onChange={handleChange}
-                                required
-                            />
-                        </Form.Group>
-                        <Form.Group className="mb-3">
-                            <Form.Label>Process ID</Form.Label>
-                            <Form.Control
-                                type="text"
-                                placeholder="Enter Process ID"
-                                name="processID"
-                                value={processMaster.processID}
-                                onChange={handleChange}
-                                required
-                            />
-                        </Form.Group>
-                        <Form.Group className="mb-3">
-                            <Form.Label>Process Input</Form.Label>
-                            <Form.Control
-                                type="text"
-                                placeholder="Enter Process Input"
-                                name="processInput"
-                                value={processMaster.processInput}
-                                onChange={handleChange}
-                                required
-                            />
-                        </Form.Group>
-                        <Form.Group className="mb-3">
-                            <Form.Label>Process Output</Form.Label>
-                            <Form.Control
-                                type="text"
-                                placeholder="Enter Process Output"
-                                name="procssOutput"
-                                value={processMaster.procssOutput}
-                                onChange={handleChange}
-                                required
-                            />
-                        </Form.Group>
-                        <Form.Group className="mb-3">
-                            <Form.Label>Created By</Form.Label>
-                            <Form.Control
-                                type="text"
-                                placeholder="Enter Creator's Name"
-                                name="createdBy"
-                                value={processMaster.createdBy}
-                                onChange={handleChange}
-                                required
-                            />
-                        </Form.Group>
-                        <Button variant="primary" type="submit" className="me-2">
-                            {editingIndex !== null ? 'Update Process Master' : 'Add Process Master'}
-                        </Button>
-                        <Button variant="secondary" onClick={handleClose}>
-                            Cancel
-                        </Button>
-                    </Form>
-                </Offcanvas.Body>
-            </Offcanvas>
-=======
             <div className="overflow-auto">
             {loading ? (
                 <div className='loader-container'>
@@ -739,14 +414,9 @@ const ProcessMaster: React.FC = () => {
            
             </div>
       
->>>>>>> sumit-dev
         </div>
     );
 };
 
-<<<<<<< HEAD
-export default ProcessMasterPage;
-=======
 export default ProcessMaster;
 
->>>>>>> sumit-dev

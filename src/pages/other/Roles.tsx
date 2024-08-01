@@ -245,38 +245,6 @@ const RoleMaster: React.FC = () => {
                     <Pagination.Last onClick={() => setCurrentPage(totalPages)} disabled={currentPage === totalPages} />
                 </Pagination>
             </div>
-<<<<<<< HEAD
-             
-
-            <Table className='bg-white' striped bordered hover>
-                <thead>
-                    <tr>
-                        <th>Display Name</th>
-                        <th>FMS Type</th>
-                        <th>Department ID</th>
-                        <th>MIS Exempt</th>
-                        <th>Status</th>
-                        <th>Module Owner Name</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {currentModules.map((mod, index) => (
-                        <tr key={index}>
-                            <td>{mod.displayName}</td>
-                            <td>{mod.fmsType}</td>
-                            <td>{mod.departmentId}</td>
-                            <td>{mod.misExempt ? 'Yes' : 'No'}</td>
-                            <td>{mod.status2}</td>
-                            <td>{mod.ownerName}</td>
-                            <td>
-                                <i className='btn ri-edit-line' onClick={() => handleEdit(index + indexOfFirstModule)}></i>
-                            </td>
-                        </tr>
-                    ))}
-                </tbody>
-            </Table>
-=======
 
             <div className="overflow-auto">
                 {loading ? (
@@ -309,7 +277,6 @@ const RoleMaster: React.FC = () => {
                 )}
 
             </div>
->>>>>>> sumit-dev
         </div>
     );
 };
