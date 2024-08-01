@@ -33,7 +33,7 @@ const Roles = React.lazy(() => import('../pages/other/Roles.tsx'))
 const Tender = React.lazy(() => import('../pages/other/Tender.tsx'))
 const Vender = React.lazy(() => import('../pages/other/Vender.tsx'))
 const Bank = React.lazy(() => import('../pages/other/Bank.tsx'))
-// const ModuleMaster = React.lazy(() => import('../pages/other/ModuleMaster.tsx'))
+const ModuleMaster = React.lazy(() => import('../pages/other/ModuleMaster.tsx'))
 const ProcessMaster = React.lazy(() => import('../pages/other/ProcessMaster.tsx'))
 const TaskMaster = React.lazy(() => import('../pages/other/TaskMaster.tsx'))
 const DoerMaster = React.lazy(() => import('../pages/other/DoerMaster.tsx'))
@@ -42,9 +42,9 @@ const LnMaster = React.lazy(() => import('../pages/other/LnMaster.tsx'))
 const ChkLnMaster = React.lazy(() => import('../pages/other/ChkLnMaster.tsx'))
 const TicketMaster = React.lazy(() => import('../pages/other/TicketMaster.tsx'))
 const SystemLogs = React.lazy(() => import('../pages/other/SystemLogs.tsx'))
-// const ChkTaskMaster = React.lazy(() => import('../pages/other/ChkTaskMaster.tsx'))
-// const ChecklistMaster = React.lazy(() => import('../pages/other/ChecklistCollection.tsx'))
-// const AddressMaster = React.lazy(() => import('../pages/other/AddressMaster.tsx'))
+const ChkTaskMaster = React.lazy(() => import('../pages/other/ChkTaskMaster.tsx'))
+const ChecklistMaster = React.lazy(() => import('../pages/other/ChecklistCollection.tsx'))
+const AddressMaster = React.lazy(() => import('../pages/other/AddressMaster.tsx'))
 
 
 
@@ -257,12 +257,12 @@ const customPagesRoutes = {
 			element: <Bank />,
 			route: PrivateRoute,
 		},
-		// {
-		// 	path: '/pages/ModuleMaster',
-		// 	name: 'Module Master',
-		// 	element: <ModuleMaster />,
-		// 	route: PrivateRoute,
-		// },
+		{
+			path: '/pages/ModuleMaster',
+			name: 'Module Master',
+			element: <ModuleMaster />,
+			route: PrivateRoute,
+		},
 		{
 			path: '/pages/ProcessMaster',
 			name: 'Process Master',
@@ -312,30 +312,30 @@ const customPagesRoutes = {
 			element: <SystemLogs />,
 			route: PrivateRoute,
 		},
-		// {
-		// 	path: '/pages/ChkTaskMaster',
-		// 	name: 'CHK Task Master',
-		// 	element: <ModuleMaster />,
-		// 	route: PrivateRoute,
-		// },
-		// {
-		// 	path: '/pages/ChkInputMaster',
-		// 	name: 'CHK Input Master',
-		// 	element: <ChkTaskMaster />,
-		// 	route: PrivateRoute,
-		// },
-		// {
-		// 	path: '/pages/ChecklistMaster',
-		// 	name: 'CheckList Master',
-		// 	element: <ChecklistMaster />,
-		// 	route: PrivateRoute,
-		// },
-		// {
-		// 	path: '/pages/AddressMaster',
-		// 	name: 'Address Master',
-		// 	element: <AddressMaster />,
-		// 	route: PrivateRoute,
-		// },
+		{
+			path: '/pages/ChkTaskMaster',
+			name: 'CHK Task Master',
+			element: <ModuleMaster />,
+			route: PrivateRoute,
+		},
+		{
+			path: '/pages/ChkInputMaster',
+			name: 'CHK Input Master',
+			element: <ChkTaskMaster />,
+			route: PrivateRoute,
+		},
+		{
+			path: '/pages/ChecklistMaster',
+			name: 'CheckList Master',
+			element: <ChecklistMaster />,
+			route: PrivateRoute,
+		},
+		{
+			path: '/pages/AddressMaster',
+			name: 'Address Master',
+			element: <AddressMaster />,
+			route: PrivateRoute,
+		},
 		///////////////////////////////////////////////////////////////////////////////////////////
 		{
 			path: '/pages/contact-list',

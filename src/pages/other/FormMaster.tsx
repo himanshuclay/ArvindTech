@@ -320,4 +320,8 @@ const BanksPage: React.FC = () => {
     );
 };
 
+<<<<<<< HEAD
 export default BanksPage;
+=======
+export default BanksPage;
+>>>>>>> sumit-dev

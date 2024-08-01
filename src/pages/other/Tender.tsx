@@ -354,4 +354,8 @@ const TenderModule: React.FC = () => {
     );
 };
 
+<<<<<<< HEAD
 export default TenderModule;
+=======
+export default TenderModule;
+>>>>>>> sumit-dev
