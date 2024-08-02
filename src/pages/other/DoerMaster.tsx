@@ -2,153 +2,178 @@ import React, { useState, useEffect, ChangeEvent } from 'react';
 import { Button, Form, Offcanvas, Table, Pagination } from 'react-bootstrap';
 import axios from 'axios';
 
-interface Bank {
+interface Doer {
     id: number;
-    bank: string;
-    ifsc: string;
-    branch: string;
-    city1: string;
-    city2: string;
-    state: string;
+    taskID: string;
+    identifier: string;
+    input: string;
+    inputValue: string;
+    doerRole: string;
+    empID: string;
+    empName: string;
+    createdBy: string;
+    updatedBy: string;
 }
 
-const BanksPage: React.FC = () => {
-    const [bank, setBank] = useState<Bank>({
+const DoerMaster: React.FC = () => {
+    const [doer, setDoer] = useState<Doer>({
         id: 0,
-        bank: '',
-        ifsc: '',
-        branch: '',
-        city1: '',
-        city2: '',
-        state: ''
+        taskID: '',
+        identifier: '',
+        input: '',
+        inputValue: '',
+        doerRole: '',
+        empID: '',
+        empName: '',
+        createdBy: '',
+        updatedBy: ''
     });
 
-    const [banks, setBanks] = useState<Bank[]>([]);
+    const [doers, setDoers] = useState<Doer[]>([]);
     const [show, setShow] = useState(false);
     const [editingIndex, setEditingIndex] = useState<number | null>(null);
     const [searchQuery, setSearchQuery] = useState('');
-    const [currentPage, setCurrentPage] = useState<number>(1);
-    const [rowsPerPage, setRowsPerPage] = useState(10);
+    const [currentPage, setCurrentPage] = useState(1);
+    // const [rowsPerPage, setRowsPerPage] = useState(5);
+    const [totalPages, setTotalPages] = useState(1); // Added state for total pages
+
     const [loading, setLoading] = useState<boolean>(false);
 
+
     useEffect(() => {
-        fetchBanks();
+        fetchDoers();
     }, [currentPage]);
 
-    const fetchBanks = async () => {
+    const fetchDoers = async () => {
         setLoading(true);
-        try {
-            const params = new URLSearchParams({ PageIndex: currentPage.toString() });
-            const url = `https://localhost:44344/api/BankMaster/GetBankList?${params.toString()}`;
-            const response = await axios.get(url, { headers: { 'accept': '*/*' } });
 
-            if (response && response.status === 200 && response.data.isSuccess) {
-                const responseData = Array.isArray(response.data.bankMasterListResponses)
-                    ? response.data.bankMasterListResponses
-                    : [response.data.bankMasterListResponses];
-                setBanks(responseData);
+        try {
+            const response = await axios.get('https://localhost:44306/api/DoerMaster/GetDoer', {
+                params: {
+                    PageIndex: currentPage
+                }
+            });
+            if (response.data.isSuccess) {
+                setDoers(response.data.doerMasterList);
+                setTotalPages(Math.ceil(response.data.totalCount / 10));
+
             } else {
-                console.error('Failed to fetch banks: Invalid response status');
+                console.error(response.data.message);
             }
         } catch (error) {
-            console.error('An error occurred while fetching the banks:', error);
-        } finally {
-            setLoading(false);
+            console.error('Error fetching doers:', error);
+        }
+        finally {
+            setLoading(false); // End loading
         }
     };
 
-    const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
-        const { name, value } = e.target;
-        setBank({ ...bank, [name]: value });
+    const handleShow = () => setShow(true);
+
+    const handleChange = (e: ChangeEvent<HTMLInputElement> | ChangeEvent<HTMLSelectElement>) => {
+        const { name, value, type, checked } = e.target as HTMLInputElement | HTMLSelectElement;
+        if (type === 'checkbox') {
+            setDoer({
+                ...doer,
+                [name]: checked
+            });
+        } else {
+            setDoer({
+                ...doer,
+                [name]: value
+            });
+        }
     };
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-
-        const payload = { ...bank };
-
         try {
-            const response = await axios.post('https://localhost:44344/api/BankMaster/InsertBank', payload, { headers: { 'accept': '*/*', 'Content-Type': 'application/json' } });
-
-            if (response.status === 200 || response.status === 201) {
-                const newBank = response.data;
-
-                if (editingIndex !== null) {
-                    const updatedBanks = [...banks];
-                    updatedBanks[editingIndex] = newBank;
-                    setBanks(updatedBanks);
-                } else {
-                    setBanks([...banks, { ...newBank, id: banks.length + 1 }]);
-                }
-                handleClose();
+            if (editingIndex !== null) {
+                await axios.post('https://localhost:44306/api/DoerMaster/UpdateDoer', doer);
             } else {
-                console.error('Failed to submit bank');
+                await axios.post('https://localhost:44306/api/DoerMaster/InsertDoer', doer);
             }
+            fetchDoers();
+            handleClose();
         } catch (error) {
-            console.error('An error occurred while submitting the bank:', error);
+            console.error('Error submitting doer:', error);
         }
+    };
+
+    const handleEdit = (index: number) => {
+        setEditingIndex(index);
+        setDoer(doers[index]);
+        handleShow();
     };
 
     const handleClose = () => {
         setShow(false);
         setEditingIndex(null);
-        setBank({
+        setDoer({
             id: 0,
-            bank: '',
-            ifsc: '',
-            branch: '',
-            city1: '',
-            city2: '',
-            state: ''
+            taskID: '',
+            identifier: '',
+            input: '',
+            inputValue: '',
+            doerRole: '',
+            empID: '',
+            empName: '',
+            createdBy: '',
+            updatedBy: ''
         });
     };
 
-    const handleShow = () => setShow(true);
-
-    const handleEdit = (index: number) => {
-        setEditingIndex(index);
-        setBank(banks[index]);
-        handleShow();
+    const handleSearch = (e: ChangeEvent<HTMLInputElement>) => {
+        setSearchQuery(e.target.value);
+        setCurrentPage(1); // Reset to first page on search
     };
 
-    const filteredBanks = banks.filter(bank =>
-        (bank.bank || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
-        (bank.ifsc || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
-        (bank.branch || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
-        (bank.city1 || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
-        (bank.city2 || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
-        (bank.state || '').toLowerCase().includes(searchQuery.toLowerCase())
+   
+
+    const filteredDoers = doers.filter(doer =>
+        doer.taskID.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        doer.identifier.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        doer.empName.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
-    const indexOfLastBank = currentPage * rowsPerPage;
-    const indexOfFirstBank = indexOfLastBank - rowsPerPage;
-    const currentBanks = filteredBanks.slice(indexOfFirstBank, indexOfLastBank);
 
-    const totalPages = Math.ceil(filteredBanks.length / rowsPerPage);
 
-    const downloadCSV = () => {
-        const csvData = convertToCSV(banks);
-        const blob = new Blob([csvData], { type: 'text/csv' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = 'banks.csv';
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
+    const convertToCSV = (data: Doer[]) => {
+        const csvRows = [
+            ['Task ID', 'Identifier', 'Input', 'Input Value', 'Doer Role', 'Emp ID', 'Emp Name'],
+            ...data.map(doer => [
+                doer.taskID,
+                doer.identifier,
+                doer.input,
+                doer.inputValue,
+                doer.doerRole,
+                doer.empID,
+                doer.empName
+            ])
+        ];
+
+        return csvRows.map(row => row.join(',')).join('\n');
     };
 
-    const convertToCSV = (data: Bank[]) => {
-        const headers = Object.keys(data[0]).join(',');
-        const rows = data.map(bank => Object.values(bank).join(','));
-        return [headers, ...rows].join('\n');
+    const downloadCSV = () => {
+        const csvData = convertToCSV(doers);
+        const blob = new Blob([csvData], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement('a');
+        if (link.download !== undefined) {
+            const url = URL.createObjectURL(blob);
+            link.setAttribute('href', url);
+            link.setAttribute('download', 'Doers.csv');
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
     };
 
     return (
-        <div className="container ">
-
+        <div className="container">
             <div className="d-flex bg-white p-2 my-2 justify-content-between align-items-center">
-                <span><i className="ri-file-list-line me-2"></i><span className='fw-bold'>Tender Modules List</span></span>
+                <span><i className="ri-file-list-line me-2"></i><span className='fw-bold'>Doers List</span></span>
                 <div className="d-flex">
                     <div className="app-search d-none d-lg-block me-4">
                         <form>
@@ -156,168 +181,188 @@ const BanksPage: React.FC = () => {
                                 <input
                                     type="search"
                                     className="form-control"
-                                    placeholder="Search Bank..."
+                                    placeholder="Search doer..."
                                     value={searchQuery}
-                                    onChange={(e) => setSearchQuery(e.target.value)}
+                                    onChange={handleSearch}
                                 />
                                 <span className="ri-search-line search-icon text-muted" />
                             </div>
                         </form>
                     </div>
                     <Button variant="primary" onClick={handleShow} className="me-2">
-                        Add Bank
+                        Add Doer
                     </Button>
-                    <Button variant="secondary" onClick={downloadCSV}>
+                    <Button variant="primary" onClick={downloadCSV} className="me-2">
                         Download CSV
                     </Button>
                 </div>
             </div>
 
-
-            {loading ? (
-              <div className='loader-container'>
-              <div className="loader"></div>
-              <div className='mt-2'>Please Wait!</div>
-          </div>
-            ) : (
-                <Table striped bordered hover responsive className="mb-0">
-                    <thead>
-                        <tr>
-                            <th>#</th>
-                            <th>Bank</th>
-                            <th>IFSC</th>
-                            <th>Branch</th>
-                            <th>City 1</th>
-                            <th>City 2</th>
-                            <th>State</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {currentBanks.map((bank, index) => (
-                            <tr key={index}>
-                                <td>{index + 1 + (currentPage - 1) * rowsPerPage}</td>
-                                <td>{bank.bank}</td>
-                                <td>{bank.ifsc}</td>
-                                <td>{bank.branch}</td>
-                                <td>{bank.city1}</td>
-                                <td>{bank.city2}</td>
-                                <td>{bank.state}</td>
-                                <td>
-                                    <Button variant="warning" size="sm" className="me-2" onClick={() => handleEdit(index)}>
-                                        <i className="ri-edit-line"></i>
-                                    </Button>
-                                </td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </Table>
-            )}
-
-            <div className="d-flex justify-content-between mt-3">
-                <Pagination>
-                    <Pagination.First onClick={() => setCurrentPage(1)} disabled={currentPage === 1} />
-                    <Pagination.Prev onClick={() => setCurrentPage(currentPage - 1)} disabled={currentPage === 1} />
-                    {[...Array(totalPages).keys()].map(number => (
-                        <Pagination.Item key={number + 1} active={number + 1 === currentPage} onClick={() => setCurrentPage(number + 1)}>
-                            {number + 1}
-                        </Pagination.Item>
-                    ))}
-                    <Pagination.Next onClick={() => setCurrentPage(currentPage + 1)} disabled={currentPage === totalPages} />
-                    <Pagination.Last onClick={() => setCurrentPage(totalPages)} disabled={currentPage === totalPages} />
-                </Pagination>
-                <Form.Control
-                    as="select"
-                    value={rowsPerPage}
-                    onChange={(e) => setRowsPerPage(parseInt(e.target.value))}
-                >
-                    <option value="5">5</option>
-                    <option value="10">10</option>
-                    <option value="25">25</option>
-                    <option value="50">50</option>
-                </Form.Control>
-            </div>
-
-            <Offcanvas show={show} onHide={handleClose} placement="end">
+            <Offcanvas show={show} onHide={handleClose}>
                 <Offcanvas.Header closeButton>
-                    <Offcanvas.Title>{editingIndex !== null ? 'Edit Bank' : 'Add Bank'}</Offcanvas.Title>
+                    <Offcanvas.Title>Doer Form</Offcanvas.Title>
                 </Offcanvas.Header>
                 <Offcanvas.Body>
                     <Form onSubmit={handleSubmit}>
-                        <Form.Group controlId="formBank">
-                            <Form.Label>Bank</Form.Label>
+                        <Form.Group controlId="taskID" className="mb-3">
+                            <Form.Label>Task ID:</Form.Label>
                             <Form.Control
                                 type="text"
-                                name="bank"
-                                value={bank.bank}
+                                name="taskID"
+                                value={doer.taskID}
                                 onChange={handleChange}
                                 required
                             />
                         </Form.Group>
-
-                        <Form.Group controlId="formIFSC" className="mt-3">
-                            <Form.Label>IFSC</Form.Label>
+                        <Form.Group controlId="identifier" className="mb-3">
+                            <Form.Label>Identifier:</Form.Label>
                             <Form.Control
                                 type="text"
-                                name="ifsc"
-                                value={bank.ifsc}
+                                name="identifier"
+                                value={doer.identifier}
                                 onChange={handleChange}
                                 required
                             />
                         </Form.Group>
-
-                        <Form.Group controlId="formBranch" className="mt-3">
-                            <Form.Label>Branch</Form.Label>
+                        <Form.Group controlId="input" className="mb-3">
+                            <Form.Label>Input:</Form.Label>
                             <Form.Control
                                 type="text"
-                                name="branch"
-                                value={bank.branch}
+                                name="input"
+                                value={doer.input}
                                 onChange={handleChange}
                                 required
                             />
                         </Form.Group>
-
-                        <Form.Group controlId="formCity1" className="mt-3">
-                            <Form.Label>City 1</Form.Label>
+                        <Form.Group controlId="inputValue" className="mb-3">
+                            <Form.Label>Input Value:</Form.Label>
                             <Form.Control
                                 type="text"
-                                name="city1"
-                                value={bank.city1}
+                                name="inputValue"
+                                value={doer.inputValue}
                                 onChange={handleChange}
                                 required
                             />
                         </Form.Group>
-
-                        <Form.Group controlId="formCity2" className="mt-3">
-                            <Form.Label>City 2</Form.Label>
+                        <Form.Group controlId="doerRole" className="mb-3">
+                            <Form.Label>Doer Role:</Form.Label>
                             <Form.Control
                                 type="text"
-                                name="city2"
-                                value={bank.city2}
+                                name="doerRole"
+                                value={doer.doerRole}
                                 onChange={handleChange}
                                 required
                             />
                         </Form.Group>
-
-                        <Form.Group controlId="formState" className="mt-3">
-                            <Form.Label>State</Form.Label>
+                        <Form.Group controlId="empID" className="mb-3">
+                            <Form.Label>Employee ID:</Form.Label>
                             <Form.Control
                                 type="text"
-                                name="state"
-                                value={bank.state}
+                                name="empID"
+                                value={doer.empID}
                                 onChange={handleChange}
                                 required
                             />
                         </Form.Group>
-
-                        <Button variant="primary" type="submit" className="mt-3">
-                            {editingIndex !== null ? 'Update Bank' : 'Add Bank'}
+                        <Form.Group controlId="empName" className="mb-3">
+                            <Form.Label>Employee Name:</Form.Label>
+                            <Form.Control
+                                type="text"
+                                name="empName"
+                                value={doer.empName}
+                                onChange={handleChange}
+                                required
+                            />
+                        </Form.Group>
+                        <Form.Group controlId="createdBy" className="mb-3">
+                            <Form.Label>Created By:</Form.Label>
+                            <Form.Control
+                                type="text"
+                                name="createdBy"
+                                value={doer.createdBy}
+                                onChange={handleChange}
+                                required
+                            />
+                        </Form.Group>
+                        <Form.Group controlId="updatedBy" className="mb-3">
+                            <Form.Label>Updated By:</Form.Label>
+                            <Form.Control
+                                type="text"
+                                name="updatedBy"
+                                value={doer.updatedBy}
+                                onChange={handleChange}
+                                required
+                            />
+                        </Form.Group>
+                        <Button variant="primary" type="submit">
+                            {editingIndex !== null ? 'Update Doer' : 'Add Doer'}
                         </Button>
                     </Form>
                 </Offcanvas.Body>
             </Offcanvas>
+
+
+
+
+
+            <div className="overflow-auto">
+            {loading ? (
+                <div className='loader-container'>
+                    <div className="loader"></div>
+                    <div className='mt-2'>Please Wait!</div>
+                </div>
+            ) : (
+            <Table striped bordered hover>
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Task ID</th>
+                        <th>Identifier</th>
+                        <th>Input</th>
+                        <th>Input Value</th>
+                        <th>Doer Role</th>
+                        <th>Employee ID</th>
+                        <th>Employee Name</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {filteredDoers.slice(0, 10).map((doer, index) => (
+                        <tr key={doer.id}>
+                               <td>{(currentPage - 1) * 10 + index + 1}</td>
+                            <td>{doer.taskID}</td>
+                            <td>{doer.identifier}</td>
+                            <td>{doer.input}</td>
+                            <td>{doer.inputValue}</td>
+                            <td>{doer.doerRole}</td>
+                            <td>{doer.empID}</td>
+                            <td>{doer.empName}</td>
+                            <td>
+                                <Button variant="warning" onClick={() => handleEdit(index)}>
+                                    Edit
+                                </Button>
+                            </td>
+                        </tr>
+                    ))}
+                </tbody>
+            </Table>
+            )}
+            
+            <div className="d-flex justify-content-center align-items-center">
+          
+                <Pagination>
+                    <Pagination.First onClick={() => setCurrentPage(1)} disabled={currentPage === 1} />
+                    <Pagination.Prev onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))} disabled={currentPage === 1} />
+                    <Pagination.Item active>{currentPage}</Pagination.Item>
+                    <Pagination.Next onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))} disabled={currentPage === totalPages} />
+                    <Pagination.Last onClick={() => setCurrentPage(totalPages)} disabled={currentPage === totalPages} />
+                </Pagination>
+            </div>
+        </div>
+
+          
         </div>
     );
 };
 
-export default BanksPage;
+export default DoerMaster;

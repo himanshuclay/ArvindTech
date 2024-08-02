@@ -1,15 +1,44 @@
 import React, { useState, useEffect } from 'react';
 import { Modal, Button, } from 'react-bootstrap';
 import EmployeeForm from './Employee-Master';
+import Flatpickr from 'react-flatpickr'
+import 'flatpickr/dist/flatpickr.css';
+import { format } from 'date-fns';
+import Select from 'react-select';
+import { ChangeEvent } from 'react';
+import axios from 'axios';
 
+
+
+interface AccountMessWeeklyPaymentsMessRequest {
+	id: number;
+	projectId: string;
+	moduleId: string;
+	processId: string;
+	messId: string;
+	messName: string;
+	messManagerEmpId: string;
+	messManagerEmpName: string;
+	createdDate: Date;
+	createdBy: string;
+	updatedDate: Date;
+	updatedBy: string;
+}
 
 interface ProcessFormState {
-	processName: string;
-	processOwner: string;
-	moduleName: string;
-	processOutput: string;
+	employeeId: string;
+	employeeName: string;
 	processId: string;
-
+	processName: string;
+	moduleId: string;
+	moduleName: string;
+	projectId: string;
+	projectName: string;
+	periodDate: Date;
+	weekDate: Date;
+	sourceId: number;
+	createdBy: string;
+	accountMesses: AccountMessWeeklyPaymentsMessRequest[];
 }
 
 interface ProcessData extends ProcessFormState {
@@ -38,15 +67,29 @@ interface TaskFormState {
 	fileUploads: File[];
 }
 
+interface ProjectOption {
+	value: string;
+	label: string;
+}
+
 const ProcessForm: React.FC = () => {
 	const [formState, setFormState] = useState<ProcessFormState>({
-		processName: '',
-		processOwner: '',
-		moduleName: '',
-		processOutput: '',
+		employeeId: '',
+		employeeName: '',
 		processId: '',
+		processName: '',
+		moduleId: '',
+		moduleName: '',
+		projectId: '',
+		projectName: '',
+		periodDate: new Date(),
+		weekDate: new Date(),
+		sourceId: 0,
+		createdBy: '',
+		accountMesses: []
 	});
 	const [processes, setProcesses] = useState<ProcessData[]>([]);
+	const [projects, setProjects] = useState<{ id: string; projectName: string }[]>([]);
 	const [employees, setEmployees] = useState<any[]>([]);
 	const [showAddEditModal, setShowAddEditModal] = useState<boolean>(false);
 	const [showDeleteModal, setShowDeleteModal] = useState<boolean>(false);
@@ -75,6 +118,9 @@ const ProcessForm: React.FC = () => {
 	const [showTable, setShowTable] = useState(true);
 
 	useEffect(() => {
+		setProjects([
+			{ id: '1', projectName: 'PNC_GWALIOR' },
+		]);
 		const savedProcesses = localStorage.getItem('processes');
 		if (savedProcesses) {
 			setProcesses(JSON.parse(savedProcesses));
@@ -83,24 +129,46 @@ const ProcessForm: React.FC = () => {
 		if (storedEmployees) {
 			setEmployees(JSON.parse(storedEmployees));
 		}
+		const fetchProjects = async () => {
+			try {
+				const response = await fetch('https://localhost:44306/api/CommonDropdown/GetProjectList', {
+					method: 'GET',
+					headers: {
+						'accept': '*/*'
+					}
+				});
+				const data = await response.json();
+				if (data.isSuccess) {
+					setProjects(data.projectListResponses);
+				} else {
+					console.error('Failed to fetch projects:', data.message);
+				}
+			} catch (error) {
+				console.error('Error fetching projects:', error);
+			}
+		};
+
+		fetchProjects();
+
 	}, []);
 
-	const handleEmployeeChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-		const selectedEmployeeName = event.target.value;
-		setTaskFormData(prevFormData => ({
-		  ...prevFormData,
-		  doerName: selectedEmployeeName
-		}));
-	  };
+
+	// const handleEmployeeChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+	// 	const selectedEmployeeName = event.target.value;
+	// 	setTaskFormData(prevFormData => ({
+	// 	  ...prevFormData,
+	// 	  doerName: selectedEmployeeName
+	// 	}));
+	//   };
 
 
-	const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-		const { name, value } = e.target;
-		setFormState({
-			...formState,
-			[name]: value,
-		});
-	};
+	// const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+	// 	const { name, value } = e.target;
+	// 	setFormState({
+	// 		...formState,
+	// 		[name]: value,
+	// 	});
+	// };
 
 	const handleTaskInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
 		const { name, value, type, files } = e.target as HTMLInputElement;
@@ -148,17 +216,26 @@ const ProcessForm: React.FC = () => {
 				setEditingIndex(null);
 				setShowAddEditModal(false);
 				setFormState({
-					processName: '',
-					processOwner: '',
-					moduleName: '',
-					processOutput: '',
+					employeeId: '',
+					employeeName: '',
 					processId: '',
+					processName: '',
+					moduleId: '',
+					moduleName: '',
+					projectId: '',
+					projectName: '',
+					periodDate: new Date(),
+					weekDate: new Date(),
+					sourceId: 0,
+					createdBy: '',
+					accountMesses: []
 				});
 			}
 		} catch (error) {
 			console.error('Error saving edits:', error);
 		}
 	};
+
 
 	const deleteProcess = () => {
 		if (deleteIndex !== null) {
@@ -182,17 +259,172 @@ const ProcessForm: React.FC = () => {
 			localStorage.setItem('processes', JSON.stringify(updatedProcesses));
 			setProcesses(updatedProcesses);
 			setFormState({
-				processName: '',
-				processOwner: '',
-				moduleName: '',
-				processOutput: '',
+				employeeId: '',
+				employeeName: '',
 				processId: '',
+				processName: '',
+				moduleId: '',
+				moduleName: '',
+				projectId: '',
+				projectName: '',
+				periodDate: new Date(),
+				weekDate: new Date(),
+				sourceId: 0,
+				createdBy: '',
+				accountMesses: []
 			});
 			setShowAddEditModal(false);
 		} catch (error) {
 			console.error('Error submitting form:', error);
 		}
 	};
+
+	const handleDateChange = (date: Date[]) => {
+		setFormState(prevState => ({
+			...prevState,
+			periodDate: date[0]
+		}));
+	};
+
+
+	interface Project {
+		id: string;
+		projectName: string;
+	}
+
+	interface SelectOption {
+		value: string;
+		label: string;
+	}
+
+	const [modules, setModules] = useState([]);
+	const [selectedModule, setSelectedModule] = useState('');
+	const [selectedProcess, setSelectedProcess] = useState('');
+
+	// Fetch module list on component mount
+	useEffect(() => {
+		axios.get('https://localhost:44306/api/CommonDropdown/GetModuleList')
+			.then(response => {
+				const moduleOptions = response.data.moduleNameListResponses.map(module => ({
+					value: module.moduleName,
+					label: module.moduleName,
+				}));
+				setModules(moduleOptions);
+			})
+			.catch(error => console.error('Error fetching modules:', error));
+	}, []);
+
+	// Fetch process list when selectedModule changes
+	useEffect(() => {
+		if (selectedModule) {
+			axios.get(`https://localhost:44306/api/CommonDropdown/GetProcessNameByModuleName?ModuleName=${selectedModule}`)
+				.then(response => {
+					const processOptions = response.data.processListResponses.map(process => ({
+						value: process.processName,
+						label: process.processName,
+					}));
+					setProcesses(processOptions);
+				})
+				.catch(error => console.error('Error fetching processes:', error));
+		}
+	}, [selectedModule]);
+
+	const handleModuleChange = (selectedOption) => {
+		setSelectedModule(selectedOption ? selectedOption.value : '');
+		setSelectedProcess(''); // Clear selected process when module changes
+	};
+
+	// Handle process change
+	const handleProcessChange = (selectedOption) => {
+		setSelectedProcess(selectedOption ? selectedOption.value : '');
+	};
+
+
+	const handleWeekDateChange = (date: Date[]) => {
+		setFormState(prevState => ({
+			...prevState,
+			weekDay: format(date[0], 'EEEE'),
+			weekTime: format(date[0], 'HH:mm')
+		}));
+	};
+	interface ApiResponse {
+		isSuccess: boolean;
+		message: string;
+		messProjectListResponses: {
+			messID: string;
+			messName: string;
+			managerEmpID: string;
+			managerName: string;
+		}[];
+	}
+	interface MessProjectListResponse {
+		messID: string;
+		messName: string;
+		managerEmpID: string;
+		managerName: string;
+	}
+
+	const [messOptions, setMessOptions] = useState<{ value: string; label: string }[]>([]);
+	const [managerOptions, setManagerOptions] = useState<{ value: string; label: string }[]>([]);
+
+	const handleInputChange = async (e: React.ChangeEvent<HTMLSelectElement>) => {
+		const { name, value } = e.target;
+		setFormState(prevState => ({ ...prevState, [name]: value }));
+
+		if (name === 'projectId') {
+			console.log(`Selected project ID from select element: ${value}`);
+
+			// Convert value to number for matching, if necessary
+			const projectId = Number(value);
+
+			// Check if projects array is populated correctly
+			console.log('Projects array:', projects);
+
+			// Find the project in the array
+			const project = projects.find(project => project.id === projectId);
+			console.log(`Found project: ${JSON.stringify(project)}`);
+
+			if (project) {
+				const projectName = project.projectName;
+				console.log(`Project Name: ${projectName}`);
+
+				try {
+					const response = await fetch(`https://localhost:44306/api/CommonDropdown/GetMessandManagerListByProjectName?ProjectName=${projectName}`);
+					console.log('API Response:', response);
+
+					const data: ApiResponse = await response.json();
+					console.log('API Data:', data);
+
+					if (data.isSuccess) {
+						const messOptions = data.messProjectListResponses.map(mess => ({
+							value: mess.messID,
+							label: mess.messName,
+						}));
+
+						const managerOptions = data.messProjectListResponses.map(manager => ({
+							value: manager.managerEmpID,
+							label: manager.managerName,
+						}));
+
+						setMessOptions(messOptions);
+						setManagerOptions(managerOptions);
+
+						data.messProjectListResponses.forEach(response => {
+							console.log(`Mess Name: ${response.messName}, Manager Name: ${response.managerName}`);
+						});
+					}
+				} catch (error) {
+					console.error('Error fetching mess and manager list:', error);
+				}
+			} else {
+				console.log('Project not found');
+			}
+		}
+	};
+
+
+
+
 
 	const handleCreateTask = (processIndex: number) => {
 		setSelectedProcessIndex(processIndex);
@@ -274,6 +506,44 @@ const ProcessForm: React.FC = () => {
 		setShowTable(true);
 	};
 
+	const payload = {
+		employeeID: formState.employeeId, // Adjust as needed
+		employeeName: formState.employeeName, // Adjust as needed
+		processID: formState.processId, // Ensure this matches your API
+		processName: formState.processName,
+		moduleID: formState.moduleId, // Ensure this matches your API
+		moduleName: formState.moduleName,
+		projectId: formState.projectId,
+		projectName: formState.projectName, // Adjust as needed
+		periodDate: formState.periodDate.toISOString(), // Convert to ISO string if needed
+		weekDate: formState.weekDate.toISOString(), // Convert to ISO string if needed
+		sourceId: formState.sourceId,
+		createdBy: formState.createdBy, // Adjust as needed
+		accountMesses: formState.accountMesses.map(mess => ({
+			projectId: mess.projectId,
+			moduleID: mess.moduleId,
+			processID: mess.processId,
+			messId: mess.messId,
+			messName: mess.messName,
+			messManagerEmpId: mess.messManagerEmpId,
+			messManagerEmpName: mess.messManagerEmpName,
+			createdBy: mess.createdBy, // Adjust as needed
+		}))
+	};
+
+	axios.post('https://localhost:7235/api/MessWeeklyPayments/CreateInitiation', payload, {
+		headers: {
+			'Accept': '*/*',
+			'Content-Type': 'application/json',
+		}
+	}
+	)
+		.then(response => {
+			console.log('Data submitted successfully:', response.data);
+		})
+		.catch(error => console.error('Error submitting data:', error));
+	console.log(payload)
+
 	return (
 		<div>
 			<div className="d-flex bg-white p-2 my-2 justify-content-between align-items-center">
@@ -294,11 +564,19 @@ const ProcessForm: React.FC = () => {
 					<Button variant="primary" onClick={() => {
 						setEditingIndex(null);
 						setFormState({
-							processName: '',
-							processOwner: '',
-							moduleName: '',
-							processOutput: '',
+							employeeId: '',
+							employeeName: '',
 							processId: '',
+							processName: '',
+							moduleId: '',
+							moduleName: '',
+							projectId: '',
+							projectName: '',
+							periodDate: new Date(),
+							weekDate: new Date(),
+							sourceId: 0,
+							createdBy: '',
+							accountMesses: []
 						});
 						setShowAddEditModal(true);
 					}}>
@@ -315,77 +593,141 @@ const ProcessForm: React.FC = () => {
 					<form onSubmit={editingIndex !== null ? saveEdits : handleSubmit}>
 						<div className="row">
 							<div className="form-group col-lg-6 col-md-6 col-sm-12 p-2">
-								<label htmlFor="moduleName">Module Name</label>
-								<input
-									type="text"
+								<label htmlFor="projectId">Project Name</label>
+								<select
 									className="form-control"
-									id="moduleName"
-									name="moduleName"
-									value={formState.moduleName}
+									id="projectId"
+									name="projectId"
+									value={formState.projectId}
 									onChange={handleInputChange}
 									required
-								/>
+								>
+									<option value="">Select Project Name</option>
+									{projects.map(project => (
+										<option key={project.id} value={project.id}>
+											{project.projectName}
+										</option>
+									))}
+								</select>
 							</div>
 							<div className="form-group col-lg-6 col-md-6 col-sm-12 p-2">
-								<label htmlFor="processName">Process Id</label>
-								<input
-									type="text"
-									className="form-control"
-									id="processId"
-									name="processId"
-									value={formState.processId}
-									onChange={handleInputChange}
-									required
+								<label htmlFor="moduleName">Module Name</label>
+								<Select
+									className="basic-single"
+									classNamePrefix="select"
+									name="moduleName"
+									options={modules}
+									onChange={handleModuleChange}
+									placeholder="Select Module"
+									value={modules.find(option => option.value === selectedModule) || null}
+									isClearable
 								/>
 							</div>
 							<div className="form-group col-lg-6 col-md-6 col-sm-12 p-2">
 								<label htmlFor="processName">Process Name</label>
-								<input
-									type="text"
-									className="form-control"
-									id="processName"
+								<Select
+									className="basic-single"
+									classNamePrefix="select"
 									name="processName"
-									value={formState.processName}
+									options={processes}
+									onChange={handleProcessChange}
+									placeholder="Select Process Name"
+									value={processes.find(option => option.value === selectedProcess) || null}
+									isClearable
+									isDisabled={!selectedModule} // Disable if no module is selected
+								/>
+							</div>
+							{selectedModule === 'Accounts' && (
+								<div className="form-group col-lg-6 col-md-6 col-sm-12 p-2">
+									<label htmlFor="messName">Mess Name</label>
+									<Select
+										className="basic-single"
+										classNamePrefix="select"
+										name="messName"
+										options={messOptions}
+										onChange={handleInputChange}
+										placeholder="Select"
+										isClearable
+									/>
+									{/* <select
+									  className="form-control"
+									  id="messName"
+									  name="messName"
+									  value={formState.moduleName}
+									  onChange={handleInputChange}
+									  required
+								  >
+									  <option value="">Select</option>
+									  {messOptions.map(mess => (
+										  <option key={mess.value} value={mess.value}>
+											  {mess.label}
+										  </option>
+									  ))}
+								  </select> */}
+								</div>
+							)}
+							{selectedModule === 'Accounts' && (
+								<div className="form-group col-lg-6 col-md-6 col-sm-12 p-2">
+									<label htmlFor="managerName">Mess Manager Name</label>
+									{/* <select
+									className="form-control"
+									id="managerName"
+									name="managerName"
+									value={formState.moduleName}
 									onChange={handleInputChange}
 									required
+								>
+									<option value="">Select</option>
+									{managerOptions.map(manager => (
+										<option key={manager.value} value={manager.value}>
+											{manager.label}
+										</option>
+									))}
+								</select> */}
+									<Select
+										className="basic-single"
+										classNamePrefix="select"
+										name="managerName"
+										options={managerOptions}
+										onChange={handleInputChange}
+										placeholder="Select"
+										isClearable
+									/>
+								</div>)}
+							<div className="form-group col-lg-6 col-md-6 col-sm-12 p-2">
+								<label htmlFor="sourceId">Source</label>
+								<input type="text" className='form-control' name="Source" id="" />
+							</div>
+							<div className="form-group col-lg-6 col-md-6 col-sm-12 p-2">
+								<label htmlFor="periodDate">Period Date</label>
+								<Flatpickr
+									className="form-control"
+									options={{ dateFormat: 'Y-m-d' }}
+									value={[formState.periodDate]}
+									onChange={handleDateChange}
 								/>
 							</div>
 							<div className="form-group col-lg-6 col-md-6 col-sm-12 p-2">
-								<label htmlFor="processOwner">Process Owner Name</label>
-								<input
-									type="text"
+								<label htmlFor="weekDate">Week Date</label>
+								<Flatpickr
 									className="form-control"
-									id="processOwner"
-									name="processOwner"
-									value={formState.processOwner}
-									onChange={handleInputChange}
-									required
+									options={{ enableTime: true, noCalendar: false, dateFormat: 'Y-m-d H:i' }}
+									value={[formState.weekDate]}
+									onChange={handleWeekDateChange}
 								/>
 							</div>
-							<div className="form-group col-lg-6 col-md-6 col-sm-12 p-2">
-								<label htmlFor="processOutput">Process Output</label>
-								<input
-									type="text"
-									className="form-control"
-									id="processOutput"
-									name="processOutput"
-									value={formState.processOutput}
-									onChange={handleInputChange}
-									required
-								/>
-							</div>
-
 						</div>
 						<div className="d-flex justify-content-end col-12 py-2">
 							<button type="submit" className="btn btn-primary">
-								{editingIndex !== null ? 'Save Changes' : 'Save Process'}
+								Save Process
 							</button>
 						</div>
-
 					</form>
+
+
 				</Modal.Body>
 			</Modal>
-			<div className="row">
+			{/* <div className="row">
 				{showTable && processes.length > 0 ? (
 					<div className="table-responsive">
 						<table className='table-centered mb-0 table bg-white'>
@@ -403,44 +745,52 @@ const ProcessForm: React.FC = () => {
 								{processes.map((process, index) => (
 									<tr key={index}>
 										<td>{process.moduleName}</td>
-										<td>{process.processId}{process.processName}</td>
-										<td>{process.processOwner}</td>
-										<td>{process.processOutput}</td>
-										<td>{new Date(process.createdAt).toLocaleString()}</td>
+										<td>{process.processId}</td>
+										<td>{process.processName}</td>
+										<td>{process.moduleId}</td>
+										<td>{process.projectId}</td>
+										<td>{process.projectName}</td>
+										<td>{process.periodDate ? new Date(process.periodDate).toLocaleDateString() : 'N/A'}</td>
+										<td>{process.weekDate ? new Date(process.weekDate).toLocaleDateString() : 'N/A'}</td>
+										<td>{process.sourceId}</td>
+										<td>{process.createdBy}</td>
 										<td>
-											<button className='btn btn-primary'
+											<button
+												className='btn btn-primary'
 												type="button"
-
 												onClick={() => handleCreateTask(index)}
 											>
-												<span><i className="ri-add-line text-light"></i></span> Task
+												<i className="ri-add-line text-light"></i> Task
 											</button>
-											<button className='btn' type="button" onClick={() => startEditing(index)}>
-												<i className="ri-edit-line text-primary"></i>
+											<button
+												className='btn btn-outline-primary'
+												type="button"
+												onClick={() => startEditing(index)}
+											>
+												<i className="ri-edit-line"></i>
 											</button>
-											<button className='btn' type="button" onClick={() => handleDeleteProcess(index)}>
-												<i className="ri-delete-bin-line text-danger"></i>
+											<button
+												className='btn btn-outline-danger'
+												type="button"
+												onClick={() => handleDeleteProcess(index)}
+											>
+												<i className="ri-delete-bin-line"></i>
 											</button>
-											{/* <button className='btn' type="button" onClick={() => handleViewProcess(index)}>
-												<i className="ri-eye-line text-danger"></i>
-											</button> */}
+
 										</td>
 									</tr>
 								))}
 							</tbody>
+
 						</table>
 					</div>
 				) :
 					(
 						<div></div>
-						// <div className="no-data-container" style={{ textAlign: 'center', margin: '2rem' }}>
-						// 	<i className="ri-file-info-line" style={{ fontSize: '3rem', color: '#6c757d' }}></i>
-						// 	<h5 style={{ color: '#6c757d' }}>No Data Found</h5>
-						// </div>
 					)
 				}
-			</div>
-			{selectedProcessIndex !== null && (
+			</div> */}
+			{/* {selectedProcessIndex !== null && (
 				<div className="task-form-container bg-white p-3 mt-3">
 					<div className="d-flex justify-content-between align-items-center">
 						<h4>Process Name: <span className='text-primary'>{processes[selectedProcessIndex].processName}</span></h4>
@@ -467,28 +817,7 @@ const ProcessForm: React.FC = () => {
 										<option key={index} value={emp.name}>{emp.name}</option>
 									))}
 								</select>
-								{/* <label htmlFor="doerName">Doer Name</label>
-								<input
-									type="text"
-									id="doerName"
-									name="doerName"
-									value={taskFormData.doerName}
-									onChange={handleTaskInputChange}
-									className="form-control"
-									required
-								/> */}
 							</div>
-							{/* <div className="form-group col-lg-4 col-md-4 col-sm-12 p-2">
-								<label htmlFor="description">Description</label>
-								<textarea
-									id="description"
-									name="description"
-									value={taskFormData.description}
-									onChange={handleTaskInputChange}
-									className="form-control"
-									required
-								></textarea>
-							</div> */}
 							<div className="form-group col-lg-4 col-md-4 col-sm-12 p-2">
 								<label htmlFor="roleResponsible">Role Responsible for the Task</label>
 								<input
@@ -577,40 +906,12 @@ const ProcessForm: React.FC = () => {
 							</div>
 							<div className="form-group col-lg-4 col-md-4 col-sm-12 p-2">
 								<label htmlFor="problemSolver">Problem Solver</label>
-								{/* <input
-									type="text"
-									id="problemSolver"
-									name="problemSolver"
-									value={taskFormData.problemSolver}
-									onChange={handleTaskInputChange}
-									className="form-control"
-								/> */}
 								<select className='form-control' id="problemSolver" name="problemSolver">
 									{employees.map((emp, index) => (
 										<option key={index} value={emp.name}>{emp.name}</option>
 									))}
 								</select>
 							</div>
-							{/* <div className="form-group col-lg-4 col-md-4 col-sm-12 p-2">
-								<label htmlFor="sundayLogic">Sunday Logic</label>
-								<textarea
-									id="sundayLogic"
-									name="sundayLogic"
-									value={taskFormData.sundayLogic}
-									onChange={handleTaskInputChange}
-									className="form-control"
-								></textarea>
-							</div>
-							<div className="form-group col-lg-4 col-md-4 col-sm-12 p-2">
-								<label htmlFor="specificConditions">Specific Conditions and Logic</label>
-								<textarea
-									id="specificConditions"
-									name="specificConditions"
-									value={taskFormData.specificConditions}
-									onChange={handleTaskInputChange}
-									className="form-control"
-								></textarea>
-							</div> */}
 							<div className="form-group col-lg-4 col-md-4 col-sm-12 p-2">
 								<label htmlFor="initiationDetails">Initiation Details</label>
 								<textarea
@@ -653,8 +954,8 @@ const ProcessForm: React.FC = () => {
 
 					</form>
 				</div>
-			)}
-			{selectedProcessIndex !== null && processes[selectedProcessIndex].tasks && (
+			)} */}
+			{/* {selectedProcessIndex !== null && processes[selectedProcessIndex].tasks && (
 				<div>
 					<h5 className='py-3 ps-2 my-2 bg-white'>Tasks list for : <span className='text-primary'>{processes[selectedProcessIndex].processName}</span></h5>
 					<div className='overflow-x-auto'>
@@ -675,11 +976,6 @@ const ProcessForm: React.FC = () => {
 										<th>MIS Exempt</th>
 										<th>Status</th>
 										<th>Problem Solver</th>
-										{/* <th>Sunday Logic</th>
-										<th>Specific Conditions</th>
-										<th>Initiation Details</th>
-										<th>Tender Master Details</th>
-										<th>File Uploads</th> */}
 									</tr>
 								</thead>
 								<tbody>
@@ -698,15 +994,6 @@ const ProcessForm: React.FC = () => {
 											<td>{task.misExempt}</td>
 											<td>{task.status1}</td>
 											<td>{task.problemSolver}</td>
-											{/* <td>{task.sundayLogic}</td>
-											<td>{task.specificConditions}</td>
-											<td>{task.initiationDetails}</td>
-											<td>{task.tenderMasterDetails}</td>
-											<td>
-												{task.fileUploads.map((file, fileIndex) => (
-													<div key={fileIndex}>{file.name}</div>
-												))}
-											</td> */}
 										</tr>
 									))}
 								</tbody>
@@ -716,7 +1003,7 @@ const ProcessForm: React.FC = () => {
 						)}
 					</div>
 				</div>
-			)}
+			)} */}
 			<Modal show={showDeleteModal} onHide={() => setShowDeleteModal(false)}>
 				<Modal.Header closeButton>
 					<Modal.Title>Delete Process</Modal.Title>

@@ -30,13 +30,37 @@ const MENU_ITEMS: MenuItemTypes[] = [
 			text: '9+',
 		},
 	},
+	
 	{
 		key: 'Modules-Master',
-		label: 'Task Creator',
+		label: 'Workflow',
 		url: '/pages/Modules-Master',
-		icon: 'ri-file-settings-line',
-		parentKey: 'pages',
-	},
+		icon: 'ri-file-settings-line',	
+		children: [
+			{
+				key: 'ModuleMaster',
+				label: 'Process Initiation',
+				url: '/pages/Modules-Master',
+				icon: 'ri-slideshow-line',
+				parentKey: 'Modules-Master',
+			}, 
+			{
+				key: 'ModuleMaster1',
+				label: 'Process List',
+				url: '/pages/Modules-Master',
+				icon: 'ri-slideshow-line',
+				parentKey: 'Modules-Master',
+			},
+			{
+				key: 'ModuleMaster2',
+				label: 'Add Task',
+				url: '/pages/Modules-Master',
+				icon: 'ri-slideshow-line',
+				parentKey: 'Modules-Master',
+			},
+		],
+		},
+	
 	// {
 	// 	key: 'Notification',
 	// 	label: 'Notification',
@@ -64,7 +88,7 @@ const MENU_ITEMS: MenuItemTypes[] = [
 
 	{
 		key: 'pages-Starter',
-		label: 'Process Creation',
+		label: 'Process Initiation',
 		url: '/pages/starter',
 		icon: 'ri-list-settings-line',
 		parentKey: 'pages',
