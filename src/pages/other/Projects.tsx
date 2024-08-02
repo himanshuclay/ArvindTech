@@ -38,11 +38,12 @@ const ProjectMaster: React.FC = () => {
     const [editingIndex, setEditingIndex] = useState<number | null>(null);
     const [searchQuery, setSearchQuery] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
-    const [rowsPerPage, setRowsPerPage] = useState(5);
+    const [totalPages, setTotalPages] = useState(1); // Added state for total pages
+
 
     useEffect(() => {
         fetchProjects();
-    }, [currentPage, rowsPerPage]);
+    }, [currentPage]);
 
     const fetchProjects = async () => {
         try {
@@ -53,7 +54,8 @@ const ProjectMaster: React.FC = () => {
             });
             if (response.data.isSuccess) {
                 setProjects(response.data.projectMasterList);
-                console.log(response.data.projectMasterList)
+                setTotalPages(Math.ceil(response.data.totalCount / 10));
+
             } else {
                 console.error(response.data.message);
             }
@@ -124,23 +126,13 @@ const ProjectMaster: React.FC = () => {
         setCurrentPage(1); // Reset to first page on search
     };
 
-    const handleRowsPerPageChange = (e: ChangeEvent<HTMLSelectElement>) => {
-        setRowsPerPage(Number(e.target.value));
-        setCurrentPage(1); // Reset to first page on rows per page change
-    };
-
     const filteredProjects = projects.filter(project =>
         project.projectName.toLowerCase().includes(searchQuery.toLowerCase()) ||
         project.projectID.toLowerCase().includes(searchQuery.toLowerCase()) ||
         project.nameOfWork.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
-    const indexOfLastProject = currentPage * rowsPerPage;
-    const indexOfFirstProject = indexOfLastProject - rowsPerPage;
-    const currentProjects = filteredProjects.slice(indexOfFirstProject, indexOfLastProject);
-
-    const totalPages = Math.ceil(filteredProjects.length / rowsPerPage);
-
+ 
 
     const convertToCSV = (data: Project[]) => {
         const csvRows = [
@@ -332,13 +324,7 @@ const ProjectMaster: React.FC = () => {
                 </Offcanvas.Body>
             </Offcanvas>
             <div className="d-flex justify-content-between align-items-center my-2">
-                <div>
-                    <Form.Select value={rowsPerPage} onChange={handleRowsPerPageChange}>
-                        <option value={5}>5 rows</option>
-                        <option value={10}>10 rows</option>
-                        <option value={20}>20 rows</option>
-                    </Form.Select>
-                </div>
+           
                 <Pagination>
                     <Pagination.First onClick={() => setCurrentPage(1)} disabled={currentPage === 1} />
                     <Pagination.Prev onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))} disabled={currentPage === 1} />
@@ -350,6 +336,7 @@ const ProjectMaster: React.FC = () => {
             <Table className='bg-white' striped bordered hover>
                 <thead>
                     <tr>
+                        <th>ID</th>
                         <th>Project Name</th>
                         <th>Project ID</th>
                         <th>Project Type</th>
@@ -362,8 +349,9 @@ const ProjectMaster: React.FC = () => {
                     </tr>
                 </thead>
                 <tbody>
-                    {currentProjects.map((proj, index) => (
+                    {filteredProjects.slice(0, 10).map((proj, index) => (
                         <tr key={index}>
+                            <td>{proj.id}</td>
                             <td>{proj.projectName}</td>
                             <td>{proj.projectID}</td>
                             <td>{proj.projectType}</td>

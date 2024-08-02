@@ -33,12 +33,12 @@ const ModuleMaster: React.FC = () => {
     const [show, setShow] = useState(false);
     const [editingIndex, setEditingIndex] = useState<number | null>(null);
     const [searchQuery, setSearchQuery] = useState('');
+    const [totalPages, setTotalPages] = useState(1); // Added state for total pages
     const [currentPage, setCurrentPage] = useState(1);
-    const [rowsPerPage, setRowsPerPage] = useState(5);
 
     useEffect(() => {
         fetchModules();
-    }, [currentPage, rowsPerPage]);
+    }, [currentPage]);
 
     const fetchModules = async () => {
         try {
@@ -49,7 +49,8 @@ const ModuleMaster: React.FC = () => {
             });
             if (response.data.isSuccess) {
                 setModules(response.data.moduleMasterList);
-                console.log(response.data.moduleMasterList);
+                setTotalPages(Math.ceil(response.data.totalCount / 10));
+
             } else {
                 console.error(response.data.message);
             }
@@ -118,10 +119,7 @@ const ModuleMaster: React.FC = () => {
         setCurrentPage(1); // Reset to first page on search
     };
 
-    const handleRowsPerPageChange = (e: ChangeEvent<HTMLSelectElement>) => {
-        setRowsPerPage(Number(e.target.value));
-        setCurrentPage(1); // Reset to first page on rows per page change
-    };
+
 
     const filteredModules = modules.filter(module =>
         module.moduleDisplayName.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -131,11 +129,7 @@ const ModuleMaster: React.FC = () => {
         module.moduleOwnerName.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
-    const indexOfLastModule = currentPage * rowsPerPage;
-    const indexOfFirstModule = indexOfLastModule - rowsPerPage;
-    const currentModules = filteredModules.slice(indexOfFirstModule, indexOfLastModule);
 
-    const totalPages = Math.ceil(filteredModules.length / rowsPerPage);
 
     const convertToCSV = (data: Module[]) => {
         const csvRows = [
@@ -292,13 +286,7 @@ const ModuleMaster: React.FC = () => {
                 </Offcanvas.Body>
             </Offcanvas>
             <div className="d-flex justify-content-between align-items-center my-2">
-                <div>
-                    <Form.Select value={rowsPerPage} onChange={handleRowsPerPageChange}>
-                        <option value={5}>5 rows</option>
-                        <option value={10}>10 rows</option>
-                        <option value={20}>20 rows</option>
-                    </Form.Select>
-                </div>
+            
                 <Pagination>
                     <Pagination.First onClick={() => setCurrentPage(1)} disabled={currentPage === 1} />
                     <Pagination.Prev onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))} disabled={currentPage === 1} />
@@ -311,6 +299,7 @@ const ModuleMaster: React.FC = () => {
             <Table className='bg-white' striped bordered hover>
                 <thead>
                     <tr>
+                        <th>ID</th>
                         <th>Module Display Name</th>
                         <th>Module ID</th>
                         <th>FMS Type</th>
@@ -322,8 +311,9 @@ const ModuleMaster: React.FC = () => {
                     </tr>
                 </thead>
                 <tbody>
-                    {currentModules.map((mod, index) => (
+                    {filteredModules.slice(0, 10).map((mod, index) => (
                         <tr key={index}>
+                            <td>{mod.id}</td>
                             <td>{mod.moduleDisplayName}</td>
                             <td>{mod.moduleID}</td>
                             <td>{mod.fmsType}</td>

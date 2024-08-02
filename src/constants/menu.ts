@@ -164,6 +164,13 @@ const MENU_ITEMS: MenuItemTypes[] = [
 		
 		
 			{
+				key: 'InputMaster',
+				label: 'Input Master',
+				url: '/pages/InputMaster',
+				icon: 'ri-user-settings-line',
+				parentKey: 'pages',
+			},
+			{
 				key: 'ChkInputMaster',
 				label: ' CHK Input Master',
 				url: '/pages/ChkInputMaster',

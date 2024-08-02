@@ -45,6 +45,7 @@ const SystemLogs = React.lazy(() => import('../pages/other/SystemLogs.tsx'))
 const ChkTaskMaster = React.lazy(() => import('../pages/other/ChkTaskMaster.tsx'))
 const ChecklistMaster = React.lazy(() => import('../pages/other/ChecklistCollection.tsx'))
 const AddressMaster = React.lazy(() => import('../pages/other/AddressMaster.tsx'))
+const InputMaster = React.lazy(() => import('../pages/other/InputMaster.tsx'))
 
 
 
@@ -303,6 +304,12 @@ const customPagesRoutes = {
 			path: '/pages/TicketMaster',
 			name: 'Ticket Master',
 			element: <TicketMaster />,
+			route: PrivateRoute,
+		},
+		{
+			path: '/pages/InputMaster',
+			name: 'Input Master',
+			element: <InputMaster />,
 			route: PrivateRoute,
 		},
 		

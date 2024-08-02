@@ -54,13 +54,14 @@ const VendorMaster: React.FC = () => {
     const [editingIndex, setEditingIndex] = useState<number | null>(null);
     const [searchQuery, setSearchQuery] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
-    const [rowsPerPage, setRowsPerPage] = useState(5);
+    const [totalPages, setTotalPages] = useState(1); // Added state for total pages
+
     const [loading, setLoading] = useState<boolean>(false);
 
 
     useEffect(() => {
         fetchVendors();
-    }, [currentPage, rowsPerPage]);
+    }, [currentPage]);
 
     const fetchVendors = async () => {
         setLoading(true);
@@ -73,7 +74,8 @@ const VendorMaster: React.FC = () => {
             });
             if (response.data.isSuccess) {
                 setVendors(response.data.vendorMasterList);
-                console.log(response.data.vendorMasterList);
+                setTotalPages(Math.ceil(response.data.totalCount / 10));
+
             } else {
                 console.error(response.data.message);
             }
@@ -155,10 +157,6 @@ const VendorMaster: React.FC = () => {
         setCurrentPage(1); // Reset to first page on search
     };
 
-    const handleRowsPerPageChange = (e: ChangeEvent<HTMLSelectElement>) => {
-        setRowsPerPage(Number(e.target.value));
-        setCurrentPage(1); // Reset to first page on rows per page change
-    };
 
     const filteredVendors = vendors.filter(vendor =>
         vendor.vendorName.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -177,11 +175,7 @@ const VendorMaster: React.FC = () => {
         vendor.bankAccountNumber.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
-    const indexOfLastVendor = currentPage * rowsPerPage;
-    const indexOfFirstVendor = indexOfLastVendor - rowsPerPage;
-    const currentVendors = filteredVendors.slice(indexOfFirstVendor, indexOfLastVendor);
 
-    const totalPages = Math.ceil(filteredVendors.length / rowsPerPage);
 
     const convertToCSV = (data: Vendor[]) => {
         const csvRows = [
@@ -456,15 +450,9 @@ const VendorMaster: React.FC = () => {
                     </Form>
                 </Offcanvas.Body>
             </Offcanvas>
-            <div className="d-flex justify-content-between align-items-center my-2">
-                <div>
-                    <Form.Select value={rowsPerPage} onChange={handleRowsPerPageChange}>
-                        <option value={5}>5 rows</option>
-                        <option value={10}>10 rows</option>
-                        <option value={20}>20 rows</option>
-                    </Form.Select>
-                </div>
-                <Pagination>
+            <div className="d-flex justify-content-center align-items-center my-2">
+          
+            <Pagination>
                     <Pagination.First onClick={() => setCurrentPage(1)} disabled={currentPage === 1} />
                     <Pagination.Prev onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))} disabled={currentPage === 1} />
                     <Pagination.Item active>{currentPage}</Pagination.Item>
@@ -482,6 +470,7 @@ const VendorMaster: React.FC = () => {
                 <Table className='bg-white' striped bordered hover>
                     <thead>
                         <tr>
+                            <th>ID</th>
                             <th>Vendor Name</th>
                             <th>Email</th>
                             <th>Contact Mobile</th>
@@ -503,8 +492,9 @@ const VendorMaster: React.FC = () => {
                         </tr>
                     </thead>
                     <tbody>
-                        {currentVendors.map((vend, index) => (
+                        {filteredVendors.slice(0, 10).map((vend, index) => (
                             <tr key={index}>
+                                <td>{vend.id}</td>
                                 <td>{vend.vendorName}</td>
                                 <td>{vend.email}</td>
                                 <td>{vend.vendorContactMobile}</td>

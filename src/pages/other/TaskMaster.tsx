@@ -2,153 +2,204 @@ import React, { useState, useEffect, ChangeEvent } from 'react';
 import { Button, Form, Offcanvas, Table, Pagination } from 'react-bootstrap';
 import axios from 'axios';
 
-interface Bank {
+interface Task {
     id: number;
-    bank: string;
-    ifsc: string;
-    branch: string;
-    city1: string;
-    city2: string;
-    state: string;
+    moduleID: string;
+    processID: string;
+    taskID: string;
+    taskDisplayName: string;
+    taskDescription: string;
+    role: string;
+    howPlannedDateIsCalculated: string;
+    predecessor: string;
+    successor: string;
+    generationType: string;
+    misExempt: string;
+    status: string;
+    problemSolver: string;
+    sundayLogic: string;
+    createdBy: string;
+    updatedBy: string;
 }
 
-const BanksPage: React.FC = () => {
-    const [bank, setBank] = useState<Bank>({
+const TaskMaster: React.FC = () => {
+    const [task, setTask] = useState<Task>({
         id: 0,
-        bank: '',
-        ifsc: '',
-        branch: '',
-        city1: '',
-        city2: '',
-        state: ''
+        moduleID: '',
+        processID: '',
+        taskID: '',
+        taskDisplayName: '',
+        taskDescription: '',
+        role: '',
+        howPlannedDateIsCalculated: '',
+        predecessor: '',
+        successor: '',
+        generationType: '',
+        misExempt: '',
+        status: '',
+        problemSolver: '',
+        sundayLogic: '',
+        createdBy: '',
+        updatedBy: ''
     });
 
-    const [banks, setBanks] = useState<Bank[]>([]);
+    const [tasks, setTasks] = useState<Task[]>([]);
     const [show, setShow] = useState(false);
     const [editingIndex, setEditingIndex] = useState<number | null>(null);
     const [searchQuery, setSearchQuery] = useState('');
-    const [currentPage, setCurrentPage] = useState<number>(1);
-    const [rowsPerPage, setRowsPerPage] = useState(10);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(1); // Added state for total pages
     const [loading, setLoading] = useState<boolean>(false);
 
+
     useEffect(() => {
-        fetchBanks();
+        fetchTasks();
     }, [currentPage]);
 
-    const fetchBanks = async () => {
+    const fetchTasks = async () => {
         setLoading(true);
-        try {
-            const params = new URLSearchParams({ PageIndex: currentPage.toString() });
-            const url = `https://localhost:44344/api/BankMaster/GetBankList?${params.toString()}`;
-            const response = await axios.get(url, { headers: { 'accept': '*/*' } });
 
-            if (response && response.status === 200 && response.data.isSuccess) {
-                const responseData = Array.isArray(response.data.bankMasterListResponses)
-                    ? response.data.bankMasterListResponses
-                    : [response.data.bankMasterListResponses];
-                setBanks(responseData);
+        try {
+            const response = await axios.get('https://localhost:7074/api/TaskMaster/GetTask', {
+                params: {
+                    PageIndex: currentPage
+                }
+            });
+            if (response.data.isSuccess) {
+                setTasks(response.data.taskMasterList);
+                setTotalPages(Math.ceil(response.data.totalCount / 10));
+                console.log(response.data.taskMasterList)
             } else {
-                console.error('Failed to fetch banks: Invalid response status');
+                console.error(response.data.message);
             }
         } catch (error) {
-            console.error('An error occurred while fetching the banks:', error);
-        } finally {
-            setLoading(false);
+            console.error('Error fetching tasks:', error);
+        }
+        finally {
+            setLoading(false); // End loading
         }
     };
 
-    const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
-        const { name, value } = e.target;
-        setBank({ ...bank, [name]: value });
+    const handleShow = () => setShow(true);
+
+    const handleChange = (e: ChangeEvent<HTMLInputElement> | ChangeEvent<HTMLSelectElement>) => {
+        const { name, value, type, checked } = e.target as HTMLInputElement | HTMLSelectElement;
+        if (type === 'checkbox') {
+            setTask({
+                ...task,
+                [name]: checked
+            });
+        } else {
+            setTask({
+                ...task,
+                [name]: value
+            });
+        }
     };
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-
-        const payload = { ...bank };
-
         try {
-            const response = await axios.post('https://localhost:44344/api/BankMaster/InsertBank', payload, { headers: { 'accept': '*/*', 'Content-Type': 'application/json' } });
-
-            if (response.status === 200 || response.status === 201) {
-                const newBank = response.data;
-
-                if (editingIndex !== null) {
-                    const updatedBanks = [...banks];
-                    updatedBanks[editingIndex] = newBank;
-                    setBanks(updatedBanks);
-                } else {
-                    setBanks([...banks, { ...newBank, id: banks.length + 1 }]);
-                }
-                handleClose();
+            if (editingIndex !== null) {
+                await axios.post('https://localhost:7074/api/TaskMaster/UpdateTask', task);
             } else {
-                console.error('Failed to submit bank');
+                await axios.post('https://localhost:7074/api/TaskMaster/InsertTask', task);
             }
+            fetchTasks();
+            handleClose();
         } catch (error) {
-            console.error('An error occurred while submitting the bank:', error);
+            console.error('Error submitting task:', error);
         }
+    };
+
+    const handleEdit = (index: number) => {
+        setEditingIndex(index);
+        setTask(tasks[index]);
+        handleShow();
     };
 
     const handleClose = () => {
         setShow(false);
         setEditingIndex(null);
-        setBank({
+        setTask({
             id: 0,
-            bank: '',
-            ifsc: '',
-            branch: '',
-            city1: '',
-            city2: '',
-            state: ''
+            moduleID: '',
+            processID: '',
+            taskID: '',
+            taskDisplayName: '',
+            taskDescription: '',
+            role: '',
+            howPlannedDateIsCalculated: '',
+            predecessor: '',
+            successor: '',
+            generationType: '',
+            misExempt: '',
+            status: '',
+            problemSolver: '',
+            sundayLogic: '',
+            createdBy: '',
+            updatedBy: ''
         });
     };
 
-    const handleShow = () => setShow(true);
-
-    const handleEdit = (index: number) => {
-        setEditingIndex(index);
-        setBank(banks[index]);
-        handleShow();
+    const handleSearch = (e: ChangeEvent<HTMLInputElement>) => {
+        setSearchQuery(e.target.value);
+        setCurrentPage(1); // Reset to first page on search
     };
 
-    const filteredBanks = banks.filter(bank =>
-        (bank.bank || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
-        (bank.ifsc || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
-        (bank.branch || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
-        (bank.city1 || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
-        (bank.city2 || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
-        (bank.state || '').toLowerCase().includes(searchQuery.toLowerCase())
+    const filteredTasks = tasks.filter(task =>
+        task.taskDisplayName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        task.taskID.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
-    const indexOfLastBank = currentPage * rowsPerPage;
-    const indexOfFirstBank = indexOfLastBank - rowsPerPage;
-    const currentBanks = filteredBanks.slice(indexOfFirstBank, indexOfLastBank);
 
-    const totalPages = Math.ceil(filteredBanks.length / rowsPerPage);
 
-    const downloadCSV = () => {
-        const csvData = convertToCSV(banks);
-        const blob = new Blob([csvData], { type: 'text/csv' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = 'banks.csv';
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
+    const convertToCSV = (data: Task[]) => {
+        const csvRows = [
+            ['ID', 'Module ID', 'Process ID', 'Task ID', 'Task Display Name', 'Task Description', 'Role', 'How Planned Date Is Calculated', 'Predecessor', 'Successor', 'Generation Type', 'MIS Exempt', 'Status', 'Problem Solver', 'Sunday Logic', 'Created By', 'Updated By'],
+            ...data.map(task => [
+                task.id.toString(),
+                task.moduleID,
+                task.processID,
+                task.taskID,
+                task.taskDisplayName,
+                task.taskDescription,
+                task.role,
+                task.howPlannedDateIsCalculated,
+                task.predecessor,
+                task.successor,
+                task.generationType,
+                task.misExempt,
+                task.status,
+                task.problemSolver,
+                task.sundayLogic,
+                task.createdBy,
+                task.updatedBy
+            ])
+        ];
+
+        return csvRows.map(row => row.join(',')).join('\n');
     };
 
-    const convertToCSV = (data: Bank[]) => {
-        const headers = Object.keys(data[0]).join(',');
-        const rows = data.map(bank => Object.values(bank).join(','));
-        return [headers, ...rows].join('\n');
+    const downloadCSV = () => {
+        const csvData = convertToCSV(tasks);
+        const blob = new Blob([csvData], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement('a');
+        if (link.download !== undefined) {
+            const url = URL.createObjectURL(blob);
+            link.setAttribute('href', url);
+            link.setAttribute('download', 'Tasks.csv');
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
     };
 
     return (
-        <div className="container ">
-
+        <div className="container">
             <div className="d-flex bg-white p-2 my-2 justify-content-between align-items-center">
-                <span><i className="ri-file-list-line me-2"></i><span className='fw-bold'>Tender Modules List</span></span>
+                <span><i className="ri-file-list-line me-2"></i><span className='fw-bold'>Tasks List</span></span>
                 <div className="d-flex">
                     <div className="app-search d-none d-lg-block me-4">
                         <form>
@@ -156,168 +207,255 @@ const BanksPage: React.FC = () => {
                                 <input
                                     type="search"
                                     className="form-control"
-                                    placeholder="Search Bank..."
+                                    placeholder="Search task..."
                                     value={searchQuery}
-                                    onChange={(e) => setSearchQuery(e.target.value)}
+                                    onChange={handleSearch}
                                 />
                                 <span className="ri-search-line search-icon text-muted" />
                             </div>
                         </form>
                     </div>
                     <Button variant="primary" onClick={handleShow} className="me-2">
-                        Add Bank
+                        Add Task
                     </Button>
-                    <Button variant="secondary" onClick={downloadCSV}>
+                    <Button variant="primary" onClick={downloadCSV} className="me-2">
                         Download CSV
                     </Button>
                 </div>
             </div>
 
-
-            {loading ? (
-             <div className='loader-container'>
-             <div className="loader"></div>
-             <div className='mt-2'>Please Wait!</div>
-         </div>
-            ) : (
-                <Table striped bordered hover responsive className="mb-0">
-                    <thead>
-                        <tr>
-                            <th>#</th>
-                            <th>Bank</th>
-                            <th>IFSC</th>
-                            <th>Branch</th>
-                            <th>City 1</th>
-                            <th>City 2</th>
-                            <th>State</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {currentBanks.map((bank, index) => (
-                            <tr key={index}>
-                                <td>{index + 1 + (currentPage - 1) * rowsPerPage}</td>
-                                <td>{bank.bank}</td>
-                                <td>{bank.ifsc}</td>
-                                <td>{bank.branch}</td>
-                                <td>{bank.city1}</td>
-                                <td>{bank.city2}</td>
-                                <td>{bank.state}</td>
-                                <td>
-                                    <Button variant="warning" size="sm" className="me-2" onClick={() => handleEdit(index)}>
-                                        <i className="ri-edit-line"></i>
-                                    </Button>
-                                </td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </Table>
-            )}
-
-            <div className="d-flex justify-content-between mt-3">
-                <Pagination>
-                    <Pagination.First onClick={() => setCurrentPage(1)} disabled={currentPage === 1} />
-                    <Pagination.Prev onClick={() => setCurrentPage(currentPage - 1)} disabled={currentPage === 1} />
-                    {[...Array(totalPages).keys()].map(number => (
-                        <Pagination.Item key={number + 1} active={number + 1 === currentPage} onClick={() => setCurrentPage(number + 1)}>
-                            {number + 1}
-                        </Pagination.Item>
-                    ))}
-                    <Pagination.Next onClick={() => setCurrentPage(currentPage + 1)} disabled={currentPage === totalPages} />
-                    <Pagination.Last onClick={() => setCurrentPage(totalPages)} disabled={currentPage === totalPages} />
-                </Pagination>
-                <Form.Control
-                    as="select"
-                    value={rowsPerPage}
-                    onChange={(e) => setRowsPerPage(parseInt(e.target.value))}
-                >
-                    <option value="5">5</option>
-                    <option value="10">10</option>
-                    <option value="25">25</option>
-                    <option value="50">50</option>
-                </Form.Control>
-            </div>
-
-            <Offcanvas show={show} onHide={handleClose} placement="end">
+            <Offcanvas show={show} onHide={handleClose}>
                 <Offcanvas.Header closeButton>
-                    <Offcanvas.Title>{editingIndex !== null ? 'Edit Bank' : 'Add Bank'}</Offcanvas.Title>
+                    <Offcanvas.Title>Task Form</Offcanvas.Title>
                 </Offcanvas.Header>
                 <Offcanvas.Body>
                     <Form onSubmit={handleSubmit}>
-                        <Form.Group controlId="formBank">
-                            <Form.Label>Bank</Form.Label>
+                        <Form.Group controlId="moduleID" className="mb-3">
+                            <Form.Label>Module ID:</Form.Label>
                             <Form.Control
                                 type="text"
-                                name="bank"
-                                value={bank.bank}
+                                name="moduleID"
+                                value={task.moduleID}
                                 onChange={handleChange}
                                 required
                             />
                         </Form.Group>
-
-                        <Form.Group controlId="formIFSC" className="mt-3">
-                            <Form.Label>IFSC</Form.Label>
+                        <Form.Group controlId="processID" className="mb-3">
+                            <Form.Label>Process ID:</Form.Label>
                             <Form.Control
                                 type="text"
-                                name="ifsc"
-                                value={bank.ifsc}
+                                name="processID"
+                                value={task.processID}
                                 onChange={handleChange}
                                 required
                             />
                         </Form.Group>
-
-                        <Form.Group controlId="formBranch" className="mt-3">
-                            <Form.Label>Branch</Form.Label>
+                        <Form.Group controlId="taskID" className="mb-3">
+                            <Form.Label>Task ID:</Form.Label>
                             <Form.Control
                                 type="text"
-                                name="branch"
-                                value={bank.branch}
+                                name="taskID"
+                                value={task.taskID}
                                 onChange={handleChange}
                                 required
                             />
                         </Form.Group>
-
-                        <Form.Group controlId="formCity1" className="mt-3">
-                            <Form.Label>City 1</Form.Label>
+                        <Form.Group controlId="taskDisplayName" className="mb-3">
+                            <Form.Label>Task Display Name:</Form.Label>
                             <Form.Control
                                 type="text"
-                                name="city1"
-                                value={bank.city1}
+                                name="taskDisplayName"
+                                value={task.taskDisplayName}
                                 onChange={handleChange}
                                 required
                             />
                         </Form.Group>
-
-                        <Form.Group controlId="formCity2" className="mt-3">
-                            <Form.Label>City 2</Form.Label>
+                        <Form.Group controlId="taskDescription" className="mb-3">
+                            <Form.Label>Task Description:</Form.Label>
                             <Form.Control
                                 type="text"
-                                name="city2"
-                                value={bank.city2}
+                                name="taskDescription"
+                                value={task.taskDescription}
                                 onChange={handleChange}
                                 required
                             />
                         </Form.Group>
-
-                        <Form.Group controlId="formState" className="mt-3">
-                            <Form.Label>State</Form.Label>
+                        <Form.Group controlId="role" className="mb-3">
+                            <Form.Label>Role:</Form.Label>
                             <Form.Control
                                 type="text"
-                                name="state"
-                                value={bank.state}
+                                name="role"
+                                value={task.role}
                                 onChange={handleChange}
                                 required
                             />
                         </Form.Group>
-
-                        <Button variant="primary" type="submit" className="mt-3">
-                            {editingIndex !== null ? 'Update Bank' : 'Add Bank'}
+                        <Form.Group controlId="howPlannedDateIsCalculated" className="mb-3">
+                            <Form.Label>How Planned Date Is Calculated:</Form.Label>
+                            <Form.Control
+                                type="text"
+                                name="howPlannedDateIsCalculated"
+                                value={task.howPlannedDateIsCalculated}
+                                onChange={handleChange}
+                                required
+                            />
+                        </Form.Group>
+                        <Form.Group controlId="predecessor" className="mb-3">
+                            <Form.Label>Predecessor:</Form.Label>
+                            <Form.Control
+                                type="text"
+                                name="predecessor"
+                                value={task.predecessor}
+                                onChange={handleChange}
+                                required
+                            />
+                        </Form.Group>
+                        <Form.Group controlId="successor" className="mb-3">
+                            <Form.Label>Successor:</Form.Label>
+                            <Form.Control
+                                type="text"
+                                name="successor"
+                                value={task.successor}
+                                onChange={handleChange}
+                                required
+                            />
+                        </Form.Group>
+                        <Form.Group controlId="generationType" className="mb-3">
+                            <Form.Label>Generation Type:</Form.Label>
+                            <Form.Control
+                                type="text"
+                                name="generationType"
+                                value={task.generationType}
+                                onChange={handleChange}
+                                required
+                            />
+                        </Form.Group>
+                        <Form.Group controlId="misExempt" className="mb-3">
+                            <Form.Label>MIS Exempt:</Form.Label>
+                            <Form.Control
+                                type="text"
+                                name="misExempt"
+                                value={task.misExempt}
+                                onChange={handleChange}
+                                required
+                            />
+                        </Form.Group>
+                        <Form.Group controlId="status" className="mb-3">
+                            <Form.Label>Status:</Form.Label>
+                            <Form.Control
+                                type="text"
+                                name="status"
+                                value={task.status}
+                                onChange={handleChange}
+                                required
+                            />
+                        </Form.Group>
+                        <Form.Group controlId="problemSolver" className="mb-3">
+                            <Form.Label>Problem Solver:</Form.Label>
+                            <Form.Control
+                                type="text"
+                                name="problemSolver"
+                                value={task.problemSolver}
+                                onChange={handleChange}
+                                required
+                            />
+                        </Form.Group>
+                        <Form.Group controlId="sundayLogic" className="mb-3">
+                            <Form.Label>Sunday Logic:</Form.Label>
+                            <Form.Control
+                                type="text"
+                                name="sundayLogic"
+                                value={task.sundayLogic}
+                                onChange={handleChange}
+                                required
+                            />
+                        </Form.Group>
+                        <Form.Group controlId="createdBy" className="mb-3">
+                            <Form.Label>Created By:</Form.Label>
+                            <Form.Control
+                                type="text"
+                                name="createdBy"
+                                value={task.createdBy}
+                                onChange={handleChange}
+                                required
+                            />
+                        </Form.Group>
+                        <Form.Group controlId="updatedBy" className="mb-3">
+                            <Form.Label>Updated By:</Form.Label>
+                            <Form.Control
+                                type="text"
+                                name="updatedBy"
+                                value={task.updatedBy}
+                                onChange={handleChange}
+                                required
+                            />
+                        </Form.Group>
+                        <Button variant="primary" type="submit" className="me-2">
+                            {editingIndex !== null ? 'Update' : 'Add'} Task
+                        </Button>
+                        <Button variant="secondary" onClick={handleClose}>
+                            Cancel
                         </Button>
                     </Form>
                 </Offcanvas.Body>
             </Offcanvas>
+
+
+
+            <div className="overflow-auto">
+                {loading ? (
+                    <div className='loader-container'>
+                        <div className="loader"></div>
+                        <div className='mt-2'>Please Wait!</div>
+                    </div>
+                ) : (
+
+                    <Table striped bordered hover>
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Module ID</th>
+                                <th>Process ID</th>
+                                <th>Task ID</th>
+                                <th>Task Display Name</th>
+                                <th>Task Description</th>
+                                <th>Role</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {filteredTasks.slice(0, 10).map((task, index) => (
+                                <tr key={task.id}>
+                                    <td>{(currentPage - 1) * 10 + index + 1}</td>
+                                    <td>{task.moduleID}</td>
+                                    <td>{task.processID}</td>
+                                    <td>{task.taskID}</td>
+                                    <td>{task.taskDisplayName}</td>
+                                    <td>{task.taskDescription}</td>
+                                    <td>{task.role}</td>
+                                    <td>
+                                    <i className='btn ri-edit-line' onClick={() => handleEdit(index)}></i>
+
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </Table>
+                )}
+
+                <div className="d-flex justify-content-center align-items-center my-2">
+
+                    <Pagination>
+                        <Pagination.First onClick={() => setCurrentPage(1)} disabled={currentPage === 1} />
+                        <Pagination.Prev onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))} disabled={currentPage === 1} />
+                        <Pagination.Item active>{currentPage}</Pagination.Item>
+                        <Pagination.Next onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))} disabled={currentPage === totalPages} />
+                        <Pagination.Last onClick={() => setCurrentPage(totalPages)} disabled={currentPage === totalPages} />
+                    </Pagination>
+                </div>
+            </div>
         </div>
     );
 };
 
-export default BanksPage;
+export default TaskMaster;

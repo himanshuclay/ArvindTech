@@ -40,12 +40,12 @@ const ProcessMaster: React.FC = () => {
     const [editingIndex, setEditingIndex] = useState<number | null>(null);
     const [searchQuery, setSearchQuery] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
-    const [rowsPerPage, setRowsPerPage] = useState(5);
+    const [totalPages, setTotalPages] = useState(1); // Added state for total pages
     const [loading, setLoading] = useState<boolean>(false);
 
     useEffect(() => {
         fetchProcesses();
-    }, [currentPage, rowsPerPage]);
+    }, [currentPage]);
 
     const fetchProcesses = async () => {
         setLoading(true);
@@ -57,7 +57,8 @@ const ProcessMaster: React.FC = () => {
             });
             if (response.data.isSuccess) {
                 setProcesses(response.data.processMasterList);
-                console.log(response.data.processMasterList);
+                setTotalPages(Math.ceil(response.data.totalCount / 10));
+
             } else {
                 console.error(response.data.message);
             }
@@ -132,10 +133,7 @@ const ProcessMaster: React.FC = () => {
         setCurrentPage(1); // Reset to first page on search
     };
 
-    const handleRowsPerPageChange = (e: ChangeEvent<HTMLSelectElement>) => {
-        setRowsPerPage(Number(e.target.value));
-        setCurrentPage(1); // Reset to first page on rows per page change
-    };
+ 
 
     const filteredProcesses = processes.filter(proc =>
         proc.moduleName.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -148,11 +146,7 @@ const ProcessMaster: React.FC = () => {
         proc.processOwnerName.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
-    const indexOfLastProcess = currentPage * rowsPerPage;
-    const indexOfFirstProcess = indexOfLastProcess - rowsPerPage;
-    const currentProcesses = filteredProcesses.slice(indexOfFirstProcess, indexOfLastProcess);
-
-    const totalPages = Math.ceil(filteredProcesses.length / rowsPerPage);
+    
 
     const convertToCSV = (data: Process[]) => {
         const csvRows = [
@@ -353,13 +347,7 @@ const ProcessMaster: React.FC = () => {
                 </Offcanvas.Body>
             </Offcanvas>
             <div className="d-flex justify-content-between align-items-center my-2">
-                <div>
-                    <Form.Select value={rowsPerPage} onChange={handleRowsPerPageChange}>
-                        <option value={5}>5 rows</option>
-                        <option value={10}>10 rows</option>
-                        <option value={20}>20 rows</option>
-                    </Form.Select>
-                </div>
+               
                 <Pagination>
                     <Pagination.First onClick={() => setCurrentPage(1)} disabled={currentPage === 1} />
                     <Pagination.Prev onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))} disabled={currentPage === 1} />
@@ -379,6 +367,7 @@ const ProcessMaster: React.FC = () => {
                 <Table className='bg-white' striped bordered hover>
                 <thead>
                     <tr>
+                        <th>ID</th>
                         <th>Module Name</th>
                         <th>Process ID</th>
                         <th>Process Display Name</th>
@@ -392,8 +381,10 @@ const ProcessMaster: React.FC = () => {
                     </tr>
                 </thead>
                 <tbody>
-                    {currentProcesses.map((proc, index) => (
+                    {filteredProcesses.slice(0, 10).map((proc, index) => (
                         <tr key={index}>
+                            {/* <td>{(currentPage - 1) * 10 + index + 1}</td> */}
+                            <td>{proc.id}</td>
                             <td>{proc.moduleName}</td>
                             <td>{proc.processID}</td>
                             <td>{proc.processDisplayName}</td>

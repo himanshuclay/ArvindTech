@@ -80,12 +80,13 @@ const EmployeeMaster: React.FC = () => {
     const [editingIndex, setEditingIndex] = useState<number | null>(null);
     const [searchQuery, setSearchQuery] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
-    const [rowsPerPage, setRowsPerPage] = useState(5);
+    // const [rowsPerPage, setRowsPerPage] = useState(5);
+    const [totalPages, setTotalPages] = useState(1); // Added state for total pages
     const [loading, setLoading] = useState<boolean>(false);
 
     useEffect(() => {
         fetchEmployees();
-    }, [currentPage, rowsPerPage]);
+    }, [currentPage]);
 
     const fetchEmployees = async () => {
         setLoading(true);
@@ -97,7 +98,8 @@ const EmployeeMaster: React.FC = () => {
             });
             if (response.data.isSuccess) {
                 setEmployees(response.data.employeeMasterList);
-                // console.log(response.data.employeeMasterList);
+                setTotalPages(Math.ceil(response.data.totalCount / 10));
+
             } else {
                 console.error(response.data.message);
             }
@@ -192,21 +194,14 @@ const EmployeeMaster: React.FC = () => {
         setCurrentPage(1); // Reset to first page on search
     };
 
-    const handleRowsPerPageChange = (e: ChangeEvent<HTMLSelectElement>) => {
-        setRowsPerPage(Number(e.target.value));
-        setCurrentPage(1); // Reset to first page on rows per page change
-    };
+
 
     const filteredEmployees = employees.filter(employee =>
         employee.employeeName.toLowerCase().includes(searchQuery.toLowerCase()) ||
         employee.employeeID.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
-    const indexOfLastEmployee = currentPage * rowsPerPage;
-    const indexOfFirstEmployee = indexOfLastEmployee - rowsPerPage;
-    const currentEmployees = filteredEmployees.slice(indexOfFirstEmployee, indexOfLastEmployee);
 
-    const totalPages = Math.ceil(filteredEmployees.length / rowsPerPage);
 
     const convertToCSV = (data: Employee[]) => {
         const csvRows = [
@@ -627,23 +622,7 @@ const EmployeeMaster: React.FC = () => {
                 </Offcanvas.Body>
             </Offcanvas>
 
-            <div className="d-flex justify-content-between align-items-center my-2">
-                <div>
-                    <Form.Select value={rowsPerPage} onChange={handleRowsPerPageChange}>
-                        <option value={5}>5 rows</option>
-                        <option value={10}>10 rows</option>
-                        <option value={20}>20 rows</option>
-                    </Form.Select>
-                </div>
-                <Pagination>
-                    <Pagination.First onClick={() => setCurrentPage(1)} disabled={currentPage === 1} />
-                    <Pagination.Prev onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))} disabled={currentPage === 1} />
-                    <Pagination.Item active>{currentPage}</Pagination.Item>
-                    <Pagination.Next onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))} disabled={currentPage === totalPages} />
-                    <Pagination.Last onClick={() => setCurrentPage(totalPages)} disabled={currentPage === totalPages} />
-                </Pagination>
-            </div>
-
+        
             <div className='overflow-auto'>
 
             {loading ? (
@@ -655,6 +634,7 @@ const EmployeeMaster: React.FC = () => {
                 <Table className='bg-white' striped bordered hover>
                 <thead>
                     <tr>
+                        <th>#</th>
                         <th>Employee Name</th>
                         <th>Employee ID</th>
                         <th>Department ID</th>
@@ -689,8 +669,9 @@ const EmployeeMaster: React.FC = () => {
                     </tr>
                 </thead>
                 <tbody>
-                    {currentEmployees.map((emp, index) => (
+                    {filteredEmployees.slice(0, 10).map((emp, index) => (
                         <tr key={index}>
+                            <td>{(currentPage - 1) * 10 + index + 1}</td>
                             <td>{emp.employeeName}</td>
                             <td>{emp.employeeID}</td>
                             <td>{emp.departmentID}</td>
@@ -733,6 +714,17 @@ const EmployeeMaster: React.FC = () => {
 
                
             </div>
+            <div className="d-flex justify-content-center align-items-center my-2">
+             
+             <Pagination>
+                 <Pagination.First onClick={() => setCurrentPage(1)} disabled={currentPage === 1} />
+                 <Pagination.Prev onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))} disabled={currentPage === 1} />
+                 <Pagination.Item active>{currentPage}</Pagination.Item>
+                 <Pagination.Next onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))} disabled={currentPage === totalPages} />
+                 <Pagination.Last onClick={() => setCurrentPage(totalPages)} disabled={currentPage === totalPages} />
+             </Pagination>
+         </div>
+
         </div>
     );
 };
