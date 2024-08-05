@@ -39,7 +39,7 @@ const MENU_ITEMS: MenuItemTypes[] = [
 		children: [
 			{
 				key: 'ModuleMaster',
-				label: 'Process Initiation',
+				label: 'Task Creator',
 				url: '/pages/Modules-Master',
 				icon: 'ri-slideshow-line',
 				parentKey: 'Modules-Master',
