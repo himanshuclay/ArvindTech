@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Modal, Button, } from 'react-bootstrap';
+import { Modal, Button, Table, Popover, OverlayTrigger } from 'react-bootstrap';
 import Flatpickr from 'react-flatpickr'
 import 'flatpickr/dist/flatpickr.css';
 import { format } from 'date-fns';
@@ -8,87 +8,29 @@ import axios from 'axios';
 
 
 
-interface AccountMessWeeklyPaymentsMessRequest {
-	projectId: string,
-	moduleID: string,
-	processID: string,
-	messId: string,
-	messName: string,
-	messManagerEmpId: string,
-	messManagerEmpName: string,
-	createdBy: string
-}
 
 interface ProcessFormState {
-	employeeId: string;
-	employeeName: string;
 	processId: string;
 	processName: string;
 	moduleId: string;
 	moduleName: string;
-	projectId: string;
-	projectName: string;
-	periodDate: Date;
-	weekDate: Date;
-	sourceId: string;
+	startDate: Date;
 	createdBy: string;
-	accountMesses: AccountMessWeeklyPaymentsMessRequest[];
 }
 
-interface ProcessData extends ProcessFormState {
-	createdAt: string;
-	tasks: TaskFormState[];
-}
 
-interface TaskFormState {
-	taskId: string;
-	taskDisplayName: string;
-	taskName: string;
-	doerName: string;
-	description: string;
-	roleResponsible: string;
-	plannedDate: string;
-	predecessorTasks: string;
-	successorTasks: string;
-	generationType: string;
-	misExempt: string;
-	status1: string;
-	problemSolver: string;
-	sundayLogic: string;
-	specificConditions: string;
-	initiationDetails: string;
-	tenderMasterDetails: string;
-	fileUploads: File[];
-}
 
 const ProcessForm: React.FC = () => {
 	const [formState, setFormState] = useState<ProcessFormState>({
-		employeeId: '',
-		employeeName: '',
 		processId: '',
 		processName: '',
 		moduleId: '',
 		moduleName: '',
-		projectId: '',
-		projectName: '',
-		periodDate: new Date(),
-		weekDate: new Date(),
-		sourceId: '',
+		startDate: new Date(),
 		createdBy: '',
-		accountMesses: [{
-			projectId: '',
-			moduleID: '',
-			processID: '',
-			messId: '',
-			messName: '',
-			messManagerEmpId: '',
-			messManagerEmpName: '',
-			createdBy: '',
-		}]
 	});
-	const [processes, setProcesses] = useState<ProcessData[]>([]);
+	const [processes, setProcesses] = useState<ProcessFormState[]>([]);
 	const [projects, setProjects] = useState<{ id: string; projectName: string }[]>([]);
-	const [employees, setEmployees] = useState<any[]>([]);
 	const [showAddEditModal, setShowAddEditModal] = useState<boolean>(false);
 
 
@@ -99,10 +41,6 @@ const ProcessForm: React.FC = () => {
 		const savedProcesses = localStorage.getItem('processes');
 		if (savedProcesses) {
 			setProcesses(JSON.parse(savedProcesses));
-		}
-		const storedEmployees = localStorage.getItem('employees');
-		if (storedEmployees) {
-			setEmployees(JSON.parse(storedEmployees));
 		}
 		const fetchProjects = async () => {
 			try {
@@ -199,7 +137,7 @@ const ProcessForm: React.FC = () => {
 
 		try {
 			const createdAt = new Date().toISOString();
-			const newProcess: ProcessData = {
+			const newProcess: ProcessFormState = {
 				...formState,
 				createdAt,
 				tasks: [] // Initialize an empty tasks array for the new process
@@ -211,34 +149,18 @@ const ProcessForm: React.FC = () => {
 
 			// Construct the payload
 			const payload = {
-				employeeID: formState.employeeId || 'Him00123',
-				employeeName: formState.employeeName || 'HimanshuPant',
-				processID: formState.processId || 'defaultProcessId',
-				processName: formState.processName || 'defaultProcessName',
 				moduleID: formState.moduleId || 'defaultModuleId',
 				moduleName: formState.moduleName || 'defaultModuleName',
-				projectId: formState.projectId || 'defaultProjectId',
-				projectName: formState.projectName || 'defaultProjectName',
-				periodDate: formState.periodDate.toISOString(), // Convert to ISO string
-				weekDate: formState.weekDate.toISOString(), // Convert to ISO string for date-time
-				sourceId: formState.sourceId || 'defaultSourceId',
+				processID: formState.processId || 'defaultProcessId',
+				processName: formState.processName || 'defaultProcessName',
+				startDate: formState.startDate.toISOString(), // Convert to ISO string
 				createdBy: formState.createdBy || 'HimanshuPant',
-				accountMesses: formState.accountMesses.map(mess => ({
-					projectId: formState.projectId || 'defaultProjectId',
-					moduleID: formState.moduleId || 'defaultModuleId',
-					processID: formState.processId || 'defaultProcessId',
-					messId: mess.messId || 'defaultMessId',
-					messName: mess.messName || 'defaultMessName',
-					messManagerEmpId: mess.messManagerEmpId || 'defaultMessManagerEmpId',
-					messManagerEmpName: mess.messManagerEmpName || 'defaultMessManagerEmpName',
-					createdBy: mess.createdBy || 'HimanshuPant'
-				}))
 			};
 
 			console.log('Payload:', JSON.stringify(payload, null, 2)); // Pretty-print the payload
 
 			// Post the payload to the API
-			const response = await axios.post('https://localhost:7235/api/MessWeeklyPayments/CreateInitiation', payload, {
+			const response = await axios.post('https://localhost:7235/api/MessWeeklyPayments/InsertAccWeeklyProcess', payload, {
 				headers: {
 					'Accept': '*/*',
 					'Content-Type': 'application/json',
@@ -249,28 +171,12 @@ const ProcessForm: React.FC = () => {
 
 			// Reset form state
 			setFormState({
-				employeeId: '',
-				employeeName: '',
-				processId: '',
-				processName: '',
 				moduleId: '',
 				moduleName: '',
-				projectId: '',
-				projectName: '',
-				periodDate: new Date(),
-				weekDate: new Date(), // This is now in date-time format
-				sourceId: '',
+				processId: '',
+				processName: '',
+				startDate: new Date(),
 				createdBy: '',
-				accountMesses: [{
-					projectId: '',
-					moduleID: '',
-					processID: '',
-					messId: '',
-					messName: '',
-					messManagerEmpId: '',
-					messManagerEmpName: '',
-					createdBy: ''
-				}]
 			});
 
 			setShowAddEditModal(false);
@@ -325,10 +231,10 @@ const ProcessForm: React.FC = () => {
 		}
 	}, [selectedModule]);
 
-    interface OptionType {
+	interface OptionType {
 		value: string;
 		label: string;
-	  }
+	}
 
 	const handleModuleChange = (selectedOption: OptionType | null) => {
 		const moduleName = selectedOption ? selectedOption.label : '';
@@ -336,9 +242,9 @@ const ProcessForm: React.FC = () => {
 		setFormState(prevState => ({ ...prevState, moduleName, moduleId }));
 		setSelectedModule(moduleId);
 		setSelectedProcess(''); // Clear selected process when module changes
-	  };
-	
-	  const handleProcessChange = (selectedOption: any) => {
+	};
+
+	const handleProcessChange = (selectedOption: any) => {
 		if (selectedOption) {
 			const { processID, processName, moduleId, moduleName } = selectedOption;
 			setSelectedProcess(processID);
@@ -379,60 +285,74 @@ const ProcessForm: React.FC = () => {
 		const { name, value } = e.target;
 		setFormState(prevState => ({ ...prevState, [name]: value }));
 
-		if (name === 'projectId') {
-			const projectId = Number(value);
-			const project = projects.find(project => project.id === projectId);
+		// if (name === 'projectId') {
+		// 	const projectId = Number(value);
+		// 	const project = projects.find(project => project.id === projectId);
 
-			if (project) {
-				const projectName = project.projectName;
-				setFormState(prevState => ({ ...prevState, projectName }));
+		// 	if (project) {
+		// 		const projectName = project.projectName;
+		// 		setFormState(prevState => ({ ...prevState, projectName }));
 
-				try {
-					const response = await fetch(`https://localhost:44306/api/CommonDropdown/GetMessandManagerListByProjectName?ProjectName=${projectName}`);
-					const data: ApiResponse = await response.json();
+		// 		try {
+		// 			const response = await fetch(`https://localhost:44306/api/CommonDropdown/GetMessandManagerListByProjectName?ProjectName=${projectName}`);
+		// 			const data: ApiResponse = await response.json();
 
-					if (data.isSuccess) {
-						const messOptions = data.messProjectListResponses.map(mess => ({
-							value: mess.messID,
-							label: mess.messName,
-						}));
+		// 			if (data.isSuccess) {
+		// 				const messOptions = data.messProjectListResponses.map(mess => ({
+		// 					value: mess.messID,
+		// 					label: mess.messName,
+		// 				}));
 
-						const managerOptions = data.messProjectListResponses.map(manager => ({
-							value: manager.managerEmpID,
-							label: manager.managerName,
-						}));
+		// 				const managerOptions = data.messProjectListResponses.map(manager => ({
+		// 					value: manager.managerEmpID,
+		// 					label: manager.managerName,
+		// 				}));
 
-						setMessOptions(messOptions);
-						setManagerOptions(managerOptions);
+		// 				setMessOptions(messOptions);
+		// 				setManagerOptions(managerOptions);
 
-						const accountMesses = data.messProjectListResponses.map(response => ({
-							projectId: value,
-							moduleID: formState.moduleId,
-							processID: formState.processName,
-							messId: response.messID,
-							messName: response.messName,
-							messManagerEmpId: response.managerEmpID,
-							messManagerEmpName: response.managerName,
-							createdBy: 'Himanshu Pant',
-						}));
+		// 				const accountMesses = data.messProjectListResponses.map(response => ({
+		// 					projectId: value,
+		// 					moduleID: formState.moduleId,
+		// 					processID: formState.processName,
+		// 					messId: response.messID,
+		// 					messName: response.messName,
+		// 					messManagerEmpId: response.managerEmpID,
+		// 					messManagerEmpName: response.managerName,
+		// 					createdBy: 'Himanshu Pant',
+		// 				}));
 
-						setFormState(prevState => ({
-							...prevState,
-							accountMesses: accountMesses,
-						}));
-					}
-				} catch (error) {
-					console.error('Error fetching mess and manager list:', error);
-				}
-			}
-		}
+		// 				setFormState(prevState => ({
+		// 					...prevState,
+		// 					accountMesses: accountMesses,
+		// 				}));
+		// 			}
+		// 		} catch (error) {
+		// 			console.error('Error fetching mess and manager list:', error);
+		// 		}
+		// 	}
+		// }
 	};
-	
+
+
+	const [data, setData] = useState<any[]>([]);
+
+	useEffect(() => {
+		axios.get('https://localhost:7235/api/MessWeeklyPayments/GetProcessAccWeeklyList')
+			.then(response => {
+				if (response.data.isSuccess) {
+					setData(response.data.getProcessAccWeeklyLists || []);
+				} else {
+					console.error('Error fetching data:', response.data.message);
+				}
+			})
+			.catch(error => console.error('Error fetching data:', error));
+	}, []);
 
 	return (
 		<div>
 			<div className="d-flex bg-white p-2 my-2 justify-content-between align-items-center">
-				<span><i className="ri-list-settings-line me-2"></i><span className='fw-bold'>Process List</span></span>
+				<span><i className="ri-list-settings-line me-2"></i><span className='fw-bold'>Account's Process List</span></span>
 				<div className="d-flex">
 					<div className="app-search d-none d-lg-block me-4">
 						<form>
@@ -449,28 +369,12 @@ const ProcessForm: React.FC = () => {
 					<Button variant="primary" onClick={() => {
 						setEditingIndex(null);
 						setFormState({
-							employeeId: '',
-							employeeName: '',
 							processId: '',
 							processName: '',
 							moduleId: '',
 							moduleName: '',
-							projectId: '',
-							projectName: '',
-							periodDate: new Date(),
-							weekDate: new Date(),
-							sourceId: '',
+							startDate: new Date(),
 							createdBy: '',
-							accountMesses: [{
-								projectId: '',
-								moduleID: '',
-								processId: '',
-								messId: '',
-								messName: '',
-								messManagerEmpId: '',
-								messManagerEmpName: '',
-								createdBy: '',
-							}]
 						});
 						setShowAddEditModal(true);
 					}}>
@@ -478,7 +382,26 @@ const ProcessForm: React.FC = () => {
 					</Button>
 				</div>
 			</div>
-
+			<Table striped bordered hover>
+				<thead>
+					<tr>
+						<th>Process Name</th>
+						<th>Module Name</th>
+						<th>Start Date</th>
+						<th>Created By</th>
+					</tr>
+				</thead>
+				<tbody>
+					{data.map(item => (
+						<tr key={item.id}>
+							<td>{item.processName}</td>
+							<td>{item.moduleName}</td>
+							<td>{new Date(item.startdate).toLocaleDateString()}</td>
+							<td>Himanshu Pant</td>
+						</tr>
+					))}
+				</tbody>
+			</Table>
 
 			<Modal show={showAddEditModal} onHide={() => setShowAddEditModal(false)} size="lg">
 				<Modal.Header closeButton>
@@ -487,7 +410,7 @@ const ProcessForm: React.FC = () => {
 				<Modal.Body>
 					<form onSubmit={handleSubmit}>
 						<div className="row">
-							<div className="form-group col-lg-6 col-md-6 col-sm-12 p-2">
+							{/* <div className="form-group col-lg-6 col-md-6 col-sm-12 p-2">
 								<label htmlFor="projectId">Project Name</label>
 								<select
 									className="form-control"
@@ -504,7 +427,7 @@ const ProcessForm: React.FC = () => {
 										</option>
 									))}
 								</select>
-							</div>
+							</div> */}
 							<div className="form-group col-lg-6 col-md-6 col-sm-12 p-2">
 								<label htmlFor="moduleName">Module Name</label>
 								<Select
@@ -532,7 +455,7 @@ const ProcessForm: React.FC = () => {
 									isDisabled={!selectedModule} // Disable if no module is selected
 								/>
 							</div>
-							{selectedModule === 'Accounts' && (
+							{/* {selectedModule === 'Accounts' && (
 								<>
 									<div className="form-group col-lg-6 col-md-6 col-sm-12 p-2">
 										<label htmlFor="messName">Mess Name</label>
@@ -559,33 +482,14 @@ const ProcessForm: React.FC = () => {
 										/>
 									</div>
 								</>
-							)}
-							<div className="form-group col-lg-6 col-md-6 col-sm-12 p-2">
-								<label htmlFor="sourceId">Source</label>
-								<input
-									type="text"
-									className="form-control"
-									name="sourceId"
-									value={formState.sourceId}
-									onChange={handleInputChange}
-								/>
-							</div>
+							)} */}
 							<div className="form-group col-lg-6 col-md-6 col-sm-12 p-2">
 								<label htmlFor="periodDate">Period Date</label>
 								<Flatpickr
 									className="form-control"
 									options={{ enableTime: true, noCalendar: false, dateFormat: 'Y-m-d H:i' }}
-									value={formState.periodDate}
+									value={formState.startDate}
 									onChange={handleDateChange}
-								/>
-							</div>
-							<div className="form-group col-lg-6 col-md-6 col-sm-12 p-2">
-								<label htmlFor="weekDate">Week Date</label>
-								<Flatpickr
-									className="form-control"
-									options={{ enableTime: true, noCalendar: false, dateFormat: 'Y-m-d H:i' }}
-									value={formState.weekDate}
-									onChange={handleWeekDateChange}
 								/>
 							</div>
 						</div>

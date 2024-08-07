@@ -84,14 +84,30 @@ const MENU_ITEMS: MenuItemTypes[] = [
 		parentKey: 'pages',
 	},
 
+	{
+		key: 'Accounts',
+		label: 'Notification',
+		url: '/pages/Notification',
+		icon: 'ri-notification-3-line',
+		parentKey: 'pages',
+	},
+
 
 
 	{
-		key: 'pages-Starter',
+		key: 'multi-level',
 		label: 'Process Initiation',
-		url: '/pages/starter',
+		isTitle: false,
 		icon: 'ri-list-settings-line',
-		parentKey: 'pages',
+		children: [
+			{
+				key: 'second-level',
+				label: 'Accounts',
+				url: '/pages/Process-creator',
+				parentKey: 'multi-level',
+				icon: 'ri-account-circle-line',
+			},
+		]
 	},
 	{
 		key: 'systemmaster',
@@ -832,7 +848,7 @@ const HORIZONTAL_MENU_ITEMS: MenuItemTypes[] = [
 			{
 				key: 'pages-starter',
 				label: 'Starter Page',
-				url: '/pages/starter',
+				url: '/pages/Process-creator',
 				parentKey: 'pages',
 			},
 			{

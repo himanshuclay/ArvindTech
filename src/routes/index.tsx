@@ -22,7 +22,7 @@ const InvoicePages = React.lazy(() => import('../pages/other/Invoice'))
 const FAQPages = React.lazy(() => import('../pages/other/FAQ'))
 const PricingPages = React.lazy(() => import('../pages/other/Pricing'))
 const MaintenancePages = React.lazy(() => import('../pages/other/Maintenance'))
-const StarterPages = React.lazy(() => import('../pages/other/Starter'))
+const StarterPages = React.lazy(() => import('../pages/other/Process-creator.tsx'))
 const TemplateMaster = React.lazy(() => import('../pages/other/Modules-Master.tsx'))
 const Notification = React.lazy(() => import('../pages/other/Notification.tsx'))
 const ModuleList = React.lazy(() => import('../pages/other/Module-list.tsx'))
@@ -192,7 +192,7 @@ const customPagesRoutes = {
 			route: PrivateRoute,
 		},
 		{
-			path: '/pages/starter',
+			path: '/pages/Process-creator',
 			name: 'Starter Page',
 			element: <StarterPages />,
 			route: PrivateRoute,
