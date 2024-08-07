@@ -348,7 +348,9 @@ const ProcessForm: React.FC = () => {
                                 <td>Sumit Kumar</td>
                                
                                 <td>
-                                    <i className='btn ri-edit-line' onClick={() => handleEdit(index)}></i>
+								<Button variant="success" size="sm" className="me-2" onClick={() => handleEdit(index)}>
+                                        Create Task
+                                    </Button>
                                 </td>
                             </tr>
                         ))}
