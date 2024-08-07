@@ -261,7 +261,8 @@ html[data-bs-theme="dark"] {
 
 .side-nav-second-level {
     margin-top: calc($menu-item-padding-y * -0.5);
-    padding-left: $menu-item-icon-width;
+    // padding-left: $menu-item-icon-width;
+    padding-left: 20px;
 }
 
 .side-nav-third-level,.side-nav-forth-level {

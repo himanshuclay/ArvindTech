@@ -22,7 +22,8 @@ const InvoicePages = React.lazy(() => import('../pages/other/Invoice'))
 const FAQPages = React.lazy(() => import('../pages/other/FAQ'))
 const PricingPages = React.lazy(() => import('../pages/other/Pricing'))
 const MaintenancePages = React.lazy(() => import('../pages/other/Maintenance'))
-const StarterPages = React.lazy(() => import('../pages/other/Starter'))
+const MonlthlyMessPayments = React.lazy(() => import('../pages/other/MonlthlyMessPayments.tsx'))
+const MonlthlyMessOption = React.lazy(() => import('../pages/other/MonlthlyMessOption.tsx'))
 const TemplateMaster = React.lazy(() => import('../pages/other/Modules-Master.tsx'))
 const Notification = React.lazy(() => import('../pages/other/Notification.tsx'))
 const ModuleList = React.lazy(() => import('../pages/other/Module-list.tsx'))
@@ -193,9 +194,15 @@ const customPagesRoutes = {
 			route: PrivateRoute,
 		},
 		{
-			path: '/pages/starter',
-			name: 'Starter Page',
-			element: <StarterPages />,
+			path: '/pages/MonlthlyMessPayments',
+			name: 'MonlthlyMessPayments',
+			element: <MonlthlyMessPayments />,
+			route: PrivateRoute,
+		},
+		{
+			path: '/pages/MonlthlyMessOption',
+			name: 'MonlthlyMessOption',
+			element: <MonlthlyMessOption />,
 			route: PrivateRoute,
 		},
 		{
