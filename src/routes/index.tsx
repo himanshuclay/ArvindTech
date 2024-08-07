@@ -212,6 +212,12 @@ const customPagesRoutes = {
 			route: PrivateRoute,
 		},
 		{
+			path: '/pages/Task/:id',
+			name: 'Modules Master',
+			element: <TemplateMaster />,
+			route: PrivateRoute,
+		},
+		{
 			path: '/pages/Notification',
 			name: 'Notification',
 			element: <Notification />,

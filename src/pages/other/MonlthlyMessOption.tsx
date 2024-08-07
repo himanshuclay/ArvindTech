@@ -2,9 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { Modal, Button, Table} from 'react-bootstrap';
 import Flatpickr from 'react-flatpickr'
 import 'flatpickr/dist/flatpickr.css';
-import { format } from 'date-fns';
+// import { format } from 'date-fns';
 import Select from 'react-select';
 import axios from 'axios';
+import { NavLink } from 'react-router-dom';
 
 
 
@@ -34,7 +35,7 @@ const ProcessForm: React.FC = () => {
 	const [projects, setProjects] = useState<{ id: string; projectName: string }[]>([]);
 	const [showAddEditModal, setShowAddEditModal] = useState<boolean>(false);
     const [loading, setLoading] = useState<boolean>(false);
-    const [MessMonthlyReconciliation, setMessMonthlyReconciliation] = useState([]);
+    const [MessMonthlyReconciliation, setMessMonthlyReconciliation] = useState([]);	
 
 
 
@@ -269,7 +270,7 @@ const ProcessForm: React.FC = () => {
 						<div className="row">
 							
 							<div className="form-group col-lg-12 col-md-6 col-sm-12 p-2">
-								<label htmlFor="moduleName">Module Name</label>
+								<label htmlFor="moduleName" className='text-dark'>Module Name</label>
 								<Select
 									className="basic-single"
 									classNamePrefix="select"
@@ -282,7 +283,7 @@ const ProcessForm: React.FC = () => {
 								/>
 							</div>
 							<div className="form-group col-lg-12 col-md-6 col-sm-12 p-2">
-								<label htmlFor="processName">Process Name</label>
+								<label htmlFor="processName"  className='text-dark'>Process Name</label>
 								<Select
 									className="basic-single"
 									classNamePrefix="select"
@@ -297,7 +298,7 @@ const ProcessForm: React.FC = () => {
 							</div>
 						
 							<div className="form-group col-lg-12 col-md-6 col-sm-12 p-2">
-								<label htmlFor="weekDate">Start Date</label>
+								<label htmlFor="weekDate"  className='text-dark'>Start Date</label>
 								<Flatpickr
 									className="form-control"
 									options={{ enableTime: true, noCalendar: false, dateFormat: 'Y-m-d H:i' }}
@@ -348,9 +349,10 @@ const ProcessForm: React.FC = () => {
                                 <td>Sumit Kumar</td>
                                
                                 <td>
-								<Button variant="success" size="sm" className="me-2" onClick={() => handleEdit(index)}>
+								{/* <Button variant="success" size="sm" className="me-2" onClick={() => handleEdit(index)}>
                                         Create Task
-                                    </Button>
+                                    </Button> */}
+									<NavLink to={`/pages/Task/${mess.id}`}> Create Task </NavLink>
                                 </td>
                             </tr>
                         ))}

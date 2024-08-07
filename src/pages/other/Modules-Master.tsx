@@ -7,10 +7,11 @@ import {
   DraggableProvided,
   DroppableProvided,
 } from 'react-beautiful-dnd';
-import { Button, Form, Modal, ListGroup, Card, FormGroup,Toast } from 'react-bootstrap';
+import { Button, Form, Modal, ListGroup, Card, FormGroup, Toast } from 'react-bootstrap';
 import axios from 'axios';
 import Select from 'react-select'
 import CustomFlatpickr from '@/components/CustomFlatpickr';
+import { useParams } from 'react-router-dom';
 
 type FormField = {
   id: string;
@@ -182,6 +183,8 @@ interface EmployeeName {
 
 
 const App: React.FC = () => {
+
+
   const [inventory, setInventory] = useState<FormField[]>(initialInventory);
   const [taskFields, setTaskFields] = useState<FormField[]>([]);
   const [savedTasks, setSavedTasks] = useState<FormField[][]>([]);
@@ -194,6 +197,7 @@ const App: React.FC = () => {
   const [selectedFieldIdx, setSelectedFieldIdx] = useState<number | null>(null);
   const [employeeNames, setEmployeeNames] = useState<EmployeeName[]>([]);
   const [showToast, setShowToast] = useState(false);
+  const [MessMonthlyReconciliation, setMessMonthlyReconciliation] = useState([]);
   const [formData, setFormData] = useState({
     taskName: '',
     ModuleName: '',
@@ -201,6 +205,9 @@ const App: React.FC = () => {
     processes: '',
     Date: '',
   });
+
+const{id}=useParams();
+
 
   const [options, setOptions] = useState<Option[]>([
     { text: 'Red Option', color: '#FF0000' },
@@ -217,9 +224,52 @@ const App: React.FC = () => {
     console.log('Selected color:', color);
   };
 
+
+
+
+
+
+
+
+
+
+  useEffect(() => {
+    fetchVendors();
+  }, []);
+
+
+  const fetchVendors = async () => {
+
+    try {
+      const response = await axios.get('https://localhost:7235/api/MessMonthlyReconciliation/GetProcessAccMonthlyTask1ByID', {
+        params: {
+            id: id
+        }
+    });
+      if (response.data.isSuccess) {
+        setMessMonthlyReconciliation(response.data.getProcessAccMonthlyLists[0]);
+      } else {
+        console.error(response.data.message);
+      }
+    } catch (error) {
+      console.error('Error fetching vendors:', error);
+    }
+
+  };
+
+
+
+
+console.log(MessMonthlyReconciliation)
+
+
+
+
+
+
   const fetchEmployeeNames = async (): Promise<EmployeeName[]> => {
     try {
-      const response = await axios.get('https://localhost:44306/api/EmployeeMaster/GetEmployee?PageIndex=1', {
+      const response = await axios.get('https://localhost:7074/api/EmployeeMaster/GetEmployee?PageIndex=1', {
         headers: {
           'accept': '*/*',
         },
@@ -445,7 +495,7 @@ const App: React.FC = () => {
         }}
       >
         <Toast.Header className='col-12 d-flex justify-content-between'>
-        <i className="ri-thumb-up-fill text-primary fs-2"></i>
+          <i className="ri-thumb-up-fill text-primary fs-2"></i>
           <div onClick={onClose}></div>
         </Toast.Header>
         <Toast.Body className='bg-primary text-white fs-4'>Process has been successfully applied for selected projects</Toast.Body>
@@ -616,48 +666,50 @@ const App: React.FC = () => {
               <Form.Group className='col-md-3 my-1'>
                 <Form.Label>Module Name</Form.Label>
                 <Form.Control
-                  as="select"
+                  // as="select"
                   name="ModuleName"
-                  value={formData.ModuleName}
+                  disabled
+                  // value={formData.ModuleName}
+                  value={MessMonthlyReconciliation.moduleName || "defalutModule"}
                   onChange={handleFormChange}
                   required
                 >
-                  <option value="">Select Modules</option>
+                  {/* <option value="">Select Modules</option>
                   {['Accounts', 'Procurement', 'Business Development', 'Mechanical', 'Mobilization'].map((option, index) => (
                     <option key={index} value={option}>
                       {option}
                     </option>
-                  ))}
+                  ))} */}
                 </Form.Control>
               </Form.Group>
               <Form.Group className='col-md-3 my-1'>
                 <Form.Label>Process Name</Form.Label>
                 <Form.Control
-                  as="select"
+                  // as="select"
+                  // value={formData.processes}
+                  disabled
+
                   name="processes"
-                  value={formData.processes}
+                  value={MessMonthlyReconciliation.processName || "defaultProcess"}
                   onChange={handleFormChange}
                   required
                 >
-                  <option value="">Process</option>
+                  {/* <option value="">Process</option>
                   {['Mess Weekly Payments', 'Mess Monthly Reconciliation', 'Monthly Budget FR [PNC]', 'Credit and Debit balance resolution', 'Bill Processing at HO'].map((option, index) => (
                     <option key={index} value={option}>
                       {option}
                     </option>
-                  ))}
+                  ))} */}
                 </Form.Control>
               </Form.Group>
               <Form.Group className='col-md-3 my-1'>
-                <Form.Label>Date & time</Form.Label>
-                <CustomFlatpickr
+                <Form.Label>Start Date</Form.Label>
+                <Form.Control
+                  disabled
                   className="form-control"
-                  placeholder="Date & Time"
-                  value={formData.Date}
+                  value={new Date(MessMonthlyReconciliation.startdate).toLocaleDateString() || 'defaultDate'}
                   onChange={handleFormChange}
-                  options={{
-                    enableTime: true,
-                    dateFormat: 'Y-m-d H:i',
-                  }}
+                 
                 />
               </Form.Group>
               <Form.Group className='col-md-3 my-1'>
@@ -1030,7 +1082,7 @@ const App: React.FC = () => {
 
           {savedTasks.map((task, taskIndex) => (
             <div className='col-md-6 col-sm-12'>
-              <Card key={taskIndex} className="mb-4 row m-1 timeliner" style={{boxShadow : 'rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px' }}>
+              <Card key={taskIndex} className="mb-4 row m-1 timeliner" style={{ boxShadow: 'rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px' }}>
                 <Card.Header>
                   <div className="d-flex justify-content-between align-items-center">
                     <span>ACC.01.T{taskIndex + 1}.{ }</span>
