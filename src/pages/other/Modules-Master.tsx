@@ -12,19 +12,28 @@ import axios from 'axios';
 import Select from 'react-select'
 import CustomFlatpickr from '@/components/CustomFlatpickr';
 
+
 type FormField = {
-  id: string;
-  type: string;
-  labeltext: string;
-  placeholder?: string;
-  options?: string[];
-  subtasks?: FormField[];
-  status?: string;
-  actualDate?: string;
-  plannedDate?: string;
-  extendedDate?: string;
-  successorTaskId?: string;
-  CustomSelect?: string;
+  id: string;             // Unique identifier for each field
+  labeltext?: string;     // Label for the field
+  textbox?: string;       // Textbox input
+  number?: number;        // Number input
+  type?:string;
+  email?: string;         // Email input
+  selection?: string;     // Dropdown selection input
+  radio?: number;         // Radio button input
+  file?: string;          // File upload input
+  labeldate?: string;     // Label for date input
+  date?: string;          // Date input
+  labelsubtask?: string;  // Label for a subtask
+  subtask?: string;       // Subtask input
+  paragraph?: string;     // Paragraph input
+  CustomSelect?: string;  // Custom select input
+  required?: boolean;     // Indicates if the field is required
+  placeholder?: string;   // Placeholder for inputs
+  options?: string[];     // Options for select, multiselect, or radio inputs
+  conditions?: TransformedField[]; // Conditions or subtasks linked to this field
+  value?: string;         // The value of the input
 };
 
 const projectOptions = [
@@ -42,9 +51,6 @@ const initialInventory: FormField[] = [
   { id: '8', type: 'file', labeltext: 'File Upload' },
   { id: '9', type: 'radio', labeltext: 'Radio', options: ['Option 1', 'Option 2'] },
   { id: '10', type: 'multiselect', labeltext: 'Multi Select', options: ['Option 1', 'Option 2'] },
-  // { id: '11', type: 'status', labeltext: 'Task Status', options: ['completed', 'pending'] },
-  // { id: '12', type: 'date', labeltext: 'Actual Date' },
-  // { id: '13', type: 'date', labeltext: 'Planned Date' },
   { id: '14', type: 'date', labeltext: 'Date' },
   { id: '15', type: 'text', labeltext: 'Successor Task', placeholder: 'Enter successor task ID' },
   { id: '16', type: 'custom', labeltext: 'Custom Field', placeholder: 'Enter text' },
@@ -53,67 +59,25 @@ const initialInventory: FormField[] = [
 ];
 
 type TransformedField = {
-  id: number;
-  labeltext?: string;
-  textbox?: string;
-  number?: number;
-  email?: string;
-  selection?: string;
-  radio?: number;
-  file?: string;
-  labeldate?: string;
-  date?: string;
-  labelsubtask?: string;
-  subtask?: string;
-  paragraph?: string;
-  CustomSelect?: string;
-};
-
-
-const transformTaskData = (tasks: FormField[][]): TransformedField[] => {
-  return tasks.map((task, taskIndex) => {
-    const transformedFields: TransformedField = { id: taskIndex + 1 };
-
-    task.forEach((field) => {
-      switch (field.type) {
-        case 'text':
-          transformedFields.textbox = field.placeholder || '';
-          break;
-        case 'checkbox':
-          transformedFields.selection = field.labeltext;
-          break;
-        case 'select':
-        case 'radio':
-        case 'multiselect':
-          transformedFields.selection = field.options?.join(', ') || '';
-          transformedFields.radio = parseInt(field.options?.[0] || '0', 10);
-          break;
-        case 'file':
-          transformedFields.file = field.labeltext;
-          break;
-        case 'date':
-          transformedFields.labeldate = field.labeltext;
-          transformedFields.date = field.actualDate || field.plannedDate || field.extendedDate || '';
-          break;
-        case 'status':
-          transformedFields.selection = field.status;
-          break;
-        case 'CustomSelect':
-          transformedFields.CustomSelect = field.CustomSelect;
-          break;
-        case 'successorTask':
-          transformedFields.subtask = field.successorTaskId;
-          break;
-        case 'custom':
-          transformedFields.textbox = field.placeholder || '';
-          break;
-        default:
-          break;
-      }
-    });
-
-    return transformedFields;
-  });
+  id: number;             // Unique identifier for each field
+  labeltext?: string;     // Label for the field
+  textbox?: string;       // Textbox input
+  number?: number;        // Number input
+  email?: string;         // Email input
+  selection?: string;     // Dropdown selection input
+  radio?: number;         // Radio button input
+  file?: string;          // File upload input
+  labeldate?: string;     // Label for date input
+  date?: string;          // Date input
+  labelsubtask?: string;  // Label for a subtask
+  subtask?: string;       // Subtask input
+  paragraph?: string;     // Paragraph input
+  CustomSelect?: string;  // Custom select input
+  required?: boolean;     // Indicates if the field is required
+  placeholder?: string;   // Placeholder for inputs
+  options?: string[];     // Options for select, multiselect, or radio inputs
+  conditions?: TransformedField[]; // Conditions or subtasks linked to this field
+  value?: string;         // The value of the input
 };
 
 interface Option {
@@ -125,10 +89,6 @@ interface Field {
   type: string;
   labeltext: string;
   options?: Option[];
-}
-
-interface Props {
-  field: Field;
 }
 
 
@@ -350,9 +310,52 @@ const App: React.FC = () => {
 
 
   const handleSaveTask = () => {
+    // Generate a unique form ID and form name (you can set the form name dynamically if needed)
+    const formId = '{processId.}';
+    const formName = "Sample Task Form";
+  
+    // Transform taskFields into the desired JSON structure
+    const transformedFields = taskFields.map((field) => ({
+      inputId: 11, // Generate a unique ID for each input
+      type: field.type,
+      label: field.labeltext,
+      placeholder: field.placeholder || "",
+      options: field.options || [],
+      required: field.required || false,
+      value: field.value || "",
+      conditions: field.subtasks ? field.subtasks.map(subtask => ({
+        inputId: 22,
+        type: subtask.type,
+        label: subtask.labeltext,
+        placeholder: subtask.placeholder || "",
+        options: subtask.options || [],
+        required: subtask.required || false,
+        value: subtask.value || "",
+        conditions: subtask.conditions || []
+      })) : [],
+    }));
+  
+    // Create the final JSON object
+    const formJSON = {
+      formId,
+      formName,
+      inputs: transformedFields,
+    };
+    console.log(formJSON)
+
     const updatedTasks = [...savedTasks, taskFields];
     setSavedTasks(updatedTasks);
     saveTasksToServer(updatedTasks);
+    setTaskFields([]);
+  
+    // Update the saved tasks with the new form JSON
+    const newupdatedTasks = [...savedTasks, formJSON];
+    console.log(savedTasks);
+    setnewSavedTasks(newupdatedTasks);
+  
+    // Optionally save the tasks to the server
+  
+    // Reset the task fields and close the modal
     setTaskFields([]);
     setIsModalOpen(false);
   };
@@ -1132,4 +1135,3 @@ const App: React.FC = () => {
 };
 
 export default App;
-

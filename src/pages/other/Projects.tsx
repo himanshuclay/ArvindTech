@@ -46,7 +46,7 @@ const ProjectMaster: React.FC = () => {
 
     const fetchProjects = async () => {
         try {
-            const response = await axios.get('https://localhost:7074/api/ProjectMaster/GetProject', {
+            const response = await axios.get('https://localhost:44306/api/ProjectMaster/GetProject', {
                 params: {
                     PageIndex: currentPage
                 }
