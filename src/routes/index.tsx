@@ -47,6 +47,7 @@ const ChkTaskMaster = React.lazy(() => import('../pages/other/ChkTaskMaster.tsx'
 const ChecklistMaster = React.lazy(() => import('../pages/other/ChecklistCollection.tsx'))
 const AddressMaster = React.lazy(() => import('../pages/other/AddressMaster.tsx'))
 const InputMaster = React.lazy(() => import('../pages/other/InputMaster.tsx'))
+const MyTask = React.lazy(() => import('../pages/other/MyTask.tsx'))
 
 
 
@@ -206,11 +207,17 @@ const customPagesRoutes = {
 			route: PrivateRoute,
 		},
 		{
-			path: '/pages/Modules-Master',
-			name: 'Modules Master',
-			element: <TemplateMaster />,
+			path: '/pages/MyTask',
+			name: 'MyTask',
+			element: <MyTask />,
 			route: PrivateRoute,
 		},
+		// {
+		// 	path: '/pages/Modules-Master',
+		// 	name: 'Modules Master',
+		// 	element: <TemplateMaster />,
+		// 	route: PrivateRoute,
+		// },
 		{
 			path: '/pages/Task/:id',
 			name: 'Modules Master',
@@ -377,6 +384,7 @@ const customPagesRoutes = {
 		},
 	],
 }
+
 
 // ui
 const uiRoutes: RoutesProps = {
@@ -789,11 +797,12 @@ const flattenRoutes = (routes: RoutesProps[]) => {
 }
 
 // All routes
-const authProtectedRoutes = [dashboardRoutes, customPagesRoutes, uiRoutes]
+const authProtectedRoutes = [dashboardRoutes, customPagesRoutes, uiRoutes ]
 const publicRoutes = [...authRoutes, ...otherPublicRoutes]
 
 const authProtectedFlattenRoutes = flattenRoutes([...authProtectedRoutes])
 const publicProtectedFlattenRoutes = flattenRoutes([...publicRoutes])
+
 export {
 	publicRoutes,
 	authProtectedRoutes,

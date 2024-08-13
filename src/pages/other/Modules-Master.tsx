@@ -206,7 +206,7 @@ const App: React.FC = () => {
     Date: '',
   });
 
-const{id}=useParams();
+  const { id } = useParams();
 
 
   const [options, setOptions] = useState<Option[]>([
@@ -243,9 +243,9 @@ const{id}=useParams();
     try {
       const response = await axios.get('https://localhost:7235/api/MessMonthlyReconciliation/GetProcessAccMonthlyTask1ByID', {
         params: {
-            id: id
+          id: id
         }
-    });
+      });
       if (response.data.isSuccess) {
         setMessMonthlyReconciliation(response.data.getProcessAccMonthlyLists[0]);
       } else {
@@ -260,7 +260,7 @@ const{id}=useParams();
 
 
 
-console.log(MessMonthlyReconciliation)
+  // console.log(MessMonthlyReconciliation)
 
 
 
@@ -321,7 +321,7 @@ console.log(MessMonthlyReconciliation)
   useEffect(() => {
     const loadTasks = async () => {
       const fetchedTasks = await fetchTasksFromServer();
-      console.log('Fetched tasks:', fetchedTasks);
+      // console.log('Fetched tasks:', fetchedTasks);
       setSavedTasks(fetchedTasks);
     };
 
@@ -709,9 +709,11 @@ console.log(MessMonthlyReconciliation)
                   className="form-control"
                   value={new Date(MessMonthlyReconciliation.startdate).toLocaleDateString() || 'defaultDate'}
                   onChange={handleFormChange}
-                 
+
                 />
               </Form.Group>
+
+              
               <Form.Group className='col-md-3 my-1'>
                 <Form.Label>Task Name</Form.Label>
                 <Form.Control

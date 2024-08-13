@@ -136,7 +136,7 @@ const Notifications: NotificationItem[] = [
 		createdAt: subtractHours(new Date(), 10960),
 	},
 ]
-const profileMenus: ProfileOption[] = [
+const adminProfileMenus: ProfileOption[] = [
 	{
 		label: 'My Account',
 		icon: 'ri-account-circle-line',
@@ -162,6 +162,43 @@ const profileMenus: ProfileOption[] = [
 		icon: 'ri-logout-box-line',
 		redirectTo: '/auth/logout',
 	},
+	{
+		label: 'Switch Account',
+		icon: 'ri-refresh-line',
+		redirectTo: '/pages/MyTask',
+	},
+]
+const userProfileMenus: ProfileOption[] = [
+	{
+		label: 'My Account',
+		icon: 'ri-account-circle-line',
+		redirectTo: '/pages/profile',
+	},
+	{
+		label: 'Settings',
+		icon: 'ri-settings-4-line',
+		redirectTo: '/pages/profile',
+	},
+	{
+		label: 'Support',
+		icon: 'ri-customer-service-2-line',
+		redirectTo: '/pages/faq',
+	},
+	{
+		label: 'Lock Screen',
+		icon: 'ri-lock-password-line',
+		redirectTo: '/auth/lock-screen',
+	},
+	{
+		label: 'Logout',
+		icon: 'ri-logout-box-line',
+		redirectTo: '/auth/logout',
+	},
+	{
+		label: 'Switch Account',
+		icon: 'ri-refresh-line',
+		redirectTo: '/',
+	},
 ]
 
 type TopbarProps = {
@@ -170,6 +207,7 @@ type TopbarProps = {
 	navOpen?: boolean
 }
 const Topbar = ({ toggleMenu, navOpen }: TopbarProps) => {
+	const currentUrl = window.location.href;
 	const { sideBarType } = useThemeCustomizer()
 	const { width } = useViewport()
 
@@ -257,7 +295,7 @@ const Topbar = ({ toggleMenu, navOpen }: TopbarProps) => {
 							{/* Logo Dark */}
 							<Link to="/" className="logo-dark">
 								<span className="logo-lg">
-									<img src={logoDark} alt="dark logo" style={{height: '50px'}} />
+									<img src={logoDark} alt="dark logo" style={{ height: '50px' }} />
 								</span>
 								<span className="logo-sm">
 									<img src={logoSm} alt="small logo" />
@@ -326,11 +364,24 @@ const Topbar = ({ toggleMenu, navOpen }: TopbarProps) => {
 							</div>
 						</li>
 						<li className="dropdown">
-							<ProfileDropdown
-								menuItems={profileMenus}
-								userImage={profilePic}
-								username="Shikhar"
-							/>
+
+
+
+
+
+							{
+								(currentUrl === 'http://localhost:3000/pages/MyTask') || (currentUrl === 'http://localhost:3000/pages/Module-list') ? <ProfileDropdown
+									menuItems={userProfileMenus}
+									userImage={profilePic}
+									username="Dhwan"
+								/> : <ProfileDropdown
+									menuItems={adminProfileMenus}
+									userImage={profilePic}
+									username="Shikhar"
+								/>
+							}
+
+
 						</li>
 					</ul>
 				</div>

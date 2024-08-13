@@ -2,10 +2,15 @@ import {
 	HORIZONTAL_MENU_ITEMS,
 	MENU_ITEMS,
 	MenuItemTypes,
+	MENU_SWITCH_ITEMS
 } from '@/constants/menu'
 const getMenuItems = () => {
 	// NOTE - You can fetch from server and return here as well
 	return MENU_ITEMS
+}
+const getSwitchMenuItems = () => {
+	// NOTE - You can fetch from server and return here as well
+	return MENU_SWITCH_ITEMS
 }
 
 const getHorizontalMenuItems = () => {
@@ -45,4 +50,4 @@ const findMenuItem = (
 	return null
 }
 
-export { findAllParent, findMenuItem, getMenuItems, getHorizontalMenuItems }
+export { findAllParent, findMenuItem, getMenuItems, getHorizontalMenuItems,getSwitchMenuItems }

@@ -13,6 +13,7 @@ export interface MenuItemTypes {
 	children?: MenuItemTypes[]
 }
 
+
 const MENU_ITEMS: MenuItemTypes[] = [
 	// {
 	// 	key: 'Main',
@@ -68,13 +69,13 @@ const MENU_ITEMS: MenuItemTypes[] = [
 	// 	icon: 'ri-file-settings-line',
 	// 	parentKey: 'pages',
 	// },
-	{
-		key: 'Modules-List',
-		label: 'Modules',
-		url: '/pages/Module-list',
-		icon: 'ri-file-settings-line',
-		parentKey: 'pages',
-	},
+	// {
+	// 	key: 'Modules-List',
+	// 	label: 'Modules',
+	// 	url: '/pages/Module-list',
+	// 	icon: 'ri-file-settings-line',
+	// 	parentKey: 'pages',
+	// },
 
 	{
 		key: 'Notification',
@@ -158,13 +159,7 @@ const MENU_ITEMS: MenuItemTypes[] = [
 				parentKey: 'pages',
 			},
 
-			{
-				key: 'DoerMaster',
-				label: 'Doer Master',
-				url: '/pages/DoerMaster',
-				icon: 'ri-brain-line',
-				parentKey: 'pages',
-			},
+			
 
 			{
 				key: 'FormMaster',
@@ -757,6 +752,46 @@ const MENU_ITEMS: MenuItemTypes[] = [
 	// },
 ]
 
+const MENU_SWITCH_ITEMS: MenuItemTypes[] = [
+
+	{
+		key: 'dashboard',
+		label: 'Dashboards',
+		isTitle: false,
+		// url: '/',
+		icon: 'ri-dashboard-3-line',
+		badge: {
+			variant: 'success',
+			text: '9+',
+		},
+	},
+
+	{
+		key: 'DoerMaster',
+		label: 'Doer Master',
+		url: '/pages/DoerMaster',
+		icon: 'ri-brain-line',
+		parentKey: 'pages',
+	},
+	{
+		key: 'Modules-List',
+		label: 'Modules',
+		url: '/pages/Module-list',
+		icon: 'ri-file-settings-line',
+		parentKey: 'pages',
+	},
+	{
+		key: 'MyTask',
+		label: 'MyTask',
+		url: '/pages/MyTask',
+		icon: 'ri-file-settings-line',
+		parentKey: 'pages',
+	},
+
+
+	
+]
+
 const HORIZONTAL_MENU_ITEMS: MenuItemTypes[] = [
 	{
 		key: 'dashboard',
@@ -1257,4 +1292,4 @@ const HORIZONTAL_MENU_ITEMS: MenuItemTypes[] = [
 	// },
 ]
 
-export { MENU_ITEMS, HORIZONTAL_MENU_ITEMS }
+export { MENU_ITEMS, HORIZONTAL_MENU_ITEMS ,MENU_SWITCH_ITEMS}

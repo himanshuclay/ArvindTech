@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Modal, Button, Table} from 'react-bootstrap';
+import { Modal, Button, Table } from 'react-bootstrap';
 import Flatpickr from 'react-flatpickr'
 import 'flatpickr/dist/flatpickr.css';
 // import { format } from 'date-fns';
@@ -29,13 +29,13 @@ const ProcessForm: React.FC = () => {
 		moduleName: '',
 		startDate: new Date(),
 		createdBy: '',
-		
+
 	});
 	const [processes, setProcesses] = useState<ProcessData[]>([]);
 	const [projects, setProjects] = useState<{ id: string; projectName: string }[]>([]);
 	const [showAddEditModal, setShowAddEditModal] = useState<boolean>(false);
-    const [loading, setLoading] = useState<boolean>(false);
-    const [MessMonthlyReconciliation, setMessMonthlyReconciliation] = useState([]);	
+	const [loading, setLoading] = useState<boolean>(false);
+	const [MessMonthlyReconciliation, setMessMonthlyReconciliation] = useState([]);
 
 
 
@@ -43,8 +43,8 @@ const ProcessForm: React.FC = () => {
 		setProjects([
 			{ id: '1', projectName: 'PNC_GWALIOR' },
 		]);
-		
-        // projectlist fetched 
+
+		// projectlist fetched 
 		const fetchProjects = async () => {
 			try {
 				const response = await fetch('https://localhost:7074/api/CommonDropdown/GetProjectList', {
@@ -69,48 +69,42 @@ const ProcessForm: React.FC = () => {
 	}, []);
 
 
-	
+
 	useEffect(() => {
-        fetchVendors();
-    }, []);
+		fetchVendors();
+	}, []);
 
 
 	const fetchVendors = async () => {
-        setLoading(true);
+		setLoading(true);
 
-        try {
-            const response = await axios.get('https://localhost:7235/api/MessMonthlyReconciliation/GetProcessAccMonthlyList');
+		try {
+			const response = await axios.get('https://localhost:7235/api/MessMonthlyReconciliation/GetProcessAccMonthlyList');
 
-            if (response.data.isSuccess) {
-                setMessMonthlyReconciliation(response.data.getProcessAccMonthlyLists);
+			if (response.data.isSuccess) {
+				setMessMonthlyReconciliation(response.data.getProcessAccMonthlyLists);
 
-            } else {
-                console.error(response.data.message);
-            }
-        } catch (error) {
-            console.error('Error fetching vendors:', error);
-        }
-        finally {
-            setLoading(false); // End loading
-        }
-    };
+			} else {
+				console.error(response.data.message);
+			}
+		} catch (error) {
+			console.error('Error fetching vendors:', error);
+		}
+		finally {
+			setLoading(false); // End loading
+		}
+	};
 
 
 	const [editingIndex, setEditingIndex] = useState<number | null>(null);
 
 
 
-    const handleSubmit = async (e: React.FormEvent) => {
+	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
 
 		try {
-			// const createdAt = new Date().toISOString();
-			// const newProcess: ProcessData = {
-			// 	...formState,
-			// 	createdAt,
-			// 	tasks: [] // Initialize an empty tasks array for the new process
-			// };
-
+			
 			// Construct the payload
 			const payload = {
 				processID: formState.processId || 'defaultProcessId',
@@ -152,7 +146,7 @@ const ProcessForm: React.FC = () => {
 		}
 	};
 
-	
+
 	const [modules, setModules] = useState([]);
 	const [selectedModule, setSelectedModule] = useState('');
 	const [selectedProcess, setSelectedProcess] = useState('');
@@ -176,7 +170,7 @@ const ProcessForm: React.FC = () => {
 			axios.get(`https://localhost:7074/api/CommonDropdown/GetProcessNameByModuleName?ModuleName=${selectedModule}`)
 				.then(response => {
 					const processOptions = response.data.processListResponses.map(process => ({
-						processID: process.processID,		
+						processID: process.processID,
 						processName: process.processName,
 						moduleId: process.moduleId, // This should be "ACC"
 						moduleName: process.moduleName, // This should be "Accounts"
@@ -189,10 +183,10 @@ const ProcessForm: React.FC = () => {
 		}
 	}, [selectedModule]);
 
-    interface OptionType {
-		value: string;	
+	interface OptionType {
+		value: string;
 		label: string;
-	  }
+	}
 
 	const handleModuleChange = (selectedOption: OptionType | null) => {
 		const moduleName = selectedOption ? selectedOption.label : '';
@@ -200,9 +194,9 @@ const ProcessForm: React.FC = () => {
 		setFormState(prevState => ({ ...prevState, moduleName, moduleId }));
 		setSelectedModule(moduleId);
 		setSelectedProcess(''); // Clear selected process when module changes
-	  };
-	
-	  const handleProcessChange = (selectedOption: any) => {
+	};
+
+	const handleProcessChange = (selectedOption: any) => {
 		if (selectedOption) {
 			const { processID, processName, moduleId, moduleName } = selectedOption;
 			setSelectedProcess(processID);
@@ -217,15 +211,8 @@ const ProcessForm: React.FC = () => {
 	};
 
 
-	// const handleWeekDateChange = (date: Date[]) => {
-	// 	setFormState(prevState => ({
-	// 		...prevState,
-	// 		weekDay: format(date[0], 'EEEE'),
-	// 		weekTime: format(date[0], 'HH:mm'),
-	// 		formattedDate: format(date[0], 'dd/MM/yyyy')  // Added this line
-	// 	}));
-	// };
-	
+
+
 	return (
 		<div>
 			<div className="d-flex bg-white p-2 my-2 justify-content-between align-items-center">
@@ -268,7 +255,7 @@ const ProcessForm: React.FC = () => {
 				<Modal.Body>
 					<form onSubmit={handleSubmit}>
 						<div className="row">
-							
+
 							<div className="form-group col-lg-12 col-md-6 col-sm-12 p-2">
 								<label htmlFor="moduleName" className='text-dark'>Module Name</label>
 								<Select
@@ -283,7 +270,7 @@ const ProcessForm: React.FC = () => {
 								/>
 							</div>
 							<div className="form-group col-lg-12 col-md-6 col-sm-12 p-2">
-								<label htmlFor="processName"  className='text-dark'>Process Name</label>
+								<label htmlFor="processName" className='text-dark'>Process Name</label>
 								<Select
 									className="basic-single"
 									classNamePrefix="select"
@@ -296,14 +283,14 @@ const ProcessForm: React.FC = () => {
 									isDisabled={!selectedModule} // Disable if no module is selected
 								/>
 							</div>
-						
+
 							<div className="form-group col-lg-12 col-md-6 col-sm-12 p-2">
-								<label htmlFor="weekDate"  className='text-dark'>Start Date</label>
+								<label htmlFor="weekDate" className='text-dark'>Start Date</label>
 								<Flatpickr
 									className="form-control"
 									options={{ enableTime: true, noCalendar: false, dateFormat: 'Y-m-d H:i' }}
 									value={formState.startDate}
-									// onChange={handleWeekDateChange}
+								// onChange={handleWeekDateChange}
 								/>
 							</div>
 						</div>
@@ -316,6 +303,8 @@ const ProcessForm: React.FC = () => {
 
 
 				</Modal.Body>
+
+				
 			</Modal>
 
 
@@ -323,42 +312,49 @@ const ProcessForm: React.FC = () => {
 
 
 			{loading ? (
-                <div className='loader-container'>
-                    <div className="loader"></div>
-                    <div className='mt-2'>Please Wait!</div>
-                </div>
-            ) :(
-                <Table className='bg-white' striped bordered hover>
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Module Name</th>
-                            <th>Process Name</th>
-                            <th>Start Date</th>
-                            <th>CreatedBy</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {MessMonthlyReconciliation.map((mess, index) => (
-                            <tr key={index}>
-                                <td>{mess.id}</td>
-                                <td>{mess.moduleName}</td>
-                                <td>{mess.processName}</td>
-                                <td>{new Date(mess.startdate).toLocaleDateString()}</td>
-                                <td>Sumit Kumar</td>
-                               
-                                <td>
-								{/* <Button variant="success" size="sm" className="me-2" onClick={() => handleEdit(index)}>
-                                        Create Task
-                                    </Button> */}
-									<NavLink to={`/pages/Task/${mess.id}`}> Create Task </NavLink>
-                                </td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </Table>
-            )}
+				<div className='loader-container'>
+					<div className="loader"></div>
+					<div className='mt-2'>Please Wait!</div>
+				</div>
+			) : (
+				<Table className='bg-white' striped bordered hover>
+					<thead>
+						<tr>
+							<th>ID</th>
+							<th>Module Name</th>
+							<th>Process Name</th>
+							<th>Start Date</th>
+							<th>CreatedBy</th>
+							<th>Action</th>
+						</tr>
+					</thead>
+					<tbody>
+						{MessMonthlyReconciliation.map((data, index) => (
+							<tr key={index}>
+								<td>{data.id}</td>
+								<td>{data.moduleName}</td>
+								<td>{data.processName}</td>
+								<td>{new Date(data.startdate).toLocaleDateString()}</td>
+								<td>Sumit Kumar</td>
+
+								<td>
+
+									<NavLink to={`/pages/Task/${data.id}`} >
+										<Button variant="success" size="sm" className="me-2" >
+											Create Task
+										</Button>
+									</NavLink>
+								</td>
+							</tr>
+						))}
+					</tbody>
+				</Table>
+			)}
+
+
+
+
+
 		</div>
 
 	);

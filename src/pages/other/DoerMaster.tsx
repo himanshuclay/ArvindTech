@@ -48,11 +48,7 @@ const DoerMaster: React.FC = () => {
         setLoading(true);
 
         try {
-<<<<<<< HEAD
             const response = await axios.get('https://localhost:7074/api/DoerMaster/GetDoer', {
-=======
-            const response = await axios.get('https://localhost:44306/api/DoerMaster/GetDoer', {
->>>>>>> 192236acf868ccd361bb0b94def582397fa4f469
                 params: {
                     PageIndex: currentPage
                 }
@@ -93,15 +89,9 @@ const DoerMaster: React.FC = () => {
         e.preventDefault();
         try {
             if (editingIndex !== null) {
-<<<<<<< HEAD
                 await axios.post('https://localhost:7074/api/DoerMaster/UpdateDoer', doer);
             } else {
                 await axios.post('https://localhost:7074/api/DoerMaster/InsertDoer', doer);
-=======
-                await axios.post('https://localhost:44306/api/DoerMaster/UpdateDoer', doer);
-            } else {
-                await axios.post('https://localhost:44306/api/DoerMaster/InsertDoer', doer);
->>>>>>> 192236acf868ccd361bb0b94def582397fa4f469
             }
             fetchDoers();
             handleClose();
@@ -143,12 +133,8 @@ const DoerMaster: React.FC = () => {
     const filteredDoers = doers.filter(doer =>
         doer.taskID.toLowerCase().includes(searchQuery.toLowerCase()) ||
         doer.identifier.toLowerCase().includes(searchQuery.toLowerCase()) ||
-<<<<<<< HEAD
         doer.empName.toLowerCase().includes(searchQuery.toLowerCase())||
         doer.empID.toLowerCase().includes(searchQuery.toLowerCase())
-=======
-        doer.empName.toLowerCase().includes(searchQuery.toLowerCase())
->>>>>>> 192236acf868ccd361bb0b94def582397fa4f469
     );
 
 
@@ -353,14 +339,8 @@ const DoerMaster: React.FC = () => {
                             <td>{doer.empID}</td>
                             <td>{doer.empName}</td>
                             <td>
-<<<<<<< HEAD
                             <i className='btn ri-edit-line' onClick={() => handleEdit(index)}></i>
 
-=======
-                                <Button variant="warning" onClick={() => handleEdit(index)}>
-                                    Edit
-                                </Button>
->>>>>>> 192236acf868ccd361bb0b94def582397fa4f469
                             </td>
                         </tr>
                     ))}
