@@ -7,23 +7,26 @@ import {
   DraggableProvided,
   DroppableProvided,
 } from 'react-beautiful-dnd';
-import { Button, Form, Modal, ListGroup, Card, FormGroup,Toast } from 'react-bootstrap';
+import { Button, Form, Modal, ListGroup, Card, FormGroup, Toast } from 'react-bootstrap';
 import axios from 'axios';
 import Select from 'react-select'
 import CustomFlatpickr from '@/components/CustomFlatpickr';
 
 
 type FormField = {
-  id: string;             // Unique identifier for each field
+  inputId: string;
+  // id: string;             // Unique identifier for each field
   labeltext?: string;     // Label for the field
   textbox?: string;       // Textbox input
   number?: number;        // Number input
-  type?:string;
+  type?: string;
   email?: string;         // Email input
   selection?: string;     // Dropdown selection input
   radio?: number;         // Radio button input
   file?: string;          // File upload input
   labeldate?: string;     // Label for date input
+  conditionalField?: boolean;
+  conditionalFieldId?: string;
   date?: string;          // Date input
   labelsubtask?: string;  // Label for a subtask
   subtask?: string;       // Subtask input
@@ -31,7 +34,7 @@ type FormField = {
   CustomSelect?: string;  // Custom select input
   required?: boolean;     // Indicates if the field is required
   placeholder?: string;   // Placeholder for inputs
-  options?: string[];     // Options for select, multiselect, or radio inputs
+  options?: FormFieldOption[];     // Options for select, multiselect, or radio inputs
   conditions?: TransformedField[]; // Conditions or subtasks linked to this field
   value?: string;         // The value of the input
 };
@@ -44,21 +47,77 @@ const projectOptions = [
   { value: 'PNC_Delhi', label: 'PNC_Delhi' }
 ];
 
+interface FormFieldOption {
+  id: string;
+  label: string;
+  color?: string;
+}
+
+
+
 const initialInventory: FormField[] = [
-  { id: '5', type: 'text', labeltext: 'Text Box', placeholder: 'Enter text' },
-  { id: '6', type: 'checkbox', labeltext: 'Checkbox' },
-  { id: '7', type: 'select', labeltext: 'Select', options: ['Option 1', 'Option 2'] },
-  { id: '8', type: 'file', labeltext: 'File Upload' },
-  { id: '9', type: 'radio', labeltext: 'Radio', options: ['Option 1', 'Option 2'] },
-  { id: '10', type: 'multiselect', labeltext: 'Multi Select', options: ['Option 1', 'Option 2'] },
-  { id: '14', type: 'date', labeltext: 'Date' },
-  { id: '15', type: 'text', labeltext: 'Successor Task', placeholder: 'Enter successor task ID' },
-  { id: '16', type: 'custom', labeltext: 'Custom Field', placeholder: 'Enter text' },
-  { id: '16', type: 'paragraph', labeltext: 'Paragraph' },
-  { id: '17', type: 'CustomSelect', labeltext: 'CustomSelect', placeholder: 'Enter text', options: ['Option 1', 'Option 2'] },
+  { inputId: '5', type: 'text', labeltext: 'Label text', placeholder: 'Enter text' },
+  { inputId: '6', type: 'checkbox', labeltext: 'Checkbox' },
+  {
+    inputId: '7',
+    type: 'select',
+    labeltext: 'Select',
+    options: [
+      { id: '7-1', label: 'Option 1' },
+      { id: '7-2', label: 'Option 2' }
+    ],
+    conditionalField: false,
+    conditionalFieldId: 'someid'
+  },
+  {
+    inputId: '8',
+    type: 'file',
+    labeltext: 'File Upload',
+    conditionalField: false,
+    conditionalFieldId: 'someid'
+  },
+  {
+    inputId: '9',
+    type: 'radio',
+    labeltext: 'Radio',
+    options: [
+      { id: '9-1', label: 'Option 1' },
+      { id: '9-2', label: 'Option 2' }
+    ],
+    conditionalField: false,
+    conditionalFieldId: 'someid'
+  },
+  {
+    inputId: '10',
+    type: 'multiselect',
+    labeltext: 'Multi Select',
+    options: [
+      { id: '10-1', label: 'Option 1' },
+      { id: '10-2', label: 'Option 2' }
+    ],
+    conditionalField: false,
+    conditionalFieldId: 'someid'
+  },
+  { inputId: '14', type: 'date', labeltext: 'Date' },
+  { inputId: '15', type: 'text', labeltext: 'Successor Task', placeholder: 'Enter successor task ID', conditionalField: false, conditionalFieldId: 'someid' },
+  { inputId: '16', type: 'custom', labeltext: 'Custom Field', placeholder: 'Enter text', conditionalField: false, conditionalFieldId: 'someid' },
+  { inputId: '17', type: 'paragraph', labeltext: 'Paragraph', conditionalField: false, conditionalFieldId: 'someid' },
+  {
+    inputId: '18',
+    type: 'CustomSelect',
+    labeltext: 'CustomSelect',
+    placeholder: 'Enter text',
+    options: [
+      { id: '18-1', label: 'Option 1' },
+      { id: '18-2', label: 'Option 2' }
+    ],
+    conditionalField: false,
+    conditionalFieldId: 'someid'
+  },
 ];
 
 type TransformedField = {
+  inputId: string;
   id: number;             // Unique identifier for each field
   labeltext?: string;     // Label for the field
   textbox?: string;       // Textbox input
@@ -75,21 +134,17 @@ type TransformedField = {
   CustomSelect?: string;  // Custom select input
   required?: boolean;     // Indicates if the field is required
   placeholder?: string;   // Placeholder for inputs
-  options?: string[];     // Options for select, multiselect, or radio inputs
+  options?: FormFieldOption[];     // Options for select, multiselect, or radio inputs
   conditions?: TransformedField[]; // Conditions or subtasks linked to this field
   value?: string;         // The value of the input
 };
+
 
 interface Option {
   text: string;
   color: string;
 }
 
-interface Field {
-  type: string;
-  labeltext: string;
-  options?: Option[];
-}
 
 
 
@@ -112,13 +167,6 @@ const saveTasksToServer = (tasks: any[]) => {
   }
 };
 
-
-
-
-
-
-
-
 const fetchTasksFromServer = (): any[] => {
   try {
     const tasks = JSON.parse(localStorage.getItem('tasks') || '[]');
@@ -138,6 +186,8 @@ const fetchTasksFromServer = (): any[] => {
 interface EmployeeName {
   employeeName: string;
 }
+
+
 
 
 
@@ -162,6 +212,15 @@ const App: React.FC = () => {
     Date: '',
   });
 
+
+  const [conditionalField, setConditionalField] = useState(false);
+  const [conditionalFieldId, setConditionalFieldId] = useState('');
+
+  const handleCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setConditionalField(event.target.checked);
+  };
+
+
   const [options, setOptions] = useState<Option[]>([
     { text: 'Red Option', color: '#FF0000' },
     { text: 'Green Option', color: '#00FF00' },
@@ -171,10 +230,11 @@ const App: React.FC = () => {
   const handleSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const selectedOption = e.target.options[e.target.selectedIndex];
     const color = selectedOption.getAttribute('data-color');
-    const text = selectedOption.value;
+    const label = selectedOption.textContent; // Fetch the label/text of the selected option
+    const value = selectedOption.value; // This is the id of the option
 
-    console.log('Selected text:', text);
-    console.log('Selected color:', color);
+    console.log(`Selected Label: ${label}, ID: ${value}, Color: ${color}`);
+    setConditionalFieldId(value);
   };
 
   const fetchEmployeeNames = async (): Promise<EmployeeName[]> => {
@@ -214,10 +274,10 @@ const App: React.FC = () => {
 
     // Save form data
     const newTaskFields: FormField[] = [
-      { id: '99', type: 'text', labeltext: `Task Name - ${formData.taskName}` },
-      { id: '100', type: 'text', labeltext: `Module Name - ${formData.ModuleName}` },
+      { inputId: '99', type: 'text', labeltext: `Task Name - ${formData.taskName}` },
+      { inputId: '100', type: 'text', labeltext: `Module Name - ${formData.ModuleName}` },
       // { id: '101', type: 'text', labeltext: `Project Name - ${formData.projectName}` },
-      { id: '102', type: 'text', labeltext: `Process - ${formData.processes}` },
+      { inputId: '102', type: 'text', labeltext: `Process - ${formData.processes}` },
       // { id: '103', type: 'date', labeltext: `Date&Time - ${formData.Date}` },
     ];
 
@@ -244,22 +304,11 @@ const App: React.FC = () => {
 
     loadTasks();
     const initialSubFields = initialInventory.reduce((acc, field) => {
-      acc[field.id] = true;
+      acc[field.inputId] = true;
       return acc;
     }, {} as { [key: string]: boolean });
     setSubFields(initialSubFields);
   }, []);
-
-  const handleSubfieldChange = (id: string, index: number, checked: boolean) => {
-    setSubFields(prevState => ({
-      ...prevState,
-      [id]: {
-        ...prevState[id],
-        [index]: checked
-      }
-    }));
-  };
-
 
 
   const handleDragEnd = (result: DropResult) => {
@@ -280,11 +329,11 @@ const App: React.FC = () => {
         setTaskFields(items);
       }
     } else {
-      const draggedField = inventory.find(field => field.id === result.draggableId);
+      const draggedField = inventory.find(field => field.inputId === result.draggableId);
       if (draggedField) {
         const newField: FormField = {
           ...draggedField,
-          id: `${draggedField.id}-${Date.now()}`,
+          inputId: `${draggedField.inputId}-${Date.now()}`,
         };
         setTaskFields(prev => [...prev, newField]);
       }
@@ -309,56 +358,94 @@ const App: React.FC = () => {
   };
 
 
-  const handleSaveTask = () => {
-    // Generate a unique form ID and form name (you can set the form name dynamically if needed)
-    const formId = '{processId.}';
-    const formName = "Sample Task Form";
-  
+  const handleSaveTask = async () => {
+    const formId = 'ACC.01.T1';  // Replace with actual processId
+    const formName = formData.taskName;
+
     // Transform taskFields into the desired JSON structure
-    const transformedFields = taskFields.map((field) => ({
-      inputId: 11, // Generate a unique ID for each input
-      type: field.type,
-      label: field.labeltext,
-      placeholder: field.placeholder || "",
-      options: field.options || [],
-      required: field.required || false,
-      value: field.value || "",
-      conditions: field.subtasks ? field.subtasks.map(subtask => ({
-        inputId: 22,
-        type: subtask.type,
-        label: subtask.labeltext,
-        placeholder: subtask.placeholder || "",
-        options: subtask.options || [],
-        required: subtask.required || false,
-        value: subtask.value || "",
-        conditions: subtask.conditions || []
-      })) : [],
-    }));
-  
+    const transformedFields = taskFields.map((field, index) => {
+      // Generate a unique inputId for the field
+      const inputId = `${index + 1}`;
+
+      // Map options to include unique ids
+      const options = field.options?.map((option, optIndex) => ({
+        id: `${inputId}-${optIndex + 1}`, // Unique ID for each option
+        label: option.label || option, // Use option label or the string itself if it's a simple option
+      })) || [];
+
+      // Create a string that contains inputId and all options ids
+      const selectedValue = editField?.options || "";
+
+      // Create a string that contains inputId, all options ids, and the selected value
+      const conditionalFieldId = [
+        inputId,
+        ...options.map(option => option.id),
+        selectedValue // Include selectedValue in the IDs
+      ].join(",");
+
+      return {
+        inputId,
+        type: field.type,
+        label: field.labeltext,
+        placeholder: field.placeholder || "",
+        options,
+        required: field.required || false,
+        conditionalField: field.conditionalField || "",
+        conditionalFieldId, // Set to the concatenated string of IDs
+        value: field.value || "",
+      };
+    });
+
     // Create the final JSON object
     const formJSON = {
       formId,
       formName,
       inputs: transformedFields,
     };
-    console.log(formJSON)
 
-    const updatedTasks = [...savedTasks, taskFields];
-    setSavedTasks(updatedTasks);
-    saveTasksToServer(updatedTasks);
-    setTaskFields([]);
-  
-    // Update the saved tasks with the new form JSON
-    const newupdatedTasks = [...savedTasks, formJSON];
-    console.log(savedTasks);
-    setnewSavedTasks(newupdatedTasks);
-  
-    // Optionally save the tasks to the server
-  
-    // Reset the task fields and close the modal
-    setTaskFields([]);
-    setIsModalOpen(false);
+    // Prepare the payload to be sent to the API
+    const payload = {
+      id: 2, // Ensure this matches the expected input by the API
+      task1_Json: JSON.stringify(formJSON), // Correctly stringify formJSON
+      updatedBy: "HimanshuPant", // Replace with actual username or dynamic value
+    };
+
+    // Print the payload to the console
+    console.log('Payload:', payload);
+
+    // Post the formJSON to the server
+    try {
+      const response = await fetch('https://localhost:7235/api/MessWeeklyPayments/UpdateAccWeeklyTask1', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'accept': '*/*',
+        },
+        body: JSON.stringify(payload),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        console.log('Task saved successfully:', data);
+
+        // Update the saved tasks with the new form JSON
+        const updatedTasks = [...savedTasks, formJSON];
+        setSavedTasks(updatedTasks);
+
+        // Reset the task fields and close the modal
+        setTaskFields([]);
+        setIsModalOpen(false);
+      } else {
+        const errorData = await response.json();
+        console.error('Error saving task:', errorData);
+      }
+    } catch (error) {
+      console.error('Error saving task:', error);
+    }
   };
+
+
+
 
   const handleDeleteField = (taskIndex: number, fieldIndex: number) => {
     if (taskIndex === -1) {
@@ -381,16 +468,22 @@ const App: React.FC = () => {
   };
 
   const handleTextChange = (index: number, value: string) => {
-    const newOptions = [...(editField.options || [])];
-    newOptions[index] = { ...newOptions[index], text: value };
-    setEditField({ ...editField, options: newOptions });
+    console.log(`Changing text of option at index ${index} to ${value}`);
+    const newOptions = editField.options?.map((option, i) =>
+      i === index ? { ...option, label: value } : option
+    );
+    setEditField((prevField) => ({ ...prevField, options: newOptions }));
   };
 
   const handleColorChange = (index: number, value: string) => {
-    const newOptions = [...(editField.options || [])];
-    newOptions[index] = { ...newOptions[index], color: value };
-    setEditField({ ...editField, options: newOptions });
+    console.log(`Changing color of option at index ${index} to ${value}`);
+    const newOptions = editField.options?.map((option, i) =>
+      i === index ? { ...option, color: value } : option
+    );
+    setEditField((prevField) => ({ ...prevField, options: newOptions }));
   };
+
+
 
 
   const applyprocess = () => {
@@ -409,6 +502,7 @@ const App: React.FC = () => {
     setEditField(field);
     setSelectedTaskIdx(taskIndex);
     setSelectedFieldIdx(fieldIndex);
+    console.log('taskname is unique', selectedFieldIdx)
     setIsModalOpen(true);
   };
 
@@ -433,6 +527,76 @@ const App: React.FC = () => {
       setIsModalOpen(false);
     }
   };
+
+  const [taskData, setTaskData] = useState<FormField[]>([]);
+
+  const handleInputChange = (inputId: string, value: string) => {
+    setTaskData((prevData) =>
+      prevData.map((field) =>
+        field.inputId === inputId ? { ...field, value } : field
+      )
+    );
+  };
+
+  const renderFormField = (field: FormField) => {
+    switch (field.type) {
+      case 'text':
+        return (
+          <Form.Group key={field.inputId}>
+            <Form.Label>{field.label}</Form.Label>
+            <Form.Control
+              type="text"
+              placeholder={field.placeholder}
+              value={field.value || ''}
+              required={field.required || false}
+              onChange={(e) => handleInputChange(field.inputId, e.target.value)}
+            />
+          </Form.Group>
+        );
+      case 'select':
+        return (
+          <Form.Group key={field.inputId}>
+            <Form.Label>{field.label}</Form.Label>
+            <Form.Control
+              as="select"
+              value={field.value || ''}
+              required={field.required || false}
+              onChange={(e) => handleInputChange(field.inputId, e.target.value)}
+            >
+              <option value="">Select an option</option>
+              {field.options?.map((option) => (
+                <option key={option.id} value={option.id}>
+                  {option.label}
+                </option>
+              ))}
+            </Form.Control>
+          </Form.Group>
+        );
+      case 'CustomSelect':
+        return (
+          <Form.Group key={field.inputId}>
+            <Form.Label>{field.label}</Form.Label>
+            <Form.Control
+              as="select"
+              value={field.value || ''}
+              required={field.required || false}
+              onChange={(e) => handleInputChange(field.inputId, e.target.value)}
+            >
+              <option value="">Select an option</option>
+              {field.options?.map((option) => (
+                <option key={option.id} value={option.id}>
+                  {option.label}
+                </option>
+              ))}
+            </Form.Control>
+          </Form.Group>
+        );
+      default:
+        return null;
+    }
+  };
+
+
   const SuccessToast: React.FC<{ show: boolean; onClose: () => void }> = ({ show, onClose }) => {
     return (
       <Toast
@@ -448,7 +612,7 @@ const App: React.FC = () => {
         }}
       >
         <Toast.Header className='col-12 d-flex justify-content-between'>
-        <i className="ri-thumb-up-fill text-primary fs-2"></i>
+          <i className="ri-thumb-up-fill text-primary fs-2"></i>
           <div onClick={onClose}></div>
         </Toast.Header>
         <Toast.Body className='bg-primary text-white fs-4'>Process has been successfully applied for selected projects</Toast.Body>
@@ -499,7 +663,7 @@ const App: React.FC = () => {
                           marginRight: '8px'
                         }}
                       ></div>
-                      {optionObject.text}
+                      {option.label}
                       {/* (Color Code: {optionObject.color}) */}
                     </span>
                   );
@@ -626,7 +790,7 @@ const App: React.FC = () => {
                   required
                 >
                   <option value="">Select Modules</option>
-                  {['Accounts', 'Procurement', 'Business Development', 'Mechanical', 'Mobilization'].map((option, index) => (
+                  {['Accounts', 'Procurement', 'Business Development', 'Finance', 'Mobilization'].map((option, index) => (
                     <option key={index} value={option}>
                       {option}
                     </option>
@@ -643,7 +807,7 @@ const App: React.FC = () => {
                   required
                 >
                   <option value="">Process</option>
-                  {['Mess Weekly Payments', 'Mess Monthly Reconciliation', 'Monthly Budget FR [PNC]', 'Credit and Debit balance resolution', 'Bill Processing at HO'].map((option, index) => (
+                  {['Mess Weekly Payments', 'Mess Monthly Reconciliation', 'Petty Cash Management', 'Credit and Debit balance resolution', 'Bill Processing at HO'].map((option, index) => (
                     <option key={index} value={option}>
                       {option}
                     </option>
@@ -651,7 +815,7 @@ const App: React.FC = () => {
                 </Form.Control>
               </Form.Group>
               <Form.Group className='col-md-3 my-1'>
-                <Form.Label>Date & time</Form.Label>
+                <Form.Label>Start Date</Form.Label>
                 <CustomFlatpickr
                   className="form-control"
                   placeholder="Date & Time"
@@ -689,7 +853,7 @@ const App: React.FC = () => {
                 {(provided: DroppableProvided) => (
                   <div ref={provided.innerRef} {...provided.droppableProps} className="row">
                     {inventory.map((field, index) => (
-                      <Draggable key={field.id} draggableId={field.id} index={index}>
+                      <Draggable key={field.inputId} draggableId={field.inputId} index={index}>
                         {(provided: DraggableProvided) => (
                           <div className='' style={{ width: 'max-content' }}>
                             <div
@@ -723,14 +887,14 @@ const App: React.FC = () => {
                       </div>
                     )}
                     {taskFields.map((field, index) => (
-                      <Draggable key={field.id} draggableId={field.id} index={index}>
+                      <Draggable key={field.inputId} draggableId={field.inputId} index={index}>
                         {(provided: DraggableProvided) => (
                           <div
                             ref={provided.innerRef}
                             {...provided.draggableProps}
                             {...provided.dragHandleProps}
                             className={
-                              ['99', '100', '102', '103'].includes(field.id)
+                              ['99', '100', '102', '103'].includes(field.inputId)
                                 ? 'custom-details list-group-item col-md-12 col-sm-12 border-none my-1 p-0 timeliner d-flex'
                                 : 'list-group-item col-md-12 col-sm-12 border-none my-1 p-1 timeliner d-flex'
                             }
@@ -798,19 +962,39 @@ const App: React.FC = () => {
                       value={editField.placeholder}
                       onChange={(e) => setEditField({ ...editField, placeholder: e.target.value })}
                     />
-                    <Form.Label>Available Colors</Form.Label>
-                    <Form.Control as="select" onChange={handleSelectChange}>
-                      {options.map((option, index) => (
-                        <option
-                          key={index}
-                          value={option.text}
-                          data-color={option.color} // Save color in a data attribute
-                          style={{ color: option.color }} // Apply color to text
-                        >
-                          {option.text}
-                        </option>
-                      ))}
-                    </Form.Control>
+                    <div className='form-group mt-2'>
+                      <label className="form-label">
+                        <input className='me-1' type="checkbox"
+                          checked={conditionalField}
+                          onChange={handleCheckboxChange} />
+                        Is Conditionally bound?
+                      </label>
+                    </div>
+                    {conditionalField && (
+                      <Form.Control
+                        as="select"
+                        className="mt-2"
+                        value={conditionalFieldId}
+                        onChange={handleSelectChange}
+                      >
+                        <option value="">Select an option</option>
+                        {taskFields.map((field) => (
+                          <React.Fragment key={field.id}>
+                            <option value={field.id}>{field.labeltext}</option>
+                            {field.options?.map((option) => (
+                              <option
+                                key={option.id}
+                                value={option.id} // ID as the value
+                                data-color={option.color || ""} // Color attribute
+                                style={{ color: option.color || "inherit" }} // Apply color if available
+                              >
+                                {option.label} {/* Label is displayed here */}
+                              </option>
+                            ))}
+                          </React.Fragment>
+                        ))}
+                      </Form.Control>
+                    )}
                   </Form.Group>
                 )}
 
@@ -818,23 +1002,13 @@ const App: React.FC = () => {
                   (<Form.Group className='mt-2'>
                     <Form.Control
                       type='file'
-                    >
-
-                    </Form.Control>
-                  </Form.Group>
-
-                  )
+                    />
+                  </Form.Group>)
                 }
+
                 {editField.type === 'CustomSelect' && (
-                  <Form.Group key={editField.id}>
+                  <Form.Group key={editField.inputId}>
                     <Form.Label>{editField.labeltext}</Form.Label>
-                    {/* <Form.Control as="select">
-                      {editField.options?.map((option, idx) => (
-                        <option key={idx} value={option}>
-                          {option}
-                        </option>
-                      ))}
-                    </Form.Control> */}
                     <select className='form-control' style={{ width: '200px' }} name="" id="">
                       <option value="">Accounts_Officer</option>
                       <option value="">Accounts_Officer[HO]</option>
@@ -849,7 +1023,7 @@ const App: React.FC = () => {
                   <Form.Group>
                     <Form.Label className='mt-2'>Options</Form.Label>
                     {editField.options?.map((option, index) => (
-                      <div key={index} className="d-flex mb-2 row align-items-center">
+                      <div key={option.id} className="d-flex mb-2 row align-items-center">
                         <div className='col-12 d-flex'>
                           <div
                             style={{
@@ -862,7 +1036,7 @@ const App: React.FC = () => {
                             type="text"
                             required
                             className='form-checkbox-success form-check'
-                            value={option.text}
+                            value={option.label}  // Use `label` for the value
                             onChange={(e) => handleTextChange(index, e.target.value)}
                           />
                           <Form.Control
@@ -878,7 +1052,7 @@ const App: React.FC = () => {
                             className="ms-2"
                             onClick={() => {
                               const newOptions = editField.options?.filter((_, i) => i !== index);
-                              setEditField({ ...editField, options: newOptions });
+                              setEditField((prevField) => ({ ...prevField, options: newOptions }));
                             }}
                           >
                             Delete
@@ -890,15 +1064,14 @@ const App: React.FC = () => {
                       variant="primary"
                       size="sm"
                       onClick={() => {
-                        const newOption = { text: 'Options', color: '#000000' };
-                        setEditField({ ...editField, options: [...(editField.options || []), newOption] });
+                        const newOption = { id: `${editField.type}-${(editField.options?.length || 0) + 1}`, label: 'Option', color: '#000000' };
+                        setEditField((prevField) => ({ ...prevField, options: [...(prevField.options || []), newOption] }));
                       }}
                     >
                       Add Option
                     </Button>
                   </Form.Group>
                 )}
-
 
                 {editField.type === 'radio' && (
                   <Form.Group>
@@ -918,6 +1091,7 @@ const App: React.FC = () => {
                     ))}
                   </Form.Group>
                 )}
+
                 {editField.type === 'status' && (
                   <Form.Group>
                     <Form.Label>Status</Form.Label>
@@ -928,6 +1102,7 @@ const App: React.FC = () => {
                     />
                   </Form.Group>
                 )}
+
                 {editField.type === 'date' && (
                   <Form.Group>
                     <Form.Label>Date</Form.Label>
@@ -945,6 +1120,7 @@ const App: React.FC = () => {
                     />
                   </Form.Group>
                 )}
+
                 {editField.type === 'successorTask' && (
                   <Form.Group>
                     <Form.Label>Successor Task ID</Form.Label>
@@ -955,8 +1131,19 @@ const App: React.FC = () => {
                     />
                   </Form.Group>
                 )}
+
+                {/* New Form.Group for 'Required' Checkbox */}
+                <Form.Group>
+                  <Form.Check
+                    type="switch"
+                    label="Required"
+                    checked={editField.required || false}
+                    onChange={(e) => setEditField({ ...editField, required: e.target.checked })}
+                  />
+                </Form.Group>
               </Form>
             )}
+
           </Modal.Body>
           <Modal.Footer>
             <Button variant="secondary" onClick={() => setIsModalOpen(false)}>
@@ -1033,7 +1220,7 @@ const App: React.FC = () => {
 
           {savedTasks.map((task, taskIndex) => (
             <div className='col-md-6 col-sm-12'>
-              <Card key={taskIndex} className="mb-4 row m-1 timeliner" style={{boxShadow : 'rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px' }}>
+              <Card key={taskIndex} className="mb-4 row m-1 timeliner" style={{ boxShadow: 'rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px' }}>
                 <Card.Header>
                   <div className="d-flex justify-content-between align-items-center">
                     <span>ACC.01.T{taskIndex + 1}.{ }</span>

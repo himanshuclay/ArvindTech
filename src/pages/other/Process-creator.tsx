@@ -486,7 +486,7 @@ const ProcessForm: React.FC = () => {
 								</>
 							)} */}
 							<div className="form-group col-lg-6 col-md-6 col-sm-12 p-2">
-								<label htmlFor="periodDate">Period Date</label>
+								<label htmlFor="periodDate">Start Date</label>
 								<Flatpickr
 									className="form-control"
 									options={{ enableTime: true, noCalendar: false, dateFormat: 'Y-m-d H:i' }}
