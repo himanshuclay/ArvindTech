@@ -766,17 +766,17 @@ const MENU_SWITCH_ITEMS: MenuItemTypes[] = [
 		},
 	},
 
-	{
-		key: 'DoerMaster',
-		label: 'Doer Master',
-		url: '/pages/DoerMaster',
-		icon: 'ri-brain-line',
-		parentKey: 'pages',
-	},
+	// {
+	// 	key: 'DoerMaster',
+	// 	label: 'Doer Master',
+	// 	url: '/pages/DoerMaster',
+	// 	icon: 'ri-brain-line',
+	// 	parentKey: 'pages',
+	// },
 	{
 		key: 'Modules-List',
-		label: 'Modules',
-		url: '/pages/Module-list',
+		label: 'Notification',
+		url: '/pages/Notification',
 		icon: 'ri-file-settings-line',
 		parentKey: 'pages',
 	},

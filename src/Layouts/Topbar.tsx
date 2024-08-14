@@ -7,6 +7,7 @@ import logo from '@/assets/images/logo.png'
 import logoSm from '@/assets/images/logo-sm.png'
 import logoDark from '@/assets/images/logo-dark.png'
 import profilePic from '@/assets/images/users/avatar-1.jpg'
+import profilePicUser from '@/assets/images/users/avatar-11.jpg'
 import avatar1 from '@/assets/images/users/avatar-1.jpg'
 import avatar2 from '@/assets/images/users/avatar-2.jpg'
 import avatar3 from '@/assets/images/users/avatar-3.jpg'
@@ -370,10 +371,10 @@ const Topbar = ({ toggleMenu, navOpen }: TopbarProps) => {
 
 
 							{
-								(currentUrl === 'http://localhost:3000/pages/MyTask') || (currentUrl === 'http://localhost:3000/pages/Module-list') ? <ProfileDropdown
+								(currentUrl === 'http://localhost:3000/pages/MyTask') || (currentUrl === 'http://localhost:3000/pages/Notification') ? <ProfileDropdown
 									menuItems={userProfileMenus}
-									userImage={profilePic}
-									username="Dhwan"
+									userImage={profilePicUser}
+									username="User"
 								/> : <ProfileDropdown
 									menuItems={adminProfileMenus}
 									userImage={profilePic}

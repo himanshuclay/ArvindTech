@@ -183,4 +183,8 @@
     font-weight: 600!important;
     font-size: 12px;
   }
+  .my-task .form-group:nth-child(1) input, .my-task .form-group:nth-child(2) input, .my-task .form-group:nth-child(3) input
+  {
+     display: none!important;
+  }
 

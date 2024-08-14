@@ -212,6 +212,7 @@ const customPagesRoutes = {
 			element: <MyTask />,
 			route: PrivateRoute,
 		},
+	
 		// {
 		// 	path: '/pages/Modules-Master',
 		// 	name: 'Modules Master',

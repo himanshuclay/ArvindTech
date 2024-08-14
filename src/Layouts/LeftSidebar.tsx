@@ -2,7 +2,8 @@ import { Link } from 'react-router-dom'
 
 //images
 import logo from '@/assets/images/logo.png'
-import logoDark from '@/assets/images/logo-dark.png'
+// import logoDark from '@/assets/images/logo-dark.png'
+import logoDark from '@/assets/images/logonew.png'
 import logoSm from '@/assets/images/logo-sm.png'
 import { getMenuItems, getSwitchMenuItems } from '@/common'
 import AppMenu from './Menu'
@@ -60,7 +61,7 @@ const LeftSidebar = () => {
 
 
 					{
-						 ( currentUrl === 'http://localhost:3000/pages/Module-list') || ( currentUrl === 'http://localhost:3000/pages/MyTask') ? <SideBaruserContent /> : <SideBaradminContent />
+						 ( currentUrl === 'http://localhost:3000/pages/Notification') || ( currentUrl === 'http://localhost:3000/pages/MyTask') ? <SideBaruserContent /> : <SideBaradminContent />
 					}
 
 
