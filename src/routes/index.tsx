@@ -38,7 +38,7 @@ const ProcessMaster = React.lazy(() => import('../pages/other/ProcessMaster.tsx'
 const TaskMaster = React.lazy(() => import('../pages/other/TaskMaster.tsx'))
 const DoerMaster = React.lazy(() => import('../pages/other/DoerMaster.tsx'))
 const FormMaster = React.lazy(() => import('../pages/other/FormMaster.tsx'))
-const LnMaster = React.lazy(() => import('../pages/other/LnMaster.tsx'))
+const MyTask = React.lazy(() => import('../pages/other/MyTask.tsx'))
 const ChkLnMaster = React.lazy(() => import('../pages/other/ChkLnMaster.tsx'))
 const TicketMaster = React.lazy(() => import('../pages/other/TicketMaster.tsx'))
 const SystemLogs = React.lazy(() => import('../pages/other/SystemLogs.tsx'))
@@ -288,9 +288,9 @@ const customPagesRoutes = {
 			route: PrivateRoute,
 		},
 		{
-			path: '/pages/LnMaster',
-			name: 'LN Master',
-			element: <LnMaster />,
+			path: '/pages/MyTask',
+			name: 'MyTask',
+			element: <MyTask />,
 			route: PrivateRoute,
 		},
 		{

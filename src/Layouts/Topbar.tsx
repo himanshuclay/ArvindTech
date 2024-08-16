@@ -5,8 +5,8 @@ import { Link } from 'react-router-dom'
 // assets
 import logo from '@/assets/images/logo.png'
 import logoSm from '@/assets/images/logo-sm.png'
-import logoDark from '@/assets/images/logo-dark.png'
-import profilePic from '@/assets/images/users/avatar-1.jpg'
+import logoDark from '@/assets/images/logonew.png'
+import profilePic from '@/assets/images/avatar.png'
 import avatar1 from '@/assets/images/users/avatar-1.jpg'
 import avatar2 from '@/assets/images/users/avatar-2.jpg'
 import avatar3 from '@/assets/images/users/avatar-3.jpg'
@@ -329,7 +329,7 @@ const Topbar = ({ toggleMenu, navOpen }: TopbarProps) => {
 							<ProfileDropdown
 								menuItems={profileMenus}
 								userImage={profilePic}
-								username="Shikhar"
+								username="Admin"
 							/>
 						</li>
 					</ul>

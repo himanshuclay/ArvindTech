@@ -8,7 +8,7 @@ import { PageBreadcrumb } from '@/components'
 //images
 import authImg from '@/assets/images/auth-img.jpg'
 import logo from '@/assets/images/logo.png'
-import logoDark from '@/assets/images/logo-dark.png'
+import logoDark from '@/assets/images/logonew.png'
 import errorImg from '@/assets/images/svg/500.svg'
 
 const Error500 = () => {

@@ -359,30 +359,33 @@ const App: React.FC = () => {
 
 
   const handleSaveTask = async () => {
-    const formId = 'ACC.01.T1';  // Replace with actual processId
-    const formName = formData.taskName;
-
+    const moduleID = "your_module_id"; // Replace with actual module ID
+    const moduleName = "your_module_name"; // Replace with actual module name
+    const processID = "your_process_id"; // Replace with actual process ID
+    const processName = formData.taskName;
+    const startDate = new Date().toISOString(); // Capture current date/time or replace with your actual start date
+    
     // Transform taskFields into the desired JSON structure
     const transformedFields = taskFields.map((field, index) => {
       // Generate a unique inputId for the field
       const inputId = `${index + 1}`;
-
+  
       // Map options to include unique ids
       const options = field.options?.map((option, optIndex) => ({
         id: `${inputId}-${optIndex + 1}`, // Unique ID for each option
         label: option.label || option, // Use option label or the string itself if it's a simple option
       })) || [];
-
+  
       // Create a string that contains inputId and all options ids
       const selectedValue = editField?.options || "";
-
+  
       // Create a string that contains inputId, all options ids, and the selected value
       const conditionalFieldId = [
         inputId,
         ...options.map(option => option.id),
         selectedValue // Include selectedValue in the IDs
       ].join(",");
-
+  
       return {
         inputId,
         type: field.type,
@@ -395,27 +398,32 @@ const App: React.FC = () => {
         value: field.value || "",
       };
     });
-
+  
     // Create the final JSON object
     const formJSON = {
-      formId,
-      formName,
+      formId: processID,  // Use processID as formId
+      formName: processName,
       inputs: transformedFields,
     };
-
+  
     // Prepare the payload to be sent to the API
     const payload = {
-      id: 2, // Ensure this matches the expected input by the API
-      task1_Json: JSON.stringify(formJSON), // Correctly stringify formJSON
-      updatedBy: "HimanshuPant", // Replace with actual username or dynamic value
+      id: 2, // Assuming you want to use "0" as per the API's example
+      moduleID,
+      moduleName,
+      processID,
+      processName,
+      startDate,
+      task_Json: JSON.stringify(formJSON),
+      createdBy: "HimanshuPant", // Replace with actual username or dynamic value
     };
-
+  
     // Print the payload to the console
     console.log('Payload:', payload);
-
+  
     // Post the formJSON to the server
     try {
-      const response = await fetch('https://localhost:7235/api/MessWeeklyPayments/UpdateAccWeeklyTask1', {
+      const response = await fetch('https://localhost:7235/api/MessWeeklyPayments/InsertAccountWeeklyTask', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -423,15 +431,15 @@ const App: React.FC = () => {
         },
         body: JSON.stringify(payload),
       });
-
+  
       if (response.ok) {
         const data = await response.json();
         console.log('Task saved successfully:', data);
-
+  
         // Update the saved tasks with the new form JSON
         const updatedTasks = [...savedTasks, formJSON];
         setSavedTasks(updatedTasks);
-
+  
         // Reset the task fields and close the modal
         setTaskFields([]);
         setIsModalOpen(false);
@@ -443,6 +451,8 @@ const App: React.FC = () => {
       console.error('Error saving task:', error);
     }
   };
+  
+  
 
 
 

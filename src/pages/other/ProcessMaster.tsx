@@ -405,6 +405,7 @@ const ProcessMaster: React.FC = () => {
                             <td>{proc.processOwnerName}</td>
                             <td>
                                 <i className='btn ri-edit-line' onClick={() => handleEdit(index)}></i>
+                                <a href="http://localhost:3000/pages/Modules-Master"><i className='btn ri-eye-line' title='View Task' ></i></a>
                             </td>
                         </tr>
                     ))}

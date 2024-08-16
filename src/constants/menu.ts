@@ -68,13 +68,13 @@ const MENU_ITEMS: MenuItemTypes[] = [
 	// 	icon: 'ri-file-settings-line',
 	// 	parentKey: 'pages',
 	// },
-	{
-		key: 'Modules-List',
-		label: 'Modules',
-		url: '/pages/Module-list',
-		icon: 'ri-file-settings-line',
-		parentKey: 'pages',
-	},
+	// {
+	// 	key: 'Modules-List',
+	// 	label: 'Modules',
+	// 	url: '/pages/Module-list',
+	// 	icon: 'ri-file-settings-line',
+	// 	parentKey: 'pages',
+	// },
 
 	{
 		key: 'Notification',
@@ -84,13 +84,13 @@ const MENU_ITEMS: MenuItemTypes[] = [
 		parentKey: 'pages',
 	},
 
-	{
-		key: 'Accounts',
-		label: 'Notification',
-		url: '/pages/Notification',
-		icon: 'ri-notification-3-line',
-		parentKey: 'pages',
-	},
+	// {
+	// 	key: 'Accounts',
+	// 	label: 'Notification',
+	// 	url: '/pages/Notification',
+	// 	icon: 'ri-notification-3-line',
+	// 	parentKey: 'pages',
+	// },
 
 
 
@@ -163,8 +163,8 @@ const MENU_ITEMS: MenuItemTypes[] = [
 			},
 			{
 				key: 'LnMaster',
-				label: 'LN Master',
-				url: '/pages/LnMaster',
+				label: 'My Task',
+				url: '/pages/MyTask',
 				icon: 'ri-user-settings-line',
 				parentKey: 'pages',
 			},
