@@ -207,10 +207,14 @@ const App: React.FC = () => {
   const [formData, setFormData] = useState({
     taskName: '',
     ModuleName: '',
+    ModuleId: '',
     projectName: '',
-    processes: '',
+    processName: '',
+    processID: '',
     Date: '',
+    processOptions: [], // Add processOptions to store the list of processes
   });
+
 
 
   const [conditionalField, setConditionalField] = useState(false);
@@ -261,14 +265,6 @@ const App: React.FC = () => {
   };
 
 
-  const handleFormChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
-
   const handleFormSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
@@ -277,7 +273,7 @@ const App: React.FC = () => {
       { inputId: '99', type: 'text', labeltext: `Task Name - ${formData.taskName}` },
       { inputId: '100', type: 'text', labeltext: `Module Name - ${formData.ModuleName}` },
       // { id: '101', type: 'text', labeltext: `Project Name - ${formData.projectName}` },
-      { inputId: '102', type: 'text', labeltext: `Process - ${formData.processes}` },
+      { inputId: '102', type: 'text', labeltext: `Process - ${formData.processName}` },
       // { id: '103', type: 'date', labeltext: `Date&Time - ${formData.Date}` },
     ];
 
@@ -357,60 +353,140 @@ const App: React.FC = () => {
     setVisibility(prev => ({ ...prev, [taskIndex]: !prev[taskIndex] }));
   };
 
+  interface Module {
+    id: number;
+    moduleID: string;
+    moduleName: string;
+  }
+
+  const [modules, setModules] = useState<Module[]>([]);
+  const [selectedModule, setSelectedModule] = useState<Module | null>(null);
+
+  useEffect(() => {
+    const fetchModules = async () => {
+      try {
+        const response = await axios.get('https://localhost:44306/api/CommonDropdown/GetModuleList');
+        if (response.data.isSuccess) {
+          setModules(response.data.moduleNameListResponses);
+        } else {
+          console.error('Error fetching modules:', response.data.message);
+        }
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+    };
+
+    fetchModules();
+  }, []);
+
+  const handleFormChange = async (event: React.ChangeEvent<HTMLSelectElement>) => {
+    const { name, value } = event.target;
+
+    // Update form data
+    setFormData((prevData) => ({
+      ...prevData,
+      [name]: value,
+    }));
+
+    // If the ModuleName is selected, fetch related processes
+    if (name === 'ModuleName') {
+      const selectedModule = modules.find((module) => module.moduleName === value);
+
+      if (selectedModule) {
+        setSelectedModule(selectedModule);
+        localStorage.setItem('selectedModuleId', selectedModule.moduleID); // Save selectedModuleId to localStorage
+        localStorage.setItem('selectedModuleName', selectedModule.moduleName); // Save selectedModuleName to localStorage
+
+        try {
+          const response = await fetch(`https://localhost:44306/api/CommonDropdown/GetProcessNameByModuleName?ModuleName=${value}`);
+          const data = await response.json();
+          if (data.isSuccess) {
+            setFormData((prevData) => ({
+              ...prevData,
+              ModuleId: selectedModule.moduleID,
+              processOptions: data.processListResponses, // Save process options to state
+            }));
+          } else {
+            console.error('Error fetching processes:', data.message);
+          }
+        } catch (error) {
+          console.error('Error fetching data:', error);
+        }
+      } else {
+        setSelectedModule(null);
+        localStorage.removeItem('selectedModuleId');
+        localStorage.removeItem('selectedModuleName');
+        console.error('No module selected');
+      }
+    }
+
+    // Handle process selection
+    if (name === 'processes') {
+      const selectedProcess = formData.processOptions.find((process) => process.processName === value);
+      if (selectedProcess) {
+        setFormData((prevData) => ({
+          ...prevData,
+          processName: selectedProcess.processName,
+          processID: selectedProcess.processID,
+        }));
+      }
+    }
+  };
+
+
+
+
 
   const handleSaveTask = async () => {
-    const moduleID = "your_module_id"; // Replace with actual module ID
-    const moduleName = "your_module_name"; // Replace with actual module name
-    const processID = "your_process_id"; // Replace with actual process ID
-    const processName = formData.taskName;
-    const startDate = new Date().toISOString(); // Capture current date/time or replace with your actual start date
-    
-    // Transform taskFields into the desired JSON structure
+    // Retrieve processID and processName from formData
+    const { processID, processName } = formData;
+  
+    // Ensure selectedModule and processID are available
+    if (!selectedModule || !processID || !processName) {
+      console.error('Module or process information is missing');
+      return;
+    }
+  
+    const startDate = new Date().toISOString();
+  
+    // Create the final JSON object for the form
     const transformedFields = taskFields.map((field, index) => {
-      // Generate a unique inputId for the field
       const inputId = `${index + 1}`;
-  
-      // Map options to include unique ids
       const options = field.options?.map((option, optIndex) => ({
-        id: `${inputId}-${optIndex + 1}`, // Unique ID for each option
-        label: option.label || option, // Use option label or the string itself if it's a simple option
+        id: `${inputId}-${optIndex + 1}`,
+        label: option.label || option,
       })) || [];
-  
-      // Create a string that contains inputId and all options ids
       const selectedValue = editField?.options || "";
   
-      // Create a string that contains inputId, all options ids, and the selected value
       const conditionalFieldId = [
         inputId,
         ...options.map(option => option.id),
-        selectedValue // Include selectedValue in the IDs
+        selectedValue
       ].join(",");
   
       return {
         inputId,
         type: field.type,
-        label: field.labeltext,
+        label: field.labeltext || "Default Label",
         placeholder: field.placeholder || "",
         options,
         required: field.required || false,
         conditionalField: field.conditionalField || "",
-        conditionalFieldId, // Set to the concatenated string of IDs
+        conditionalFieldId,
         value: field.value || "",
       };
     });
   
-    // Create the final JSON object
     const formJSON = {
-      formId: processID,  // Use processID as formId
+      formId: processID,
       formName: processName,
       inputs: transformedFields,
     };
   
-    // Prepare the payload to be sent to the API
     const payload = {
-      id: 2, // Assuming you want to use "0" as per the API's example
-      moduleID,
-      moduleName,
+      id: 0, // Assuming 0 is correct; adjust as needed
+      moduleID: selectedModule.moduleID,
+      moduleName: selectedModule.moduleName,
       processID,
       processName,
       startDate,
@@ -418,12 +494,10 @@ const App: React.FC = () => {
       createdBy: "HimanshuPant", // Replace with actual username or dynamic value
     };
   
-    // Print the payload to the console
     console.log('Payload:', payload);
   
-    // Post the formJSON to the server
     try {
-      const response = await fetch('https://localhost:7235/api/MessWeeklyPayments/InsertAccountWeeklyTask', {
+      const response = await fetch('https://localhost:7235/api/AccountModule/InsertAccountWeeklyTask', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -436,13 +510,19 @@ const App: React.FC = () => {
         const data = await response.json();
         console.log('Task saved successfully:', data);
   
-        // Update the saved tasks with the new form JSON
+        // Update saved tasks and reset form fields except processID and processName
         const updatedTasks = [...savedTasks, formJSON];
         setSavedTasks(updatedTasks);
+        setTaskFields([]); // Clear the task fields
+        setIsModalOpen(false); // Close modal
   
-        // Reset the task fields and close the modal
-        setTaskFields([]);
-        setIsModalOpen(false);
+        // Optionally reset other form fields, but keep processID and processName
+        setFormData((prevData) => ({
+          ...prevData,
+          taskName: '', // Reset taskName or other fields if needed
+          Date: '', // Reset Date or other fields if needed
+          // Do not reset processID or processName
+        }));
       } else {
         const errorData = await response.json();
         console.error('Error saving task:', errorData);
@@ -452,7 +532,10 @@ const App: React.FC = () => {
     }
   };
   
-  
+
+
+
+
 
 
 
@@ -547,6 +630,7 @@ const App: React.FC = () => {
       )
     );
   };
+
 
   const renderFormField = (field: FormField) => {
     switch (field.type) {
@@ -773,24 +857,7 @@ const App: React.FC = () => {
         <DragDropContext onDragEnd={handleDragEnd}>
           <div className='row m-0'>
             <Form className='row col-md-12 p-2 bg-white rounded align-items-end m-0' onSubmit={handleFormSubmit}>
-              {/* <Form.Group className='col-4 my-1'>
-                <Form.Label>Select Project</Form.Label>
-                <Form.Control
-                  as="select"
-                  name="projectName"
-                  value={formData.projectName}
-                  onChange={handleFormChange}
-                  required
-                >
-                  <option value="">Select Project</option>
-                  {['Godhara Bridge(M.P)', 'Kaveri Side Road(U.P)', 'Nagina Dam(UK)', 'Credit and Debit balance resolution', 'Bill Processing at HO'].map((option, index) => (
-                    <option key={index} value={option}>
-                      {option}
-                    </option>
-                  ))}
-                </Form.Control>
-              </Form.Group> */}
-              <Form.Group className='col-md-3 my-1'>
+              <Form.Group className="col-md-3 my-1">
                 <Form.Label>Module Name</Form.Label>
                 <Form.Control
                   as="select"
@@ -800,30 +867,33 @@ const App: React.FC = () => {
                   required
                 >
                   <option value="">Select Modules</option>
-                  {['Accounts', 'Procurement', 'Business Development', 'Finance', 'Mobilization'].map((option, index) => (
-                    <option key={index} value={option}>
-                      {option}
+                  {modules.map((module) => (
+                    <option key={module.moduleID} value={module.moduleName}>
+                      {module.moduleName}
                     </option>
                   ))}
                 </Form.Control>
               </Form.Group>
-              <Form.Group className='col-md-3 my-1'>
+
+              <Form.Group className="col-md-3 my-1">
                 <Form.Label>Process Name</Form.Label>
                 <Form.Control
                   as="select"
                   name="processes"
-                  value={formData.processes}
+                  value={formData.processName}
                   onChange={handleFormChange}
                   required
                 >
-                  <option value="">Process</option>
-                  {['Mess Weekly Payments', 'Mess Monthly Reconciliation', 'Petty Cash Management', 'Credit and Debit balance resolution', 'Bill Processing at HO'].map((option, index) => (
-                    <option key={index} value={option}>
-                      {option}
+                  <option value="">Select Process</option>
+                  {formData.processOptions?.map((process) => (
+                    <option key={process.processID} value={process.processName}>
+                      {process.processName}
                     </option>
                   ))}
                 </Form.Control>
               </Form.Group>
+
+
               <Form.Group className='col-md-3 my-1'>
                 <Form.Label>Start Date</Form.Label>
                 <CustomFlatpickr

@@ -184,3 +184,7 @@
     font-size: 12px;
   }
 
+.my-task .form-group:nth-child(1), .my-task .form-group:nth-child(2), .my-task .form-group:nth-child(3)
+{
+  display: none!important;
+}

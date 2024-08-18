@@ -205,7 +205,7 @@ const TaskFormPage = () => {
 
     const jsonData = async () => {
         try {
-            const response = await axios.get('https://localhost:7235/api/MessWeeklyPayments/GetAllAccWeeklyTask', {
+            const response = await axios.get('https://localhost:7235/api/AccountModule/GetAllAccountTaskByIds?ModuleId=ACC&ProcessId=ACC.03', {
                 params: { id: 3 }
             });
             if (response.data.isSuccess) {
@@ -231,7 +231,7 @@ const TaskFormPage = () => {
 
     return (
         <div style={{ padding: '2rem' }}>
-            <p className='bg-white p-2 mb-3 text-primary fs-4'><i className="ri-list-check-3"></i> My Task</p>
+            <p className='bg-white p-2 mb-3 text-primary fs-4'><i className="ri-list-check-3"></i> Task List</p>
             {loading ? (
                 <div className='loader-container'>
                     <div className="loader"></div>
