@@ -93,7 +93,7 @@ const ProjectsPage: React.FC = () => {
 
     const handleShow = () => setShow(true);
 
-    const handleChange = (e: ChangeEvent<HTMLInputElement> | ChangeEvent<HTMLSelectElement>) => {
+    const handleChange = (e: ChangeEvent<any>) => {
         const { name, value, type, checked } = e.target as HTMLInputElement | HTMLSelectElement;
         if (type === 'checkbox') {
             setProject({

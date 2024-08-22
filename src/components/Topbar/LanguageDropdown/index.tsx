@@ -1,49 +1,49 @@
-import { useState } from 'react'
+// import { useState } from 'react'
 
 // assets
-import enFlag from './flags/us.jpg'
-import germanyFlag from './flags/germany.jpg'
-import italyFlag from './flags/italy.jpg'
-import spainFlag from './flags/spain.jpg'
-import russiaFlag from './flags/russia.jpg'
-import { Dropdown } from 'react-bootstrap'
-import { Link } from 'react-router-dom'
+// import enFlag from './flags/us.jpg'
+// import germanyFlag from './flags/germany.jpg'
+// import italyFlag from './flags/italy.jpg'
+// import spainFlag from './flags/spain.jpg'
+// import russiaFlag from './flags/russia.jpg'
+// import { Dropdown } from 'react-bootstrap'
+// import { Link } from 'react-router-dom'
 
 // get the languages and flags
-const Languages = [
-	{
-		name: 'English',
-		flag: enFlag,
-	},
-	{
-		name: 'German',
-		flag: germanyFlag,
-	},
-	{
-		name: 'Italian',
-		flag: italyFlag,
-	},
-	{
-		name: 'Spanish',
-		flag: spainFlag,
-	},
-	{
-		name: 'Russian',
-		flag: russiaFlag,
-	},
-]
+// const Languages = [
+// 	{
+// 		name: 'English',
+// 		flag: enFlag,
+// 	},
+// 	{
+// 		name: 'German',
+// 		flag: germanyFlag,
+// 	},
+// 	{
+// 		name: 'Italian',
+// 		flag: italyFlag,
+// 	},
+// 	{
+// 		name: 'Spanish',
+// 		flag: spainFlag,
+// 	},
+// 	{
+// 		name: 'Russian',
+// 		flag: russiaFlag,
+// 	},
+// ]
 
 const LanguageDropdown = () => {
-	const enLang = Languages[0] || {}
-	const [dropDownOpen, setDropDownOpen] = useState<boolean>(false)
+	// const enLang = Languages[0] || {}
+	// const [dropDownOpen, setDropDownOpen] = useState<boolean>(false)
 
 	/**
 	 * toggle language dropdown
 	 */
 
-	const toggleDropDown = () => {
-		setDropDownOpen(!dropDownOpen)
-	}
+	// const toggleDropDown = () => {
+	// 	setDropDownOpen(!dropDownOpen)
+	// }
 
 	return (
 		<>

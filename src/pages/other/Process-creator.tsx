@@ -136,10 +136,8 @@ const ProcessForm: React.FC = () => {
 		e.preventDefault();
 
 		try {
-			const createdAt = new Date().toISOString();
 			const newProcess: ProcessFormState = {
 				...formState,
-				createdAt,
 				tasks: [] // Initialize an empty tasks array for the new process
 			};
 

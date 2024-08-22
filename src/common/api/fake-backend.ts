@@ -28,6 +28,16 @@ const users: User[] = [
 		role: 'Admin',
 		token: TOKEN,
 	},
+	{
+		id: 2,
+		email: 'userone.com',
+		username: 'Doer',
+		password: 'Admin',
+		firstName: 'Admin',
+		lastName: 'one',
+		role: 'User',
+		token: TOKEN,
+	},
 ]
 
 export default function configureFakeBackend() {

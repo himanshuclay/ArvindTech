@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { ChangeEvent, useState, useEffect } from 'react';
 import {
   DragDropContext,
   Droppable,
@@ -7,7 +7,7 @@ import {
   DraggableProvided,
   DroppableProvided,
 } from 'react-beautiful-dnd';
-import { Button, Form, Modal, ListGroup, Card, FormGroup, Toast } from 'react-bootstrap';
+import { Button, Form, Modal, ListGroup, Card, Toast } from 'react-bootstrap';
 import axios from 'axios';
 import Select from 'react-select'
 import CustomFlatpickr from '@/components/CustomFlatpickr';
@@ -141,31 +141,9 @@ type TransformedField = {
 
 
 interface Option {
-  text: string;
+  // text: string;
   color: string;
 }
-
-
-
-
-type APIError = {
-  type: string;
-  title: string;
-  status: number;
-  errors: {
-    [key: string]: string[];
-  };
-  traceId: string;
-};
-
-const saveTasksToServer = (tasks: any[]) => {
-  try {
-    localStorage.setItem('tasks', JSON.stringify(tasks));
-    console.log('Tasks saved to local storage successfully.');
-  } catch (error) {
-    console.error('Error saving tasks to local storage:', error);
-  }
-};
 
 const fetchTasksFromServer = (): any[] => {
   try {
@@ -189,9 +167,10 @@ interface EmployeeName {
 
 
 
-
+type ChangeEventHandler = (event: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>) => void;
 
 const App: React.FC = () => {
+  const [loading, setLoading] = useState(false); // Add loading state
   const [inventory, setInventory] = useState<FormField[]>(initialInventory);
   const [taskFields, setTaskFields] = useState<FormField[]>([]);
   const [savedTasks, setSavedTasks] = useState<FormField[][]>([]);
@@ -224,18 +203,14 @@ const App: React.FC = () => {
     setConditionalField(event.target.checked);
   };
 
+  const handleSelectChange =  (e: ChangeEvent<any>) => {
+    const selectedIndex = e.target.selectedIndex;
+    const selectedOption = e.target.options[selectedIndex];
 
-  const [options, setOptions] = useState<Option[]>([
-    { text: 'Red Option', color: '#FF0000' },
-    { text: 'Green Option', color: '#00FF00' },
-    { text: 'Blue Option', color: '#0000FF' },
-  ]);
-
-  const handleSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const selectedOption = e.target.options[e.target.selectedIndex];
-    const color = selectedOption.getAttribute('data-color');
-    const label = selectedOption.textContent; // Fetch the label/text of the selected option
-    const value = selectedOption.value; // This is the id of the option
+    // Safely fetch attributes and values
+    const color = selectedOption.getAttribute('data-color') || 'defaultColor'; // Provide a default if color is not available
+    const label = selectedOption.textContent || ''; // Provide a default empty string if textContent is null
+    const value = selectedOption.value; // This should be the id of the option
 
     console.log(`Selected Label: ${label}, ID: ${value}, Color: ${color}`);
     setConditionalFieldId(value);
@@ -270,10 +245,10 @@ const App: React.FC = () => {
 
     // Save form data
     const newTaskFields: FormField[] = [
-      { inputId: '99', type: 'text', labeltext: `Task Name - ${formData.taskName}` },
-      { inputId: '100', type: 'text', labeltext: `Module Name - ${formData.ModuleName}` },
+      { inputId: '99', type: 'text', labeltext: `${formData.taskName}` },
+      { inputId: '100', type: 'text', labeltext: `${formData.ModuleName}` },
       // { id: '101', type: 'text', labeltext: `Project Name - ${formData.projectName}` },
-      { inputId: '102', type: 'text', labeltext: `Process - ${formData.processName}` },
+      { inputId: '102', type: 'text', labeltext: `${formData.processName}` },
       // { id: '103', type: 'date', labeltext: `Date&Time - ${formData.Date}` },
     ];
 
@@ -307,7 +282,7 @@ const App: React.FC = () => {
   }, []);
 
 
-  const handleDragEnd = (result: DropResult) => {
+  const handleDragEnd = (result: any) => {
     if (!result.destination) return;
 
     const { source, destination } = result;
@@ -379,8 +354,8 @@ const App: React.FC = () => {
     fetchModules();
   }, []);
 
-  const handleFormChange = async (event: React.ChangeEvent<HTMLSelectElement>) => {
-    const { name, value } = event.target;
+  const handleFormChange= (e: ChangeEvent<any>) => {
+    const { name, value } = e.target as HTMLSelectElement | HTMLInputElement;
 
     // Update form data
     setFormData((prevData) => ({
@@ -397,21 +372,22 @@ const App: React.FC = () => {
         localStorage.setItem('selectedModuleId', selectedModule.moduleID); // Save selectedModuleId to localStorage
         localStorage.setItem('selectedModuleName', selectedModule.moduleName); // Save selectedModuleName to localStorage
 
-        try {
-          const response = await fetch(`https://localhost:44306/api/CommonDropdown/GetProcessNameByModuleName?ModuleName=${value}`);
-          const data = await response.json();
-          if (data.isSuccess) {
-            setFormData((prevData) => ({
-              ...prevData,
-              ModuleId: selectedModule.moduleID,
-              processOptions: data.processListResponses, // Save process options to state
-            }));
-          } else {
-            console.error('Error fetching processes:', data.message);
-          }
-        } catch (error) {
-          console.error('Error fetching data:', error);
-        }
+        fetch(`https://localhost:44306/api/CommonDropdown/GetProcessNameByModuleName?ModuleName=${value}`)
+          .then((response) => response.json())
+          .then((data) => {
+            if (data.isSuccess) {
+              setFormData((prevData) => ({
+                ...prevData,
+                ModuleId: selectedModule.moduleID,
+                processOptions: data.processListResponses, // Save process options to state
+              }));
+            } else {
+              console.error('Error fetching processes:', data.message);
+            }
+          })
+          .catch((error) => {
+            console.error('Error fetching data:', error);
+          });
       } else {
         setSelectedModule(null);
         localStorage.removeItem('selectedModuleId');
@@ -437,101 +413,109 @@ const App: React.FC = () => {
 
 
 
+
   const handleSaveTask = async () => {
     // Retrieve processID and processName from formData
     const { processID, processName } = formData;
   
     // Ensure selectedModule and processID are available
     if (!selectedModule || !processID || !processName) {
-      console.error('Module or process information is missing');
-      return;
+        console.error('Module or process information is missing');
+        return;
     }
   
     const startDate = new Date().toISOString();
   
     // Create the final JSON object for the form
     const transformedFields = taskFields.map((field, index) => {
-      const inputId = `${index + 1}`;
-      const options = field.options?.map((option, optIndex) => ({
-        id: `${inputId}-${optIndex + 1}`,
-        label: option.label || option,
-      })) || [];
-      const selectedValue = editField?.options || "";
+        const inputId = `${index + 1}`;
+        const options = field.options?.map((option, optIndex) => ({
+            id: `${inputId}-${optIndex + 1}`,
+            label: option.label || option,
+        })) || [];
+        const selectedValue = editField?.options || "";
   
-      const conditionalFieldId = [
-        inputId,
-        ...options.map(option => option.id),
-        selectedValue
-      ].join(",");
+        const conditionalFieldId = [
+            inputId,
+            ...options.map(option => option.id),
+            selectedValue
+        ].join(",");
   
-      return {
-        inputId,
-        type: field.type,
-        label: field.labeltext || "Default Label",
-        placeholder: field.placeholder || "",
-        options,
-        required: field.required || false,
-        conditionalField: field.conditionalField || "",
-        conditionalFieldId,
-        value: field.value || "",
-      };
+        return {
+            inputId,
+            type: field.type,
+            label: field.labeltext || "Default Label",
+            placeholder: field.placeholder || "",
+            options,
+            required: field.required || false,
+            conditionalField: field.conditionalField || "",
+            conditionalFieldId,
+            value: field.value || "",
+        };
     });
   
     const formJSON = {
-      formId: processID,
-      formName: processName,
-      inputs: transformedFields,
+        formId: processID,
+        formName: processName,
+        inputs: transformedFields,
     };
   
     const payload = {
-      id: 0, // Assuming 0 is correct; adjust as needed
-      moduleID: selectedModule.moduleID,
-      moduleName: selectedModule.moduleName,
-      processID,
-      processName,
-      startDate,
-      task_Json: JSON.stringify(formJSON),
-      createdBy: "HimanshuPant", // Replace with actual username or dynamic value
+        id: 0, // Assuming 0 is correct; adjust as needed
+        moduleID: selectedModule.moduleID,
+        moduleName: selectedModule.moduleName,
+        processID,
+        processName,
+        startDate,
+        task_Json: JSON.stringify(formJSON),
+        createdBy: "HimanshuPant", // Replace with actual username or dynamic value
     };
   
     console.log('Payload:', payload);
+
+    // Set loading to true before starting the save operation
+    setLoading(true);
   
     try {
-      const response = await fetch('https://localhost:7235/api/AccountModule/InsertAccountWeeklyTask', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'accept': '*/*',
-        },
-        body: JSON.stringify(payload),
-      });
+        const response = await fetch('https://localhost:7235/api/AccountModule/InsertAccountProcessTask', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'accept': '*/*',
+            },
+            body: JSON.stringify(payload),
+        });
   
-      if (response.ok) {
-        const data = await response.json();
-        console.log('Task saved successfully:', data);
+        if (response.ok) {
+            const data = await response.json();
+            console.log('Task saved successfully:', data);
   
-        // Update saved tasks and reset form fields except processID and processName
-        const updatedTasks = [...savedTasks, formJSON];
-        setSavedTasks(updatedTasks);
-        setTaskFields([]); // Clear the task fields
-        setIsModalOpen(false); // Close modal
+            // Update saved tasks and reset form fields except processID and processName
+            const updatedTasks = [...savedTasks, formJSON];
+            setSavedTasks(updatedTasks);
+            setTaskFields([]); // Clear the task fields
+            setIsModalOpen(false); // Close modal
   
-        // Optionally reset other form fields, but keep processID and processName
-        setFormData((prevData) => ({
-          ...prevData,
-          taskName: '', // Reset taskName or other fields if needed
-          Date: '', // Reset Date or other fields if needed
-          // Do not reset processID or processName
-        }));
-      } else {
-        const errorData = await response.json();
-        console.error('Error saving task:', errorData);
-      }
+            // Optionally reset other form fields, but keep processID and processName
+            setFormData((prevData) => ({
+                ...prevData,
+                taskName: '', // Reset taskName or other fields if needed
+                Date: '', // Reset Date or other fields if needed
+                // Do not reset processID or processName
+            }));
+        } else {
+            const errorData = await response.json();
+            console.error('Error saving task:', errorData);
+        }
     } catch (error) {
-      console.error('Error saving task:', error);
+        console.error('Error saving task:', error);
+    } finally {
+        // Set loading to false when the operation completes
+        setLoading(false);
+        setShowToast(true);
     }
-  };
-  
+};
+
 
 
 
@@ -623,73 +607,6 @@ const App: React.FC = () => {
 
   const [taskData, setTaskData] = useState<FormField[]>([]);
 
-  const handleInputChange = (inputId: string, value: string) => {
-    setTaskData((prevData) =>
-      prevData.map((field) =>
-        field.inputId === inputId ? { ...field, value } : field
-      )
-    );
-  };
-
-
-  const renderFormField = (field: FormField) => {
-    switch (field.type) {
-      case 'text':
-        return (
-          <Form.Group key={field.inputId}>
-            <Form.Label>{field.label}</Form.Label>
-            <Form.Control
-              type="text"
-              placeholder={field.placeholder}
-              value={field.value || ''}
-              required={field.required || false}
-              onChange={(e) => handleInputChange(field.inputId, e.target.value)}
-            />
-          </Form.Group>
-        );
-      case 'select':
-        return (
-          <Form.Group key={field.inputId}>
-            <Form.Label>{field.label}</Form.Label>
-            <Form.Control
-              as="select"
-              value={field.value || ''}
-              required={field.required || false}
-              onChange={(e) => handleInputChange(field.inputId, e.target.value)}
-            >
-              <option value="">Select an option</option>
-              {field.options?.map((option) => (
-                <option key={option.id} value={option.id}>
-                  {option.label}
-                </option>
-              ))}
-            </Form.Control>
-          </Form.Group>
-        );
-      case 'CustomSelect':
-        return (
-          <Form.Group key={field.inputId}>
-            <Form.Label>{field.label}</Form.Label>
-            <Form.Control
-              as="select"
-              value={field.value || ''}
-              required={field.required || false}
-              onChange={(e) => handleInputChange(field.inputId, e.target.value)}
-            >
-              <option value="">Select an option</option>
-              {field.options?.map((option) => (
-                <option key={option.id} value={option.id}>
-                  {option.label}
-                </option>
-              ))}
-            </Form.Control>
-          </Form.Group>
-        );
-      default:
-        return null;
-    }
-  };
-
 
   const SuccessToast: React.FC<{ show: boolean; onClose: () => void }> = ({ show, onClose }) => {
     return (
@@ -709,7 +626,7 @@ const App: React.FC = () => {
           <i className="ri-thumb-up-fill text-primary fs-2"></i>
           <div onClick={onClose}></div>
         </Toast.Header>
-        <Toast.Body className='bg-primary text-white fs-4'>Process has been successfully applied for selected projects</Toast.Body>
+        <Toast.Body className='bg-primary text-white fs-4'>Tasks has been saved for {formData.processName}</Toast.Body>
       </Toast>
     );
   };
@@ -719,7 +636,7 @@ const App: React.FC = () => {
   // Utility function to ensure option is an object
   const ensureOptionIsObject = (option: string | Option, index: number): Option => {
     if (typeof option === 'string') {
-      return { text: option, color: colors[index % colors.length] };
+      return { color: colors[index % colors.length] };
     }
     return option;
   };
@@ -997,7 +914,7 @@ const App: React.FC = () => {
               <Form.Control
                 as="select"
                 name="processes"
-                value={formData.processes}
+                value={formData.processOptions}
                 onChange={handleFormChange}
                 required
               >
@@ -1169,17 +1086,6 @@ const App: React.FC = () => {
                         />
                       </div>
                     ))}
-                  </Form.Group>
-                )}
-
-                {editField.type === 'status' && (
-                  <Form.Group>
-                    <Form.Label>Status</Form.Label>
-                    <Form.Control
-                      type="text"
-                      value={editField.status}
-                      onChange={(e) => setEditField({ ...editField, status: e.target.value })}
-                    />
                   </Form.Group>
                 )}
 
@@ -1396,6 +1302,14 @@ const App: React.FC = () => {
           </Button>
         </Modal.Footer>
       </Modal>
+
+      {loading && (
+                <div className="loader-fixed">
+                    <div className="loader"></div>
+                    <div className="mt-2">Please Wait!</div>
+                </div>
+            )
+      };
 
     </div>
   );

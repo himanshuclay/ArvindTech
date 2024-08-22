@@ -17,7 +17,7 @@ import avatar5 from '@/assets/images/users/avatar-5.jpg'
 import {
 	LanguageDropdown,
 	MessageDropdown,
-	NotificationDropdown,
+	// NotificationDropdown,
 	ProfileDropdown,
 	SearchDropDown,
 } from '@/components'
@@ -92,50 +92,50 @@ const Messages: MessageItem[] = [
 /**
  * notification items
  */
-const Notifications: NotificationItem[] = [
-	{
-		id: 1,
-		title: 'Caleb Flakelar commented on Admin',
-		icon: 'mdi mdi-comment-account-outline',
-		variant: 'primary',
-		createdAt: subtractHours(new Date(), 1),
-	},
-	{
-		id: 2,
-		title: 'New user registered.',
-		icon: 'mdi mdi-account-plus',
-		variant: 'warning',
-		createdAt: subtractHours(new Date(), 300),
-	},
-	{
-		id: 3,
-		title: 'Carlos Crouch liked',
-		icon: 'mdi mdi-heart',
-		variant: 'danger',
-		createdAt: subtractHours(new Date(), 4320),
-	},
-	{
-		id: 4,
-		title: 'Caleb Flakelar commented on Admi',
-		icon: 'mdi mdi-comment-account-outline',
-		variant: 'pink',
-		createdAt: subtractHours(new Date(), 5760),
-	},
-	{
-		id: 5,
-		title: 'New user registered.',
-		icon: 'mdi mdi-account-plus',
-		variant: 'purple',
-		createdAt: subtractHours(new Date(), 10960),
-	},
-	{
-		id: 6,
-		title: 'Carlos Crouch liked Admin',
-		icon: 'mdi mdi-heart',
-		variant: 'success',
-		createdAt: subtractHours(new Date(), 10960),
-	},
-]
+// const Notifications: NotificationItem[] = [
+// 	{
+// 		id: 1,
+// 		title: 'Caleb Flakelar commented on Admin',
+// 		icon: 'mdi mdi-comment-account-outline',
+// 		variant: 'primary',
+// 		createdAt: subtractHours(new Date(), 1),
+// 	},
+// 	{
+// 		id: 2,
+// 		title: 'New user registered.',
+// 		icon: 'mdi mdi-account-plus',
+// 		variant: 'warning',
+// 		createdAt: subtractHours(new Date(), 300),
+// 	},
+// 	{
+// 		id: 3,
+// 		title: 'Carlos Crouch liked',
+// 		icon: 'mdi mdi-heart',
+// 		variant: 'danger',
+// 		createdAt: subtractHours(new Date(), 4320),
+// 	},
+// 	{
+// 		id: 4,
+// 		title: 'Caleb Flakelar commented on Admi',
+// 		icon: 'mdi mdi-comment-account-outline',
+// 		variant: 'pink',
+// 		createdAt: subtractHours(new Date(), 5760),
+// 	},
+// 	{
+// 		id: 5,
+// 		title: 'New user registered.',
+// 		icon: 'mdi mdi-account-plus',
+// 		variant: 'purple',
+// 		createdAt: subtractHours(new Date(), 10960),
+// 	},
+// 	{
+// 		id: 6,
+// 		title: 'Carlos Crouch liked Admin',
+// 		icon: 'mdi mdi-heart',
+// 		variant: 'success',
+// 		createdAt: subtractHours(new Date(), 10960),
+// 	},
+// ]
 const profileMenus: ProfileOption[] = [
 	{
 		label: 'My Account',
@@ -235,9 +235,9 @@ const Topbar = ({ toggleMenu, navOpen }: TopbarProps) => {
 		}
 	}
 
-	const handleRightSideBar = () => {
-		updateSettings({ rightSidebar: ThemeSettings.rightSidebar.show })
-	}
+	// const handleRightSideBar = () => {
+	// 	updateSettings({ rightSidebar: ThemeSettings.rightSidebar.show })
+	// }
 	return (
 		<>
 			<div className="navbar-custom">
@@ -308,9 +308,9 @@ const Topbar = ({ toggleMenu, navOpen }: TopbarProps) => {
 						<li className="dropdown notification-list">
 							<MessageDropdown messages={Messages} />
 						</li>
-						<li className="dropdown notification-list">
+						{/* <li className="dropdown notification-list">
 							<NotificationDropdown notifications={Notifications} />
-						</li>
+						</li> */}
 						{/* <li className="d-none d-sm-inline-block">
 							<button className="nav-link" onClick={handleRightSideBar}>
 								<i className="ri-settings-3-line fs-22" />
