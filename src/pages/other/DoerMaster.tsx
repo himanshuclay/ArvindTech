@@ -70,20 +70,23 @@ const DoerMaster: React.FC = () => {
 
     const handleShow = () => setShow(true);
 
-    const handleChange = (e: ChangeEvent<any>) => {
-        const { name, value, type, checked } = e.target as HTMLInputElement | HTMLSelectElement;
-        if (type === 'checkbox') {
-            setDoer({
-                ...doer,
-                [name]: checked
-            });
-        } else {
-            setDoer({
-                ...doer,
-                [name]: value
-            });
-        }
-    };
+const handleChange = (e: ChangeEvent<any>) => {
+    const { name, value, type } = e.target;
+
+    if (type === 'checkbox') {
+        const { checked } = e.target as HTMLInputElement; // Explicitly cast to HTMLInputElement
+        setDoer({
+            ...doer,
+            [name]: checked
+        });
+    } else {
+        setDoer({
+            ...doer,
+            [name]: value
+        });
+    }
+};
+
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();

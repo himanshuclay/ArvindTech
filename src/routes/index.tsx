@@ -22,7 +22,6 @@ const InvoicePages = React.lazy(() => import('../pages/other/Invoice'))
 const FAQPages = React.lazy(() => import('../pages/other/FAQ'))
 const PricingPages = React.lazy(() => import('../pages/other/Pricing'))
 const MaintenancePages = React.lazy(() => import('../pages/other/Maintenance'))
-const StarterPages = React.lazy(() => import('../pages/other/Process-creator.tsx'))
 const TemplateMaster = React.lazy(() => import('../pages/other/Modules-Master.tsx'))
 const Notification = React.lazy(() => import('../pages/other/Notification.tsx'))
 const ModuleList = React.lazy(() => import('../pages/other/Module-list.tsx'))
@@ -118,7 +117,7 @@ const BasicTables = React.lazy(() => import('../pages/ui/tables/BasicTables'))
 const DataTables = React.lazy(() => import('../pages/ui/tables/DataTables'))
 
 // // maps
-const GoogleMaps = React.lazy(() => import('../pages/ui/maps/GoogleMaps'))
+// const GoogleMaps = React.lazy(() => import('../pages/ui/maps/GoogleMaps'))
 const VectorMaps = React.lazy(() => import('../pages/ui/maps/VectorMaps'))
 
 // // error
@@ -189,12 +188,6 @@ const customPagesRoutes = {
 			path: '/pages/pricing',
 			name: 'Pricing',
 			element: <PricingPages />,
-			route: PrivateRoute,
-		},
-		{
-			path: '/pages/Process-creator',
-			name: 'Starter Page',
-			element: <StarterPages />,
 			route: PrivateRoute,
 		},
 		{
@@ -675,12 +668,12 @@ const uiRoutes: RoutesProps = {
 			path: '/ui/maps',
 			name: 'Maps',
 			children: [
-				{
-					path: '/ui/maps/google-maps',
-					name: 'Google Maps',
-					element: <GoogleMaps />,
-					route: PrivateRoute,
-				},
+				// {
+				// 	path: '/ui/maps/google-maps',
+				// 	name: 'Google Maps',
+				// 	element: <GoogleMaps />,
+				// 	route: PrivateRoute,
+				// },
 				{
 					path: '/ui/maps/vector-maps',
 					name: 'Vector Maps',

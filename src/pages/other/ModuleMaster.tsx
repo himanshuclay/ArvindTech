@@ -61,13 +61,15 @@ const ModuleMaster: React.FC = () => {
     const handleShow = () => setShow(true);
 
     const handleChange =  (e: ChangeEvent<any>) => {
-        const { name, value, type, checked } = e.target as HTMLInputElement | HTMLSelectElement;
+        const { name, type } = e.target;
         if (type === 'checkbox') {
+            const checked = (e.target as HTMLInputElement).checked; // Cast to HTMLInputElement to access `checked`
             setModule({
                 ...module,
                 [name]: checked
             });
         } else {
+            const value = (e.target as HTMLSelectElement | HTMLInputElement).value; // Cast to HTMLInputElement or HTMLSelectElement to access `value`
             setModule({
                 ...module,
                 [name]: value
@@ -147,7 +149,7 @@ const ModuleMaster: React.FC = () => {
                 mod.moduleID,
                 mod.misExemptID.toString(),
                 mod.statusID.toString(),
-                mod.moduleOwnerNameID.toString(),
+                mod.moduleOwnerName.toString(),
                 mod.createdBy,
                 mod.updatedBy
             ])
@@ -260,7 +262,7 @@ const ModuleMaster: React.FC = () => {
                             <Form.Control
                                 type="number"
                                 name="moduleOwnerNameID"
-                                value={module.moduleOwnerNameID}
+                                value={module.moduleOwnerName}
                                 onChange={handleChange}
                                 required
                             />
@@ -327,7 +329,7 @@ const ModuleMaster: React.FC = () => {
                             <td>{mod.moduleDisplayName}</td>
                             <td>{mod.moduleID}</td>
                             <td>{mod.fmsType}</td>
-                            <td>{mod.misExempt}</td>
+                            <td>{mod.misExemptID}</td>
                             <td>{mod.statusID}</td>
                             <td>{mod.moduleOwnerID}</td>
                             <td>{mod.moduleOwnerName}</td>

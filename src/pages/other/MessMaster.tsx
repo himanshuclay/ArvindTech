@@ -61,16 +61,18 @@ const MessMasterComponent: React.FC = () => {
     const handleShow = () => setShow(true);
 
     const handleChange = (e: ChangeEvent<any>) => {
-        const { name, value, type, checked } = e.target as HTMLInputElement | HTMLSelectElement;
+        const { name, value, type } = e.target;
+
         if (type === 'checkbox') {
+            const { checked } = e.target as HTMLInputElement; // Explicitly cast to HTMLInputElement
             setMess({
                 ...mess,
-                [name]: checked
+                [name]: checked,
             });
         } else {
             setMess({
                 ...mess,
-                [name]: type === 'number' ? Number(value) : value
+                [name]: type === 'number' ? Number(value) : value, // Convert value to number if type is 'number'
             });
         }
     };

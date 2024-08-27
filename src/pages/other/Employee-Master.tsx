@@ -112,16 +112,18 @@ const EmployeeMaster: React.FC = () => {
     const handleShow = () => setShow(true);
 
     const handleChange = (e: ChangeEvent<any>) => {
-        const { name, value, type, checked } = e.target as HTMLInputElement | HTMLSelectElement;
+        const { name, value, type } = e.target;
+    
         if (type === 'checkbox') {
+            const { checked } = e.target as HTMLInputElement; // Explicitly cast to HTMLInputElement
             setEmployee({
                 ...employee,
-                [name]: checked
+                [name]: checked,
             });
         } else {
             setEmployee({
                 ...employee,
-                [name]: value
+                [name]: value,
             });
         }
     };

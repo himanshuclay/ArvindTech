@@ -74,11 +74,11 @@ const ProjectsPage: React.FC = () => {
             }
         } catch (error) {
             console.error('An error occurred while fetching the projects:', error);
-            if (error.response) {
-                console.error('Error response data:', error.response.data);
-                console.error('Error response status:', error.response.status);
-                console.error('Error response headers:', error.response.headers);
-            }
+            // if (error.response) {
+            //     console.error('Error response data:', error.response.data);
+            //     console.error('Error response status:', error.response.status);
+            //     console.error('Error response headers:', error.response.headers);
+            // }
         }
         finally {
             setLoading(false); // End loading
@@ -94,17 +94,29 @@ const ProjectsPage: React.FC = () => {
     const handleShow = () => setShow(true);
 
     const handleChange = (e: ChangeEvent<any>) => {
-        const { name, value, type, checked } = e.target as HTMLInputElement | HTMLSelectElement;
-        if (type === 'checkbox') {
-            setProject({
-                ...project,
-                [name]: checked ? 1 : 0
-            });
-        } else {
-            setProject({
-                ...project,
+        const target = e.target;
+        const { name, value, type, checked } = target as HTMLInputElement;
+
+        if (target instanceof HTMLInputElement) {
+            if (type === 'checkbox' || type === 'radio') {
+                // For checkboxes and radio buttons
+                setProject(prevProject => ({
+                    ...prevProject,
+                    [name]: checked ? 1 : 0
+                }));
+            } else {
+                // For other input types (text, password, etc.)
+                setProject(prevProject => ({
+                    ...prevProject,
+                    [name]: value
+                }));
+            }
+        } else if (target instanceof HTMLSelectElement) {
+            // For select elements
+            setProject(prevProject => ({
+                ...prevProject,
                 [name]: value
-            });
+            }));
         }
     };
 
@@ -337,15 +349,11 @@ const ProjectsPage: React.FC = () => {
             }
 
             <div className="d-flex justify-content-between align-items-center mt-3">
-                {/* <div>
+                <div>
                     <span>Rows per page: </span>
                     <select value={rowsPerPage} onChange={handleRowsPerPageChange} className="form-select form-select-sm">
-                        <option value={5}>5</option>
-                        <option value={10}>10</option>
-                        <option value={25}>25</option>
-                        <option value={50}>50</option>
                     </select>
-                </div> */}
+                </div>
                 <Pagination>
                     <Pagination.First onClick={() => setCurrentPage(1)} disabled={currentPage === 1} />
                     <Pagination.Prev onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))} disabled={currentPage === 1} />

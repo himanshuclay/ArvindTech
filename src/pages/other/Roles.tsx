@@ -57,7 +57,7 @@ const RoleMaster: React.FC = () => {
 
     const handleShow = () => setShow(true);
 
-    const handleChange = (e: ChangeEvent<HTMLInputElement> | ChangeEvent<HTMLSelectElement>) => {
+    const handleChange = (e: ChangeEvent<any>) => {
         const { name, value } = e.target as HTMLInputElement | HTMLSelectElement;
         setRole({
             ...role,

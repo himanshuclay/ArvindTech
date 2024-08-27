@@ -87,12 +87,13 @@ const VendorMaster: React.FC = () => {
 
     const handleShow = () => setShow(true);
 
-    const handleChange = (e: ChangeEvent<HTMLInputElement> | ChangeEvent<HTMLSelectElement>) => {
-        const { name, value, type, checked } = e.target as HTMLInputElement | HTMLSelectElement;
-        if (type === 'checkbox') {
+    const handleChange = (e: ChangeEvent<any>) => {
+        const target = e.target;
+        const { name, value, type } = target;
+        if (target instanceof HTMLInputElement && type) {
             setVendor({
                 ...vendor,
-                [name]: checked
+                [name]: target.checked
             });
         } else {
             setVendor({

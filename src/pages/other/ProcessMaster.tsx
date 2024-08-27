@@ -71,14 +71,17 @@ const ProcessMaster: React.FC = () => {
 
     const handleShow = () => setShow(true);
 
-    const handleChange = (e: ChangeEvent<HTMLInputElement> | ChangeEvent<HTMLSelectElement>) => {
-        const { name, value, type, checked } = e.target as HTMLInputElement | HTMLSelectElement;
+    const handleChange = (e: ChangeEvent<any>) => {
+        const { name, type } = e.target;
+
         if (type === 'checkbox') {
+            const checked = (e.target as HTMLInputElement).checked; // Cast to HTMLInputElement to access `checked`
             setProcess({
                 ...process,
                 [name]: checked
             });
         } else {
+            const value = (e.target as HTMLSelectElement | HTMLInputElement).value; // Cast to HTMLSelectElement or HTMLInputElement to access `value`
             setProcess({
                 ...process,
                 [name]: value
