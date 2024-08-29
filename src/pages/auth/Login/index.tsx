@@ -57,10 +57,10 @@ const Login = () => {
 					defaultValues={{ email: 'velonic@techzaa.com', password: 'Velonic' }}
 				>
 					<FormInput
-						label="Email address"
+						label="Employee ID"
 						type="text"
 						name="email"
-						placeholder="Enter your email"
+						placeholder="Enter Your Email Id"
 						containerClass="mb-3"
 						required
 					/>

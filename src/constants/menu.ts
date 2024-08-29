@@ -78,7 +78,7 @@ const MENU_ITEMS: MenuItemTypes[] = [
 
 	{
 		key: 'Notification',
-		label: 'Notification',
+		label: 'My Task',
 		url: '/pages/Notification',
 		icon: 'ri-notification-3-line',
 		parentKey: 'pages',
@@ -109,6 +109,13 @@ const MENU_ITEMS: MenuItemTypes[] = [
 	// 		},
 	// 	]
 	// },
+	{
+		key: 'ChkLnMaster',
+		label: 'Action Center',
+		url: '/pages/ChkLnMaster',
+		icon: 'ri-user-settings-line',
+		parentKey: 'pages',
+	},
 	{
 		key: 'systemmaster',
 		label: 'System Master',
@@ -169,14 +176,6 @@ const MENU_ITEMS: MenuItemTypes[] = [
 				parentKey: 'pages',
 			},
 		
-		
-			{
-				key: 'ChkLnMaster',
-				label: 'CHK LN Master',
-				url: '/pages/ChkLnMaster',
-				icon: 'ri-user-settings-line',
-				parentKey: 'pages',
-			},
 		
 			{
 				key: 'TicketMaster',

@@ -1,323 +1,442 @@
-import React, { useState, useEffect, ChangeEvent } from 'react';
-import { Button, Form, Offcanvas, Table, Pagination } from 'react-bootstrap';
+import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import { Button, Modal, Form, Table, Collapse } from 'react-bootstrap';
 
-interface Bank {
+// Define interfaces for the data
+interface AccountProcessTask {
     id: number;
-    bank: string;
-    ifsc: string;
-    branch: string;
-    city1: string;
-    city2: string;
-    state: string;
+    moduleID: string;
+    moduleName: string;
+    processID: string;
+    processName: string;
+    startDate: string;
+    task_Json: string;
+    task_Number: string;
 }
 
-const BanksPage: React.FC = () => {
-    const [bank, setBank] = useState<Bank>({
-        id: 0,
-        bank: '',
-        ifsc: '',
-        branch: '',
-        city1: '',
-        city2: '',
-        state: ''
-    });
+interface Employee {
+    empID: string;
+    empName: string;
+}
 
-    const [banks, setBanks] = useState<Bank[]>([]);
-    const [show, setShow] = useState(false);
-    const [editingIndex, setEditingIndex] = useState<number | null>(null);
-    const [searchQuery, setSearchQuery] = useState('');
-    const [currentPage, setCurrentPage] = useState<number>(1);
-    const [rowsPerPage, setRowsPerPage] = useState(10);
-    const [loading, setLoading] = useState<boolean>(false);
+interface Module {
+    id: number;
+    moduleID: string;
+    moduleName: string;
+}
 
+interface Process {
+    processID: string;
+    processName: string;
+    moduleId: string;
+    moduleName: string;
+}
+
+interface Role {
+    id: number;
+    roleName: string;
+    module: string;
+}
+
+const AccountProcessTable: React.FC = () => {
+    const [tasks, setTasks] = useState<AccountProcessTask[]>([]);
+    const [modules, setModules] = useState<Module[]>([]);
+    const [processes, setProcesses] = useState<Process[]>([]);
+    const [selectedModule, setSelectedModule] = useState<string>('');
+    const [selectedProcess, setSelectedProcess] = useState<string>('');
+    const [showModal, setShowModal] = useState(false);
+    const [employees, setEmployees] = useState<Employee[]>([]);
+    const [roles, setRoles] = useState<Role[]>([]);
+    const [selectedTask, setSelectedTask] = useState<AccountProcessTask | null>(null);
+    const [selectedEmployee, setSelectedEmployee] = useState<string>('');
+    const [selectedRole, setSelectedRole] = useState<number | null>(null);
+    const [projects, setProjects] = useState<{ id: string; projectName: string }[]>([]);
+    const [selectedProject, setSelectedProject] = useState<string>('');
+    const [showApplyModal, setShowApplyModal] = useState(false);
+    const [assignedTasks, setAssignedTasks] = useState<Map<number, string>>(new Map());
+    const [expandedRow, setExpandedRow] = useState<number | null>(null);
+
+    // Fetch Modules
     useEffect(() => {
-        fetchBanks();
-    }, [currentPage]);
-
-    const fetchBanks = async () => {
-        setLoading(true);
-        try {
-            const params = new URLSearchParams({ PageIndex: currentPage.toString() });
-            const url = `https://localhost:44344/api/BankMaster/GetBankList?${params.toString()}`;
-            const response = await axios.get(url, { headers: { 'accept': '*/*' } });
-
-            if (response && response.status === 200 && response.data.isSuccess) {
-                const responseData = Array.isArray(response.data.bankMasterListResponses)
-                    ? response.data.bankMasterListResponses
-                    : [response.data.bankMasterListResponses];
-                setBanks(responseData);
-            } else {
-                console.error('Failed to fetch banks: Invalid response status');
-            }
-        } catch (error) {
-            console.error('An error occurred while fetching the banks:', error);
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
-        const { name, value } = e.target;
-        setBank({ ...bank, [name]: value });
-    };
-
-    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
-
-        const payload = { ...bank };
-
-        try {
-            const response = await axios.post('https://localhost:44344/api/BankMaster/InsertBank', payload, { headers: { 'accept': '*/*', 'Content-Type': 'application/json' } });
-
-            if (response.status === 200 || response.status === 201) {
-                const newBank = response.data;
-
-                if (editingIndex !== null) {
-                    const updatedBanks = [...banks];
-                    updatedBanks[editingIndex] = newBank;
-                    setBanks(updatedBanks);
-                } else {
-                    setBanks([...banks, { ...newBank, id: banks.length + 1 }]);
+        const fetchModules = async () => {
+            try {
+                const response = await axios.get('https://localhost:44306/api/CommonDropdown/GetModuleList');
+                if (response.data.isSuccess) {
+                    setModules(response.data.moduleNameListResponses);
                 }
-                handleClose();
-            } else {
-                console.error('Failed to submit bank');
+            } catch (error) {
+                console.error('Error fetching modules', error);
+            }
+        };
+        fetchModules();
+    }, []);
+
+    // Fetch Processes based on selected module
+    useEffect(() => {
+        if (selectedModule) {
+            const fetchProcesses = async () => {
+                try {
+                    const response = await axios.get(`https://localhost:44306/api/CommonDropdown/GetProcessNameByModuleName?ModuleName=${selectedModule}`);
+                    if (response.data.isSuccess) {
+                        setProcesses(response.data.processListResponses);
+                    }
+                } catch (error) {
+                    console.error('Error fetching processes', error);
+                }
+            };
+            fetchProcesses();
+        }
+    }, [selectedModule]);
+
+    // Fetch Tasks based on selected module and process
+    useEffect(() => {
+        if (selectedModule && selectedProcess) {
+            const fetchTasks = async () => {
+                try {
+                    const response = await axios.get(`https://localhost:5078/api/AccountModule/GetAccountProcessTaskByIds?ModuleId=ACC&ProcessId=${selectedProcess}`);
+                    if (response.data.isSuccess) {
+                        setTasks(response.data.getAccountProcessTaskByIds);
+                    }
+                } catch (error) {
+                    console.error('Error fetching tasks', error);
+                }
+            };
+            fetchTasks();
+        }
+    }, [selectedModule, selectedProcess]);
+
+    // Fetch Employees and Roles when assigning task
+    const handleAssignClick = async (task: AccountProcessTask) => {
+        setSelectedTask(task);
+        try {
+            const roleResponse = await axios.get('https://localhost:44306/api/RoleMaster/GetRole?PageIndex=1');
+            if (roleResponse.data.isSuccess) {
+                setRoles(roleResponse.data.roleMasterListResponses);
+                setShowModal(true);
             }
         } catch (error) {
-            console.error('An error occurred while submitting the bank:', error);
+            console.error('Error fetching roles', error);
         }
     };
 
-    const handleClose = () => {
-        setShow(false);
-        setEditingIndex(null);
-        setBank({
-            id: 0,
-            bank: '',
-            ifsc: '',
-            branch: '',
-            city1: '',
-            city2: '',
-            state: ''
-        });
+    // Fetch Doers based on the selected role
+    const handleRoleChange = async (roleId: number) => {
+        setSelectedRole(roleId);
+        try {
+            const selectedRoleName = roles.find((role) => role.id === roleId)?.roleName;
+            if (selectedRoleName) {
+                const doerResponse = await axios.get(`https://localhost:44306/api/CommonDropdown/GetDoerListbyRole?DoerRole=${selectedRoleName}`);
+                if (doerResponse.data.isSuccess) {
+                    setEmployees(doerResponse.data.doerListResponses);
+                } else {
+                    console.error('Failed to fetch doers');
+                }
+            }
+        } catch (error) {
+            console.error('Error fetching doers', error);
+        }
     };
 
-    const handleShow = () => setShow(true);
+    // Log selected employee details
+    useEffect(() => {
+        if (selectedEmployee) {
+            // Find the employee in the employees array
+            const employee = employees.find(emp => emp.empID === selectedEmployee);
 
-    const handleEdit = (index: number) => {
-        setEditingIndex(index);
-        setBank(banks[index]);
-        handleShow();
+            if (employee) {
+                // Log the selected employee's ID and name
+                console.log('Selected Employee ID:', employee.empID);
+                console.log('Selected Employee Name:', employee.empName);
+            } else {
+                console.log('Selected Employee not found.');
+            }
+        }
+    }, [selectedEmployee, employees]);
+
+    const handleAssign = () => {
+        if (selectedTask && selectedEmployee && selectedRole !== null) {
+            const payload = {
+                moduleID: selectedTask.moduleID,
+                moduleName: selectedTask.moduleName,
+                processID: selectedTask.processID,
+                processName: selectedTask.processName,
+                roleName: roles.find((role) => role.id === selectedRole)?.roleName || '',
+                doerId: selectedEmployee,
+                doerName: employees.find((employee) => employee.empID === selectedEmployee)?.empName || '', // Get employee name based on empID
+                task_Number: selectedTask.task_Number,
+                task_Json: selectedTask.task_Json,
+                createdBy: 'sameer hussain',
+            };
+
+            // Update assignedTasks state
+            setAssignedTasks(new Map(assignedTasks).set(selectedTask.id, selectedEmployee));
+
+            // Show the payload in an alert
+            alert(`Payload: ${JSON.stringify(payload, null, 2)}`);
+
+            // Now proceed with the API request
+            const assignTask = async () => {
+                try {
+                    const response = await axios.post('https://localhost:5078/api/AccountModule/TaskAssignRoleWithDoer', payload);
+                    if (response.data.isSuccess) {
+                        console.log('Task assigned successfully');
+                    } else {
+                        console.error('Failed to assign task');
+                    }
+                } catch (error) {
+                    console.error('Error assigning task', error);
+                }
+            };
+            assignTask();
+        }
+        setShowModal(false);
     };
 
-    const filteredBanks = banks.filter(bank =>
-        (bank.bank || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
-        (bank.ifsc || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
-        (bank.branch || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
-        (bank.city1 || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
-        (bank.city2 || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
-        (bank.state || '').toLowerCase().includes(searchQuery.toLowerCase())
-    );
+    const handleApplyProcessToProject = async () => {
+        if (selectedProject && selectedTask) {
+            const payload = {
+                projectId: selectedProject,
+                projectName: projects.find((project) => project.id === selectedProject)?.projectName || '',
+                moduleId: selectedTask.moduleID,
+                processId: selectedTask.processID,
+                createdBy: 'sameer',
+            }
 
-    const indexOfLastBank = currentPage * rowsPerPage;
-    const indexOfFirstBank = indexOfLastBank - rowsPerPage;
-    const currentBanks = filteredBanks.slice(indexOfFirstBank, indexOfLastBank);
+            // Show the payload in an alert
+            alert(`Payload: ${JSON.stringify(payload, null, 2)}`);
 
-    const totalPages = Math.ceil(filteredBanks.length / rowsPerPage);
+            // Proceed with the API request
+            try {
+                const response = await axios.post('https://localhost:7235/api/AccountModule/ProcessAssignWithProject', payload);
+                if (response.data.isSuccess) {
+                    console.log('Process assigned to project successfully');
+                } else {
+                    console.error('Failed to assign process to project');
+                }
+            } catch (error) {
+                console.error('Error assigning process to project', error);
+            }
 
-    const downloadCSV = () => {
-        const csvData = convertToCSV(banks);
-        const blob = new Blob([csvData], { type: 'text/csv' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = 'banks.csv';
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-    };
+            setShowApplyModal(false);
+        } else {
+            alert('Please select a project and task before applying.');
+        }
+    }
 
-    const convertToCSV = (data: Bank[]) => {
-        const headers = Object.keys(data[0]).join(',');
-        const rows = data.map(bank => Object.values(bank).join(','));
-        return [headers, ...rows].join('\n');
+    // Fetch Projects
+    useEffect(() => {
+        const fetchProjects = async () => {
+            try {
+                const response = await axios.get('https://localhost:44306/api/CommonDropdown/GetProjectList');
+                if (response.data.isSuccess) {
+                    setProjects(response.data.projectListResponses);
+                }
+            } catch (error) {
+                console.error('Error fetching projects', error);
+            }
+        };
+        fetchProjects();
+    }, []);
+
+    const toggleExpandRow = (id: number) => {
+        setExpandedRow(expandedRow === id ? null : id);
     };
 
     return (
-        <div className="container ">
-
-            <div className="d-flex bg-white p-2 my-2 justify-content-between align-items-center">
-                <span><i className="ri-file-list-line me-2"></i><span className='fw-bold'>Tender Modules List</span></span>
-                <div className="d-flex">
-                    <div className="app-search d-none d-lg-block me-4">
-                        <form>
-                            <div className="input-group">
-                                <input
-                                    type="search"
-                                    className="form-control"
-                                    placeholder="Search Bank..."
-                                    value={searchQuery}
-                                    onChange={(e) => setSearchQuery(e.target.value)}
-                                />
-                                <span className="ri-search-line search-icon text-muted" />
-                            </div>
-                        </form>
-                    </div>
-                    <Button variant="primary" onClick={handleShow} className="me-2">
-                        Add Bank
-                    </Button>
-                    <Button variant="secondary" onClick={downloadCSV}>
-                        Download CSV
-                    </Button>
-                </div>
-            </div>
-
-
-            {loading ? (
-               <div className='loader-container'>
-               <div className="loader"></div>
-               <div className='mt-2'>Please Wait!</div>
-           </div>
-            ) : (
-                <Table striped bordered hover responsive className="mb-0">
-                    <thead>
-                        <tr>
-                            <th>#</th>
-                            <th>Bank</th>
-                            <th>IFSC</th>
-                            <th>Branch</th>
-                            <th>City 1</th>
-                            <th>City 2</th>
-                            <th>State</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {currentBanks.map((bank, index) => (
-                            <tr key={index}>
-                                <td>{index + 1 + (currentPage - 1) * rowsPerPage}</td>
-                                <td>{bank.bank}</td>
-                                <td>{bank.ifsc}</td>
-                                <td>{bank.branch}</td>
-                                <td>{bank.city1}</td>
-                                <td>{bank.city2}</td>
-                                <td>{bank.state}</td>
-                                <td>
-                                    <Button variant="warning" size="sm" className="me-2" onClick={() => handleEdit(index)}>
-                                        <i className="ri-edit-line"></i>
-                                    </Button>
-                                </td>
-                            </tr>
+        <div>
+            <div className="d-flex p-2 bg-white mt-2 mb-2 rounded shadow">Apply Process on Project</div>
+            <div className="row m-0 align-items-end bg-white p-3 rounded shadow">
+                <Form.Group className="col-md-3 my-1" controlId="moduleSelect">
+                    <Form.Label>Select Module</Form.Label>
+                    <Form.Control
+                        as="select"
+                        value={selectedModule}
+                        onChange={(e) => setSelectedModule(e.target.value)}
+                    >
+                        <option value="">Select a module</option>
+                        {modules.map((module) => (
+                            <option key={module.moduleID} value={module.moduleName}>
+                                {module.moduleName}
+                            </option>
                         ))}
-                    </tbody>
-                </Table>
-            )}
+                    </Form.Control>
+                </Form.Group>
 
-            <div className="d-flex justify-content-between mt-3">
-                <Pagination>
-                    <Pagination.First onClick={() => setCurrentPage(1)} disabled={currentPage === 1} />
-                    <Pagination.Prev onClick={() => setCurrentPage(currentPage - 1)} disabled={currentPage === 1} />
-                    {[...Array(totalPages).keys()].map(number => (
-                        <Pagination.Item key={number + 1} active={number + 1 === currentPage} onClick={() => setCurrentPage(number + 1)}>
-                            {number + 1}
-                        </Pagination.Item>
-                    ))}
-                    <Pagination.Next onClick={() => setCurrentPage(currentPage + 1)} disabled={currentPage === totalPages} />
-                    <Pagination.Last onClick={() => setCurrentPage(totalPages)} disabled={currentPage === totalPages} />
-                </Pagination>
-                <Form.Control
-                    as="select"
-                    value={rowsPerPage}
-                    onChange={(e) => setRowsPerPage(parseInt(e.target.value))}
+                <Form.Group controlId="processSelect" className="col-md-3 my-1">
+                    <Form.Label>Select Process</Form.Label>
+                    <Form.Control
+                        as="select"
+                        value={selectedProcess}
+                        onChange={(e) => setSelectedProcess(e.target.value)}
+                        disabled={!selectedModule}
+                    >
+                        <option value="">Select a process</option>
+                        {processes.map((process) => (
+                            <option key={process.processID} value={process.processID}>
+                                {process.processName}
+                            </option>
+                        ))}
+                    </Form.Control>
+                </Form.Group>
+
+                <Form.Group className="col-md-3 my-1">
+                    <Form.Label>Select Project</Form.Label>
+                    <Form.Control
+                        as="select"
+                        value={selectedProject}
+                        onChange={(e) => setSelectedProject(e.target.value)}
+                    >
+                        <option value="">Select a project</option>
+                        {projects.map((project) => (
+                            <option key={project.id} value={project.id}>
+                                {project.projectName}
+                            </option>
+                        ))}
+                    </Form.Control>
+                </Form.Group>
+
+                <Button
+                    className="col-md-3 mb-1"
+                    variant="primary"
+                    onClick={() => setShowApplyModal(true)}
+                    disabled={!selectedProject}
+                    title='Please assign doer to every Task'
                 >
-                    <option value="5">5</option>
-                    <option value="10">10</option>
-                    <option value="25">25</option>
-                    <option value="50">50</option>
-                </Form.Control>
+                    Apply Process to Project
+                </Button>
             </div>
+            <Table className="bg-white mt-4" striped bordered hover>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Module ID</th>
+                        <th>Module Name</th>
+                        <th>Process ID</th>
+                        <th>Process Name</th>
+                        <th>Start Date</th>
+                        <th>Task Number</th>
+                        <th>Role Name</th>
+                        <th>Doer Name</th>
+                        <th>Assign</th>
+						{/* <th>Task Json</th> */}
 
-            <Offcanvas show={show} onHide={handleClose} placement="end">
-                <Offcanvas.Header closeButton>
-                    <Offcanvas.Title>{editingIndex !== null ? 'Edit Bank' : 'Add Bank'}</Offcanvas.Title>
-                </Offcanvas.Header>
-                <Offcanvas.Body>
-                    <Form onSubmit={handleSubmit}>
-                        <Form.Group controlId="formBank">
-                            <Form.Label>Bank</Form.Label>
+                    </tr>
+                </thead>
+                <tbody>
+                    {tasks.map((task) => (
+                                   <React.Fragment>
+  
+					   <tr key={task.id}>
+                            <td>{task.id}</td>
+                            <td>{task.moduleID}</td>
+                            <td>{task.moduleName}</td>
+                            <td>{task.processID}</td>
+                            <td>{task.processName}</td>
+                            <td>{new Date(task.startDate).toLocaleString()}</td>
+                            <td>{task.task_Number}</td>
+                            <td>{assignedTasks.get(task.roleName) || 'N/A'}</td>
+                            <td>
+                                {
+                                    // Find the employee name based on the employee ID
+                                    employees.find(emp => emp.empID === assignedTasks.get(task.id))?.empName || 'NA'
+                                }
+                            </td>
+
+
+                            <td>
+                                <Button onClick={() => handleAssignClick(task)}>Assign</Button>
+                            </td>
+                            {/* <td>
+                                <Button onClick={() => toggleExpandRow(task.id)}>
+                                    {expandedRow === task.id ? 'Collapse' : 'Expand'}
+                                </Button>
+                            </td> */}
+							</tr>
+									<tr>
+                            {/* <td colSpan={10}>
+                                <Collapse in={expandedRow === task.id}>
+                                    <div>
+                                        <pre>{JSON.stringify(JSON.parse(task.task_Json), null, 2)}</pre>
+                                    </div>
+                                </Collapse>
+                            </td> */}
+                        </tr>
+						</React.Fragment>
+
+                    ))}
+
+                </tbody>
+            </Table>
+
+            <Modal show={showModal} onHide={() => setShowModal(false)}>
+                <Modal.Header closeButton>
+                    <Modal.Title>Assign Task</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <Form>
+                        <Form.Group controlId="roleSelect" className="mt-3">
+                            <Form.Label>Select Role</Form.Label>
                             <Form.Control
-                                type="text"
-                                name="bank"
-                                value={bank.bank}
-                                onChange={handleChange}
-                                required
-                            />
+                                as="select"
+                                value={selectedRole !== null ? selectedRole : ''}
+                                onChange={(e) => handleRoleChange(Number(e.target.value))}
+                            >
+                                <option value="">Select a role</option>
+                                {roles.map((role) => (
+                                    <option key={role.id} value={role.id}>
+                                        {role.roleName}
+                                    </option>
+                                ))}
+                            </Form.Control>
                         </Form.Group>
-
-                        <Form.Group controlId="formIFSC" className="mt-3">
-                            <Form.Label>IFSC</Form.Label>
+                        <Form.Group controlId="employeeSelect">
+                            <Form.Label>Select Employee</Form.Label>
                             <Form.Control
-                                type="text"
-                                name="ifsc"
-                                value={bank.ifsc}
-                                onChange={handleChange}
-                                required
-                            />
+                                as="select"
+                                value={selectedEmployee}
+                                onChange={(e) => setSelectedEmployee(e.target.value)}
+                            >
+                                <option value="">Select an employee</option>
+                                {employees.map((employee) => (
+                                    <option key={employee.empID} value={employee.empID}>
+                                        {employee.empName}
+                                    </option>
+                                ))}
+                            </Form.Control>
                         </Form.Group>
-
-                        <Form.Group controlId="formBranch" className="mt-3">
-                            <Form.Label>Branch</Form.Label>
-                            <Form.Control
-                                type="text"
-                                name="branch"
-                                value={bank.branch}
-                                onChange={handleChange}
-                                required
-                            />
-                        </Form.Group>
-
-                        <Form.Group controlId="formCity1" className="mt-3">
-                            <Form.Label>City 1</Form.Label>
-                            <Form.Control
-                                type="text"
-                                name="city1"
-                                value={bank.city1}
-                                onChange={handleChange}
-                                required
-                            />
-                        </Form.Group>
-
-                        <Form.Group controlId="formCity2" className="mt-3">
-                            <Form.Label>City 2</Form.Label>
-                            <Form.Control
-                                type="text"
-                                name="city2"
-                                value={bank.city2}
-                                onChange={handleChange}
-                                required
-                            />
-                        </Form.Group>
-
-                        <Form.Group controlId="formState" className="mt-3">
-                            <Form.Label>State</Form.Label>
-                            <Form.Control
-                                type="text"
-                                name="state"
-                                value={bank.state}
-                                onChange={handleChange}
-                                required
-                            />
-                        </Form.Group>
-
-                        <Button variant="primary" type="submit" className="mt-3">
-                            {editingIndex !== null ? 'Update Bank' : 'Add Bank'}
-                        </Button>
                     </Form>
-                </Offcanvas.Body>
-            </Offcanvas>
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="secondary" onClick={() => setShowModal(false)}>
+                        Close
+                    </Button>
+                    <Button variant="primary" onClick={handleAssign}>
+                        Assign
+                    </Button>
+                </Modal.Footer>
+            </Modal>
+
+            <Modal show={showApplyModal} onHide={() => setShowApplyModal(false)}>
+                <Modal.Header closeButton>
+                    <Modal.Title>Apply Process to Project</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <p>You have selected project: {selectedProject}</p>
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="secondary" onClick={() => setShowApplyModal(false)}>
+                        Close
+                    </Button>
+                    <Button
+                        variant="primary"
+                        onClick={handleApplyProcessToProject}
+                    >
+                        Apply
+                    </Button>
+                </Modal.Footer>
+            </Modal>
         </div>
     );
-};
+}
 
-export default BanksPage;
+export default AccountProcessTable;

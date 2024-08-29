@@ -467,7 +467,7 @@ const App: React.FC = () => {
     setLoading(true);
 
     try {
-      const response = await fetch('https://localhost:7235/api/AccountModule/InsertAccountProcessTask', {
+      const response = await fetch('https://localhost:5078/api/AccountModule/InsertAccountProcessTask', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -704,6 +704,12 @@ const App: React.FC = () => {
               <div>Custom Placeholder: {field.placeholder}</div>
             </div>
           );
+          case 'paragraph':
+            return (
+              <div className='col-6'>
+                <div>{field.labeltext}</div>
+              </div>
+            );
 
         case 'taskName':
           return (
@@ -1012,6 +1018,11 @@ const App: React.FC = () => {
                     </select>
                   </Form.Group>
                 )}
+                 {editField.type === 'paragraph' && (
+                  <Form.Group key={editField.inputId}>
+
+                  </Form.Group>
+                )}
 
                 {(editField?.type === 'select' || editField?.type === 'multiselect' || editField?.type === 'radio') &&(
                   <Form.Group>
@@ -1099,10 +1110,10 @@ const App: React.FC = () => {
                 )} */}
 
                 {/* New Form.Group for 'Required' Checkbox */}
-                <Form.Group>
+                <Form.Group className='mt-2'>
                   <Form.Check
                     type="switch"
-                    label="Required"
+                    label="Compulsory Field"
                     checked={editField.required || false}
                     onChange={(e) => setEditField({ ...editField, required: e.target.checked })}
                   />
