@@ -257,7 +257,7 @@ const TaskFormPage = () => {
                                         )}
                                     </div>
                                 ))}
-                                <div className='form-group m-3'>
+                                <div className='form-group m-3 d-none'>
                                     <p className="mb-1 fw-bold text-muted">Assign Doer</p>
                                     <Select
                                         className="select2 z-3"
@@ -562,7 +562,7 @@ const TaskFormPage = () => {
                         ))}
                     </select>
                 </div>
-                <div className="col-md-4 my-1 form-group">
+                <div className="col-md-4 my-1 form-group d-none">
                     <p className="mb-1 fw-bold text-muted">Select project</p>
                     <Select
                         className="select2 z-3"

@@ -23,6 +23,8 @@ const FAQPages = React.lazy(() => import('../pages/other/FAQ'))
 const PricingPages = React.lazy(() => import('../pages/other/Pricing'))
 const MaintenancePages = React.lazy(() => import('../pages/other/Maintenance'))
 const TemplateMaster = React.lazy(() => import('../pages/other/Modules-Master.tsx'))
+const ActiveTasks = React.lazy(() => import('../pages/other/ActiveTasks.tsx'))
+const FilterTasks = React.lazy(() => import('../pages/other/FilterTasks.tsx'))
 const Notification = React.lazy(() => import('../pages/other/Notification.tsx'))
 const ModuleList = React.lazy(() => import('../pages/other/Module-list.tsx'))
 const EmployeeMaster = React.lazy(() => import('../pages/other/Employee-Master.tsx'))
@@ -196,6 +198,19 @@ const customPagesRoutes = {
 			element: <TemplateMaster />,
 			route: PrivateRoute,
 		},
+		{
+			path: '/pages/ActiveTasks',
+			name: 'Active Tasks',
+			element: <ActiveTasks />,
+			route: PrivateRoute,
+		},
+		{
+			path: '/pages/FilterTasks',
+			name: 'Filter Tasks',
+			element: <FilterTasks />,
+			route: PrivateRoute,
+		},
+		
 		{
 			path: '/pages/Notification',
 			name: 'Notification',

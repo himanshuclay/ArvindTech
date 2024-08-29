@@ -75,7 +75,34 @@ const MENU_ITEMS: MenuItemTypes[] = [
 	// 	icon: 'ri-file-settings-line',
 	// 	parentKey: 'pages',
 	// },
-
+    {
+		key: 'Action',
+		label: 'Action ',
+		icon: 'ri-file-settings-line',	
+		children: [
+			{
+				key: 'Action',
+				label: 'My Task',
+				url: '/pages/Notification',
+				icon: 'ri-slideshow-line',
+				parentKey: 'Modules-Master',
+			}, 
+			{
+				key: 'ActiveTasks',
+				label: 'Active Tasks',
+				url: '/pages/ActiveTasks',
+				icon: 'ri-slideshow-line',
+				parentKey: 'Modules-Master',
+			},
+			{
+				key: 'FilterTasks',
+				label: 'Filter Tasks',
+				url: '/pages/FilterTasks',
+				icon: 'ri-slideshow-line',
+				parentKey: 'Modules-Master',
+			},
+		],
+		},
 	{
 		key: 'Notification',
 		label: 'My Task',

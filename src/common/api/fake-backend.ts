@@ -21,7 +21,7 @@ const mock = new MockAdapter(axios, { onNoMatch: 'passthrough' });
 const users: User[] = [
   {
     id: 1,
-    email: 'mailto:shikar@arvind.com',
+    email: 'shikar@arvind.com',
     username: 'Velonic',
     password: 'Admin',
     firstName: 'Velonic',
@@ -71,6 +71,17 @@ const users: User[] = [
     firstName: 'Admin',
     lastName: 'One',
     EmpId: 'LLP04462',
+    role: 'User',
+    token: TOKEN,
+  },
+  {
+    id: 6,
+    email: 'LLP02556',
+    username: 'Doer',
+    password: 'Admin',
+    firstName: 'Admin',
+    lastName: 'One',
+    EmpId: 'LLP02556',
     role: 'User',
     token: TOKEN,
   },

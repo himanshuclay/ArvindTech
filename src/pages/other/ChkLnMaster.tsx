@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { Button, Modal, Form, Table, Collapse } from 'react-bootstrap';
+import { Button, Modal, Form, Table } from 'react-bootstrap';
 
 // Define interfaces for the data
 interface AccountProcessTask {
@@ -53,14 +53,13 @@ const AccountProcessTable: React.FC = () => {
     const [projects, setProjects] = useState<{ id: string; projectName: string }[]>([]);
     const [selectedProject, setSelectedProject] = useState<string>('');
     const [showApplyModal, setShowApplyModal] = useState(false);
-    const [assignedTasks, setAssignedTasks] = useState<Map<number, string>>(new Map());
-    const [expandedRow, setExpandedRow] = useState<number | null>(null);
+    const [assignedTasks, setAssignedTasks] = useState<Map<number, { employeeId: string, roleName: string }>>(new Map());
 
     // Fetch Modules
     useEffect(() => {
         const fetchModules = async () => {
             try {
-                const response = await axios.get('https://localhost:44306/api/CommonDropdown/GetModuleList');
+                const response = await axios.get('https://arvindo-api2.clay.in/api/CommonDropdown/GetModuleList');
                 if (response.data.isSuccess) {
                     setModules(response.data.moduleNameListResponses);
                 }
@@ -76,7 +75,7 @@ const AccountProcessTable: React.FC = () => {
         if (selectedModule) {
             const fetchProcesses = async () => {
                 try {
-                    const response = await axios.get(`https://localhost:44306/api/CommonDropdown/GetProcessNameByModuleName?ModuleName=${selectedModule}`);
+                    const response = await axios.get(`https://arvindo-api2.clay.in/api/CommonDropdown/GetProcessNameByModuleName?ModuleName=${selectedModule}`);
                     if (response.data.isSuccess) {
                         setProcesses(response.data.processListResponses);
                     }
@@ -93,7 +92,7 @@ const AccountProcessTable: React.FC = () => {
         if (selectedModule && selectedProcess) {
             const fetchTasks = async () => {
                 try {
-                    const response = await axios.get(`https://localhost:5078/api/AccountModule/GetAccountProcessTaskByIds?ModuleId=ACC&ProcessId=${selectedProcess}`);
+                    const response = await axios.get(`https://arvindo-api.clay.in/api/AccountModule/GetAccountProcessTaskByIds?ModuleId=ACC&ProcessId=${selectedProcess}`);
                     if (response.data.isSuccess) {
                         setTasks(response.data.getAccountProcessTaskByIds);
                     }
@@ -109,7 +108,7 @@ const AccountProcessTable: React.FC = () => {
     const handleAssignClick = async (task: AccountProcessTask) => {
         setSelectedTask(task);
         try {
-            const roleResponse = await axios.get('https://localhost:44306/api/RoleMaster/GetRole?PageIndex=1');
+            const roleResponse = await axios.get('https://arvindo-api2.clay.in/api/RoleMaster/GetRole?PageIndex=1');
             if (roleResponse.data.isSuccess) {
                 setRoles(roleResponse.data.roleMasterListResponses);
                 setShowModal(true);
@@ -125,7 +124,7 @@ const AccountProcessTable: React.FC = () => {
         try {
             const selectedRoleName = roles.find((role) => role.id === roleId)?.roleName;
             if (selectedRoleName) {
-                const doerResponse = await axios.get(`https://localhost:44306/api/CommonDropdown/GetDoerListbyRole?DoerRole=${selectedRoleName}`);
+                const doerResponse = await axios.get(`https://arvindo-api2.clay.in/api/CommonDropdown/GetDoerListbyRole?DoerRole=${selectedRoleName}`);
                 if (doerResponse.data.isSuccess) {
                     setEmployees(doerResponse.data.doerListResponses);
                 } else {
@@ -137,47 +136,50 @@ const AccountProcessTable: React.FC = () => {
         }
     };
 
-    // Log selected employee details
-    useEffect(() => {
-        if (selectedEmployee) {
-            // Find the employee in the employees array
-            const employee = employees.find(emp => emp.empID === selectedEmployee);
-
-            if (employee) {
-                // Log the selected employee's ID and name
-                console.log('Selected Employee ID:', employee.empID);
-                console.log('Selected Employee Name:', employee.empName);
-            } else {
-                console.log('Selected Employee not found.');
-            }
-        }
-    }, [selectedEmployee, employees]);
-
     const handleAssign = () => {
         if (selectedTask && selectedEmployee && selectedRole !== null) {
-            const payload = {
+            const roleName = roles.find((role) => role.id === selectedRole)?.roleName || '';
+            
+            // Update assignedTasks state
+            setAssignedTasks(new Map(assignedTasks).set(selectedTask.id, { employeeId: selectedEmployee, roleName }));
+
+            // Show the payload in an alert
+            alert(`Payload: ${JSON.stringify({
+                id:'string',
                 moduleID: selectedTask.moduleID,
                 moduleName: selectedTask.moduleName,
                 processID: selectedTask.processID,
                 processName: selectedTask.processName,
-                roleName: roles.find((role) => role.id === selectedRole)?.roleName || '',
+                roleName,
                 doerId: selectedEmployee,
                 doerName: employees.find((employee) => employee.empID === selectedEmployee)?.empName || '', // Get employee name based on empID
                 task_Number: selectedTask.task_Number,
                 task_Json: selectedTask.task_Json,
+                task_Status: true,
                 createdBy: 'sameer hussain',
-            };
+                updatedBy: "sameer hussain"
 
-            // Update assignedTasks state
-            setAssignedTasks(new Map(assignedTasks).set(selectedTask.id, selectedEmployee));
-
-            // Show the payload in an alert
-            alert(`Payload: ${JSON.stringify(payload, null, 2)}`);
+            }, null, 2)}`);
 
             // Now proceed with the API request
             const assignTask = async () => {
                 try {
-                    const response = await axios.post('https://localhost:5078/api/AccountModule/TaskAssignRoleWithDoer', payload);
+                    const response = await axios.post('https://arvindo-api.clay.in/api/AccountModule/TaskAssignRoleWithDoer', {
+                        id:'string',
+                        moduleID: selectedTask.moduleID,
+                        moduleName: selectedTask.moduleName,
+                        processID: selectedTask.processID,
+                        processName: selectedTask.processName,
+                        roleName,
+                        doerId: selectedEmployee,
+                        doerName: employees.find((employee) => employee.empID === selectedEmployee)?.empName || '', // Get employee name based on empID
+                        task_Number: selectedTask.task_Number,
+                        task_Json: selectedTask.task_Json,
+                        task_Status: true,
+                        createdBy: 'sameer hussain',
+                        updatedBy: "sameer hussain"
+
+                    });
                     if (response.data.isSuccess) {
                         console.log('Task assigned successfully');
                     } else {
@@ -207,7 +209,7 @@ const AccountProcessTable: React.FC = () => {
 
             // Proceed with the API request
             try {
-                const response = await axios.post('https://localhost:7235/api/AccountModule/ProcessAssignWithProject', payload);
+                const response = await axios.post('https://arvindo-api.clay.in/AccountModule/ProcessAssignWithProject', payload);
                 if (response.data.isSuccess) {
                     console.log('Process assigned to project successfully');
                 } else {
@@ -227,7 +229,7 @@ const AccountProcessTable: React.FC = () => {
     useEffect(() => {
         const fetchProjects = async () => {
             try {
-                const response = await axios.get('https://localhost:44306/api/CommonDropdown/GetProjectList');
+                const response = await axios.get('https://arvindo-api2.clay.in/api/CommonDropdown/GetProjectList');
                 if (response.data.isSuccess) {
                     setProjects(response.data.projectListResponses);
                 }
@@ -237,10 +239,6 @@ const AccountProcessTable: React.FC = () => {
         };
         fetchProjects();
     }, []);
-
-    const toggleExpandRow = (id: number) => {
-        setExpandedRow(expandedRow === id ? null : id);
-    };
 
     return (
         <div>
@@ -318,53 +316,30 @@ const AccountProcessTable: React.FC = () => {
                         <th>Role Name</th>
                         <th>Doer Name</th>
                         <th>Assign</th>
-						{/* <th>Task Json</th> */}
-
                     </tr>
                 </thead>
                 <tbody>
-                    {tasks.map((task) => (
-                                   <React.Fragment>
-  
-					   <tr key={task.id}>
-                            <td>{task.id}</td>
-                            <td>{task.moduleID}</td>
-                            <td>{task.moduleName}</td>
-                            <td>{task.processID}</td>
-                            <td>{task.processName}</td>
-                            <td>{new Date(task.startDate).toLocaleString()}</td>
-                            <td>{task.task_Number}</td>
-                            <td>{assignedTasks.get(task.roleName) || 'N/A'}</td>
-                            <td>
-                                {
-                                    // Find the employee name based on the employee ID
-                                    employees.find(emp => emp.empID === assignedTasks.get(task.id))?.empName || 'NA'
-                                }
-                            </td>
-
-
-                            <td>
-                                <Button onClick={() => handleAssignClick(task)}>Assign</Button>
-                            </td>
-                            {/* <td>
-                                <Button onClick={() => toggleExpandRow(task.id)}>
-                                    {expandedRow === task.id ? 'Collapse' : 'Expand'}
-                                </Button>
-                            </td> */}
-							</tr>
-									<tr>
-                            {/* <td colSpan={10}>
-                                <Collapse in={expandedRow === task.id}>
-                                    <div>
-                                        <pre>{JSON.stringify(JSON.parse(task.task_Json), null, 2)}</pre>
-                                    </div>
-                                </Collapse>
-                            </td> */}
-                        </tr>
-						</React.Fragment>
-
-                    ))}
-
+                    {tasks.map((task) => {
+                        const assignedTask = assignedTasks.get(task.id);
+                        return (
+                            <React.Fragment key={task.id}>
+                                <tr>
+                                    <td>{task.id}</td>
+                                    <td>{task.moduleID}</td>
+                                    <td>{task.moduleName}</td>
+                                    <td>{task.processID}</td>
+                                    <td>{task.processName}</td>
+                                    <td>{new Date(task.startDate).toLocaleString()}</td>
+                                    <td>{task.task_Number}</td>
+                                    <td>{assignedTask?.roleName || 'N/A'}</td>
+                                    <td>{employees.find(emp => emp.empID === assignedTask?.employeeId) ? employees.find(emp => emp.empID === assignedTask?.employeeId)?.empName : 'NA'}</td>
+                                    <td>
+                                        <Button onClick={() => handleAssignClick(task)}>Assign</Button>
+                                    </td>
+                                </tr>
+                            </React.Fragment>
+                        );
+                    })}
                 </tbody>
             </Table>
 
