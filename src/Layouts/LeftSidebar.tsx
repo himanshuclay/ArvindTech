@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom'
 
 //images
 import logo from '@/assets/images/logo.png'
-import logoDark from '@/assets/images/logonew.png'
+import logoDark from '@/assets/images/logo-dark.png'
 import logoSm from '@/assets/images/logo-sm.png'
 import { getMenuItems } from '@/common'
 import AppMenu from './Menu'

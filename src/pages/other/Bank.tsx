@@ -40,7 +40,7 @@ const BankMaster: React.FC = () => {
         setLoading(true);
 
         try {
-            const response = await axios.get('https://localhost:44306/api/BankMaster/GetBankList', {
+            const response = await axios.get('https://localhost:44307/api/BankMaster/GetBankList', {
                 params: {
                     PageIndex: currentPage
                 }
@@ -73,9 +73,9 @@ const BankMaster: React.FC = () => {
         e.preventDefault();
         try {
             if (editingIndex !== null) {
-                await axios.post('https://localhost:44306/api/BankMaster/UpdateBank', bank);
+                await axios.post('https://localhost:44307/api/BankMaster/UpdateBank', bank);
             } else {
-                await axios.post('https://localhost:44306/api/BankMaster/InsertBank', bank);
+                await axios.post('https://localhost:44307/api/BankMaster/InsertBank', bank);
             }
             fetchBanks();
             handleClose();

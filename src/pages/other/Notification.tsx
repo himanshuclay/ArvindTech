@@ -58,59 +58,108 @@ const ProjectAssignTable: React.FC = () => {
     fetchData();
   }, []);
 
-  interface Input {
-    inputId: string;
-    value?: string; // Assuming value is optional
-  }
-
-  interface FormState {
-    [key: string]: string;
-  }
-
-  interface Input {
-    inputId: string;
-    value?: string; // Assuming value is optional
-    type?: string; // Add other properties if necessary
-    label?: string;
-    placeholder?: string;
-    options?: { id: string; label: string }[]; // Example for options in select inputs
-  }
-
-  interface OptionType {
-    value: string;
+  interface Option {
+    id: string;
     label: string;
+    color?: string;
   }
-
-
+  
+  interface Input {
+    inputId: string;
+    type: string;
+    label: string;
+    placeholder: string;
+    options?: Option[];
+    required: boolean;
+    conditionalFieldId?: string;
+    value?: string | boolean;
+  }
+  
   interface DynamicFormProps {
-    formData: any; // Use a specific type if known
+    formData: { inputs: Input[] };
     taskNumber: string;
     doer: string | null;
-    onDoerChange: (taskNumber: string, selectedOption: OptionType | null) => void;
+    onDoerChange: (taskNumber: string, selectedOption: Option | null) => void;
   }
+  
   const DynamicForm: React.FC<DynamicFormProps> = ({ formData, taskNumber, doer, onDoerChange }) => {
     const [formState, setFormState] = useState<{ [key: string]: any }>({});
-    // console.log(formData)
-
+  
     // Initialize form state
     useEffect(() => {
-      // Ensure initialState has the correct type
-      const initialState: FormState = {};
-
-      // Type the parameter 'input' correctly
+      const initialState: { [key: string]: any } = {};
       formData.inputs.forEach((input: Input) => {
         initialState[input.inputId] = input.value || '';
       });
-
       setFormState(initialState);
     }, [formData]);
-
+  
+    // Handle change in input values
     const handleChange = (inputId: string, value: string | boolean) => {
-      setFormState(prevState => ({
-        ...prevState,
-        [inputId]: value
-      }));
+      const input = formData.inputs.find(input => input.inputId === inputId);
+  
+      let updatedValue = value;
+      if (input && input.type === 'select') {
+        const selectedOption = input.options?.find(option => option.label === value);
+        if (selectedOption) {
+          updatedValue = selectedOption.id;
+        }
+      }
+  
+      setFormState(prevState => {
+        const newState = {
+          ...prevState,
+          [inputId]: updatedValue
+        };
+  
+        // Trigger re-evaluation of conditions
+        reEvaluateConditions(newState);
+  
+        return newState;
+      });
     };
+  
+    // Function to re-evaluate conditions for showing/hiding fields
+    const reEvaluateConditions = (newState: { [key: string]: any }) => {
+      const updatedState = { ...newState };
+  
+      formData.inputs.forEach((input) => {
+        if (input.conditionalFieldId) {
+          const conditionValue = newState[input.conditionalFieldId];
+          const shouldDisplay = conditionValue === input.conditionalFieldId;
+  
+          if (shouldDisplay) {
+            // Ensure the input is displayed if condition is met
+            updatedState[input.inputId] = newState[input.inputId] || '';
+          } else {
+            // Optionally reset value if condition is not met
+            // updatedState[input.inputId] = ''; // or keep existing value
+          }
+        }
+      });
+  
+      setFormState(updatedState);
+    };
+  
+    const shouldDisplayInput = (input: Input): boolean => {
+      if (!input.conditionalFieldId) return true;
+  
+      const conditionValue = input.conditionalFieldId;
+      if (conditionValue === 'someid') return true;
+  
+      for (const otherInput of formData.inputs) {
+        if (otherInput.inputId === conditionValue) {
+          return formState[otherInput.inputId] !== ''; 
+        }
+  
+        if (otherInput.options && otherInput.options.some(option => option.id === conditionValue)) {
+          return formState[otherInput.inputId] === conditionValue;
+        }
+      }
+  
+      return false;
+    };
+
     return (
       <>
 
@@ -124,137 +173,141 @@ const ProjectAssignTable: React.FC = () => {
             <Accordion.Item eventKey={taskNumber}>
               <Accordion.Header as="h2" >
                 <div className='fs-6 mb-1 fw-bolder'>Task Name</div>
-                <div className='col-12 fs-5 text-primary'>{formData.inputs.find((input: { inputId: string; label: string }) => input.inputId === "1")?.label}</div>
+                <div className='col-12 fs-5 text-primary'>{formData.inputs.find((input: { inputId: string; label: string }) => input.inputId === "99")?.label}</div>
               </Accordion.Header>
               <Accordion.Body>
                 {[...Array(2)].map((_, index) => (
                   <React.Fragment key={index}>
-                      <span>Mess {index + 1}</span>
+                    <span>Mess {index + 1}</span>
                     <div className='my-task'>
                       {formData.inputs.map((input: Input) => (
-                        <div className='m-3 form-group' key={input.inputId} style={{ marginBottom: '1rem' }}>
-                          <label className='label'>{input.label}</label>
-                          {input.type === 'text' && (
-                            <input
-                              type="text"
-                              className='form-control'
-                              placeholder={input.placeholder}
-                              value={formState[input.inputId]}
-                              onChange={e => handleChange(input.inputId, e.target.value)}
-                            />
-                          )}
-                          {input.type === 'custom' && (
-                            <input
-                              type="text"
-                              placeholder={input.placeholder}
-                              value={formState[input.inputId]}
-                              onChange={e => handleChange(input.inputId, e.target.value)}
-                              style={{ display: 'block', width: '100%', padding: '0.5rem' }}
-                            />
-                          )}
-                          {input.type === 'select' && (
-                            <select className='form-select form-control'
-                              value={formState[input.inputId]}
-                              onChange={e => handleChange(input.inputId, e.target.value)}
-                              style={{ display: 'block', width: '100%', padding: '0.5rem' }}
+                        shouldDisplayInput(input) && (
+                          <div className='m-3 form-group' key={input.inputId} style={{ marginBottom: '1rem' }}>
+                            <label className='label'>{input.label}</label>
+                            {input.type === 'text' && (
+                              <input
+                                type="text"
+                                className='form-control'
+                                placeholder={input.placeholder}
+                                value={formState[input.inputId]}
+                                onChange={e => handleChange(input.inputId, e.target.value)}
+                              />
+                            )}
+                            {input.type === 'custom' && (
+                              <input
+                                type="text"
+                                placeholder={input.placeholder}
+                                value={formState[input.inputId]}
+                                onChange={e => handleChange(input.inputId, e.target.value)}
+                                style={{ display: 'block', width: '100%', padding: '0.5rem' }}
+                              />
+                            )}
+                            {input.type === 'select' && (
+                              <select
+                                id={input.inputId}
+                                className='form-select form-control'
+                                value={formState[input.inputId] || ''}
+                                onChange={e => handleChange(input.inputId, e.target.value)}
+                                style={{ display: 'block', width: '100%', padding: '0.5rem' }}
+                              >
+                                <option value="" disabled>Select an option</option>
+                                {input.options?.map(option => (
+                                  <option key={option.id} value={option.label}>
+                                    {option.label}
+                                  </option>
+                                ))}
+                              </select>
+                            )}
 
-                            >
-                              <option value="" disabled>Select an option</option>
-                              {input.options?.map(option => (
-                                <option key={option.id} value={option.label}>
-                                  {option.label}
-                                </option>
-                              ))}
-                            </select>
-                          )}
-                          {input.type === 'multiselect' && (
-                            <select
-                              className='form-select form-control'
-                              value={formState[input.inputId]}
-                              onChange={e => handleChange(input.inputId, e.target.value)}
-                              style={{ display: 'block', width: '100%', padding: '0.5rem' }}
+                            {input.type === 'multiselect' && (
+                              <select
+                                className='form-select form-control'
+                                value={formState[input.inputId]}
+                                onChange={e => handleChange(input.inputId, e.target.value)}
+                                style={{ display: 'block', width: '100%', padding: '0.5rem' }}
 
-                            >
-                              <option value="" disabled>Select an option</option>
-                              {input.options?.map(option => (
-                                <option key={option.id} value={option.label}>
-                                  {option.label}
-                                </option>
-                              ))}
-                            </select>
-                          )}
-                          {input.type === 'CustomSelect' && (
-                            <select
-                              value={formState[input.inputId]}
-                              onChange={e => handleChange(input.inputId, e.target.value)}
-                              style={{ display: 'block', width: '100%', padding: '0.5rem' }}
+                              >
+                                <option value="" disabled>Select an option</option>
+                                {input.options?.map(option => (
+                                  <option key={option.id} value={option.label}>
+                                    {option.label}
+                                  </option>
+                                ))}
+                              </select>
+                            )}
+                            {input.type === 'CustomSelect' && (
+                              <select
+                                value={formState[input.inputId]}
+                                onChange={e => handleChange(input.inputId, e.target.value)}
+                                style={{ display: 'block', width: '100%', padding: '0.5rem' }}
 
-                            >
-                              <option value="" disabled>Select an option</option>
-                              {input.options?.map(option => (
-                                <option key={option.id} value={option.label}>
-                                  {option.label}
-                                </option>
-                              ))}
-                            </select>
-                          )}
-                          {input.type === 'file' && (
-                            // <input
-                            //     type="file"
-                            //     placeholder={'file'}
-                            //     onChange={e => handleChange(input.fileId, e.target.value)}
-                            //     style={{ display: 'block', width: '100%', padding: '0.5rem' }}
-                            // />
-                            <FileUploader
-                              icon="ri-upload-cloud-2-line"
-                              text="Drop files here or click to upload."
+                              >
+                                <option value="" disabled>Select an option</option>
+                                {input.options?.map(option => (
+                                  <option key={option.id} value={option.label}>
+                                    {option.label}
+                                  </option>
+                                ))}
+                              </select>
+                            )}
+                            {input.type === 'file' && (
+                              // <input
+                              //     type="file"
+                              //     placeholder={'file'}
+                              //     onChange={e => handleChange(input.fileId, e.target.value)}
+                              //     style={{ display: 'block', width: '100%', padding: '0.5rem' }}
+                              // />
+                              <FileUploader
+                                icon="ri-upload-cloud-2-line"
+                                text="Drop files here or click to upload."
 
-                            />
-                          )}
+                              />
+                            )}
 
-                          {input.type === 'checkbox' && (
-                            // <input
+                            {input.type === 'checkbox' && (
+                              // <input
 
-                            //     className='form-control'
+                              //     className='form-control'
 
-                            // />
-                            <span className="form-check">
-                              <input className="form-check-input" type="checkbox"
+                              // />
+                              <span className="form-check">
+                                <input className="form-check-input" type="checkbox"
+                                  checked={formState[input.inputId]}
+                                  onChange={e => handleChange(input.inputId, e.target.checked)} />
+                              </span>
+                            )}
+                            {input.type === 'radio' && (
+                              <input
+                                type="radio"
                                 checked={formState[input.inputId]}
-                                onChange={e => handleChange(input.inputId, e.target.checked)} />
-                            </span>
-                          )}
-                          {input.type === 'radio' && (
-                            <input
-                              type="radio"
-                              checked={formState[input.inputId]}
-                              onChange={e => handleChange(input.inputId, e.target.checked)}
-                            />
-                          )}
-                          {input.type === 'status' && (
-                            <input
-                              type="text"
-                              checked={formState[input.inputId]}
-                              onChange={e => handleChange(input.inputId, e.target.checked)}
-                            />
-                          )}
-                          {input.type === 'successorTask' && (
-                            <input
-                              type="text"
-                              checked={formState[input.inputId]}
-                              onChange={e => handleChange(input.inputId, e.target.checked)}
-                            />
-                          )}
-                          {input.type === 'date' && (
-                            <input
-                              type="date"
-                              value={formState[input.inputId]}
-                              onChange={e => handleChange(input.inputId, e.target.value)}
-                              style={{ display: 'block', width: '100%', padding: '0.5rem' }}
+                                onChange={e => handleChange(input.inputId, e.target.checked)}
+                              />
+                            )}
+                            {input.type === 'status' && (
+                              <input
+                                type="text"
+                                checked={formState[input.inputId]}
+                                onChange={e => handleChange(input.inputId, e.target.checked)}
+                              />
+                            )}
+                            {input.type === 'successorTask' && (
+                              <input
+                                type="text"
+                                checked={formState[input.inputId]}
+                                onChange={e => handleChange(input.inputId, e.target.checked)}
+                              />
+                            )}
+                            {input.type === 'date' && (
+                              <input
+                                type="date"
+                                value={formState[input.inputId]}
+                                onChange={e => handleChange(input.inputId, e.target.value)}
+                                style={{ display: 'block', width: '100%', padding: '0.5rem' }}
 
-                            />
-                          )}
-                        </div>
+                              />
+                            )}
+                          </div>
+                        )
                       ))}
 
                       <div className="col-12 d-flex justify-content-end">
@@ -304,7 +357,10 @@ const ProjectAssignTable: React.FC = () => {
   };
 
   if (loading) {
-    return <p>Loading...</p>;
+    return <div className="loader-fixed">
+      <div className="loader"></div>
+      <div className="mt-2">Please Wait!</div>
+    </div>;
   }
 
   return (

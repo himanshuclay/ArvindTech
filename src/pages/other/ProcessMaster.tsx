@@ -50,7 +50,7 @@ const ProcessMaster: React.FC = () => {
     const fetchProcesses = async () => {
         setLoading(true);
         try {
-            const response = await axios.get('https://localhost:44306/api/ProcessMaster/GetProcess', {
+            const response = await axios.get('https://localhost:44307/api/ProcessMaster/GetProcess', {
                 params: {
                     PageIndex: currentPage
                 }
@@ -93,9 +93,9 @@ const ProcessMaster: React.FC = () => {
         e.preventDefault();
         try {
             if (editingIndex !== null) {
-                await axios.post('https://localhost:44306/api/ProcessMaster/UpdateProcess', process);
+                await axios.post('https://localhost:44307/api/ProcessMaster/UpdateProcess', process);
             } else {
-                await axios.post('https://localhost:44306/api/ProcessMaster/InsertProcess', process);
+                await axios.post('https://localhost:44307/api/ProcessMaster/InsertProcess', process);
             }
             fetchProcesses();
             handleClose();

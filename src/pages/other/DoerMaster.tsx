@@ -48,7 +48,7 @@ const DoerMaster: React.FC = () => {
         setLoading(true);
 
         try {
-            const response = await axios.get('https://localhost:44306/api/DoerMaster/GetDoer', {
+            const response = await axios.get('https://localhost:44307/api/DoerMaster/GetDoer', {
                 params: {
                     PageIndex: currentPage
                 }
@@ -92,9 +92,9 @@ const handleChange = (e: ChangeEvent<any>) => {
         e.preventDefault();
         try {
             if (editingIndex !== null) {
-                await axios.post('https://localhost:44306/api/DoerMaster/UpdateDoer', doer);
+                await axios.post('https://localhost:44307/api/DoerMaster/UpdateDoer', doer);
             } else {
-                await axios.post('https://localhost:44306/api/DoerMaster/InsertDoer', doer);
+                await axios.post('https://localhost:44307/api/DoerMaster/InsertDoer', doer);
             }
             fetchDoers();
             handleClose();

@@ -50,10 +50,11 @@ const AccountProcessTable: React.FC = () => {
     const [selectedTask, setSelectedTask] = useState<AccountProcessTask | null>(null);
     const [selectedEmployee, setSelectedEmployee] = useState<string>('');
     const [selectedRole, setSelectedRole] = useState<number | null>(null);
+    const [Status, setStatus] = useState<number | null>(1);
     const [projects, setProjects] = useState<{ id: string; projectName: string }[]>([]);
     const [selectedProject, setSelectedProject] = useState<string>('');
     const [showApplyModal, setShowApplyModal] = useState(false);
-    const [assignedTasks, setAssignedTasks] = useState<Map<number, { employeeId: string, roleName: string }>>(new Map());
+    const [assignedTasks, setAssignedTasks] = useState<Map<number, { employeeId: string, roleId: number }>>(new Map());
 
     // Fetch Modules
     useEffect(() => {
@@ -107,6 +108,9 @@ const AccountProcessTable: React.FC = () => {
     // Fetch Employees and Roles when assigning task
     const handleAssignClick = async (task: AccountProcessTask) => {
         setSelectedTask(task);
+        setSelectedEmployee(assignedTasks.get(task.id)?.employeeId || '');
+        setSelectedRole(assignedTasks.get(task.id)?.roleId || null);
+
         try {
             const roleResponse = await axios.get('https://arvindo-api2.clay.in/api/RoleMaster/GetRole?PageIndex=1');
             if (roleResponse.data.isSuccess) {
@@ -138,47 +142,26 @@ const AccountProcessTable: React.FC = () => {
 
     const handleAssign = () => {
         if (selectedTask && selectedEmployee && selectedRole !== null) {
-            const roleName = roles.find((role) => role.id === selectedRole)?.roleName || '';
-            
-            // Update assignedTasks state
-            setAssignedTasks(new Map(assignedTasks).set(selectedTask.id, { employeeId: selectedEmployee, roleName }));
-
-            // Show the payload in an alert
-            alert(`Payload: ${JSON.stringify({
-                id:'string',
-                moduleID: selectedTask.moduleID,
-                moduleName: selectedTask.moduleName,
-                processID: selectedTask.processID,
-                processName: selectedTask.processName,
-                roleName,
-                doerId: selectedEmployee,
-                doerName: employees.find((employee) => employee.empID === selectedEmployee)?.empName || '', // Get employee name based on empID
-                task_Number: selectedTask.task_Number,
-                task_Json: selectedTask.task_Json,
-                task_Status: true,
-                createdBy: 'sameer hussain',
-                updatedBy: "sameer hussain"
-
-            }, null, 2)}`);
+            // Update assignedTasks state uniquely for each task
+            setAssignedTasks(new Map(assignedTasks).set(selectedTask.id, { employeeId: selectedEmployee, roleId: selectedRole }));
 
             // Now proceed with the API request
             const assignTask = async () => {
                 try {
-                    const response = await axios.post('https://arvindo-api.clay.in/api/AccountModule/TaskAssignRoleWithDoer', {
-                        id:'string',
+                    const response = await axios.post('https://localhost:5078/api/AccountModule/TaskAssignRoleWithDoer', {
+                        id: 'string',
                         moduleID: selectedTask.moduleID,
                         moduleName: selectedTask.moduleName,
                         processID: selectedTask.processID,
                         processName: selectedTask.processName,
-                        roleName,
+                        roleName: roles.find((role) => role.id === selectedRole)?.roleName || '',
                         doerId: selectedEmployee,
-                        doerName: employees.find((employee) => employee.empID === selectedEmployee)?.empName || '', // Get employee name based on empID
+                        doerName: employees.find((employee) => employee.empID === selectedEmployee)?.empName || '',
                         task_Number: selectedTask.task_Number,
                         task_Json: selectedTask.task_Json,
                         task_Status: true,
                         createdBy: 'sameer hussain',
-                        updatedBy: "sameer hussain"
-
+                        updatedBy: "sameer hussain",
                     });
                     if (response.data.isSuccess) {
                         console.log('Task assigned successfully');
@@ -204,12 +187,8 @@ const AccountProcessTable: React.FC = () => {
                 createdBy: 'sameer',
             }
 
-            // Show the payload in an alert
-            alert(`Payload: ${JSON.stringify(payload, null, 2)}`);
-
-            // Proceed with the API request
             try {
-                const response = await axios.post('https://arvindo-api.clay.in/AccountModule/ProcessAssignWithProject', payload);
+                const response = await axios.post('https://localhost:5078/api/AccountModule/ProcessAssignWithProject', payload);
                 if (response.data.isSuccess) {
                     console.log('Process assigned to project successfully');
                 } else {
@@ -276,110 +255,90 @@ const AccountProcessTable: React.FC = () => {
                         ))}
                     </Form.Control>
                 </Form.Group>
-
-                <Form.Group className="col-md-3 my-1">
-                    <Form.Label>Select Project</Form.Label>
-                    <Form.Control
-                        as="select"
-                        value={selectedProject}
-                        onChange={(e) => setSelectedProject(e.target.value)}
-                    >
-                        <option value="">Select a project</option>
-                        {projects.map((project) => (
-                            <option key={project.id} value={project.id}>
-                                {project.projectName}
-                            </option>
-                        ))}
-                    </Form.Control>
-                </Form.Group>
-
-                <Button
-                    className="col-md-3 mb-1"
-                    variant="primary"
-                    onClick={() => setShowApplyModal(true)}
-                    disabled={!selectedProject}
-                    title='Please assign doer to every Task'
-                >
-                    Apply Process to Project
-                </Button>
             </div>
-            <Table className="bg-white mt-4" striped bordered hover>
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Module ID</th>
-                        <th>Module Name</th>
-                        <th>Process ID</th>
-                        <th>Process Name</th>
-                        <th>Start Date</th>
-                        <th>Task Number</th>
-                        <th>Role Name</th>
-                        <th>Doer Name</th>
-                        <th>Assign</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {tasks.map((task) => {
-                        const assignedTask = assignedTasks.get(task.id);
-                        return (
-                            <React.Fragment key={task.id}>
-                                <tr>
-                                    <td>{task.id}</td>
-                                    <td>{task.moduleID}</td>
+
+            <div className="d-flex p-2 bg-white mt-3 rounded shadow">Task List</div>
+            <div className="bg-white p-3 rounded shadow">
+                <Table striped bordered hover responsive>
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Module</th>
+                            <th>Process</th>
+                            <th>Task Number</th>
+                            <th>Role Name</th>
+                            <th>Doer Name</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {tasks.map((task, index) => {
+                            const assignedTask = assignedTasks.get(task.id);
+                            const roleName = assignedTask ? roles.find((role) => role.id === assignedTask.roleId)?.roleName : 'Select Role';
+                            const doerName = assignedTask ? employees.find((employee) => employee.empID === assignedTask.employeeId)?.empName : 'Select Doer';
+
+                            return (
+                                <tr key={task.id}>
+                                    <td>{index + 1}</td>
                                     <td>{task.moduleName}</td>
-                                    <td>{task.processID}</td>
                                     <td>{task.processName}</td>
-                                    <td>{new Date(task.startDate).toLocaleString()}</td>
                                     <td>{task.task_Number}</td>
-                                    <td>{assignedTask?.roleName || 'N/A'}</td>
-                                    <td>{employees.find(emp => emp.empID === assignedTask?.employeeId) ? employees.find(emp => emp.empID === assignedTask?.employeeId)?.empName : 'NA'}</td>
+                                    <td>{roleName}</td>
+                                    <td>{doerName}</td>
                                     <td>
-                                        <Button onClick={() => handleAssignClick(task)}>Assign</Button>
+                                        <Button
+                                            variant="primary"
+                                            onClick={() => handleAssignClick(task)}
+                                        >
+                                            Assign Role & Employee
+                                        </Button>
                                     </td>
                                 </tr>
-                            </React.Fragment>
-                        );
-                    })}
-                </tbody>
-            </Table>
+                            );
+                        })}
+                    </tbody>
 
+                </Table>
+            </div>
+
+            {/* Modal for Assigning Role and Employee */}
             <Modal show={showModal} onHide={() => setShowModal(false)}>
                 <Modal.Header closeButton>
-                    <Modal.Title>Assign Task</Modal.Title>
+                    <Modal.Title>Assign Role and Employee</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
-                    <Form>
-                        <Form.Group controlId="roleSelect" className="mt-3">
-                            <Form.Label>Select Role</Form.Label>
-                            <Form.Control
-                                as="select"
-                                value={selectedRole !== null ? selectedRole : ''}
-                                onChange={(e) => handleRoleChange(Number(e.target.value))}
-                            >
-                                <option value="">Select a role</option>
-                                {roles.map((role) => (
-                                    <option key={role.id} value={role.id}>
-                                        {role.roleName}
-                                    </option>
-                                ))}
-                            </Form.Control>
-                        </Form.Group>
-                        <Form.Group controlId="employeeSelect">
-                            <Form.Label>Select Employee</Form.Label>
-                            <Form.Control
-                                as="select"
-                                value={selectedEmployee}
-                                onChange={(e) => setSelectedEmployee(e.target.value)}
-                            >
-                                <option value="">Select an employee</option>
-                                {employees.map((employee) => (
-                                    <option key={employee.empID} value={employee.empID}>
-                                        {employee.empName}
-                                    </option>
-                                ))}
-                            </Form.Control>
-                        </Form.Group>
-                    </Form>
+                    <Form.Group controlId="roleSelect">
+                        <Form.Label>Select Role</Form.Label>
+                        <Form.Control
+                            as="select"
+                            value={selectedRole || ''}
+                            onChange={(e) => handleRoleChange(Number(e.target.value))}
+                        >
+                            <option value="">Select a role</option>
+                            {roles.map((role) => (
+                                <option key={role.id} value={role.id}>
+                                    {role.roleName}
+                                </option>
+                            ))}
+                        </Form.Control>
+                    </Form.Group>
+
+                    <Form.Group controlId="employeeSelect" className="mt-3">
+                        <Form.Label>Select Employee</Form.Label>
+                        <Form.Control
+                            as="select"
+                            value={selectedEmployee}
+                            onChange={(e) => setSelectedEmployee(e.target.value)}
+                            disabled={!selectedRole}
+                        >
+                            <option value="">Select an employee</option>
+                            {employees.map((employee) => (
+                                <option key={employee.empID} value={employee.empID}>
+                                    {employee.empName}
+                                </option>
+                            ))}
+                        </Form.Control>
+                    </Form.Group>
                 </Modal.Body>
                 <Modal.Footer>
                     <Button variant="secondary" onClick={() => setShowModal(false)}>
@@ -391,27 +350,44 @@ const AccountProcessTable: React.FC = () => {
                 </Modal.Footer>
             </Modal>
 
-            <Modal show={showApplyModal} onHide={() => setShowApplyModal(false)}>
-                <Modal.Header closeButton>
-                    <Modal.Title>Apply Process to Project</Modal.Title>
-                </Modal.Header>
-                <Modal.Body>
-                    <p>You have selected project: {selectedProject}</p>
-                </Modal.Body>
-                <Modal.Footer>
-                    <Button variant="secondary" onClick={() => setShowApplyModal(false)}>
-                        Close
-                    </Button>
-                    <Button
-                        variant="primary"
-                        onClick={handleApplyProcessToProject}
-                    >
-                        Apply
-                    </Button>
-                </Modal.Footer>
-            </Modal>
+            {/* Apply Process to Project */}
+            <div className="bg-white p-3 rounded shadow">
+                <Button variant="primary" onClick={() => setShowApplyModal(true)}>
+                    Apply Process to Project
+                </Button>
+                <Modal show={showApplyModal} onHide={() => setShowApplyModal(false)}>
+                    <Modal.Header closeButton>
+                        <Modal.Title>Apply Process to Project</Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body>
+                        <Form.Group controlId="projectSelect">
+                            <Form.Label>Select Project</Form.Label>
+                            <Form.Control
+                                as="select"
+                                value={selectedProject}
+                                onChange={(e) => setSelectedProject(e.target.value)}
+                            >
+                                <option value="">Select a project</option>
+                                {projects.map((project) => (
+                                    <option key={project.id} value={project.id}>
+                                        {project.projectName}
+                                    </option>
+                                ))}
+                            </Form.Control>
+                        </Form.Group>
+                    </Modal.Body>
+                    <Modal.Footer>
+                        <Button variant="secondary" onClick={() => setShowApplyModal(false)}>
+                            Close
+                        </Button>
+                        <Button variant="primary" onClick={handleApplyProcessToProject}>
+                            Apply
+                        </Button>
+                    </Modal.Footer>
+                </Modal>
+            </div>
         </div>
     );
-}
+};
 
 export default AccountProcessTable;

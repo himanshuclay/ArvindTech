@@ -50,6 +50,7 @@ const TaskFormPage = () => {
 
     const [tasks, setTasks] = useState<Task[]>([]);
 
+
     console.log(tasks)
 
     const handleProjectChange = (selectedOption: OptionType | null) => {
@@ -62,6 +63,21 @@ const TaskFormPage = () => {
             setSelectedProject(null);
         }
     };
+
+    const fetchConditionalFieldIds = () => {
+        tasks.forEach((task) => {
+            const inputs = task.taskJson.inputs;
+
+            inputs.forEach((input: any) => {
+                if (input.conditionalFieldId) {
+                    // console.log(`Task: ${task.taskName}, Input ID: ${input.inputId}, Conditional Field ID: ${input.conditionalFieldId}`);
+                }
+            });
+        });
+    };
+
+    // Call this function where appropriate, such as after tasks are loaded or updated
+    fetchConditionalFieldIds();
 
 
     const [doers, setDoers] = useState<{ [key: string]: string | null }>({});
@@ -82,6 +98,7 @@ const TaskFormPage = () => {
         value?: string; // Assuming value is optional
         type?: string; // Add other properties if necessary
         label?: string;
+        conditionalFieldId?: string;
         placeholder?: string;
         options?: { id: string; label: string }[]; // Example for options in select inputs
     }
@@ -128,135 +145,135 @@ const TaskFormPage = () => {
                         <Accordion.Item eventKey={taskNumber}>
                             <Accordion.Header as="h2" >
                                 <div className='fs-6 mb-1 fw-bolder'>Task Name</div>
-                                <div className='col-12 fs-5 text-primary'>{formData.inputs.find((input: { inputId: string; label: string }) => input.inputId === "1")?.label}</div>
+                                <div className='col-12 fs-5 text-primary'>{formData.inputs.find((input: { inputId: string; label: string }) => input.inputId === "99")?.label}</div>
                             </Accordion.Header>
                             <Accordion.Body className='my-task'>
 
-                                {formData.inputs.map((input: Input) => (
-                                    <div className='m-3 form-group' key={input.inputId} style={{ marginBottom: '1rem' }}>
-                                        <label className='label'>{input.label}</label>
-                                        {input.type === 'text' && (
-                                            <input
-                                                type="text"
-                                                className='form-control'
-                                                placeholder={input.placeholder}
-                                                value={formState[input.inputId]}
-                                                onChange={e => handleChange(input.inputId, e.target.value)}
-                                            />
-                                        )}
-                                        {input.type === 'custom' && (
-                                            <input
-                                                type="text"
-                                                placeholder={input.placeholder}
-                                                value={formState[input.inputId]}
-                                                onChange={e => handleChange(input.inputId, e.target.value)}
-                                                style={{ display: 'block', width: '100%', padding: '0.5rem' }}
-                                            />
-                                        )}
-                                        {input.type === 'select' && (
-                                            <select className='form-select form-control'
-                                                value={formState[input.inputId]}
-                                                onChange={e => handleChange(input.inputId, e.target.value)}
-                                                style={{ display: 'block', width: '100%', padding: '0.5rem' }}
+                                {formData.inputs.map((input: Input) => {
+                                    // Check if the input should be displayed
+                                    // const selectedValue = formState['12-1'] || ''; // Adjust '12' to the actual select inputId
 
-                                            >
-                                                <option value="" disabled>Select an option</option>
-                                                {input.options?.map(option => (
-                                                    <option key={option.id} value={option.label}>
-                                                        {option.label}
-                                                    </option>
-                                                ))}
-                                            </select>
-                                        )}
-                                        {input.type === 'multiselect' && (
-                                            <select
-                                                className='form-select form-control'
-                                                value={formState[input.inputId]}
-                                                onChange={e => handleChange(input.inputId, e.target.value)}
-                                                style={{ display: 'block', width: '100%', padding: '0.5rem' }}
+                                    // // Determine if the current input should be displayed
+                                    // const shouldDisplay =
+                                    //     input.conditionalFieldId == "someid" || // Display if there's no conditionalFieldId
+                                    //     (input.conditionalFieldId === selectedValue); // Display if the selected value matches the conditionalFieldId
 
-                                            >
-                                                <option value="" disabled>Select an option</option>
-                                                {input.options?.map(option => (
-                                                    <option key={option.id} value={option.label}>
-                                                        {option.label}
-                                                    </option>
-                                                ))}
-                                            </select>
-                                        )}
-                                        {input.type === 'CustomSelect' && (
-                                            <select
-                                                value={formState[input.inputId]}
-                                                onChange={e => handleChange(input.inputId, e.target.value)}
-                                                style={{ display: 'block', width: '100%', padding: '0.5rem' }}
+                                    return (
+                                        // shouldDisplay && (
+                                            <div className='m-3 form-group' key={input.inputId} style={{ marginBottom: '1rem' }}>
+                                                <label className='label'>{input.label}</label>
+                                                {input.type === 'text' && (
+                                                    <input
+                                                        type="text"
+                                                        className='form-control'
+                                                        placeholder={input.placeholder}
+                                                        value={formState[input.inputId]}
+                                                        onChange={e => handleChange(input.inputId, e.target.value)}
+                                                    />
+                                                )}
+                                                {input.type === 'custom' && (
+                                                    <input
+                                                        type="text"
+                                                        placeholder={input.placeholder}
+                                                        value={formState[input.inputId]}
+                                                        onChange={e => handleChange(input.inputId, e.target.value)}
+                                                        style={{ display: 'block', width: '100%', padding: '0.5rem' }}
+                                                    />
+                                                )}
+                                                {input.type === 'select' && (
+                                                    <select
+                                                        className='form-select form-control'
+                                                        value={formState[input.inputId]}
+                                                        onChange={e => handleChange(input.inputId, e.target.value)}
+                                                        style={{ display: 'block', width: '100%', padding: '0.5rem' }}
+                                                    >
+                                                        <option value="" disabled>Select an option</option>
+                                                        {input.options?.map(option => (
+                                                            <option key={option.id} value={option.label}>
+                                                                {option.label}
+                                                            </option>
+                                                        ))}
+                                                    </select>
+                                                )}
+                                                {input.type === 'multiselect' && (
+                                                    <select
+                                                        className='form-select form-control'
+                                                        value={formState[input.inputId]}
+                                                        onChange={e => handleChange(input.inputId, e.target.value)}
+                                                        style={{ display: 'block', width: '100%', padding: '0.5rem' }}
+                                                    >
+                                                        <option value="" disabled>Select an option</option>
+                                                        {input.options?.map(option => (
+                                                            <option key={option.id} value={option.label}>
+                                                                {option.label}
+                                                            </option>
+                                                        ))}
+                                                    </select>
+                                                )}
+                                                {input.type === 'CustomSelect' && (
+                                                    <select
+                                                        value={formState[input.inputId]}
+                                                        onChange={e => handleChange(input.inputId, e.target.value)}
+                                                        style={{ display: 'block', width: '100%', padding: '0.5rem' }}
+                                                    >
+                                                        <option value="" disabled>Select an option</option>
+                                                        {input.options?.map(option => (
+                                                            <option key={option.id} value={option.label}>
+                                                                {option.label}
+                                                            </option>
+                                                        ))}
+                                                    </select>
+                                                )}
+                                                {input.type === 'file' && (
+                                                    <FileUploader
+                                                        icon="ri-upload-cloud-2-line"
+                                                        text="Drop files here or click to upload."
+                                                    />
+                                                )}
+                                                {input.type === 'checkbox' && (
+                                                    <span className="form-check">
+                                                        <input
+                                                            className="form-check-input"
+                                                            type="checkbox"
+                                                            checked={formState[input.inputId]}
+                                                            onChange={e => handleChange(input.inputId, e.target.checked)}
+                                                        />
+                                                    </span>
+                                                )}
+                                                {input.type === 'radio' && (
+                                                    <input
+                                                        type="radio"
+                                                        checked={formState[input.inputId]}
+                                                        onChange={e => handleChange(input.inputId, e.target.checked)}
+                                                    />
+                                                )}
+                                                {input.type === 'status' && (
+                                                    <input
+                                                        type="text"
+                                                        checked={formState[input.inputId]}
+                                                        onChange={e => handleChange(input.inputId, e.target.checked)}
+                                                    />
+                                                )}
+                                                {input.type === 'successorTask' && (
+                                                    <input
+                                                        type="text"
+                                                        checked={formState[input.inputId]}
+                                                        onChange={e => handleChange(input.inputId, e.target.checked)}
+                                                    />
+                                                )}
+                                                {input.type === 'date' && (
+                                                    <input
+                                                        type="date"
+                                                        value={formState[input.inputId]}
+                                                        onChange={e => handleChange(input.inputId, e.target.value)}
+                                                        style={{ display: 'block', width: '100%', padding: '0.5rem' }}
+                                                    />
+                                                )}
+                                            </div>
+                                        )
+                                    // );
+                                })}
 
-                                            >
-                                                <option value="" disabled>Select an option</option>
-                                                {input.options?.map(option => (
-                                                    <option key={option.id} value={option.label}>
-                                                        {option.label}
-                                                    </option>
-                                                ))}
-                                            </select>
-                                        )}
-                                        {input.type === 'file' && (
-                                            // <input
-                                            //     type="file"
-                                            //     placeholder={'file'}
-                                            //     onChange={e => handleChange(input.fileId, e.target.value)}
-                                            //     style={{ display: 'block', width: '100%', padding: '0.5rem' }}
-                                            // />
-                                            <FileUploader
-                                                icon="ri-upload-cloud-2-line"
-                                                text="Drop files here or click to upload."
-
-                                            />
-                                        )}
-
-                                        {input.type === 'checkbox' && (
-                                            // <input
-
-                                            //     className='form-control'
-
-                                            // />
-                                            <span className="form-check">
-                                                <input className="form-check-input" type="checkbox"
-                                                    checked={formState[input.inputId]}
-                                                    onChange={e => handleChange(input.inputId, e.target.checked)} />
-                                            </span>
-                                        )}
-                                        {input.type === 'radio' && (
-                                            <input
-                                                type="radio"
-                                                checked={formState[input.inputId]}
-                                                onChange={e => handleChange(input.inputId, e.target.checked)}
-                                            />
-                                        )}
-                                        {input.type === 'status' && (
-                                            <input
-                                                type="text"
-                                                checked={formState[input.inputId]}
-                                                onChange={e => handleChange(input.inputId, e.target.checked)}
-                                            />
-                                        )}
-                                        {input.type === 'successorTask' && (
-                                            <input
-                                                type="text"
-                                                checked={formState[input.inputId]}
-                                                onChange={e => handleChange(input.inputId, e.target.checked)}
-                                            />
-                                        )}
-                                        {input.type === 'date' && (
-                                            <input
-                                                type="date"
-                                                value={formState[input.inputId]}
-                                                onChange={e => handleChange(input.inputId, e.target.value)}
-                                                style={{ display: 'block', width: '100%', padding: '0.5rem' }}
-
-                                            />
-                                        )}
-                                    </div>
-                                ))}
                                 <div className='form-group m-3 d-none'>
                                     <p className="mb-1 fw-bold text-muted">Assign Doer</p>
                                     <Select
@@ -267,11 +284,11 @@ const TaskFormPage = () => {
                                     />
                                 </div>
 
-                                <div className="col-12 d-flex justify-content-end">
+                                {/* <div className="col-12 d-flex justify-content-end">
                                     <button className='btn btn-primary' type="submit" style={{ padding: '0.5rem 1rem' }}>
                                         Apply
                                     </button>
-                                </div>
+                                </div> */}
 
                             </Accordion.Body>
 
@@ -298,7 +315,7 @@ const TaskFormPage = () => {
         const fetchRoleNames = async (): Promise<{ roleName: string }[]> => {
             try {
                 const response = await axios.get(
-                    'https://localhost:44306/api/CommonDropdown/GetRoleMasterList',
+                    'https://localhost:44307/api/CommonDropdown/GetRoleMasterList',
                     {
                         headers: {
                             accept: '*/*',
@@ -373,7 +390,7 @@ const TaskFormPage = () => {
     useEffect(() => {
         const fetchProjects = async () => {
             try {
-                const response = await axios.get('https://localhost:44306/api/CommonDropdown/GetProjectList', {
+                const response = await axios.get('https://localhost:44307/api/CommonDropdown/GetProjectList', {
                     headers: {
                         'accept': '*/*',
                     },
@@ -401,7 +418,7 @@ const TaskFormPage = () => {
 
     const fetchModules = async () => {
         try {
-            const response = await axios.get('https://localhost:44306/api/CommonDropdown/GetModuleList');
+            const response = await axios.get('https://localhost:44307/api/CommonDropdown/GetModuleList');
             if (response.data.isSuccess) {
                 setModules(response.data.moduleNameListResponses);
             } else {
@@ -439,7 +456,7 @@ const TaskFormPage = () => {
 
                 if (selectedModule) {
                     try {
-                        const response = await axios.get('https://localhost:44306/api/CommonDropdown/GetProcessNameByModuleName', {
+                        const response = await axios.get('https://localhost:44307/api/CommonDropdown/GetProcessNameByModuleName', {
                             params: { ModuleName: value },
                         });
                         if (response.data.isSuccess) {

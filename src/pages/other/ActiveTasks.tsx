@@ -196,7 +196,7 @@ const App: React.FC = () => {
             <th>Role</th>
             <th>Doer Name</th>
             <th>Task Number</th>
-            <th>Status</th>
+            {/* <th>Status</th> */}
           </tr>
         </thead>
         <tbody>
@@ -210,9 +210,9 @@ const App: React.FC = () => {
                 <td>{item.roleName}</td>
                 <td>{item.doerName}</td>
                 <td>{item.task_Number}</td>
-                <td>
+                {/* <td>
                   <Button>Pending</Button>
-                </td>
+                </td> */}
               </tr>
             ))
           ) : (
