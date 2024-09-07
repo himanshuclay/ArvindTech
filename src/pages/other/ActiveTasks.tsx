@@ -47,7 +47,7 @@ const App: React.FC = () => {
     const fetchInitialData = async () => {
       setLoading(true);
       try {
-        const response = await fetch('https://arvindo-api.clay.in/api/AccountModule/GetTaskAssignListWithDoer?Flag=1');
+        const response = await fetch('https://localhost:5078/api/AccountModule/GetTaskAssignListWithDoer?Flag=1');
         if (!response.ok) {
           throw new Error('Network response was not ok');
         }
@@ -113,7 +113,7 @@ const App: React.FC = () => {
     const fetchTasks = async () => {
       setLoading(true);
       try {
-        let apiUrl = 'https://arvindo-api.clay.in/api/AccountModule/GetTaskAssignListWithDoer?Flag=1';
+        let apiUrl = 'https://https://localhost:5078/api/AccountModule/GetTaskAssignListWithDoer?Flag=1';
         const selectedModuleObj = modules.find((module) => module.moduleName === selectedModule);
 
         if (selectedModuleObj && selectedProcess) {

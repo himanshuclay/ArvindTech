@@ -35,7 +35,7 @@ const ProjectAssignTable: React.FC = () => {
       try {
         const role = localStorage.getItem('EmpId') || '';
         const response = await axios.get<ApiResponse>(
-          `https://localhost:5078/api/AccountModule/GetTaskAssignListWithDoer?Flag=2&DoerId=${role}`
+          `https://localhost:5078/api/AccountModule/GetTaskAssignListWithDoer?DoerId=${role}`
         );
 
         if (response.data && response.data.isSuccess) {

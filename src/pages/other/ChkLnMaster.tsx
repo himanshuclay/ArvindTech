@@ -12,6 +12,9 @@ interface AccountProcessTask {
     startDate: string;
     task_Json: string;
     task_Number: string;
+    finishPoint: any;
+    roleId: string;
+    roleName: string;
 }
 
 interface Employee {
@@ -55,12 +58,13 @@ const AccountProcessTable: React.FC = () => {
     const [selectedProject, setSelectedProject] = useState<string>('');
     const [showApplyModal, setShowApplyModal] = useState(false);
     const [assignedTasks, setAssignedTasks] = useState<Map<number, { employeeId: string, roleId: number }>>(new Map());
+    const [filteredJson, setFilteredJson] = useState<any | null>(null);
 
     // Fetch Modules
     useEffect(() => {
         const fetchModules = async () => {
             try {
-                const response = await axios.get('https://arvindo-api2.clay.in/api/CommonDropdown/GetModuleList');
+                const response = await axios.get('https://localhost:44307/api/CommonDropdown/GetModuleList');
                 if (response.data.isSuccess) {
                     setModules(response.data.moduleNameListResponses);
                 }
@@ -71,12 +75,43 @@ const AccountProcessTable: React.FC = () => {
         fetchModules();
     }, []);
 
+    const fetchJsonByInputId = () => {
+        if (tasks.length > 0) {
+          const taskWithJson = tasks.find(task => task.finishPoint); // Get the task that has a finishPoint
+          console.log(taskWithJson)
+          if (taskWithJson) {
+            try {
+              // Parse the task_Json from string to an object
+              const taskJsonParsed = JSON.parse(taskWithJson.task_Json);
+              console.log(taskJsonParsed)
+    
+              // Find the input related to finishPoint from task_Json
+              const inputField = taskJsonParsed.find(
+                (field: any) => field.inputId === taskWithJson.finishPoint
+              );
+    
+              // If inputField is found, set it to the state
+              setFilteredJson(inputField || null);
+            } catch (error) {
+              console.error("Error parsing task_Json:", error);
+            }
+          }
+        }
+      };
+    
+      // Fetch the related JSON when the modal is opened
+      useEffect(() => {
+        if (showModal) {
+          fetchJsonByInputId();
+        }
+      }, [showModal, tasks]);
+
     // Fetch Processes based on selected module
     useEffect(() => {
         if (selectedModule) {
             const fetchProcesses = async () => {
                 try {
-                    const response = await axios.get(`https://arvindo-api2.clay.in/api/CommonDropdown/GetProcessNameByModuleName?ModuleName=${selectedModule}`);
+                    const response = await axios.get(`https://localhost:44307/api/CommonDropdown/GetProcessNameByModuleName?ModuleName=${selectedModule}`);
                     if (response.data.isSuccess) {
                         setProcesses(response.data.processListResponses);
                     }
@@ -93,9 +128,10 @@ const AccountProcessTable: React.FC = () => {
         if (selectedModule && selectedProcess) {
             const fetchTasks = async () => {
                 try {
-                    const response = await axios.get(`https://arvindo-api.clay.in/api/AccountModule/GetAccountProcessTaskByIds?ModuleId=ACC&ProcessId=${selectedProcess}`);
+                    const response = await axios.get(`https://localhost:5078/api/AccountModule/GetAccountProcessTaskByIds?ModuleId=ACC&ProcessId=${selectedProcess}`);
                     if (response.data.isSuccess) {
                         setTasks(response.data.getAccountProcessTaskByIds);
+                        console.log(tasks)
                     }
                 } catch (error) {
                     console.error('Error fetching tasks', error);
@@ -112,7 +148,7 @@ const AccountProcessTable: React.FC = () => {
         setSelectedRole(assignedTasks.get(task.id)?.roleId || null);
 
         try {
-            const roleResponse = await axios.get('https://arvindo-api2.clay.in/api/RoleMaster/GetRole?PageIndex=1');
+            const roleResponse = await axios.get('https://localhost:44307/api/RoleMaster/GetRole?PageIndex=1');
             if (roleResponse.data.isSuccess) {
                 setRoles(roleResponse.data.roleMasterListResponses);
                 setShowModal(true);
@@ -123,46 +159,74 @@ const AccountProcessTable: React.FC = () => {
     };
 
     // Fetch Doers based on the selected role
-    const handleRoleChange = async (roleId: number) => {
-        setSelectedRole(roleId);
-        try {
-            const selectedRoleName = roles.find((role) => role.id === roleId)?.roleName;
-            if (selectedRoleName) {
-                const doerResponse = await axios.get(`https://arvindo-api2.clay.in/api/CommonDropdown/GetDoerListbyRole?DoerRole=${selectedRoleName}`);
-                if (doerResponse.data.isSuccess) {
-                    setEmployees(doerResponse.data.doerListResponses);
-                } else {
-                    console.error('Failed to fetch doers');
+
+    useEffect(() => {
+        if (selectedTask?.roleName) {
+            const fetchEmployees = async () => {
+                try {
+                    const response = await axios.get(`https://localhost:44307/api/CommonDropdown/GetDoerListbyRole?DoerRole=${selectedTask.roleName}`);
+                    if (response.data.isSuccess) {
+                        setEmployees(response.data.doerListResponses);
+                    } else {
+                        console.error("Failed to fetch employees");
+                    }
+                } catch (error) {
+                    console.error("Error fetching employees:", error);
                 }
-            }
-        } catch (error) {
-            console.error('Error fetching doers', error);
+            };
+
+            fetchEmployees();
+        }
+    }, [selectedTask?.roleName]);
+
+    // Handle employee selection
+    const handleEmployeeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+        const selectedValue = e.target.value;
+        setSelectedEmployee(selectedValue);
+
+        // Split empID and empName from the selected value
+        const [selectedEmpId, selectedEmpName] = selectedValue.split('|');
+
+        if (selectedEmpId && selectedEmpName) {
+            // Save empID and empName to localStorage
+            localStorage.setItem("selectedEmpId", selectedEmpId);
+            localStorage.setItem("selectedEmpName", selectedEmpName);
         }
     };
 
+
+
     const handleAssign = () => {
-        if (selectedTask && selectedEmployee && selectedRole !== null) {
+        if (selectedTask && selectedEmployee) {
             // Update assignedTasks state uniquely for each task
-            setAssignedTasks(new Map(assignedTasks).set(selectedTask.id, { employeeId: selectedEmployee, roleId: selectedRole }));
+            setAssignedTasks(new Map(assignedTasks).set(selectedTask.id, { employeeId: selectedEmployee, roleId: selectedTask.roleId }));
+
+            // Prepare the payload to be submitted
+            const payload = {
+                id: "",// Ensure this ID matches the task
+                moduleID: selectedTask.moduleID,
+                moduleName: selectedTask.moduleName,
+                processID: selectedTask.processID,
+                processName: selectedTask.processName,
+                roleName: selectedTask.roleName, // Use role name from selected task
+                roleId: selectedTask.roleId,
+                doerId: selectedEmployee, // The employee assigned to this task
+                doerName: "Lovely_LLP01878",// Find employee name from the list
+                task_Number: selectedTask.task_Number,
+                task_Json: selectedTask.task_Json,
+                task_Status: true, // Set task status as true (active or assigned)
+                createdBy: 'sameer hussain',
+                updatedBy: 'sameer hussain',
+            };
+
+            // Log the payload to the console before submission
+            console.log('Payload:', payload);
 
             // Now proceed with the API request
             const assignTask = async () => {
                 try {
-                    const response = await axios.post('https://localhost:5078/api/AccountModule/TaskAssignRoleWithDoer', {
-                        id: 'string',
-                        moduleID: selectedTask.moduleID,
-                        moduleName: selectedTask.moduleName,
-                        processID: selectedTask.processID,
-                        processName: selectedTask.processName,
-                        roleName: roles.find((role) => role.id === selectedRole)?.roleName || '',
-                        doerId: selectedEmployee,
-                        doerName: employees.find((employee) => employee.empID === selectedEmployee)?.empName || '',
-                        task_Number: selectedTask.task_Number,
-                        task_Json: selectedTask.task_Json,
-                        task_Status: true,
-                        createdBy: 'sameer hussain',
-                        updatedBy: "sameer hussain",
-                    });
+                    const response = await axios.post('https://localhost:5078/api/AccountModule/TaskAssignRoleWithDoer', payload);
+
                     if (response.data.isSuccess) {
                         console.log('Task assigned successfully');
                     } else {
@@ -173,9 +237,14 @@ const AccountProcessTable: React.FC = () => {
                 }
             };
             assignTask();
+        } else {
+            console.error('Please select a task and an employee before assigning.');
         }
-        setShowModal(false);
+
+        setShowModal(false); // Close the modal after assignment
     };
+
+
 
     const handleApplyProcessToProject = async () => {
         if (selectedProject && selectedTask) {
@@ -208,7 +277,7 @@ const AccountProcessTable: React.FC = () => {
     useEffect(() => {
         const fetchProjects = async () => {
             try {
-                const response = await axios.get('https://arvindo-api2.clay.in/api/CommonDropdown/GetProjectList');
+                const response = await axios.get('https://localhost:44307/api/CommonDropdown/GetProjectList');
                 if (response.data.isSuccess) {
                     setProjects(response.data.projectListResponses);
                 }
@@ -218,6 +287,14 @@ const AccountProcessTable: React.FC = () => {
         };
         fetchProjects();
     }, []);
+
+    const [showModalone, setShowModalone] = useState(false);
+
+    // Function to handle opening the modal
+    const handleShow = () => setShowModalone(true);
+
+    // Function to handle closing the modal
+    const handleClose = () => setShowModalone(false);
 
     return (
         <div>
@@ -269,12 +346,12 @@ const AccountProcessTable: React.FC = () => {
                             <th>Role Name</th>
                             <th>Doer Name</th>
                             <th>Action</th>
+                            <th>conditions</th>
                         </tr>
                     </thead>
                     <tbody>
                         {tasks.map((task, index) => {
                             const assignedTask = assignedTasks.get(task.id);
-                            const roleName = assignedTask ? roles.find((role) => role.id === assignedTask.roleId)?.roleName : 'Select Role';
                             const doerName = assignedTask ? employees.find((employee) => employee.empID === assignedTask.employeeId)?.empName : 'Select Doer';
 
                             return (
@@ -283,7 +360,7 @@ const AccountProcessTable: React.FC = () => {
                                     <td>{task.moduleName}</td>
                                     <td>{task.processName}</td>
                                     <td>{task.task_Number}</td>
-                                    <td>{roleName}</td>
+                                    <td>{task.roleName}</td>
                                     <td>{doerName}</td>
                                     <td>
                                         <Button
@@ -291,6 +368,11 @@ const AccountProcessTable: React.FC = () => {
                                             onClick={() => handleAssignClick(task)}
                                         >
                                             Assign Role & Employee
+                                        </Button>
+                                    </td>
+                                    <td>
+                                        <Button variant="primary" onClick={handleShow}>
+                                            Conditions
                                         </Button>
                                     </td>
                                 </tr>
@@ -301,39 +383,40 @@ const AccountProcessTable: React.FC = () => {
                 </Table>
             </div>
 
+            <Modal show={showModalone} onHide={handleClose}>
+                <Modal.Header closeButton>
+                    <Modal.Title>Conditions Form</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    {/* Check if filteredJson exists */}
+                    {filteredJson ? (
+                        <pre>{JSON.stringify(filteredJson, null, 2)}</pre> // Show the JSON in a readable format
+                    ) : (
+                        <p>No data found for the selected inputId.</p>
+                    )}
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="secondary" onClick={handleClose}>
+                        Close
+                    </Button>
+                    <Button variant="primary" onClick={handleClose}>
+                        Save Changes
+                    </Button>
+                </Modal.Footer>
+            </Modal>
+
             {/* Modal for Assigning Role and Employee */}
             <Modal show={showModal} onHide={() => setShowModal(false)}>
                 <Modal.Header closeButton>
                     <Modal.Title>Assign Role and Employee</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
-                    <Form.Group controlId="roleSelect">
-                        <Form.Label>Select Role</Form.Label>
-                        <Form.Control
-                            as="select"
-                            value={selectedRole || ''}
-                            onChange={(e) => handleRoleChange(Number(e.target.value))}
-                        >
-                            <option value="">Select a role</option>
-                            {roles.map((role) => (
-                                <option key={role.id} value={role.id}>
-                                    {role.roleName}
-                                </option>
-                            ))}
-                        </Form.Control>
-                    </Form.Group>
-
-                    <Form.Group controlId="employeeSelect" className="mt-3">
-                        <Form.Label>Select Employee</Form.Label>
-                        <Form.Control
-                            as="select"
-                            value={selectedEmployee}
-                            onChange={(e) => setSelectedEmployee(e.target.value)}
-                            disabled={!selectedRole}
-                        >
+                    <Form.Group className="mt-3">
+                        <Form.Label>Assign Employee</Form.Label>
+                        <Form.Control as="select" value={selectedEmployee} onChange={handleEmployeeChange}>
                             <option value="">Select an employee</option>
-                            {employees.map((employee) => (
-                                <option key={employee.empID} value={employee.empID}>
+                            {employees.map((employee, index) => (
+                                <option key={`${employee.empID}-${index}`} value={`${employee.empID}|${employee.empName}`}>
                                     {employee.empName}
                                 </option>
                             ))}

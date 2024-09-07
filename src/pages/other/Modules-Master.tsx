@@ -9,6 +9,7 @@ import {
 import { Button, Form, Modal, ListGroup, Toast } from 'react-bootstrap';
 import axios from 'axios';
 import CustomFlatpickr from '@/components/CustomFlatpickr';
+import { finished } from 'stream';
 
 
 type FormField = {
@@ -41,6 +42,11 @@ interface FormFieldOption {
   id: string;
   label: string;
   color: string;
+}
+
+interface Role {
+  id: string;
+  roleName: string;
 }
 
 interface Module {
@@ -158,6 +164,7 @@ const App: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modules, setModules] = useState<Module[]>([]);
   const [selectedModule, setSelectedModule] = useState<Module | null>(null);
+  const [selectedRole, setSelectedRole] = useState<Role | null>(null);
   const [editField, setEditField] = useState<FormField>({
     inputId: 'example', // or an appropriate default value
     options: [], // Initialize options as an empty array
@@ -165,13 +172,16 @@ const App: React.FC = () => {
   const [selectedTaskIdx, setSelectedTaskIdx] = useState<number | null>(null);
   const [selectedFieldIdx, setSelectedFieldIdx] = useState<number | null>(null);
   const [showToast, setShowToast] = useState(false);
+  const [roles, setRoles] = useState<Role[]>([]);
   const [formData, setFormData] = useState({
     taskName: '',
     ModuleName: '',
     ModuleId: '',
     projectName: '',
     processName: '',
+    RoleName: '',
     processID: '',
+    finishID: '',
     Date: new Date(),
     processOptions: [] as ProcessOption[], // Add processOptions to store the list of processes
   });
@@ -208,7 +218,7 @@ const App: React.FC = () => {
       { inputId: '99', type: 'text', labeltext: `${formData.taskName}` },
       { inputId: '100', type: 'text', labeltext: `${formData.ModuleName}` },
       { inputId: '102', type: 'text', labeltext: `${formData.processName}` },
-      // { id: '103', type: 'date', labeltext: `Date&Time - ${formData.Date}` },
+      { inputId: '103', type: 'text', labeltext: `${selectedRole?.roleName}` },
     ];
 
 
@@ -224,32 +234,32 @@ const App: React.FC = () => {
     const { source, destination } = result;
 
     if (source.droppableId === destination.droppableId) {
-        const items = reorder(
-            source.droppableId === 'inventory' ? inventory : taskFields,
-            source.index,
-            destination.index
-        );
+      const items = reorder(
+        source.droppableId === 'inventory' ? inventory : taskFields,
+        source.index,
+        destination.index
+      );
 
-        if (source.droppableId === 'inventory') {
-            setInventory(items);
-        } else {
-            setTaskFields(items);
-        }
+      if (source.droppableId === 'inventory') {
+        setInventory(items);
+      } else {
+        setTaskFields(items);
+      }
     } else {
-        const draggedField = inventory.find(field => field.inputId === result.draggableId);
-        if (draggedField) {
-            const newField: FormField = {
-                ...draggedField,
-                inputId: generateFormFieldId(),
-                options: draggedField.options?.map((option) => ({
-                    ...option,
-                    id: newField.inputId // Replace option ID with newField inputId
-                }))
-            };
-            setTaskFields(prev => [...prev, newField]);
-        }
+      const draggedField = inventory.find(field => field.inputId === result.draggableId);
+      if (draggedField) {
+        const newField: FormField = {
+          ...draggedField,
+          inputId: generateFormFieldId(),
+          options: draggedField.options?.map((option) => ({
+            ...option,
+            id: newField.inputId // Replace option ID with newField inputId
+          }))
+        };
+        setTaskFields(prev => [...prev, newField]);
+      }
     }
-};
+  };
 
 
 
@@ -278,6 +288,43 @@ const App: React.FC = () => {
 
     fetchModules();
   }, []);
+
+  useEffect(() => {
+    const fetchRoles = async () => {
+      try {
+        const response = await axios.get('https://localhost:44307/api/CommonDropdown/GetRoleMasterList');
+        if (response.data.isSuccess) {
+          setRoles(response.data.roleMasterLists); // roleMasterLists is an array of Role objects
+        } else {
+          console.error('Error fetching roles:', response.data.message);
+        }
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+    };
+
+    // Load selectedRole from localStorage if it exists
+    const savedRole = localStorage.getItem('selectedRole');
+    if (savedRole) {
+      setSelectedRole(JSON.parse(savedRole));
+    }
+
+    fetchRoles();
+  }, []);
+
+  // Save selectedRole to localStorage whenever it changes
+  useEffect(() => {
+    if (selectedRole) {
+      localStorage.setItem('selectedRole', JSON.stringify(selectedRole));
+    }
+  }, [selectedRole]);
+
+  const handleRoleSelect = (e: ChangeEvent<any>) => {
+    const { value } = e.target as HTMLSelectElement;
+    const selectedId = parseInt(value); // Parse the selected role ID
+    const selected = roles.find((role) => role.id === selectedId) || null; // Find the role by ID
+    setSelectedRole(selected); // Update the selected role
+  };
 
   const handleFormChange = (e: ChangeEvent<any>) => {
     const { name, value } = e.target as HTMLSelectElement | HTMLInputElement;
@@ -334,72 +381,86 @@ const App: React.FC = () => {
     }
   };
 
-  const handleDateChange = (date: Date | Date[]) => {
-    setFormData((prevData) => ({
-      ...prevData,
-      Date: date instanceof Date ? date : date[0] // Ensure `Date` is of type `Date`
+  const handlefinishID = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const { name, value } = e.target;
+
+    // Update the form data state
+    setFormData(prevFormData => ({
+      ...prevFormData,
+      [name]: value
     }));
+
+    // Store the selected finishID in localStorage
+    if (name === 'finishID') {
+      localStorage.setItem('selectedFinishID', value);
+      console.log(value)
+    }
   };
 
 
 
 
-  const handleSaveTask = async () => {
-    // Retrieve processID and processName from formData
-    const { processID, processName } = formData;
 
-    // Ensure selectedModule and processID are available
-    if (!selectedModule || !processID || !processName) {
-      console.error('Module or process information is missing');
+  const handleSaveTask = async () => {
+    // Retrieve processID, processName, and finishID from formData
+    const { processID, processName, finishID } = formData; // Add finishID
+  
+    // Ensure selectedModule, processID, processName, and finishID are available
+    if (!selectedModule || !processID || !processName || !finishID) {
+      console.error('Module, process, or finish point information is missing');
       return;
     }
-
+  
     const startDate = new Date().toISOString();
-
+  
     // Create the final JSON object for the form
     const transformedFields = taskFields.map((field) => {
       const inputId = field.inputId; // Use the existing inputId from the field
       const options = field.options?.map((option, optIndex) => ({
-          id: `${inputId}-${optIndex + 1}`, // Maintain consistency with option ID
-          label: option.label || "", // Ensure label is used if available
-          color: option.color || "" // Include color if available
+        id: `${inputId}-${optIndex + 1}`, // Maintain consistency with option ID
+        label: option.label || "", // Ensure label is used if available
+        color: option.color || "" // Include color if available
       })) || [];
   
       return {
-          inputId,
-          type: field.type,
-          label: field.labeltext || "Default Label",
-          placeholder: field.placeholder || "",
-          options,
-          required: field.required || false,
-          conditionalFieldId: field.conditionalFieldId || "", // Use existing conditionalFieldId if any
-          value: field.value || "",
+        inputId,
+        type: field.type,
+        label: field.labeltext || "Default Label",
+        placeholder: field.placeholder || "",
+        options,
+        required: field.required || false,
+        conditionalFieldId: field.conditionalFieldId || "", // Use existing conditionalFieldId if any
+        value: field.value || "",
       };
-  });
+    });
   
-
     const formJSON = {
       formId: processID,
       formName: processName,
       inputs: transformedFields,
     };
-
+  
+    // Include finishID (finishPoint) in the payload
     const payload = {
       id: 0, // Adjust as needed
       moduleID: selectedModule.moduleID,
       moduleName: selectedModule.moduleName,
       processID,
+      roleId: selectedRole ? String(selectedRole.id) : '', // Ensure roleId is a string
+      roleName: selectedRole?.roleName || '', // Ensure roleName is present or empty string
       processName,
       startDate,
       task_Json: JSON.stringify(formJSON),
       createdBy: "HimanshuPant", // Replace with actual username or dynamic value
+      finishPoint: parseFloat(finishID), // Convert finishID to float before sending
     };
-
+    
+  
     console.log('Payload:', payload);
-
+  
     // Set loading to true before starting the save operation
     setLoading(true);
-
+  
     try {
       const response = await fetch('https://localhost:5078/api/AccountModule/InsertAccountProcessTask', {
         method: 'POST',
@@ -409,23 +470,25 @@ const App: React.FC = () => {
         },
         body: JSON.stringify(payload),
       });
-
+  
       if (response.ok) {
         const data = await response.json();
         console.log('Task saved successfully:', data);
-
-        // Update saved tasks and reset form fields except processID and processName
-        // const updatedTasks = [...savedTasks, ...transformedFields]; // If needed, update saved tasks
+  
+        // Update saved tasks and reset form fields except processID, processName, and finishID
         setTaskFields([]); // Clear the task fields
         setIsModalOpen(false); // Close modal
-
-        // Optionally reset other form fields, but keep processID and processName
+  
+        // Optionally reset other form fields, including finishID
         setFormData((prevData) => ({
           ...prevData,
           taskName: '', // Reset taskName or other fields if needed
           Date: new Date(), // Reset Date or other fields if needed
-          // Do not reset processID or processName
+          finishID: '', // Reset finishID after submission
         }));
+  
+        // Remove finishID from localStorage after submission
+        localStorage.removeItem('selectedFinishID');
       } else {
         const errorData = await response.json();
         console.error('Error saving task:', errorData);
@@ -438,6 +501,7 @@ const App: React.FC = () => {
       setShowToast(true); // Show toast or notification if needed
     }
   };
+  
 
 
   const handleDeleteOption = (index: number) => {
@@ -708,7 +772,7 @@ const App: React.FC = () => {
               </Form.Group>
 
 
-              <Form.Group className='col-md-3 my-1'>
+              {/* <Form.Group className='col-md-3 my-1'>
                 <Form.Label>Start Date</Form.Label>
                 <CustomFlatpickr
                   className="form-control"
@@ -720,7 +784,25 @@ const App: React.FC = () => {
                     dateFormat: 'Y-m-d H:i',
                   }}
                 />
+              </Form.Group> */}
+              <Form.Group className="col-md-3 my-1">
+                <Form.Label>Role Name</Form.Label>
+                <Form.Control
+                  as="select"
+                  name="RoleName"
+                  value={selectedRole?.id || ''}
+                  onChange={handleRoleSelect}
+                  required
+                >
+                  <option value="">Select Role</option>
+                  {roles.map((role) => (
+                    <option key={role.id} value={role.id}>
+                      {role.roleName}
+                    </option>
+                  ))}
+                </Form.Control>
               </Form.Group>
+
               <Form.Group className='col-md-3 my-1'>
                 <Form.Label>Task Name</Form.Label>
                 <Form.Control
@@ -810,26 +892,25 @@ const App: React.FC = () => {
               </Droppable>
 
             </div>
-            <Form.Group className='col-6 my-1'>
+            <Form.Group className="col-6 my-1">
               <Form.Label>Set Finish Point</Form.Label>
               <Form.Control
                 as="select"
-                name="processID" // Name should correspond to the field storing the selected process ID
-                value={formData.processID} // Set value to the selected process ID
-                onChange={handleFormChange} // Handle change to update the selected process ID
+                name="finishID"  // Changed from processID to finishID
+                value={formData.finishID}  // Updated to finishID
+                onChange={handlefinishID}
                 required
               >
                 <option value="">Select Field</option>
                 {taskFields
                   .filter(field => !['99', '100', '102', '103'].includes(field.inputId))
                   .map((field) => (
-                    <option key={field.inputId} value={field.inputId}> {/* Use field.id as value */}
+                    <option key={field.inputId} value={field.inputId}>
                       {field.labeltext}
                     </option>
                   ))}
               </Form.Control>
             </Form.Group>
-
           </div>
         </DragDropContext>
         <div className="d-flex justify-content-end p-2 col-12">
@@ -869,32 +950,32 @@ const App: React.FC = () => {
                         Is Conditionally bound?
                       </label>
                     </div>
-                {conditionalField == true && 
-                    <Form.Control
-                      as="select"
-                      className="mt-2"
-                      value={editField.conditionalFieldId || ''}
-                      onChange={handleSelectChange}
-                    >
-                      <option value="">Select an option</option>
-                      {taskFields.map((field) => (
-                        <React.Fragment key={field.inputId}>
-                          <option value={field.inputId}>{field.labeltext}</option>
-                          {field.options?.map((option) => (
-                            <option
-                              key={option.id}
-                              value={option.id}
-                              data-color={option.color || ""}
-                              style={{ color: option.color || "inherit" }}
-                            >
-                              {option.label}
-                            </option>
-                          ))}
-                        </React.Fragment>
-                      ))}
-                    </Form.Control>
+                    {conditionalField == true &&
+                      <Form.Control
+                        as="select"
+                        className="mt-2"
+                        value={editField.conditionalFieldId || ''}
+                        onChange={handleSelectChange}
+                      >
+                        <option value="">Select an option</option>
+                        {taskFields.map((field) => (
+                          <React.Fragment key={field.inputId}>
+                            <option value={field.inputId}>{field.labeltext}</option>
+                            {field.options?.map((option) => (
+                              <option
+                                key={option.id}
+                                value={option.id}
+                                data-color={option.color || ""}
+                                style={{ color: option.color || "inherit" }}
+                              >
+                                {option.label}
+                              </option>
+                            ))}
+                          </React.Fragment>
+                        ))}
+                      </Form.Control>
 
-                     }
+                    }
                   </Form.Group>
                 )}
 

@@ -42,7 +42,7 @@ const ModuleMaster: React.FC = () => {
 
     const fetchModules = async () => {
         try {
-            const response = await axios.get('https://localhost:7074/api/ModuleMaster/GetModule', {
+            const response = await axios.get('https://localhost:44307/api/ModuleMaster/GetModule', {
                 params: {
                     PageIndex: currentPage
                 }
@@ -81,9 +81,9 @@ const ModuleMaster: React.FC = () => {
         e.preventDefault();
         try {
             if (editingIndex !== null) {
-                await axios.post('https://localhost:7074/api/ModuleMaster/UpdateModule', module);
+                await axios.post('https://localhost:44307/api/ModuleMaster/UpdateModule', module);
             } else {
-                await axios.post('https://localhost:7074/api/ModuleMaster/InsertModule', module);
+                await axios.post('https://localhost:44307/api/ModuleMaster/InsertModule', module);
             }
             fetchModules();
             handleClose();
@@ -109,7 +109,7 @@ const ModuleMaster: React.FC = () => {
             misExemptID: 0,
             statusID: 0,
             moduleOwnerID: '',
-            moduleOwnerName: '',
+            moduleOwnerName: 'new',
             createdBy: '',
             updatedBy: ''
         });
@@ -260,11 +260,10 @@ const ModuleMaster: React.FC = () => {
                         <Form.Group controlId="moduleOwnerNameID" className="mb-3">
                             <Form.Label>Module Owner Name ID:</Form.Label>
                             <Form.Control
-                                type="number"
+                                type="text"
                                 name="moduleOwnerNameID"
                                 value={module.moduleOwnerName}
                                 onChange={handleChange}
-                                required
                             />
                         </Form.Group>
                         <Form.Group controlId="createdBy" className="mb-3">
