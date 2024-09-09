@@ -330,17 +330,6 @@ const ProjectAssignTable: React.FC = () => {
     );
   };
 
-
-  const handleStatusToggle = (id: number) => {
-    setData(prevData =>
-      prevData.map(item =>
-        item.id === id
-          ? { ...item, status: item.status === 'Pending' ? 'Done' : 'Pending' }
-          : item
-      )
-    );
-  };
-
   const toggleExpandRow = (id: number) => {
     setExpandedRow(expandedRow === id ? null : id);
   };

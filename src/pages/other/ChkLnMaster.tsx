@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, {ChangeEvent, useEffect, useState } from 'react';
 import axios from 'axios';
 import { Button, Modal, Form, Table } from 'react-bootstrap';
 
@@ -12,7 +12,7 @@ interface AccountProcessTask {
     startDate: string;
     task_Json: string;
     task_Number: string;
-    finishPoint: any;
+    finishPoint: string;
     roleId: string;
     roleName: string;
 }
@@ -53,12 +53,12 @@ const AccountProcessTable: React.FC = () => {
     const [selectedTask, setSelectedTask] = useState<AccountProcessTask | null>(null);
     const [selectedEmployee, setSelectedEmployee] = useState<string>('');
     const [selectedRole, setSelectedRole] = useState<number | null>(null);
-    const [Status, setStatus] = useState<number | null>(1);
+    // const [Status, setStatus] = useState<number | null>(1);
     const [projects, setProjects] = useState<{ id: string; projectName: string }[]>([]);
     const [selectedProject, setSelectedProject] = useState<string>('');
     const [showApplyModal, setShowApplyModal] = useState(false);
     const [assignedTasks, setAssignedTasks] = useState<Map<number, { employeeId: string, roleId: number }>>(new Map());
-    const [filteredJson, setFilteredJson] = useState<any | null>(null);
+    const [filteredJson, setFilteredJson] = useState<FilteredJsonType | null>(null);
 
     // Fetch Modules
     useEffect(() => {
@@ -75,36 +75,190 @@ const AccountProcessTable: React.FC = () => {
         fetchModules();
     }, []);
 
-    const fetchJsonByInputId = () => {
+    interface Option {
+        id: string;
+        label: string;
+        color: string;
+    }
+
+    interface FilteredJsonType {
+        inputId: string;
+        type: string;
+        label: string;
+        placeholder: string;
+        options: Option[];
+        required: boolean;
+        conditionalFieldId: string;
+        value: string;
+    }
+
+    interface ModalFormProps {
+        showModalone: boolean;
+        handleClose: () => void;
+        filteredJson: FilteredJsonType | null;
+    }
+
+    interface Option {
+        id: string;
+        label: string;
+        color: string;
+    }
+
+    interface FilteredJsonType {
+        inputId: string;
+        type: string;
+        label: string;
+        placeholder: string;
+        options: Option[];
+        required: boolean;
+        conditionalFieldId: string;
+        value: string;
+    }
+
+    interface ModalFormProps {
+        showModalone: boolean;
+        handleClose: () => void;
+        filteredJson: FilteredJsonType | null;
+    }
+
+    const ModalForm = ({ showModalone, handleClose, filteredJson }: ModalFormProps) => {
+        // State to store task numbers for each option
+
+        // Handle change for task numbers
+        const [selectedTaskNumbers, setSelectedTaskNumbers] = useState<{ [key: string]: string }>({});
+
+        // Handle change for task number selection
+        const handleTaskNumberChange = (optionId: string, value: string) => {
+            setSelectedTaskNumbers(prevState => ({
+                ...prevState,
+                [optionId]: value
+            }));
+        };
+
+        // Handle form submission
+        const handleSaveChanges = () => {
+            // Handle saving changes here
+            console.log("Selected Task Numbers:", selectedTaskNumbers);
+            // You can now send `selectedTaskNumbers` to an API or process it as needed
+            handleClose(); // Close the modal after saving
+        };
+
+        return (
+            <Modal show={showModalone} onHide={handleClose}>
+                <Modal.Header closeButton>
+                    <Modal.Title>Conditions Form</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    {filteredJson ? (
+                        <>
+                            <form className='form-group'>
+                                <label>{filteredJson.label}</label>
+                                <select className='form-control'>
+                                    {filteredJson.options.map(option => (
+                                        <option key={option.id} value={option.id} style={{ color: option.color }}>
+                                            {option.label}
+                                        </option>
+                                    ))}
+                                </select>
+
+                                {filteredJson.options.map(option => (
+                                    <div className='form-group' key={option.id} style={{ marginTop: '10px' }}>
+                                        <label>
+                                            Select Successor Task For<div style={{ color: option.color }}>{option.label}</div>
+                                        </label>
+                                        <select
+                                            className='form-control'
+                                            value={selectedTaskNumbers[option.id] || ''}
+                                            onChange={(e) => handleTaskNumberChange(option.id, e.target.value)}
+                                        >
+                                            <option value="" disabled>Select Task Number</option>
+                                            {tasks.map(task => (
+                                                <option key={task.id} value={task.task_Number}>
+                                                    {task.task_Number}
+                                                </option>
+                                            ))}
+                                        </select>
+                                    </div>
+                                ))}
+
+                            </form>
+                        </>
+                    ) : (
+                        <p>No data found for the selected inputId.</p>
+                    )}
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="secondary" onClick={handleClose}>
+                        Close
+                    </Button>
+                    <Button variant="primary" onClick={handleSaveChanges}>
+                        Save Changes
+                    </Button>
+                </Modal.Footer>
+            </Modal>
+        );
+    };
+
+    const [showModalone, setShowModalone] = useState(false);
+
+    // Function to handle opening the modal
+    // Fetch the related JSON when the modal is opened
+    useEffect(() => {
+        if (showModalone && selectedTask) {
+            fetchJsonByInputId(selectedTask);
+            console.log(selectedTask)
+        }
+    }, [showModalone, selectedTask]);
+
+    const handleShow = async (task: AccountProcessTask) => {
+        setSelectedTask(task);
+        console.log(selectedTask) // Set the clicked task
+        setShowModalone(true);
+    };
+
+    const handleClose = () => setShowModalone(false);
+
+
+    const fetchJsonByInputId = async (task: AccountProcessTask) => {
         if (tasks.length > 0) {
-          const taskWithJson = tasks.find(task => task.finishPoint); // Get the task that has a finishPoint
-          console.log(taskWithJson)
-          if (taskWithJson) {
-            try {
-              // Parse the task_Json from string to an object
-              const taskJsonParsed = JSON.parse(taskWithJson.task_Json);
-              console.log(taskJsonParsed)
-    
-              // Find the input related to finishPoint from task_Json
-              const inputField = taskJsonParsed.find(
-                (field: any) => field.inputId === taskWithJson.finishPoint
-              );
-    
-              // If inputField is found, set it to the state
-              setFilteredJson(inputField || null);
-            } catch (error) {
-              console.error("Error parsing task_Json:", error);
+            const taskWithJson = tasks.find(t => t.id === task.id && t.finishPoint); // Get the task that has a finishPoint
+            console.log("Task with finishPoint:", taskWithJson);
+
+            if (taskWithJson) {
+                try {
+                    // Parse the task_Json from string to an object
+                    const taskJsonParsed = JSON.parse(taskWithJson.task_Json);
+                    console.log("Parsed task_Json:", taskJsonParsed);
+
+                    // Access the 'inputs' array from the parsed JSON
+                    const inputsArray = taskJsonParsed.inputs;
+
+                    console.log("Inputs array:", inputsArray);
+                    console.log("Finish Point:", taskWithJson.finishPoint);
+
+                    // Debug each comparison
+                    const inputField = inputsArray.find((field: any) => String(field.inputId) === String(taskWithJson.finishPoint));
+
+
+                    console.log("Found inputField:", taskWithJson.finishPoint);
+
+                    // If inputField is found, set it to the state
+                    setFilteredJson(inputField || null);
+                } catch (error) {
+                    console.error("Error parsing task_Json:", error);
+                }
             }
-          }
         }
-      };
-    
-      // Fetch the related JSON when the modal is opened
-      useEffect(() => {
-        if (showModal) {
-          fetchJsonByInputId();
+    };
+
+
+
+    // Fetch the related JSON when the modal is opened
+    useEffect(() => {
+        if (showModalone && selectedTask) {
+            fetchJsonByInputId(selectedTask);
         }
-      }, [showModal, tasks]);
+    }, [showModalone, selectedTask]);
 
     // Fetch Processes based on selected module
     useEffect(() => {
@@ -172,6 +326,7 @@ const AccountProcessTable: React.FC = () => {
                     }
                 } catch (error) {
                     console.error("Error fetching employees:", error);
+                    console.log(roles)
                 }
             };
 
@@ -180,7 +335,7 @@ const AccountProcessTable: React.FC = () => {
     }, [selectedTask?.roleName]);
 
     // Handle employee selection
-    const handleEmployeeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const handleEmployeeChange = (e: ChangeEvent<any>) => {
         const selectedValue = e.target.value;
         setSelectedEmployee(selectedValue);
 
@@ -198,8 +353,16 @@ const AccountProcessTable: React.FC = () => {
 
     const handleAssign = () => {
         if (selectedTask && selectedEmployee) {
-            // Update assignedTasks state uniquely for each task
-            setAssignedTasks(new Map(assignedTasks).set(selectedTask.id, { employeeId: selectedEmployee, roleId: selectedTask.roleId }));
+            // Update assignedTasks for each task uniquely
+            if (selectedRole !== null) {
+                setAssignedTasks(
+                  new Map(assignedTasks).set(selectedTask.id, {
+                    employeeId: selectedEmployee,
+                    roleId: selectedRole,
+                  })
+                );
+              }
+              
 
             // Prepare the payload to be submitted
             const payload = {
@@ -288,14 +451,6 @@ const AccountProcessTable: React.FC = () => {
         fetchProjects();
     }, []);
 
-    const [showModalone, setShowModalone] = useState(false);
-
-    // Function to handle opening the modal
-    const handleShow = () => setShowModalone(true);
-
-    // Function to handle closing the modal
-    const handleClose = () => setShowModalone(false);
-
     return (
         <div>
             <div className="d-flex p-2 bg-white mt-2 mb-2 rounded shadow">Apply Process on Project</div>
@@ -371,7 +526,7 @@ const AccountProcessTable: React.FC = () => {
                                         </Button>
                                     </td>
                                     <td>
-                                        <Button variant="primary" onClick={handleShow}>
+                                        <Button variant='primary' onClick={() => handleShow(task)}>
                                             Conditions
                                         </Button>
                                     </td>
@@ -383,14 +538,19 @@ const AccountProcessTable: React.FC = () => {
                 </Table>
             </div>
 
-            <Modal show={showModalone} onHide={handleClose}>
+            <ModalForm
+                showModalone={showModalone}
+                handleClose={handleClose}
+                filteredJson={filteredJson}
+            />
+
+            {/* <Modal show={showModalone} onHide={handleClose}>
                 <Modal.Header closeButton>
                     <Modal.Title>Conditions Form</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
-                    {/* Check if filteredJson exists */}
                     {filteredJson ? (
-                        <pre>{JSON.stringify(filteredJson, null, 2)}</pre> // Show the JSON in a readable format
+                        <pre>{JSON.stringify(filteredJson, null, 2)}</pre>
                     ) : (
                         <p>No data found for the selected inputId.</p>
                     )}
@@ -403,9 +563,8 @@ const AccountProcessTable: React.FC = () => {
                         Save Changes
                     </Button>
                 </Modal.Footer>
-            </Modal>
+            </Modal> */}
 
-            {/* Modal for Assigning Role and Employee */}
             <Modal show={showModal} onHide={() => setShowModal(false)}>
                 <Modal.Header closeButton>
                     <Modal.Title>Assign Role and Employee</Modal.Title>

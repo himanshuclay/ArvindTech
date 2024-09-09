@@ -8,8 +8,6 @@ import {
 } from 'react-beautiful-dnd';
 import { Button, Form, Modal, ListGroup, Toast } from 'react-bootstrap';
 import axios from 'axios';
-import CustomFlatpickr from '@/components/CustomFlatpickr';
-import { finished } from 'stream';
 
 
 type FormField = {
@@ -45,7 +43,7 @@ interface FormFieldOption {
 }
 
 interface Role {
-  id: string;
+  id: number;
   roleName: string;
 }
 
@@ -94,9 +92,6 @@ let formFieldCounter = 1;
 
 // Function to generate unique form field ID
 const generateFormFieldId = (): string => `${formFieldCounter++}`;
-
-// Function to generate unique option ID based on parent field ID
-const generateOptionId = (parentId: string, index: number): string => `${parentId}-${index + 1}`;
 
 
 // Define initial inventory with unique IDs
@@ -191,7 +186,7 @@ const App: React.FC = () => {
     setConditionalField(event.target.checked);
   };
 
-  const handleSelectChange = (e: ChangeEvent<HTMLSelectElement>) => {
+  const handleSelectChange = (e: ChangeEvent<any>) => {
     const selectedIndex = e.target.selectedIndex;
     const selectedOption = e.target.options[selectedIndex];
 
@@ -321,7 +316,7 @@ const App: React.FC = () => {
 
   const handleRoleSelect = (e: ChangeEvent<any>) => {
     const { value } = e.target as HTMLSelectElement;
-    const selectedId = parseInt(value); // Parse the selected role ID
+    const selectedId = parseInt(value, 10); // Parse the value as an integer
     const selected = roles.find((role) => role.id === selectedId) || null; // Find the role by ID
     setSelectedRole(selected); // Update the selected role
   };
@@ -381,8 +376,8 @@ const App: React.FC = () => {
     }
   };
 
-  const handlefinishID = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const { name, value } = e.target;
+  const handlefinishID = (e: ChangeEvent<any>) => {
+    const { name, value } = e.target as HTMLSelectElement | HTMLInputElement;
 
     // Update the form data state
     setFormData(prevFormData => ({
