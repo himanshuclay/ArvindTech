@@ -513,7 +513,7 @@ const TaskFormPage = () => {
             role: doers[taskNumber],
             task_Json: JSON.stringify(task.taskJson),
             task_Number: task.taskNumber,
-            finishPoint: task.FinishPoint,
+            finishPoint: task.finishPoint,
             createdBy: 'himanshu pant',
         };
         console.log(payload)
