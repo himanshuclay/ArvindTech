@@ -39,7 +39,7 @@ const MessMasterComponent: React.FC = () => {
     const fetchMesses = async () => {
         setLoading(true);
         try {
-            const response = await axios.get('https://localhost:7074/api/MessMaster/GetMess', {
+            const response = await axios.get('https://localhost:44307/api/MessMaster/GetMess', {
                 params: {
                     PageIndex: currentPage
                 }
@@ -60,17 +60,19 @@ const MessMasterComponent: React.FC = () => {
 
     const handleShow = () => setShow(true);
 
-    const handleChange = (e: ChangeEvent<HTMLInputElement> | ChangeEvent<HTMLSelectElement>) => {
-        const { name, value, type, checked } = e.target as HTMLInputElement | HTMLSelectElement;
+    const handleChange = (e: ChangeEvent<any>) => {
+        const { name, value, type } = e.target;
+
         if (type === 'checkbox') {
+            const { checked } = e.target as HTMLInputElement; // Explicitly cast to HTMLInputElement
             setMess({
                 ...mess,
-                [name]: checked
+                [name]: checked,
             });
         } else {
             setMess({
                 ...mess,
-                [name]: type === 'number' ? Number(value) : value
+                [name]: type === 'number' ? Number(value) : value, // Convert value to number if type is 'number'
             });
         }
     };

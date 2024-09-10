@@ -22,9 +22,10 @@ const InvoicePages = React.lazy(() => import('../pages/other/Invoice'))
 const FAQPages = React.lazy(() => import('../pages/other/FAQ'))
 const PricingPages = React.lazy(() => import('../pages/other/Pricing'))
 const MaintenancePages = React.lazy(() => import('../pages/other/Maintenance'))
-const MonlthlyMessPayments = React.lazy(() => import('../pages/other/MonlthlyMessPayments.tsx'))
-const MonlthlyMessOption = React.lazy(() => import('../pages/other/MonlthlyMessOption.tsx'))
 const TemplateMaster = React.lazy(() => import('../pages/other/Modules-Master.tsx'))
+const ActiveTasks = React.lazy(() => import('../pages/other/ActiveTasks.tsx'))
+const ActiveProject = React.lazy(() => import('../pages/other/ActiveProject.tsx'))
+const FilterTasks = React.lazy(() => import('../pages/other/FilterTasks.tsx'))
 const Notification = React.lazy(() => import('../pages/other/Notification.tsx'))
 const ModuleList = React.lazy(() => import('../pages/other/Module-list.tsx'))
 const EmployeeMaster = React.lazy(() => import('../pages/other/Employee-Master.tsx'))
@@ -39,15 +40,13 @@ const ProcessMaster = React.lazy(() => import('../pages/other/ProcessMaster.tsx'
 const TaskMaster = React.lazy(() => import('../pages/other/TaskMaster.tsx'))
 const DoerMaster = React.lazy(() => import('../pages/other/DoerMaster.tsx'))
 const FormMaster = React.lazy(() => import('../pages/other/FormMaster.tsx'))
-const LnMaster = React.lazy(() => import('../pages/other/LnMaster.tsx'))
+const MyTask = React.lazy(() => import('../pages/other/MyTask.tsx'))
 const ChkLnMaster = React.lazy(() => import('../pages/other/ChkLnMaster.tsx'))
 const TicketMaster = React.lazy(() => import('../pages/other/TicketMaster.tsx'))
 const SystemLogs = React.lazy(() => import('../pages/other/SystemLogs.tsx'))
 const ChkTaskMaster = React.lazy(() => import('../pages/other/ChkTaskMaster.tsx'))
 const ChecklistMaster = React.lazy(() => import('../pages/other/ChecklistCollection.tsx'))
 const AddressMaster = React.lazy(() => import('../pages/other/AddressMaster.tsx'))
-const InputMaster = React.lazy(() => import('../pages/other/InputMaster.tsx'))
-const MyTask = React.lazy(() => import('../pages/other/MyTask.tsx'))
 
 
 
@@ -121,7 +120,7 @@ const BasicTables = React.lazy(() => import('../pages/ui/tables/BasicTables'))
 const DataTables = React.lazy(() => import('../pages/ui/tables/DataTables'))
 
 // // maps
-const GoogleMaps = React.lazy(() => import('../pages/ui/maps/GoogleMaps'))
+// const GoogleMaps = React.lazy(() => import('../pages/ui/maps/GoogleMaps'))
 const VectorMaps = React.lazy(() => import('../pages/ui/maps/VectorMaps'))
 
 // // error
@@ -195,36 +194,30 @@ const customPagesRoutes = {
 			route: PrivateRoute,
 		},
 		{
-			path: '/pages/MonlthlyMessPayments',
-			name: 'MonlthlyMessPayments',
-			element: <MonlthlyMessPayments />,
-			route: PrivateRoute,
-		},
-		{
-			path: '/pages/MonlthlyMessOption',
-			name: 'MonlthlyMessOption',
-			element: <MonlthlyMessOption />,
-			route: PrivateRoute,
-		},
-		{
-			path: '/pages/MyTask',
-			name: 'MyTask',
-			element: <MyTask />,
-			route: PrivateRoute,
-		},
-	
-		// {
-		// 	path: '/pages/Modules-Master',
-		// 	name: 'Modules Master',
-		// 	element: <TemplateMaster />,
-		// 	route: PrivateRoute,
-		// },
-		{
-			path: '/pages/Task/:id',
+			path: '/pages/Modules-Master',
 			name: 'Modules Master',
 			element: <TemplateMaster />,
 			route: PrivateRoute,
 		},
+		{
+			path: '/pages/ActiveTasks',
+			name: 'Active Tasks',
+			element: <ActiveTasks />,
+			route: PrivateRoute,
+		},
+		{
+			path: '/pages/ActiveProject',
+			name: 'Active Project',
+			element: <ActiveProject />,
+			route: PrivateRoute,
+		},
+		{
+			path: '/pages/FilterTasks',
+			name: 'Filter Tasks',
+			element: <FilterTasks />,
+			route: PrivateRoute,
+		},
+		
 		{
 			path: '/pages/Notification',
 			name: 'Notification',
@@ -310,9 +303,9 @@ const customPagesRoutes = {
 			route: PrivateRoute,
 		},
 		{
-			path: '/pages/LnMaster',
-			name: 'LN Master',
-			element: <LnMaster />,
+			path: '/pages/MyTask',
+			name: 'MyTask',
+			element: <MyTask />,
 			route: PrivateRoute,
 		},
 		{
@@ -325,12 +318,6 @@ const customPagesRoutes = {
 			path: '/pages/TicketMaster',
 			name: 'Ticket Master',
 			element: <TicketMaster />,
-			route: PrivateRoute,
-		},
-		{
-			path: '/pages/InputMaster',
-			name: 'Input Master',
-			element: <InputMaster />,
 			route: PrivateRoute,
 		},
 		
@@ -385,7 +372,6 @@ const customPagesRoutes = {
 		},
 	],
 }
-
 
 // ui
 const uiRoutes: RoutesProps = {
@@ -704,12 +690,12 @@ const uiRoutes: RoutesProps = {
 			path: '/ui/maps',
 			name: 'Maps',
 			children: [
-				{
-					path: '/ui/maps/google-maps',
-					name: 'Google Maps',
-					element: <GoogleMaps />,
-					route: PrivateRoute,
-				},
+				// {
+				// 	path: '/ui/maps/google-maps',
+				// 	name: 'Google Maps',
+				// 	element: <GoogleMaps />,
+				// 	route: PrivateRoute,
+				// },
 				{
 					path: '/ui/maps/vector-maps',
 					name: 'Vector Maps',
@@ -798,12 +784,11 @@ const flattenRoutes = (routes: RoutesProps[]) => {
 }
 
 // All routes
-const authProtectedRoutes = [dashboardRoutes, customPagesRoutes, uiRoutes ]
+const authProtectedRoutes = [dashboardRoutes, customPagesRoutes, uiRoutes]
 const publicRoutes = [...authRoutes, ...otherPublicRoutes]
 
 const authProtectedFlattenRoutes = flattenRoutes([...authProtectedRoutes])
 const publicProtectedFlattenRoutes = flattenRoutes([...publicRoutes])
-
 export {
 	publicRoutes,
 	authProtectedRoutes,

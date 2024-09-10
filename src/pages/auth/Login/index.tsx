@@ -54,13 +54,13 @@ const Login = () => {
 				<VerticalForm<UserData>
 					onSubmit={login}
 					resolver={schemaResolver}
-					defaultValues={{ email: 'velonic@techzaa.com', password: 'Velonic' }}
+					defaultValues={{ email: 'shikar@arvind.com', password: 'Admin' }}
 				>
 					<FormInput
-						label="Email address"
+						label="Employee ID"
 						type="text"
 						name="email"
-						placeholder="Enter your email"
+						placeholder="Enter Your Email Id"
 						containerClass="mb-3"
 						required
 					/>

@@ -2,7 +2,7 @@ import React, { ReactNode, useEffect } from 'react'
 
 //images
 import authImg from '@/assets/images/auth-img.jpg'
-import logo from '@/assets/images/logo.png'
+import logo from '@/assets/images/logo-dark.png'
 import logoDark from '@/assets/images/logo-dark.png'
 
 import { Card, Col, Container, Image, Row } from 'react-bootstrap'
@@ -47,24 +47,24 @@ const AuthLayout = ({
 			<div className="account-pages pt-2 pt-sm-5 pb-4 pb-sm-5 position-relative">
 				<Container>
 					<Row className="justify-content-center">
-						<Col xxl={8} lg={10}>
+						<Col xxl={4} lg={4}>
 							<Card className="overflow-hidden">
 								<Row className="g-0">
-									<Col lg={6} className="d-none d-lg-block p-2">
+									{/* <Col lg={6} className="d-none d-lg-block p-2">
 										<Image
 											src={authImg}
 											alt=""
 											className="img-fluid rounded h-100"
 										/>
-									</Col>
-									<Col lg={6}>
+									</Col> */}
+									<Col lg={12}>
 										<div className="d-flex flex-column h-100">
-											<div className="auth-brand p-4">
+											<div className="auth-brand px-4 pt-2 d-flex justify-content-center">
 												<a href="index.html" className="logo-light">
-													<Image src={logo} alt="logo" height="22" />
+													<Image src={logo} alt="logo" height="62" />
 												</a>
 												<a href="index.html" className="logo-dark">
-													<Image src={logoDark} alt="dark logo" height="22" />
+													<Image src={logoDark} alt="dark logo" height="62" />
 												</a>
 											</div>
 											<div
@@ -93,26 +93,6 @@ const AuthLayout = ({
 												)}
 
 												{children}
-
-												{hasThirdPartyLogin && (
-													<div className="text-center mt-4">
-														<p className="text-muted fs-16">Sign in with</p>
-														<div className="d-flex gap-2 justify-content-center mt-3">
-															<Link to="#" className="btn btn-soft-primary">
-																<i className="ri-facebook-circle-fill"></i>
-															</Link>
-															<Link to="#" className="btn btn-soft-danger">
-																<i className="ri-google-fill"></i>
-															</Link>
-															<Link to="#" className="btn btn-soft-info">
-																<i className="ri-twitter-fill"></i>
-															</Link>
-															<Link to="#" className="btn btn-soft-dark">
-																<i className="ri-github-fill"></i>
-															</Link>
-														</div>
-													</div>
-												)}
 											</div>
 										</div>
 									</Col>
@@ -125,7 +105,7 @@ const AuthLayout = ({
 			</div>
 			<footer className="footer footer-alt fw-medium">
 				<span className="text-dark">
-					{new Date().getFullYear()} © Velonic - Arvindtechno
+					{new Date().getFullYear()} ©  Arvindtechno
 				</span>
 			</footer>
 		</div>

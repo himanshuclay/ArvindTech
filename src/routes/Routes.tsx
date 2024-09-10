@@ -9,7 +9,6 @@ import HorizontalLayout from '../Layouts/Horizontal'
 import {
 	authProtectedFlattenRoutes,
 	publicProtectedFlattenRoutes,
-	// publicGeneralFlattenRoutes
 } from './index'
 import {
 	ThemeSettings,
@@ -62,7 +61,6 @@ const AllRoutes = (props: IRoutesProps) => {
 						/>
 					))}
 				</Route>
-			
 			</Routes>
 		</React.Fragment>
 	)

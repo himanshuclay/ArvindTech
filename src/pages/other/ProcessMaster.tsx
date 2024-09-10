@@ -40,25 +40,24 @@ const ProcessMaster: React.FC = () => {
     const [editingIndex, setEditingIndex] = useState<number | null>(null);
     const [searchQuery, setSearchQuery] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
-    const [totalPages, setTotalPages] = useState(1); // Added state for total pages
+    const [rowsPerPage, setRowsPerPage] = useState(5);
     const [loading, setLoading] = useState<boolean>(false);
 
     useEffect(() => {
         fetchProcesses();
-    }, [currentPage]);
+    }, [currentPage, rowsPerPage]);
 
     const fetchProcesses = async () => {
         setLoading(true);
         try {
-            const response = await axios.get('https://localhost:7074/api/ProcessMaster/GetProcess', {
+            const response = await axios.get('https://localhost:44307/api/ProcessMaster/GetProcess', {
                 params: {
                     PageIndex: currentPage
                 }
             });
             if (response.data.isSuccess) {
                 setProcesses(response.data.processMasterList);
-                setTotalPages(Math.ceil(response.data.totalCount / 10));
-
+                console.log(response.data.processMasterList);
             } else {
                 console.error(response.data.message);
             }
@@ -72,14 +71,17 @@ const ProcessMaster: React.FC = () => {
 
     const handleShow = () => setShow(true);
 
-    const handleChange = (e: ChangeEvent<HTMLInputElement> | ChangeEvent<HTMLSelectElement>) => {
-        const { name, value, type, checked } = e.target as HTMLInputElement | HTMLSelectElement;
+    const handleChange = (e: ChangeEvent<any>) => {
+        const { name, type } = e.target;
+
         if (type === 'checkbox') {
+            const checked = (e.target as HTMLInputElement).checked; // Cast to HTMLInputElement to access `checked`
             setProcess({
                 ...process,
                 [name]: checked
             });
         } else {
+            const value = (e.target as HTMLSelectElement | HTMLInputElement).value; // Cast to HTMLSelectElement or HTMLInputElement to access `value`
             setProcess({
                 ...process,
                 [name]: value
@@ -91,9 +93,9 @@ const ProcessMaster: React.FC = () => {
         e.preventDefault();
         try {
             if (editingIndex !== null) {
-                await axios.post('https://localhost:7074/api/ProcessMaster/UpdateProcess', process);
+                await axios.post('https://localhost:44307/api/ProcessMaster/UpdateProcess', process);
             } else {
-                await axios.post('https://localhost:7074/api/ProcessMaster/InsertProcess', process);
+                await axios.post('https://localhost:44307/api/ProcessMaster/InsertProcess', process);
             }
             fetchProcesses();
             handleClose();
@@ -133,7 +135,10 @@ const ProcessMaster: React.FC = () => {
         setCurrentPage(1); // Reset to first page on search
     };
 
- 
+    const handleRowsPerPageChange = (e: ChangeEvent<HTMLSelectElement>) => {
+        setRowsPerPage(Number(e.target.value));
+        setCurrentPage(1); // Reset to first page on rows per page change
+    };
 
     const filteredProcesses = processes.filter(proc =>
         proc.moduleName.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -146,7 +151,11 @@ const ProcessMaster: React.FC = () => {
         proc.processOwnerName.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
-    
+    const indexOfLastProcess = currentPage * rowsPerPage;
+    const indexOfFirstProcess = indexOfLastProcess - rowsPerPage;
+    const currentProcesses = filteredProcesses.slice(indexOfFirstProcess, indexOfLastProcess);
+
+    const totalPages = Math.ceil(filteredProcesses.length / rowsPerPage);
 
     const convertToCSV = (data: Process[]) => {
         const csvRows = [
@@ -347,7 +356,13 @@ const ProcessMaster: React.FC = () => {
                 </Offcanvas.Body>
             </Offcanvas>
             <div className="d-flex justify-content-between align-items-center my-2">
-               
+                <div>
+                    <Form.Select value={rowsPerPage} onChange={handleRowsPerPageChange}>
+                        <option value={5}>5 rows</option>
+                        <option value={10}>10 rows</option>
+                        <option value={20}>20 rows</option>
+                    </Form.Select>
+                </div>
                 <Pagination>
                     <Pagination.First onClick={() => setCurrentPage(1)} disabled={currentPage === 1} />
                     <Pagination.Prev onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))} disabled={currentPage === 1} />
@@ -367,7 +382,6 @@ const ProcessMaster: React.FC = () => {
                 <Table className='bg-white' striped bordered hover>
                 <thead>
                     <tr>
-                        <th>ID</th>
                         <th>Module Name</th>
                         <th>Process ID</th>
                         <th>Process Display Name</th>
@@ -381,10 +395,8 @@ const ProcessMaster: React.FC = () => {
                     </tr>
                 </thead>
                 <tbody>
-                    {filteredProcesses.slice(0, 10).map((proc, index) => (
+                    {currentProcesses.map((proc, index) => (
                         <tr key={index}>
-                            {/* <td>{(currentPage - 1) * 10 + index + 1}</td> */}
-                            <td>{proc.id}</td>
                             <td>{proc.moduleName}</td>
                             <td>{proc.processID}</td>
                             <td>{proc.processDisplayName}</td>
@@ -396,6 +408,7 @@ const ProcessMaster: React.FC = () => {
                             <td>{proc.processOwnerName}</td>
                             <td>
                                 <i className='btn ri-edit-line' onClick={() => handleEdit(index)}></i>
+                                <a href="http://localhost:3000/pages/MyTask"><i className='btn ri-eye-line' title='View Task' ></i></a>
                             </td>
                         </tr>
                     ))}

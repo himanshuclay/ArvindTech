@@ -1,7 +1,6 @@
 import React, { useState, useEffect, ChangeEvent } from 'react';
 import { Button, Form, Offcanvas, Table, Pagination } from 'react-bootstrap';
 import axios from 'axios';
-import { useParams } from 'react-router-dom';
 
 interface Bank {
     id: number;
@@ -14,10 +13,6 @@ interface Bank {
 }
 
 const BanksPage: React.FC = () => {
-
-const {id}=useParams();
-
-
     const [bank, setBank] = useState<Bank>({
         id: 0,
         bank: '',
@@ -35,56 +30,16 @@ const {id}=useParams();
     const [currentPage, setCurrentPage] = useState<number>(1);
     const [rowsPerPage, setRowsPerPage] = useState(10);
     const [loading, setLoading] = useState<boolean>(false);
-    const [MessMonthlyReconciliation, setMessMonthlyReconciliation] = useState([]);
-
 
     useEffect(() => {
         fetchBanks();
     }, [currentPage]);
 
-
-console.log(MessMonthlyReconciliation)
-
-
-
-    useEffect(() => {
-
-
-        const fetchVendors = async () => {
-            setLoading(true);
-
-            try {
-                const response = await axios.get(`https://localhost:7235/api/MessMonthlyReconciliation/GetProcessAccMonthlyList/${id}`);
-
-                if (response.data.isSuccess) {
-                    setMessMonthlyReconciliation(response.data.getProcessAccMonthlyLists);
-                    console.log(response.data.getProcessAccMonthlyLists)
-
-                } else {
-                    console.error(response.data.message);
-                }
-            } catch (error) {
-                console.error('Error fetching vendors:', error);
-            }
-            finally {
-                setLoading(false); // End loading
-            }
-
-
-            fetchVendors();
-
-        };
-    }, []);
-
-
-
-
-
     const fetchBanks = async () => {
         setLoading(true);
         try {
             const params = new URLSearchParams({ PageIndex: currentPage.toString() });
-            const url = `https://localhost:7074/api/BankMaster/GetBankList?${params.toString()}`;
+            const url = `https://localhost:44344/api/BankMaster/GetBankList?${params.toString()}`;
             const response = await axios.get(url, { headers: { 'accept': '*/*' } });
 
             if (response && response.status === 200 && response.data.isSuccess) {
@@ -113,7 +68,7 @@ console.log(MessMonthlyReconciliation)
         const payload = { ...bank };
 
         try {
-            const response = await axios.post('https://localhost:7074/api/BankMaster/InsertBank', payload, { headers: { 'accept': '*/*', 'Content-Type': 'application/json' } });
+            const response = await axios.post('https://localhost:44344/api/BankMaster/InsertBank', payload, { headers: { 'accept': '*/*', 'Content-Type': 'application/json' } });
 
             if (response.status === 200 || response.status === 201) {
                 const newBank = response.data;
@@ -220,10 +175,10 @@ console.log(MessMonthlyReconciliation)
 
 
             {loading ? (
-                <div className='loader-container'>
-                    <div className="loader"></div>
-                    <div className='mt-2'>Please Wait!</div>
-                </div>
+              <div className='loader-container'>
+              <div className="loader"></div>
+              <div className='mt-2'>Please Wait!</div>
+          </div>
             ) : (
                 <Table striped bordered hover responsive className="mb-0">
                     <thead>

@@ -1,65 +1,65 @@
-import { useState } from 'react'
-import { Dropdown } from 'react-bootstrap'
-import { Link } from 'react-router-dom'
-import { NotificationItem } from '@/Layouts/Topbar'
-import SimpleBar from 'simplebar-react'
+// import { useState } from 'react'
+// import { Dropdown } from 'react-bootstrap'
+// import { Link } from 'react-router-dom'
+// import { NotificationItem } from '@/Layouts/Topbar'
+// import SimpleBar from 'simplebar-react'
 
 interface NotificationDropDownProps {
-	notifications: Array<NotificationItem>
+	notifications: Array<Notification>
 }
 const NotificationDropdown = ({ notifications }: NotificationDropDownProps) => {
-	const [dropDownOpen, setDropDownOpen] = useState<boolean>(false)
+	// const [dropDownOpen, setDropDownOpen] = useState<boolean>(false)
 
 	/**
 	 * Get time since
 	 */
-	function timeSince(date: Date) {
-		if (typeof date !== 'object') {
-			date = new Date(date)
-		}
+	// function timeSince(date: Date) {
+	// 	if (typeof date !== 'object') {
+	// 		date = new Date(date)
+	// 	}
 
-		var seconds = Math.floor((new Date().valueOf() - date.valueOf()) / 1000)
-		var intervalType: string
+	// 	var seconds = Math.floor((new Date().valueOf() - date.valueOf()) / 1000)
+	// 	var intervalType: string
 
-		var interval = Math.floor(seconds / 31536000)
-		if (interval >= 1) {
-			intervalType = 'year'
-		} else {
-			interval = Math.floor(seconds / 2592000)
-			if (interval >= 1) {
-				intervalType = 'month'
-			} else {
-				interval = Math.floor(seconds / 86400)
-				if (interval >= 1) {
-					intervalType = 'day'
-				} else {
-					interval = Math.floor(seconds / 3600)
-					if (interval >= 1) {
-						intervalType = 'hour'
-					} else {
-						interval = Math.floor(seconds / 60)
-						if (interval >= 1) {
-							intervalType = 'minute'
-						} else {
-							interval = seconds
-							intervalType = 'second'
-						}
-					}
-				}
-			}
-		}
-		if (interval > 1 || interval === 0) {
-			intervalType += 's'
-		}
-		return interval + ' ' + intervalType + ' ago'
-	}
+	// 	var interval = Math.floor(seconds / 31536000)
+	// 	if (interval >= 1) {
+	// 		intervalType = 'year'
+	// 	} else {
+	// 		interval = Math.floor(seconds / 2592000)
+	// 		if (interval >= 1) {
+	// 			intervalType = 'month'
+	// 		} else {
+	// 			interval = Math.floor(seconds / 86400)
+	// 			if (interval >= 1) {
+	// 				intervalType = 'day'
+	// 			} else {
+	// 				interval = Math.floor(seconds / 3600)
+	// 				if (interval >= 1) {
+	// 					intervalType = 'hour'
+	// 				} else {
+	// 					interval = Math.floor(seconds / 60)
+	// 					if (interval >= 1) {
+	// 						intervalType = 'minute'
+	// 					} else {
+	// 						interval = seconds
+	// 						intervalType = 'second'
+	// 					}
+	// 				}
+	// 			}
+	// 		}
+	// 	}
+	// 	if (interval > 1 || interval === 0) {
+	// 		intervalType += 's'
+	// 	}
+	// 	return interval + ' ' + intervalType + ' ago'
+	// }
 
 	/**
 	 * Toggles the notification dropdown
 	 */
-	const toggleDropDown = () => {
-		setDropDownOpen(!dropDownOpen)
-	}
+	// const toggleDropDown = () => {
+	// 	setDropDownOpen(!dropDownOpen)
+	// }
 
 	// return (
 	// 	<Dropdown show={dropDownOpen} onToggle={toggleDropDown}>

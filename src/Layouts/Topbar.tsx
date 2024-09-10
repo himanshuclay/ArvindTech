@@ -6,8 +6,7 @@ import { Link } from 'react-router-dom'
 import logo from '@/assets/images/logo.png'
 import logoSm from '@/assets/images/logo-sm.png'
 import logoDark from '@/assets/images/logo-dark.png'
-import profilePic from '@/assets/images/users/avatar-1.jpg'
-import profilePicUser from '@/assets/images/users/avatar-11.jpg'
+import profilePic from '@/assets/images/avatar.png'
 import avatar1 from '@/assets/images/users/avatar-1.jpg'
 import avatar2 from '@/assets/images/users/avatar-2.jpg'
 import avatar3 from '@/assets/images/users/avatar-3.jpg'
@@ -18,7 +17,7 @@ import avatar5 from '@/assets/images/users/avatar-5.jpg'
 import {
 	LanguageDropdown,
 	MessageDropdown,
-	NotificationDropdown,
+	// NotificationDropdown,
 	ProfileDropdown,
 	SearchDropDown,
 } from '@/components'
@@ -93,83 +92,51 @@ const Messages: MessageItem[] = [
 /**
  * notification items
  */
-const Notifications: NotificationItem[] = [
-	{
-		id: 1,
-		title: 'Caleb Flakelar commented on Admin',
-		icon: 'mdi mdi-comment-account-outline',
-		variant: 'primary',
-		createdAt: subtractHours(new Date(), 1),
-	},
-	{
-		id: 2,
-		title: 'New user registered.',
-		icon: 'mdi mdi-account-plus',
-		variant: 'warning',
-		createdAt: subtractHours(new Date(), 300),
-	},
-	{
-		id: 3,
-		title: 'Carlos Crouch liked',
-		icon: 'mdi mdi-heart',
-		variant: 'danger',
-		createdAt: subtractHours(new Date(), 4320),
-	},
-	{
-		id: 4,
-		title: 'Caleb Flakelar commented on Admi',
-		icon: 'mdi mdi-comment-account-outline',
-		variant: 'pink',
-		createdAt: subtractHours(new Date(), 5760),
-	},
-	{
-		id: 5,
-		title: 'New user registered.',
-		icon: 'mdi mdi-account-plus',
-		variant: 'purple',
-		createdAt: subtractHours(new Date(), 10960),
-	},
-	{
-		id: 6,
-		title: 'Carlos Crouch liked Admin',
-		icon: 'mdi mdi-heart',
-		variant: 'success',
-		createdAt: subtractHours(new Date(), 10960),
-	},
-]
-const adminProfileMenus: ProfileOption[] = [
-	{
-		label: 'My Account',
-		icon: 'ri-account-circle-line',
-		redirectTo: '/pages/profile',
-	},
-	{
-		label: 'Settings',
-		icon: 'ri-settings-4-line',
-		redirectTo: '/pages/profile',
-	},
-	{
-		label: 'Support',
-		icon: 'ri-customer-service-2-line',
-		redirectTo: '/pages/faq',
-	},
-	{
-		label: 'Lock Screen',
-		icon: 'ri-lock-password-line',
-		redirectTo: '/auth/lock-screen',
-	},
-	{
-		label: 'Logout',
-		icon: 'ri-logout-box-line',
-		redirectTo: '/auth/logout',
-	},
-	{
-		label: 'Switch Account',
-		icon: 'ri-refresh-line',
-		redirectTo: '/pages/MyTask',
-	},
-]
-const userProfileMenus: ProfileOption[] = [
+// const Notifications: NotificationItem[] = [
+// 	{
+// 		id: 1,
+// 		title: 'Caleb Flakelar commented on Admin',
+// 		icon: 'mdi mdi-comment-account-outline',
+// 		variant: 'primary',
+// 		createdAt: subtractHours(new Date(), 1),
+// 	},
+// 	{
+// 		id: 2,
+// 		title: 'New user registered.',
+// 		icon: 'mdi mdi-account-plus',
+// 		variant: 'warning',
+// 		createdAt: subtractHours(new Date(), 300),
+// 	},
+// 	{
+// 		id: 3,
+// 		title: 'Carlos Crouch liked',
+// 		icon: 'mdi mdi-heart',
+// 		variant: 'danger',
+// 		createdAt: subtractHours(new Date(), 4320),
+// 	},
+// 	{
+// 		id: 4,
+// 		title: 'Caleb Flakelar commented on Admi',
+// 		icon: 'mdi mdi-comment-account-outline',
+// 		variant: 'pink',
+// 		createdAt: subtractHours(new Date(), 5760),
+// 	},
+// 	{
+// 		id: 5,
+// 		title: 'New user registered.',
+// 		icon: 'mdi mdi-account-plus',
+// 		variant: 'purple',
+// 		createdAt: subtractHours(new Date(), 10960),
+// 	},
+// 	{
+// 		id: 6,
+// 		title: 'Carlos Crouch liked Admin',
+// 		icon: 'mdi mdi-heart',
+// 		variant: 'success',
+// 		createdAt: subtractHours(new Date(), 10960),
+// 	},
+// ]
+const profileMenus: ProfileOption[] = [
 	{
 		label: 'My Account',
 		icon: 'ri-account-circle-line',
@@ -194,11 +161,6 @@ const userProfileMenus: ProfileOption[] = [
 		label: 'Logout',
 		icon: 'ri-logout-box-line',
 		redirectTo: '/auth/logout',
-	},
-	{
-		label: 'Switch Account',
-		icon: 'ri-refresh-line',
-		redirectTo: '/',
 	},
 ]
 
@@ -208,7 +170,6 @@ type TopbarProps = {
 	navOpen?: boolean
 }
 const Topbar = ({ toggleMenu, navOpen }: TopbarProps) => {
-	const currentUrl = window.location.href;
 	const { sideBarType } = useThemeCustomizer()
 	const { width } = useViewport()
 
@@ -274,9 +235,9 @@ const Topbar = ({ toggleMenu, navOpen }: TopbarProps) => {
 		}
 	}
 
-	const handleRightSideBar = () => {
-		updateSettings({ rightSidebar: ThemeSettings.rightSidebar.show })
-	}
+	// const handleRightSideBar = () => {
+	// 	updateSettings({ rightSidebar: ThemeSettings.rightSidebar.show })
+	// }
 	return (
 		<>
 			<div className="navbar-custom">
@@ -296,7 +257,7 @@ const Topbar = ({ toggleMenu, navOpen }: TopbarProps) => {
 							{/* Logo Dark */}
 							<Link to="/" className="logo-dark">
 								<span className="logo-lg">
-									<img src={logoDark} alt="dark logo" style={{ height: '50px' }} />
+									<img src={logoDark} alt="dark logo" style={{height: '50px'}} />
 								</span>
 								<span className="logo-sm">
 									<img src={logoSm} alt="small logo" />
@@ -347,9 +308,9 @@ const Topbar = ({ toggleMenu, navOpen }: TopbarProps) => {
 						<li className="dropdown notification-list">
 							<MessageDropdown messages={Messages} />
 						</li>
-						<li className="dropdown notification-list">
+						{/* <li className="dropdown notification-list">
 							<NotificationDropdown notifications={Notifications} />
-						</li>
+						</li> */}
 						{/* <li className="d-none d-sm-inline-block">
 							<button className="nav-link" onClick={handleRightSideBar}>
 								<i className="ri-settings-3-line fs-22" />
@@ -365,24 +326,11 @@ const Topbar = ({ toggleMenu, navOpen }: TopbarProps) => {
 							</div>
 						</li>
 						<li className="dropdown">
-
-
-
-
-
-							{
-								(currentUrl === 'http://localhost:3000/pages/MyTask') || (currentUrl === 'http://localhost:3000/pages/Notification') ? <ProfileDropdown
-									menuItems={userProfileMenus}
-									userImage={profilePicUser}
-									username="User"
-								/> : <ProfileDropdown
-									menuItems={adminProfileMenus}
-									userImage={profilePic}
-									username="Shikhar"
-								/>
-							}
-
-
+							<ProfileDropdown
+								menuItems={profileMenus}
+								userImage={profilePic}
+								username="Admin"
+							/>
 						</li>
 					</ul>
 				</div>

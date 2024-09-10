@@ -48,7 +48,7 @@ const DoerMaster: React.FC = () => {
         setLoading(true);
 
         try {
-            const response = await axios.get('https://localhost:7074/api/DoerMaster/GetDoer', {
+            const response = await axios.get('https://localhost:44307/api/DoerMaster/GetDoer', {
                 params: {
                     PageIndex: currentPage
                 }
@@ -70,28 +70,31 @@ const DoerMaster: React.FC = () => {
 
     const handleShow = () => setShow(true);
 
-    const handleChange = (e: ChangeEvent<HTMLInputElement> | ChangeEvent<HTMLSelectElement>) => {
-        const { name, value, type, checked } = e.target as HTMLInputElement | HTMLSelectElement;
-        if (type === 'checkbox') {
-            setDoer({
-                ...doer,
-                [name]: checked
-            });
-        } else {
-            setDoer({
-                ...doer,
-                [name]: value
-            });
-        }
-    };
+const handleChange = (e: ChangeEvent<any>) => {
+    const { name, value, type } = e.target;
+
+    if (type === 'checkbox') {
+        const { checked } = e.target as HTMLInputElement; // Explicitly cast to HTMLInputElement
+        setDoer({
+            ...doer,
+            [name]: checked
+        });
+    } else {
+        setDoer({
+            ...doer,
+            [name]: value
+        });
+    }
+};
+
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         try {
             if (editingIndex !== null) {
-                await axios.post('https://localhost:7074/api/DoerMaster/UpdateDoer', doer);
+                await axios.post('https://localhost:44307/api/DoerMaster/UpdateDoer', doer);
             } else {
-                await axios.post('https://localhost:7074/api/DoerMaster/InsertDoer', doer);
+                await axios.post('https://localhost:44307/api/DoerMaster/InsertDoer', doer);
             }
             fetchDoers();
             handleClose();
@@ -133,8 +136,7 @@ const DoerMaster: React.FC = () => {
     const filteredDoers = doers.filter(doer =>
         doer.taskID.toLowerCase().includes(searchQuery.toLowerCase()) ||
         doer.identifier.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        doer.empName.toLowerCase().includes(searchQuery.toLowerCase())||
-        doer.empID.toLowerCase().includes(searchQuery.toLowerCase())
+        doer.empName.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
 
@@ -339,8 +341,9 @@ const DoerMaster: React.FC = () => {
                             <td>{doer.empID}</td>
                             <td>{doer.empName}</td>
                             <td>
-                            <i className='btn ri-edit-line' onClick={() => handleEdit(index)}></i>
-
+                                <Button variant="warning" onClick={() => handleEdit(index)}>
+                                    Edit
+                                </Button>
                             </td>
                         </tr>
                     ))}

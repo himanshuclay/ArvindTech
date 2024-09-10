@@ -13,7 +13,6 @@ export interface MenuItemTypes {
 	children?: MenuItemTypes[]
 }
 
-
 const MENU_ITEMS: MenuItemTypes[] = [
 	// {
 	// 	key: 'Main',
@@ -31,37 +30,37 @@ const MENU_ITEMS: MenuItemTypes[] = [
 			text: '9+',
 		},
 	},
-
+	
 	{
 		key: 'Modules-Master',
 		label: 'Workflow',
 		url: '/pages/Modules-Master',
-		icon: 'ri-file-settings-line',
+		icon: 'ri-file-settings-line',	
 		children: [
 			{
 				key: 'ModuleMaster',
-				label: 'Process Initiation',
+				label: 'Task Creator',
 				url: '/pages/Modules-Master',
 				icon: 'ri-slideshow-line',
 				parentKey: 'Modules-Master',
-			},
+			}, 
 			{
-				key: 'ModuleMaster1',
-				label: 'Process List',
-				url: '/pages/Modules-Master',
-				icon: 'ri-slideshow-line',
-				parentKey: 'Modules-Master',
+				key: 'LnMaster',
+				label: 'Task List',
+				url: '/pages/MyTask',
+				icon: 'ri-user-settings-line',
+				parentKey: 'pages',
 			},
-			{
-				key: 'ModuleMaster2',
-				label: 'Add Task',
-				url: '/pages/Modules-Master',
-				icon: 'ri-slideshow-line',
-				parentKey: 'Modules-Master',
-			},
+			// {
+			// 	key: 'ModuleMaster2',
+			// 	label: 'Add Task',
+			// 	url: '/pages/Modules-Master',
+			// 	icon: 'ri-slideshow-line',
+			// 	parentKey: 'Modules-Master',
+			// },
 		],
-	},
-
+		},
+	
 	// {
 	// 	key: 'Notification',
 	// 	label: 'Notification',
@@ -76,51 +75,73 @@ const MENU_ITEMS: MenuItemTypes[] = [
 	// 	icon: 'ri-file-settings-line',
 	// 	parentKey: 'pages',
 	// },
-
+    {
+		key: 'Action',
+		label: 'Filter Records ',
+		icon: 'ri-file-settings-line',	
+		children: [
+			{
+				key: 'Action',
+				label: 'Active Project',
+				url: '/pages/ActiveProject',
+				icon: 'ri-slideshow-line',
+				parentKey: 'Modules-Master',
+			}, 
+			{
+				key: 'ActiveTasks',
+				label: 'Active Process',
+				url: '/pages/FilterTasks',
+				icon: 'ri-slideshow-line',
+				parentKey: 'Modules-Master',
+			},
+			{
+				key: 'FilterTasks',
+				label: 'Active Task',
+				url: '/pages/ActiveTasks',
+				icon: 'ri-slideshow-line',
+				parentKey: 'Modules-Master',
+			},
+		],
+		},
 	{
 		key: 'Notification',
-		label: 'Notification',
+		label: 'My Task',
 		url: '/pages/Notification',
 		icon: 'ri-notification-3-line',
 		parentKey: 'pages',
 	},
 
+	// {
+	// 	key: 'Accounts',
+	// 	label: 'Notification',
+	// 	url: '/pages/Notification',
+	// 	icon: 'ri-notification-3-line',
+	// 	parentKey: 'pages',
+	// },
+
+
+
+	// {
+	// 	key: 'multi-level',
+	// 	label: 'Process Initiation',
+	// 	isTitle: false,
+	// 	icon: 'ri-list-settings-line',
+	// 	children: [
+	// 		{
+	// 			key: 'second-level',
+	// 			label: 'Accounts',
+	// 			url: '/pages/Process-creator',
+	// 			parentKey: 'multi-level',
+	// 			icon: 'ri-account-circle-line',
+	// 		},
+	// 	]
+	// },
 	{
-		key: 'multi-level',
-		label: 'Process Initiation',
-		isTitle: false,
-		icon: 'ri-list-settings-line',
-		children: [
-			// {
-			// 	key: 'level-one',
-			// 	label: 'Level 1.1',
-			// 	url: '/',
-			// 	parentKey: 'multi-level',
-			// },
-			{
-				key: 'second-level',
-				label: 'Accounts',
-				url: '/pages/MonlthlyMessOption',
-				parentKey: 'multi-level',
-				icon: 'ri-account-circle-line',
-				// children: [
-				// 	{
-				// 		key: 'second-level-1',
-				// 		label: 'Mess Monthly Payment',
-				// 		url: '/pages/MonlthlyMessPayments',
-				// 		icon: 'ri-secure-payment-fill',
-				// 		parentKey: 'second-level',
-				// 	},
-				// 	{
-				// 		key: 'second-level-2',
-				// 		label: ' Mess Weekly Payment',
-				// 		url: '/pages/MonlthlyMessOption',
-				// 		icon: 'ri-secure-payment-fill',
-				// 		parentKey: 'second-level',
-				// 	},
-				// ],
-			},
-		]
+		key: 'ChkLnMaster',
+		label: 'Action Center',
+		url: '/pages/ChkLnMaster',
+		icon: 'ri-user-settings-line',
+		parentKey: 'pages',
 	},
 	{
 		key: 'systemmaster',
@@ -142,8 +163,8 @@ const MENU_ITEMS: MenuItemTypes[] = [
 				icon: 'ri-bubble-chart-line',
 				parentKey: 'pages',
 			},
-
-
+		
+		
 			{
 				key: 'TaskMaster',
 				label: 'Task Master',
@@ -158,9 +179,15 @@ const MENU_ITEMS: MenuItemTypes[] = [
 				icon: 'ri-user-settings-line',
 				parentKey: 'pages',
 			},
-
-			
-
+		
+			{
+				key: 'DoerMaster',
+				label: 'Doer Master',
+				url: '/pages/DoerMaster',
+				icon: 'ri-brain-line',
+				parentKey: 'pages',
+			},
+		
 			{
 				key: 'FormMaster',
 				label: 'Form Master',
@@ -170,21 +197,13 @@ const MENU_ITEMS: MenuItemTypes[] = [
 			},
 			{
 				key: 'LnMaster',
-				label: 'LN Master',
-				url: '/pages/LnMaster',
+				label: 'Task List',
+				url: '/pages/MyTask',
 				icon: 'ri-user-settings-line',
 				parentKey: 'pages',
 			},
-
-
-			{
-				key: 'ChkLnMaster',
-				label: 'CHK LN Master',
-				url: '/pages/ChkLnMaster',
-				icon: 'ri-user-settings-line',
-				parentKey: 'pages',
-			},
-
+		
+		
 			{
 				key: 'TicketMaster',
 				label: 'Ticket Master',
@@ -192,7 +211,7 @@ const MENU_ITEMS: MenuItemTypes[] = [
 				icon: 'ri-coupon-2-line',
 				parentKey: 'pages',
 			},
-
+		
 			{
 				key: 'SystemLogs',
 				label: 'System Logs',
@@ -200,7 +219,7 @@ const MENU_ITEMS: MenuItemTypes[] = [
 				icon: 'ri-login-circle-line',
 				parentKey: 'pages',
 			},
-
+		
 			{
 				key: 'ChkTaskMaster',
 				label: ' CHK Task Master',
@@ -208,15 +227,8 @@ const MENU_ITEMS: MenuItemTypes[] = [
 				icon: 'ri-user-settings-line',
 				parentKey: 'pages',
 			},
-
-
-			{
-				key: 'InputMaster',
-				label: 'Input Master',
-				url: '/pages/InputMaster',
-				icon: 'ri-user-settings-line',
-				parentKey: 'pages',
-			},
+		
+		
 			{
 				key: 'ChkInputMaster',
 				label: ' CHK Input Master',
@@ -224,19 +236,19 @@ const MENU_ITEMS: MenuItemTypes[] = [
 				icon: 'ri-user-settings-line',
 				parentKey: 'pages',
 			},
-
-
+		
+		
 			{
 				key: 'ChecklistMaster',
 				label: ' Checklist Master',
 				url: '/pages/ChecklistMaster',
-
+				
 				icon: 'ri-list-check-3',
 				parentKey: 'pages',
 			},
-
-
-
+		
+		
+	
 		],
 	},
 	{
@@ -296,11 +308,11 @@ const MENU_ITEMS: MenuItemTypes[] = [
 				parentKey: 'pages',
 			},
 			///////////////////////////////////////////////////////////////////////////////
-
-
+		
+	
 		],
 	},
-
+	
 	// {
 	// 	key: 'auth',
 	// 	label: 'Authentication',
@@ -752,46 +764,6 @@ const MENU_ITEMS: MenuItemTypes[] = [
 	// },
 ]
 
-const MENU_SWITCH_ITEMS: MenuItemTypes[] = [
-
-	{
-		key: 'dashboard',
-		label: 'Dashboards',
-		isTitle: false,
-		// url: '/',
-		icon: 'ri-dashboard-3-line',
-		badge: {
-			variant: 'success',
-			text: '9+',
-		},
-	},
-
-	// {
-	// 	key: 'DoerMaster',
-	// 	label: 'Doer Master',
-	// 	url: '/pages/DoerMaster',
-	// 	icon: 'ri-brain-line',
-	// 	parentKey: 'pages',
-	// },
-	{
-		key: 'Modules-List',
-		label: 'Notification',
-		url: '/pages/Notification',
-		icon: 'ri-file-settings-line',
-		parentKey: 'pages',
-	},
-	{
-		key: 'MyTask',
-		label: 'MyTask',
-		url: '/pages/MyTask',
-		icon: 'ri-file-settings-line',
-		parentKey: 'pages',
-	},
-
-
-	
-]
-
 const HORIZONTAL_MENU_ITEMS: MenuItemTypes[] = [
 	{
 		key: 'dashboard',
@@ -902,7 +874,7 @@ const HORIZONTAL_MENU_ITEMS: MenuItemTypes[] = [
 			{
 				key: 'pages-starter',
 				label: 'Starter Page',
-				url: '/pages/starter',
+				url: '/pages/Process-creator',
 				parentKey: 'pages',
 			},
 			{
@@ -1292,4 +1264,4 @@ const HORIZONTAL_MENU_ITEMS: MenuItemTypes[] = [
 	// },
 ]
 
-export { MENU_ITEMS, HORIZONTAL_MENU_ITEMS ,MENU_SWITCH_ITEMS}
+export { MENU_ITEMS, HORIZONTAL_MENU_ITEMS }

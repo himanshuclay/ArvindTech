@@ -1,5 +1,6 @@
 import { Card, Col, Row } from 'react-bootstrap'
-import EasyEdit, { Types } from 'react-easy-edit'
+import EasyEdit from 'react-easy-edit';
+import Types from 'react-easy-edit';
 
 // Component
 import { PageBreadcrumb } from '@/components'

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, ChangeEvent } from 'react';
-import { Button, Form, Offcanvas, Table, InputGroup, FormControl, Pagination } from 'react-bootstrap';
+import { Button, Form, Offcanvas, Table, Pagination } from 'react-bootstrap';
 
 interface TenderMasterModule {
     tenderId: string;
@@ -47,18 +47,22 @@ const TenderModule: React.FC = () => {
 
     const handleShow = () => setShow(true);
 
-    const handleChange = (e: ChangeEvent<HTMLInputElement> | ChangeEvent<HTMLSelectElement>) => {
-        const { name, value, type, checked } = e.target as HTMLInputElement | HTMLSelectElement;
-        if (type === 'checkbox') {
-            setTenderModule({
-                ...tenderModule,
-                [name]: checked
-            });
+    const handleChange = (e: ChangeEvent<any>) => {
+        const target = e.target;
+        const { name, value, type } = target;
+
+        if (target instanceof HTMLInputElement && type === 'checkbox') {
+            // Handle checkbox case
+            setTenderModule(prevTenderModule => ({
+                ...prevTenderModule,
+                [name]: target.checked
+            }));
         } else {
-            setTenderModule({
-                ...tenderModule,
+            // Handle other input and select cases
+            setTenderModule(prevTenderModule => ({
+                ...prevTenderModule,
                 [name]: value
-            });
+            }));
         }
     };
 

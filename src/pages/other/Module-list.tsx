@@ -1,5 +1,5 @@
 import React, { useState, useEffect, ChangeEvent } from 'react';
-import { Button, Form, Offcanvas, Table, InputGroup, FormControl, Pagination } from 'react-bootstrap';
+import { Button, Form, Offcanvas, Table, Pagination } from 'react-bootstrap';
 
 interface Module {
     displayName: string;
@@ -40,9 +40,12 @@ const ModuleMaster: React.FC = () => {
 
     const handleShow = () => setShow(true);
 
-    const handleChange = (e: ChangeEvent<HTMLInputElement> | ChangeEvent<HTMLSelectElement>) => {
-        const { name, value, type, checked } = e.target as HTMLInputElement | HTMLSelectElement;
+    const handleChange = (e: ChangeEvent<any>) => {
+        const { name, type } = e.target;
+        const value = (e.target as HTMLInputElement | HTMLSelectElement).value;
+    
         if (type === 'checkbox') {
+            const checked = (e.target as HTMLInputElement).checked; // Explicitly cast to HTMLInputElement
             setModule({
                 ...module,
                 [name]: checked

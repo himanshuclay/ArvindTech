@@ -28,27 +28,26 @@ const BankMaster: React.FC = () => {
     const [editingIndex, setEditingIndex] = useState<number | null>(null);
     const [searchQuery, setSearchQuery] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
-    const [totalPages, setTotalPages] = useState(1); // Added state for total pages
+    const [rowsPerPage, setRowsPerPage] = useState(5);
     const [loading, setLoading] = useState<boolean>(false);
 
 
     useEffect(() => {
         fetchBanks();
-    }, [currentPage]);
+    }, [currentPage, rowsPerPage]);
 
     const fetchBanks = async () => {
         setLoading(true);
 
         try {
-            const response = await axios.get('https://localhost:7074/api/BankMaster/GetBankList', {
+            const response = await axios.get('https://localhost:44307/api/BankMaster/GetBankList', {
                 params: {
                     PageIndex: currentPage
                 }
             });
             if (response.data.isSuccess) {
                 setBanks(response.data.bankMasterListResponses);
-                setTotalPages(Math.ceil(response.data.totalCount / 10));
-
+                console.log(response.data.bankMasterListResponses);
             } else {
                 console.error(response.data.message);
             }
@@ -74,9 +73,9 @@ const BankMaster: React.FC = () => {
         e.preventDefault();
         try {
             if (editingIndex !== null) {
-                await axios.post('https://localhost:7074/api/BankMaster/UpdateBank', bank);
+                await axios.post('https://localhost:44307/api/BankMaster/UpdateBank', bank);
             } else {
-                await axios.post('https://localhost:7074/api/BankMaster/InsertBank', bank);
+                await axios.post('https://localhost:44307/api/BankMaster/InsertBank', bank);
             }
             fetchBanks();
             handleClose();
@@ -110,7 +109,10 @@ const BankMaster: React.FC = () => {
         setCurrentPage(1); // Reset to first page on search
     };
 
-
+    const handleRowsPerPageChange = (e: ChangeEvent<HTMLSelectElement>) => {
+        setRowsPerPage(Number(e.target.value));
+        setCurrentPage(1); // Reset to first page on rows per page change
+    };
 
     const filteredBanks = banks.filter(bank =>
         bank.bank.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -121,6 +123,11 @@ const BankMaster: React.FC = () => {
         bank.state.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
+    const indexOfLastBank = currentPage * rowsPerPage;
+    const indexOfFirstBank = indexOfLastBank - rowsPerPage;
+    const currentBanks = filteredBanks.slice(indexOfFirstBank, indexOfLastBank);
+
+    const totalPages = Math.ceil(filteredBanks.length / rowsPerPage);
 
     const convertToCSV = (data: Bank[]) => {
         const csvRows = [
@@ -255,7 +262,13 @@ const BankMaster: React.FC = () => {
                 </Offcanvas.Body>
             </Offcanvas>
             <div className="d-flex justify-content-between align-items-center my-2">
-             
+                <div>
+                    <Form.Select value={rowsPerPage} onChange={handleRowsPerPageChange}>
+                        <option value={5}>5 rows</option>
+                        <option value={10}>10 rows</option>
+                        <option value={20}>20 rows</option>
+                    </Form.Select>
+                </div>
                 <Pagination>
                     <Pagination.First onClick={() => setCurrentPage(1)} disabled={currentPage === 1} />
                     <Pagination.Prev onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))} disabled={currentPage === 1} />
@@ -275,7 +288,6 @@ const BankMaster: React.FC = () => {
                     <Table className='bg-white' striped bordered hover>
                         <thead>
                             <tr>
-                                <th>ID</th>
                                 <th>Bank</th>
                                 <th>IFSC</th>
                                 <th>Branch</th>
@@ -286,9 +298,8 @@ const BankMaster: React.FC = () => {
                             </tr>
                         </thead>
                         <tbody>
-                            {filteredBanks.slice(0,10).map((bk, index) => (
+                            {currentBanks.map((bk, index) => (
                                 <tr key={index}>
-                                    <td>{bk.id}</td>
                                     <td>{bk.bank}</td>
                                     <td>{bk.ifsc}</td>
                                     <td>{bk.branch}</td>
