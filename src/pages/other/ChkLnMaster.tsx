@@ -1,6 +1,7 @@
-import React, {ChangeEvent, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Button, Modal, Form, Table } from 'react-bootstrap';
+import Select from 'react-select'; // Make sure you have this or the appropriate select component imported
 
 // Define interfaces for the data
 interface AccountProcessTask {
@@ -20,6 +21,9 @@ interface AccountProcessTask {
 interface Employee {
     empID: string;
     empName: string;
+    employeeName: string;
+    empId: string;
+
 }
 
 interface Module {
@@ -64,7 +68,7 @@ const AccountProcessTable: React.FC = () => {
     useEffect(() => {
         const fetchModules = async () => {
             try {
-                const response = await axios.get('https://localhost:44307/api/CommonDropdown/GetModuleList');
+                const response = await axios.get('https://arvindo-api2.clay.in/api/CommonDropdown/GetModuleList');
                 if (response.data.isSuccess) {
                     setModules(response.data.moduleNameListResponses);
                 }
@@ -265,7 +269,7 @@ const AccountProcessTable: React.FC = () => {
         if (selectedModule) {
             const fetchProcesses = async () => {
                 try {
-                    const response = await axios.get(`https://localhost:44307/api/CommonDropdown/GetProcessNameByModuleName?ModuleName=${selectedModule}`);
+                    const response = await axios.get(`https://arvindo-api2.clay.in/api/CommonDropdown/GetProcessNameByModuleName?ModuleName=${selectedModule}`);
                     if (response.data.isSuccess) {
                         setProcesses(response.data.processListResponses);
                     }
@@ -282,7 +286,7 @@ const AccountProcessTable: React.FC = () => {
         if (selectedModule && selectedProcess) {
             const fetchTasks = async () => {
                 try {
-                    const response = await axios.get(`https://localhost:5078/api/AccountModule/GetAccountProcessTaskByIds?ModuleId=ACC&ProcessId=${selectedProcess}`);
+                    const response = await axios.get(`https://arvindo-api.clay.in/api/AccountModule/GetAccountProcessTaskByIds?ModuleId=ACC&ProcessId=${selectedProcess}`);
                     if (response.data.isSuccess) {
                         setTasks(response.data.getAccountProcessTaskByIds);
                         console.log(tasks)
@@ -302,10 +306,11 @@ const AccountProcessTable: React.FC = () => {
         setSelectedRole(assignedTasks.get(task.id)?.roleId || null);
 
         try {
-            const roleResponse = await axios.get('https://localhost:44307/api/RoleMaster/GetRole?PageIndex=1');
+            const roleResponse = await axios.get('https://arvindo-api2.clay.in/api/RoleMaster/GetRole?PageIndex=1');
             if (roleResponse.data.isSuccess) {
                 setRoles(roleResponse.data.roleMasterListResponses);
                 setShowModal(true);
+                console.log(roles)
             }
         } catch (error) {
             console.error('Error fetching roles', error);
@@ -313,68 +318,54 @@ const AccountProcessTable: React.FC = () => {
     };
 
     // Fetch Doers based on the selected role
-
     useEffect(() => {
-        if (selectedTask?.roleName) {
-            const fetchEmployees = async () => {
-                try {
-                    const response = await axios.get(`https://localhost:44307/api/CommonDropdown/GetDoerListbyRole?DoerRole=${selectedTask.roleName}`);
-                    if (response.data.isSuccess) {
-                        setEmployees(response.data.doerListResponses);
-                    } else {
-                        console.error("Failed to fetch employees");
-                    }
-                } catch (error) {
-                    console.error("Error fetching employees:", error);
-                    console.log(roles)
+        const fetchEmployees = async () => {
+            try {
+                const response = await axios.get(`https://arvindo-api2.clay.in/api/CommonDropdown/GetEmployeeListWithId`);
+                if (response.data.isSuccess) {
+                    setEmployees(response.data.employeeLists);
+                } else {
+                    console.error("Failed to fetch employees");
                 }
-            };
+            } catch (error) {
+                console.error("Error fetching employees:", error);
+            }
+        };
 
-            fetchEmployees();
-        }
-    }, [selectedTask?.roleName]);
-
-    // Handle employee selection
-    const handleEmployeeChange = (e: ChangeEvent<any>) => {
-        const selectedValue = e.target.value;
-        setSelectedEmployee(selectedValue);
-
-        // Split empID and empName from the selected value
-        const [selectedEmpId, selectedEmpName] = selectedValue.split('|');
-
-        if (selectedEmpId && selectedEmpName) {
-            // Save empID and empName to localStorage
-            localStorage.setItem("selectedEmpId", selectedEmpId);
-            localStorage.setItem("selectedEmpName", selectedEmpName);
-        }
-    };
-
-
+        fetchEmployees();
+    }, []);
 
     const handleAssign = () => {
         if (selectedTask && selectedEmployee) {
+            // Find the selected employee object to get the employee name
+            const selectedEmployeeObj = employees.find(emp => emp.empId === selectedEmployee);
+
+            if (!selectedEmployeeObj) {
+                console.error('Selected employee not found.');
+                return;
+            }
+
             // Update assignedTasks for each task uniquely
             if (selectedRole !== null) {
                 setAssignedTasks(
-                  new Map(assignedTasks).set(selectedTask.id, {
-                    employeeId: selectedEmployee,
-                    roleId: selectedRole,
-                  })
+                    new Map(assignedTasks).set(selectedTask.id, {
+                        employeeId: selectedEmployee,
+                        roleId: selectedRole,
+                    })
                 );
-              }
-              
+            }
 
             // Prepare the payload to be submitted
             const payload = {
-                id: "",// Ensure this ID matches the task
+                id: "", // Ensure this ID matches the task
                 moduleID: selectedTask.moduleID,
                 moduleName: selectedTask.moduleName,
                 processID: selectedTask.processID,
                 processName: selectedTask.processName,
                 roleName: selectedTask.roleName, // Use role name from selected task
                 roleId: selectedTask.roleId,
-                doerId: selectedEmployee, // The employee assigned to this task
-                doerName: "Lovely_LLP01878",// Find employee name from the list
+                doerId: selectedEmployee, // The employee ID assigned to this task
+                doerName: selectedEmployeeObj.employeeName, // Use employeeName from the selected object
                 task_Number: selectedTask.task_Number,
                 task_Json: selectedTask.task_Json,
                 task_Status: true, // Set task status as true (active or assigned)
@@ -388,7 +379,7 @@ const AccountProcessTable: React.FC = () => {
             // Now proceed with the API request
             const assignTask = async () => {
                 try {
-                    const response = await axios.post('https://localhost:5078/api/AccountModule/TaskAssignRoleWithDoer', payload);
+                    const response = await axios.post('https://arvindo-api.clay.in/api/AccountModule/TaskAssignRoleWithDoer', payload);
 
                     if (response.data.isSuccess) {
                         console.log('Task assigned successfully');
@@ -399,6 +390,7 @@ const AccountProcessTable: React.FC = () => {
                     console.error('Error assigning task', error);
                 }
             };
+
             assignTask();
         } else {
             console.error('Please select a task and an employee before assigning.');
@@ -420,7 +412,7 @@ const AccountProcessTable: React.FC = () => {
             }
 
             try {
-                const response = await axios.post('https://localhost:5078/api/AccountModule/ProcessAssignWithProject', payload);
+                const response = await axios.post('https://arvindo-api2.clay.in/api/AccountModule/ProcessAssignWithProject', payload);
                 if (response.data.isSuccess) {
                     console.log('Process assigned to project successfully');
                 } else {
@@ -440,7 +432,7 @@ const AccountProcessTable: React.FC = () => {
     useEffect(() => {
         const fetchProjects = async () => {
             try {
-                const response = await axios.get('https://localhost:44307/api/CommonDropdown/GetProjectList');
+                const response = await axios.get('https://arvindo-api2.clay.in/api/CommonDropdown/GetProjectList');
                 if (response.data.isSuccess) {
                     setProjects(response.data.projectListResponses);
                 }
@@ -565,6 +557,7 @@ const AccountProcessTable: React.FC = () => {
                 </Modal.Footer>
             </Modal> */}
 
+
             <Modal show={showModal} onHide={() => setShowModal(false)}>
                 <Modal.Header closeButton>
                     <Modal.Title>Assign Role and Employee</Modal.Title>
@@ -572,14 +565,31 @@ const AccountProcessTable: React.FC = () => {
                 <Modal.Body>
                     <Form.Group className="mt-3">
                         <Form.Label>Assign Employee</Form.Label>
-                        <Form.Control as="select" value={selectedEmployee} onChange={handleEmployeeChange}>
-                            <option value="">Select an employee</option>
-                            {employees.map((employee, index) => (
-                                <option key={`${employee.empID}-${index}`} value={`${employee.empID}|${employee.empName}`}>
-                                    {employee.empName}
-                                </option>
-                            ))}
-                        </Form.Control>
+                        <Select
+                            value={employees
+                                .map(employee => ({ value: employee.empId, label: employee.employeeName }))
+                                .find(option => option.value === selectedEmployee)
+                            }
+                            onChange={(selectedOption) => {
+                                if (selectedOption) {
+                                    // When an employee is selected, update state and log details
+                                    setSelectedEmployee(selectedOption.value);  // selectedOption.value is guaranteed to be a string
+                                    const selectedEmployeeObj = employees.find(emp => emp.empId === selectedOption.value);
+                                    if (selectedEmployeeObj) {
+                                        console.log(`Selected Employee ID: ${selectedEmployeeObj.empId}, Name: ${selectedEmployeeObj.employeeName}`);
+                                        localStorage.setItem("selectedEmpId", selectedEmployeeObj.empId);
+                                        localStorage.setItem("selectedEmpName", selectedEmployeeObj.employeeName);
+                                    }
+                                }
+                            }}
+
+                            options={employees.map(employee => ({
+                                value: employee.empId,
+                                label: employee.employeeName,
+                            }))}
+                            placeholder="Select an employee"
+                            isSearchable // Enable search functionality
+                        />
                     </Form.Group>
                 </Modal.Body>
                 <Modal.Footer>
@@ -591,6 +601,8 @@ const AccountProcessTable: React.FC = () => {
                     </Button>
                 </Modal.Footer>
             </Modal>
+
+
 
             {/* Apply Process to Project */}
             <div className="bg-white p-3 rounded shadow">

@@ -29,18 +29,22 @@ const ProjectAssignTable: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [expandedRow, setExpandedRow] = useState<number | null>(null);
   const [activeKey, setActiveKey] = useState<string | null>(null);
+  const [formState, setFormState] = useState<any>({});
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         const role = localStorage.getItem('EmpId') || '';
         const response = await axios.get<ApiResponse>(
-          `https://localhost:5078/api/AccountModule/GetTaskAssignListWithDoer?DoerId=${role}`
+          `https://arvindo-api.clay.in/api/ProcessInitiation/GetDoerTaskListById?DoerId=${role}`
         );
 
         if (response.data && response.data.isSuccess) {
           setData(response.data.taskAssignListWithDoers || []);
-        } else {
+          console.log(data)
+        }
+
+        else {
           console.error('API Response Error:', response.data?.message || 'Unknown error');
         }
       } catch (error) {
@@ -63,7 +67,7 @@ const ProjectAssignTable: React.FC = () => {
     label: string;
     color?: string;
   }
-  
+
   interface Input {
     inputId: string;
     type: string;
@@ -74,17 +78,17 @@ const ProjectAssignTable: React.FC = () => {
     conditionalFieldId?: string;
     value?: string | boolean;
   }
-  
+
   interface DynamicFormProps {
     formData: { inputs: Input[] };
     taskNumber: string;
     doer: string | null;
     onDoerChange: (taskNumber: string, selectedOption: Option | null) => void;
   }
-  
+
   const DynamicForm: React.FC<DynamicFormProps> = ({ formData, taskNumber, doer, onDoerChange }) => {
     const [formState, setFormState] = useState<{ [key: string]: any }>({});
-  
+
     // Initialize form state
     useEffect(() => {
       const initialState: { [key: string]: any } = {};
@@ -93,41 +97,144 @@ const ProjectAssignTable: React.FC = () => {
       });
       setFormState(initialState);
     }, [formData]);
-  
+
+    const [messList, setMessList] = useState<{ messID: string; messName: string; managerEmpID: string; managerName: string }[]>([]);
+    const projectName = 'PNC_DELHI_VADODARA_PKG29'; // Replace this with the actual project name from your state
+
+    useEffect(() => {
+      const fetchMessData = async () => {
+        try {
+          const response = await axios.get(`https://localhost:44307/api/CommonDropdown/GetMessandManagerListByProjectName?ProjectName=${projectName}`);
+          if (response.data.isSuccess) {
+            setMessList(response.data.messProjectListResponses);
+          } else {
+            console.error('Failed to fetch mess data');
+          }
+        } catch (error) {
+          console.error('Error fetching mess data:', error);
+        }
+      };
+
+      if (projectName) {
+        fetchMessData();
+      }
+    }, [projectName]);
+
     // Handle change in input values
-    const handleChange = (inputId: string, value: string | boolean) => {
+    const handleChange = (inputId: string, value: string | boolean | string[]) => {
+      // Find the input field in the formData
+      const excludedInputIds = ['99', '100', '102', '103'];
       const input = formData.inputs.find(input => input.inputId === inputId);
-  
+    
       let updatedValue = value;
-      if (input && input.type === 'select') {
+    
+      // Handle 'select' and 'CustomSelect' input type
+      if (input && (input.type === 'select' || input.type === 'CustomSelect')) {
         const selectedOption = input.options?.find(option => option.label === value);
         if (selectedOption) {
-          updatedValue = selectedOption.id;
+          updatedValue = selectedOption.id;  // Use option ID instead of label
         }
       }
-  
+    
+      // Handle 'multiselect' input type (storing an array of selected option IDs)
+      if (input && input.type === 'multiselect') {
+        updatedValue = (value as string[]).map(label => {
+          const selectedOption = input.options?.find(option => option.label === label);
+          return selectedOption ? selectedOption.id : label;
+        });
+      }
+    
+      // Handle 'text', 'radio', 'checkbox', 'date', and other input types
+      if (input) {
+        switch (input.type) {
+          case 'text':
+          case 'textarea':
+            updatedValue = value as string;  // Handle simple text or textarea
+            break;
+          case 'checkbox':
+            updatedValue = value as boolean;  // Boolean for checkboxes
+            break;
+          case 'radio':
+            updatedValue = value as boolean;  // Boolean for radio buttons
+            break;
+          case 'date':
+            updatedValue = value as string;  // Date input will give a string value (ISO format)
+            break;
+          case 'file':
+            // For file input, handle the file uploading separately
+            // updatedValue = (e.target.files[0] as File);  // Placeholder for file handling
+            break;
+          default:
+            break;
+        }
+      }
+    
+      // Update the formState with the new value
       setFormState(prevState => {
+        // Only include updates for inputIds that are not in the excluded list
         const newState = {
           ...prevState,
-          [inputId]: updatedValue
+          ...(excludedInputIds.includes(inputId) ? {} : { [inputId]: updatedValue })
         };
-  
-        // Trigger re-evaluation of conditions
+    
+        // Re-evaluate conditions after state update
         reEvaluateConditions(newState);
-  
+    
         return newState;
       });
     };
+
+    const handleSubmit = async (event: React.FormEvent, taskNumber: string) => {
+      event.preventDefault();
+      const role = localStorage.getItem('EmpId') || '';
   
+      // Prepare the data to be posted
+      const requestData = {
+        id: 0,
+        doerID: role || '',
+        task_Json: JSON.stringify(formState),  // Assume formState is defined
+        isExpired: 0,
+        isCompleted: formState['isCompleted'] || 'false',
+        task_Number: taskNumber,
+        summary: formState['summary'] || 'Task Summary',
+      };
+      console.log(requestData)
+  
+      setLoading(true);  // Show loader when the request is initiated
+  
+      try {
+        const response = await fetch('https://localhost:5078/api/ProcessInitiation/UpdateDoerTask', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(requestData),
+        });
+  
+        if (response.ok) {
+          const responseData = await response.json();
+          console.log('Task updated successfully:', responseData);
+          
+        } else {
+          console.error('Failed to update the task:', response.statusText);
+        }
+      } catch (error) {
+        console.error('Error occurred while updating task:', error);
+      } finally {
+        setLoading(false);  // Hide loader when the request completes (success or error)
+      }
+    };
+    
+
     // Function to re-evaluate conditions for showing/hiding fields
     const reEvaluateConditions = (newState: { [key: string]: any }) => {
       const updatedState = { ...newState };
-  
+
       formData.inputs.forEach((input) => {
         if (input.conditionalFieldId) {
           const conditionValue = newState[input.conditionalFieldId];
           const shouldDisplay = conditionValue === input.conditionalFieldId;
-  
+
           if (shouldDisplay) {
             // Ensure the input is displayed if condition is met
             updatedState[input.inputId] = newState[input.inputId] || '';
@@ -137,26 +244,27 @@ const ProjectAssignTable: React.FC = () => {
           }
         }
       });
-  
+
       setFormState(updatedState);
     };
-  
+
     const shouldDisplayInput = (input: Input): boolean => {
       if (!input.conditionalFieldId) return true;
-  
+
       const conditionValue = input.conditionalFieldId;
       if (conditionValue === 'someid') return true;
-  
+
       for (const otherInput of formData.inputs) {
         if (otherInput.inputId === conditionValue) {
-          return formState[otherInput.inputId] !== ''; 
+          return formState[otherInput.inputId] !== '';
+          
         }
-  
+        console.log(otherInput)
         if (otherInput.options && otherInput.options.some(option => option.id === conditionValue)) {
           return formState[otherInput.inputId] === conditionValue;
         }
       }
-  
+
       return false;
     };
 
@@ -176,10 +284,10 @@ const ProjectAssignTable: React.FC = () => {
                 <div className='col-12 fs-5 text-primary'>{formData.inputs.find((input: { inputId: string; label: string }) => input.inputId === "99")?.label}</div>
               </Accordion.Header>
               <Accordion.Body>
-                {[...Array(2)].map((_, index) => (
-                  <React.Fragment key={index}>
-                    <span>Mess {index + 1}</span>
-                    <div className='my-task'>
+                {messList.map((mess, index) => (
+                  <React.Fragment key={mess.messID}>
+                    <span>Mess {index + 1}: {mess.messName}</span>
+                    <div className="my-task">
                       {formData.inputs.map((input: Input) => (
                         shouldDisplayInput(input) && (
                           <div className='m-3 form-group' key={input.inputId} style={{ marginBottom: '1rem' }}>
@@ -309,15 +417,14 @@ const ProjectAssignTable: React.FC = () => {
                           </div>
                         )
                       ))}
-
-                      <div className="col-12 d-flex justify-content-end">
-                        <button className='btn btn-primary' type="submit" style={{ padding: '0.5rem 1rem' }}>
-                          Submit
-                        </button>
-                      </div>
                     </div>
                   </React.Fragment>
                 ))}
+                <div className="col-12 d-flex justify-content-end">
+                  <button className='btn btn-primary' type="submit" style={{ padding: '0.5rem 1rem' }}>
+                    Submit
+                  </button>
+                </div>
 
               </Accordion.Body>
 
@@ -339,11 +446,8 @@ const ProjectAssignTable: React.FC = () => {
     console.log(`Doer changed for task ${taskNumber}:`, selectedOption);
   };
 
-  const handleSubmit = (event: React.FormEvent, taskNumber: string) => {
-    event.preventDefault();
-    // Handle form submission here
-    console.log(`Form submitted for task ${taskNumber}`);
-  };
+
+  
 
   if (loading) {
     return <div className="loader-fixed">
