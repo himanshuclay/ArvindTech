@@ -125,6 +125,8 @@ const AccountProcessTable: React.FC = () => {
         filteredJson: FilteredJsonType | null;
     }
 
+
+
     const ModalForm = ({ showModalone, handleClose, filteredJson }: ModalFormProps) => {
         // State to store task numbers for each option
 
@@ -139,16 +141,55 @@ const AccountProcessTable: React.FC = () => {
             }));
         };
 
+        const [taskTiming, setTaskTiming] = useState<{ [key: string]: string }>({});
+        const [daySelection, setDaySelection] = useState<{ [key: string]: string }>({});
+        const [weekdaySelection, setWeekdaySelection] = useState<{ [key: string]: string[] }>({});
+        const [selectedTaskTypes, setSelectedTaskTypes] = useState<{ [key: string]: string }>({});
+
+
+        const handleTaskTimingChange = (optionId: string, timingType: string) => {
+            setTaskTiming(prev => ({ ...prev, [optionId]: timingType }));
+        };
+
+        const handleDaySelectionChange = (optionId: string, value: string) => {
+            setDaySelection(prev => ({ ...prev, [optionId]: value }));
+        };
+
+        const handleTaskTypeChange = (optionId: string, value: string) => {
+            setSelectedTaskTypes(prevState => ({
+                ...prevState,
+                [optionId]: value
+            }));
+        };
+
+        const handleWeekdaySelectionChange = (optionId: string, selectedWeekdays: string[]) => {
+            setWeekdaySelection(prev => ({ ...prev, [optionId]: selectedWeekdays }));
+        };
+
+
         // Handle form submission
-        const handleSaveChanges = () => {
-            // Handle saving changes here
-            console.log("Selected Task Numbers:", selectedTaskNumbers);
-            // You can now send `selectedTaskNumbers` to an API or process it as needed
-            handleClose(); // Close the modal after saving
+        const handleSaveChanges = async () => {
+            const payload = filteredJson.options.map(option => ({
+                optionId: option.id,
+                taskNumber: selectedTaskNumbers[option.id] || null,
+                taskTiming: taskTiming[option.id] || null,
+                taskType: selectedTaskTypes[option.id] || null, // Include Task Type here
+                daySelection: taskTiming[option.id] === 'day' ? daySelection[option.id] || null : null,
+                weekdaySelection: taskTiming[option.id] === 'weekday' ? weekdaySelection[option.id] || [] : []
+            }));
+            console.log(payload)
+
+            try {
+                const response = await axios.post('https://your-api-endpoint.com/api/saveTaskData', payload);
+                console.log("Data successfully posted.");
+                handleClose();
+            } catch (error) {
+                console.error("Error posting data:", error);
+            }
         };
 
         return (
-            <Modal show={showModalone} onHide={handleClose}>
+            <Modal size="lg" show={showModalone} onHide={handleClose}>
                 <Modal.Header closeButton>
                     <Modal.Title>Conditions Form</Modal.Title>
                 </Modal.Header>
@@ -166,25 +207,97 @@ const AccountProcessTable: React.FC = () => {
                                 </select>
 
                                 {filteredJson.options.map(option => (
-                                    <div className='form-group' key={option.id} style={{ marginTop: '10px' }}>
-                                        <label>
-                                            Select Successor Task For<div style={{ color: option.color }}>{option.label}</div>
-                                        </label>
-                                        <select
-                                            className='form-control'
-                                            value={selectedTaskNumbers[option.id] || ''}
-                                            onChange={(e) => handleTaskNumberChange(option.id, e.target.value)}
-                                        >
-                                            <option value="" disabled>Select Task Number</option>
-                                            {tasks.map(task => (
-                                                <option key={task.id} value={task.task_Number}>
-                                                    {task.task_Number}
-                                                </option>
-                                            ))}
-                                        </select>
+                                    <div className='form-group row' key={option.id} style={{ marginTop: '10px' }}>
+                                        <div className="col-4">
+                                            <label>
+                                                Select Successor Task For <span style={{ color: option.color }}>{option.label}</span>
+                                            </label>
+                                            <select
+                                                className='form-control'
+                                                value={selectedTaskNumbers[option.id] || ''}
+                                                onChange={(e) => handleTaskNumberChange(option.id, e.target.value)}
+                                            >
+                                                <option value="" disabled>Select Task Number</option>
+                                                {tasks.map(task => (
+                                                    <option key={task.id} value={task.task_Number}>
+                                                        {task.task_Number}
+                                                    </option>
+                                                ))}
+                                            </select>
+                                        </div>
+                                        <div className="col-4">
+                                            <label htmlFor="">Task Type</label>
+                                            <select
+                                                className='form-control'
+                                                value={selectedTaskTypes[option.id] || ''}
+                                                onChange={(e) => handleTaskTypeChange(option.id, e.target.value)}
+                                            >
+                                                <option value="" disabled>Select task type</option>
+                                                <option value="Actual">Actual</option>
+                                                <option value="Planned">Planned</option>
+                                            </select>
+                                        </div>
+
+                                        {/* Toggle button for Task Timing */}
+                                        <div className="form-group col-4" style={{ marginTop: '10px' }}>
+                                            <label>Task Timing</label>
+                                            <div>
+                                                <button
+                                                    type="button"
+                                                    className={`toggle-btn ${taskTiming[option.id] === 'day' ? 'active-btn' : 'normal-btn'}`}
+                                                    onClick={() => handleTaskTimingChange(option.id, 'day')}
+                                                >
+                                                    Day
+                                                </button>
+                                                <button
+                                                    type="button"
+                                                    className={`toggle-btn ${taskTiming[option.id] === 'weekday' ? 'active-btn' : 'normal-btn'}`}
+                                                    onClick={() => handleTaskTimingChange(option.id, 'weekday')}
+                                                >
+                                                    Weekday
+                                                </button>
+                                            </div>
+
+                                            {/* Conditional rendering for Day or Weekday selection */}
+                                            {taskTiming[option.id] === 'day' ? (
+                                                <div style={{ marginTop: '10px' }}>
+                                                    <label>Enter number of days</label>
+                                                    <input
+                                                        type="number"
+                                                        className="form-control"
+                                                        value={daySelection[option.id] || ''}
+                                                        onChange={(e) => handleDaySelectionChange(option.id, e.target.value)}
+                                                        min="1"
+                                                        placeholder="Enter days"
+                                                    />
+                                                </div>
+                                            ) : taskTiming[option.id] === 'weekday' ? (
+                                                <div style={{ marginTop: '10px' }}>
+                                                    <label>Select weekdays</label>
+                                                    <select
+                                                        className="form-control"
+                                                        multiple
+                                                        value={weekdaySelection[option.id] || []}
+                                                        onChange={(e) =>
+                                                            handleWeekdaySelectionChange(
+                                                                option.id,
+                                                                Array.from(e.target.selectedOptions, option => option.value)
+                                                            )
+                                                        }
+                                                    >
+                                                        <option value="mon">Monday</option>
+                                                        <option value="tue">Tuesday</option>
+                                                        <option value="wed">Wednesday</option>
+                                                        <option value="thu">Thursday</option>
+                                                        <option value="fri">Friday</option>
+                                                        <option value="sat">Saturday</option>
+                                                        <option value="sun">Sunday</option>
+                                                    </select>
+                                                </div>
+                                            ) : null}
+                                        </div>
                                     </div>
                                 ))}
-
                             </form>
                         </>
                     ) : (
@@ -200,6 +313,7 @@ const AccountProcessTable: React.FC = () => {
                     </Button>
                 </Modal.Footer>
             </Modal>
+
         );
     };
 
@@ -492,14 +606,14 @@ const AccountProcessTable: React.FC = () => {
                             <th>Task Number</th>
                             <th>Role Name</th>
                             <th>Doer Name</th>
-                            <th>Action</th>
+                            {/* <th>Action</th> */}
                             <th>conditions</th>
                         </tr>
                     </thead>
                     <tbody>
                         {tasks.map((task, index) => {
-                            const assignedTask = assignedTasks.get(task.id);
-                            const doerName = assignedTask ? employees.find((employee) => employee.empID === assignedTask.employeeId)?.empName : 'Select Doer';
+                            // const assignedTask = assignedTasks.get(task.id);
+                            // const doerName = assignedTask ? employees.find((employee) => employee.empID === assignedTask.employeeId)?.empName : 'Select Doer';
 
                             return (
                                 <tr key={task.id}>
@@ -508,7 +622,7 @@ const AccountProcessTable: React.FC = () => {
                                     <td>{task.processName}</td>
                                     <td>{task.task_Number}</td>
                                     <td>{task.roleName}</td>
-                                    <td>{doerName}</td>
+                                    {/* <td>{doerName}</td> */}
                                     <td>
                                         <Button
                                             variant="primary"

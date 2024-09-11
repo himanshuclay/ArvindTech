@@ -228,3 +228,22 @@
   width: 8px;
   height: 8px;
 }
+
+.toggle-btn
+{
+  padding: 4px;
+  font-size: 12px;
+  border: none;
+  color: #000;
+}
+
+.active-btn
+{
+  background-color: rgb(23, 7, 92);
+  color: #fff!important;
+}
+
+.normal-btn
+{
+  background-color: #d5d5d5;
+}
