@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { Button, Table, Collapse, Accordion, Offcanvas } from 'react-bootstrap'; // Assuming DynamicForm is in the same directory
+import { Button, Table, Collapse, Offcanvas, } from 'react-bootstrap'; // Assuming DynamicForm is in the same directory
 import { FileUploader } from '@/components/FileUploader'
 import { useNavigate } from 'react-router-dom';
 
@@ -29,8 +29,14 @@ interface ProjectAssignListWithDoer {
   taskTime: string;
   taskType: string;
   roleName: string;
+  taskNumber: string
+  inputs: Input[]
 
 
+}
+interface Input {
+  label: string;
+  value: string;
 }
 
 interface ApiResponse {
@@ -39,14 +45,21 @@ interface ApiResponse {
   getFilterTasks: ProjectAssignListWithDoer[];
 }
 
+interface FilteredTask {
+  taskNumber: string;
+  inputs: {
+    label: string;
+    value: string;
+  }[];
+}
+
 const ProjectAssignTable: React.FC = () => {
   const [data, setData] = useState<ProjectAssignListWithDoer[]>([]);
-  const [preData, setPreData] = useState<ProjectAssignListWithDoer[]>([]);
-  const [dataPre, setDataPre] = useState<ProjectAssignListWithDoer[]>([]);
+  const [preData, setPreData] = useState<FilteredTask[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [expandedRow, setExpandedRow] = useState<number | null>(null);
-  const [activeKey, setActiveKey] = useState<string | null>(null);
   const [parsedCondition, setParsedCondition] = useState<any[]>([]);
+  const [taskCommonId, setTaskCommonId] = useState<number | null>(null);
   // const [formState, setFormState] = useState<any>({});
   const [show, setShow] = useState(false);
   const navigate= useNavigate()
@@ -57,12 +70,15 @@ const ProjectAssignTable: React.FC = () => {
         const response = await axios.get<ApiResponse>(
           `https://localhost:44382/api/ProcessInitiation/GetFilterTask?Flag=1&DoerId=${role}`
         );
-
+    
         if (response.data && response.data.isSuccess) {
           const fetchedData = response.data.getFilterTasks || [];
+          console.log('Fetched Data:', fetchedData);
+          
+          // Set the fetched data
           setData(fetchedData);
-          // setData(response.data.getFilterTasks || []);
-          console.log(fetchedData)
+    
+          // Process conditions
           const parsedConditions = fetchedData.map((task: ProjectAssignListWithDoer) => {
             try {
               return JSON.parse(task.condition_Json); // Parse the condition JSON
@@ -71,11 +87,22 @@ const ProjectAssignTable: React.FC = () => {
               return null;
             }
           });
-
+    
+          // Extract and set TaskCommonId (assumes it should be a single number)
+          const TaskCommonIds = fetchedData.map((task: ProjectAssignListWithDoer) => task.taskCommonId);
+          if (TaskCommonIds.length > 0) {
+            setTaskCommonId(TaskCommonIds[0]);
+            console.log(taskCommonId)
+          } else {
+            console.error('No taskCommonId values found.');
+          }
+    
+          // Set parsed conditions state
           setParsedCondition(parsedConditions);
-        }
-
-        else {
+    
+          console.log('Task Common IDs:', TaskCommonIds[0]);
+    
+        } else {
           console.error('API Response Error:', response.data?.message || 'Unknown error');
         }
       } catch (error) {
@@ -89,19 +116,23 @@ const ProjectAssignTable: React.FC = () => {
         setLoading(false);
       }
     };
+    
 
     fetchData();
   }, []);
 
 
+  console.log(taskCommonId)
 
   useEffect(() => {
-    const fetchPreData = async (taskNumber: string) => {
+    
+    const fetchPreData = async (taskCommonId: number) => {
       try {
         // const taskData = data.find(task => task.task_Number === taskNumber);
-        const taskCommonId = 50; // Fetch or pass TaskCommonId dynamically
+ // Fetch or pass TaskCommonId dynamically
         console.log(taskCommonId)
         const flag = 5;
+        // const taskCommonId = 
 
         const response = await axios.get<ApiResponse>(
           `https://localhost:44382/api/ProcessInitiation/GetFilterTask?TaskCommonId=${taskCommonId}&Flag=${flag}`
@@ -114,18 +145,28 @@ const ProjectAssignTable: React.FC = () => {
           // Filter tasks and exclude unwanted inputIds
           const filteredTasks = fetchedData.map((task: ProjectAssignListWithDoer) => {
             const parsedTaskJson = JSON.parse(task.task_Json);
-            const filteredInputs = parsedTaskJson.inputs.filter(
-              (input: any) => !['99', '100', '102', '103'].includes(input.inputId) // Exclude unwanted inputIds
-            );
-
+            const optionsMap = parsedTaskJson.inputs.reduce((map: Record<string, string>, input: any) => {
+              if (input.options) {
+                input.options.forEach((option: any) => {
+                  map[option.id] = option.label;
+                });
+              }
+              return map;
+            }, {});
+          
+            const filteredInputs = parsedTaskJson.inputs
+              .filter((input: any) => !['99', '100', '102', '103'].includes(input.inputId)) // Exclude unwanted inputIds
+              .map((input: any) => ({
+                label: input.label,
+                value: optionsMap[input.value] || input.value // Replace value with label if it exists in optionsMap
+              }));
+          
             return {
               taskNumber: task.task_Number,
-              inputs: filteredInputs.map((input: any) => ({
-                label: input.label,
-                value: input.value
-              }))
+              inputs: filteredInputs
             };
           });
+          
 
           // Set data for rendering
           setPreData(filteredTasks);
@@ -155,9 +196,12 @@ const ProjectAssignTable: React.FC = () => {
         setLoading(false);
       }
     };
+if(taskCommonId){
+  fetchPreData(taskCommonId);
 
-    fetchPreData();
-  }, []);
+}
+  }, [taskCommonId]);
+
 
 
   interface Option {
@@ -231,10 +275,9 @@ const ProjectAssignTable: React.FC = () => {
       let selectedLabel: string | undefined;
 
       if (input) {
-        selectedLabel = input.label;  // Get the label from the JSON structure
+        selectedLabel = input.label; 
       }
 
-      // Handle 'select' and 'CustomSelect' input type
       if (input && (input.type === 'select' || input.type === 'CustomSelect')) {
         const selectedOption = input.options?.find(option => option.label === value);
         if (selectedOption) {
@@ -349,7 +392,7 @@ const ProjectAssignTable: React.FC = () => {
       } catch (error) {
         console.error('Error occurred while updating task:', error);
       } finally {
-        setLoading(false);  // Hide loader when the request completes (success or error)
+        setLoading(false);   // Hide loader when the request completes (success or error)
       }
     };
 
@@ -400,8 +443,6 @@ const ProjectAssignTable: React.FC = () => {
     return (
       <>
         <Offcanvas className="p-3" show={show} onHide={handleClose} >
-
-
 
             {messList.map((mess, index) => (
             <React.Fragment key={mess.messID}>
@@ -622,6 +663,7 @@ const ProjectAssignTable: React.FC = () => {
 
     <>
       <div>
+        
         <div className="d-flex p-2 bg-white mt-2 mb-2 rounded shadow"><h5 className='mb-0'>Pending Task</h5></div>
         {data.length === 0 ? (
           <p>No data available.</p>

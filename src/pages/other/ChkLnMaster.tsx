@@ -87,6 +87,17 @@ const AccountProcessTable: React.FC = () => {
         color: string;
     }
 
+    interface FilteredJsonInputType {
+        inputId: string;
+        type: string;
+        label: string;
+        placeholder: string;
+        options?: Option[];  // Optional if some inputs don't have options
+        required: boolean;
+        conditionalFieldId: string;
+        value: string;
+    }
+
     interface FilteredJsonType {
         inputId: string;
         type: string;
@@ -96,6 +107,7 @@ const AccountProcessTable: React.FC = () => {
         required: boolean;
         conditionalFieldId: string;
         value: string;
+        inputs: FilteredJsonInputType[];
     }
 
     interface ModalFormProps {
@@ -134,6 +146,8 @@ const AccountProcessTable: React.FC = () => {
 
         // Handle change for task numbers
         const [selectedTaskNumbers, setSelectedTaskNumbers] = useState<{ [key: string]: string }>({});
+        console.log(filteredJson);
+        console.log(filteredJson?.inputs);
 
         // Handle change for task number selection
         const handleTaskNumberChange = (optionId: string, value: string) => {
@@ -170,12 +184,13 @@ const AccountProcessTable: React.FC = () => {
             const key = optionId || inputId; // Use optionId if present, otherwise fall back to inputId
             setTaskTiming(prev => ({ ...prev, [key]: timingType }));
         };
-        
+
         const handleDaySelectionChange = (inputId: string, optionId: string | null, value: string) => {
-            const key = optionId || inputId; // Use optionId if present, otherwise fall back to inputId
+            const key = optionId || inputId; // Use optionId if available, otherwise fall back to inputId
             setDaySelection(prev => ({ ...prev, [key]: value }));
         };
-        
+
+
         const handleTaskTypeChange = (inputId: string, optionId: string | null, value: string) => {
             const key = optionId || inputId; // Use optionId if present, otherwise fall back to inputId
             setSelectedTaskTypes(prevState => ({
@@ -183,12 +198,12 @@ const AccountProcessTable: React.FC = () => {
                 [key]: value
             }));
         };
-        
+
         const handleWeekdaySelectionChange = (inputId: string, optionId: string | null, selectedWeekdays: string[]) => {
             const key = optionId || inputId; // Use optionId if present, otherwise fall back to inputId
             setWeekdaySelection(prev => ({ ...prev, [key]: selectedWeekdays }));
         };
-        
+
 
         const handleToggleExpirable = () => {
             setIsExpirable(prev => (prev === 'yes' ? 'no' : 'yes'));
@@ -213,45 +228,45 @@ const AccountProcessTable: React.FC = () => {
 
                 const conditionJson = (filteredJson.options ? filteredJson.options : []).map(option => {
                     // Function to convert string to hours by multiplying by 24
-                
+
                     // `inputId` represents the input field
                     const inputId = filteredJson.inputId;
-                
+
                     // `optionId` represents each option inside that input
                     const optionId = option.id;
-                
+
                     return {
                         inputId: inputId, // Use inputId from filteredJson
                         optionId: optionId, // Use optionId from option
-                
+
                         // Use inputId and optionId to fetch values from state objects
                         taskNumber: selectedTaskNumbers[optionId] || null,
                         taskTiming: taskTiming[optionId] || null,
                         taskType: selectedTaskTypes[optionId] || null,
-                
+
                         // Check for taskTiming based on optionId and convert day selection accordingly
                         daySelection: taskTiming[optionId] === 'day' ? convertToHoursString(daySelection[optionId]) : null,
                     };
                 });
-                
+
                 // If there are no options, still handle inputId
                 if (!filteredJson.options || filteredJson.options.length === 0) {
                     conditionJson.push({
                         inputId: filteredJson.inputId,  // Use inputId from filteredJson
                         optionId: "",                   // No optionId since no options exist
-            
+
                         // Fetch values based on inputId
                         taskNumber: selectedTaskNumbers[filteredJson.inputId] || null,
                         taskTiming: taskTiming[filteredJson.inputId] || null,
                         taskType: selectedTaskTypes[filteredJson.inputId] || null,
-            
+
                         // Convert day selection if timing is set to 'day'
                         daySelection: taskTiming[filteredJson.inputId] === 'day' ? convertToHoursString(daySelection[filteredJson.inputId]) : null,
                     });
                 }
-                
-                
-                
+
+
+
 
 
                 // Convert conditionJson to string as expected by the API
@@ -330,19 +345,133 @@ const AccountProcessTable: React.FC = () => {
                         <>
                             <form className='form-group'>
                                 {filteredJson.type !== "select" && (
-                                    <div className='col-5'>
-                                        Select Successor Task For Input Labeled with <label>{filteredJson.label}</label>
-                                        <select className='form-control' onChange={(e) => handleNextTask(filteredJson.inputId, e.target.value)}>
-                                            {tasks
-                                                .filter(task => task.task_Number !== selectedConditionTask) // Exclude selectedConditionTask
-                                                .map(task => (
-                                                    <option key={task.id} value={task.task_Number}>
-                                                        {task.task_Number}
-                                                    </option>
-                                                ))
-                                            }
-                                        </select>
-                                        
+                                    <div className='col-12'>
+                                        {/* <div className="form-group">
+                                            <label htmlFor="">Select Successor Task For Input Labeled with <label>{filteredJson.label}</label></label>
+                                            <select className='form-control' onChange={(e) => handleNextTask(filteredJson.inputId, e.target.value)}>
+                                                {tasks
+                                                    .filter(task => task.task_Number !== selectedConditionTask) // Exclude selectedConditionTask
+                                                    .map(task => (
+                                                        <option key={task.id} value={task.task_Number}>
+                                                            {task.task_Number}
+                                                        </option>
+                                                    ))
+                                                }
+                                            </select>
+                                        </div> */}
+
+                                        {filteredJson ? (
+                                            <div className="form-group row" key={filteredJson.inputId} style={{ marginTop: '10px' }}>
+                                                {/* Display the Label */}
+                                                <div className="col-4">
+                                                    <label>
+                                                        Select Successor Task for <span>{filteredJson.label}</span>
+                                                    </label>
+
+                                                    {/* Select Task Number */}
+                                                    <select
+                                                        className="form-control"
+                                                        value={selectedTaskNumbers[filteredJson.inputId] || ''} // Reference inputId for state management
+                                                        onChange={(e) => handleTaskNumberChange(filteredJson.inputId, e.target.value)}
+                                                    >
+                                                        <option value="" disabled>Select Task Number</option>
+                                                        <option value="updateMaster">Update Master</option>
+
+                                                        {/* Filter tasks based on task_Number */}
+                                                        {tasks
+                                                            .filter(task => task.task_Number !== selectedConditionTask) // Exclude selectedConditionTask
+                                                            .map(task => (
+                                                                <option key={task.id} value={task.task_Number}>
+                                                                    {task.task_Number}
+                                                                </option>
+                                                            ))
+                                                        }
+                                                    </select>
+                                                </div>
+
+                                                {/* Select Task Type */}
+                                                <div className="col-4">
+                                                    <label htmlFor="">Task Type</label>
+                                                    <select
+                                                        className="form-control"
+                                                        value={selectedTaskTypes[filteredJson.inputId] || ''} // Use inputId for selecting Task Type
+                                                        onChange={(e) => handleTaskTypeChange(filteredJson.inputId, null, e.target.value)}
+                                                    >
+                                                        <option value="" disabled>Select task type</option>
+                                                        <option value="Actual">Actual</option>
+                                                        <option value="Planned">Planned</option>
+                                                    </select>
+                                                </div>
+
+                                                {/* Toggle Task Timing */}
+                                                <div className="form-group col-4" style={{ marginTop: '10px' }}>
+                                                    <label>Task Timing</label>
+                                                    <div>
+                                                        <button
+                                                            type="button"
+                                                            className={`toggle-btn ${taskTiming[filteredJson.inputId] === 'day' ? 'active-btn' : 'normal-btn'}`}
+                                                            onClick={() => handleTaskTimingChange(filteredJson.inputId, null, 'day')} // Pass `null` for `optionId` if it isn't available
+                                                        >
+                                                            Day
+                                                        </button>
+
+                                                        <button
+                                                            type="button"
+                                                            className={`toggle-btn ${taskTiming[filteredJson.inputId] === 'weekday' ? 'active-btn' : 'normal-btn'}`}
+                                                            onClick={() => handleTaskTimingChange(filteredJson.inputId, null, 'weekday')} // Ensure all 3 arguments are passed
+                                                        >
+                                                            Weekday
+                                                        </button>
+
+                                                    </div>
+
+                                                    {/* Conditional Rendering for Day or Weekday selection */}
+                                                    {taskTiming[filteredJson.inputId] === 'day' ? (
+                                                        <div style={{ marginTop: '10px' }}>
+                                                            <label>Enter number of days</label>
+                                                            <input
+                                                                type="number"
+                                                                className="form-control"
+                                                                value={daySelection[filteredJson.inputId] || ''}
+                                                                onChange={(e) => handleDaySelectionChange(filteredJson.inputId, null, e.target.value)}
+                                                                min="1"
+                                                                placeholder="Enter days"
+                                                            />
+                                                        </div>
+                                                    ) : taskTiming[filteredJson.inputId] === 'weekday' ? (
+                                                        <div style={{ marginTop: '10px' }}>
+                                                            <label>Select weekdays</label>
+                                                            <select
+                                                                className="form-control"
+                                                                multiple
+                                                                value={weekdaySelection[filteredJson.inputId] || []} // Make sure the value comes from the state
+                                                                onChange={(e) =>
+                                                                    handleWeekdaySelectionChange(
+                                                                        filteredJson.inputId,
+                                                                        null, // Pass null for optionId if it's not being used
+                                                                        Array.from(e.target.selectedOptions, option => option.value) // Convert selected options to an array of values
+                                                                    )
+                                                                }
+                                                            >
+                                                                <option value="mon">Monday</option>
+                                                                <option value="tue">Tuesday</option>
+                                                                <option value="wed">Wednesday</option>
+                                                                <option value="thu">Thursday</option>
+                                                                <option value="fri">Friday</option>
+                                                                <option value="sat">Saturday</option>
+                                                                <option value="sun">Sunday</option>
+                                                            </select>
+                                                        </div>
+
+                                                    ) : null}
+                                                </div>
+                                            </div>
+                                        ) : (
+                                            <p>No input data available</p>
+                                        )}
+
+
+
                                     </div>
                                 )}
 
@@ -521,7 +650,7 @@ const AccountProcessTable: React.FC = () => {
         }
     };
 
-    const [selectedEmployeeName, setSelectedEmployeeName] = useState<string | null>(null);
+    // const [selectedEmployeeName, setSelectedEmployeeName] = useState<string | null>(null);
 
     useEffect(() => {
         // Retrieve employee name and ID from localStorage when the component mounts
@@ -529,7 +658,7 @@ const AccountProcessTable: React.FC = () => {
         const storedEmpName = localStorage.getItem('selectedEmpName');
         if (storedEmpId && storedEmpName) {
             setSelectedEmployee(storedEmpId);
-            setSelectedEmployeeName(storedEmpName);
+            // setSelectedEmployeeName(storedEmpName);
         }
     }, []);
 
