@@ -62,7 +62,7 @@ const ProjectAssignTable: React.FC = () => {
   const [taskCommonId, setTaskCommonId] = useState<number | null>(null);
   // const [formState, setFormState] = useState<any>({});
   const [show, setShow] = useState(false);
-  const navigate= useNavigate()
+  const navigate = useNavigate()
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -70,14 +70,14 @@ const ProjectAssignTable: React.FC = () => {
         const response = await axios.get<ApiResponse>(
           `https://localhost:44382/api/ProcessInitiation/GetFilterTask?Flag=1&DoerId=${role}`
         );
-    
+
         if (response.data && response.data.isSuccess) {
           const fetchedData = response.data.getFilterTasks || [];
           console.log('Fetched Data:', fetchedData);
-          
+
           // Set the fetched data
           setData(fetchedData);
-    
+
           // Process conditions
           const parsedConditions = fetchedData.map((task: ProjectAssignListWithDoer) => {
             try {
@@ -87,21 +87,26 @@ const ProjectAssignTable: React.FC = () => {
               return null;
             }
           });
-    
+
           // Extract and set TaskCommonId (assumes it should be a single number)
           const TaskCommonIds = fetchedData.map((task: ProjectAssignListWithDoer) => task.taskCommonId);
-          if (TaskCommonIds.length > 0) {
-            setTaskCommonId(TaskCommonIds[0]);
-            console.log(taskCommonId)
+          if (TaskCommonIds && TaskCommonIds.length > 0) {
+            const commonId = TaskCommonIds[0];
+            setTaskCommonId(commonId);
+            localStorage.setItem('taskCommonId', commonId);  // Use a string key for localStorage
+            console.log("This is updated:", commonId);  // Log the correct value
           } else {
             console.error('No taskCommonId values found.');
           }
-    
+          setTaskCommonId(TaskCommonIds[0]);
+          localStorage.setitem(taskCommonId)
+          console.log("this is updated", taskCommonId)
+
           // Set parsed conditions state
           setParsedCondition(parsedConditions);
-    
+
           console.log('Task Common IDs:', TaskCommonIds[0]);
-    
+
         } else {
           console.error('API Response Error:', response.data?.message || 'Unknown error');
         }
@@ -116,7 +121,7 @@ const ProjectAssignTable: React.FC = () => {
         setLoading(false);
       }
     };
-    
+
 
     fetchData();
   }, []);
@@ -125,11 +130,11 @@ const ProjectAssignTable: React.FC = () => {
   console.log(taskCommonId)
 
   useEffect(() => {
-    
+
     const fetchPreData = async (taskCommonId: number) => {
       try {
         // const taskData = data.find(task => task.task_Number === taskNumber);
- // Fetch or pass TaskCommonId dynamically
+        // Fetch or pass TaskCommonId dynamically
         console.log(taskCommonId)
         const flag = 5;
         // const taskCommonId = 
@@ -153,20 +158,20 @@ const ProjectAssignTable: React.FC = () => {
               }
               return map;
             }, {});
-          
+
             const filteredInputs = parsedTaskJson.inputs
               .filter((input: any) => !['99', '100', '102', '103'].includes(input.inputId)) // Exclude unwanted inputIds
               .map((input: any) => ({
                 label: input.label,
                 value: optionsMap[input.value] || input.value // Replace value with label if it exists in optionsMap
               }));
-          
+
             return {
               taskNumber: task.task_Number,
               inputs: filteredInputs
             };
           });
-          
+
 
           // Set data for rendering
           setPreData(filteredTasks);
@@ -196,10 +201,10 @@ const ProjectAssignTable: React.FC = () => {
         setLoading(false);
       }
     };
-if(taskCommonId){
-  fetchPreData(taskCommonId);
+    if (taskCommonId) {
+      fetchPreData(taskCommonId);
 
-}
+    }
   }, [taskCommonId]);
 
 
@@ -275,7 +280,7 @@ if(taskCommonId){
       let selectedLabel: string | undefined;
 
       if (input) {
-        selectedLabel = input.label; 
+        selectedLabel = input.label;
       }
 
       if (input && (input.type === 'select' || input.type === 'CustomSelect')) {
@@ -356,6 +361,8 @@ if(taskCommonId){
       const taskData = data.find(task => task.task_Number === taskNumber);
 
       // Prepare the data to be posted
+      const taskCommonId = localStorage.getItem('taskCommonId') || 0;  // Retrieve from localStorage or set to 0 if not found
+
       const requestData = {
         id: taskData?.id || 0,
         doerID: role || '',
@@ -365,7 +372,7 @@ if(taskCommonId){
         task_Number: taskNumber,
         summary: formState['summary'] || 'Task Summary',  // Ensure summary is from formState
         condition_Json: JSON.stringify(parsedCondition),  // Assuming parsedCondition is defined
-        taskCommonID: 50, // Same as id of primary case
+        taskCommonId: taskCommonId,  // Use the taskCommonId fetched from localStorage or state
         updatedBy: role
       };
 
@@ -392,7 +399,7 @@ if(taskCommonId){
       } catch (error) {
         console.error('Error occurred while updating task:', error);
       } finally {
-        setLoading(false);   // Hide loader when the request completes (success or error)
+        setLoading(false);  // Hide loader when the request completes (success or error)
       }
     };
 
@@ -444,190 +451,192 @@ if(taskCommonId){
       <>
         <Offcanvas className="p-3" show={show} onHide={handleClose} >
 
-            {messList.map((mess, index) => (
+
+
+          {messList.map((mess, index) => (
             <React.Fragment key={mess.messID}>
-            {preData.map((task, index) => (
-              <div key={index}>
-                <h5 className='mt-2'>Updated data from <span className='text-primary'>{task.taskNumber}</span></h5>
-                <div>
-                  {task.inputs.map((input, idx) => (
-                    <div key={idx}>
-                      <strong>{input.label}:</strong> <span className='text-primary'>{input.value}</span>
-                    </div>
-                  ))}
-                </div>
-                <hr />
-              </div>
-            ))}
-            </React.Fragment>
-            ))}
-            {/* {/ <form onSubmit={handleSubmit}> /} */}
-            <form className='' onSubmit={(event) => handleSubmit(event, taskNumber)}>
-              {/* <Accordion.Item eventKey={taskNumber}> */}
-                <div className='d-flex flex-column mt-2'>
-                  <div className='fs-6 mb-1 fw-bolder col-12'>Task Name</div>
-                  <div className='col-12 fs-5 text-primary'>{formData.inputs.find((input: { inputId: string; label: string }) => input.inputId === "99")?.label}</div>
-                </div>
-                <Offcanvas.Body className='p-0 mt-3'>
-                  {messList.map((mess, index) => (
-                    <React.Fragment key={mess.messID}>
-                      <h5>Please Update data for <span className='text-primary'>{mess.messName}</span></h5>
-                      <div className="my-task">
-                        {formData.inputs.map((input: Input) => (
-                          shouldDisplayInput(input) && (
-                            <div className='form-group' key={input.inputId} style={{ marginBottom: '1rem' }}>
-                              <label className='label'>{input.label}</label>
-                              {input.type === 'text' && (
-                                <input
-                                  type="text"
-                                  className='form-control'
-                                  placeholder={input.placeholder}
-                                  value={formState[input.inputId]}
-                                  onChange={e => handleChange(input.inputId, e.target.value)}
-                                />
-                              )}
-                              {input.type === 'custom' && (
-                                <input
-                                  type="text"
-                                  placeholder={input.placeholder}
-                                  value={formState[input.inputId]}
-                                  onChange={e => handleChange(input.inputId, e.target.value)}
-                                  style={{ display: 'block', width: '100%', padding: '0.5rem' }}
-                                />
-                              )}
-                              {input.type === 'select' && (
-                                <select
-                                  id={input.inputId}
-                                  className='form-select form-control'
-                                  value={formState[input.inputId] || ''}
-                                  onChange={e => handleChange(input.inputId, e.target.value)}
-                                  style={{ display: 'block', width: '100%', padding: '0.5rem' }}
-                                >
-                                  <option value="" disabled>Select an option</option>
-                                  {input.options?.map(option => (
-                                    <option key={option.id} value={option.label}>
-                                      {option.label}
-                                    </option>
-                                  ))}
-                                </select>
-                              )}
-
-                              {input.type === 'multiselect' && (
-                                <select
-                                  className='form-select form-control'
-                                  value={formState[input.inputId]}
-                                  onChange={e => handleChange(input.inputId, e.target.value)}
-                                  style={{ display: 'block', width: '100%', padding: '0.5rem' }}
-
-                                >
-                                  <option value="" disabled>Select an option</option>
-                                  {input.options?.map(option => (
-                                    <option key={option.id} value={option.label}>
-                                      {option.label}
-                                    </option>
-                                  ))}
-                                </select>
-                              )}
-                              {input.type === 'CustomSelect' && (
-                                <select
-                                  value={formState[input.inputId]}
-                                  onChange={e => handleChange(input.inputId, e.target.value)}
-                                  style={{ display: 'block', width: '100%', padding: '0.5rem' }}
-
-                                >
-                                  <option value="" disabled>Select an option</option>
-                                  {input.options?.map(option => (
-                                    <option key={option.id} value={option.label}>
-                                      {option.label}
-                                    </option>
-                                  ))}
-                                </select>
-                              )}
-                              {input.type === 'file' && (
-                                // <input
-                                //     type="file"
-                                //     placeholder={'file'}
-                                //     onChange={e => handleChange(input.fileId, e.target.value)}
-                                //     style={{ display: 'block', width: '100%', padding: '0.5rem' }}
-                                // />
-                                <FileUploader
-                                  icon="ri-upload-cloud-2-line"
-                                  text="Drop files here or click to upload."
-
-                                />
-                              )}
-
-                              {input.type === 'checkbox' && (
-                                // <input
-
-                                //     className='form-control'
-
-                                // />
-                                <span className="form-check">
-                                  <input className="form-check-input" type="checkbox"
-                                    checked={formState[input.inputId]}
-                                    onChange={e => handleChange(input.inputId, e.target.checked)} />
-                                </span>
-                              )}
-                              {input.type === 'radio' && (
-                                <input
-                                  type="radio"
-                                  checked={formState[input.inputId]}
-                                  onChange={e => handleChange(input.inputId, e.target.checked)}
-                                />
-                              )}
-                              {input.type === 'status' && (
-                                <input
-                                  type="text"
-                                  checked={formState[input.inputId]}
-                                  onChange={e => handleChange(input.inputId, e.target.checked)}
-                                />
-                              )}
-                              {input.type === 'successorTask' && (
-                                <input
-                                  type="text"
-                                  checked={formState[input.inputId]}
-                                  onChange={e => handleChange(input.inputId, e.target.checked)}
-                                />
-                              )}
-                              {input.type === 'date' && (
-                                <input
-                                  type="date"
-                                  value={formState[input.inputId]}
-                                  onChange={e => handleChange(input.inputId, e.target.value)}
-                                  style={{ display: 'block', width: '100%', padding: '0.5rem' }}
-
-                                />
-                              )}
-                            </div>
-                          )
-                        ))}
+              {preData.map((task, index) => (
+                <div key={index}>
+                  <h5 className='mt-2'>Updated data from <span className='text-primary'>{task.taskNumber}</span></h5>
+                  <div>
+                    {task.inputs.map((input, idx) => (
+                      <div key={idx}>
+                        <strong>{input.label}:</strong> <span className='text-primary'>{input.value}</span>
                       </div>
-                    </React.Fragment>
-                  ))}
-                  <div className="form-group">
-                    <label htmlFor="taskSummary">Write Task Summary</label>
-                    <input
-                      type="text"
-                      className='form-control'
-                      id="taskSummary"
-                      value={summary}  // Bind the input to the state
-                      onChange={(e) => setSummary(e.target.value)}  // Update the state on input change
-                      style={{ display: 'block', width: '100%', padding: '0.5rem' }}
-                    />
+                    ))}
                   </div>
-                  <div className="col-12 d-flex justify-content-end mt-3">
-                    <button className='btn btn-primary' type="submit" style={{ padding: '0.5rem 1rem' }}>
-                      Submit
-                    </button>
+                  <hr />
+                </div>
+              ))}
+            </React.Fragment>
+          ))}
+          {/* {/ <form onSubmit={handleSubmit}> /} */}
+          <form className='' onSubmit={(event) => handleSubmit(event, taskNumber)}>
+            {/* <Accordion.Item eventKey={taskNumber}> */}
+            <div className='d-flex flex-column mt-2'>
+              <div className='fs-6 mb-1 fw-bolder col-12'>Task Name</div>
+              <div className='col-12 fs-5 text-primary'>{formData.inputs.find((input: { inputId: string; label: string }) => input.inputId === "99")?.label}</div>
+            </div>
+            <Offcanvas.Body className='p-0 mt-3'>
+              {messList.map((mess, index) => (
+                <React.Fragment key={mess.messID}>
+                  <h5>Please Update data for <span className='text-primary'>{mess.messName}</span></h5>
+                  <div className="my-task">
+                    {formData.inputs.map((input: Input) => (
+                      shouldDisplayInput(input) && (
+                        <div className='form-group' key={input.inputId} style={{ marginBottom: '1rem' }}>
+                          <label className='label'>{input.label}</label>
+                          {input.type === 'text' && (
+                            <input
+                              type="text"
+                              className='form-control'
+                              placeholder={input.placeholder}
+                              value={formState[input.inputId]}
+                              onChange={e => handleChange(input.inputId, e.target.value)}
+                            />
+                          )}
+                          {input.type === 'custom' && (
+                            <input
+                              type="text"
+                              placeholder={input.placeholder}
+                              value={formState[input.inputId]}
+                              onChange={e => handleChange(input.inputId, e.target.value)}
+                              style={{ display: 'block', width: '100%', padding: '0.5rem' }}
+                            />
+                          )}
+                          {input.type === 'select' && (
+                            <select
+                              id={input.inputId}
+                              className='form-select form-control'
+                              value={formState[input.inputId] || ''}
+                              onChange={e => handleChange(input.inputId, e.target.value)}
+                              style={{ display: 'block', width: '100%', padding: '0.5rem' }}
+                            >
+                              <option value="" disabled>Select an option</option>
+                              {input.options?.map(option => (
+                                <option key={option.id} value={option.label}>
+                                  {option.label}
+                                </option>
+                              ))}
+                            </select>
+                          )}
+
+                          {input.type === 'multiselect' && (
+                            <select
+                              className='form-select form-control'
+                              value={formState[input.inputId]}
+                              onChange={e => handleChange(input.inputId, e.target.value)}
+                              style={{ display: 'block', width: '100%', padding: '0.5rem' }}
+
+                            >
+                              <option value="" disabled>Select an option</option>
+                              {input.options?.map(option => (
+                                <option key={option.id} value={option.label}>
+                                  {option.label}
+                                </option>
+                              ))}
+                            </select>
+                          )}
+                          {input.type === 'CustomSelect' && (
+                            <select
+                              value={formState[input.inputId]}
+                              onChange={e => handleChange(input.inputId, e.target.value)}
+                              style={{ display: 'block', width: '100%', padding: '0.5rem' }}
+
+                            >
+                              <option value="" disabled>Select an option</option>
+                              {input.options?.map(option => (
+                                <option key={option.id} value={option.label}>
+                                  {option.label}
+                                </option>
+                              ))}
+                            </select>
+                          )}
+                          {input.type === 'file' && (
+                            // <input
+                            //     type="file"
+                            //     placeholder={'file'}
+                            //     onChange={e => handleChange(input.fileId, e.target.value)}
+                            //     style={{ display: 'block', width: '100%', padding: '0.5rem' }}
+                            // />
+                            <FileUploader
+                              icon="ri-upload-cloud-2-line"
+                              text="Drop files here or click to upload."
+
+                            />
+                          )}
+
+                          {input.type === 'checkbox' && (
+                            // <input
+
+                            //     className='form-control'
+
+                            // />
+                            <span className="form-check">
+                              <input className="form-check-input" type="checkbox"
+                                checked={formState[input.inputId]}
+                                onChange={e => handleChange(input.inputId, e.target.checked)} />
+                            </span>
+                          )}
+                          {input.type === 'radio' && (
+                            <input
+                              type="radio"
+                              checked={formState[input.inputId]}
+                              onChange={e => handleChange(input.inputId, e.target.checked)}
+                            />
+                          )}
+                          {input.type === 'status' && (
+                            <input
+                              type="text"
+                              checked={formState[input.inputId]}
+                              onChange={e => handleChange(input.inputId, e.target.checked)}
+                            />
+                          )}
+                          {input.type === 'successorTask' && (
+                            <input
+                              type="text"
+                              checked={formState[input.inputId]}
+                              onChange={e => handleChange(input.inputId, e.target.checked)}
+                            />
+                          )}
+                          {input.type === 'date' && (
+                            <input
+                              type="date"
+                              value={formState[input.inputId]}
+                              onChange={e => handleChange(input.inputId, e.target.value)}
+                              style={{ display: 'block', width: '100%', padding: '0.5rem' }}
+
+                            />
+                          )}
+                        </div>
+                      )
+                    ))}
                   </div>
+                </React.Fragment>
+              ))}
+              <div className="form-group">
+                <label htmlFor="taskSummary">Write Task Summary</label>
+                <input
+                  type="text"
+                  className='form-control'
+                  id="taskSummary"
+                  value={summary}  // Bind the input to the state
+                  onChange={(e) => setSummary(e.target.value)}  // Update the state on input change
+                  style={{ display: 'block', width: '100%', padding: '0.5rem' }}
+                />
+              </div>
+              <div className="col-12 d-flex justify-content-end mt-3">
+                <button className='btn btn-primary' type="submit" style={{ padding: '0.5rem 1rem' }}>
+                  Submit
+                </button>
+              </div>
 
-                </Offcanvas.Body>
+            </Offcanvas.Body>
 
-              {/* </Accordion.Item> */}
+            {/* </Accordion.Item> */}
 
 
-            </form>
+          </form>
           {/* </Accordion> */}
         </Offcanvas>
       </>
@@ -663,7 +672,6 @@ if(taskCommonId){
 
     <>
       <div>
-        
         <div className="d-flex p-2 bg-white mt-2 mb-2 rounded shadow"><h5 className='mb-0'>Pending Task</h5></div>
         {data.length === 0 ? (
           <p>No data available.</p>
@@ -708,9 +716,9 @@ if(taskCommonId){
                     <td>{item.taskTime}</td>
                     <td>{item.createdDate}</td>
                     <td>
-                    <Button onClick={handleShow}>
-                      Show
-                    </Button>
+                      <Button onClick={handleShow}>
+                        Show
+                      </Button>
                     </td>
                     <td>
                       <Button onClick={() => toggleExpandRow(item.id)}>

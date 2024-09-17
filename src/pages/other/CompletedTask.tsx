@@ -53,6 +53,7 @@ const ProjectAssignTable: React.FC = () => {
 
         if (response.data && response.data.isSuccess) {
           setData(response.data.getFilterTasks || []);
+          console.log(data)
         } else {
           console.error('API Response Error:', response.data?.message || 'Unknown error');
         }
@@ -81,7 +82,7 @@ const ProjectAssignTable: React.FC = () => {
     try {
       const flag = 7;
       const response = await axios.get<ApiResponse>(
-        `https://arvindo-api.clay.in/api/ProcessInitiation/GetFilterTask?TaskCommonId=${taskCommonId}&Flag=${flag}`
+        `https://localhost:44382/api/ProcessInitiation/GetFilterTask?TaskCommonId=${taskCommonId}&Flag=${flag}`
       );
 
       if (response.data && response.data.isSuccess) {
