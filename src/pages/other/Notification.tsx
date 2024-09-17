@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Button, Table, Collapse, Accordion, Offcanvas } from 'react-bootstrap'; // Assuming DynamicForm is in the same directory
 import { FileUploader } from '@/components/FileUploader'
+import { useNavigate } from 'react-router-dom';
 
 interface ProjectAssignListWithDoer {
   id: number;
@@ -48,7 +49,7 @@ const ProjectAssignTable: React.FC = () => {
   const [parsedCondition, setParsedCondition] = useState<any[]>([]);
   // const [formState, setFormState] = useState<any>({});
   const [show, setShow] = useState(false);
-
+  const navigate= useNavigate()
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -340,6 +341,7 @@ const ProjectAssignTable: React.FC = () => {
 
         if (response.ok) {
           const responseData = await response.json();
+          navigate('/pages/completedTask')
           console.log('Task updated successfully:', responseData);
         } else {
           console.error('Failed to update the task:', response.statusText);
@@ -695,86 +697,6 @@ const ProjectAssignTable: React.FC = () => {
           </Table>
         )}
       </div>
-      <div>
-        <div className="d-flex p-2 bg-white mt-2 mb-2 rounded shadow"><h5 className='mb-0'>Previous Completed Doer Task</h5></div>
-        {dataPre.length === 0 ? (
-          <p>No data available.</p>
-        ) : (
-          <Table className='bg-white' striped bordered hover>
-            <thead>
-              <tr>
-                {/* {/ <th>ID</th> /} */}
-                {/* <th>Module ID</th> */}
-                <th>Sr.no </th>
-                <th>Module </th>
-                {/* <th>Process ID</th> */}
-                <th>Process </th>
-                <th>Project </th>
-                <th>Assigned Role</th>
-                <th>Doer Name</th>
-                <th>Task Id</th>
-                <th>Task Type</th>
-                <th>Planned Date</th>
-                <th>Initation Date</th>
-                <th>Actions</th>
-                <th>CondtionJson</th>
-              </tr>
-            </thead>
-            <tbody>
-              {dataPre.map((item, index) => (
-                <React.Fragment key={item.id}>
-                  <tr
-                    style={{
-                      backgroundColor: item.status === 'Done' ? 'lightgreen' : 'white',
-                    }}
-                  >
-                    <td>{index + 1}</td>
-                    {/* {/ <td>{item.id}</td> /} */}
-                    {/* <td>{item.moduleID}</td> */}
-                    <td>{item.moduleName}</td>
-                    {/* <td>{item.processID}</td> */}
-                    <td>{item.processName}</td>
-                    <td>{item.projectName}</td>
-                    <td>{item.roleName}</td>
-                    {/* <td>{item.doerName}</td> */}
-                    <td>{item.task_Number}</td>
-                    <td>{item.taskType}</td>
-                    <td>{item.taskTime}</td>
-                    <td>{item.createdDate}</td>
-                    <td>
-                      <Button onClick={() => toggleExpandRow(item.id)}>
-                        {expandedRow === item.id ? 'Hide' : 'Show'}
-                      </Button>
-                    </td>
-                    <td>
-                      <Button onClick={() => toggleExpandRow(item.id)}>
-                        {expandedRow === item.id ? 'Hide' : 'Show'}
-                      </Button>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td >
-                      <Collapse in={expandedRow === item.id}>
-                        <div>
-                          <DynamicForm
-                            formData={JSON.parse(item.task_Json)}
-                            taskNumber={item.task_Number}
-                            doer={null} // Replace with actual doer if available
-                            onDoerChange={handleDoerChange}
-                          // Add other props as needed
-                          />
-                        </div>
-                      </Collapse>
-                    </td>
-                  </tr>
-                </React.Fragment>
-              ))}
-            </tbody>
-          </Table>
-        )}
-      </div>
-
-
     </>
 
   );
