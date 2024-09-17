@@ -32,7 +32,7 @@ const GetTestData: React.FC = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get('https://localhost:5078/api/AccountModule/GetTestData');
+        const response = await axios.get('https://localhost:44382/api/AccountModule/GetTestData');
         if (response.data.isSuccess) {
           setData(response.data.getTestData);
         } else {

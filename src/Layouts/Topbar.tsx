@@ -1,6 +1,7 @@
 import { Image } from 'react-bootstrap'
 import { ThemeSettings, useThemeContext } from '@/common'
 import { Link } from 'react-router-dom'
+import { useEffect, useState } from 'react'
 
 // assets
 import logo from '@/assets/images/logo.png'
@@ -89,74 +90,30 @@ const Messages: MessageItem[] = [
 	},
 ]
 
-/**
- * notification items
- */
-// const Notifications: NotificationItem[] = [
-// 	{
-// 		id: 1,
-// 		title: 'Caleb Flakelar commented on Admin',
-// 		icon: 'mdi mdi-comment-account-outline',
-// 		variant: 'primary',
-// 		createdAt: subtractHours(new Date(), 1),
-// 	},
-// 	{
-// 		id: 2,
-// 		title: 'New user registered.',
-// 		icon: 'mdi mdi-account-plus',
-// 		variant: 'warning',
-// 		createdAt: subtractHours(new Date(), 300),
-// 	},
-// 	{
-// 		id: 3,
-// 		title: 'Carlos Crouch liked',
-// 		icon: 'mdi mdi-heart',
-// 		variant: 'danger',
-// 		createdAt: subtractHours(new Date(), 4320),
-// 	},
-// 	{
-// 		id: 4,
-// 		title: 'Caleb Flakelar commented on Admi',
-// 		icon: 'mdi mdi-comment-account-outline',
-// 		variant: 'pink',
-// 		createdAt: subtractHours(new Date(), 5760),
-// 	},
-// 	{
-// 		id: 5,
-// 		title: 'New user registered.',
-// 		icon: 'mdi mdi-account-plus',
-// 		variant: 'purple',
-// 		createdAt: subtractHours(new Date(), 10960),
-// 	},
-// 	{
-// 		id: 6,
-// 		title: 'Carlos Crouch liked Admin',
-// 		icon: 'mdi mdi-heart',
-// 		variant: 'success',
-// 		createdAt: subtractHours(new Date(), 10960),
-// 	},
-// ]
+
 const profileMenus: ProfileOption[] = [
 	{
-		label: 'My Account',
-		icon: 'ri-account-circle-line',
-		redirectTo: '/pages/profile',
-	},
-	{
-		label: 'Settings',
-		icon: 'ri-settings-4-line',
-		redirectTo: '/pages/profile',
-	},
-	{
-		label: 'Support',
+		label: 'MyProfile',
 		icon: 'ri-customer-service-2-line',
 		redirectTo: '/pages/faq',
 	},
-	{
-		label: 'Lock Screen',
-		icon: 'ri-lock-password-line',
-		redirectTo: '/auth/lock-screen',
-	},
+	// {
+	// 	label: 'My Account',
+	// 	icon: 'mdi mdi-account-plus',
+	// 	redirectTo: '/pages/profile',
+	// },
+	
+	// {
+	// 	label: 'Settings',
+	// 	icon: 'ri-settings-4-line',
+	// 	redirectTo: '/pages/profile',
+	// },
+
+	// {
+	// 	label: 'Lock Screen',
+	// 	icon: 'ri-lock-password-line',
+	// 	redirectTo: '/auth/lock-screen',
+	// },
 	{
 		label: 'Logout',
 		icon: 'ri-logout-box-line',
@@ -222,18 +179,27 @@ const Topbar = ({ toggleMenu, navOpen }: TopbarProps) => {
 			document.body.style.removeProperty('overflow')
 		}
 	}
-	const { settings, updateSettings, updateSidebar } = useThemeContext()
+	const {  updateSidebar } = useThemeContext()
+// State to store the employee name
+const [empName, setEmpName] = useState<string | null>('Admin')
 
+// Fetch employee name from localStorage when component mounts
+useEffect(() => {
+	const storedEmpName = localStorage.getItem('EmpName')
+	if (storedEmpName) {
+		setEmpName(storedEmpName)
+	}
+}, [])
 	/**
 	 * Toggle Dark Mode
 	 */
-	const toggleDarkMode = () => {
-		if (settings.theme === 'dark') {
-			updateSettings({ theme: ThemeSettings.theme.light })
-		} else {
-			updateSettings({ theme: ThemeSettings.theme.dark })
-		}
-	}
+	// const toggleDarkMode = () => {
+	// 	if (settings.theme === 'dark') {
+	// 		updateSettings({ theme: ThemeSettings.theme.light })
+	// 	} else {
+	// 		updateSettings({ theme: ThemeSettings.theme.dark })
+	// 	}
+	// }
 
 	// const handleRightSideBar = () => {
 	// 	updateSettings({ rightSidebar: ThemeSettings.rightSidebar.show })
@@ -285,7 +251,7 @@ const Topbar = ({ toggleMenu, navOpen }: TopbarProps) => {
 							</div>
 						</button>
 						{/* Topbar Search Form */}
-						<div className="app-search d-none d-lg-block">
+						{/* <div className="app-search d-none d-lg-block">
 							<form>
 								<div className="input-group">
 									<input
@@ -296,7 +262,7 @@ const Topbar = ({ toggleMenu, navOpen }: TopbarProps) => {
 									<span className="ri-search-line search-icon text-muted" />
 								</div>
 							</form>
-						</div>
+						</div> */}
 					</div>
 					<ul className="topbar-menu d-flex align-items-center gap-3">
 						<li className="dropdown d-lg-none">
@@ -308,29 +274,14 @@ const Topbar = ({ toggleMenu, navOpen }: TopbarProps) => {
 						<li className="dropdown notification-list">
 							<MessageDropdown messages={Messages} />
 						</li>
-						{/* <li className="dropdown notification-list">
-							<NotificationDropdown notifications={Notifications} />
-						</li> */}
-						{/* <li className="d-none d-sm-inline-block">
-							<button className="nav-link" onClick={handleRightSideBar}>
-								<i className="ri-settings-3-line fs-22" />
-							</button>
-						</li> */}
-						<li className="d-none d-sm-inline-block">
-							<div
-								className="nav-link"
-								id="light-dark-mode"
-								onClick={toggleDarkMode}
-							>
-								<i className="ri-moon-line fs-22" />
-							</div>
-						</li>
+					
+						
 						<li className="dropdown">
 							<ProfileDropdown
-								menuItems={profileMenus}
-								userImage={profilePic}
-								username="Admin"
-							/>
+							 menuItems={profileMenus} 
+							 userImage={profilePic}
+							 username={empName || 'Guest'} // Provide a fallback value
+							 />
 						</li>
 					</ul>
 				</div>

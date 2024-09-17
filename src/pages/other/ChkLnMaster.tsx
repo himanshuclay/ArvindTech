@@ -152,6 +152,12 @@ const AccountProcessTable: React.FC = () => {
                 }));
             }
         };
+        const handleNextTask = (inputId: string, selectedTaskNumber: string) => {
+            setSelectedTaskNumbers(prevState => ({
+                ...prevState,
+                [inputId]: selectedTaskNumber // Update the task number for the corresponding input ID
+            }));
+        }
 
 
         const [taskTiming, setTaskTiming] = useState<{ [key: string]: string }>({});
@@ -160,24 +166,29 @@ const AccountProcessTable: React.FC = () => {
         const [selectedTaskTypes, setSelectedTaskTypes] = useState<{ [key: string]: string }>({});
 
 
-        const handleTaskTimingChange = (optionId: string, timingType: string) => {
-            setTaskTiming(prev => ({ ...prev, [optionId]: timingType }));
+        const handleTaskTimingChange = (inputId: string, optionId: string | null, timingType: string) => {
+            const key = optionId || inputId; // Use optionId if present, otherwise fall back to inputId
+            setTaskTiming(prev => ({ ...prev, [key]: timingType }));
         };
-
-        const handleDaySelectionChange = (optionId: string, value: string) => {
-            setDaySelection(prev => ({ ...prev, [optionId]: value }));
+        
+        const handleDaySelectionChange = (inputId: string, optionId: string | null, value: string) => {
+            const key = optionId || inputId; // Use optionId if present, otherwise fall back to inputId
+            setDaySelection(prev => ({ ...prev, [key]: value }));
         };
-
-        const handleTaskTypeChange = (optionId: string, value: string) => {
+        
+        const handleTaskTypeChange = (inputId: string, optionId: string | null, value: string) => {
+            const key = optionId || inputId; // Use optionId if present, otherwise fall back to inputId
             setSelectedTaskTypes(prevState => ({
                 ...prevState,
-                [optionId]: value
+                [key]: value
             }));
         };
-
-        const handleWeekdaySelectionChange = (optionId: string, selectedWeekdays: string[]) => {
-            setWeekdaySelection(prev => ({ ...prev, [optionId]: selectedWeekdays }));
+        
+        const handleWeekdaySelectionChange = (inputId: string, optionId: string | null, selectedWeekdays: string[]) => {
+            const key = optionId || inputId; // Use optionId if present, otherwise fall back to inputId
+            setWeekdaySelection(prev => ({ ...prev, [key]: selectedWeekdays }));
         };
+        
 
         const handleToggleExpirable = () => {
             setIsExpirable(prev => (prev === 'yes' ? 'no' : 'yes'));
@@ -188,28 +199,59 @@ const AccountProcessTable: React.FC = () => {
         // Handle form submission
         const handleSaveChanges = async () => {
             if (selectedTask && selectedEmployee) {
-                if (!filteredJson || !filteredJson.options || filteredJson.options.length === 0) {
+                if (!filteredJson) {
                     console.error("No valid data found in filteredJson.");
                     return;
                 }
 
-                const conditionJson = filteredJson.options.map(option => {
-                    // Function to convert string to hours by multiplying by 24
-                    const convertToHoursString = (value: string | null): string | null => {
-                        if (value === null || isNaN(Number(value))) {
-                            return null; // Return null if value is not a number or is null
-                        }
-                        return (Number(value) * 24).toString(); // Multiply by 24 and convert back to string
-                    };
+                const convertToHoursString = (value: string | null): string | null => {
+                    if (value === null || isNaN(Number(value))) {
+                        return null; // Return null if value is not a number or is null
+                    }
+                    return (Number(value) * 24).toString(); // Multiply by 24 and convert back to string
+                };
 
+                const conditionJson = (filteredJson.options ? filteredJson.options : []).map(option => {
+                    // Function to convert string to hours by multiplying by 24
+                
+                    // `inputId` represents the input field
+                    const inputId = filteredJson.inputId;
+                
+                    // `optionId` represents each option inside that input
+                    const optionId = option.id;
+                
                     return {
-                        optionId: option.id,
-                        taskNumber: selectedTaskNumbers[option.id] || null,
-                        taskTiming: taskTiming[option.id] || null,
-                        taskType: selectedTaskTypes[option.id] || null,
-                        daySelection: taskTiming[option.id] === 'day' ? convertToHoursString(daySelection[option.id]) : null,
+                        inputId: inputId, // Use inputId from filteredJson
+                        optionId: optionId, // Use optionId from option
+                
+                        // Use inputId and optionId to fetch values from state objects
+                        taskNumber: selectedTaskNumbers[optionId] || null,
+                        taskTiming: taskTiming[optionId] || null,
+                        taskType: selectedTaskTypes[optionId] || null,
+                
+                        // Check for taskTiming based on optionId and convert day selection accordingly
+                        daySelection: taskTiming[optionId] === 'day' ? convertToHoursString(daySelection[optionId]) : null,
                     };
                 });
+                
+                // If there are no options, still handle inputId
+                if (!filteredJson.options || filteredJson.options.length === 0) {
+                    conditionJson.push({
+                        inputId: filteredJson.inputId,  // Use inputId from filteredJson
+                        optionId: "",                   // No optionId since no options exist
+            
+                        // Fetch values based on inputId
+                        taskNumber: selectedTaskNumbers[filteredJson.inputId] || null,
+                        taskTiming: taskTiming[filteredJson.inputId] || null,
+                        taskType: selectedTaskTypes[filteredJson.inputId] || null,
+            
+                        // Convert day selection if timing is set to 'day'
+                        daySelection: taskTiming[filteredJson.inputId] === 'day' ? convertToHoursString(daySelection[filteredJson.inputId]) : null,
+                    });
+                }
+                
+                
+                
 
 
                 // Convert conditionJson to string as expected by the API
@@ -236,7 +278,7 @@ const AccountProcessTable: React.FC = () => {
                 console.log("Payload being sent:", JSON.stringify(payload, null, 2));
 
                 try {
-                    const response = await axios.post('https://localhost:5078/api/AccountModule/TaskAssignRoleWithDoer', payload);
+                    const response = await axios.post('https://localhost:44382/api/AccountModule/TaskAssignRoleWithDoer', payload);
                     console.log("Data successfully posted.");
                     setSelectedConditionTask("");
 
@@ -287,20 +329,37 @@ const AccountProcessTable: React.FC = () => {
                     {filteredJson ? (
                         <>
                             <form className='form-group'>
-                                <label>{filteredJson.label}</label>
-                                <select className='form-control'>
+                                {filteredJson.type !== "select" && (
+                                    <div className='col-5'>
+                                        Select Successor Task For Input Labeled with <label>{filteredJson.label}</label>
+                                        <select className='form-control' onChange={(e) => handleNextTask(filteredJson.inputId, e.target.value)}>
+                                            {tasks
+                                                .filter(task => task.task_Number !== selectedConditionTask) // Exclude selectedConditionTask
+                                                .map(task => (
+                                                    <option key={task.id} value={task.task_Number}>
+                                                        {task.task_Number}
+                                                    </option>
+                                                ))
+                                            }
+                                        </select>
+                                        
+                                    </div>
+                                )}
+
+                                {/* <select className='form-control'>
                                     {filteredJson.options.map(option => (
                                         <option key={option.id} value={option.id} style={{ color: option.color }}>
                                             {option.label}
                                         </option>
                                     ))}
-                                </select>
+                                </select> */}
 
                                 {filteredJson.options.map(option => (
                                     <div className='form-group row' key={option.id} style={{ marginTop: '10px' }}>
                                         <div className="col-4">
                                             <label>
                                                 Select Successor Task For <span style={{ color: option.color }}>{option.label}</span>
+
                                             </label>
                                             <select
                                                 className='form-control'
@@ -327,7 +386,8 @@ const AccountProcessTable: React.FC = () => {
                                             <select
                                                 className='form-control'
                                                 value={selectedTaskTypes[option.id] || ''}
-                                                onChange={(e) => handleTaskTypeChange(option.id, e.target.value)}
+                                                onChange={(e) => handleTaskTypeChange(filteredJson.inputId, option.id, e.target.value)}
+
                                             >
                                                 <option value="" disabled>Select task type</option>
                                                 <option value="Actual">Actual</option>
@@ -342,14 +402,14 @@ const AccountProcessTable: React.FC = () => {
                                                 <button
                                                     type="button"
                                                     className={`toggle-btn ${taskTiming[option.id] === 'day' ? 'active-btn' : 'normal-btn'}`}
-                                                    onClick={() => handleTaskTimingChange(option.id, 'day')}
+                                                    onClick={() => handleTaskTimingChange(filteredJson.inputId, option.id, 'day')}
                                                 >
                                                     Day
                                                 </button>
                                                 <button
                                                     type="button"
                                                     className={`toggle-btn ${taskTiming[option.id] === 'weekday' ? 'active-btn' : 'normal-btn'}`}
-                                                    onClick={() => handleTaskTimingChange(option.id, 'weekday')}
+                                                    onClick={() => handleTaskTimingChange(filteredJson.inputId, option.id, 'weekday')}
                                                 >
                                                     Weekday
                                                 </button>
@@ -363,7 +423,7 @@ const AccountProcessTable: React.FC = () => {
                                                         type="number"
                                                         className="form-control"
                                                         value={daySelection[option.id] || ''}
-                                                        onChange={(e) => handleDaySelectionChange(option.id, e.target.value)}
+                                                        onChange={(e) => handleDaySelectionChange(filteredJson.inputId, option.id, e.target.value)}
                                                         min="1"
                                                         placeholder="Enter days"
                                                     />
@@ -376,7 +436,7 @@ const AccountProcessTable: React.FC = () => {
                                                         multiple
                                                         value={weekdaySelection[option.id] || []}
                                                         onChange={(e) =>
-                                                            handleWeekdaySelectionChange(
+                                                            handleWeekdaySelectionChange(filteredJson.inputId,
                                                                 option.id,
                                                                 Array.from(e.target.selectedOptions, option => option.value)
                                                             )
@@ -594,6 +654,8 @@ const AccountProcessTable: React.FC = () => {
                 doerName: selectedEmployeeObj.employeeName, // Use employeeName from the selected object
                 task_Number: selectedTask.task_Number,
                 task_Json: selectedTask.task_Json,
+                condition_Json: "string",
+                isExpired: 0,
                 task_Status: true, // Set task status as true (active or assigned)
                 createdBy: 'sameer hussain',
                 updatedBy: 'sameer hussain',
@@ -605,7 +667,7 @@ const AccountProcessTable: React.FC = () => {
             // Now proceed with the API request
             const assignTask = async () => {
                 try {
-                    const response = await axios.post('https://localhost:5078/api/AccountModule/TaskAssignRoleWithDoer', payload);
+                    const response = await axios.post('https://localhost:44382/api/AccountModule/TaskAssignRoleWithDoer', payload);
 
                     if (response.data.isSuccess) {
                         console.log('Task assigned successfully');
@@ -638,7 +700,7 @@ const AccountProcessTable: React.FC = () => {
             }
 
             try {
-                const response = await axios.post('https://arvindo-api2.clay.in/api/AccountModule/ProcessAssignWithProject', payload);
+                const response = await axios.post('https://localhost:44382/api/AccountModule/ProcessAssignWithProject', payload);
                 if (response.data.isSuccess) {
                     console.log('Process assigned to project successfully');
                 } else {

@@ -10,6 +10,7 @@ type User = {
   lastName: string;
   EmpId: string;
   role: string;
+  EmpName:string;
   token: string;
 };
 
@@ -19,6 +20,7 @@ const TOKEN =
 const mock = new MockAdapter(axios, { onNoMatch: 'passthrough' });
 
 const users: User[] = [
+  // Predefined users
   {
     id: 1,
     email: 'shikar@arvind.com',
@@ -27,6 +29,7 @@ const users: User[] = [
     firstName: 'Velonic',
     lastName: 'Techzaa',
     EmpId: 'LLP02430',
+    EmpName:'Shikar',
     role: 'Admin',
     token: TOKEN,
   },
@@ -38,6 +41,7 @@ const users: User[] = [
     firstName: 'Admin',
     lastName: 'One',
     EmpId: 'LLP02556',
+    EmpName:'Pamula',
     role: 'User',
     token: TOKEN,
   },
@@ -49,17 +53,19 @@ const users: User[] = [
     firstName: 'Admin',
     lastName: 'One',
     EmpId: 'LLP01878',
+    EmpName:'Lovel',
     role: 'User',
     token: TOKEN,
   },
   {
     id: 4,
-    email: 'LLP06278',
+    email: 'LLP05575',
     username: 'Doer',
     password: 'Admin',
     firstName: 'Admin',
     lastName: 'One',
-    EmpId: 'LLP06278',
+    EmpId: 'LLP05575',
+    EmpName:'Mohd.Sameer',
     role: 'User',
     token: TOKEN,
   },
@@ -71,56 +77,83 @@ const users: User[] = [
     firstName: 'Admin',
     lastName: 'One',
     EmpId: 'LLP04462',
+    EmpName:'Aushutosh',
     role: 'User',
     token: TOKEN,
   },
   {
     id: 6,
-    email: 'LLP02556',
+    email: 'LLP06279',
     username: 'Doer',
     password: 'Admin',
     firstName: 'Admin',
     lastName: 'One',
-    EmpId: 'LLP02556',
+    EmpId: 'LLP06279',
+    EmpName:'Nitiesh',
     role: 'User',
     token: TOKEN,
   },
   {
     id: 7,
-    email: 'LLP05575',
+    email: 'LLP03087',
     username: 'Doer',
     password: 'Admin',
     firstName: 'Admin',
     lastName: 'One',
-    EmpId: 'LLP05575',
+    EmpId: 'LLP03087',
+    EmpName:'Himanshu',
     role: 'User',
     token: TOKEN,
   },
+  {
+    id: 8,
+    email: 'ID1234',
+    username: 'Doer',
+    password: 'Admin',
+    firstName: 'Admin',
+    lastName: 'One',
+    EmpId: 'ID1234',
+    EmpName:'Hemant',
+    role: 'User',
+    token: TOKEN,
+  },
+  {
+    id: 8,
+    email: 'ID1234',
+    username: 'Doer',
+    password: 'Admin',
+    firstName: 'Admin',
+    lastName: 'One',
+    EmpId: 'ID1234',
+    EmpName:'Hemant',
+    role: 'User',
+    token: TOKEN,
+  },
+  // Other users...
+
 ];
 
 export default function configureFakeBackend() {
   mock.onPost('/login').reply(function (config) {
     return new Promise(function (resolve, reject) {
       setTimeout(function () {
-        // get parameters from post request
         const params = JSON.parse(config.data);
 
-        // find if any user matches login credentials
         const filteredUsers = users.filter((user) => {
           return user.email === params.email && user.password === params.password;
         });
 
         if (filteredUsers.length) {
-          // if login details are valid, return user details and fake jwt token
           const user = filteredUsers[0];
 
-          // Store token and EmpId in local storage
+          // Store token and role in localStorage
           localStorage.setItem('token', user.token);
           localStorage.setItem('EmpId', user.EmpId);
+          localStorage.setItem('role', user.role);
+          localStorage.setItem('EmpName', user.EmpName);
 
           resolve([200, user]);
         } else {
-          // else return error
           resolve([401, { message: 'Email or password is incorrect' }]);
         }
       }, 1000);
@@ -130,10 +163,8 @@ export default function configureFakeBackend() {
   mock.onPost('/register').reply(function (config) {
     return new Promise(function (resolve, reject) {
       setTimeout(function () {
-        // get parameters from post request
         const params = JSON.parse(config.data);
 
-        // add new users
         const [firstName, lastName] = params.fullname.split(' ');
         const newUser: User = {
           id: users.length + 1,
@@ -143,7 +174,8 @@ export default function configureFakeBackend() {
           firstName: firstName,
           lastName: lastName,
           EmpId: params.EmpId,
-          role: 'Admin',
+          EmpName:params.EmpName,
+          role: params.role,
           token: TOKEN,
         };
         users.push(newUser);
@@ -156,22 +188,18 @@ export default function configureFakeBackend() {
   mock.onPost('/forget-password').reply(function (config) {
     return new Promise(function (resolve, reject) {
       setTimeout(function () {
-        // get parameters from post request
         const params = JSON.parse(config.data);
 
-        // find if any user matches login credentials
         const filteredUsers = users.filter((user) => {
           return user.email === params.email;
         });
 
         if (filteredUsers.length) {
-          // if login details are valid return a success message
           const responseJson = {
             message: "We've sent you a link to reset your password to your registered email.",
           };
           resolve([200, responseJson]);
         } else {
-          // else return error
           resolve([401, { message: 'Sorry, we could not find any registered user with the entered email.' }]);
         }
       }, 1000);
