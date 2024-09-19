@@ -76,7 +76,7 @@ const ExpireTask: React.FC = () => {
   }
   return (
     <div>
-      <div className="d-flex p-2 bg-white mt-2 mb-2 rounded shadow"><h5 className='mb-0'>Expire Task</h5></div>
+      <div className="d-flex p-2 bg-white mt-2 mb-2 rounded shadow"><h5 className='mb-0'>Expired Task</h5></div>
       {data.length === 0 ? (
         <p>No data available.</p>
       ) : (

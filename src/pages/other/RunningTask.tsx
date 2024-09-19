@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { Button, Table, Offcanvas, Toast, Container, Row, Col, Alert } from 'react-bootstrap';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { Button, Table, Offcanvas, Toast  } from 'react-bootstrap'; 
+import { useLocation , useNavigate} from 'react-router-dom';
 
 interface ProjectAssignListWithDoer {
   id: number;
@@ -40,7 +40,7 @@ interface ApiResponse {
 
 
 
-const ProjectAssignTable: React.FC = () => {
+const RunningTask: React.FC = () => {
   const [data, setData] = useState<ProjectAssignListWithDoer[]>([]);
   const [preData, setPreData] = useState<ProjectAssignListWithDoer[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
@@ -48,7 +48,7 @@ const ProjectAssignTable: React.FC = () => {
   const [taskCommonId, setTaskCommonId] = useState<number | null>(null);
   const [showToast, setShowToast] = useState(false);
   const [taskName, setTaskName] = useState<string | undefined>(undefined);
-
+  
 
 
 
@@ -79,9 +79,9 @@ const ProjectAssignTable: React.FC = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const role = localStorage.getItem('EmpId') || '';
+        // const role = localStorage.getItem('EmpId') || '';
         const response = await axios.get<ApiResponse>(
-          `https://arvindo-api.clay.in/api/ProcessInitiation/GetFilterTask?Flag=4&DoerId=${role}`
+          `https://arvindo-api.clay.in/api/ProcessInitiation/GetFilterTask?Flag=6`
         );
 
         if (response.data && response.data.isSuccess) {
@@ -114,36 +114,36 @@ const ProjectAssignTable: React.FC = () => {
 
   const fetchPreData = async (taskCommonId: number) => {
     try {
-      const role = localStorage.getItem('EmpId') || '';
+      const flag = 7;
       const response = await axios.get<ApiResponse>(
-        `https://arvindo-api.clay.in/api/ProcessInitiation/GetFilterTask?Flag=4&DoerId=${role}`
+        `https://arvindo-api.clay.in/api/ProcessInitiation/GetFilterTask?TaskCommonId=${taskCommonId}&Flag=${flag}`
       );
 
       if (response.data && response.data.isSuccess) {
         const fetchedData = response.data.getFilterTasks || [];
         const filteredTasks = fetchedData.map((task: ProjectAssignListWithDoer) => {
-          const parsedTaskJson = JSON.parse(task.task_Json);
-          const optionsMap = parsedTaskJson.inputs.reduce((map: Record<string, string>, input: any) => {
-            if (input.options) {
-              input.options.forEach((option: any) => {
-                map[option.id] = option.label;
-              });
-            }
-            return map;
-          }, {});
+            const parsedTaskJson = JSON.parse(task.task_Json);
+            const optionsMap = parsedTaskJson.inputs.reduce((map: Record<string, string>, input: any) => {
+              if (input.options) {
+                input.options.forEach((option: any) => {
+                  map[option.id] = option.label;
+                });
+              }
+              return map;
+            }, {});
 
-          const filteredInputs = parsedTaskJson.inputs
-            .filter((input: any) => !['99', '100', '102', '103'].includes(input.inputId)) // Exclude unwanted inputIds
-            .map((input: any) => ({
-              label: input.label,
-              value: optionsMap[input.value] || input.value // Replace value with label if it exists in optionsMap
-            }));
+            const filteredInputs = parsedTaskJson.inputs
+              .filter((input: any) => !['99', '100', '102', '103'].includes(input.inputId)) // Exclude unwanted inputIds
+              .map((input: any) => ({
+                label: input.label,
+                value: optionsMap[input.value] || input.value // Replace value with label if it exists in optionsMap
+              }));
 
-          return {
-            taskNumber: task.task_Number,
-            inputs: filteredInputs
-          };
-        });
+            return {
+              taskNumber: task.task_Number,
+              inputs: filteredInputs
+            };
+          });
         setPreData(filteredTasks);
       } else {
         console.error('API Response Error:', response.data?.message || 'Unknown error');
@@ -178,7 +178,7 @@ const ProjectAssignTable: React.FC = () => {
       <Toast
         show={show}
         onClose={onClose}
-        delay={5000}
+        delay={9000}
         autohide
         style={{
           position: 'fixed',
@@ -192,7 +192,7 @@ const ProjectAssignTable: React.FC = () => {
           <div onClick={onClose}></div>
         </Toast.Header>
         <Toast.Body className="bg-primary text-white fs-4 rounded">
-          {`Task "${taskName}" has been saved successfully!`}
+        {`Task "${taskName}" has been saved successfully!`}
         </Toast.Body>
       </Toast>
     );
@@ -202,7 +202,7 @@ const ProjectAssignTable: React.FC = () => {
   return (
     <>
       <Offcanvas show={show} onHide={handleClose} placement="end">
-        <Offcanvas.Header closeButton className='p-0 mb-2'>
+        <Offcanvas.Header closeButton>
           <Offcanvas.Title>Task Details</Offcanvas.Title>
         </Offcanvas.Header>
         <Offcanvas.Body>
@@ -226,19 +226,10 @@ const ProjectAssignTable: React.FC = () => {
 
       <div>
         <div className="d-flex p-2 bg-white mt-2 mb-2 rounded shadow">
-          <h5 className="mb-0">Planned Tasks</h5>
+          <h5 className="mb-0">Running Tasks</h5>
         </div>
         {data.length === 0 ? (
-          <Container className="mt-5">
-            <Row className="justify-content-center">
-              <Col xs={12} md={8} lg={6}>
-                <Alert variant="info" className="text-center">
-                  <h4>No Task Found</h4>
-                  <p>You currently don't have Completed tasks</p>
-                </Alert>
-              </Col>
-            </Row>
-          </Container>
+          <p>No data available.</p>
         ) : (
           <Table className="bg-white" striped bordered hover>
             <thead>
@@ -273,10 +264,9 @@ const ProjectAssignTable: React.FC = () => {
                   <td>{item.taskType}</td>
                   <td>{item.taskTime}</td>
                   <td>{item.createdDate}</td>
-                  <td>{item.completedDate}</td>
-                  <td>
-                    <Button onClick={() => handleEdit(item.id)}>Show</Button>
-                  </td>
+                  <td>{item.completedDate !== '' ? (item.completedDate) : 'In Progress'}</td>
+                  <td>{item.completedDate !== '' ? (<Button onClick={() => handleEdit(item.id)}>Show</Button>) : (<Button disabled>Show</Button>)}</td>
+                  
                 </tr>
               ))}
             </tbody>
@@ -284,9 +274,9 @@ const ProjectAssignTable: React.FC = () => {
         )}
       </div>
 
-      <SuccessToast show={showToast} taskName={taskName} onClose={() => setShowToast(false)} />
+      <SuccessToast show={showToast} taskName={taskName}  onClose={() => setShowToast(false)} />
     </>
   );
 };
 
-export default ProjectAssignTable;
+export default RunningTask;

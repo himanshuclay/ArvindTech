@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { Button, Table, Collapse, Offcanvas, } from 'react-bootstrap'; // Assuming DynamicForm is in the same directory
+import { Button, Table, Collapse, Offcanvas, Container, Row, Col, Alert } from 'react-bootstrap'; // Assuming DynamicForm is in the same directory
 import { FileUploader } from '@/components/FileUploader'
 import { useNavigate } from 'react-router-dom';
+import { format, addDays, parse } from 'date-fns';
 
 interface ProjectAssignListWithDoer {
   id: number;
@@ -60,6 +61,7 @@ const ProjectAssignTable: React.FC = () => {
   const [expandedRow, setExpandedRow] = useState<number | null>(null);
   const [parsedCondition, setParsedCondition] = useState<any[]>([]);
   const [taskCommonId, setTaskCommonId] = useState<number | null>(null);
+  const [selectedTasknumber, setSelectedTasknumber] = useState<string>('');
   // const [formState, setFormState] = useState<any>({});
   const [show, setShow] = useState(false);
   const navigate = useNavigate()
@@ -92,12 +94,21 @@ const ProjectAssignTable: React.FC = () => {
           const TaskCommonIds = fetchedData.map((task: ProjectAssignListWithDoer) => task.taskCommonId);
           if (TaskCommonIds && TaskCommonIds.length > 0) {
             const commonId = TaskCommonIds[0];
-            setTaskCommonId(commonId);
-            localStorage.setItem('taskCommonId', commonId);  // Use a string key for localStorage
+            setTaskCommonId(commonId); // Use a string key for localStorage
             console.log("This is updated:", commonId);  // Log the correct value
           } else {
             console.error('No taskCommonId values found.');
           }
+          // Assuming 'fetchedData' is an array of 'ProjectAssignListWithDoer' objects
+          const TaskNumber = fetchedData.map((task: ProjectAssignListWithDoer) => task.task_Number);
+
+          if (TaskNumber.length > 0) {
+            const selectTask = TaskNumber[0];
+            setSelectedTasknumber(selectTask); // Assuming you want the first task number from the array
+            console.log(selectTask); // Log the value being set instead of selectedTasknumber
+          }
+          console.log(selectedTasknumber)
+
           setTaskCommonId(TaskCommonIds[0]);
           localStorage.setitem(taskCommonId)
           console.log("this is updated", taskCommonId)
@@ -238,6 +249,35 @@ const ProjectAssignTable: React.FC = () => {
     const [formState, setFormState] = useState<{ [key: string]: any }>({});
     const [summary, setSummary] = useState('');
     const [taskJson, setTaskJson] = useState<string>(JSON.stringify(formData));
+    const [messManagers, setMessManagers] = useState<{ value: string, label: string }[]>([]);
+    const [selectedManager, setSelectedManager] = useState<string>("Avisineni Pavan Kumar_LLP05337"); // Initialize with default value
+    const [showMessManagerSelect, setShowMessManagerSelect] = useState(false);
+
+    useEffect(() => {
+      const fetchMessManagers = async () => {
+        try {
+          const response = await axios.get('https://localhost:44307/api/CommonDropdown/GetMessManagerNameListWithId');
+          const data = response.data.messManagerNameLists;
+
+          // Map the response data to the format required for the Select component
+          const formattedData = data.map((manager: { messManagerEmpId: string, messManagerName: string }) => ({
+            value: manager.messManagerEmpId,
+            label: manager.messManagerName
+          }));
+
+          setMessManagers(formattedData);
+        } catch (error) {
+          console.error('Error fetching mess managers:', error);
+        }
+      };
+
+      fetchMessManagers();
+    }, []);
+
+    const handleSelectMessImpChange = (selectedOption: any) => {
+      setSelectedManager(selectedOption ? selectedOption.value : null);
+      console.log('Selected manager ID:', selectedOption ? selectedOption.value : null);
+    };
 
     // Initialize form state
     useEffect(() => {
@@ -288,6 +328,11 @@ const ProjectAssignTable: React.FC = () => {
         if (selectedOption) {
           updatedValue = selectedOption.id;  // Use option ID for internal use
           selectedLabel = selectedOption.label;  // Capture label for display
+        }
+        if (selectedOption?.id === '11-1') {
+          setShowMessManagerSelect(true);
+        } else if (selectedOption?.id !== '11-1') {
+          setShowMessManagerSelect(false); // Hide if no 'active' value is selected
         }
       }
 
@@ -391,7 +436,7 @@ const ProjectAssignTable: React.FC = () => {
 
         if (response.ok) {
           const responseData = await response.json();
-          navigate('/pages/completedTask')
+          navigate('/pages/completedTask', { state: { showToast: true, taskName: data[0].task_Number } });
           console.log('Task updated successfully:', responseData);
         } else {
           console.error('Failed to update the task:', response.statusText);
@@ -449,23 +494,29 @@ const ProjectAssignTable: React.FC = () => {
 
     return (
       <>
-        <Offcanvas className="p-3" show={show} onHide={handleClose} >
-
+        <Offcanvas className="p-3" show={show} placement="end" onHide={handleClose} >
+        <Offcanvas.Header closeButton className='p-0 mb-2'>
+          <Offcanvas.Title>Task Details</Offcanvas.Title>
+        </Offcanvas.Header>
 
 
           {messList.map((mess, index) => (
             <React.Fragment key={mess.messID}>
               {preData.map((task, index) => (
                 <div key={index}>
-                  <h5 className='mt-2'>Updated data from <span className='text-primary'>{task.taskNumber}</span></h5>
-                  <div>
-                    {task.inputs.map((input, idx) => (
-                      <div key={idx}>
-                        <strong>{input.label}:</strong> <span className='text-primary'>{input.value}</span>
+                  {selectedTasknumber != task.taskNumber && (
+                    <>
+                      <h5 className='mt-2'>Updated data from <span className='text-primary'>{task.taskNumber}</span></h5>
+                      <div>
+                        {task.inputs.map((input, idx) => (
+                          <div key={idx}>
+                            <strong>{input.label}:</strong> <span className='text-primary'>{input.value}</span>
+                          </div>
+                        ))}
                       </div>
-                    ))}
-                  </div>
-                  <hr />
+                      <hr />
+                    </>
+                  )}
                 </div>
               ))}
             </React.Fragment>
@@ -610,12 +661,33 @@ const ProjectAssignTable: React.FC = () => {
                           )}
                         </div>
                       )
+
                     ))}
+                    {showMessManagerSelect && (
+                      <div className='form-group my-2'>
+                        <label>Select Mess Manager</label>
+                        <select
+                          className='form-control'
+                          value={selectedManager} // Bound to selectedManager state
+                          onChange={handleSelectMessImpChange} // Updates state on change
+                        >
+                          {/* Set default value */}
+                          <option value="Avisineni Pavan Kumar_LLP05337">Avisineni Pavan Kumar_LLP05337</option>
+                          {/* Map the rest of the options */}
+                          {messManagers.map((manager) => (
+                            <option key={manager.value} value={manager.value}>
+                              {manager.label}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    )}
                   </div>
                 </React.Fragment>
+
               ))}
               <div className="form-group">
-                <label htmlFor="taskSummary">Write Task Summary</label>
+                <label htmlFor="taskSummary">Comments</label>
                 <input
                   type="text"
                   className='form-control'
@@ -662,6 +734,21 @@ const ProjectAssignTable: React.FC = () => {
     </div>;
   }
 
+  const formatAndUpdateDate = (createdDate: string, taskTime: string) => {
+    // Parse the created date and task time
+    const createdDateObj = parse(createdDate, 'dd-MM-yyyy HH:mm:ss', new Date());
+    const taskTimeValue = parseInt(taskTime, 10); // Assuming taskTime is in hours
+
+    // Calculate the number of days to add
+    const daysToAdd = Math.floor(taskTimeValue / 24);
+
+    // Add days to the created date
+    const updatedDate = addDays(createdDateObj, daysToAdd);
+
+    // Format the updated date to the desired format
+    return format(updatedDate, 'dd-MM-yyyy HH:mm:ss');
+};
+
 
   const handleShow = () => setShow(true);
   const handleClose = () => {
@@ -674,7 +761,16 @@ const ProjectAssignTable: React.FC = () => {
       <div>
         <div className="d-flex p-2 bg-white mt-2 mb-2 rounded shadow"><h5 className='mb-0'>Pending Task</h5></div>
         {data.length === 0 ? (
-          <p>No data available.</p>
+          <Container className="mt-5">
+            <Row className="justify-content-center">
+              <Col xs={12} md={8} lg={6}>
+                <Alert variant="info" className="text-center">
+                  <h4>No Task Found</h4>
+                  <p>You currently don't have any tasks assigned.</p>
+                </Alert>
+              </Col>
+            </Row>
+          </Container>
         ) : (
           <Table className='bg-white' striped bordered hover>
             <thead>
@@ -692,7 +788,7 @@ const ProjectAssignTable: React.FC = () => {
                 <th>Planned Date</th>
                 <th>Initation Date</th>
                 <th>Actions</th>
-                <th>CondtionJson</th>
+                {/* <th>CondtionJson</th> */}
               </tr>
             </thead>
             <tbody>
@@ -713,18 +809,18 @@ const ProjectAssignTable: React.FC = () => {
                     <td>{item.roleName}</td>
                     <td>{item.task_Number}</td>
                     <td>{item.taskType}</td>
-                    <td>{item.taskTime}</td>
+                    <td>{formatAndUpdateDate(item.createdDate, item.taskTime)}</td>
                     <td>{item.createdDate}</td>
                     <td>
                       <Button onClick={handleShow}>
                         Show
                       </Button>
                     </td>
-                    <td>
+                    {/* <td>
                       <Button onClick={() => toggleExpandRow(item.id)}>
                         {expandedRow === item.id ? 'Hide' : 'Show'}
                       </Button>
-                    </td>
+                    </td> */}
                   </tr>
                   <tr>
                     <td colSpan={10}>

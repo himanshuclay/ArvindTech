@@ -101,7 +101,7 @@ const getFilteredMenuItems = () => {
     },
     {
       key: 'ExpireTask',
-      label: 'Expire Task',
+      label: 'Expired Task',
       url: '/pages/ExpireTask',
       icon: 'ri-slideshow-line',
       parentKey: 'Modules-Master',
@@ -128,15 +128,15 @@ const getFilteredMenuItems = () => {
         }, 
         {
           key: 'ActiveTasks',
-          label: 'All Task Status',
+          label: 'Active Task',
           url: '/pages/FilterTasks',
           icon: 'ri-slideshow-line',
           parentKey: 'Modules-Master',
         },
         {
           key: 'FilterTasks',
-          label: 'Active Task',
-          url: '/pages/ActiveTasks',
+          label: 'Running Task',
+          url: '/pages/RunningTask',
           icon: 'ri-slideshow-line',
           parentKey: 'Modules-Master',
         },
