@@ -101,7 +101,7 @@ const getFilteredMenuItems = () => {
     },
     {
       key: 'ExpireTask',
-      label: 'Expired Task',
+      label: 'Expire Task',
       url: '/pages/ExpireTask',
       icon: 'ri-slideshow-line',
       parentKey: 'Modules-Master',
@@ -311,7 +311,7 @@ const getFilteredMenuItems = () => {
   ];
 
   // Example logic to filter items based on role
-  if (role === 'Admin') {
+  if (role === 'ADMIN') {
     // Admin role: Exclude 'CompleteTask' and 'LocalTask'
     return MENU_ITEMS.filter(item => {
       return item.key !== 'CompletedTask' && item.key !== 'ExpireTask'  && item.key !== 'TaskPlanned' && item.key !== 'Action'  && item.key !== 'Notification';
@@ -320,7 +320,7 @@ const getFilteredMenuItems = () => {
   // Filter out items or customize based on other roles
   return MENU_ITEMS.filter(item => {
     // Add your filtering logic here
-    if (role === 'User') {
+    if (role === 'EMPLOYEE') {
       // For example, remove specific items for 'user' role
       return item.key !== 'Filtertask' && item.key !== 'master'&&  item.key !== 'Modules-Master' && item.key !== 'Action'  && item.key !== 'ChkLnMaster'  && item.key !== 'systemmaster' && item.key !== 'Modules-Master'; // Exclude 'System Master' and 'Modules-Master' for 'user' role
     }
