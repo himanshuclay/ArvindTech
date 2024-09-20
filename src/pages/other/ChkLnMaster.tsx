@@ -212,63 +212,76 @@ const AccountProcessTable: React.FC = () => {
 
 
         // Handle form submission
+        const convertToHoursString = (value: string | null): string | null => {
+            if (value === null || isNaN(Number(value))) {
+                return null; // Return null if value is not a number or is null
+            }
+            return (Number(value) * 24).toString(); // Multiply by 24 and convert back to string
+        };
+        
+        // Function to process each option and return it in the desired structure
+        const processOption = (inputId: string, option: any): any => {
+            const optionId = option.id;
+        
+            return {
+                inputId: inputId, // Use inputId from filteredJson
+                optionId: optionId, // Use optionId from option
+        
+                // Fetch values from the state based on optionId
+                taskNumber: selectedTaskNumbers[optionId] || null,
+                taskTiming: taskTiming[optionId] || null,
+                taskType: selectedTaskTypes[optionId] || null,
+        
+                // Check for taskTiming based on optionId and convert day selection accordingly
+                daySelection: taskTiming[optionId] === 'day' ? convertToHoursString(daySelection[optionId]) : null,
+            };
+        };
+        
+        // Function to flatten nested arrays and process options into a single array
+        const flattenAndProcessOptions = (inputId: string, options: any): any[] => {
+            const flatOptions: any[] = [];
+        
+            // Function to recursively flatten options
+            const flatten = (opt: any) => {
+                if (Array.isArray(opt)) {
+                    opt.forEach(item => flatten(item));
+                } else {
+                    flatOptions.push(processOption(inputId, opt)); // Process and add each option to the flat array
+                }
+            };
+        
+            flatten(options); // Start flattening
+            return flatOptions; // Return the final flat array
+        };
+        
         const handleSaveChanges = async () => {
             if (selectedTask && selectedEmployee) {
                 if (!filteredJson) {
                     console.error("No valid data found in filteredJson.");
                     return;
                 }
-
-                const convertToHoursString = (value: string | null): string | null => {
-                    if (value === null || isNaN(Number(value))) {
-                        return null; // Return null if value is not a number or is null
-                    }
-                    return (Number(value) * 24).toString(); // Multiply by 24 and convert back to string
-                };
-
-                const conditionJson = (filteredJson.options ? filteredJson.options : []).map(option => {
-                    // Function to convert string to hours by multiplying by 24
-
-                    // `inputId` represents the input field
-                    const inputId = filteredJson.inputId;
-
-                    // `optionId` represents each option inside that input
-                    const optionId = option.id;
-
-                    return {
-                        inputId: inputId, // Use inputId from filteredJson
-                        optionId: optionId, // Use optionId from option
-
-                        // Use inputId and optionId to fetch values from state objects
-                        taskNumber: selectedTaskNumbers[optionId] || null,
-                        taskTiming: taskTiming[optionId] || null,
-                        taskType: selectedTaskTypes[optionId] || null,
-
-                        // Check for taskTiming based on optionId and convert day selection accordingly
-                        daySelection: taskTiming[optionId] === 'day' ? convertToHoursString(daySelection[optionId]) : null,
-                    };
-                });
-
+        
+                // Flatten the nested structure into a single array
+                const conditionJson = filteredJson.options
+                    ? flattenAndProcessOptions(filteredJson.inputId, filteredJson.options)
+                    : [];
+        
                 // If there are no options, still handle inputId
                 if (!filteredJson.options || filteredJson.options.length === 0) {
                     conditionJson.push({
                         inputId: filteredJson.inputId,  // Use inputId from filteredJson
                         optionId: "",                   // No optionId since no options exist
-
+        
                         // Fetch values based on inputId
                         taskNumber: selectedTaskNumbers[filteredJson.inputId] || null,
                         taskTiming: taskTiming[filteredJson.inputId] || null,
                         taskType: selectedTaskTypes[filteredJson.inputId] || null,
-
+        
                         // Convert day selection if timing is set to 'day'
                         daySelection: taskTiming[filteredJson.inputId] === 'day' ? convertToHoursString(daySelection[filteredJson.inputId]) : null,
                     });
                 }
-
-
-
-
-
+        
                 // Convert conditionJson to string as expected by the API
                 const conditionJsonString = JSON.stringify(conditionJson);
                 const payload = {
@@ -289,21 +302,21 @@ const AccountProcessTable: React.FC = () => {
                     condition_Json: conditionJsonString, // Send the stringified conditionJson
                     isExpirable: isExpirable === 'yes' ? true : false,
                 };
-
+        
                 console.log("Payload being sent:", JSON.stringify(payload, null, 2));
-
+        
                 try {
                     const response = await axios.post('https://localhost:44382/api/AccountModule/TaskAssignRoleWithDoer', payload);
                     console.log("Data successfully posted.");
                     setSelectedConditionTask("");
-
                     handleClose();
-                    console.log(response)
+                    console.log(response);
                 } catch (error) {
                     console.error("Error posting data:", error);
                 }
-            };
-        }
+            }
+        };
+        
 
         const [isExpirable, setIsExpirable] = useState('no'); // Global state for task expirable (Yes/No)
 
