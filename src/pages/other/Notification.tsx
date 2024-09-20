@@ -305,10 +305,23 @@ const ProjectAssignTable: React.FC = () => {
         }
       };
 
+      console.log("this is given data", parsedCondition)
+
       if (projectName) {
         fetchMessData();
       }
     }, [projectName]);
+
+    interface Condition {
+      inputId: string;
+      optionId: string;
+      taskNumber: string;
+      taskTiming: string;
+      taskType: string;
+      daySelection: string;
+    }
+
+    const [selectedCondition, setSelectedCondition] = useState<any[]>([]);
 
     // Handle change in input values
     const handleChange = (inputId: string, value: string | boolean | string[]) => {
@@ -324,10 +337,18 @@ const ProjectAssignTable: React.FC = () => {
       }
 
       if (input && (input.type === 'select' || input.type === 'CustomSelect')) {
+
         const selectedOption = input.options?.find(option => option.label === value);
         if (selectedOption) {
           updatedValue = selectedOption.id;  // Use option ID for internal use
-          selectedLabel = selectedOption.label;  // Capture label for display
+          selectedLabel = selectedOption.label;
+          const selectedConditionFromParsed = parsedCondition[0].find((condition: Condition) => condition.optionId === updatedValue);
+      
+      // Update the state with the selected condition
+      if (selectedConditionFromParsed) {
+        setSelectedCondition([selectedConditionFromParsed]); // Store selected condition in state
+      }
+          // Capture label for display
         }
         if (selectedOption?.id === '11-1') {
           setShowMessManagerSelect(true);
@@ -408,6 +429,8 @@ const ProjectAssignTable: React.FC = () => {
       // Prepare the data to be posted
       const taskCommonId = localStorage.getItem('taskCommonId') || 0;  // Retrieve from localStorage or set to 0 if not found
 
+      const conditionToSend = selectedCondition.length > 0 ? selectedCondition : parsedCondition[0];
+
       const requestData = {
         id: taskData?.id || 0,
         doerID: role || '',
@@ -416,7 +439,7 @@ const ProjectAssignTable: React.FC = () => {
         isCompleted: formState['Pending'] || 'Completed',
         task_Number: taskNumber,
         summary: formState['summary'] || 'Task Summary',  // Ensure summary is from formState
-        condition_Json: JSON.stringify(parsedCondition),  // Assuming parsedCondition is defined
+        condition_Json: JSON.stringify(conditionToSend),  // Assuming parsedCondition is defined
         taskCommonId: taskCommonId,  // Use the taskCommonId fetched from localStorage or state
         updatedBy: role
       };
@@ -495,9 +518,9 @@ const ProjectAssignTable: React.FC = () => {
     return (
       <>
         <Offcanvas className="p-3" show={show} placement="end" onHide={handleClose} >
-        <Offcanvas.Header closeButton className='p-0 mb-2'>
-          <Offcanvas.Title>Task Details</Offcanvas.Title>
-        </Offcanvas.Header>
+          <Offcanvas.Header closeButton className='p-0 mb-2'>
+            <Offcanvas.Title>Task Details</Offcanvas.Title>
+          </Offcanvas.Header>
 
 
           {messList.map((mess, index) => (
@@ -747,7 +770,7 @@ const ProjectAssignTable: React.FC = () => {
 
     // Format the updated date to the desired format
     return format(updatedDate, 'dd-MM-yyyy HH:mm:ss');
-};
+  };
 
 
   const handleShow = () => setShow(true);

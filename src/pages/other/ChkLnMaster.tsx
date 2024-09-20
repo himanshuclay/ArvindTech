@@ -841,6 +841,8 @@ const AccountProcessTable: React.FC = () => {
                 createdBy: 'sameer',
             }
 
+            console.log(payload)
+
             try {
                 const response = await axios.post('https://localhost:44382/api/AccountModule/ProcessAssignWithProject', payload);
                 if (response.data.isSuccess) {

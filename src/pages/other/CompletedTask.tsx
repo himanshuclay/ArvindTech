@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Button, Table, Offcanvas, Toast, Container, Row, Col, Alert } from 'react-bootstrap';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { parse, addDays, format, isValid } from 'date-fns';
 
 interface ProjectAssignListWithDoer {
   id: number;
@@ -175,6 +176,38 @@ const ProjectAssignTable: React.FC = () => {
     return <div className="loader-fixed">Loading...</div>;
   }
 
+  const formatAndUpdateDate = (createdDate: string, taskTime: string) => {
+    // Parse the created date with the correct format 'MM/dd/yyyy HH:mm:ss'
+    const createdDateObj = parse(createdDate, 'MM/dd/yyyy HH:mm:ss', new Date());
+
+    // Check if the createdDateObj is valid
+    if (!isValid(createdDateObj)) {
+        console.error('Invalid createdDate:', createdDate);
+        return 'Invalid created date';
+    }
+
+    const taskTimeValue = parseInt(taskTime, 10); // Assuming taskTime is in hours
+
+    // Check if taskTime is a valid number
+    if (isNaN(taskTimeValue)) {
+        console.error('Invalid taskTime:', taskTime);
+        return 'Invalid task time';
+    }
+
+    // Calculate the number of days to add
+    const daysToAdd = Math.floor(taskTimeValue / 24);
+
+    // Add days to the created date
+    const updatedDate = addDays(createdDateObj, daysToAdd);
+
+    // Format the updated date to the desired format 'MM/dd/yyyy HH:mm:ss'
+    return format(updatedDate, 'MM/dd/yyyy HH:mm:ss');
+};
+
+// Example Usage
+// const updatedDate = formatAndUpdateDate('21-09-2023 15:30:00', '48');
+// console.log(updatedDate);
+
 
 
   const SuccessToast: React.FC<{ show: boolean; taskName?: string; onClose: () => void }> = ({ show, onClose }) => {
@@ -275,7 +308,7 @@ const ProjectAssignTable: React.FC = () => {
                   <td>{item.roleName}</td>
                   <td>{item.task_Number}</td>
                   <td>{item.taskType}</td>
-                  <td>{item.taskTime}</td>
+                  <td>{formatAndUpdateDate(item.createdDate, item.taskTime)}</td>
                   <td>{item.createdDate}</td>
                   <td>{item.completedDate}</td>
                   <td>
