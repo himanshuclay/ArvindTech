@@ -17,7 +17,7 @@ const BottomLinks = () => {
 	return (
 		<Row>
 			<Col xs={12} className="text-center">
-				<p className="text-dark-emphasis">
+				{/* <p className="text-dark-emphasis">
 					Don't have an account?{' '}
 					<Link
 						to="/auth/register"
@@ -25,7 +25,7 @@ const BottomLinks = () => {
 					>
 						<b>Sign up</b>
 					</Link>
-				</p>
+				</p> */}
 			</Col>
 		</Row>
 	)
@@ -54,7 +54,7 @@ const Login = () => {
 				<VerticalForm<UserData>
 					onSubmit={login}
 					resolver={schemaResolver}
-					defaultValues={{ email: 'shikar@arvind.com', password: 'Admin' }}
+					defaultValues={{ email: 'LLP00000', password: '123' }}
 				>
 					<FormInput
 						label="Employee ID"
@@ -73,9 +73,9 @@ const Login = () => {
 						placeholder="Enter your password"
 						containerClass="mb-3"
 					>
-						<Link to="/auth/forgot-password" className="text-muted float-end">
+						{/* <Link to="/auth/forgot-password" className="text-muted float-end">
 							<small>Forgot your password?</small>
-						</Link>
+						</Link> */}
 					</FormInput>
 					<FormInput
 						label="Remember me"

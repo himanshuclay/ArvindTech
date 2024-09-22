@@ -59,6 +59,7 @@ export default function configureFakeBackend() {
       }
     } catch (error) {
       console.error('Login error:', error);
+      alert('You have entered incorrect credentials')
       return { status: 500, message: 'Something went wrong. Please try again later.' };
     }
   }
