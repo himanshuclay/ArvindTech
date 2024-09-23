@@ -119,32 +119,38 @@ const ProjectAssignTable: React.FC = () => {
       const response = await axios.get<ApiResponse>(
         `https://arvindo-api.clay.in/api/ProcessInitiation/GetFilterTask?TaskCommonId=${taskCommonId}&Flag=${flag}`
       );
-
+  
       if (response.data && response.data.isSuccess) {
         const fetchedData = response.data.getFilterTasks || [];
-        const filteredTasks = fetchedData.map((task: ProjectAssignListWithDoer) => {
-          const parsedTaskJson = JSON.parse(task.task_Json);
-          const optionsMap = parsedTaskJson.inputs.reduce((map: Record<string, string>, input: any) => {
-            if (input.options) {
-              input.options.forEach((option: any) => {
-                map[option.id] = option.label;
-              });
-            }
-            return map;
-          }, {});
-
-          const filteredInputs = parsedTaskJson.inputs
-            .filter((input: any) => !['99', '100', '102', '103'].includes(input.inputId)) // Exclude unwanted inputIds
-            .map((input: any) => ({
-              label: input.label,
-              value: optionsMap[input.value] || input.value // Replace value with label if it exists in optionsMap
-            }));
-
-          return {
-            taskNumber: task.task_Number,
-            inputs: filteredInputs
-          };
-        });
+        console.log(fetchedData);
+        
+        // Filter out tasks with isCompleted as "Pending"
+        const filteredTasks = fetchedData
+          .filter((task) => task.isCompleted !== "Pending")  // Filter step
+          .map((task: ProjectAssignListWithDoer) => {
+            const parsedTaskJson = JSON.parse(task.task_Json);
+            const optionsMap = parsedTaskJson.inputs.reduce((map: Record<string, string>, input: any) => {
+              if (input.options) {
+                input.options.forEach((option: any) => {
+                  map[option.id] = option.label;
+                });
+              }
+              return map;
+            }, {});
+  
+            const filteredInputs = parsedTaskJson.inputs
+              .filter((input: any) => !['99', '100', '102', '103'].includes(input.inputId)) // Exclude unwanted inputIds
+              .map((input: any) => ({
+                label: input.label,
+                value: optionsMap[input.value] || input.value // Replace value with label if it exists in optionsMap
+              }));
+  
+            return {
+              taskNumber: task.task_Number,
+              inputs: filteredInputs
+            };
+          });
+  
         setPreData(filteredTasks);
       } else {
         console.error('API Response Error:', response.data?.message || 'Unknown error');
@@ -159,6 +165,7 @@ const ProjectAssignTable: React.FC = () => {
       setLoading(false);
     }
   };
+  
 
   const handleEdit = (id: number) => {
     // const taskCommonId = id

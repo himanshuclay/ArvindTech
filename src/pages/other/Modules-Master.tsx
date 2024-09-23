@@ -445,6 +445,7 @@ const App: React.FC = () => {
       roleName: selectedRole?.roleName || '', // Ensure roleName is present or empty string
       processName,
       startDate,
+      Task_Status: 1,
       task_Json: JSON.stringify(formJSON),
       createdBy: "HimanshuPant", // Replace with actual username or dynamic value
       finishPoint: parseFloat(finishID), // Convert finishID to float before sending
@@ -457,7 +458,7 @@ const App: React.FC = () => {
     setLoading(true);
   
     try {
-      const response = await fetch('https://localhost:44382/api/AccountModule/InsertAccountProcessTask', {
+      const response = await fetch('https://arvindo-api.clay.in/api/ProcessTaskMaster/InsertUpdateProcessTaskandDoer', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

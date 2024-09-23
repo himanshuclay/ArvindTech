@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Button, Modal, Form, Table } from 'react-bootstrap';
 import Select from 'react-select'; // Make sure you have this or the appropriate select component imported
+import CustomFlatpickr from '@/components/CustomFlatpickr';
+import { Console } from 'console';
 
 // Define interfaces for the data
 interface AccountProcessTask {
@@ -177,6 +179,7 @@ const AccountProcessTable: React.FC = () => {
         const [taskTiming, setTaskTiming] = useState<{ [key: string]: string }>({});
         const [daySelection, setDaySelection] = useState<{ [key: string]: string }>({});
         const [weekdaySelection, setWeekdaySelection] = useState<{ [key: string]: string[] }>({});
+        const [timeSelection, setTimeSelection] = useState<any>({});
         const [selectedTaskTypes, setSelectedTaskTypes] = useState<{ [key: string]: string }>({});
 
 
@@ -201,8 +204,88 @@ const AccountProcessTable: React.FC = () => {
 
         const handleWeekdaySelectionChange = (inputId: string, optionId: string | null, selectedWeekdays: string[]) => {
             const key = optionId || inputId; // Use optionId if present, otherwise fall back to inputId
-            setWeekdaySelection(prev => ({ ...prev, [key]: selectedWeekdays }));
+            setWeekdaySelection(prev => {
+                const newState = { ...prev, [key]: selectedWeekdays };
+                console.log(newState); // Log the new state here
+                return newState; // Return the new state
+            });
         };
+        
+
+        const handleTimeChange = (inputId: string, optionId: string | null, selectedTime: Date | string | undefined) => {
+            const key = optionId || inputId; // Use optionId if present, otherwise fall back to inputId
+            let timeString = '';
+
+            // Logging to debug
+            console.log('inputId:', inputId);
+            console.log('optionId:', optionId);
+            console.log('selectedTime:', selectedTime);
+
+            // Check if selectedTime is valid
+            if (!selectedTime) {
+                console.error('Error: selectedTime is undefined or null');
+                return; // Exit early if there's no selected time
+            }
+
+            // If selectedTime is a Date object, format it to 'h:mm A' string (e.g., '8:30 PM')
+            if (selectedTime instanceof Date) {
+                const hours = selectedTime.getHours();
+                const minutes = selectedTime.getMinutes();
+                const isPM = hours >= 12;
+                const formattedHours = isPM ? hours % 12 || 12 : hours; // Handle 12-hour format
+                const formattedMinutes = minutes < 10 ? `0${minutes}` : minutes; // Ensure 2-digit minutes
+                timeString = `${formattedHours}:${formattedMinutes} ${isPM ? 'PM' : 'AM'}`;
+
+                // Log the formatted time string
+                console.log('Formatted Time String:', timeString);
+            } else if (typeof selectedTime === 'string') {
+                // If it's a string, use it directly (just for safety)
+                timeString = selectedTime;
+                console.log('Time as string:', timeString); // Log string if provided as input
+            } else {
+                console.error('Error: selectedTime is not a valid Date or string');
+                return; // Exit early if selectedTime is neither a Date nor a string
+            }
+
+            // Split and parse the time string into hours and minutes
+            const [time, period] = timeString.split(' ');
+            console.log('Split Time:', time, 'Period:', period); // Log the split result
+
+            if (time) {
+                const [hoursStr, minutes] = time.split(':');
+                let hours = parseInt(hoursStr);
+
+                // Log parsed hours and minutes before conversion
+                console.log('Parsed Hours:', hours, 'Parsed Minutes:', minutes);
+
+                if (period?.toLowerCase() === 'pm' && hours !== 12) {
+                    hours += 12; // Convert PM times to 24-hour format
+                } else if (period?.toLowerCase() === 'am' && hours === 12) {
+                    hours = 0; // Midnight case
+                }
+
+                // Log final converted hours and minutes in 24-hour format
+                console.log('Converted Hours (24-hour format):', hours, 'Minutes:', minutes);
+
+                // Update the state with parsed hours and minutes
+                setTimeSelection((prev) => ({
+                    ...prev,
+                    [key]: {
+                        time: timeString,
+                        hours,
+                        minutes: parseInt(minutes) || 0, // Ensure minutes is a number
+                    },
+                    
+                }));
+                console.log(time)
+            } else {
+                console.log('Error: Time string is invalid or could not be parsed.');
+            }
+        };
+
+
+
+
 
 
         const handleToggleExpirable = () => {
@@ -218,29 +301,29 @@ const AccountProcessTable: React.FC = () => {
             }
             return (Number(value) * 24).toString(); // Multiply by 24 and convert back to string
         };
-        
+
         // Function to process each option and return it in the desired structure
         const processOption = (inputId: string, option: any): any => {
             const optionId = option.id;
-        
+
             return {
                 inputId: inputId, // Use inputId from filteredJson
                 optionId: optionId, // Use optionId from option
-        
+
                 // Fetch values from the state based on optionId
                 taskNumber: selectedTaskNumbers[optionId] || null,
                 taskTiming: taskTiming[optionId] || null,
                 taskType: selectedTaskTypes[optionId] || null,
-        
+
                 // Check for taskTiming based on optionId and convert day selection accordingly
                 daySelection: taskTiming[optionId] === 'day' ? convertToHoursString(daySelection[optionId]) : null,
             };
         };
-        
+
         // Function to flatten nested arrays and process options into a single array
         const flattenAndProcessOptions = (inputId: string, options: any): any[] => {
             const flatOptions: any[] = [];
-        
+
             // Function to recursively flatten options
             const flatten = (opt: any) => {
                 if (Array.isArray(opt)) {
@@ -249,11 +332,11 @@ const AccountProcessTable: React.FC = () => {
                     flatOptions.push(processOption(inputId, opt)); // Process and add each option to the flat array
                 }
             };
-        
+
             flatten(options); // Start flattening
             return flatOptions; // Return the final flat array
         };
-        
+
         const handleSaveChanges = async () => {
             if (selectedTask && selectedEmployee) {
                 if (!filteredJson) {
@@ -261,62 +344,138 @@ const AccountProcessTable: React.FC = () => {
                     return;
                 }
         
-                // Flatten the nested structure into a single array
-                const conditionJson = filteredJson.options
-                    ? flattenAndProcessOptions(filteredJson.inputId, filteredJson.options)
-                    : [];
+                // Initialize the conditionJson array
+                const conditionJson: Array<{
+                    inputId: string;
+                    optionId: string;
+                    taskNumber: string | null;
+                    taskTiming: string | null;
+                    taskType: string | null;
+                    daySelection: string | null;
+                }> = [];
         
-                // If there are no options, still handle inputId
-                if (!filteredJson.options || filteredJson.options.length === 0) {
+                // Function to process condition entries
+                const processConditionEntry = (
+                    key: string,
+                    timingType: string | null,
+                    selectedDays: string[],
+                    hoursString: string | null,
+                    optionId?: string
+                ) => {
+                    const selectedTime = timeSelection[key]?.time || ''; // Get the time value from timeSelection
+        
+                    // Log values to debug
+                    console.log('Timing Type:', timingType);
+                    console.log('Selected Days:', selectedDays);
+                    console.log('Hours String:', hoursString);
+                    console.log('Selected Time:', selectedTime);
+        
+                    // Initialize hours and minutes
+                    let formattedTime = '';
+                    if (selectedTime) {
+                        // Split and parse the time string
+                        const [time, period] = selectedTime.split(' ');
+                        const [hoursStr, minutes] = time.split(':');
+                        let hours = parseInt(hoursStr);
+        
+                        // Convert to 24-hour format
+                        if (period?.toLowerCase() === 'pm' && hours !== 12) {
+                            hours += 12; // Convert PM times to 24-hour format
+                        } else if (period?.toLowerCase() === 'am' && hours === 12) {
+                            hours = 0; // Midnight case
+                        }
+        
+                        // Format the time string for output
+                        formattedTime = `${hours}:${minutes}`; // e.g., "14:30" for 2:30 PM
+                    }
+        
+                    // Combine weekdays and formatted time for the 'weekday' timing
+                    const daySelectionValue = timingType === 'weekday'
+                        ? `${selectedDays.join(', ')}-${formattedTime}`
+                        : hoursString;
+        
+                    // Log the final daySelectionValue before pushing to conditionJson
+                    console.log('Day Selection Value:', daySelectionValue);
+        
                     conditionJson.push({
-                        inputId: filteredJson.inputId,  // Use inputId from filteredJson
-                        optionId: "",                   // No optionId since no options exist
-        
-                        // Fetch values based on inputId
-                        taskNumber: selectedTaskNumbers[filteredJson.inputId] || null,
-                        taskTiming: taskTiming[filteredJson.inputId] || null,
-                        taskType: selectedTaskTypes[filteredJson.inputId] || null,
-        
-                        // Convert day selection if timing is set to 'day'
-                        daySelection: taskTiming[filteredJson.inputId] === 'day' ? convertToHoursString(daySelection[filteredJson.inputId]) : null,
+                        inputId: key,  // Use inputId from filteredJson
+                        optionId: optionId || "", // Use optionId or default to an empty string
+                        taskNumber: selectedTaskNumbers[key] || null,
+                        taskTiming: timingType,
+                        taskType: selectedTaskTypes[key] || null,
+                        daySelection: daySelectionValue // Set to either selected weekdays and time, or converted hours
                     });
-                }
-        
-                // Convert conditionJson to string as expected by the API
-                const conditionJsonString = JSON.stringify(conditionJson);
-                const payload = {
-                    id: "17",
-                    moduleID: "string",
-                    moduleName: "string",
-                    processID: "string",
-                    processName: "string",
-                    roleId: "string",
-                    roleName: "string",
-                    doerId: "string",
-                    doerName: "string",
-                    task_Json: selectedTask.task_Json,
-                    task_Number: selectedTask.task_Number,
-                    task_Status: true,
-                    createdBy: "string",
-                    updatedBy: "string",
-                    condition_Json: conditionJsonString, // Send the stringified conditionJson
-                    isExpirable: isExpirable === 'yes' ? true : false,
                 };
         
-                console.log("Payload being sent:", JSON.stringify(payload, null, 2));
+                // Process the options if they exist
+                if (filteredJson.options && filteredJson.options.length > 0) {
+                    filteredJson.options.forEach(option => {
+                        const key = option.id; // Use the inputId from the option
+                        const timingType = taskTiming[key]; // Get the timing type
+                        const selectedDays = weekdaySelection[key] || []; // Get the selected weekdays
+                        const hoursString = timingType === 'day' ? convertToHoursString(daySelection[key]) : null;
         
-                try {
-                    const response = await axios.post('https://localhost:44382/api/AccountModule/TaskAssignRoleWithDoer', payload);
-                    console.log("Data successfully posted.");
-                    setSelectedConditionTask("");
-                    handleClose();
-                    console.log(response);
-                } catch (error) {
-                    console.error("Error posting data:", error);
+                        // Call the function to process the condition entry
+                        processConditionEntry(key, timingType, selectedDays, hoursString, option.id);
+                    });
+                } else {
+                    // Handle the case when there are no options
+                    const key = filteredJson.inputId; // Use the key from filteredJson
+                    const timingType = taskTiming[key]; // Get the timing type
+                    const selectedDays = weekdaySelection[key] || []; // Get the selected weekdays
+                    const hoursString = timingType === 'day' ? convertToHoursString(daySelection[key]) : null;
+        
+                    // Call the function to process the condition entry with no optionId
+                    processConditionEntry(key, timingType, selectedDays, hoursString);
+                }
+        
+                // Prepare and send the payload if task and employee are selected
+                if (selectedTask && selectedEmployee) {
+                    const selectedEmployeeObj = employees.find(emp => emp.empId === selectedEmployee);
+                    const conditionJsonString = JSON.stringify(conditionJson); // Convert conditionJson to string as expected by the API
+        
+                    const payload = {
+                        id: selectedTask.id,
+                        moduleID: selectedTask.moduleID,
+                        moduleName: selectedTask.moduleName,
+                        processID: selectedTask.processID,
+                        processName: selectedTask.processName,
+                        roleId: selectedTask.roleId,
+                        roleName: selectedTask.roleName,
+                        doerId: selectedEmployee, // The employee ID assigned to this task
+                        doerName: selectedEmployeeObj?.employeeName || "", // Use employeeName from the selected object
+                        task_Json: selectedTask.task_Json,
+                        task_Number: selectedTask.task_Number,
+                        task_Status: 1,
+                        createdBy: "Himanshu Pant",
+                        finishPoint: selectedTask.finishPoint,
+                        updatedBy: "Himanshu Pant",
+                        condition_Json: conditionJsonString, // Send the stringified conditionJson
+                        isExpired: isExpirable === 'yes' ? 1 : 0,
+                    };
+        
+                    console.log("Payload being sent:", payload);
+        
+                    try {
+                        const response = await axios.post('https://localhost:44382/api/ProcessTaskMaster/InsertUpdateProcessTaskandDoer', payload);
+                        console.log("Data successfully posted.");
+                        setSelectedConditionTask("");
+                        handleClose();
+                        console.log(response);
+                    } catch (error) {
+                        console.error("Error posting data:", error);
+                    }
                 }
             }
         };
         
+        
+        
+        
+        
+        
+        
+
 
         const [isExpirable, setIsExpirable] = useState('no'); // Global state for task expirable (Yes/No)
 
@@ -417,7 +576,7 @@ const AccountProcessTable: React.FC = () => {
                                                 </div>
 
                                                 {/* Toggle Task Timing */}
-                                                <div className="form-group col-4" style={{ marginTop: '10px' }}>
+                                                <div className="form-group col-4">
                                                     <label>Task Timing</label>
                                                     <div>
                                                         <button
@@ -440,7 +599,7 @@ const AccountProcessTable: React.FC = () => {
 
                                                     {/* Conditional Rendering for Day or Weekday selection */}
                                                     {taskTiming[filteredJson.inputId] === 'day' ? (
-                                                        <div style={{ marginTop: '10px' }}>
+                                                        <div>
                                                             <label>Enter number of days</label>
                                                             <input
                                                                 type="number"
@@ -452,7 +611,7 @@ const AccountProcessTable: React.FC = () => {
                                                             />
                                                         </div>
                                                     ) : taskTiming[filteredJson.inputId] === 'weekday' ? (
-                                                        <div style={{ marginTop: '10px' }}>
+                                                        <div>
                                                             <label>Select weekdays</label>
                                                             <select
                                                                 className="form-control"
@@ -474,6 +633,30 @@ const AccountProcessTable: React.FC = () => {
                                                                 <option value="sat">Saturday</option>
                                                                 <option value="sun">Sunday</option>
                                                             </select>
+
+                                                            <label>Select time</label>
+                                                            <CustomFlatpickr
+                                                                value={timeSelection[filteredJson.inputId]?.time || ''} // Ensure there's a valid value
+                                                                onChange={(value) => {
+                                                                    if (value && value.length > 0) {
+                                                                        handleTimeChange(filteredJson.inputId, null, value[0]); // Pass the first value from the array
+                                                                    } else {
+                                                                        console.warn('No time selected or invalid value');
+                                                                    }
+                                                                }}
+                                                                options={{
+                                                                    enableTime: true,
+                                                                    noCalendar: true,
+                                                                    dateFormat: 'h:i K',
+                                                                }}
+                                                            />
+
+                                                            {timeSelection[filteredJson.inputId] && (
+                                                                <div>
+                                                                    <strong>Selected Time:</strong>{' '}
+                                                                    {`${timeSelection[filteredJson.inputId].hours} hours and ${timeSelection[filteredJson.inputId].minutes} mins`}
+                                                                </div>
+                                                            )}
                                                         </div>
 
                                                     ) : null}
@@ -523,7 +706,7 @@ const AccountProcessTable: React.FC = () => {
                                             </select>
 
                                         </div>
-                                        <div className="col-4">
+                                        <div className="col-3">
                                             <label htmlFor="">Task Type</label>
                                             <select
                                                 className='form-control'
@@ -538,7 +721,7 @@ const AccountProcessTable: React.FC = () => {
                                         </div>
 
                                         {/* Toggle button for Task Timing */}
-                                        <div className="form-group col-4" style={{ marginTop: '10px' }}>
+                                        <div className="form-group col-5">
                                             <label>Task Timing</label>
                                             <div>
                                                 <button
@@ -559,7 +742,7 @@ const AccountProcessTable: React.FC = () => {
 
                                             {/* Conditional rendering for Day or Weekday selection */}
                                             {taskTiming[option.id] === 'day' ? (
-                                                <div style={{ marginTop: '10px' }}>
+                                                <div>
                                                     <label>Enter number of days</label>
                                                     <input
                                                         type="number"
@@ -571,27 +754,53 @@ const AccountProcessTable: React.FC = () => {
                                                     />
                                                 </div>
                                             ) : taskTiming[option.id] === 'weekday' ? (
-                                                <div style={{ marginTop: '10px' }}>
-                                                    <label>Select weekdays</label>
-                                                    <select
-                                                        className="form-control"
-                                                        multiple
-                                                        value={weekdaySelection[option.id] || []}
-                                                        onChange={(e) =>
-                                                            handleWeekdaySelectionChange(filteredJson.inputId,
-                                                                option.id,
-                                                                Array.from(e.target.selectedOptions, option => option.value)
-                                                            )
-                                                        }
-                                                    >
-                                                        <option value="mon">Monday</option>
-                                                        <option value="tue">Tuesday</option>
-                                                        <option value="wed">Wednesday</option>
-                                                        <option value="thu">Thursday</option>
-                                                        <option value="fri">Friday</option>
-                                                        <option value="sat">Saturday</option>
-                                                        <option value="sun">Sunday</option>
-                                                    </select>
+                                                <div className='form-group row'>
+                                                    <div className='form-group col-6'>
+                                                        <label>Select weekdays</label>
+                                                        <select
+                                                            className="form-control"
+                                                            multiple
+                                                            value={weekdaySelection[option.id] || []}
+                                                            onChange={(e) =>
+                                                                handleWeekdaySelectionChange(filteredJson.inputId,
+                                                                    option.id,
+                                                                    Array.from(e.target.selectedOptions, option => option.value)
+                                                                )
+                                                            }
+                                                        >
+                                                            <option value="mon">Monday</option>
+                                                            <option value="tue">Tuesday</option>
+                                                            <option value="wed">Wednesday</option>
+                                                            <option value="thu">Thursday</option>
+                                                            <option value="fri">Friday</option>
+                                                            <option value="sat">Saturday</option>
+                                                            <option value="sun">Sunday</option>
+                                                        </select>
+                                                    </div>
+                                                    <div className='form-group col-6'>
+                                                        <label>Select time</label>
+                                                        <CustomFlatpickr
+                                                                value={timeSelection[filteredJson.inputId]?.time || ''} // Ensure there's a valid value
+                                                                onChange={(value) => {
+                                                                    if (value && value.length > 0) {
+                                                                        handleTimeChange(filteredJson.inputId, null, value[0]); // Pass the first value from the array
+                                                                    } else {
+                                                                        console.warn('No time selected or invalid value');
+                                                                    }
+                                                                }}
+                                                                options={{
+                                                                    enableTime: true,
+                                                                    noCalendar: true,
+                                                                    dateFormat: 'h:i K',
+                                                                }}
+                                                            />
+                                                        {timeSelection[filteredJson.inputId] && (
+                                                            <div>
+                                                                <strong>Selected Time:</strong>{' '}
+                                                                {`${timeSelection[filteredJson.inputId].hours} hours and ${timeSelection[filteredJson.inputId].minutes} mins`}
+                                                            </div>
+                                                        )}
+                                                    </div>
                                                 </div>
                                             ) : null}
                                         </div>
@@ -715,14 +924,42 @@ const AccountProcessTable: React.FC = () => {
         }
     }, [selectedModule]);
 
+    useEffect(() => {
+        const fetchTasks = async () => {
+            try {
+                let response;
+                if (selectedModule && selectedProcess) {
+                    // API call when `selectedProcess` is present
+                    response = await axios.get(`https://localhost:44382/api/ProcessTaskMaster/GetProcessTaskByIds?Flag=2&ModuleId=ACC&ProcessId=${selectedProcess}`);
+                } else (selectedModule == "")
+                {
+                    // API call when `selectedProcess` is not present
+                    response = await axios.get(`https://localhost:44382/api/ProcessTaskMaster/GetProcessTaskByIds?Flag=1`);
+                }
+
+                if (response.data.isSuccess) {
+                    setTasks(response.data.getProcessTaskByIds);
+                    console.log(tasks)
+                }
+            } catch (error) {
+                console.error('Error fetching tasks', error);
+            }
+        };
+
+        if (selectedModule) {
+            fetchTasks();
+        }
+    }, [selectedModule, selectedProcess]);
+
+
     // Fetch Tasks based on selected module and process
     useEffect(() => {
         if (selectedModule && selectedProcess) {
             const fetchTasks = async () => {
                 try {
-                    const response = await axios.get(`https://arvindo-api.clay.in/api/AccountModule/GetAccountProcessTaskByIds?ModuleId=ACC&ProcessId=${selectedProcess}`);
+                    const response = await axios.get(`https://arvindo-api.clay.in/api/ProcessTaskMaster/GetProcessTaskByIds?ModuleId=ACC&ProcessId=${selectedProcess}`);
                     if (response.data.isSuccess) {
-                        setTasks(response.data.getAccountProcessTaskByIds);
+                        setTasks(response.data.getProcessTaskByIds);
 
                     }
                 } catch (error) {
@@ -785,7 +1022,7 @@ const AccountProcessTable: React.FC = () => {
 
             // Prepare the payload to be submitted
             const payload = {
-                id: "", // Ensure this ID matches the task
+                id: selectedTask.id ? selectedTask.id : 0, // Ensure this ID matches the task
                 moduleID: selectedTask.moduleID,
                 moduleName: selectedTask.moduleName,
                 processID: selectedTask.processID,
@@ -798,18 +1035,18 @@ const AccountProcessTable: React.FC = () => {
                 task_Json: selectedTask.task_Json,
                 condition_Json: "string",
                 isExpired: 0,
-                task_Status: true, // Set task status as true (active or assigned)
+                finishPoint: selectedTask.finishPoint,
+                task_Status: 1, // Set task status as true (active or assigned)
                 createdBy: 'sameer hussain',
                 updatedBy: 'sameer hussain',
             };
 
             // Log the payload to the console before submission
-            console.log('Payload:', payload);
 
             // Now proceed with the API request
             const assignTask = async () => {
                 try {
-                    const response = await axios.post('https://localhost:44382/api/AccountModule/TaskAssignRoleWithDoer', payload);
+                    const response = await axios.post('https://localhost:44382/api/ProcessTaskMaster/InsertUpdateProcessTaskandDoer', payload);
 
                     if (response.data.isSuccess) {
                         console.log('Task assigned successfully');
@@ -817,6 +1054,7 @@ const AccountProcessTable: React.FC = () => {
                         console.error('Failed to assign task');
                     }
                 } catch (error) {
+                    console.log('Payload:', payload);
                     console.error('Error assigning task', error);
                 }
             };
@@ -839,12 +1077,13 @@ const AccountProcessTable: React.FC = () => {
                 moduleId: selectedTask.moduleID,
                 processId: selectedTask.processID,
                 createdBy: 'sameer',
+                taskStatus: 1,
             }
 
             console.log(payload)
 
             try {
-                const response = await axios.post('https://localhost:44382/api/AccountModule/ProcessAssignWithProject', payload);
+                const response = await axios.post('https://localhost:44382/api/ProcessTaskMaster/ProcessAssignWithProject', payload);
                 if (response.data.isSuccess) {
                     console.log('Process assigned to project successfully');
                 } else {

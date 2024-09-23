@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { Button, Table, Offcanvas, Toast  } from 'react-bootstrap'; 
-import { useLocation , useNavigate} from 'react-router-dom';
+import { Button, Table, Offcanvas, Toast } from 'react-bootstrap';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 interface ProjectAssignListWithDoer {
   id: number;
@@ -48,7 +48,7 @@ const RunningTask: React.FC = () => {
   const [taskCommonId, setTaskCommonId] = useState<number | null>(null);
   const [showToast, setShowToast] = useState(false);
   const [taskName, setTaskName] = useState<string | undefined>(undefined);
-  
+
 
 
 
@@ -122,28 +122,28 @@ const RunningTask: React.FC = () => {
       if (response.data && response.data.isSuccess) {
         const fetchedData = response.data.getFilterTasks || [];
         const filteredTasks = fetchedData.map((task: ProjectAssignListWithDoer) => {
-            const parsedTaskJson = JSON.parse(task.task_Json);
-            const optionsMap = parsedTaskJson.inputs.reduce((map: Record<string, string>, input: any) => {
-              if (input.options) {
-                input.options.forEach((option: any) => {
-                  map[option.id] = option.label;
-                });
-              }
-              return map;
-            }, {});
+          const parsedTaskJson = JSON.parse(task.task_Json);
+          const optionsMap = parsedTaskJson.inputs.reduce((map: Record<string, string>, input: any) => {
+            if (input.options) {
+              input.options.forEach((option: any) => {
+                map[option.id] = option.label;
+              });
+            }
+            return map;
+          }, {});
 
-            const filteredInputs = parsedTaskJson.inputs
-              .filter((input: any) => !['99', '100', '102', '103'].includes(input.inputId)) // Exclude unwanted inputIds
-              .map((input: any) => ({
-                label: input.label,
-                value: optionsMap[input.value] || input.value // Replace value with label if it exists in optionsMap
-              }));
+          const filteredInputs = parsedTaskJson.inputs
+            .filter((input: any) => !['99', '100', '102', '103'].includes(input.inputId)) // Exclude unwanted inputIds
+            .map((input: any) => ({
+              label: input.label,
+              value: optionsMap[input.value] || input.value // Replace value with label if it exists in optionsMap
+            }));
 
-            return {
-              taskNumber: task.task_Number,
-              inputs: filteredInputs
-            };
-          });
+          return {
+            taskNumber: task.task_Number,
+            inputs: filteredInputs
+          };
+        });
         setPreData(filteredTasks);
       } else {
         console.error('API Response Error:', response.data?.message || 'Unknown error');
@@ -192,7 +192,7 @@ const RunningTask: React.FC = () => {
           <div onClick={onClose}></div>
         </Toast.Header>
         <Toast.Body className="bg-primary text-white fs-4 rounded">
-        {`Task "${taskName}" has been saved successfully!`}
+          {`Task "${taskName}" has been saved successfully!`}
         </Toast.Body>
       </Toast>
     );
@@ -264,9 +264,16 @@ const RunningTask: React.FC = () => {
                   <td>{item.taskType}</td>
                   <td>{item.taskTime}</td>
                   <td>{item.createdDate}</td>
-                  <td>{item.completedDate !== '' ? (item.completedDate) : 'In Progress'}</td>
+                  <td className={item.completedDate === '' ? 'text-warning fw-bolder' : ''}>
+                    {item.completedDate !== '' ? (
+                      item.completedDate
+                    ) : (
+                      <span>
+                        In Progress <i className="ri-loader-2-fill fs-5"></i>
+                      </span>
+                    )}
+                  </td>
                   <td>{item.completedDate !== '' ? (<Button onClick={() => handleEdit(item.id)}>Show</Button>) : (<Button disabled>Show</Button>)}</td>
-                  
                 </tr>
               ))}
             </tbody>
@@ -274,7 +281,7 @@ const RunningTask: React.FC = () => {
         )}
       </div>
 
-      <SuccessToast show={showToast} taskName={taskName}  onClose={() => setShowToast(false)} />
+      <SuccessToast show={showToast} taskName={taskName} onClose={() => setShowToast(false)} />
     </>
   );
 };
