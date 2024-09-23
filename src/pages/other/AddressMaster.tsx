@@ -1,6 +1,7 @@
 import React, { useState, useEffect, ChangeEvent } from 'react';
 import { Button, Form, Offcanvas, Table, Pagination } from 'react-bootstrap';
 import axios from 'axios';
+import config from '../../config';
 
 interface Project {
     id: number;
@@ -52,7 +53,7 @@ const ProjectsPage: React.FC = () => {
         try {
             // Construct the URL with URLSearchParams
             const params = new URLSearchParams({ PageIndex: currentPage.toString() });
-            const url = `https://localhost:44307/api/ProjectMaster/GetProject?${params.toString()}`;
+            const url = `${config.API_URL_ACCOUNT}/api/ProjectMaster/GetProject?${params.toString()}`;
 
             console.log('Fetching URL:', url); // Log the URL to verify
 
