@@ -345,3 +345,20 @@
   display: flex;
   align-items: center;
 }
+
+.tooltip-position{
+  inset: 0px 2% auto auto !important;
+}
+.tooltip-inner {
+  background: #fff !important;
+  max-width: unset !important;
+}
+.bs-tooltip-start .tooltip-arrow::before, .bs-tooltip-auto[data-popper-placement^=left] .tooltip-arrow::before {
+  left: -1px;
+  border-width: calc(var(--tz-tooltip-arrow-width)* 0.5) 0 calc(var(--tz-tooltip-arrow-width)* 0.5) var(--tz-tooltip-arrow-height);
+  border-left-color: #ffffff;
+}
+
+.pop-card{
+  box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px !important;
+}
