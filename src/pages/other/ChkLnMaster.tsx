@@ -957,7 +957,7 @@ const AccountProcessTable: React.FC = () => {
         if (selectedModule && selectedProcess) {
             const fetchTasks = async () => {
                 try {
-                    const response = await axios.get(`https://arvindo-api.clay.in/api/ProcessTaskMaster/GetProcessTaskByIds?ModuleId=ACC&ProcessId=${selectedProcess}`);
+                    const response = await axios.get(`https://localhost:44382/api/ProcessTaskMaster/GetProcessTaskByIds?Flag=1&ModuleID=ACC&ProcessId=${selectedProcess}`);
                     if (response.data.isSuccess) {
                         setTasks(response.data.getProcessTaskByIds);
 
@@ -976,7 +976,7 @@ const AccountProcessTable: React.FC = () => {
     useEffect(() => {
         const fetchEmployees = async () => {
             try {
-                const response = await axios.get(`https://arvindo-api2.clay.in/api/CommonDropdown/GetEmployeeListWithId`);
+                const response = await axios.get(`https://localhost:44307/api/CommonDropdown/GetEmployeeListWithId`);
                 if (response.data.isSuccess) {
                     setEmployees(response.data.employeeLists);
                 } else {
