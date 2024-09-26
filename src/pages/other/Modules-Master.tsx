@@ -8,7 +8,7 @@ import {
 } from 'react-beautiful-dnd';
 import { Button, Form, Modal, ListGroup, Toast } from 'react-bootstrap';
 import axios from 'axios';
-
+import { useLocation } from 'react-router-dom';
 
 type FormField = {
   inputId: string;
@@ -181,6 +181,9 @@ const App: React.FC = () => {
     processOptions: [] as ProcessOption[], // Add processOptions to store the list of processes
   });
   const [conditionalField, setConditionalField] = useState(false);
+
+  const location = useLocation();
+
 
   const handleCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setConditionalField(event.target.checked);
@@ -399,15 +402,15 @@ const App: React.FC = () => {
   const handleSaveTask = async () => {
     // Retrieve processID, processName, and finishID from formData
     const { processID, processName, finishID } = formData; // Add finishID
-  
+
     // Ensure selectedModule, processID, processName, and finishID are available
     if (!selectedModule || !processID || !processName || !finishID) {
       console.error('Module, process, or finish point information is missing');
       return;
     }
-  
+
     const startDate = new Date().toISOString();
-  
+
     // Create the final JSON object for the form
     const transformedFields = taskFields.map((field) => {
       const inputId = field.inputId; // Use the existing inputId from the field
@@ -416,7 +419,7 @@ const App: React.FC = () => {
         label: option.label || "", // Ensure label is used if available
         color: option.color || "" // Include color if available
       })) || [];
-  
+
       return {
         inputId,
         type: field.type,
@@ -428,13 +431,13 @@ const App: React.FC = () => {
         value: field.value || "",
       };
     });
-  
+
     const formJSON = {
       formId: processID,
       formName: processName,
       inputs: transformedFields,
     };
-  
+
     // Include finishID (finishPoint) in the payload
     const payload = {
       id: 0, // Adjust as needed
@@ -450,13 +453,13 @@ const App: React.FC = () => {
       createdBy: "HimanshuPant", // Replace with actual username or dynamic value
       finishPoint: parseFloat(finishID), // Convert finishID to float before sending
     };
-    
-  
+
+
     console.log('Payload:', payload);
-  
+
     // Set loading to true before starting the save operation
     setLoading(true);
-  
+
     try {
       const response = await fetch('https://arvindo-api.clay.in/api/ProcessTaskMaster/InsertUpdateProcessTaskandDoer', {
         method: 'POST',
@@ -466,15 +469,15 @@ const App: React.FC = () => {
         },
         body: JSON.stringify(payload),
       });
-  
+
       if (response.ok) {
         const data = await response.json();
         console.log('Task saved successfully:', data);
-  
+
         // Update saved tasks and reset form fields except processID, processName, and finishID
         setTaskFields([]); // Clear the task fields
         setIsModalOpen(false); // Close modal
-  
+
         // Optionally reset other form fields, including finishID
         setFormData((prevData) => ({
           ...prevData,
@@ -482,7 +485,7 @@ const App: React.FC = () => {
           Date: new Date(), // Reset Date or other fields if needed
           finishID: '', // Reset finishID after submission
         }));
-  
+
         // Remove finishID from localStorage after submission
         localStorage.removeItem('selectedFinishID');
       } else {
@@ -500,13 +503,13 @@ const App: React.FC = () => {
 
   const handleSaveTemplate = async () => {
     const { processID, processName } = formData;
-  
+
     // Ensure required fields are available
     if (!selectedModule || !processID || !processName) {
       console.error('Module or process information is missing');
       return;
     }
-  
+
     const templateField = taskFields.map((field) => {
       const inputId = field.inputId;
       const options = field.options?.map((option, optIndex) => ({
@@ -514,7 +517,7 @@ const App: React.FC = () => {
         label: option.label || "",
         color: option.color || "",
       })) || [];
-  
+
       return {
         inputId,
         type: field.type,
@@ -526,30 +529,30 @@ const App: React.FC = () => {
         value: field.value || "",
       };
     });
-  
+
     // Find the input with inputId: "99" and extract its label, renamed as FromLabel
     const adhocFormField = templateField.find((field) => field.inputId === "99");
     const FromLabel = adhocFormField ? adhocFormField.label : "Adhoc Form";
-  
+
     // Create the template JSON
     const templateJSON = {
       formId: processID,
       formName: processName,
       inputs: templateField,
     };
-  
+
     // Prepare payload
     const payload = {
       formName: FromLabel,
       templateJson: JSON.stringify(templateJSON),
       createdBy: "HimanshuPant",
     };
-  
+
     console.log('Template Payload:', payload);
-  
+
     // Set loading to true before starting the save operation
     setLoading(true);
-  
+
     try {
       const response = await fetch('https://localhost:44382/api/ProcessTaskMaster/InsertTemplateJson', {
         method: 'POST',
@@ -559,19 +562,19 @@ const App: React.FC = () => {
         },
         body: JSON.stringify(payload),
       });
-  
+
       // Check if response has a body to parse
       const responseText = await response.text();
-  
+
       // Parse JSON only if responseText is not empty
       if (responseText) {
         const data = JSON.parse(responseText);
         console.log('Template saved successfully:', data);
-  
+
         // Reset form fields
         setTaskFields([]);
         setIsModalOpen(false);
-  
+
         setFormData((prevData) => ({
           ...prevData,
           taskName: '',
@@ -587,10 +590,10 @@ const App: React.FC = () => {
       setShowToast(true); // Show notification if needed
     }
   };
-  
-  
-  
-  
+
+
+
+
 
 
   const handleDeleteOption = (index: number) => {
@@ -818,7 +821,15 @@ const App: React.FC = () => {
   return (
     <div className="App" id="taskTop">
       <div className="container mt-4">
-        <div className="d-flex p-2 bg-white mt-2 mb-2">Create Task</div>
+        <div className="d-flex p-2 bg-white mt-2 mb-2">
+          {
+            
+            (location.pathname === '/pages/CreateTemplates'?'  Create Templates':'  Create Task')
+
+          }
+        
+          
+          </div>
 
 
         <DragDropContext onDragEnd={handleDragEnd}>
@@ -908,7 +919,12 @@ const App: React.FC = () => {
                 <Button variant="primary" type="submit" style={{
                   height: 'max-content'
                 }}>
-                  Add Task Details
+
+
+                  {location.pathname === '/pages/CreateTemplates' ? "Create Templates" : "Add Task Details"}
+
+
+
                 </Button>
               </div>
             </Form>
@@ -1003,12 +1019,19 @@ const App: React.FC = () => {
           </div>
         </DragDropContext>
         <div className="d-flex justify-content-end p-2 col-12">
-          <Button className='me-2' variant="primary" onClick={handleSaveTemplate}>
+
+
+          {(location.pathname === '/pages/CreateTemplates' ? <Button className='me-2' variant="primary" onClick={handleSaveTemplate}>
             Save As Template
-          </Button>
-          <Button variant="primary" onClick={handleSaveTask}>
+          </Button> : <Button variant="primary" onClick={handleSaveTask}>
             Save Task
-          </Button>
+          </Button>)
+          }
+
+
+
+
+
         </div>
 
         <Modal size='lg' show={isModalOpen} onHide={() => setIsModalOpen(false)}>

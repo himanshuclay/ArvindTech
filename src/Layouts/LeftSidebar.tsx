@@ -147,7 +147,23 @@ const getFilteredMenuItems = () => {
       label: 'Templates',
       url: '/pages/Invoice',
       icon: 'ri-user-settings-line',
-      parentKey: 'pages',
+      children: [
+        {
+          key: 'Action',
+          label: 'Create Templates',
+          url: '/pages/CreateTemplates',
+          icon: 'ri-slideshow-line',
+          parentKey: 'GetTestData',
+        }, 
+        {
+          key: 'ActiveTasks',
+          label: 'Template Lists',
+          url: '/pages/FilterTasks',
+          icon: 'ri-slideshow-line',
+          parentKey: 'GetTestData',
+        },
+      
+      ],
     },
 
 
