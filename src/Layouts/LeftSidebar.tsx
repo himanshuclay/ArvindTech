@@ -144,7 +144,7 @@ const getFilteredMenuItems = () => {
     },
     {
       key: 'GetTestData',
-      label: 'Test Data',
+      label: 'Templates',
       url: '/pages/Invoice',
       icon: 'ri-user-settings-line',
       parentKey: 'pages',

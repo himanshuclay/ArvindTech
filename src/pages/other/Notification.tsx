@@ -289,12 +289,12 @@ const ProjectAssignTable: React.FC = () => {
     }, [formData]);
 
     const [messList, setMessList] = useState<{ messID: string; messName: string; managerEmpID: string; managerName: string }[]>([]);
-    const projectName = 'PNC_DELHI_VADODARA_PKG29'; // Replace this with the actual project name from your state
+    const projectNames = data.map((item) => item.projectName); // Replace this with the actual project name from your state
 
     useEffect(() => {
       const fetchMessData = async () => {
         try {
-          const response = await axios.get(`https://localhost:44307/api/CommonDropdown/GetMessandManagerListByProjectName?ProjectName=${projectName}`);
+          const response = await axios.get(`https://localhost:44307/api/CommonDropdown/GetMessandManagerListByProjectName?ProjectName=${projectNames}`);
           if (response.data.isSuccess) {
             setMessList(response.data.messProjectListResponses);
           } else {
@@ -307,10 +307,10 @@ const ProjectAssignTable: React.FC = () => {
 
       console.log("this is given data", parsedCondition)
 
-      if (projectName) {
+      if (projectNames) {
         fetchMessData();
       }
-    }, [projectName]);
+    }, [projectNames]);
 
     interface Condition {
       inputId: string;
@@ -320,6 +320,7 @@ const ProjectAssignTable: React.FC = () => {
       taskType: string;
       daySelection: string;
     }
+
 
     const [selectedCondition, setSelectedCondition] = useState<any[]>([]);
 
@@ -471,7 +472,7 @@ const ProjectAssignTable: React.FC = () => {
       }
     };
 
-
+    const [formStateByMess, setFormStateByMess] = useState<{ [messId: string]: { [inputId: string]: any } }>({});
 
     // Function to re-evaluate conditions for showing/hiding fields
     const reEvaluateConditions = (newState: { [key: string]: any }) => {
@@ -495,23 +496,27 @@ const ProjectAssignTable: React.FC = () => {
       setFormState(updatedState);
     };
 
-    const shouldDisplayInput = (input: Input): boolean => {
+    const shouldDisplayInput = (messId: string, input: Input): boolean => {
       if (!input.conditionalFieldId) return true;
-
+    
       const conditionValue = input.conditionalFieldId;
+    
+      // Handle specific condition case
       if (conditionValue === 'someid') return true;
-
+    
+      // Loop through other inputs in formData
       for (const otherInput of formData.inputs) {
         if (otherInput.inputId === conditionValue) {
-          return formState[otherInput.inputId] !== '';
-
+          // Check form state for the specific messId
+          return formStateByMess[messId]?.[otherInput.inputId] !== '';
         }
-        // console.log(otherInput)
+    
         if (otherInput.options && otherInput.options.some(option => option.id === conditionValue)) {
-          return formState[otherInput.inputId] === conditionValue;
+          // Check form state for the specific messId and condition
+          return formStateByMess[messId]?.[otherInput.inputId] === conditionValue;
         }
       }
-
+    
       return false;
     };
 
@@ -545,7 +550,7 @@ const ProjectAssignTable: React.FC = () => {
             </React.Fragment>
           ))}
           {/* {/ <form onSubmit={handleSubmit}> /} */}
-          <form className='' onSubmit={(event) => handleSubmit(event, taskNumber)}>
+          <form className='side-scroll' onSubmit={(event) => handleSubmit(event, taskNumber)}>
             {/* <Accordion.Item eventKey={taskNumber}> */}
             <div className='d-flex flex-column mt-2'>
               <div className='fs-6 mb-1 fw-bolder col-12'>Task Name</div>
@@ -557,7 +562,7 @@ const ProjectAssignTable: React.FC = () => {
                   <h5>Please Update data for <span className='text-primary'>{mess.messName}</span></h5>
                   <div className="my-task">
                     {formData.inputs.map((input: Input) => (
-                      shouldDisplayInput(input) && (
+                      shouldDisplayInput(mess.messID, input) && (
                         <div className='form-group' key={input.inputId} style={{ marginBottom: '1rem' }}>
                           <label className='label'>{input.label}</label>
                           {input.type === 'text' && (

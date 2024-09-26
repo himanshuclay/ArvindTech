@@ -497,6 +497,99 @@ const App: React.FC = () => {
       setShowToast(true); // Show toast or notification if needed
     }
   };
+
+  const handleSaveTemplate = async () => {
+    const { processID, processName } = formData;
+  
+    // Ensure required fields are available
+    if (!selectedModule || !processID || !processName) {
+      console.error('Module or process information is missing');
+      return;
+    }
+  
+    const templateField = taskFields.map((field) => {
+      const inputId = field.inputId;
+      const options = field.options?.map((option, optIndex) => ({
+        id: `${inputId}-${optIndex + 1}`,
+        label: option.label || "",
+        color: option.color || "",
+      })) || [];
+  
+      return {
+        inputId,
+        type: field.type,
+        label: field.labeltext || "Default Label",
+        placeholder: field.placeholder || "",
+        options,
+        required: field.required || false,
+        conditionalFieldId: field.conditionalFieldId || "",
+        value: field.value || "",
+      };
+    });
+  
+    // Find the input with inputId: "99" and extract its label, renamed as FromLabel
+    const adhocFormField = templateField.find((field) => field.inputId === "99");
+    const FromLabel = adhocFormField ? adhocFormField.label : "Adhoc Form";
+  
+    // Create the template JSON
+    const templateJSON = {
+      formId: processID,
+      formName: processName,
+      inputs: templateField,
+    };
+  
+    // Prepare payload
+    const payload = {
+      formName: FromLabel,
+      templateJson: JSON.stringify(templateJSON),
+      createdBy: "HimanshuPant",
+    };
+  
+    console.log('Template Payload:', payload);
+  
+    // Set loading to true before starting the save operation
+    setLoading(true);
+  
+    try {
+      const response = await fetch('https://localhost:44382/api/ProcessTaskMaster/InsertTemplateJson', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': '*/*',
+        },
+        body: JSON.stringify(payload),
+      });
+  
+      // Check if response has a body to parse
+      const responseText = await response.text();
+  
+      // Parse JSON only if responseText is not empty
+      if (responseText) {
+        const data = JSON.parse(responseText);
+        console.log('Template saved successfully:', data);
+  
+        // Reset form fields
+        setTaskFields([]);
+        setIsModalOpen(false);
+  
+        setFormData((prevData) => ({
+          ...prevData,
+          taskName: '',
+          Date: new Date(),
+        }));
+      } else {
+        console.warn('No content in the response');
+      }
+    } catch (error) {
+      console.error('Error saving template:', error);
+    } finally {
+      setLoading(false);
+      setShowToast(true); // Show notification if needed
+    }
+  };
+  
+  
+  
   
 
 
@@ -910,6 +1003,9 @@ const App: React.FC = () => {
           </div>
         </DragDropContext>
         <div className="d-flex justify-content-end p-2 col-12">
+          <Button className='me-2' variant="primary" onClick={handleSaveTemplate}>
+            Save As Template
+          </Button>
           <Button variant="primary" onClick={handleSaveTask}>
             Save Task
           </Button>

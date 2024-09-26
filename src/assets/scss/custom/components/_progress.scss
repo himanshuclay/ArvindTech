@@ -237,6 +237,12 @@
   color: #000;
 }
 
+.side-scroll
+{
+  max-height: calc(100vh - 75px);
+  overflow-y: auto;
+}
+
 .active-btn
 {
   background-color: rgb(23, 7, 92);
