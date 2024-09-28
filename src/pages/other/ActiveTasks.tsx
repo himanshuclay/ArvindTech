@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Button, Form, Row, Col } from 'react-bootstrap';
+import { Form, Row, Col } from 'react-bootstrap';
 import Table from 'react-bootstrap/Table';
 
 interface Module {
@@ -41,16 +41,11 @@ const App: React.FC = () => {
   const [processes, setProcesses] = useState<Process[]>([]);
   const [selectedModule, setSelectedModule] = useState<string>('');
   const [selectedProcess, setSelectedProcess] = useState<string>('');
-  const [searchQuery, setSearchQuery] = useState('');
-
 
   // Fetch the initial data with Flag=1 on component mount
   useEffect(() => {
     const fetchInitialData = async () => {
       setLoading(true);
-
-
-      // console.log(data)
       try {
         const response = await fetch('https://localhost:44382/api/AccountModule/GetTaskAssignListWithDoer?Flag=1');
         if (!response.ok) {
@@ -78,8 +73,6 @@ const App: React.FC = () => {
   // Fetch modules on component mount
   useEffect(() => {
     const fetchModules = async () => {
-
-      // console.log(modules)
       try {
         const response = await fetch('https://localhost:44307/api/CommonDropdown/GetModuleList');
         const result = await response.json();
@@ -98,7 +91,6 @@ const App: React.FC = () => {
   // Fetch processes whenever selectedModule changes
   useEffect(() => {
     const fetchProcesses = async () => {
-
       if (selectedModule) {
         try {
           const response = await fetch(`https://localhost:44307/api/CommonDropdown/GetProcessNameByModuleName?ModuleName=${selectedModule}`);
@@ -116,16 +108,13 @@ const App: React.FC = () => {
     fetchProcesses();
   }, [selectedModule]);
 
-
-
   // Fetch tasks whenever selectedModule or selectedProcess changes
   useEffect(() => {
     const fetchTasks = async () => {
       setLoading(true);
       try {
-        let apiUrl = 'https://localhost:44382/api/AccountModule/GetTaskAssignListWithDoer?Flag=1';
+        let apiUrl = 'https://https://localhost:44382/api/AccountModule/GetTaskAssignListWithDoer?Flag=1';
         const selectedModuleObj = modules.find((module) => module.moduleName === selectedModule);
-
 
         if (selectedModuleObj && selectedProcess) {
           apiUrl = `https://localhost:44382/api/AccountModule/GetTaskAssignListWithDoer?Flag=3&ModuleId=${selectedModuleObj.moduleID}&ProcessId=${selectedProcess}`;
@@ -147,7 +136,6 @@ const App: React.FC = () => {
       } finally {
         setLoading(false);
       }
-      console.log(data)
     };
 
     if (selectedModule && selectedProcess) {
@@ -162,19 +150,6 @@ const App: React.FC = () => {
     </div>
   </div>;
   if (error) return <div>Error: {error}</div>;
-
-
-
-  const handleSearch = (e: ChangeEvent<HTMLInputElement>) => {
-    setSearchQuery(e.target.value);
-  };
-
-
-
-  // const filteredDoers = data.filter(item =>
-  //   item.taskName.toLowerCase().includes(searchQuery.toLowerCase())
-  // );
-
 
   return (
     <div>
@@ -205,18 +180,6 @@ const App: React.FC = () => {
                     {process.processName}
                   </option>
                 ))}
-              </Form.Control>
-            </Form.Group>
-          </Col>
-          <Col>
-            <Form.Group controlId="formProcessName">
-              <Form.Label>Task Name</Form.Label>
-              <Form.Control as="input"
-                placeholder="Search Task..."
-                value={searchQuery}
-                onChange={handleSearch}>
-
-
               </Form.Control>
             </Form.Group>
           </Col>

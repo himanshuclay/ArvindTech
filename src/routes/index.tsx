@@ -25,7 +25,8 @@ const MaintenancePages = React.lazy(() => import('../pages/other/Maintenance'))
 const TemplateMaster = React.lazy(() => import('../pages/other/Modules-Master.tsx'))
 const ActiveTasks = React.lazy(() => import('../pages/other/ActiveTasks.tsx'))
 const ActiveProject = React.lazy(() => import('../pages/other/ActiveProject.tsx'))
-const FilterTasks = React.lazy(() => import('../pages/other/FilterTasks.tsx'))
+// const FilterTasks = React.lazy(() => import('../pages/other/FilterTasks.tsx'))
+const Filtertask = React.lazy(() => import('../pages/other/Filtertask.tsx'))
 const Notification = React.lazy(() => import('../pages/other/Notification.tsx'))
 const ModuleList = React.lazy(() => import('../pages/other/Module-list.tsx'))
 const EmployeeMaster = React.lazy(() => import('../pages/other/Employee-Master.tsx'))
@@ -47,7 +48,12 @@ const SystemLogs = React.lazy(() => import('../pages/other/SystemLogs.tsx'))
 const ChkTaskMaster = React.lazy(() => import('../pages/other/ChkTaskMaster.tsx'))
 const ChecklistMaster = React.lazy(() => import('../pages/other/ChecklistCollection.tsx'))
 const AddressMaster = React.lazy(() => import('../pages/other/AddressMaster.tsx'))
-
+const CompletedTask = React.lazy(() => import('../pages/other/CompletedTask.tsx'))
+const TaskPlanned = React.lazy(() => import('../pages/other/TaskPlanned.tsx'))
+const ExpireTask = React.lazy(() => import('../pages/other/ExpireTask.tsx'))
+const PendingTask = React.lazy(() => import('../pages/other/PendingTask.tsx'))
+const RunningTask = React.lazy(() => import('../pages/other/RunningTask.tsx'))
+const FormWizard = React.lazy(() => import('../pages/ui/formWizard.tsx'))
 
 
 
@@ -207,14 +213,14 @@ const customPagesRoutes = {
 		},
 		{
 			path: '/pages/ActiveProject',
-			name: 'Active Project',
+			name: 'Active Tasks',
 			element: <ActiveProject />,
 			route: PrivateRoute,
 		},
 		{
 			path: '/pages/FilterTasks',
 			name: 'Filter Tasks',
-			element: <FilterTasks />,
+			element: <Filtertask />,
 			route: PrivateRoute,
 		},
 		
@@ -349,6 +355,44 @@ const customPagesRoutes = {
 			path: '/pages/AddressMaster',
 			name: 'Address Master',
 			element: <AddressMaster />,
+			route: PrivateRoute,
+		},
+
+
+		{
+			path: '/pages/CompletedTask',
+			name: 'Completed Task',
+			element: <CompletedTask />,
+			route: PrivateRoute,
+		},
+		{
+			path: '/pages/ExpireTask',
+			name: 'Expire Task',
+			element: <ExpireTask />,
+			route: PrivateRoute,
+		},
+		{
+			path: '/pages/TaskPlanned',
+			name: 'Task Planned ',
+			element: <TaskPlanned />,
+			route: PrivateRoute,
+		},
+		{
+			path: '/pages/PendingTask',
+			name: 'Pending Task ',
+			element: <PendingTask />,
+			route: PrivateRoute,
+		},
+		{
+			path: '/pages/RunningTask',
+			name: 'Running Task ',
+			element: <RunningTask />,
+			route: PrivateRoute,
+		},
+		{
+			path: '/pages/formWizard',
+			name: 'Running Task ',
+			element: <FormWizard />,
 			route: PrivateRoute,
 		},
 		///////////////////////////////////////////////////////////////////////////////////////////

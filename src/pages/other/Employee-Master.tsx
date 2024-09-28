@@ -90,7 +90,7 @@ const EmployeeMaster: React.FC = () => {
     const fetchEmployees = async () => {
         setLoading(true);
         try {
-            const response = await axios.get('https://localhost:7074/api/EmployeeMaster/GetEmployee', {
+            const response = await axios.get('https://localhost:44307/api/EmployeeMaster/GetEmployee', {
                 params: {
                     PageIndex: currentPage
                 }
@@ -132,9 +132,9 @@ const EmployeeMaster: React.FC = () => {
         e.preventDefault();
         try {
             if (editingIndex !== null) {
-                await axios.post('https://localhost:7074/api/EmployeeMaster/UpdateEmployee', employee);
+                await axios.post('https://localhost:44307/api/EmployeeMaster/UpdateEmployee', employee);
             } else {
-                await axios.post('https://localhost:7074/api/EmployeeMaster/InsertEmployee', employee);
+                await axios.post('https://localhost:44307/api/EmployeeMaster/InsertEmployee', employee);
             }
             fetchEmployees();
             handleClose();

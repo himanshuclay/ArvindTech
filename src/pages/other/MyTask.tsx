@@ -46,6 +46,7 @@ const TaskFormPage = () => {
         taskName: string;
         taskJson: any; // Adjust this type according to the structure of your JSON
         taskNumber: string;
+        finishPoint: any;
     }
 
     const [tasks, setTasks] = useState<Task[]>([]);
@@ -362,7 +363,7 @@ const TaskFormPage = () => {
 
     const fetchTasks = async (moduleId: string, processId: string) => {
         try {
-            const response = await axios.get('https://localhost:5078/api/AccountModule/GetAccountProcessTaskByIds', {
+            const response = await axios.get('https://localhost:44382/api/AccountModule/GetAccountProcessTaskByIds', {
                 params: { ModuleId: moduleId, ProcessId: processId },
             });
 
@@ -371,7 +372,9 @@ const TaskFormPage = () => {
                     taskName: task.processName,
                     taskJson: JSON.parse(task.task_Json),
                     taskNumber: task.task_Number,
+                    finishPoint: task.finishPoint,
                 }));
+                console.log(data)
                 setTasks(data);
                 console.log(data);
             } else {
@@ -510,6 +513,7 @@ const TaskFormPage = () => {
             role: doers[taskNumber],
             task_Json: JSON.stringify(task.taskJson),
             task_Number: task.taskNumber,
+            finishPoint: task.finishPoint,
             createdBy: 'himanshu pant',
         };
         console.log(payload)
