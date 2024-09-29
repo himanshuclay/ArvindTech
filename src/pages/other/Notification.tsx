@@ -290,7 +290,7 @@ const ProjectAssignTable: React.FC = () => {
     const updatedDate = addDays(createdDateObj, daysToAdd);
 
     // Format the updated date to the desired format
-    return format(updatedDate, 'dd-MM-yyyy HH:mm:ss');
+    // return format(updatedDate, 'dd-MM-yyyy HH:mm:ss');
   };
 
 

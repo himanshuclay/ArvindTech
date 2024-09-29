@@ -43,6 +43,13 @@ interface Condition {
     taskType: string;
     daySelection: string;
 }
+
+interface MessData {
+    messID: string;
+    taskJson: any;
+    comments: string;
+  }
+  
 const DynamicForm: React.FC<DynamicFormProps> = ({ formData, taskNumber, doer, onDoerChange, data, show, setShow, parsedCondition, preData, selectedTasknumber , setLoading}) => {
     const [formState, setFormState] = useState<{ [key: string]: any }>({});
     const [summary, setSummary] = useState('');
@@ -92,7 +99,8 @@ const DynamicForm: React.FC<DynamicFormProps> = ({ formData, taskNumber, doer, o
     }, [formData]);
 
 
-    const projectNames = data[0].projectName // Replace this with the actual project name from your state
+    // const projectNames = data[0].projectName // Replace this with the actual project name from your state
+    const projectNames = 'PNC_KANPUR_LUCKNOW';
 
     console.log(projectNames)
 
@@ -120,27 +128,67 @@ const DynamicForm: React.FC<DynamicFormProps> = ({ formData, taskNumber, doer, o
 
     console.log(messList)
  
-
+    const localStorageKey = 'messFormData'; // Key for localStorage
 
 
     const [selectedCondition, setSelectedCondition] = useState<any[]>([]);
     const [currentStep, setCurrentStep] = useState(0); // Track the current step
 
+    useEffect(() => {
+        const savedData: MessData[] = JSON.parse(localStorage.getItem(localStorageKey)) || [];
+        const currentData = savedData.find((data) => data.messID === messList[currentStep].messID) || {};
+        setFormState(currentData.taskJson || {});
+        setSummary(currentData.comments || '');
+      }, [currentStep, messList]);
+    
 
-    const localStorageKey = 'messFormData'; // Key for localStorage
+  
 
-    const handleNextStep = () => {
+    const saveDataToLocalStorage = () => {
+        const savedData = JSON.parse(localStorage.getItem(localStorageKey)) || [];
+        const updatedData = [...savedData];
+        const currentmessID = messList[currentStep].messID;
+    
+        // Check if current messID exists in savedData, and update it
+        const existingIndex = updatedData.findIndex((data) => data.messID === currentmessID);
+        if (existingIndex >= 0) {
+          updatedData[existingIndex] = {
+            messID: currentmessID,
+            taskJson: formState,
+            comments: summary,
+          };
+        } else {
+          // Add new entry if not exists
+          updatedData.push({
+            messID: currentmessID,
+            taskJson: formState,
+            comments: summary,
+          });
+        }
+    
+        // Save back to localStorage
+        localStorage.setItem(localStorageKey, JSON.stringify(updatedData));
+      };
+    
+
+      const handleNextStep = () => {
+        saveDataToLocalStorage(); // Save current data before moving to next step
         if (currentStep < messList.length - 1) {
-            setCurrentStep(prevStep => prevStep + 1);  // Move to next step
+          setCurrentStep(currentStep + 1);
         }
-    };
-
-    const handlePrevStep = () => {
-        saveDataToLocalStorage();
+      };
+    
+      // Function to handle "Previous" button click
+      const handlePrevStep = () => {
+        saveDataToLocalStorage(); // Save current data before moving to previous step
         if (currentStep > 0) {
-            setCurrentStep(prevStep => prevStep - 1);  // Move to previous step
+          setCurrentStep(currentStep - 1);
         }
-    };
+      };
+
+   
+
+  
 
     // Handle change in input values
     const handleChange = (inputId: string, value: string | boolean | string[]) => {
@@ -239,9 +287,13 @@ const DynamicForm: React.FC<DynamicFormProps> = ({ formData, taskNumber, doer, o
     };
 
 
+   
 
     const handleSubmit = async (event: React.FormEvent, taskNumber: string) => {
         event.preventDefault();
+        saveDataToLocalStorage();
+        const finalData = JSON.parse(localStorage.getItem(localStorageKey)) || [];
+    console.log('Final Submitted Data:', finalData);
         const role = localStorage.getItem('EmpId') || '';
         const taskData = data.find(task => task.task_Number === taskNumber);
 
@@ -335,40 +387,7 @@ console.log(data)
     };
 
 
-    useEffect(() => {
-        const savedData = JSON.parse(localStorage.getItem(localStorageKey)) || [];
-        const currentData = savedData.find((data) => data.messid === messList[currentStep].messID) || {};
-        setFormState(currentData.taskJson || {});
-        setSummary(currentData.comments || '');
-      }, [currentStep, messList]);
-    
-
-      const saveDataToLocalStorage = () => {
-        const savedData = JSON.parse(localStorage.getItem(localStorageKey)) || [];
-        const updatedData = [...savedData];
-        const currentMessId = messList[currentStep].messID;
-    
-        // Check if current messId exists in savedData, and update it
-        const existingIndex = updatedData.findIndex((data) => data.messid === currentMessId);
-        if (existingIndex >= 0) {
-          updatedData[existingIndex] = {
-            messid: currentMessId,
-            taskJson: formState,
-            comments: summary,
-          };
-        } else {
-          // Add new entry if not exists
-          updatedData.push({
-            messid: currentMessId,
-            taskJson: formState,
-            comments: summary,
-          });
-        }
-    
-        // Save back to localStorage
-        localStorage.setItem(localStorageKey, JSON.stringify(updatedData));
-      };
-    
+  
 
     return (
         <>
