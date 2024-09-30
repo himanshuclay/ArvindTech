@@ -158,7 +158,7 @@ const getFilteredMenuItems = () => {
         {
           key: 'ActiveTasks',
           label: 'Template Lists',
-          url: '/pages/FilterTasks',
+          url: '/pages/invoice',
           icon: 'ri-slideshow-line',
           parentKey: 'GetTestData',
         },

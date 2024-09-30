@@ -1016,6 +1016,25 @@ const App: React.FC = () => {
                   ))}
               </Form.Control>
             </Form.Group>
+            {/* <Form.Group className="col-6 my-1">
+              <Form.Label>Select Template</Form.Label>
+              <Form.Control
+                as="select"
+                name="finishID"  // Changed from processID to finishID
+                value=  // Updated to finishID
+                onChange=
+                required
+              >
+                <option value="">Select Field</option>
+                {taskFields
+                  .filter(field => !['99', '100', '102', '103'].includes(field.inputId))
+                  .map((field) => (
+                    <option key={field.inputId} value={field.inputId}>
+                      {field.labeltext}
+                    </option>
+                  ))}
+              </Form.Control>
+            </Form.Group> */}
           </div>
         </DragDropContext>
         <div className="d-flex justify-content-end p-2 col-12">

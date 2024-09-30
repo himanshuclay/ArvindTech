@@ -368,3 +368,75 @@
 .pop-card{
   box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px !important;
 }
+
+
+
+.vertical-stepper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.step {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background-color: #e9ecef;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 14px;
+  font-weight: bold;
+  color: white;
+  padding: 5px 12px;
+}
+
+.step.completed {
+  background-color: #28a745; 
+  color: white;
+}
+
+
+.step.completed:last-of-type {
+  background-color: #007bff;
+}
+
+
+// .step-line {
+//   width: 5px;
+//   height: 50px;
+//   background-color: #e9ecef; / Default inactive color /
+// }
+
+.step-line.completed-line {
+  background-color: #28a745;
+}
+
+.stepper-container {
+  width: 80px;
+}
+.stepper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-right: 15px;
+}
+
+.step {
+  position: relative;
+}
+
+.step-line {
+  position: absolute;
+  left: 156%;
+  top: 41%;
+  width: 103%;
+  height: 3px;
+  background-color: green;
+  transform: translateX(-50%);
+}
+
+.step.completed .step-line {
+  background-color: green; 
+}
+

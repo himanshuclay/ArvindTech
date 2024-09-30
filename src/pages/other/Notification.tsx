@@ -1,9 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { Button, Table, Collapse, Offcanvas, Container, Row, Col, Alert } from 'react-bootstrap'; // Assuming DynamicForm is in the same directory
+import { Button, Table, Collapse, Offcanvas, Container, Row, Col, Alert, Modal } from 'react-bootstrap'; // Assuming DynamicForm is in the same directory
 import { FileUploader } from '@/components/FileUploader'
 import { useNavigate } from 'react-router-dom';
 import { format, addDays, parse } from 'date-fns';
+import config from '../../config';
+import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
+
+
 
 interface ProjectAssignListWithDoer {
   id: number;
@@ -53,7 +57,11 @@ interface FilteredTask {
     value: string;
   }[];
 }
-
+interface Column {
+  id: string;
+  label: string;
+  visible: boolean;
+}
 const ProjectAssignTable: React.FC = () => {
   const [data, setData] = useState<ProjectAssignListWithDoer[]>([]);
   const [preData, setPreData] = useState<FilteredTask[]>([]);
@@ -64,13 +72,39 @@ const ProjectAssignTable: React.FC = () => {
   const [selectedTasknumber, setSelectedTasknumber] = useState<string>('');
   // const [formState, setFormState] = useState<any>({});
   const [show, setShow] = useState(false);
+
+
+
+  // both are required to make dragable column of table 
+  const [columns, setColumns] = useState<Column[]>([
+    { id: 'moduleName', label: 'Module Name', visible: true },
+    { id: 'processName', label: 'Process Name', visible: true },
+    { id: 'projectName', label: 'Project Name', visible: true },
+    { id: 'roleName', label: 'Role Name', visible: true },
+    { id: 'task_Number', label: 'Task Number', visible: true },
+    { id: 'taskType', label: 'Task Type', visible: true },
+    { id: 'plannedDate', label: 'Planned Date', visible: true },
+    { id: 'createdDate', label: 'Created Date', visible: true },
+
+  ]);
+
+  const handleOnDragEnd = (result: any) => {
+    if (!result.destination) return;
+    const reorderedColumns = Array.from(columns);
+    const [movedColumn] = reorderedColumns.splice(result.source.index, 1);
+    reorderedColumns.splice(result.destination.index, 0, movedColumn);
+    setColumns(reorderedColumns);
+  };
+  // ==============================================================
+
+
   const navigate = useNavigate()
   useEffect(() => {
     const fetchData = async () => {
       try {
         const role = localStorage.getItem('EmpId') || '';
         const response = await axios.get<ApiResponse>(
-          `https://localhost:44382/api/ProcessInitiation/GetFilterTask?Flag=1&DoerId=${role}`
+          `${config.API_URL_ACCOUNT}/ProcessInitiation/GetFilterTask?Flag=1&DoerId=${role}`
         );
 
         if (response.data && response.data.isSuccess) {
@@ -151,7 +185,7 @@ const ProjectAssignTable: React.FC = () => {
         // const taskCommonId = 
 
         const response = await axios.get<ApiResponse>(
-          `https://localhost:44382/api/ProcessInitiation/GetFilterTask?TaskCommonId=${taskCommonId}&Flag=${flag}`
+          `${config.API_URL_ACCOUNT}/ProcessInitiation/GetFilterTask?TaskCommonId=${taskCommonId}&Flag=${flag}`
         );
 
         if (response.data && response.data.isSuccess) {
@@ -256,7 +290,7 @@ const ProjectAssignTable: React.FC = () => {
     useEffect(() => {
       const fetchMessManagers = async () => {
         try {
-          const response = await axios.get('https://localhost:44307/api/CommonDropdown/GetMessManagerNameListWithId');
+          const response = await axios.get(`${config.API_URL_APPLICATION}/CommonDropdown/GetMessManagerNameListWithId`);
           const data = response.data.messManagerNameLists;
 
           // Map the response data to the format required for the Select component
@@ -294,7 +328,7 @@ const ProjectAssignTable: React.FC = () => {
     useEffect(() => {
       const fetchMessData = async () => {
         try {
-          const response = await axios.get(`https://localhost:44307/api/CommonDropdown/GetMessandManagerListByProjectName?ProjectName=${projectNames}`);
+          const response = await axios.get(`${config.API_URL_APPLICATION}/CommonDropdown/GetMessandManagerListByProjectName?ProjectName=${projectNames}`);
           if (response.data.isSuccess) {
             setMessList(response.data.messProjectListResponses);
           } else {
@@ -323,6 +357,37 @@ const ProjectAssignTable: React.FC = () => {
 
 
     const [selectedCondition, setSelectedCondition] = useState<any[]>([]);
+    const [currentStep, setCurrentStep] = useState(0); // Track the current step
+
+    // const handleNextStep = () => {
+    //   if (currentStep < messList.length - 1) {
+    //     setCurrentStep(prevStep => prevStep + 1);  // Move to next step
+    //   }
+    // };
+    const handleNextStep = () => {
+      if (currentStep < messList.length) {
+        // Save data for the current mess before moving to the next step
+        const currentMessId = messList[currentStep].messID;
+        const currentData = {
+          messId: currentMessId,
+          inputs: formState,
+          summary: summary,
+        };
+        // You can save `currentData` to your backend or state management here
+  
+        // Move to the next step
+        setCurrentStep(prevStep => prevStep + 1);
+        // Reset formState for the next mess
+        setFormState({});
+        setSummary('');
+      }
+    };
+
+    const handlePrevStep = () => {
+      if (currentStep > 0) {
+        setCurrentStep(prevStep => prevStep - 1);  // Move to previous step
+      }
+    };
 
     // Handle change in input values
     const handleChange = (inputId: string, value: string | boolean | string[]) => {
@@ -344,11 +409,11 @@ const ProjectAssignTable: React.FC = () => {
           updatedValue = selectedOption.id;  // Use option ID for internal use
           selectedLabel = selectedOption.label;
           const selectedConditionFromParsed = parsedCondition[0].find((condition: Condition) => condition.optionId === updatedValue);
-      
-      // Update the state with the selected condition
-      if (selectedConditionFromParsed) {
-        setSelectedCondition([selectedConditionFromParsed]); // Store selected condition in state
-      }
+
+          // Update the state with the selected condition
+          if (selectedConditionFromParsed) {
+            setSelectedCondition([selectedConditionFromParsed]); // Store selected condition in state
+          }
           // Capture label for display
         }
         if (selectedOption?.id === '11-1') {
@@ -421,58 +486,76 @@ const ProjectAssignTable: React.FC = () => {
     };
 
 
-
     const handleSubmit = async (event: React.FormEvent, taskNumber: string) => {
       event.preventDefault();
-      const role = localStorage.getItem('EmpId') || '';
-      const taskData = data.find(task => task.task_Number === taskNumber);
-
-      // Prepare the data to be posted
-      const taskCommonId = localStorage.getItem('taskCommonId') || 0;  // Retrieve from localStorage or set to 0 if not found
-
-      const conditionToSend = selectedCondition.length > 0 ? selectedCondition : parsedCondition[0];
-
+    
+      const role = localStorage.getItem('EmpId') || ''; // Fetch role (EmpId) from localStorage
+      const taskData = data.find(task => task.task_Number === taskNumber); // Find the task using taskNumber
+    
+      // Ensure taskData exists
+      if (!taskData) {
+        console.error("Task not found.");
+        return;
+      }
+    
+      const taskCommonId = localStorage.getItem('taskCommonId') || 0; // Retrieve taskCommonId or set default
+      const conditionToSend = selectedCondition.length > 0 ? selectedCondition : parsedCondition[0]; // Use selected or fallback condition
+    
+      // Construct the taskJson for multiple messes using the fetched messList
+      const taskJsonArray = messList.map(mess => ({
+        messId: mess.messID, // Use the actual key for the mess ID
+        taskJson: taskJson,  // Use the taskJson variable you have
+      }));
+    
+      // Convert the taskJsonArray to a string
+      const taskJsonString = JSON.stringify(taskJsonArray); // Convert array to JSON string
+    
+      // Prepare the request payload
       const requestData = {
-        id: taskData?.id || 0,
-        doerID: role || '',
-        task_Json: taskJson,  // Use the updated taskJson state
-        isExpired: 0,
-        isCompleted: formState['Pending'] || 'Completed',
-        task_Number: taskNumber,
-        summary: formState['summary'] || 'Task Summary',  // Ensure summary is from formState
-        condition_Json: JSON.stringify(conditionToSend),  // Assuming parsedCondition is defined
-        taskCommonId: taskCommonId,  // Use the taskCommonId fetched from localStorage or state
-        updatedBy: role
+        id: taskData.id || 0,  // Set task ID or default to 0
+        doerID: role,  // Role fetched from localStorage
+        task_Json: taskJsonString,  // Use the JSON string instead of array
+        isExpired: 0,  // Assume not expired (can be modified)
+        isCompleted:  'Pending', // Set completion status from formState
+        task_Number: taskNumber,  // Task number from props or state
+        summary: formState['summary'] || 'Task Summary',  // Get summary from formState
+        condition_Json: JSON.stringify(conditionToSend),  // Stringify the selected condition
+        taskCommonId: taskCommonId,  // Retrieved from localStorage
+        updatedBy: role  // Set updatedBy to role/empId
       };
-
-      console.log(requestData);
-
-      setLoading(true);  // Show loader when the request is initiated
-
+    
+      console.log('Submitting task with data:', requestData);
+    
+      setLoading(true);  // Show loader during async operation
+    
       try {
         const response = await fetch('https://localhost:44382/api/ProcessInitiation/UpdateDoerTask', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify(requestData),
+          body: JSON.stringify(requestData),  // Stringify the request payload
         });
-
+    
+        // Check if the response is ok
         if (response.ok) {
           const responseData = await response.json();
-          navigate('/pages/completedTask', { state: { showToast: true, taskName: data[0].task_Number } });
           console.log('Task updated successfully:', responseData);
+    
+          // Redirect to completedTask page with task details and success toast
+          navigate('/pages/completedTask', { state: { showToast: true, taskName: taskData.task_Number } });
         } else {
           console.error('Failed to update the task:', response.statusText);
         }
       } catch (error) {
         console.error('Error occurred while updating task:', error);
       } finally {
-        setLoading(false);  // Hide loader when the request completes (success or error)
+        setLoading(false);  // Always hide loader after request is finished
       }
     };
+    
 
-    const [formStateByMess, setFormStateByMess] = useState<{ [messId: string]: { [inputId: string]: any } }>({});
+
 
     // Function to re-evaluate conditions for showing/hiding fields
     const reEvaluateConditions = (newState: { [key: string]: any }) => {
@@ -496,36 +579,33 @@ const ProjectAssignTable: React.FC = () => {
       setFormState(updatedState);
     };
 
-    const shouldDisplayInput = (messId: string, input: Input): boolean => {
+    const shouldDisplayInput = (input: Input): boolean => {
       if (!input.conditionalFieldId) return true;
-    
+
       const conditionValue = input.conditionalFieldId;
-    
-      // Handle specific condition case
       if (conditionValue === 'someid') return true;
-    
-      // Loop through other inputs in formData
+
       for (const otherInput of formData.inputs) {
         if (otherInput.inputId === conditionValue) {
-          // Check form state for the specific messId
-          return formStateByMess[messId]?.[otherInput.inputId] !== '';
+          return formState[otherInput.inputId] !== '';
+
         }
-    
+        // console.log(otherInput)
         if (otherInput.options && otherInput.options.some(option => option.id === conditionValue)) {
-          // Check form state for the specific messId and condition
-          return formStateByMess[messId]?.[otherInput.inputId] === conditionValue;
+          return formState[otherInput.inputId] === conditionValue;
         }
       }
-    
+
       return false;
     };
 
+
     return (
       <>
-        <Offcanvas className="p-3" show={show} placement="end" onHide={handleClose} >
-          <Offcanvas.Header closeButton className='p-0 mb-2'>
-            <Offcanvas.Title>Task Details</Offcanvas.Title>
-          </Offcanvas.Header>
+        <Modal className="p-3" show={show} placement="end" onHide={handleClose} >
+          <Modal.Header closeButton className=' '>
+            <Modal.Title className='text-dark'>Task Details</Modal.Title>
+          </Modal.Header>
 
 
           {messList.map((mess, index) => (
@@ -552,17 +632,20 @@ const ProjectAssignTable: React.FC = () => {
           {/* {/ <form onSubmit={handleSubmit}> /} */}
           <form className='side-scroll' onSubmit={(event) => handleSubmit(event, taskNumber)}>
             {/* <Accordion.Item eventKey={taskNumber}> */}
-            <div className='d-flex flex-column mt-2'>
+            <div className='d-flex flex-column mt-2 py-1 px-3'>
               <div className='fs-6 mb-1 fw-bolder col-12'>Task Name</div>
               <div className='col-12 fs-5 text-primary'>{formData.inputs.find((input: { inputId: string; label: string }) => input.inputId === "99")?.label}</div>
             </div>
-            <Offcanvas.Body className='p-0 mt-3'>
-              {messList.map((mess, index) => (
+            {/* <Offcanvas.Body className='p-0 mt-3'> */}
+
+
+
+            {/* {messList.map((mess, index) => (
                 <React.Fragment key={mess.messID}>
                   <h5>Please Update data for <span className='text-primary'>{mess.messName}</span></h5>
                   <div className="my-task">
                     {formData.inputs.map((input: Input) => (
-                      shouldDisplayInput(mess.messID, input) && (
+                      shouldDisplayInput(input) && (
                         <div className='form-group' key={input.inputId} style={{ marginBottom: '1rem' }}>
                           <label className='label'>{input.label}</label>
                           {input.type === 'text' && (
@@ -632,12 +715,7 @@ const ProjectAssignTable: React.FC = () => {
                             </select>
                           )}
                           {input.type === 'file' && (
-                            // <input
-                            //     type="file"
-                            //     placeholder={'file'}
-                            //     onChange={e => handleChange(input.fileId, e.target.value)}
-                            //     style={{ display: 'block', width: '100%', padding: '0.5rem' }}
-                            // />
+                          
                             <FileUploader
                               icon="ri-upload-cloud-2-line"
                               text="Drop files here or click to upload."
@@ -646,11 +724,7 @@ const ProjectAssignTable: React.FC = () => {
                           )}
 
                           {input.type === 'checkbox' && (
-                            // <input
-
-                            //     className='form-control'
-
-                            // />
+                         
                             <span className="form-check">
                               <input className="form-check-input" type="checkbox"
                                 checked={formState[input.inputId]}
@@ -699,9 +773,9 @@ const ProjectAssignTable: React.FC = () => {
                           value={selectedManager} // Bound to selectedManager state
                           onChange={handleSelectMessImpChange} // Updates state on change
                         >
-                          {/* Set default value */}
+                         
                           <option value="Avisineni Pavan Kumar_LLP05337">Avisineni Pavan Kumar_LLP05337</option>
-                          {/* Map the rest of the options */}
+                        
                           {messManagers.map((manager) => (
                             <option key={manager.value} value={manager.value}>
                               {manager.label}
@@ -713,8 +787,11 @@ const ProjectAssignTable: React.FC = () => {
                   </div>
                 </React.Fragment>
 
-              ))}
-              <div className="form-group">
+              ))} */}
+
+
+
+            {/* <div className="form-group">
                 <label htmlFor="taskSummary">Comments</label>
                 <input
                   type="text"
@@ -729,16 +806,229 @@ const ProjectAssignTable: React.FC = () => {
                 <button className='btn btn-primary' type="submit" style={{ padding: '0.5rem 1rem' }}>
                   Submit
                 </button>
+              </div> */}
+
+            {/* </Offcanvas.Body> */}
+
+            <Modal.Body className=" p-4">
+              {/* Stepper on the Left */}
+              <div className="stepper-vertical" style={{
+                width: '100%',
+                paddingRight: '10px',
+                position: 'relative',
+                display:'flex',
+                justifyContent:'space-between',
+                marginBottom:'20px'
+
+              }}>
+                {messList.map((mess, index) => {
+                  let stepClass = 'step';
+
+                  if (index < currentStep) {
+                    stepClass += ' completed'; // Add class for completed steps
+                  } else if (index === currentStep) {
+                    stepClass += ' active'; // Add class for the current active step
+                  }
+
+                  return (
+                    <div
+                      key={mess.messID}
+                      className={stepClass}
+                      onClick={() => setCurrentStep(index)}
+                      style={{
+                        cursor: 'pointer',
+                        padding: '10px 0',
+                        margin: '0 0 5px 0',
+                        background: index < currentStep ? 'green' : index === currentStep ? 'green' : '#e1e1e1', // Change color based on step status
+                        color: "#fff", // Change text color for readability
+                        borderRadius: '50%', // Optional: Add rounded corners
+                        position: 'relative',
+                      }}
+                    >
+                      {index + 1}
+
+                      {/* Render the connecting line only if it's not the last step */}
+                      {index < messList.length - 1 && (
+                        <div
+                          className={`step-line ${index < currentStep ? 'completed' : ''}`}
+                          style={{
+                            backgroundColor: index < currentStep ? 'green' : '#e1e1e1',
+                          }}
+                        />
+                      )}
+                    </div>
+                  );
+                })}
               </div>
 
-            </Offcanvas.Body>
+
+
+              {/* Form on the Right */}
+              <div className="form-section" style={{ width: '90%', paddingLeft: '20px' }}>
+                {messList.map((mess, index) => (
+                  currentStep === index && (
+                    <div key={mess.messID}>
+                      <h5>Please Update data for <span className='text-primary'>{mess.messName}</span></h5>
+                      <div className="my-task">
+                        {formData.inputs.map((input) => (
+                          shouldDisplayInput(input) && (
+                            <div className='form-group' key={input.inputId} style={{ marginBottom: '1rem' }}>
+                              <label className='label'>{input.label}</label>
+                              {input.type === 'text' && (
+                                <input
+                                  type="text"
+                                  className='form-control'
+                                  placeholder={input.placeholder}
+                                  value={formState[input.inputId] || ''}
+                                  onChange={e => handleChange(input.inputId, e.target.value)}
+                                />
+                              )}
+                              {input.type === 'custom' && (
+                                <input
+                                  type="text"
+                                  placeholder={input.placeholder}
+                                  value={formState[input.inputId] || ''}
+                                  onChange={e => handleChange(input.inputId, e.target.value)}
+                                  style={{ display: 'block', width: '100%', padding: '0.5rem' }}
+                                />
+                              )}
+                              {input.type === 'select' && (
+                                <select
+                                  id={input.inputId}
+                                  className='form-select form-control'
+                                  value={formState[input.inputId] || ''}
+                                  onChange={e => handleChange(input.inputId, e.target.value)}
+                                  style={{ display: 'block', width: '100%', padding: '0.5rem' }}
+                                >
+                                  <option value="" disabled>Select an option</option>
+                                  {input.options?.map(option => (
+                                    <option key={option.id} value={option.label}>
+                                      {option.label}
+                                    </option>
+                                  ))}
+                                </select>
+                              )}
+                              {input.type === 'multiselect' && (
+                                <select
+                                  className='form-select form-control'
+                                  value={formState[input.inputId] || ''}
+                                  onChange={e => handleChange(input.inputId, e.target.value)}
+                                  style={{ display: 'block', width: '100%', padding: '0.5rem' }}
+                                >
+                                  <option value="" disabled>Select an option</option>
+                                  {input.options?.map(option => (
+                                    <option key={option.id} value={option.label}>
+                                      {option.label}
+                                    </option>
+                                  ))}
+                                </select>
+                              )}
+                              {input.type === 'file' && (
+                                <FileUploader
+                                  icon="ri-upload-cloud-2-line"
+                                  text="Drop files here or click to upload."
+                                />
+                              )}
+                              {input.type === 'checkbox' && (
+                                <span className="form-check">
+                                  <input className="form-check-input" type="checkbox"
+                                    checked={formState[input.inputId] || false}
+                                    onChange={e => handleChange(input.inputId, e.target.checked)} />
+                                </span>
+                              )}
+                              {input.type === 'date' && (
+                                <input
+                                  type="date"
+                                  value={formState[input.inputId] || ''}
+                                  onChange={e => handleChange(input.inputId, e.target.value)}
+                                  style={{ display: 'block', width: '100%', padding: '0.5rem' }}
+                                />
+                              )}
+                            </div>
+                          )
+                        ))}
+                      </div>
+                      <div className="form-group mb-2">
+                        <label htmlFor="taskSummary">Comments</label>
+                        <input
+                          type="text"
+                          className='form-control'
+                          id="taskSummary"
+                          value={summary}  // Bind the input to the state
+                          onChange={(e) => setSummary(e.target.value)}  // Update the state on input change
+                          style={{ display: 'block', width: '100%', padding: '0.5rem' }}
+                        />
+                      </div>
+                    </div>
+                  )
+                ))}
+
+                {/* Navigation Buttons */}
+                <div className="d-flex justify-content-between">
+                  {currentStep <= messList.length - 1 && (
+                    <button
+                      type="button"  // Add this to prevent form submission
+                      className="btn btn-secondary"
+                      onClick={handlePrevStep}
+                      disabled={currentStep === 0}
+                    >
+                      Previous
+                    </button>
+                  )}
+                  {/* Conditional rendering of Next or Submit button */}
+                  {currentStep < messList.length - 1 && (
+                    <button
+                      type="button"  // Add this to prevent form submission
+                      className="btn btn-primary"
+                      onClick={handleNextStep}
+                    // disabled={currentStep === messList.length - 1}
+                    >
+                      Next
+                    </button>
+                  )}
+
+                  {currentStep === messList.length - 1 && (
+                    <button
+                      type="submit"  // This button will submit the form
+                      className="btn btn-success"
+                    >
+                      Submit
+                    </button>
+                  )}
+
+
+                  {/* : (
+                    <button
+                      type="submit"  // This button will submit the form
+                      className="btn btn-success"
+                    >
+                      Submit
+                    </button>
+                  )}
+
+
+                  {step < 4 && (
+                    <Button variant="primary" onClick={handleNext}>
+                      Next
+                    </Button>
+                  )}
+                  {step === 4 && (
+                    <Button variant="success" type="submit">
+                      Submit
+                    </Button>
+                  )} */}
+                </div>
+              </div>
+            </Modal.Body>
 
             {/* </Accordion.Item> */}
 
 
           </form>
           {/* </Accordion> */}
-        </Offcanvas>
+        </Modal>
+
+        
       </>
     );
   };
@@ -786,8 +1076,8 @@ const ProjectAssignTable: React.FC = () => {
   return (
 
     <>
-      <div>
-        <div className="d-flex p-2 bg-white mt-2 mb-2 rounded shadow"><h5 className='mb-0'>Pending Task</h5></div>
+      <div className="d-flex p-2 bg-white mt-2 mb-2 rounded shadow"><h5 className='mb-0'>Pending Task</h5></div>
+      <div className='overflow-auto'>
         {data.length === 0 ? (
           <Container className="mt-5">
             <Row className="justify-content-center">
@@ -800,14 +1090,15 @@ const ProjectAssignTable: React.FC = () => {
             </Row>
           </Container>
         ) : (
-          <Table className='bg-white' striped bordered hover>
+
+          <>
+
+
+            {/* <Table className='bg-white' striped bordered hover>
             <thead>
               <tr>
-                {/* {/ <th>ID</th> /} */}
-                {/* <th>Module ID</th> */}
                 <th>Sr.no </th>
                 <th>Module </th>
-                {/* <th>Process ID</th> */}
                 <th>Process </th>
                 <th>Project </th>
                 <th>Assigned Role</th>
@@ -816,7 +1107,6 @@ const ProjectAssignTable: React.FC = () => {
                 <th>Planned Date</th>
                 <th>Initation Date</th>
                 <th>Actions</th>
-                {/* <th>CondtionJson</th> */}
               </tr>
             </thead>
             <tbody>
@@ -828,10 +1118,7 @@ const ProjectAssignTable: React.FC = () => {
                     }}
                   >
                     <td>{index + 1}</td>
-                    {/* {/ <td>{item.id}</td> /} */}
-                    {/* <td>{item.moduleID}</td> */}
                     <td>{item.moduleName}</td>
-                    {/* <td>{item.processID}</td> */}
                     <td>{item.processName}</td>
                     <td>{item.projectName}</td>
                     <td>{item.roleName}</td>
@@ -844,11 +1131,7 @@ const ProjectAssignTable: React.FC = () => {
                         Show
                       </Button>
                     </td>
-                    {/* <td>
-                      <Button onClick={() => toggleExpandRow(item.id)}>
-                        {expandedRow === item.id ? 'Hide' : 'Show'}
-                      </Button>
-                    </td> */}
+
                   </tr>
                   <tr>
                     <td colSpan={10}>
@@ -859,7 +1142,6 @@ const ProjectAssignTable: React.FC = () => {
                             taskNumber={item.task_Number}
                             doer={null} // Replace with actual doer if available
                             onDoerChange={handleDoerChange}
-                          // Add other props as needed
                           />
                         </div>
                       </Collapse>
@@ -868,7 +1150,105 @@ const ProjectAssignTable: React.FC = () => {
                 </React.Fragment>
               ))}
             </tbody>
-          </Table>
+          </Table> */}
+            <DragDropContext onDragEnd={handleOnDragEnd}>
+              <Table hover className='bg-white '>
+                <thead>
+                  <Droppable droppableId="columns" direction="horizontal">
+                    {(provided) => (
+                      <tr {...provided.droppableProps} ref={provided.innerRef} className='text-nowrap'>
+                        <th><i className="ri-list-ordered-2"></i>  Sr. No</th>
+                        {columns.filter(col => col.visible).map((column, index) => (
+                          <Draggable key={column.id} draggableId={column.id} index={index}>
+                            {(provided) => (
+                              <th ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps}>
+                                {column.id === 'processName' && (<i className="ri-map-2-line"></i>)}
+                                {column.id === 'projectName' && (<i className="ri-building-line"></i>)}
+                                {column.id === 'task_Number' && (<i className="ri-health-book-line"></i>)}
+                                {column.id === 'roleName' && (<i className="ri-shield-user-line"></i>)}
+                                {column.id === 'taskType' && (<i className="ri-bookmark-line"></i>)}
+                                {column.id === 'taskTime' && (<i className="ri-calendar-line"></i>)}
+                                {column.id === 'createdDate' && (<i className="ri-hourglass-line"></i>)}
+                                {column.id === 'completedDate' && (<i className="ri-focus-3-line"></i>)}
+                                {column.id === 'moduleName' && (<i className="ri-box-3-line"></i>)}
+
+
+                                &nbsp; {column.label}
+                              </th>
+                            )}
+                          </Draggable>
+                        ))}
+                        {provided.placeholder}
+                        <th>Action</th>
+                      </tr>
+                    )}
+                  </Droppable>
+                </thead>
+                <tbody>
+
+                  {data.length > 0 ? (
+                    data.slice(0, 10).map((item, index) => (
+                      <tr key={item.id}>
+                        {/* Render the index for pagination (currentPage - 1) * pageSize + index + 1 */}
+                        <td>{index + 1}</td>
+                        {/* Dynamically render visible columns */}
+                        {columns.filter(col => col.visible).map((col) => (
+                          <td key={col.id}
+
+                            className={
+                              // Add class based on column id
+                              col.id === 'processName' ? 'fw-bold fs-14 text-dark text-nowrap' :
+                                col.id === 'task_Number' ? 'fw-bold fs-13 text-dark text-nowrap task1' :
+                                  col.id === 'processOwnerName' ? 'fw-bold fs-13 text-dark text-nowrap' :
+                                    col.id === 'plannedDate' ? ' text-nowrap ' :
+                                      col.id === 'createdDate' ? ' text-nowrap ' :
+                                        // Add class based on value (e.g., expired tasks)
+                                        (col.id === 'moduleName' && item[col.id] === 'Accounts') ? 'text-nowrap task4' :
+                                          (col.id === 'moduleName' && item[col.id] === 'Accounts Checklist') ? 'text-nowrap task3' :
+                                            ''
+                            }
+                          >
+                            <div>
+                              {/* {col.id === 'inputValue' && (<i className="ri-edit-2-fill edit-icon"></i>)} */}
+
+                              {col.id === 'plannedDate' ? (
+                                <td>{formatAndUpdateDate(item.createdDate, item.taskTime)}</td>
+                              ) : (<>{item[col.id as keyof ProjectAssignListWithDoer]}</>
+                              )}
+
+                            </div>
+                          </td>
+
+                        ))}
+                        {/* Action Button */}
+                        <td>
+                          <Button onClick={handleShow}>
+                            Show
+                          </Button>
+                        </td>
+                        <td colSpan={10}>
+                          <Collapse in={expandedRow === item.id}>
+                            <div>
+                              <DynamicForm
+                                formData={JSON.parse(item.task_Json)}
+                                taskNumber={item.task_Number}
+                                doer={null} // Replace with actual doer if available
+                                onDoerChange={handleDoerChange}
+                              />
+                            </div>
+                          </Collapse>
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr><td colSpan={columns.length + 1}>No data available</td></tr>
+                  )}
+
+
+                </tbody>
+              </Table>
+            </DragDropContext>
+          </>
         )}
       </div>
     </>
