@@ -457,7 +457,7 @@ const AccountProcessTable: React.FC = () => {
                     console.log("Payload being sent:", payload);
         
                     try {
-                        const response = await axios.post('https://localhost:44382/api/ProcessTaskMaster/InsertUpdateProcessTaskandDoer', payload);
+                        const response = await axios.post('https://arvindo-api.clay.in/api/ProcessTaskMaster/InsertUpdateProcessTaskandDoer', payload);
                         console.log("Data successfully posted.");
                         setSelectedConditionTask("");
                         handleClose();
@@ -930,11 +930,11 @@ const AccountProcessTable: React.FC = () => {
                 let response;
                 if (selectedModule && selectedProcess) {
                     // API call when `selectedProcess` is present
-                    response = await axios.get(`https://localhost:44382/api/ProcessTaskMaster/GetProcessTaskByIds?Flag=2&ModuleId=ACC&ProcessId=${selectedProcess}`);
+                    response = await axios.get(`https://arvindo-api.clay.in/api/ProcessTaskMaster/GetProcessTaskByIds?Flag=2&ModuleId=ACC&ProcessId=${selectedProcess}`);
                 } else (selectedModule == "")
                 {
                     // API call when `selectedProcess` is not present
-                    response = await axios.get(`https://localhost:44382/api/ProcessTaskMaster/GetProcessTaskByIds?Flag=1`);
+                    response = await axios.get(`https://arvindo-api.clay.in/api/ProcessTaskMaster/GetProcessTaskByIds?Flag=1`);
                 }
 
                 if (response.data.isSuccess) {
@@ -957,7 +957,7 @@ const AccountProcessTable: React.FC = () => {
         if (selectedModule && selectedProcess) {
             const fetchTasks = async () => {
                 try {
-                    const response = await axios.get(`https://localhost:44382/api/ProcessTaskMaster/GetProcessTaskByIds?Flag=1&ModuleID=ACC&ProcessId=${selectedProcess}`);
+                    const response = await axios.get(`https://arvindo-api.clay.in/api/ProcessTaskMaster/GetProcessTaskByIds?Flag=1&ModuleID=ACC&ProcessId=${selectedProcess}`);
                     if (response.data.isSuccess) {
                         setTasks(response.data.getProcessTaskByIds);
 
@@ -1046,7 +1046,7 @@ const AccountProcessTable: React.FC = () => {
             // Now proceed with the API request
             const assignTask = async () => {
                 try {
-                    const response = await axios.post('https://localhost:44382/api/ProcessTaskMaster/InsertUpdateProcessTaskandDoer', payload);
+                    const response = await axios.post('https://arvindo-api.clay.in/api/ProcessTaskMaster/InsertUpdateProcessTaskandDoer', payload);
 
                     if (response.data.isSuccess) {
                         console.log('Task assigned successfully');
@@ -1083,7 +1083,7 @@ const AccountProcessTable: React.FC = () => {
             console.log(payload)
 
             try {
-                const response = await axios.post('https://localhost:44382/api/ProcessTaskMaster/ProcessAssignWithProject', payload);
+                const response = await axios.post('https://arvindo-api.clay.in/api/ProcessTaskMaster/ProcessAssignWithProject', payload);
                 if (response.data.isSuccess) {
                     console.log('Process assigned to project successfully');
                 } else {

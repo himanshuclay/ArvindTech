@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { Button, Row, Col, Modal } from 'react-bootstrap'; // Assuming DynamicForm is in the same directory
+import { Button, Row, Col, Modal, Offcanvas } from 'react-bootstrap'; // Assuming DynamicForm is in the same directory
 import { FileUploader } from '@/components/FileUploader'
 import config from '@/config';
 
@@ -23,16 +23,18 @@ interface Input {
 
 interface DynamicFormProps {
     formData: { inputs: Input[] };
+    singleDataById: { inputs: Input[] };
     taskNumber: string;
     doer: string | null;
     onDoerChange: (taskNumber: string, selectedOption: Option | null) => void;
     data: string;
     show: boolean;
     parsedCondition: string;
-    setShow: boolean;
+    setShow: any;
     preData: string;
     selectedTasknumber: string
-    setLoading:string
+    setLoading: string
+    taskCommonIDRow: string
 }
 
 interface Condition {
@@ -48,16 +50,80 @@ interface MessData {
     messID: string;
     taskJson: any;
     comments: string;
-  }
-  
-const DynamicForm: React.FC<DynamicFormProps> = ({ formData, taskNumber, doer, onDoerChange, data, show, setShow, parsedCondition, preData, selectedTasknumber , setLoading}) => {
+}
+
+const DynamicForm: React.FC<DynamicFormProps> = ({
+    formData,
+    taskNumber, doer, onDoerChange,
+    data, 
+    show,
+    setShow,
+    parsedCondition,
+    preData,
+    selectedTasknumber,
+    singleDataById,
+    taskCommonIDRow,
+    setLoading }) => {
     const [formState, setFormState] = useState<{ [key: string]: any }>({});
     const [summary, setSummary] = useState('');
-    const [taskJson, setTaskJson] = useState<string>(JSON.stringify(formData));
+    const [taskJson, setTaskJson] = useState<string>(JSON.stringify(singleDataById));
     const [messManagers, setMessManagers] = useState<{ value: string, label: string }[]>([]);
     const [selectedManager, setSelectedManager] = useState<string>("Avisineni Pavan Kumar_LLP05337"); // Initialize with default value
     const [showMessManagerSelect, setShowMessManagerSelect] = useState(false);
     const [messList, setMessList] = useState<{ messID: string; messName: string; managerEmpID: string; managerName: string }[]>([]);
+
+  const [selectedCondition, setSelectedCondition] = useState<any[]>([]);
+    const [currentStep, setCurrentStep] = useState(0); // Track the current step
+
+
+
+   
+
+
+
+    const saveDataToLocalStorage = () => {
+        const savedData = JSON.parse(localStorage.getItem(localStorageKey)) || [];
+        const updatedData = [...savedData];
+        const currentmessID = messList[currentStep].messID;
+
+        // Check if current messID exists in savedData, and update it
+        const existingIndex = updatedData.findIndex((data) => data.messID === currentmessID);
+        if (existingIndex >= 0) {
+            updatedData[existingIndex] = {
+                messID: currentmessID,
+                taskJson: formState,
+                comments: summary,
+            };
+        } else {
+            // Add new entry if not exists
+            updatedData.push({
+                messID: currentmessID,
+                taskJson: formState,
+                comments: summary,
+            });
+        }
+
+        // Save back to localStorage
+        localStorage.setItem(localStorageKey, JSON.stringify(updatedData));
+    };
+
+
+    const handleNextStep = () => {
+        saveDataToLocalStorage(); // Save current data before moving to next step
+        if (currentStep < messList.length - 1) {
+            setCurrentStep(currentStep + 1);
+        }
+    };
+
+    // Function to handle "Previous" button click
+    const handlePrevStep = () => {
+        saveDataToLocalStorage(); // Save current data before moving to previous step
+        if (currentStep > 0) {
+            setCurrentStep(currentStep - 1);
+        }
+    };
+
+
 
     useEffect(() => {
         const fetchMessManagers = async () => {
@@ -99,17 +165,22 @@ const DynamicForm: React.FC<DynamicFormProps> = ({ formData, taskNumber, doer, o
     }, [formData]);
 
 
-    // const projectNames = data[0].projectName // Replace this with the actual project name from your state
-    const projectNames = 'PNC_KANPUR_LUCKNOW';
+    // console.log(projectName)
 
-    console.log(projectNames)
 
+    const projectNames = 'PNC_GWALIOR';
+
+    // console.log(projectNames)
+
+  
     useEffect(() => {
         const fetchMessData = async () => {
             try {
                 const response = await axios.get(`${config.API_URL_APPLICATION}/CommonDropdown/GetMessandManagerListByProjectName?ProjectName=${projectNames}`);
                 if (response.data.isSuccess) {
-                    setMessList(response.data.messProjectListResponses);
+                    const fetchedMessList = response.data.messProjectListResponses; // Store fetched list
+                    setMessList(fetchedMessList);
+                    console.log("Fetched mess list:", fetchedMessList); // Log the fetched list directly
                 } else {
                     console.error('Failed to fetch mess data');
                 }
@@ -118,83 +189,26 @@ const DynamicForm: React.FC<DynamicFormProps> = ({ formData, taskNumber, doer, o
             }
         };
 
-        console.log("this is given data", parsedCondition)
-
         if (projectNames) {
             fetchMessData();
         }
     }, [projectNames]);
 
 
-    console.log(messList)
- 
     const localStorageKey = 'messFormData'; // Key for localStorage
 
 
-    const [selectedCondition, setSelectedCondition] = useState<any[]>([]);
-    const [currentStep, setCurrentStep] = useState(0); // Track the current step
-
-    useEffect(() => {
-        const savedData: MessData[] = JSON.parse(localStorage.getItem(localStorageKey)) || [];
-        const currentData = savedData.find((data) => data.messID === messList[currentStep].messID) || {};
-        setFormState(currentData.taskJson || {});
-        setSummary(currentData.comments || '');
-      }, [currentStep, messList]);
-    
-
   
 
-    const saveDataToLocalStorage = () => {
-        const savedData = JSON.parse(localStorage.getItem(localStorageKey)) || [];
-        const updatedData = [...savedData];
-        const currentmessID = messList[currentStep].messID;
-    
-        // Check if current messID exists in savedData, and update it
-        const existingIndex = updatedData.findIndex((data) => data.messID === currentmessID);
-        if (existingIndex >= 0) {
-          updatedData[existingIndex] = {
-            messID: currentmessID,
-            taskJson: formState,
-            comments: summary,
-          };
-        } else {
-          // Add new entry if not exists
-          updatedData.push({
-            messID: currentmessID,
-            taskJson: formState,
-            comments: summary,
-          });
-        }
-    
-        // Save back to localStorage
-        localStorage.setItem(localStorageKey, JSON.stringify(updatedData));
-      };
-    
 
-      const handleNextStep = () => {
-        saveDataToLocalStorage(); // Save current data before moving to next step
-        if (currentStep < messList.length - 1) {
-          setCurrentStep(currentStep + 1);
-        }
-      };
-    
-      // Function to handle "Previous" button click
-      const handlePrevStep = () => {
-        saveDataToLocalStorage(); // Save current data before moving to previous step
-        if (currentStep > 0) {
-          setCurrentStep(currentStep - 1);
-        }
-      };
 
-   
 
-  
 
     // Handle change in input values
     const handleChange = (inputId: string, value: string | boolean | string[]) => {
         // Find the input field in the formData
         const excludedInputIds = ['99', '100', '102', '103'];
-        const input = formData.inputs.find(input => input.inputId === inputId);
+        const input = singleDataById.inputs.find(input => input.inputId === inputId);
 
         let updatedValue = value;
         let selectedLabel: string | undefined;
@@ -270,8 +284,8 @@ const DynamicForm: React.FC<DynamicFormProps> = ({ formData, taskNumber, doer, o
             // Update taskJson only when inputId is not excluded
             if (!excludedInputIds.includes(inputId)) {
                 const updatedTaskJson = JSON.stringify({
-                    ...formData,
-                    inputs: formData.inputs.map(input => ({
+                    ...singleDataById,
+                    inputs: singleDataById.inputs.map(input => ({
                         ...input,
                         value: newState[input.inputId] || input.value,
                     })),
@@ -287,31 +301,32 @@ const DynamicForm: React.FC<DynamicFormProps> = ({ formData, taskNumber, doer, o
     };
 
 
-   
+
 
     const handleSubmit = async (event: React.FormEvent, taskNumber: string) => {
         event.preventDefault();
         saveDataToLocalStorage();
         const finalData = JSON.parse(localStorage.getItem(localStorageKey)) || [];
-    console.log('Final Submitted Data:', finalData);
+        localStorage.removeItem(localStorageKey);
+        console.log('Final Submitted Data:', finalData);
         const role = localStorage.getItem('EmpId') || '';
         const taskData = data.find(task => task.task_Number === taskNumber);
 
         // Prepare the data to be posted
-        const taskCommonId = localStorage.getItem('taskCommonId') || 0;  // Retrieve from localStorage or set to 0 if not found
+        // const taskCommonId = localStorage.getItem('taskCommonId') || 0;  // Retrieve from localStorage or set to 0 if not found
 
         const conditionToSend = selectedCondition.length > 0 ? selectedCondition : parsedCondition[0];
 
         const requestData = {
             id: taskData?.id || 0,
             doerID: role || '',
-            task_Json: taskJson,  // Use the updated taskJson state
+            task_Json: JSON.stringify(finalData),  // Use the updated taskJson state
             isExpired: 0,
             isCompleted: formState['Pending'] || 'Completed',
             task_Number: taskNumber,
             summary: formState['summary'] || 'Task Summary',  // Ensure summary is from formState
             condition_Json: JSON.stringify(conditionToSend),  // Assuming parsedCondition is defined
-            taskCommonId: taskCommonId,  // Use the taskCommonId fetched from localStorage or state
+            taskCommonId: taskCommonIDRow,  // Use the taskCommonId fetched from localStorage or state
             updatedBy: role
         };
 
@@ -320,7 +335,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({ formData, taskNumber, doer, o
         setLoading(true);  // Show loader when the request is initiated
 
         try {
-            const response = await fetch(`${config.API_URL_ACCOUNT}/ProcessInitiation/UpdateDoerTasks`, {
+            const response = await fetch(`${config.API_URL_ACCOUNT}/ProcessInitiation/UpdateDoerTask`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -342,13 +357,12 @@ const DynamicForm: React.FC<DynamicFormProps> = ({ formData, taskNumber, doer, o
         }
     };
 
-console.log(data)
 
     // Function to re-evaluate conditions for showing/hiding fields
     const reEvaluateConditions = (newState: { [key: string]: any }) => {
         const updatedState = { ...newState };
 
-        formData.inputs.forEach((input) => {
+        singleDataById.inputs.forEach((input) => {
             if (input.conditionalFieldId) {
                 const conditionValue = newState[input.conditionalFieldId];
                 const shouldDisplay = conditionValue === input.conditionalFieldId;
@@ -372,7 +386,7 @@ console.log(data)
         const conditionValue = input.conditionalFieldId;
         if (conditionValue === 'someid') return true;
 
-        for (const otherInput of formData.inputs) {
+        for (const otherInput of singleDataById.inputs) {
             if (otherInput.inputId === conditionValue) {
                 return formState[otherInput.inputId] !== '';
 
@@ -386,8 +400,16 @@ console.log(data)
         return false;
     };
 
+    // console.log(formData)
 
-  
+    
+    useEffect(() => {
+        const savedData: MessData[] = JSON.parse(localStorage.getItem(localStorageKey)) || [];
+        
+        const currentData = savedData.find((data) => data.messID === messList[currentStep].messID) || {};
+        setFormState(currentData.taskJson || {});
+        setSummary(currentData.comments || '');
+    }, [currentStep, messList]);
 
     return (
         <>
@@ -397,7 +419,7 @@ console.log(data)
                 </Modal.Header>
 
 
-                {messList.map((mess, index) => (
+                {/* {messList.map((mess, index) => (
                     <React.Fragment key={mess.messID}>
                         {preData.map((task, index) => (
                             <div key={index}>
@@ -417,254 +439,264 @@ console.log(data)
                             </div>
                         ))}
                     </React.Fragment>
-                ))}
-                <form className='side-scroll' onSubmit={(event) => handleSubmit(event, taskNumber)}>
-                    <div className='d-flex flex-column mt-2 py-1 px-3'>
-                        <div className='fs-6 mb-1 fw-bolder col-12'>Task Name</div>
-                        <div className='col-12 fs-5 text-primary'>{formData.inputs.find((input: { inputId: string; label: string }) => input.inputId === "99")?.label}</div>
-                    </div>
+                ))} */}
+
+                {singleDataById.inputs &&
+                    <form className='side-scroll' onSubmit={(event) => handleSubmit(event, taskNumber)}>
+                        {/* <div className='d-flex flex-column mt-2 py-1 px-3'>
+                            <div className='fs-6 mb-1 fw-bolder col-12'>Task Name</div>
+                            <div className='col-12 fs-5 text-primary'>{formData.inputs.find((input: { inputId: string; label: string }) => input.inputId === "99")?.label}</div>
+                        </div> */}
 
 
-                    <Modal.Body className=" p-4">
-                        {/* Stepper on the Left */}
-                        <div className="stepper-vertical" style={{
-                            width: '100%',
-                            paddingRight: '10px',
-                            position: 'relative',
-                            display: 'flex',
-                            justifyContent: 'space-between',
-                            marginBottom: '20px'
+                        <Modal.Body className=" p-4">
+                            {/* Stepper on the Left */}
+                            <div className="stepper-vertical" style={{
+                                width: '100%',
+                                paddingRight: '10px',
+                                position: 'relative',
+                                display: 'flex',
+                                justifyContent: 'space-between',
+                                marginBottom: '20px'
 
-                        }}>
-                            {messList.map((mess, index) => {
-                                let stepClass = 'step';
+                            }}>
+                                {messList.map((mess, index) => {
+                                    let stepClass = 'step';
 
-                                if (index < currentStep) {
-                                    stepClass += ' completed'; // Add class for completed steps
-                                } else if (index === currentStep) {
-                                    stepClass += ' active'; // Add class for the current active step
-                                }
+                                    if (index < currentStep) {
+                                        stepClass += ' completed'; // Add class for completed steps
+                                    } else if (index === currentStep) {
+                                        stepClass += ' active'; // Add class for the current active step
+                                    }
 
-                                return (
-                                    <div
-                                        key={mess.messID}
-                                        className={stepClass}
-                                        onClick={() => setCurrentStep(index)}
-                                        style={{
-                                            cursor: 'pointer',
-                                            padding: '10px 0',
-                                            margin: '0 0 5px 0',
-                                            background: index < currentStep ? 'green' : index === currentStep ? 'green' : '#e1e1e1', // Change color based on step status
-                                            color: "#fff", // Change text color for readability
-                                            borderRadius: '50%', // Optional: Add rounded corners
-                                            position: 'relative',
-                                        }}
-                                    >
-                                        {index + 1}
+                                    return (
+                                        <>
 
-                                        {/* Render the connecting line only if it's not the last step */}
-                                        {index < messList.length - 1 && (
                                             <div
-                                                className={`step-line ${index < currentStep ? 'completed' : ''}`}
+                                                key={mess.messID}
+                                                className={stepClass}
+                                                onClick={() => setCurrentStep(index)}
                                                 style={{
-                                                    backgroundColor: index < currentStep ? 'green' : '#e1e1e1',
+                                                    cursor: 'pointer',
+                                                    padding: '10px 0',
+                                                    margin: '0 0 5px 0',
+                                                    background: index < currentStep ? 'green' : index === currentStep ? 'green' : '#e1e1e1', // Change color based on step status
+                                                    color: "#fff", // Change text color for readability
+                                                    borderRadius: '50%', // Optional: Add rounded corners
+                                                    position: 'relative',
                                                 }}
-                                            />
-                                        )}
-                                    </div>
-                                );
-                            })}
-                        </div>
+                                            >
 
+                                                {index + 1}
 
+                                                {index < messList.length - 1 && (
+                                                    <div
+                                                        className={`step-line ${index < currentStep ? 'completed' : ''}`}
+                                                        style={{
+                                                            backgroundColor: index < currentStep ? 'green' : '#e1e1e1',
+                                                        }}
+                                                    />
+                                                )}
+                                                {/* Render the connecting line only if it's not the last step */}
+                                            </div>
 
-                        {/* Form on the Right */}
-                        <div className="form-section" style={{ width: '90%', paddingLeft: '20px' }}>
-                            {/* {messList.map((mess, index) => (
-                                currentStep === index && (
-                                    <div key={mess.messID}> */}
-                                         <h5>
-        {/* Please Update data for <span className="text-primary">{messList[currentStep].messName}</span> */}
-      </h5>
-                                        <div className="my-task">
-                                            {formData.inputs.map((input: Input) => (
-                                                shouldDisplayInput(input) && (
-                                                    <div className='form-group' key={input.inputId} style={{ marginBottom: '1rem' }}>
-                                                        <label className='label'>{input.label}</label>
-                                                        {input.type === 'text' && (
-                                                            <input
-                                                                type="text"
-                                                                className='form-control'
-                                                                placeholder={input.placeholder}
-                                                                value={formState[input.inputId]}
-                                                                onChange={e => handleChange(input.inputId, e.target.value)}
-                                                            />
-                                                        )}
-                                                        {input.type === 'custom' && (
-                                                            <input
-                                                                type="text"
-                                                                placeholder={input.placeholder}
-                                                                value={formState[input.inputId]}
-                                                                onChange={e => handleChange(input.inputId, e.target.value)}
-                                                                style={{ display: 'block', width: '100%', padding: '0.5rem' }}
-                                                            />
-                                                        )}
-                                                        {input.type === 'select' && (
-                                                            <select
-                                                                id={input.inputId}
-                                                                className='form-select form-control'
-                                                                value={formState[input.inputId] || ''}
-                                                                onChange={e => handleChange(input.inputId, e.target.value)}
-                                                                style={{ display: 'block', width: '100%', padding: '0.5rem' }}
-                                                            >
-                                                                <option value="" disabled>Select an option</option>
-                                                                {input.options?.map(option => (
-                                                                    <option key={option.id} value={option.label}>
-                                                                        {option.label}
-                                                                    </option>
-                                                                ))}
-                                                            </select>
-                                                        )}
+                                        </>
 
-                                                        {input.type === 'multiselect' && (
-                                                            <select
-                                                                className='form-select form-control'
-                                                                value={formState[input.inputId]}
-                                                                onChange={e => handleChange(input.inputId, e.target.value)}
-                                                                style={{ display: 'block', width: '100%', padding: '0.5rem' }}
-
-                                                            >
-                                                                <option value="" disabled>Select an option</option>
-                                                                {input.options?.map(option => (
-                                                                    <option key={option.id} value={option.label}>
-                                                                        {option.label}
-                                                                    </option>
-                                                                ))}
-                                                            </select>
-                                                        )}
-                                                        {input.type === 'CustomSelect' && (
-                                                            <select
-                                                                value={formState[input.inputId]}
-                                                                onChange={e => handleChange(input.inputId, e.target.value)}
-                                                                style={{ display: 'block', width: '100%', padding: '0.5rem' }}
-
-                                                            >
-                                                                <option value="" disabled>Select an option</option>
-                                                                {input.options?.map(option => (
-                                                                    <option key={option.id} value={option.label}>
-                                                                        {option.label}
-                                                                    </option>
-                                                                ))}
-                                                            </select>
-                                                        )}
-                                                        {input.type === 'file' && (
-
-                                                            <FileUploader
-                                                                icon="ri-upload-cloud-2-line"
-                                                                text="Drop files here or click to upload."
-
-                                                            />
-                                                        )}
-
-                                                        {input.type === 'checkbox' && (
-
-                                                            <span className="form-check">
-                                                                <input className="form-check-input" type="checkbox"
-                                                                    checked={formState[input.inputId]}
-                                                                    onChange={e => handleChange(input.inputId, e.target.checked)} />
-                                                            </span>
-                                                        )}
-                                                        {input.type === 'radio' && (
-                                                            <input
-                                                                type="radio"
-                                                                checked={formState[input.inputId]}
-                                                                onChange={e => handleChange(input.inputId, e.target.checked)}
-                                                            />
-                                                        )}
-                                                        {input.type === 'status' && (
-                                                            <input
-                                                                type="text"
-                                                                checked={formState[input.inputId]}
-                                                                onChange={e => handleChange(input.inputId, e.target.checked)}
-                                                            />
-                                                        )}
-                                                        {input.type === 'successorTask' && (
-                                                            <input
-                                                                type="text"
-                                                                checked={formState[input.inputId]}
-                                                                onChange={e => handleChange(input.inputId, e.target.checked)}
-                                                            />
-                                                        )}
-                                                        {input.type === 'date' && (
-                                                            <input
-                                                                type="date"
-                                                                value={formState[input.inputId]}
-                                                                onChange={e => handleChange(input.inputId, e.target.value)}
-                                                                style={{ display: 'block', width: '100%', padding: '0.5rem' }}
-
-                                                            />
-                                                        )}
-                                                    </div>
-                                                )
-
-                                            ))}
-
-                                        </div>
-                                        <div className="form-group mb-2">
-                                            <label htmlFor="taskSummary">Comments</label>
-                                            <input
-                                                type="text"
-                                                className='form-control'
-                                                id="taskSummary"
-                                                value={summary}  // Bind the input to the state
-                                                onChange={(e) => setSummary(e.target.value)}  // Update the state on input change
-                                                style={{ display: 'block', width: '100%', padding: '0.5rem' }}
-                                            />
-                                        </div>
-                                    {/* </div>
-                                )
-                            ))} */}
-
-                            {/* Navigation Buttons */}
-                            <div className="d-flex justify-content-between">
-                                {currentStep <= messList.length - 1 && (
-                                    <button
-                                        type="button"  // Add this to prevent form submission
-                                        className="btn btn-secondary"
-                                        onClick={handlePrevStep}
-                                        disabled={currentStep === 0}
-                                    >
-                                        Previous
-                                    </button>
-                                )}
-                                {/* Conditional rendering of Next or Submit button */}
-                                {currentStep < messList.length - 1 && (
-                                    <button
-                                        type="button"  // Add this to prevent form submission
-                                        className="btn btn-primary"
-                                        onClick={handleNextStep}
-                                    // disabled={currentStep === messList.length - 1}
-                                    >
-                                        Next
-                                    </button>
-                                )}
-
-                                {currentStep === messList.length - 1 && (
-                                    <button
-                                        type="submit"  // This button will submit the form
-                                        className="btn btn-success"
-                                    >
-                                        Submit
-                                    </button>
-                                )}
-
+                                    );
+                                })}
                             </div>
-                        </div>
-                    </Modal.Body>
 
 
 
-                </form>
+                            {/* Form on the Right */}
+                            <div className="form-section" style={{ width: '90%', paddingLeft: '20px' }}>
+                                {/* {messList.map((mess, index) => (
+             currentStep === index && (
+                 <div key={mess.messID}> */}
+                                <h5>
+                                    {/* Please Update data for <span className="text-primary">{messList[currentStep].messName}</span> */}
+                                </h5>
+                                <div className="my-task">
+                                    {singleDataById.inputs.map((input: Input) => (
+                                        shouldDisplayInput(input) && (
+                                            <div className='form-group' key={input.inputId} style={{ marginBottom: '1rem' }}>
+                                                <label className='label'>{input.label}</label>
+                                                {input.type === 'text' && (
+                                                    <input
+                                                        type="text"
+                                                        className='form-control'
+                                                        placeholder={input.placeholder}
+                                                        value={formState[input.inputId]}
+                                                        onChange={e => handleChange(input.inputId, e.target.value)}
+                                                    />
+                                                )}
+                                                {input.type === 'custom' && (
+                                                    <input
+                                                        type="text"
+                                                        placeholder={input.placeholder}
+                                                        value={formState[input.inputId]}
+                                                        onChange={e => handleChange(input.inputId, e.target.value)}
+                                                        style={{ display: 'block', width: '100%', padding: '0.5rem' }}
+                                                    />
+                                                )}
+                                                {input.type === 'select' && (
+                                                    <select
+                                                        id={input.inputId}
+                                                        className='form-select form-control'
+                                                        value={formState[input.inputId] || ''}
+                                                        onChange={e => handleChange(input.inputId, e.target.value)}
+                                                        style={{ display: 'block', width: '100%', padding: '0.5rem' }}
+                                                    >
+                                                        <option value="" disabled>Select an option</option>
+                                                        {input.options?.map(option => (
+                                                            <option key={option.id} value={option.label}>
+                                                                {option.label}
+                                                            </option>
+                                                        ))}
+                                                    </select>
+                                                )}
+
+                                                {input.type === 'multiselect' && (
+                                                    <select
+                                                        className='form-select form-control'
+                                                        value={formState[input.inputId]}
+                                                        onChange={e => handleChange(input.inputId, e.target.value)}
+                                                        style={{ display: 'block', width: '100%', padding: '0.5rem' }}
+
+                                                    >
+                                                        <option value="" disabled>Select an option</option>
+                                                        {input.options?.map(option => (
+                                                            <option key={option.id} value={option.label}>
+                                                                {option.label}
+                                                            </option>
+                                                        ))}
+                                                    </select>
+                                                )}
+                                                {input.type === 'CustomSelect' && (
+                                                    <select
+                                                        value={formState[input.inputId]}
+                                                        onChange={e => handleChange(input.inputId, e.target.value)}
+                                                        style={{ display: 'block', width: '100%', padding: '0.5rem' }}
+
+                                                    >
+                                                        <option value="" disabled>Select an option</option>
+                                                        {input.options?.map(option => (
+                                                            <option key={option.id} value={option.label}>
+                                                                {option.label}
+                                                            </option>
+                                                        ))}
+                                                    </select>
+                                                )}
+                                                {input.type === 'file' && (
+
+                                                    <FileUploader
+                                                        icon="ri-upload-cloud-2-line"
+                                                        text="Drop files here or click to upload."
+
+                                                    />
+                                                )}
+
+                                                {input.type === 'checkbox' && (
+
+                                                    <span className="form-check">
+                                                        <input className="form-check-input" type="checkbox"
+                                                            checked={formState[input.inputId]}
+                                                            onChange={e => handleChange(input.inputId, e.target.checked)} />
+                                                    </span>
+                                                )}
+                                                {input.type === 'radio' && (
+                                                    <input
+                                                        type="radio"
+                                                        checked={formState[input.inputId]}
+                                                        onChange={e => handleChange(input.inputId, e.target.checked)}
+                                                    />
+                                                )}
+                                                {input.type === 'status' && (
+                                                    <input
+                                                        type="text"
+                                                        checked={formState[input.inputId]}
+                                                        onChange={e => handleChange(input.inputId, e.target.checked)}
+                                                    />
+                                                )}
+                                                {input.type === 'successorTask' && (
+                                                    <input
+                                                        type="text"
+                                                        checked={formState[input.inputId]}
+                                                        onChange={e => handleChange(input.inputId, e.target.checked)}
+                                                    />
+                                                )}
+                                                {input.type === 'date' && (
+                                                    <input
+                                                        type="date"
+                                                        value={formState[input.inputId]}
+                                                        onChange={e => handleChange(input.inputId, e.target.value)}
+                                                        style={{ display: 'block', width: '100%', padding: '0.5rem' }}
+
+                                                    />
+                                                )}
+                                            </div>
+                                        )
+
+                                    ))}
+
+                                </div>
+                                <div className="form-group mb-2">
+                                    <label htmlFor="taskSummary">Comments</label>
+                                    <input
+                                        type="text"
+                                        className='form-control'
+                                        id="taskSummary"
+                                        value={summary}  // Bind the input to the state
+                                        onChange={(e) => setSummary(e.target.value)}  // Update the state on input change
+                                        style={{ display: 'block', width: '100%', padding: '0.5rem' }}
+                                    />
+                                </div>
+                                {/* </div>
+             )
+         ))} */}
+
+                                {/* Navigation Buttons */}
+                                <div className="d-flex justify-content-between">
+                                    {currentStep <= messList.length - 1 && (
+                                        <button
+                                            type="button"  // Add this to prevent form submission
+                                            className="btn btn-secondary"
+                                            onClick={handlePrevStep}
+                                            disabled={currentStep === 0}
+                                        >
+                                            Previous
+                                        </button>
+                                    )}
+                                    {/* Conditional rendering of Next or Submit button */}
+                                    {currentStep < messList.length - 1 && (
+                                        <button
+                                            type="button"  // Add this to prevent form submission
+                                            className="btn btn-primary"
+                                            onClick={handleNextStep}
+                                        // disabled={currentStep === messList.length - 1}
+                                        >
+                                            Next
+                                        </button>
+                                    )}
+
+                                    {currentStep === messList.length - 1 && (
+                                        <button
+                                            type="submit"  // This button will submit the form
+                                            className="btn btn-success"
+                                        >
+                                            Submit
+                                        </button>
+                                    )}
+
+                                </div>
+                            </div>
+                        </Modal.Body>
+
+
+
+                    </form>
+                }
+
             </Modal>
 
 

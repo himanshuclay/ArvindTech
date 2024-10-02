@@ -339,7 +339,7 @@ const ProjectAssignTable: React.FC = () => {
           <Offcanvas.Title>Task Details</Offcanvas.Title>
         </Offcanvas.Header>
         <Offcanvas.Body>
-          {preDatas.map((task, index) => (
+          {preData.map((task, index) => (
             <div key={index}>
              <h5 className="mt-2">
                 Updated data from <span className="text-primary">{task.taskNumber}</span> &nbsp;&nbsp;&nbsp;

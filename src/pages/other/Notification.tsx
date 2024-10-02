@@ -71,8 +71,12 @@ const ProjectAssignTable: React.FC = () => {
   const [parsedCondition, setParsedCondition] = useState<any[]>([]);
   const [taskCommonId, setTaskCommonId] = useState<number | null>(null);
   const [selectedTasknumber, setSelectedTasknumber] = useState<string>('');
+  const [singleDataById, setSingleDataById] = useState<ProjectAssignListWithDoer[]>([]);
+  const [taskCommonIDRow, setTaskCommonIdRow] = useState<number | null>(null);
   // const [formState, setFormState] = useState<any>({});
   const [show, setShow] = useState(false);
+
+
 
 
 
@@ -173,7 +177,6 @@ const ProjectAssignTable: React.FC = () => {
   }, []);
 
 
-  console.log(taskCommonId)
 
   useEffect(() => {
 
@@ -181,7 +184,7 @@ const ProjectAssignTable: React.FC = () => {
       try {
         // const taskData = data.find(task => task.task_Number === taskNumber);
         // Fetch or pass TaskCommonId dynamically
-        console.log(taskCommonId)
+        // console.log(taskCommonId)
         const flag = 5;
         // const taskCommonId = 
 
@@ -255,9 +258,46 @@ const ProjectAssignTable: React.FC = () => {
 
 
 
+  const fetchSingleDataById = async (taskCommonId: number) => {
+    try {
+
+      const flag = 5;
+      const response = await axios.get<ApiResponse>(
+        `${config.API_URL_ACCOUNT}/ProcessInitiation/GetFilterTask?TaskCommonId=${taskCommonId}&Flag=${flag}`
+      );
+
+      if (response.data && response.data.isSuccess) {
+        const singledatabyID = response.data.getFilterTasks[0].task_Json || [];
+        console.log('fetch single  Data:', JSON.parse(singledatabyID));
+
+        setSingleDataById(JSON.parse(singledatabyID))
+      } else {
+        console.error('API Response Error:', response.data?.message || 'Unknown error');
+      }
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        console.error('Axios Error Response:', error.response?.data || 'No response data');
+        console.error('Axios Error Message:', error.message);
+      } else {
+        console.error('Unexpected Error:', error);
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
 
 
- 
+
+
+  console.log(singleDataById)
+
+
+
+
+
+
+
+
 
   const toggleExpandRow = (id: number) => {
     setExpandedRow(expandedRow === id ? null : id);
@@ -295,9 +335,18 @@ const ProjectAssignTable: React.FC = () => {
 
 
   const handleShow = () => setShow(true);
-  const handleClose = () => {
-    setShow(false);
+
+  const handleEdit = (taskCommonId: number) => {
+    // setProjectNameIDRow(projectName);  // Set the project name
+    setTaskCommonIdRow(taskCommonId);   // Set the task common ID
+    handleShow();
+    if (taskCommonId) {
+      fetchSingleDataById(taskCommonId);
+
+    }
   };
+
+  // console.log(data)
 
   return (
 
@@ -320,63 +369,7 @@ const ProjectAssignTable: React.FC = () => {
           <>
 
 
-            {/* <Table className='bg-white' striped bordered hover>
-            <thead>
-              <tr>
-                <th>Sr.no </th>
-                <th>Module </th>
-                <th>Process </th>
-                <th>Project </th>
-                <th>Assigned Role</th>
-                <th>Task Id</th>
-                <th>Task Type</th>
-                <th>Planned Date</th>
-                <th>Initation Date</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {data.map((item, index) => (
-                <React.Fragment key={item.id}>
-                  <tr
-                    style={{
-                      backgroundColor: item.status === 'Done' ? 'lightgreen' : 'white',
-                    }}
-                  >
-                    <td>{index + 1}</td>
-                    <td>{item.moduleName}</td>
-                    <td>{item.processName}</td>
-                    <td>{item.projectName}</td>
-                    <td>{item.roleName}</td>
-                    <td>{item.task_Number}</td>
-                    <td>{item.taskType}</td>
-                    <td>{formatAndUpdateDate(item.createdDate, item.taskTime)}</td>
-                    <td>{item.createdDate}</td>
-                    <td>
-                      <Button onClick={handleShow}>
-                        Show
-                      </Button>
-                    </td>
 
-                  </tr>
-                  <tr>
-                    <td colSpan={10}>
-                      <Collapse in={expandedRow === item.id}>
-                        <div>
-                          <DynamicForm
-                            formData={JSON.parse(item.task_Json)}
-                            taskNumber={item.task_Number}
-                            doer={null} // Replace with actual doer if available
-                            onDoerChange={handleDoerChange}
-                          />
-                        </div>
-                      </Collapse>
-                    </td>
-                  </tr>
-                </React.Fragment>
-              ))}
-            </tbody>
-          </Table> */}
             <DragDropContext onDragEnd={handleOnDragEnd}>
               <Table hover className='bg-white '>
                 <thead>
@@ -448,7 +441,7 @@ const ProjectAssignTable: React.FC = () => {
                         ))}
                         {/* Action Button */}
                         <td>
-                          <Button onClick={handleShow}>
+                          <Button onClick={() => handleEdit(item.taskCommonId)}>
                             Show
                           </Button>
                         </td>
@@ -457,6 +450,7 @@ const ProjectAssignTable: React.FC = () => {
                             <div>
                               <DynamicForm
                                 formData={JSON.parse(item.task_Json)}
+                                singleDataById={singleDataById}
                                 taskNumber={item.task_Number}
                                 doer={null} // Replace with actual doer if available
                                 onDoerChange={handleDoerChange}
@@ -467,7 +461,9 @@ const ProjectAssignTable: React.FC = () => {
                                 preData={preData}
                                 selectedTasknumber={selectedTasknumber}
                                 setLoading={setLoading}
-                                
+                                taskCommonIDRow={taskCommonIDRow}
+
+
                               />
                             </div>
                           </Collapse>
