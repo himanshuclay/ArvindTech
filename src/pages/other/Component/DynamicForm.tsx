@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Button, Row, Col, Modal, Offcanvas } from 'react-bootstrap'; // Assuming DynamicForm is in the same directory
 import { FileUploader } from '@/components/FileUploader'
+import { useNavigate } from 'react-router-dom';
 import config from '@/config';
 
 interface Option {
@@ -14,6 +15,8 @@ interface Input {
     inputId: string;
     type: string;
     label: string;
+    formName: string;
+    formId: string;
     placeholder: string;
     options?: Option[];
     required: boolean;
@@ -22,8 +25,8 @@ interface Input {
 }
 
 interface DynamicFormProps {
+    // formData: { inputs: Input[] };
     formData: { inputs: Input[] };
-    singleDataById: { inputs: Input[] };
     taskNumber: string;
     doer: string | null;
     onDoerChange: (taskNumber: string, selectedOption: Option | null) => void;
@@ -35,6 +38,7 @@ interface DynamicFormProps {
     selectedTasknumber: string
     setLoading: string
     taskCommonIDRow: string
+    taskStatus: string
 }
 
 interface Condition {
@@ -53,75 +57,200 @@ interface MessData {
 }
 
 const DynamicForm: React.FC<DynamicFormProps> = ({
-    formData,
+    // formData,
     taskNumber, doer, onDoerChange,
-    data, 
+    data,
     show,
     setShow,
     parsedCondition,
     preData,
     selectedTasknumber,
-    singleDataById,
+    formData,
     taskCommonIDRow,
+    taskStatus,
     setLoading }) => {
     const [formState, setFormState] = useState<{ [key: string]: any }>({});
     const [summary, setSummary] = useState('');
-    const [taskJson, setTaskJson] = useState<string>(JSON.stringify(singleDataById));
+    const [taskJson, setTaskJson] = useState<{ [key: string]: any }>({});
     const [messManagers, setMessManagers] = useState<{ value: string, label: string }[]>([]);
     const [selectedManager, setSelectedManager] = useState<string>("Avisineni Pavan Kumar_LLP05337"); // Initialize with default value
     const [showMessManagerSelect, setShowMessManagerSelect] = useState(false);
     const [messList, setMessList] = useState<{ messID: string; messName: string; managerEmpID: string; managerName: string }[]>([]);
 
-  const [selectedCondition, setSelectedCondition] = useState<any[]>([]);
+    const [selectedCondition, setSelectedCondition] = useState<any[]>([]);
     const [currentStep, setCurrentStep] = useState(0); // Track the current step
 
 
+    console.log("clicked id", taskCommonIDRow)
 
-   
+    const navigate = useNavigate()
+    console.log("value form", formState)
+
+    useEffect(() => {
+        console.log(formData);
+
+        if (formData) {
+            try {
+                // Check if formData is a string and parse it; otherwise, use it as-is
+                const parsedData = typeof formData === 'string'
+                    ? JSON.parse(formData)  // Parse the string if it's in JSON format
+                    : formData;  // Use as-is if it's already an object
+
+                setTaskJson(parsedData); // Set the parsed or direct object
+            } catch (e) {
+                console.error("Error parsing formData:", e);
+            }
+        } else {
+            console.warn("formData is undefined or empty");
+        }
+    }, [formData]);
+
+
+
 
 
 
     const saveDataToLocalStorage = () => {
+        // Retrieve saved data from localStorage or initialize with an empty array if none
         const savedData = JSON.parse(localStorage.getItem(localStorageKey)) || [];
-        const updatedData = [...savedData];
-        const currentmessID = messList[currentStep].messID;
 
-        // Check if current messID exists in savedData, and update it
+        // Create a copy of saved data
+        const updatedData = [...savedData];
+
+        // Get the current messID for the step
+        const currentmessID = messList[currentStep].messID;
+        // const formConfig = formData?.inputs || [];
+
+        // Transform formState into the taskJson structure
+        // Assuming formData is already an object, there's no need to parse it.
+        const taskJson = {
+            formId: formData?.formId || 'defaultFormId',  // Fetch formId from formData or fallback
+            formName: formData?.formName || 'defaultFormName',  // Fetch formName from formData or fallback
+            inputs: Object.keys(formState)  // Iterate through formState keys to construct inputs
+                .filter(inputId => inputId !== 'formId' && inputId !== 'formName')
+                .map(inputId => {
+                    const inputConfig = formData?.inputs?.find(config => config.inputId === inputId) || {}; // Get metadata for the input
+                    return {
+                        inputId,  // From formState
+                        value: formState[inputId],  // Value from formState
+                        type: inputConfig.type || 'text',  // Default to 'text' if type not found
+                        label: inputConfig.label || '',  // Fetch label from config or set as empty
+                        placeholder: inputConfig.placeholder || '',  // Fetch or set empty
+                        options: inputConfig.options || [],  // Fetch options or default to empty array
+                        required: inputConfig.required || false,  // Default to false if not found
+                        conditionalFieldId: inputConfig.conditionalFieldId || '',  // Default to empty string
+                    };
+                }),
+        };
+
+
+        // Find if the current messID already exists in the savedData array
         const existingIndex = updatedData.findIndex((data) => data.messID === currentmessID);
+
+        // If messID exists, update the taskJson and comments
         if (existingIndex >= 0) {
             updatedData[existingIndex] = {
                 messID: currentmessID,
-                taskJson: formState,
-                comments: summary,
+                taskJson,  // Replace with the newly transformed taskJson
+                comments: summary,   // Replace with current comments
             };
         } else {
-            // Add new entry if not exists
+            // If messID doesn't exist, add a new entry with current messID, taskJson, and comments
             updatedData.push({
                 messID: currentmessID,
-                taskJson: formState,
+                taskJson,  // Use the transformed taskJson
                 comments: summary,
             });
         }
 
-        // Save back to localStorage
+        // Save the updated data back to localStorage
         localStorage.setItem(localStorageKey, JSON.stringify(updatedData));
     };
 
 
+
+    useEffect(() => {
+        // Function to run on reload or component mount
+        const runOnReload = () => {
+            console.log("Page reloaded or component mounted");
+            localStorage.removeItem(localStorageKey);
+            // Your logic here
+        };
+
+        // Call the function when the component mounts
+        runOnReload();
+
+        // Optionally, return a cleanup function (if needed)
+        return () => {
+            // Cleanup code if required
+        };
+    }, []);
+
+
     const handleNextStep = () => {
-        saveDataToLocalStorage(); // Save current data before moving to next step
+        // Save current form data before moving to next step
+        saveDataToLocalStorage();
+
+        // Move to the next step if it's within the bounds of the messList
         if (currentStep < messList.length - 1) {
-            setCurrentStep(currentStep + 1);
+            const nextStep = currentStep + 1;
+            setCurrentStep(nextStep);
+
+            // Load the saved data for the next step from localStorage
+            const savedDataString: string | null = localStorage.getItem(localStorageKey);
+            const savedData: any[] = savedDataString ? JSON.parse(savedDataString) : [];
+            const nextMessID = messList[nextStep].messID;
+            const nextData = savedData.find((data) => data.messID === nextMessID);
+
+            if (nextData && nextData.taskJson) {
+                // Update formState with the saved taskJson
+                const newFormState = nextData.taskJson.inputs.reduce((acc, input) => {
+                    acc[input.inputId] = input.value;
+                    return acc;
+                }, {});
+
+                setFormState(newFormState); // Set the formState with loaded values
+            }
+
+            // Optionally load the comments for the next step
+            if (nextData && nextData.comments) {
+                setSummary(nextData.comments);
+            }
         }
     };
 
-    // Function to handle "Previous" button click
     const handlePrevStep = () => {
-        saveDataToLocalStorage(); // Save current data before moving to previous step
+        // Save current form data before moving to previous step
+        saveDataToLocalStorage();
+
+        // Move to the previous step if it's within bounds
         if (currentStep > 0) {
-            setCurrentStep(currentStep - 1);
+            const prevStep = currentStep - 1;
+            setCurrentStep(prevStep);
+
+            // Load the saved data for the previous step from localStorage
+            const savedDataString: string | null = localStorage.getItem(localStorageKey);
+            const savedData: any[] = savedDataString ? JSON.parse(savedDataString) : [];
+            const prevMessID = messList[prevStep].messID;
+            const prevData = savedData.find((data) => data.messID === prevMessID);
+
+            if (prevData && prevData.taskJson) {
+                // Update formState with the saved taskJson
+                const newFormState = prevData.taskJson.inputs.reduce((acc, input) => {
+                    acc[input.inputId] = input.value;
+                    return acc;
+                }, {});
+
+                setFormState(newFormState); // Set the formState with loaded values
+            }
+
+            // Optionally load the comments for the previous step
+            if (prevData && prevData.comments) {
+                setSummary(prevData.comments);
+            }
         }
     };
+
 
 
 
@@ -155,14 +284,26 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
     const handleClose = () => {
         setShow(false);
     };
+
+
     // Initialize form state
-    useEffect(() => {
-        const initialState: { [key: string]: any } = {};
-        formData.inputs.forEach((input: Input) => {
-            initialState[input.inputId] = input.value || '';
-        });
-        setFormState(initialState);
-    }, [formData]);
+    // useEffect(() => {
+    //     // Initialize formState with a deep copy of formData to preserve its structure
+    //     const initialState: { [key: string]: any } = JSON.parse(JSON.stringify(formData));
+
+    //     // Update the values of the inputs in the initialState
+    //     formData.inputs.forEach((input: Input) => {
+    //         // Ensure that we only update the specific input values
+    //         initialState.inputs = initialState.inputs.map((item: Input) =>
+    //             item.inputId === input.inputId ? { ...item, value: input.value || '' } : item
+    //         );
+    //     });
+
+    //     // Update the formState with the merged initial state
+    //     setFormState(initialState);
+    // }, [formData]);
+
+
 
 
     // console.log(projectName)
@@ -172,7 +313,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
 
     // console.log(projectNames)
 
-  
+
     useEffect(() => {
         const fetchMessData = async () => {
             try {
@@ -198,17 +339,17 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
     const localStorageKey = 'messFormData'; // Key for localStorage
 
 
-  
 
 
+    console.log(preData)
 
 
 
     // Handle change in input values
     const handleChange = (inputId: string, value: string | boolean | string[]) => {
-        // Find the input field in the formData
+        event.preventDefault();
         const excludedInputIds = ['99', '100', '102', '103'];
-        const input = singleDataById.inputs.find(input => input.inputId === inputId);
+        const input = formData.inputs.find(input => input.inputId === inputId);
 
         let updatedValue = value;
         let selectedLabel: string | undefined;
@@ -217,28 +358,26 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
             selectedLabel = input.label;
         }
 
+        // Handle select and CustomSelect input types
         if (input && (input.type === 'select' || input.type === 'CustomSelect')) {
-
             const selectedOption = input.options?.find(option => option.label === value);
             if (selectedOption) {
-                updatedValue = selectedOption.id;  // Use option ID for internal use
+                updatedValue = selectedOption.id;
                 selectedLabel = selectedOption.label;
-                const selectedConditionFromParsed = parsedCondition[0].find((condition: Condition) => condition.optionId === updatedValue);
 
-                // Update the state with the selected condition
+                const selectedConditionFromParsed = parsedCondition[0].find((condition: Condition) => condition.optionId === updatedValue);
                 if (selectedConditionFromParsed) {
-                    setSelectedCondition([selectedConditionFromParsed]); // Store selected condition in state
+                    setSelectedCondition([selectedConditionFromParsed]);
                 }
-                // Capture label for display
             }
             if (selectedOption?.id === '11-1') {
                 setShowMessManagerSelect(true);
-            } else if (selectedOption?.id !== '11-1') {
-                setShowMessManagerSelect(false); // Hide if no 'active' value is selected
+            } else {
+                setShowMessManagerSelect(false);
             }
         }
 
-        // Handle 'multiselect' input type (storing an array of selected option IDs)
+        // Handle multiselect input type
         if (input && input.type === 'multiselect') {
             updatedValue = (value as string[]).map(label => {
                 const selectedOption = input.options?.find(option => option.label === label);
@@ -246,28 +385,28 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
             });
         }
 
-        // Handle 'text', 'radio', 'checkbox', 'date', and other input types
+        // Handle other input types
         if (input) {
             switch (input.type) {
                 case 'text':
                 case 'textarea':
-                    updatedValue = value as string;  // Handle simple text or textarea
-                    selectedLabel = input.label;  // Keep label from the input object
+                    updatedValue = value as string;
+                    selectedLabel = input.label;
                     break;
                 case 'checkbox':
-                    updatedValue = value as boolean;  // Boolean for checkboxes
-                    selectedLabel = input.label;  // Capture checkbox label
+                    updatedValue = value as boolean;
+                    selectedLabel = input.label;
                     break;
                 case 'radio':
-                    updatedValue = value as boolean;  // Boolean for radio buttons
-                    selectedLabel = input.label;  // Capture radio label
+                    updatedValue = value as boolean;
+                    selectedLabel = input.label;
                     break;
                 case 'date':
-                    updatedValue = value as string;  // Date input will give a string value (ISO format)
-                    selectedLabel = input.label;  // Capture date label
+                    updatedValue = value as string;
+                    selectedLabel = input.label;
                     break;
                 case 'file':
-                    // Handle file input separately
+                    // Handle file separately
                     break;
                 default:
                     break;
@@ -278,28 +417,34 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
         setFormState(prevState => {
             const newState = {
                 ...prevState,
-                ...(excludedInputIds.includes(inputId) ? {} : { [inputId]: updatedValue })
+                ...(excludedInputIds.includes(inputId) ? {} : { [inputId]: updatedValue, })
             };
+
 
             // Update taskJson only when inputId is not excluded
             if (!excludedInputIds.includes(inputId)) {
-                const updatedTaskJson = JSON.stringify({
-                    ...singleDataById,
-                    inputs: singleDataById.inputs.map(input => ({
+                const updatedTaskJson = {
+                    ...formData,
+                    inputs: formData.inputs.map(input => ({
                         ...input,
-                        value: newState[input.inputId] || input.value,
+                        value: newState[input.inputId] !== undefined ? newState[input.inputId] : input.value,
                     })),
-                });
-                setTaskJson(updatedTaskJson);
+                };
+
+                // Set taskJson in JSON format, but matching formData structure
+                setTaskJson(JSON.stringify(updatedTaskJson, null, 2)); // Pretty print for better readability
             }
+
+            console.log(taskJson)
 
             // Re-evaluate conditions after state update
             reEvaluateConditions(newState);
 
+            console.log(newState)
+
             return newState;
         });
     };
-
 
 
 
@@ -320,13 +465,14 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
         const requestData = {
             id: taskData?.id || 0,
             doerID: role || '',
-            task_Json: JSON.stringify(finalData),  // Use the updated taskJson state
+            task_Json: JSON.stringify(finalData),   // Use the updated taskJson state
             isExpired: 0,
             isCompleted: formState['Pending'] || 'Completed',
             task_Number: taskNumber,
             summary: formState['summary'] || 'Task Summary',  // Ensure summary is from formState
             condition_Json: JSON.stringify(conditionToSend),  // Assuming parsedCondition is defined
-            taskCommonId: taskCommonIDRow,  // Use the taskCommonId fetched from localStorage or state
+            taskCommonId: taskCommonIDRow,
+            taskStatus: taskStatus, // Use the taskCommonId fetched from localStorage or state
             updatedBy: role
         };
 
@@ -362,7 +508,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
     const reEvaluateConditions = (newState: { [key: string]: any }) => {
         const updatedState = { ...newState };
 
-        singleDataById.inputs.forEach((input) => {
+        formData.inputs.forEach((input) => {
             if (input.conditionalFieldId) {
                 const conditionValue = newState[input.conditionalFieldId];
                 const shouldDisplay = conditionValue === input.conditionalFieldId;
@@ -386,7 +532,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
         const conditionValue = input.conditionalFieldId;
         if (conditionValue === 'someid') return true;
 
-        for (const otherInput of singleDataById.inputs) {
+        for (const otherInput of formData.inputs) {
             if (otherInput.inputId === conditionValue) {
                 return formState[otherInput.inputId] !== '';
 
@@ -402,10 +548,10 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
 
     // console.log(formData)
 
-    
+
     useEffect(() => {
         const savedData: MessData[] = JSON.parse(localStorage.getItem(localStorageKey)) || [];
-        
+
         const currentData = savedData.find((data) => data.messID === messList[currentStep].messID) || {};
         setFormState(currentData.taskJson || {});
         setSummary(currentData.comments || '');
@@ -418,9 +564,9 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                     <Modal.Title className='text-dark'>Task Details</Modal.Title>
                 </Modal.Header>
 
+                {preData.length>0 &&
+                    <div className='p-3'>
 
-                {/* {messList.map((mess, index) => (
-                    <React.Fragment key={mess.messID}>
                         {preData.map((task, index) => (
                             <div key={index}>
                                 {selectedTasknumber != task.taskNumber && (
@@ -438,10 +584,15 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                                 )}
                             </div>
                         ))}
-                    </React.Fragment>
-                ))} */}
 
-                {singleDataById.inputs &&
+
+                    </div>
+
+                }
+
+
+
+                {formData.inputs &&
                     <form className='side-scroll' onSubmit={(event) => handleSubmit(event, taskNumber)}>
                         {/* <div className='d-flex flex-column mt-2 py-1 px-3'>
                             <div className='fs-6 mb-1 fw-bolder col-12'>Task Name</div>
@@ -452,7 +603,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                         <Modal.Body className=" p-4">
                             {/* Stepper on the Left */}
                             <div className="stepper-vertical" style={{
-                                width: '100%',
+                                width: 'max-content',
                                 paddingRight: '10px',
                                 position: 'relative',
                                 display: 'flex',
@@ -479,7 +630,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                                                 style={{
                                                     cursor: 'pointer',
                                                     padding: '10px 0',
-                                                    margin: '0 0 5px 0',
+                                                    margin: '0 20px 5px 0',
                                                     background: index < currentStep ? 'green' : index === currentStep ? 'green' : '#e1e1e1', // Change color based on step status
                                                     color: "#fff", // Change text color for readability
                                                     borderRadius: '50%', // Optional: Add rounded corners
@@ -517,7 +668,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                                     {/* Please Update data for <span className="text-primary">{messList[currentStep].messName}</span> */}
                                 </h5>
                                 <div className="my-task">
-                                    {singleDataById.inputs.map((input: Input) => (
+                                    {formData.inputs.map((input: Input) => (
                                         shouldDisplayInput(input) && (
                                             <div className='form-group' key={input.inputId} style={{ marginBottom: '1rem' }}>
                                                 <label className='label'>{input.label}</label>
@@ -588,11 +739,22 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                                                     </select>
                                                 )}
                                                 {input.type === 'file' && (
-
                                                     <FileUploader
                                                         icon="ri-upload-cloud-2-line"
                                                         text="Drop files here or click to upload."
-
+                                                        additionalData={{
+                                                            ModuleID: 'yourModuleID',
+                                                            CreatedBy: 'yourUserID',
+                                                            TaskCommonID: 3463,
+                                                            Task_Number: 'yourTaskNumber',
+                                                            ProcessInitiationID: 35635,
+                                                            ProcessID: 'yourProcessID',
+                                                            UpdatedBy: 'yourUpdatedBy',
+                                                        }}
+                                                        onFileUpload={(files) => {
+                                                            // Handle file upload logic here
+                                                            console.log('Files uploaded:', files);
+                                                        }}
                                                     />
                                                 )}
 
@@ -638,6 +800,25 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                                         )
 
                                     ))}
+                                    {showMessManagerSelect && (
+                                        <div className='form-group my-2'>
+                                            <label>Select Mess Manager</label>
+                                            <select
+                                                className='form-control'
+                                                value={selectedManager} // Bound to selectedManager state
+                                                onChange={handleSelectMessImpChange} // Updates state on change
+                                            >
+                                                {/* Set default value */}
+                                                <option value="Avisineni Pavan Kumar_LLP05337">Avisineni Pavan Kumar_LLP05337</option>
+                                                {/* Map the rest of the options */}
+                                                {messManagers.map((manager) => (
+                                                    <option key={manager.value} value={manager.value}>
+                                                        {manager.label}
+                                                    </option>
+                                                ))}
+                                            </select>
+                                        </div>
+                                    )}
 
                                 </div>
                                 <div className="form-group mb-2">
@@ -657,16 +838,15 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
 
                                 {/* Navigation Buttons */}
                                 <div className="d-flex justify-content-between">
-                                    {currentStep <= messList.length - 1 && (
+                                    {/* {currentStep <= messList.length - 1 && (
                                         <button
-                                            type="button"  // Add this to prevent form submission
+                                            type="button"  
                                             className="btn btn-secondary"
                                             onClick={handlePrevStep}
-                                            disabled={currentStep === 0}
-                                        >
+                                            disabled={currentStep === 0}>
                                             Previous
                                         </button>
-                                    )}
+                                    )}  */}
                                     {/* Conditional rendering of Next or Submit button */}
                                     {currentStep < messList.length - 1 && (
                                         <button

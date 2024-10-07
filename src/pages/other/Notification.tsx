@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Button, Table, Collapse, Offcanvas, Container, Row, Col, Alert, Modal } from 'react-bootstrap'; // Assuming DynamicForm is in the same directory
-import { useNavigate } from 'react-router-dom';
 import { format, addDays, parse } from 'date-fns';
 import config from '../../config';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
@@ -103,7 +102,7 @@ const ProjectAssignTable: React.FC = () => {
   // ==============================================================
 
 
-  const navigate = useNavigate()
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -115,6 +114,7 @@ const ProjectAssignTable: React.FC = () => {
         if (response.data && response.data.isSuccess) {
           const fetchedData = response.data.getFilterTasks || [];
           console.log('Fetched Data:', fetchedData);
+
 
           // Set the fetched data
           setData(fetchedData);
@@ -178,71 +178,64 @@ const ProjectAssignTable: React.FC = () => {
 
 
 
-  useEffect(() => {
 
     const fetchPreData = async (taskCommonId: number) => {
       try {
-        // const taskData = data.find(task => task.task_Number === taskNumber);
-        // Fetch or pass TaskCommonId dynamically
-        // console.log(taskCommonId)
         const flag = 5;
-        // const taskCommonId = 
-
         const response = await axios.get<ApiResponse>(
           `${config.API_URL_ACCOUNT}/ProcessInitiation/GetFilterTask?TaskCommonId=${taskCommonId}&Flag=${flag}`
         );
-
+    
         if (response.data && response.data.isSuccess) {
           const fetchedData = response.data.getFilterTasks || [];
-          console.log('Fetched Data:', fetchedData);
-
-          // Filter tasks and exclude unwanted inputIds
-          const filteredTasks = fetchedData.map((task: ProjectAssignListWithDoer) => {
-            const parsedTaskJson = JSON.parse(task.task_Json);
-            const optionsMap = parsedTaskJson.inputs.reduce((map: Record<string, string>, input: any) => {
-              if (input.options) {
-                input.options.forEach((option: any) => {
-                  map[option.id] = option.label;
-                });
-              }
-              return map;
-            }, {});
-
-            const filteredInputs = parsedTaskJson.inputs
-              .filter((input: any) => !['99', '100', '102', '103'].includes(input.inputId)) // Exclude unwanted inputIds
-              .map((input: any) => ({
-                label: input.label,
-                value: optionsMap[input.value] || input.value // Replace value with label if it exists in optionsMap
-              }));
-
-            return {
-              taskNumber: task.task_Number,
-              inputs: filteredInputs
-            };
-          });
-
-
-          // Set data for rendering
+          console.log(fetchedData);
+    
+          // Filter out tasks with isCompleted as "Pending"
+          const filteredTasks = fetchedData
+            .filter((task) => task.isCompleted !== "Pending") // Filter step
+            .map((task: ProjectAssignListWithDoer) => {
+              const taskJsonArray = JSON.parse(task.task_Json); // Parse task_Json to get an array of taskJson objects
+              
+              // Assuming taskJsonArray is an array, handle each taskJson object
+              return taskJsonArray.map((taskJson: any) => {
+                // Ensure taskJson is valid and has taskJson and inputs
+                if (taskJson && taskJson.taskJson && taskJson.taskJson.inputs && Array.isArray(taskJson.taskJson.inputs)) {
+                  // Create a map for the options
+                  const optionsMap = taskJson.taskJson.inputs.reduce((map: Record<string, string>, input: any) => {
+                    if (input.options) {
+                      input.options.forEach((option: any) => {
+                        map[option.id] = option.label; // Map option ids to labels
+                      });
+                    }
+                    return map;
+                  }, {});
+    
+                  // Create a filtered array of inputs excluding specific inputIds
+                  const filteredInputsdata = taskJson.taskJson.inputs
+                    .filter((input: any) => !['99', '100', '102', '103'].includes(input.inputId)) // Exclude unwanted inputIds
+                    .map((input: any) => ({
+                      label: input.label,
+                      value: optionsMap[input.value] || input.value // Replace value with label if it exists in optionsMap
+                    }));
+    
+                  return {
+                    messID: taskJson.messID, // Include messID for reference
+                    inputs: filteredInputsdata // Return filtered inputs
+                  };
+                } else {
+                  console.error('taskJson does not have valid inputs:', taskJson);
+                  return null; // Handle invalid inputs array gracefully
+                }
+              }).filter((item) => item !== null); // Filter out any null tasks resulting from invalid inputs
+            }).flat(); // Flatten the array if needed
+    
           setPreData(filteredTasks);
-          console.log('Filtered Tasks:', filteredTasks);
-
-          const parsedConditions = fetchedData.map((task: ProjectAssignListWithDoer) => {
-            try {
-              return JSON.parse(task.condition_Json); // Parse the condition JSON
-            } catch (error) {
-              console.error('Error parsing condition_Json:', error);
-              return null;
-            }
-          });
-
-          setParsedCondition(parsedConditions);
         } else {
           console.error('API Response Error:', response.data?.message || 'Unknown error');
         }
       } catch (error) {
         if (axios.isAxiosError(error)) {
-          console.error('Axios Error Response:', error.response?.data || 'No response data');
-          console.error('Axios Error Message:', error.message);
+          console.error('Axios Error:', error.message);
         } else {
           console.error('Unexpected Error:', error);
         }
@@ -250,12 +243,12 @@ const ProjectAssignTable: React.FC = () => {
         setLoading(false);
       }
     };
-    if (taskCommonId) {
-      fetchPreData(taskCommonId);
+    // if (taskCommonId) {
+    //   fetchPreData(taskCommonId);
 
-    }
-  }, [taskCommonId]);
+    // }
 
+  // console.log(preData)
 
 
   const fetchSingleDataById = async (taskCommonId: number) => {
@@ -318,20 +311,48 @@ const ProjectAssignTable: React.FC = () => {
     </div>;
   }
 
+  // const formatAndUpdateDate = (createdDate: string, taskTime: string) => {
+  //   // Parse the created date and task time
+  //   const createdDateObj = parse(createdDate, 'dd-MM-yyyy HH:mm:ss', new Date());
+  //   const taskTimeValue = parseInt(taskTime, 10); // Assuming taskTime is in hours
+
+  //   // Calculate the number of days to add
+  //   const daysToAdd = Math.floor(taskTimeValue / 24);
+
+  //   // Add days to the created date
+  //   const updatedDate = addDays(createdDateObj, daysToAdd);
+
+  //   // Format the updated date to the desired format
+  //   return format(updatedDate, 'dd-MM-yyyy HH:mm:ss');
+  // };
+
+
   const formatAndUpdateDate = (createdDate: string, taskTime: string) => {
     // Parse the created date and task time
-    const createdDateObj = parse(createdDate, 'dd-MM-yyyy HH:mm:ss', new Date());
-    const taskTimeValue = parseInt(taskTime, 10); // Assuming taskTime is in hours
+    const createdDateObj = parse(createdDate, 'MM/dd/yyyy HH:mm:ss', new Date());
+  
+    console.log(createdDate)
 
+    // Check if the createdDateObj is valid
+    if (isNaN(createdDateObj.getTime())) {
+      throw new Error("Invalid createdDate format. Please check the input date string.");
+    }
+  
+    const taskTimeValue = parseInt(taskTime, 10); // Assuming taskTime is in hours
+  
     // Calculate the number of days to add
     const daysToAdd = Math.floor(taskTimeValue / 24);
-
+  
     // Add days to the created date
     const updatedDate = addDays(createdDateObj, daysToAdd);
-
+  
     // Format the updated date to the desired format
-    // return format(updatedDate, 'dd-MM-yyyy HH:mm:ss');
+    return format(updatedDate, 'dd-MM-yyyy HH:mm:ss');
   };
+
+
+
+
 
 
   const handleShow = () => setShow(true);
@@ -340,8 +361,12 @@ const ProjectAssignTable: React.FC = () => {
     // setProjectNameIDRow(projectName);  // Set the project name
     setTaskCommonIdRow(taskCommonId);   // Set the task common ID
     handleShow();
+
+    console.log(taskCommonId)
     if (taskCommonId) {
       fetchSingleDataById(taskCommonId);
+    fetchPreData(taskCommonId)
+
 
     }
   };
@@ -450,7 +475,7 @@ const ProjectAssignTable: React.FC = () => {
                             <div>
                               <DynamicForm
                                 formData={JSON.parse(item.task_Json)}
-                                singleDataById={singleDataById}
+                                // singleDataById={singleDataById}
                                 taskNumber={item.task_Number}
                                 doer={null} // Replace with actual doer if available
                                 onDoerChange={handleDoerChange}

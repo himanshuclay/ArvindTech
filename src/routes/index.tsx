@@ -53,7 +53,9 @@ const TaskPlanned = React.lazy(() => import('../pages/other/TaskPlanned.tsx'))
 const ExpireTask = React.lazy(() => import('../pages/other/ExpireTask.tsx'))
 const PendingTask = React.lazy(() => import('../pages/other/PendingTask.tsx'))
 const RunningTask = React.lazy(() => import('../pages/other/RunningTask.tsx'))
-const FormWizard = React.lazy(() => import('../pages/ui/formWizard.tsx'))
+const ModuleMasterNew = React.lazy(() => import('../pages/other/ModuleMaster/ModuleMaster.tsx'))
+const ModuleMasterinsert = React.lazy(() => import('../pages/other/ModuleMaster/ModuleMasterInsert.tsx'))
+
 
 
 
@@ -390,11 +392,24 @@ const customPagesRoutes = {
 			route: PrivateRoute,
 		},
 		{
-			path: '/pages/formWizard',
-			name: 'Running Task ',
-			element: <FormWizard />,
+			path: '/pages/ModuleMasterNew',
+			name: 'ModuleMasterNew ',
+			element: <ModuleMasterNew />,
 			route: PrivateRoute,
 		},
+		{
+			path: '/pages/ModuleMasterinsert/:id',
+			name: 'ModuleMasterinsert ',
+			element: <ModuleMasterinsert />,
+			route: PrivateRoute,
+		},
+		{
+			path: '/pages/ModuleMasterinsert',
+			name: 'ModuleMasterinsert ',
+			element: <ModuleMasterinsert />,
+			route: PrivateRoute,
+		},
+		
 		///////////////////////////////////////////////////////////////////////////////////////////
 		{
 			path: '/pages/contact-list',

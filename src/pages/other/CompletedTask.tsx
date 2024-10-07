@@ -57,9 +57,10 @@ interface Column {
 const ProjectAssignTable: React.FC = () => {
   const [data, setData] = useState<ProjectAssignListWithDoer[]>([]);
   const [preData, setPreData] = useState<ProjectAssignListWithDoer[]>([]);
+  const [preDataLevelOne, setPreDataLevelOne] = useState<ProjectAssignListWithDoer[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [show, setShow] = useState(false);
-  const [taskCommonId, setTaskCommonId] = useState<number | null>(null);
+  const [taskCommonId, setTaskCommonId] = useState<number | null>();
   const [showToast, setShowToast] = useState(false);
   const [taskName, setTaskName] = useState<string | undefined>(undefined);
 
@@ -142,6 +143,7 @@ const ProjectAssignTable: React.FC = () => {
 
 
   console.log(taskCommonId)
+  console.log(data)
   // Fetch task data when taskCommonId is set
   useEffect(() => {
     if (taskCommonId !== null) {
@@ -158,34 +160,47 @@ const ProjectAssignTable: React.FC = () => {
 
       if (response.data && response.data.isSuccess) {
         const fetchedData = response.data.getFilterTasks || [];
-        console.log(fetchedData);
 
+        // console.log(fetchedData);
+        setPreDataLevelOne(fetchedData)
         // Filter out tasks with isCompleted as "Pending"
         const filteredTasks = fetchedData
-          .filter((task) => task.isCompleted !== "Pending")  // Filter step
+          .filter((task) => task.isCompleted !== "Pending") // Filter step
           .map((task: ProjectAssignListWithDoer) => {
-            const parsedTaskJson = JSON.parse(task.task_Json);
-            const optionsMap = parsedTaskJson.inputs.reduce((map: Record<string, string>, input: any) => {
-              if (input.options) {
-                input.options.forEach((option: any) => {
-                  map[option.id] = option.label;
-                });
+            const taskJsonArray = JSON.parse(task.task_Json); // Parse task_Json to get an array of taskJson objects
+            console.log(taskJsonArray)
+            // Assuming taskJsonArray is an array, handle each taskJson object
+            return taskJsonArray.map((taskJson: any) => {
+              // Ensure taskJson is valid and has taskJson and inputs
+              if (taskJson && taskJson.taskJson && taskJson.taskJson.inputs && Array.isArray(taskJson.taskJson.inputs)) {
+                // Create a map for the options
+                const optionsMap = taskJson.taskJson.inputs.reduce((map: Record<string, string>, input: any) => {
+                  if (input.options) {
+                    input.options.forEach((option: any) => {
+                      map[option.id] = option.label; // Map option ids to labels
+                    });
+                  }
+                  return map;
+                }, {});
+
+                // Create a filtered array of inputs excluding specific inputIds
+                const filteredInputsdata = taskJson.taskJson.inputs
+                  .filter((input: any) => !['99', '100', '102', '103'].includes(input.inputId)) // Exclude unwanted inputIds
+                  .map((input: any) => ({
+                    label: input.label,
+                    value: optionsMap[input.value] || input.value // Replace value with label if it exists in optionsMap
+                  }));
+
+                return {
+                  messID: taskJson.messID, // Include messID for reference
+                  inputs: filteredInputsdata // Return filtered inputs
+                };
+              } else {
+                console.error('taskJson does not have valid inputs:', taskJson);
+                return null; // Handle invalid inputs array gracefully
               }
-              return map;
-            }, {});
-
-            const filteredInputs = parsedTaskJson.inputs
-              .filter((input: any) => !['99', '100', '102', '103'].includes(input.inputId)) // Exclude unwanted inputIds
-              .map((input: any) => ({
-                label: input.label,
-                value: optionsMap[input.value] || input.value // Replace value with label if it exists in optionsMap
-              }));
-
-            return {
-              taskNumber: task.task_Number,
-              inputs: filteredInputs
-            };
-          });
+            }).filter((item) => item !== null); // Filter out any null tasks resulting from invalid inputs
+          }).flat(); // Flatten the array if needed
 
         setPreData(filteredTasks);
       } else {
@@ -203,13 +218,11 @@ const ProjectAssignTable: React.FC = () => {
   };
 
 
+
+
   const handleEdit = (id: number) => {
-    // const taskCommonId = id
-    const taskCommonId = 2
-
+    const taskCommonId = id
     setTaskCommonId(taskCommonId);
-
-    // Set the taskCommonId to fetch the specific task data
     setShow(true); // Show the Offcanvas
   };
 
@@ -220,36 +233,23 @@ const ProjectAssignTable: React.FC = () => {
   }
 
   const formatAndUpdateDate = (createdDate: string, taskTime: string) => {
-    // Parse the created date with the correct format 'MM/dd/yyyy HH:mm:ss'
     const createdDateObj = parse(createdDate, 'MM/dd/yyyy HH:mm:ss', new Date());
-
-    // Check if the createdDateObj is valid
     if (!isValid(createdDateObj)) {
       console.error('Invalid createdDate:', createdDate);
       return 'Invalid created date';
     }
+    const taskTimeValue = parseInt(taskTime, 10);
 
-    const taskTimeValue = parseInt(taskTime, 10); // Assuming taskTime is in hours
-
-    // Check if taskTime is a valid number
     if (isNaN(taskTimeValue)) {
       console.error('Invalid taskTime:', taskTime);
       return 'Invalid task time';
     }
-
-    // Calculate the number of days to add
     const daysToAdd = Math.floor(taskTimeValue / 24);
-
-    // Add days to the created date
     const updatedDate = addDays(createdDateObj, daysToAdd);
-
-    // Format the updated date to the desired format 'MM/dd/yyyy HH:mm:ss'
     return format(updatedDate, 'MM/dd/yyyy HH:mm:ss');
   };
 
-  // Example Usage
-  // const updatedDate = formatAndUpdateDate('21-09-2023 15:30:00', '48');
-  // console.log(updatedDate);
+
 
 
 
@@ -278,59 +278,8 @@ const ProjectAssignTable: React.FC = () => {
     );
   };
 
-  const preDatas = [
-    {
-      taskNumber: 'T-001',
-      inputs: [
-        [
-          { label: 'Input 1', value: 'Value One' },
-          { label: 'Input 2', value: 'Value Two' }
-        ],
-        [
-          { label: 'Input 3', value: 'Value Three' },
-          { label: 'Input 4', value: 'Value Four' }
-        ]
-      ]
-    },
 
-    {
-      taskNumber: 'T-002',
-      inputs: [
-        { label: 'Input 1', value: 'Value X' },
-        { label: 'Input 2', value: 'Value Y' },
-        { label: 'Input 3', value: 'Value Z' },
-      ]
-    },
-    {
-      taskNumber: 'T-003',
-      inputs: [
-        { label: 'Input 1', value: 'Value Alpha' },
-        { label: 'Input 2', value: 'Value Beta' },
-        { label: 'Input 3', value: 'Value Gamma' },
-      ]
-    },
-    {
-      taskNumber: 'T-004',
-      inputs: [
-        { label: 'Input 1', value: 'Value One' },
-        { label: 'Input 2', value: 'Value Two' },
-        { label: 'Input 3', value: 'Value Three' },
-      ]
-    },
-    {
-      taskNumber: 'T-005',
-      inputs: [
-        [
-          { label: 'Input 1', value: 'Value One' },
-          { label: 'Input 2', value: 'Value Two' }
-        ],
-        [
-          { label: 'Input 3', value: 'Value Three' },
-          { label: 'Input 4', value: 'Value Four' }
-        ]
-      ]
-    },
-  ];
+
 
   return (
     <>
@@ -339,68 +288,75 @@ const ProjectAssignTable: React.FC = () => {
           <Offcanvas.Title>Task Details</Offcanvas.Title>
         </Offcanvas.Header>
         <Offcanvas.Body>
-          {preData.map((task, index) => (
-            <div key={index}>
-             <h5 className="mt-2">
-                Updated data from <span className="text-primary">{task.taskNumber}</span> &nbsp;&nbsp;&nbsp;
-                <span className='fs-15 information-btn ' 
-                  ref={(el) => (targetRefs.current[index] = el)} // Store the ref for each task
-                  onClick={() => setPopoverIndex(popoverIndex === index ? null : index)} // Toggle popover visibility for the clicked task
+          {/* Loop through the first level of data */}
+          {preDataLevelOne.map((preDataLevelOne, levelOneIndex) => (
+            <div key={levelOneIndex}>
+              <h5 className="mt-2">
+                Updated data from <span className="text-primary">{preDataLevelOne.task_Number}</span> &nbsp;&nbsp;&nbsp;
+                <span
+                  className="fs-15 information-btn"
+                  ref={(el) => (targetRefs.current[levelOneIndex] = el)} // Store the ref for each task
+                  onClick={() => setPopoverIndex(popoverIndex === levelOneIndex ? null : levelOneIndex)} // Toggle popover visibility for the clicked task
                 >
                   <i className="ri-error-warning-fill fs-20"></i>
                 </span>
-
               </h5>
-              <div>
-                <Overlay
-                  target={targetRefs.current[index]} // Use the ref for the current task
-                  show={popoverIndex === index} // Only show popover for the clicked task
-                  placement="left"
-                >
-                  {(props) => (
-                    <Tooltip id="overlay-example" {...props} className='tooltip-position'>
-                      {/* Render each input array inside a card */}
-                      <div className='d-flex'>
 
-                        {Array.isArray(task.inputs[0])
-                          ? task.inputs.map((inputArray, arrIndex) => (
+              {/* Loop through the second level of data */}
 
-                            <Card key={arrIndex} className="m-2 pop-card">
-                                <Card.Body>
+              
+              {preData.map((task, index) => (
+                <div key={index}>
+                  <div>
+                    {/* Popover for displaying the second-level data */}
+                    <Overlay
+                      target={targetRefs.current[levelOneIndex]} // Use the ref for the current task
+                      show={popoverIndex === levelOneIndex} // Only show popover for the clicked task
+                      placement="left"
+                    >
+                      {(props) => (
+                        <Tooltip id="overlay-example" {...props} className="tooltip-position">
+                          {/* Render each input array inside a card */}
+                          <div className="d-flex">
+                            {Array.isArray(task.inputs[0]) ? (
+                              task.inputs.map((inputArray, arrIndex) => (
+                                <Card key={arrIndex} className="m-2 pop-card">
+                                  <Card.Body>
+                                    {inputArray.map((input, i) => (
+                                      <Col key={i}>
+                                        <strong>{input.label}:</strong> <span className="text-primary">{input.value}</span>
+                                      </Col>
+                                    ))}
+                                  </Card.Body>
+                                </Card>
+                              ))
+                            ) : (
+                              <Card className="m-2 pop-card">
+                                <Row>
+                                  <Card.Body>
+                                    {task.inputs.map((input, i) => (
+                                      <Col key={i}>
+                                        <strong>{input.label}:</strong> <span className="text-primary">{input.value}</span>
+                                      </Col>
+                                    ))}
+                                  </Card.Body>
+                                </Row>
+                              </Card>
+                            )}
+                          </div>
+                        </Tooltip>
+                      )}
+                    </Overlay>
+                  </div>
+                  <hr />
+                </div>
+              ))}
 
-                                  {inputArray.map((input, i) => (
-                                    <Col key={i}>
-                                      <strong>{input.label}:</strong> <span className="text-primary">{input.value}</span>
-                                    </Col>
-                                  ))}
-                                </Card.Body>
-                            </Card>
 
-
-                          ))
-                          : (
-                            <Card className="m-2 pop-card">
-                              <Row>
-                                <Card.Body>
-                                  {task.inputs.map((input, i) => (
-                                    <Col key={i} >
-                                      <strong>{input.label}:</strong> <span className="text-primary">{input.value}</span>
-                                    </Col>
-                                  ))}
-                                </Card.Body>
-                              </Row>
-                            </Card>
-                          )}
-                      </div>
-
-                    </Tooltip>
-                  )}
-                </Overlay>
-              </div>
-              <hr />
             </div>
           ))}
         </Offcanvas.Body>
+
       </Offcanvas>
 
       <div className="d-flex p-2 bg-white mt-2 mb-2 rounded shadow"><h5 className="mb-0">Completed Tasks</h5></div>
@@ -469,15 +425,15 @@ const ProjectAssignTable: React.FC = () => {
                         <Draggable key={column.id} draggableId={column.id} index={index}>
                           {(provided) => (
                             <th ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps}>
-                             {column.id === 'processName' && (<i className="ri-map-2-line"></i>)}
-                                {column.id === 'projectName' && (<i class="ri-building-line"></i>)}
-                                {column.id === 'task_Number' && (<i class="ri-health-book-line"></i>)}
-                                {column.id === 'roleName' && (<i class="ri-shield-user-line"></i>)}
-                                {column.id === 'taskType' && (<i class="ri-bookmark-line"></i>)}
-                                {column.id === 'taskTime' && (<i class="ri-calendar-line"></i>)}
-                                {column.id === 'createdDate' && (<i class="ri-hourglass-line"></i>)}
-                                {column.id === 'completedDate' && (<i class="ri-focus-3-line"></i>)}
-                                {column.id === 'moduleName' && (<i className="ri-box-3-line"></i>)}
+                              {column.id === 'processName' && (<i className="ri-map-2-line"></i>)}
+                              {column.id === 'projectName' && (<i class="ri-building-line"></i>)}
+                              {column.id === 'task_Number' && (<i class="ri-health-book-line"></i>)}
+                              {column.id === 'roleName' && (<i class="ri-shield-user-line"></i>)}
+                              {column.id === 'taskType' && (<i class="ri-bookmark-line"></i>)}
+                              {column.id === 'taskTime' && (<i class="ri-calendar-line"></i>)}
+                              {column.id === 'createdDate' && (<i class="ri-hourglass-line"></i>)}
+                              {column.id === 'completedDate' && (<i class="ri-focus-3-line"></i>)}
+                              {column.id === 'moduleName' && (<i className="ri-box-3-line"></i>)}
 
 
                               &nbsp; {column.label}
