@@ -192,16 +192,16 @@ const EmployeeInsert = () => {
 
         console.log(module)
         e.preventDefault();
-        // try {
-        //     if (editMode) {
-        //         await axios.post(`${config.API_URL_APPLICATION}/ModuleMaster/UpdateModule`, module);
-        //     } else {
-        //         await axios.post(`${config.API_URL_APPLICATION}/ModuleMaster/InsertModule`, module);
-        //     }
-        //     navigate('/pages/ModuleMasternew');  
-        // } catch (error) {
-        //     console.error('Error submitting module:', error);
-        // }
+        try {
+            if (editMode) {
+                await axios.post(`${config.API_URL_APPLICATION}/ModuleMaster/UpdateModule`, module);
+            } else {
+                await axios.post(`${config.API_URL_APPLICATION}/ModuleMaster/InsertModule`, module);
+            }
+            navigate('/pages/ModuleMaster');  
+        } catch (error) {
+            console.error('Error submitting module:', error);
+        }
     };
 
     return (
@@ -349,7 +349,7 @@ const EmployeeInsert = () => {
 
                         <Col className='align-items-end d-flex justify-content-end mb-3'>
 
-                            <Link to={'/pages/ModuleMasternew'}>
+                            <Link to={'/pages/ModuleMaster'}>
                                 <Button variant="primary" >
                                     Back
                                 </Button>
