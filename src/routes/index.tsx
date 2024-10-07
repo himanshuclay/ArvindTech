@@ -280,12 +280,12 @@ const customPagesRoutes = {
 			element: <Bank />,
 			route: PrivateRoute,
 		},
-		{
-			path: '/pages/ModuleMaster',
-			name: 'Module Master',
-			element: <ModuleMaster />,
-			route: PrivateRoute,
-		},
+		// {
+		// 	path: '/pages/ModuleMaster',
+		// 	name: 'Module Master',
+		// 	element: <ModuleMaster />,
+		// 	route: PrivateRoute,
+		// },
 		{
 			path: '/pages/ProcessMaster',
 			name: 'Process Master',
@@ -392,7 +392,7 @@ const customPagesRoutes = {
 			route: PrivateRoute,
 		},
 		{
-			path: '/pages/ModuleMasterNew',
+			path: '/pages/ModuleMaster',
 			name: 'ModuleMasterNew ',
 			element: <ModuleMasterNew />,
 			route: PrivateRoute,
