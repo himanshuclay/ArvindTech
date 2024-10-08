@@ -14,9 +14,11 @@ interface Module {
     moduleID: string;
     misExemptID: number;
     statusID: number;
+    userUpdatedMobileNumber: number;
     moduleOwnerID: string;
     moduleOwnerName: string;
     createdBy: string;
+
     updatedBy: string;
 }
 
@@ -174,9 +176,9 @@ const ModuleMaster = () => {
 
     const filteredModules = modules.filter(module =>
         module.moduleDisplayName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        module.moduleID.toLowerCase().includes(searchQuery.toLowerCase())||
-        module.fmsType.toLowerCase().includes(searchQuery.toLowerCase())||
-        module.moduleOwnerID.toLowerCase().includes(searchQuery.toLowerCase())||
+        module.moduleID.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        module.fmsType.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        module.moduleOwnerID.toLowerCase().includes(searchQuery.toLowerCase()) ||
         module.moduleOwnerName.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
@@ -269,7 +271,7 @@ const ModuleMaster = () => {
                                                         onChange={(e) => setModuleDisplayName(e.target.value)}
                                                         className='h45'
                                                     >
-                                                        <option value="">Select Module Display Name</option>
+                                                        <option value="">Search...</option>
                                                         {moduleList.map(module => (
                                                             <option key={module.id} value={module.moduleName}>
                                                                 {module.moduleName}
@@ -289,7 +291,7 @@ const ModuleMaster = () => {
                                                         onChange={(e) => setModuleOwnerName(e.target.value)}
                                                         className='h45'
                                                     >
-                                                        <option value="">Select Module Owner Name</option>
+                                                        <option value="">Search...</option>
                                                         {employeeList.map(emp => (
                                                             <option key={emp.empId} value={emp.empId}>
                                                                 {emp.employeeName}
@@ -323,9 +325,9 @@ const ModuleMaster = () => {
                                                         <input
                                                             type="search"
                                                             className="form-control"
-                                                            placeholder="Search module..."
-                                                        value={searchQuery}
-                                                        onChange={handleSearchcurrent}
+                                                            placeholder="Search..."
+                                                            value={searchQuery}
+                                                            onChange={handleSearchcurrent}
                                                         />
                                                         <span className="ri-search-line search-icon text-muted" />
                                                     </div>
@@ -338,6 +340,7 @@ const ModuleMaster = () => {
                                         </div>
                                     </Row>
                                 </div>
+
                                 <DragDropContext onDragEnd={handleOnDragEnd}>
 
                                     <Table hover className='bg-white '>
@@ -359,6 +362,7 @@ const ModuleMaster = () => {
                                                                             {column.id === 'moduleOwnerID' && (<i className="ri-settings-2-fill"></i>)}
                                                                             {column.id === 'moduleID' && (<i className="ri-settings-2-fill"></i>)}
                                                                             {column.id === 'moduleDisplayName' && (<i className="ri-user-settings-fill"></i>)}
+                                                                            {/* {column.id === 'userUpdatedMobileNumber' && (<i className="ri-phone-fill"></i>)} */}
                                                                             {column.id === 'moduleOwnerName' && (<i className="ri-user-fill"></i>)}
                                                                             {column.id === 'identifier' && (<i className="ri-price-tag-3-fill"></i>)}
                                                                             {column.id === 'input' && (<i className="ri-pencil-fill"></i>)}
@@ -405,9 +409,19 @@ const ModuleMaster = () => {
                                                                         </td>
                                                                     ) : col.id === 'moduleOwnerName' ? (
                                                                         <td>
-                                                                            <div style={{ display: 'flex', alignItems: 'center' }}>
-                                                                                <IconWithLetter letter={item.moduleOwnerName.charAt(0)} />
-                                                                                {item.moduleOwnerName}
+                                                                            <div >
+                                                                                <div className='d-flex align-items-center'>
+                                                                                    <IconWithLetter letter={item.moduleOwnerName.charAt(0)} />
+                                                                                    {item.moduleOwnerName}
+                                                                                </div>
+                                                                                {item.userUpdatedMobileNumber ?
+                                                                                    <p className='phone_user fw-normal m-0'>
+                                                                                        <a href={`tel:${item.userUpdatedMobileNumber}`}> <i className="ri-phone-fill"></i> {item.userUpdatedMobileNumber}</a>
+
+                                                                                    </p> : ""
+                                                                                }
+
+
                                                                             </div>
                                                                         </td>
                                                                     ) : (

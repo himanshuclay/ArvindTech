@@ -9,7 +9,7 @@ interface Module {
     moduleDisplayName: string;
     fmsType: string;
     moduleID: string;
-    misExemptID: number;
+    misExempt: number;
     statusID: number;
     moduleOwnerID: string;
     moduleOwnerName: string;
@@ -40,7 +40,7 @@ const EmployeeInsert = () => {
     const navigate = useNavigate();
 
     const [editMode, setEditMode] = useState<boolean>(false);
-    const [misExemptID, setMisExemptID] = useState<MISExempt[]>([]);
+    const [misExempt, setMisExempt] = useState<MISExempt[]>([]);
     const [statusID, setStatusID] = useState<Status[]>([]);
     const [moduleDisplayName, setModuleDisplayName] = useState<ModuleDisplayName[]>([]);
     const [moduleOwnerName, setModuleOwnerName] = useState<ModuleOwnerName[]>([]);
@@ -50,7 +50,7 @@ const EmployeeInsert = () => {
         moduleDisplayName: '',
         fmsType: '',
         moduleID: '',
-        misExemptID: 0,
+        misExempt: 0,
         statusID: 0,
         moduleOwnerID: '',
         moduleOwnerName: '',
@@ -107,7 +107,7 @@ const EmployeeInsert = () => {
             try {
                 const response = await axios.get(`${config.API_URL_APPLICATION}/CommonDropdown/GetMISExempt`);
                 if (response.data.isSuccess) {
-                    setMisExemptID(response.data.mISExemptListResponses);
+                    setMisExempt(response.data.mISExemptListResponses);
                 } else {
                     console.error(response.data.message);
                 }
@@ -266,18 +266,18 @@ const EmployeeInsert = () => {
 
                         <Col lg={6}>
 
-                            <Form.Group controlId="misExemptID" className="mb-3">
-                                <Form.Label>MIS Exempt ID:</Form.Label>
+                            <Form.Group controlId="misExempt" className="mb-3">
+                                <Form.Label>MIS Exempt:</Form.Label>
                                 <Form.Control
                                     as="select"
-                                    name="misExemptID"
-                                    value={module.misExemptID}
-                                    onChange={(e) => setModule({ ...module, misExemptID: parseInt(e.target.value) })}
+                                    name="misExempt"
+                                    value={module.misExempt}
+                                    onChange={(e) => setModule({ ...module, misExempt: e.target.value })}
                                 >
                                     <option value="">Select MIS Exempt</option>
-                                    {misExemptID.length > 0 ? (
-                                        misExemptID.map((exempt) => (
-                                            <option key={exempt.id} value={exempt.id}>
+                                    {misExempt.length > 0 ? (
+                                        misExempt.map((exempt) => (
+                                            <option key={exempt.id} value={exempt.name}>
                                                 {exempt.name}
                                             </option>
                                         ))
