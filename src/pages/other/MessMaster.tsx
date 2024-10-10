@@ -39,7 +39,7 @@ const MessMasterComponent: React.FC = () => {
     const fetchMesses = async () => {
         setLoading(true);
         try {
-            const response = await axios.get('https://localhost:44307/api/MessMaster/GetMess', {
+            const response = await axios.get('https://arvindo-api2.clay.in/api/MessMaster/GetMess', {
                 params: {
                     PageIndex: currentPage
                 }

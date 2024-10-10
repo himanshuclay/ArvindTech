@@ -425,7 +425,7 @@ const AccountProcessTable: React.FC = () => {
                     console.log("Payload being sent:", payload);
 
                     try {
-                        const response = await axios.post('https://localhost:44382/api/ProcessTaskMaster/InsertUpdateProcessTaskandDoer', payload);
+                        const response = await axios.post('https://arvindo-api.clay.in/api/ProcessTaskMaster/InsertUpdateProcessTaskandDoer', payload);
                         console.log("Data successfully posted.");
                         setSelectedConditionTask("");
                         handleClose();
@@ -890,11 +890,11 @@ const AccountProcessTable: React.FC = () => {
 
                 if (selectedModule != "" && selectedProcess != "") {
                     // API call when both `selectedModule` and `selectedProcess` are selected
-                    response = await axios.get(`https://localhost:44382/api/ProcessTaskMaster/GetProcessTaskByIds?Flag=2&ModuleId=${selectedModuleId}&ProcessId=${selectedProcess}`);
+                    response = await axios.get(`https://arvindo-api.clay.in/api/ProcessTaskMaster/GetProcessTaskByIds?Flag=2&ModuleId=${selectedModuleId}&ProcessId=${selectedProcess}`);
                     console.log(selectedModuleId, selectedProcess)
                 } else {
                     // Default API call when neither `selectedModule` nor `selectedProcess` is selected
-                    response = await axios.get(`https://localhost:44382/api/ProcessTaskMaster/GetProcessTaskByIds?Flag=1`);
+                    response = await axios.get(`https://arvindo-api.clay.in/api/ProcessTaskMaster/GetProcessTaskByIds?Flag=1`);
                     console.log(selectedModule, selectedProcess)
                 }
 
@@ -922,7 +922,7 @@ const AccountProcessTable: React.FC = () => {
     //     if (selectedModule && selectedProcess) {
     //         const fetchTasks = async () => {
     //             try {
-    //                 const response = await axios.get(`https://localhost:44382/api/ProcessTaskMaster/GetProcessTaskByIds?Flag=1&ModuleID=${selectedModule}&ProcessId=${selectedProcess}`);
+    //                 const response = await axios.get(`https://arvindo-api.clay.in/api/ProcessTaskMaster/GetProcessTaskByIds?Flag=1&ModuleID=${selectedModule}&ProcessId=${selectedProcess}`);
     //                 if (response.data.isSuccess) {
     //                     setTasks(response.data.getProcessTaskByIds);
 
@@ -941,7 +941,7 @@ const AccountProcessTable: React.FC = () => {
     useEffect(() => {
         const fetchEmployees = async () => {
             try {
-                const response = await axios.get(`https://localhost:44307/api/CommonDropdown/GetEmployeeListWithId`);
+                const response = await axios.get(`https://arvindo-api2.clay.in/api/CommonDropdown/GetEmployeeListWithId`);
                 if (response.data.isSuccess) {
                     setEmployees(response.data.employeeLists);
                 } else {
@@ -1007,7 +1007,7 @@ const AccountProcessTable: React.FC = () => {
 
             const assignTask = async () => {
                 try {
-                    const response = await axios.post('https://localhost:44382/api/ProcessTaskMaster/InsertUpdateProcessTaskandDoer', payload);
+                    const response = await axios.post('https://arvindo-api.clay.in/api/ProcessTaskMaster/InsertUpdateProcessTaskandDoer', payload);
 
                     if (response.data.isSuccess) {
                         console.log('Task assigned successfully');
@@ -1042,7 +1042,7 @@ const AccountProcessTable: React.FC = () => {
             console.log(payload)
 
             try {
-                const response = await axios.post('https://localhost:44382/api/ProcessTaskMaster/ProcessAssignWithProject', payload);
+                const response = await axios.post('https://arvindo-api.clay.in/api/ProcessTaskMaster/ProcessAssignWithProject', payload);
                 if (response.data.isSuccess) {
                     console.log('Process assigned to project successfully');
                 } else {

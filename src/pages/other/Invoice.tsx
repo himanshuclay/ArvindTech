@@ -60,7 +60,7 @@ const TemplateTable: React.FC = () => {
   useEffect(() => {
     const fetchTemplates = async () => {
       try {
-        const response = await axios.get<ApiResponse>('https://localhost:44382/api/ProcessTaskMaster/GetTemplateJson');
+        const response = await axios.get<ApiResponse>('https://arvindo-api.clay.in/api/ProcessTaskMaster/GetTemplateJson');
         if (response.data.isSuccess) {
           setData(response.data.getTemplateJsons);
         } else {

@@ -142,7 +142,7 @@ const ProjectsPage: React.FC = () => {
         console.log('Payload:', payload); // Log the payload
 
         try {
-            const response = await axios.post('https://localhost:44307/api/ProjectMaster/InsertProject', payload, {
+            const response = await axios.post('https://arvindo-api2.clay.in/api/ProjectMaster/InsertProject', payload, {
                 headers: {
                     'accept': '*/*',
                     'Content-Type': 'application/json'

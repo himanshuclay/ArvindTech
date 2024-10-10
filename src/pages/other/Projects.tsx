@@ -52,7 +52,7 @@ const ProjectsPage: React.FC = () => {
         try {
             // Construct the URL with URLSearchParams
             const params = new URLSearchParams({ PageIndex: currentPage.toString() });
-            const url = `https://localhost:44307/api/ProjectMaster/GetProject?${params.toString()}`;
+            const url = `https://arvindo-api2.clay.in/api/ProjectMaster/GetProject?${params.toString()}`;
 
             console.log('Fetching URL:', url); // Log the URL to verify
 
@@ -141,7 +141,7 @@ const ProjectsPage: React.FC = () => {
         console.log('Payload:', payload); // Log the payload
 
         try {
-            const response = await axios.post('https://localhost:44307/api/ProjectMaster/InsertProject', payload, {
+            const response = await axios.post('https://arvindo-api2.clay.in/api/ProjectMaster/InsertProject', payload, {
                 headers: {
                     'accept': '*/*',
                     'Content-Type': 'application/json'

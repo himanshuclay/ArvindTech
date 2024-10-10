@@ -200,7 +200,7 @@ const App: React.FC = () => {
   useEffect(() => {
     const fetchEmployees = async () => {
       try {
-        const response = await axios.get(`https://localhost:44307/api/CommonDropdown/GetEmployeeListWithId`);
+        const response = await axios.get(`https://arvindo-api2.clay.in/api/CommonDropdown/GetEmployeeListWithId`);
         if (response.data.isSuccess) {
           setEmployees(response.data.employeeLists);
         } else {
@@ -299,7 +299,7 @@ const App: React.FC = () => {
   useEffect(() => {
     const fetchModules = async () => {
       try {
-        const response = await axios.get('https://localhost:44307/api/CommonDropdown/GetModuleList');
+        const response = await axios.get('https://arvindo-api2.clay.in/api/CommonDropdown/GetModuleList');
         if (response.data.isSuccess) {
           setModules(response.data.moduleNameListResponses);
         } else {
@@ -316,7 +316,7 @@ const App: React.FC = () => {
   useEffect(() => {
     const fetchRoles = async () => {
       try {
-        const response = await axios.get('https://localhost:44307/api/CommonDropdown/GetRoleMasterList');
+        const response = await axios.get('https://arvindo-api2.clay.in/api/CommonDropdown/GetRoleMasterList');
         if (response.data.isSuccess) {
           setRoles(response.data.roleMasterLists); // roleMasterLists is an array of Role objects
         } else {
@@ -368,7 +368,7 @@ const App: React.FC = () => {
         localStorage.setItem('selectedModuleId', selectedModule.moduleID); // Save selectedModuleId to localStorage
         localStorage.setItem('selectedModuleName', selectedModule.moduleName); // Save selectedModuleName to localStorage
 
-        fetch(`https://localhost:44307/api/CommonDropdown/GetProcessNameByModuleName?ModuleName=${value}`)
+        fetch(`https://arvindo-api2.clay.in/api/CommonDropdown/GetProcessNameByModuleName?ModuleName=${value}`)
           .then((response) => response.json())
           .then((data) => {
             if (data.isSuccess) {
@@ -496,7 +496,7 @@ const App: React.FC = () => {
     setLoading(true);
 
     try {
-      const response = await fetch('https://localhost:44382/api/ProcessTaskMaster/InsertUpdateProcessTaskandDoer', {
+      const response = await fetch('https://arvindo-api.clay.in/api/ProcessTaskMaster/InsertUpdateProcessTaskandDoer', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -589,7 +589,7 @@ const App: React.FC = () => {
     setLoading(true);
 
     try {
-      const response = await fetch('https://localhost:44382/api/ProcessTaskMaster/InsertTemplateJson', {
+      const response = await fetch('https://arvindo-api.clay.in/api/ProcessTaskMaster/InsertTemplateJson', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -632,7 +632,7 @@ const App: React.FC = () => {
   useEffect(() => {
     const fetchTemplateData = async () => {
       try {
-        const response = await axios.get('https://localhost:44382/api/ProcessTaskMaster/GetTemplateJson');
+        const response = await axios.get('https://arvindo-api.clay.in/api/ProcessTaskMaster/GetTemplateJson');
         if (response.data.isSuccess) {
           const templates = response.data.getTemplateJsons;
 

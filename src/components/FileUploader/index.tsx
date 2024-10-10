@@ -60,7 +60,7 @@ const FileUploader = ({
 		formData.append('FileType', 'pdf');
 
 		try {
-			const response = await fetch('https://localhost:44382/api/FileUpload/UploadFiles', {
+			const response = await fetch('https://arvindo-api.clay.in/api/FileUpload/UploadFiles', {
 				method: 'POST',
 				body: formData,
 			});
