@@ -409,7 +409,7 @@ const App: React.FC = () => {
       return;
     }
 
-    const startDate = new Date().toISOString();
+    // const startDate = new Date().toISOString();
 
     // Create the final JSON object for the form
     const transformedFields = taskFields.map((field) => {
@@ -447,8 +447,14 @@ const App: React.FC = () => {
       roleId: selectedRole ? String(selectedRole.id) : '', // Ensure roleId is a string
       roleName: selectedRole?.roleName || '', // Ensure roleName is present or empty string
       processName,
-      startDate,
-      Task_Status: 1,
+      // startDate,
+      doerID: "",
+      doerName: "",
+      task_Number: "",
+      condition_Json: "",
+      isExpired: 0,
+      task_Status: 1,
+      template_Json: selectedTemplateJson,
       task_Json: JSON.stringify(formJSON),
       createdBy: "HimanshuPant", // Replace with actual username or dynamic value
       finishPoint: parseFloat(finishID), // Convert finishID to float before sending
@@ -461,7 +467,7 @@ const App: React.FC = () => {
     setLoading(true);
 
     try {
-      const response = await fetch('https://arvindo-api.clay.in/api/ProcessTaskMaster/InsertUpdateProcessTaskandDoer', {
+      const response = await fetch('https://localhost:44382/api/ProcessTaskMaster/InsertUpdateProcessTaskandDoer', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -591,8 +597,43 @@ const App: React.FC = () => {
     }
   };
 
+  const [selectedTemplateJson, setSelectedTemplateJson] = useState(''); // Store the selected templateJson
 
 
+  useEffect(() => {
+    const fetchTemplateData = async () => {
+      try {
+        const response = await axios.get('https://localhost:44382/api/ProcessTaskMaster/GetTemplateJson');
+        if (response.data.isSuccess) {
+          const templates = response.data.getTemplateJsons;
+
+          // Set the templates in state (includes formName and templateJson)
+          setTemplates(templates);
+        } else {
+          console.error('Failed to fetch template data:', response.data.message);
+        }
+      } catch (error) {
+        console.error('Error fetching template data:', error);
+      }
+    };
+
+    fetchTemplateData();
+  }, []);
+
+
+
+  const handleSelectTemplateChange = (e: ChangeEvent<any>) => {
+    const selectedFormName = e.target.value;
+    
+    // Use type assertion to tell TypeScript that the object has a `formName` property
+    const selectedTemplate = templates.find(
+      template => (template as { formName: string; templateJson: any }).formName === selectedFormName
+    );
+  
+    if (selectedTemplate) {
+      setSelectedTemplateJson((selectedTemplate as { formName: string; templateJson: any }).templateJson);
+    }
+  };
 
 
 
@@ -715,6 +756,14 @@ const App: React.FC = () => {
     };
   };
 
+  type Template = {
+    id: number;
+    formName: string;
+    templateJson: any;  // Adjust this based on the actual structure of templateJson
+  };
+
+  const [templates, setTemplates] = useState<Template[]>([]);
+
 
   const renderField = (field: FormField, taskIndex: number, fieldIndex: number) => {
     const renderFieldContent = () => {
@@ -823,13 +872,13 @@ const App: React.FC = () => {
       <div className="container mt-4">
         <div className="d-flex p-2 bg-white mt-2 mb-2">
           {
-            
-            (location.pathname === '/pages/CreateTemplates'?'  Create Templates':'  Create Task')
+
+            (location.pathname === '/pages/CreateTemplates' ? '  Create Templates' : '  Create Task')
 
           }
-        
-          
-          </div>
+
+
+        </div>
 
 
         <DragDropContext onDragEnd={handleDragEnd}>
@@ -1016,25 +1065,35 @@ const App: React.FC = () => {
                   ))}
               </Form.Control>
             </Form.Group>
-            {/* <Form.Group className="col-6 my-1">
-              <Form.Label>Select Template</Form.Label>
-              <Form.Control
-                as="select"
-                name="finishID"  // Changed from processID to finishID
-                value=  // Updated to finishID
-                onChange=
-                required
-              >
-                <option value="">Select Field</option>
-                {taskFields
-                  .filter(field => !['99', '100', '102', '103'].includes(field.inputId))
-                  .map((field) => (
-                    <option key={field.inputId} value={field.inputId}>
-                      {field.labeltext}
-                    </option>
-                  ))}
-              </Form.Control>
-            </Form.Group> */}
+            {location.pathname != '/pages/CreateTemplates' &&
+
+              (
+                <Form.Group className="col-6 my-1">
+                  <Form.Label>Select Template</Form.Label>
+                  <Form.Control
+                    as="select"
+                    name="templateName"  // Name for the select input
+                    onChange={handleSelectTemplateChange}  // On change handler
+                    required
+                  >
+                    <option value="">Select Template</option>
+                    {templates.map((template) => (
+                      <option key={template.id} value={template.formName}>
+                        {template.formName}
+                      </option>
+                    ))}
+                  </Form.Control>
+
+                  {/* For debugging, showing selected templateJson */}
+                  <div>
+                    <h5>Selected Template JSON:</h5>
+                    <pre>{selectedTemplateJson}</pre>
+                  </div>
+                </Form.Group>
+              )
+
+            }
+
           </div>
         </DragDropContext>
         <div className="d-flex justify-content-end p-2 col-12">

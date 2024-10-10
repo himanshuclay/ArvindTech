@@ -23,7 +23,6 @@ const FAQPages = React.lazy(() => import('../pages/other/FAQ'))
 const PricingPages = React.lazy(() => import('../pages/other/Pricing'))
 const MaintenancePages = React.lazy(() => import('../pages/other/Maintenance'))
 const TemplateMaster = React.lazy(() => import('../pages/other/Modules-Master.tsx'))
-const CreateTemplates = React.lazy(() => import('../pages/other/Modules-Master.tsx'))
 const ActiveTasks = React.lazy(() => import('../pages/other/ActiveTasks.tsx'))
 const ActiveProject = React.lazy(() => import('../pages/other/ActiveProject.tsx'))
 // const FilterTasks = React.lazy(() => import('../pages/other/FilterTasks.tsx'))
@@ -38,7 +37,7 @@ const Tender = React.lazy(() => import('../pages/other/Tender.tsx'))
 const Vender = React.lazy(() => import('../pages/other/Vender.tsx'))
 const Bank = React.lazy(() => import('../pages/other/Bank.tsx'))
 const ModuleMaster = React.lazy(() => import('../pages/other/ModuleMaster.tsx'))
-const ProcessMaster = React.lazy(() => import('../pages/other/ProcessMaster.tsx'))
+// const ProcessMaster = React.lazy(() => import('../pages/other/ProcessMaster.tsx'))
 const TaskMaster = React.lazy(() => import('../pages/other/TaskMaster.tsx'))
 const DoerMaster = React.lazy(() => import('../pages/other/DoerMaster.tsx'))
 const FormMaster = React.lazy(() => import('../pages/other/FormMaster.tsx'))
@@ -54,6 +53,11 @@ const TaskPlanned = React.lazy(() => import('../pages/other/TaskPlanned.tsx'))
 const ExpireTask = React.lazy(() => import('../pages/other/ExpireTask.tsx'))
 const PendingTask = React.lazy(() => import('../pages/other/PendingTask.tsx'))
 const RunningTask = React.lazy(() => import('../pages/other/RunningTask.tsx'))
+const ModuleMasterNew = React.lazy(() => import('../pages/other/ModuleMaster/ModuleMaster.tsx'))
+const ModuleMasterinsert = React.lazy(() => import('../pages/other/ModuleMaster/ModuleMasterInsert.tsx'))
+const ProcessMasterNew = React.lazy(() => import('../pages/other/ProcessMaster/ProcessMaster.tsx'))
+const ProcessMasterinsert = React.lazy(() => import('../pages/other/ProcessMaster/ProcessMasterInsert.tsx'))
+
 
 
 
@@ -206,12 +210,6 @@ const customPagesRoutes = {
 			route: PrivateRoute,
 		},
 		{
-			path: '/pages/CreateTemplates',
-			name: 'Create Templates',
-			element: <CreateTemplates />,
-			route: PrivateRoute,
-		},
-		{
 			path: '/pages/ActiveTasks',
 			name: 'Active Tasks',
 			element: <ActiveTasks />,
@@ -284,18 +282,8 @@ const customPagesRoutes = {
 			element: <Bank />,
 			route: PrivateRoute,
 		},
-		{
-			path: '/pages/ModuleMaster',
-			name: 'Module Master',
-			element: <ModuleMaster />,
-			route: PrivateRoute,
-		},
-		{
-			path: '/pages/ProcessMaster',
-			name: 'Process Master',
-			element: <ProcessMaster />,
-			route: PrivateRoute,
-		},
+	
+	
 		{
 			path: '/pages/TaskMaster',
 			name: 'Task Master',
@@ -395,6 +383,43 @@ const customPagesRoutes = {
 			element: <RunningTask />,
 			route: PrivateRoute,
 		},
+		{
+			path: '/pages/ModuleMaster',
+			name: 'ModuleMaster ',
+			element: <ModuleMasterNew />,
+			route: PrivateRoute,
+		},
+		{
+			path: '/pages/ModuleMasterinsert/:id',
+			name: 'ModuleMasterinsert ',
+			element: <ModuleMasterinsert />,
+			route: PrivateRoute,
+		},
+		{
+			path: '/pages/ModuleMasterinsert',
+			name: 'ModuleMasterinsert ',
+			element: <ModuleMasterinsert />,
+			route: PrivateRoute,
+		},
+		{
+			path: '/pages/ProcessMaster',
+			name: 'ModuleMaster ',
+			element: <ProcessMasterNew />,
+			route: PrivateRoute,
+		},
+		{
+			path: '/pages/ProcessMasterinsert/:id',
+			name: 'ProcessMasterinsert ',
+			element: <ProcessMasterinsert />,
+			route: PrivateRoute,
+		},
+		{
+			path: '/pages/ProcessMasterinsert',
+			name: 'ProcessMasterinsert ',
+			element: <ProcessMasterinsert />,
+			route: PrivateRoute,
+		},
+		
 		///////////////////////////////////////////////////////////////////////////////////////////
 		{
 			path: '/pages/contact-list',

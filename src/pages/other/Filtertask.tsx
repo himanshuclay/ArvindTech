@@ -56,13 +56,13 @@ const App: React.FC = () => {
 
       // console.log(data)
       try {
-        const response = await fetch('https://arvindo-api.clay.in/api/AccountModule/GetTaskAssignListWithDoer?Flag=1');
+        const response = await fetch('https://arvindo-api.clay.in/api/ProcessTaskMaster/GetProcessTaskByIds?Flag=1');
         if (!response.ok) {
           throw new Error('Network response was not ok');
         }
         const result: ApiResponse = await response.json();
         if (result.isSuccess) {
-          setData(result.taskAssignListWithDoers || []);
+          setData(result.getProcessTaskByIds || []);
         } else {
           setError(result.message || 'An error occurred');
         }
@@ -147,12 +147,12 @@ console.log(doers)
     const fetchTasks = async () => {
       setLoading(true);
       try {
-        let apiUrl = 'https://arvindo-api.clay.in/api/AccountModule/GetTaskAssignListWithDoer?Flag=1';
+        let apiUrl = 'https://arvindo-api.clay.in/api/ProcessTaskMaster/GetTaskAssignListWithDoer?Flag=1';
         const selectedModuleObj = modules.find((module) => module.moduleName === selectedModule);
 
 
         if (selectedModuleObj && selectedProcess) {
-          apiUrl = `https://arvindo-api.clay.in/api/AccountModule/GetTaskAssignListWithDoer?Flag=2&ModuleId=${selectedModuleObj.moduleID}&ProcessId=${selectedProcess}`;
+          apiUrl = `https://arvindo-api.clay.in/api/ProcessTaskMaster/GetTaskAssignListWithDoer?Flag=2&ModuleId=${selectedModuleObj.moduleID}&ProcessId=${selectedProcess}`;
         }
 
         const response = await fetch(apiUrl);
@@ -295,7 +295,7 @@ console.log(doers)
             <th>Role</th>
             <th>Doer Name</th>
             <th>Task Number</th>
-            <th>Action</th>
+            {/* <th>Action</th> */}
           </tr>
         </thead>
         <tbody>
@@ -308,9 +308,9 @@ console.log(doers)
                 <td>{item.roleName}</td>
                 <td>{item.doerName}</td>
                 <td>{item.task_Number}</td>
-                <td>
+                {/* <td>
                   <Button onClick={() => handleEdit(index)}>Edit</Button>
-                </td>
+                </td> */}
               </tr>
             ))
           ) : (

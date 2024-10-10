@@ -229,6 +229,19 @@ const TaskFormPage = () => {
                                                     <FileUploader
                                                         icon="ri-upload-cloud-2-line"
                                                         text="Drop files here or click to upload."
+                                                        additionalData={{
+                                                            ModuleID: 'yourModuleID',
+                                                            CreatedBy: 'yourUserID',
+                                                            TaskCommonID: 3463,
+                                                            Task_Number: 'yourTaskNumber',
+                                                            ProcessInitiationID: 35635,
+                                                            ProcessID: 'yourProcessID',
+                                                            UpdatedBy: 'yourUpdatedBy',
+                                                        }}
+                                                        onFileUpload={(files) => {
+                                                            // Handle file upload logic here
+                                                            console.log('Files uploaded:', files);
+                                                        }}
                                                     />
                                                 )}
                                                 {input.type === 'checkbox' && (

@@ -42,7 +42,7 @@ const ModuleMaster: React.FC = () => {
 
     const fetchModules = async () => {
         try {
-            const response = await axios.get('https://localhost:44307/api/ModuleMaster/GetModule', {
+            const response = await axios.get('https://arvindo-api2.clay.in/api/ModuleMaster/GetModule', {
                 params: {
                     PageIndex: currentPage
                 }
@@ -81,9 +81,9 @@ const ModuleMaster: React.FC = () => {
         e.preventDefault();
         try {
             if (editingIndex !== null) {
-                await axios.post('https://localhost:44307/api/ModuleMaster/UpdateModule', module);
+                await axios.post('https://arvindo-api2.clay.in/apiModuleMaster/UpdateModule', module);
             } else {
-                await axios.post('https://localhost:44307/api/ModuleMaster/InsertModule', module);
+                await axios.post('https://arvindo-api2.clay.in/api/ModuleMaster/InsertModule', module);
             }
             fetchModules();
             handleClose();
@@ -346,4 +346,3 @@ const ModuleMaster: React.FC = () => {
 };
 
 export default ModuleMaster;
-

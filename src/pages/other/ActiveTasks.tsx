@@ -113,11 +113,11 @@ const App: React.FC = () => {
     const fetchTasks = async () => {
       setLoading(true);
       try {
-        let apiUrl = 'https://https://localhost:44382/api/AccountModule/GetTaskAssignListWithDoer?Flag=1';
+        let apiUrl = 'https://https://localhost:44382/api/ProcessTaskMaster/GetTaskAssignListWithDoer?Flag=1';
         const selectedModuleObj = modules.find((module) => module.moduleName === selectedModule);
 
         if (selectedModuleObj && selectedProcess) {
-          apiUrl = `https://localhost:44382/api/AccountModule/GetTaskAssignListWithDoer?Flag=3&ModuleId=${selectedModuleObj.moduleID}&ProcessId=${selectedProcess}`;
+          apiUrl = `https://localhost:44382/api/ProcessTaskMaster/GetTaskAssignListWithDoer?Flag=3&ModuleId=${selectedModuleObj.moduleID}&ProcessId=${selectedProcess}`;
         }
 
         const response = await fetch(apiUrl);

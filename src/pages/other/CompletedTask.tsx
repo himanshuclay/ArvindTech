@@ -6,6 +6,11 @@ import { parse, addDays, format, isValid } from 'date-fns';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import Overlay from 'react-bootstrap/Overlay';
 import Tooltip from 'react-bootstrap/Tooltip';
+import config from '../../config';
+
+
+
+
 
 interface ProjectAssignListWithDoer {
   id: number;
@@ -113,7 +118,7 @@ const ProjectAssignTable: React.FC = () => {
       try {
         const role = localStorage.getItem('EmpId') || '';
         const response = await axios.get<ApiResponse>(
-          `https://arvindo-api.clay.in/api/ProcessInitiation/GetFilterTask?Flag=2&DoerId=${role}`
+          `${config.API_URL_ACCOUNT}/ProcessInitiation/GetFilterTask?Flag=2&DoerId=${role}`
         );
 
         if (response.data && response.data.isSuccess) {
@@ -137,6 +142,7 @@ const ProjectAssignTable: React.FC = () => {
 
 
   console.log(taskCommonId)
+  // console.log(data[0].taskCommonId)
   // Fetch task data when taskCommonId is set
   useEffect(() => {
     if (taskCommonId !== null) {
@@ -148,40 +154,52 @@ const ProjectAssignTable: React.FC = () => {
     try {
       const flag = 5;
       const response = await axios.get<ApiResponse>(
-        `https://arvindo-api.clay.in/api/ProcessInitiation/GetFilterTask?TaskCommonId=${taskCommonId}&Flag=${flag}`
+        `${config.API_URL_ACCOUNT}/ProcessInitiation/GetFilterTask?TaskCommonId=${taskCommonId}&Flag=${flag}`
       );
-
+  
       if (response.data && response.data.isSuccess) {
         const fetchedData = response.data.getFilterTasks || [];
         console.log(fetchedData);
-
+  
         // Filter out tasks with isCompleted as "Pending"
         const filteredTasks = fetchedData
-          .filter((task) => task.isCompleted !== "Pending")  // Filter step
+          .filter((task) => task.isCompleted !== "Pending") // Filter step
           .map((task: ProjectAssignListWithDoer) => {
-            const parsedTaskJson = JSON.parse(task.task_Json);
-            const optionsMap = parsedTaskJson.inputs.reduce((map: Record<string, string>, input: any) => {
-              if (input.options) {
-                input.options.forEach((option: any) => {
-                  map[option.id] = option.label;
-                });
+            const taskJsonArray = JSON.parse(task.task_Json); // Parse task_Json to get an array of taskJson objects
+            console.log(taskJsonArray)
+            // Assuming taskJsonArray is an array, handle each taskJson object
+            return taskJsonArray.map((taskJson: any) => {
+              // Ensure taskJson is valid and has taskJson and inputs
+              if (taskJson && taskJson.taskJson && taskJson.taskJson.inputs && Array.isArray(taskJson.taskJson.inputs)) {
+                // Create a map for the options
+                const optionsMap = taskJson.taskJson.inputs.reduce((map: Record<string, string>, input: any) => {
+                  if (input.options) {
+                    input.options.forEach((option: any) => {
+                      map[option.id] = option.label; // Map option ids to labels
+                    });
+                  }
+                  return map;
+                }, {});
+  
+                // Create a filtered array of inputs excluding specific inputIds
+                const filteredInputsdata = taskJson.taskJson.inputs
+                  .filter((input: any) => !['99', '100', '102', '103'].includes(input.inputId)) // Exclude unwanted inputIds
+                  .map((input: any) => ({
+                    label: input.label,
+                    value: optionsMap[input.value] || input.value // Replace value with label if it exists in optionsMap
+                  }));
+  
+                return {
+                  messID: taskJson.messID, // Include messID for reference
+                  inputs: filteredInputsdata // Return filtered inputs
+                };
+              } else {
+                console.error('taskJson does not have valid inputs:', taskJson);
+                return null; // Handle invalid inputs array gracefully
               }
-              return map;
-            }, {});
-
-            const filteredInputs = parsedTaskJson.inputs
-              .filter((input: any) => !['99', '100', '102', '103'].includes(input.inputId)) // Exclude unwanted inputIds
-              .map((input: any) => ({
-                label: input.label,
-                value: optionsMap[input.value] || input.value // Replace value with label if it exists in optionsMap
-              }));
-
-            return {
-              taskNumber: task.task_Number,
-              inputs: filteredInputs
-            };
-          });
-
+            }).filter((item: number) => item !== null); // Filter out any null tasks resulting from invalid inputs
+          }).flat(); // Flatten the array if needed
+  
         setPreData(filteredTasks);
       } else {
         console.error('API Response Error:', response.data?.message || 'Unknown error');
@@ -196,11 +214,13 @@ const ProjectAssignTable: React.FC = () => {
       setLoading(false);
     }
   };
+  
+
 
 
   const handleEdit = (id: number) => {
-    // const taskCommonId = id
-    const taskCommonId = 2
+    const taskCommonId = data[0].taskCommonId
+    // const taskCommonId = data
 
     setTaskCommonId(taskCommonId);
 
@@ -216,7 +236,7 @@ const ProjectAssignTable: React.FC = () => {
 
   const formatAndUpdateDate = (createdDate: string, taskTime: string) => {
     // Parse the created date with the correct format 'MM/dd/yyyy HH:mm:ss'
-    const createdDateObj = parse(createdDate, 'MM/dd/yyyy HH:mm:ss', new Date());
+    const createdDateObj = parse(createdDate, 'dd/MM/yyyy HH:mm:ss', new Date());
 
     // Check if the createdDateObj is valid
     if (!isValid(createdDateObj)) {
@@ -273,59 +293,38 @@ const ProjectAssignTable: React.FC = () => {
     );
   };
 
-  const preDatas = [
-    {
-      taskNumber: 'T-001',
-      inputs: [
-        [
-          { label: 'Input 1', value: 'Value One' },
-          { label: 'Input 2', value: 'Value Two' }
-        ],
-        [
-          { label: 'Input 3', value: 'Value Three' },
-          { label: 'Input 4', value: 'Value Four' }
-        ]
-      ]
-    },
+  // const preDatas = [
+  //   {
+  //     "messID": "MESS-1717998452037",
+  //     "taskJson": {
+  //       "formId": "ACC.03",
+  //       "formName": "ACC.03.Mess Weekly Payments",
+  //       "inputs": [
+  //         {
+  //           "inputId": "14",
+  //           "value": "12",
+  //           "type": "text",
+  //           "label": "Ledger Balance",
+  //           "placeholder": "Enter text",
+  //           "options": [],
+  //           "required": true,
+  //           "conditionalFieldId": ""
+  //         }
+  //       ]
+  //     },
+  //     "comments": "update1"
+  //   },
+  //   {
+  //     "messID": "MESS-1712231625308",
+  //     "taskJson": {
+  //       "formId": "ACC.03",
+  //       "formName": "ACC.03.Mess Weekly Payments",
+  //       "inputs": []
+  //     },
+  //     "comments": ""
+  //   }
+  // ];
 
-    {
-      taskNumber: 'T-002',
-      inputs: [
-        { label: 'Input 1', value: 'Value X' },
-        { label: 'Input 2', value: 'Value Y' },
-        { label: 'Input 3', value: 'Value Z' },
-      ]
-    },
-    {
-      taskNumber: 'T-003',
-      inputs: [
-        { label: 'Input 1', value: 'Value Alpha' },
-        { label: 'Input 2', value: 'Value Beta' },
-        { label: 'Input 3', value: 'Value Gamma' },
-      ]
-    },
-    {
-      taskNumber: 'T-004',
-      inputs: [
-        { label: 'Input 1', value: 'Value One' },
-        { label: 'Input 2', value: 'Value Two' },
-        { label: 'Input 3', value: 'Value Three' },
-      ]
-    },
-    {
-      taskNumber: 'T-005',
-      inputs: [
-        [
-          { label: 'Input 1', value: 'Value One' },
-          { label: 'Input 2', value: 'Value Two' }
-        ],
-        [
-          { label: 'Input 3', value: 'Value Three' },
-          { label: 'Input 4', value: 'Value Four' }
-        ]
-      ]
-    },
-  ];
 
   return (
     <>
@@ -334,16 +333,17 @@ const ProjectAssignTable: React.FC = () => {
           <Offcanvas.Title>Task Details</Offcanvas.Title>
         </Offcanvas.Header>
         <Offcanvas.Body>
-          {preDatas.map((task, index) => (
+          {preData.map((task, index) => (
             <div key={index}>
               <h5 className="mt-2">
-                <Button className='fs-15'
+                Updated data from <span className="text-primary">{task.taskNumber}</span> &nbsp;&nbsp;&nbsp;
+                <span className='fs-15 information-btn '
                   ref={(el) => (targetRefs.current[index] = el)} // Store the ref for each task
                   onClick={() => setPopoverIndex(popoverIndex === index ? null : index)} // Toggle popover visibility for the clicked task
                 >
-                  <i className="ri-error-warning-fill"></i>
-                </Button> &nbsp;
-                Updated data from <span className="text-primary">{task.taskNumber}</span>
+                  <i className="ri-error-warning-fill fs-20"></i>
+                </span>
+
               </h5>
               <div>
                 <Overlay
@@ -353,27 +353,26 @@ const ProjectAssignTable: React.FC = () => {
                 >
                   {(props) => (
                     <Tooltip id="overlay-example" {...props} className='tooltip-position'>
-                      {/* Render each input array inside a card */}
                       <div className='d-flex'>
 
                         {Array.isArray(task.inputs[0])
                           ? task.inputs.map((inputArray, arrIndex) => (
 
                             <Card key={arrIndex} className="m-2 pop-card">
-                                <Card.Body>
+                              <Card.Body>
 
-                                  {inputArray.map((input, i) => (
-                                    <Col key={i}>
-                                      <strong>{input.label}:</strong> <span className="text-primary">{input.value}</span>
-                                    </Col>
-                                  ))}
-                                </Card.Body>
+                                {inputArray.map((input, i) => (
+                                  <Col key={i}>
+                                    <strong>{input.label}:</strong> <span className="text-primary">{input.value}</span>
+                                  </Col>
+                                ))}
+                              </Card.Body>
                             </Card>
 
 
                           ))
                           : (
-                            <Card className="mb-3">
+                            <Card className="m-2 pop-card">
                               <Row>
                                 <Card.Body>
                                   {task.inputs.map((input, i) => (
@@ -463,15 +462,16 @@ const ProjectAssignTable: React.FC = () => {
                         <Draggable key={column.id} draggableId={column.id} index={index}>
                           {(provided) => (
                             <th ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps}>
-                              {column.id === 'processFlowchart' && (<i className="ri-map-2-line"></i>)}
-                              {column.id === 'processID' && (<i className="ri-user-settings-fill"></i>)}
-                              {column.id === 'processOwnerName' && (<i className="ri-user-fill"></i>)}
-                              {column.id === 'processDisplayName' && (<i className="ri-price-tag-3-fill"></i>)}
-                              {column.id === 'processOwnerID' && (<i className="ri-user-follow-fill"></i>)}
-                              {column.id === 'processOutput' && (<i className="ri-arrow-up-circle-line"></i>)}
-                              {column.id === 'processInput' && (<i className="ri-arrow-down-circle-line"></i>)}
-                              {column.id === 'misExempt' && (<i className="ri-prohibited-line"></i>)}
+                              {column.id === 'processName' && (<i className="ri-map-2-line"></i>)}
+                              {column.id === 'projectName' && (<i className="ri-building-line"></i>)}
+                              {column.id === 'task_Number' && (<i className="ri-health-book-line"></i>)}
+                              {column.id === 'roleName' && (<i className="ri-shield-user-line"></i>)}
+                              {column.id === 'taskType' && (<i className="ri-bookmark-line"></i>)}
+                              {column.id === 'taskTime' && (<i className="ri-calendar-line"></i>)}
+                              {column.id === 'createdDate' && (<i className="ri-hourglass-line"></i>)}
+                              {column.id === 'completedDate' && (<i className="ri-focus-3-line"></i>)}
                               {column.id === 'moduleName' && (<i className="ri-box-3-line"></i>)}
+
 
                               &nbsp; {column.label}
                             </th>
@@ -489,9 +489,9 @@ const ProjectAssignTable: React.FC = () => {
                 {data.length > 0 ? (
                   data.slice(0, 10).map((item, index) => (
                     <tr key={item.id}>
-                      {/* Render the index for pagination (currentPage - 1) * pageSize + index + 1 */}
+
                       <td>{index + 1}</td>
-                      {/* Dynamically render visible columns */}
+
                       {columns.filter(col => col.visible).map((col) => (
                         <td key={col.id}
 
@@ -501,7 +501,7 @@ const ProjectAssignTable: React.FC = () => {
                               col.id === 'task_Number' ? 'fw-bold fs-13 text-dark text-nowrap task1' :
                                 col.id === 'processOwnerName' ? 'fw-bold fs-13 text-dark text-nowrap' :
                                   col.id === 'plannedDate' ? ' text-nowrap ' :
-                                    col.id === 'createdDate' ? ' text-nowrap ' :
+                                    // col.id === 'createdDate' ? ' text-nowrap ' :
                                       col.id === 'completedDate' ? ' text-nowrap ' :
                                         // Add class based on value (e.g., expired tasks)
                                         (col.id === 'moduleName' && item[col.id] === 'Accounts') ? 'text-nowrap task4' :
@@ -510,7 +510,7 @@ const ProjectAssignTable: React.FC = () => {
                           }
                         >
                           <div>
-                            {/* {col.id === 'inputValue' && (<i className="ri-edit-2-fill edit-icon"></i>)} */}
+
 
                             {col.id === 'plannedDate' ? (
                               <td>{formatAndUpdateDate(item.createdDate, item.taskTime)}</td>
@@ -520,7 +520,7 @@ const ProjectAssignTable: React.FC = () => {
                           </div>
                         </td>
                       ))}
-                      {/* Action Button */}
+
                       <td>
                         <Button onClick={() => handleEdit(item.id)}> <i className="ri-edit-2-fill"></i></Button>
 

@@ -436,7 +436,48 @@
   transform: translateX(-50%);
 }
 
+button.pendingtask-margin {
+  margin-top: 17px;
+  width: 100%;
+}
+
 .step.completed .step-line {
   background-color: green; 
+}
+
+.phone_user {
+  margin-left: 39px !important;
+}
+
+.px300 {
+  & input {
+    border: none;
+    height: calc(1.5em + 0.9rem + calc(var(--tz-border-width)* 2));
+    padding-right: 35px;
+    padding-left: 20px;
+    background-color: var(--tz-light);
+    box-shadow: none;
+    border-radius: 5px !important;
+    width: 300px
+  }
+}
+
+span.flatpickr-weekday {
+  color: #fff !important;
+}
+
+.flatpickr-months .flatpickr-month,
+.flatpickr-current-month .flatpickr-monthDropdown-months,
+.flatpickr-weekdays,
+span.flatpickr-weekday {
+  background-color: #1f1d56 !important;
+}
+
+.flatpickr-day.selected {
+  background: #1f1d56 !important;
+  -webkit-box-shadow: none;
+  box-shadow: none;
+  color: #fff;
+  border-color: #1f1d56  !important;
 }
 

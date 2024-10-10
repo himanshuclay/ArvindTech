@@ -57,7 +57,7 @@ const App: React.FC = () => {
 
       // console.log(data)
       try {
-        const response = await fetch('https://arvindo-api.clay.in/api/AccountModule/GetProcesstAssignListWithProject?Flag=1');
+        const response = await fetch('https://arvindo-api.clay.in/api/ProcessTaskMaster/GetProcessAssignListWithProject?Flag=1');
         if (!response.ok) {
           throw new Error('Network response was not ok');
         }
@@ -129,7 +129,7 @@ console.log(selectedProject)
 
       // console.log(modules)
       try {
-        const response = await fetch(`https://arvindo-api.clay.in/api/AccountModule/GetProcesstAssignListWithProject?Flag=2&ProjectId=${selectedProject}`);
+        const response = await fetch(`https://arvindo-api.clay.in/api/ProcessTaskMaster/GetProcessAssignListWithProject?Flag=2&ProjectId=${selectedProject}`);
         const result = await response.json();
         if (result.isSuccess) {
           setData(result.processAssignListWithProjects);
@@ -195,12 +195,12 @@ fetchProjectsById();
     const fetchTasks = async () => {
       setLoading(true);
       try {
-        let apiUrl = 'https://arvindo-api.clay.in/api/AccountModule/GetTaskAssignListWithDoer?Flag=1';
+        let apiUrl = 'https://arvindo-api.clay.in/api/ProcessTaskMaster/GetTaskAssignListWithDoer?Flag=1';
         const selectedModuleObj = modules.find((module) => module.moduleName === selectedModule);
 
 
         if (selectedModuleObj && selectedProcess) {
-          apiUrl = `https://arvindo-api.clay.in/api/AccountModule/GetProcesstAssignListWithProject?Flag=3&ModuleId=${selectedModuleObj.moduleID}&ProcessId=${selectedProcess}`;
+          apiUrl = `https://arvindo-api.clay.in/api/ProcessTaskMaster/GetProcessAssignListWithProject?Flag=3&ModuleId=${selectedModuleObj.moduleID}&ProcessId=${selectedProcess}`;
         }
 
         const response = await fetch(apiUrl);

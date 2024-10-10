@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import logo from '@/assets/images/logo.png';
-import logoDark from '@/assets/images/logonew.png';
+import logoDark from '@/assets/images/logo-dark.png';
 import logoSm from '@/assets/images/logo-sm.png';
 import SimpleBar from 'simplebar-react';
 import AppMenu from './Menu';
@@ -31,20 +31,6 @@ const getFilteredMenuItems = () => {
         {
           key: 'ModuleMaster',
           label: 'Task Creator',
-          url: '/pages/Modules-Master',
-          icon: 'ri-slideshow-line',
-          parentKey: 'Modules-Master',
-        },
-        {
-          key: 'ModuleMaster1',
-          label: 'Process List',
-          url: '/pages/Modules-Master',
-          icon: 'ri-slideshow-line',
-          parentKey: 'Modules-Master',
-        },
-        {
-          key: 'ModuleMaster2',
-          label: 'Add Task',
           url: '/pages/Modules-Master',
           icon: 'ri-slideshow-line',
           parentKey: 'Modules-Master',
