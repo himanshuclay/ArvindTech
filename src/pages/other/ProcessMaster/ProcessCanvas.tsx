@@ -112,7 +112,7 @@ const ProcessCanvas: React.FC<ProcessCanvasProps> = ({ show, setShow, manageId }
                 params: { ModuleName: moduleName, ProcessId: processId }
             });
             if (response.data.isSuccess) {
-                const fetchedProject = response.data.getProjectAssignListbyIDs[0];
+                const fetchedProject = response.data.getProjectAssignListbyIDs;
                 setAssignedProject(fetchedProject);
             } else {
                 console.error(response.data.message);
@@ -127,11 +127,15 @@ const ProcessCanvas: React.FC<ProcessCanvasProps> = ({ show, setShow, manageId }
     };
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-        console.log(assignProject)
         e.preventDefault();
         try {
             await axios.post(`${config.API_URL_APPLICATION}/AssignProjecttoProcess/AssignProjecttoProcess`, assignProject);
-            console.log("Successfully submitted", assignProject);
+            // Reset the projects in state
+            setAssignProject(prev => ({
+                ...prev,
+                projects: []  
+            }));
+            fetchGetProject(moduleName, processId);
         } catch (error) {
             console.error('Error submitting project assignment:', error);
         }
@@ -144,7 +148,14 @@ const ProcessCanvas: React.FC<ProcessCanvasProps> = ({ show, setShow, manageId }
                     <Offcanvas.Title className="text-dark">Assign Project to Process</Offcanvas.Title>
                 </Offcanvas.Header>
                 <Offcanvas.Body>
-                    <pre>{JSON.stringify(assignedProject, null, 2)}</pre>
+                    <div className="">
+                        {assignedProject.map((project, index) => (
+                            <div key={project.projectID} className="m-1 p-1 bg-light rounded-1 border"> 
+                                {index + 1}. {project.projectName} - {project.projectID}
+                            </div>
+                        ))}
+                    </div>
+
                     <Form onSubmit={handleSubmit}>
                         <Form.Group controlId="moduleName" className="mb-3">
                             <Form.Label>Project Name</Form.Label>
@@ -163,14 +174,13 @@ const ProcessCanvas: React.FC<ProcessCanvasProps> = ({ show, setShow, manageId }
                                     }));
                                 }}
                                 getOptionLabel={(project) => project.projectName}
-                                getOptionValue={(project) => project.id}  // Ensure 'id' is used for uniqueness
+                                getOptionValue={(project) => project.id} 
                                 options={projectList}
                                 isSearchable={true}
-                                isMulti={true}  // Enable multiple selection
+                                isMulti={true}  
                                 placeholder="Select Projects"
                                 required
                             />
-
                         </Form.Group>
                         <Button variant="primary" type="submit">
                             Submit
