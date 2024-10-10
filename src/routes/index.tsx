@@ -55,6 +55,8 @@ const PendingTask = React.lazy(() => import('../pages/other/PendingTask.tsx'))
 const RunningTask = React.lazy(() => import('../pages/other/RunningTask.tsx'))
 const ModuleMasterNew = React.lazy(() => import('../pages/other/ModuleMaster/ModuleMaster.tsx'))
 const ModuleMasterinsert = React.lazy(() => import('../pages/other/ModuleMaster/ModuleMasterInsert.tsx'))
+const ProcessMasterNew = React.lazy(() => import('../pages/other/ProcessMaster/ProcessMaster.tsx'))
+const ProcessMasterinsert = React.lazy(() => import('../pages/other/ProcessMaster/ProcessMasterInsert.tsx'))
 
 
 
@@ -280,18 +282,8 @@ const customPagesRoutes = {
 			element: <Bank />,
 			route: PrivateRoute,
 		},
-		// {
-		// 	path: '/pages/ModuleMaster',
-		// 	name: 'Module Master',
-		// 	element: <ModuleMaster />,
-		// 	route: PrivateRoute,
-		// },
-		{
-			path: '/pages/ProcessMaster',
-			name: 'Process Master',
-			element: <ProcessMaster />,
-			route: PrivateRoute,
-		},
+	
+	
 		{
 			path: '/pages/TaskMaster',
 			name: 'Task Master',
@@ -393,7 +385,7 @@ const customPagesRoutes = {
 		},
 		{
 			path: '/pages/ModuleMaster',
-			name: 'ModuleMasterNew ',
+			name: 'ModuleMaster ',
 			element: <ModuleMasterNew />,
 			route: PrivateRoute,
 		},
@@ -407,6 +399,24 @@ const customPagesRoutes = {
 			path: '/pages/ModuleMasterinsert',
 			name: 'ModuleMasterinsert ',
 			element: <ModuleMasterinsert />,
+			route: PrivateRoute,
+		},
+		{
+			path: '/pages/ProcessMaster',
+			name: 'ModuleMaster ',
+			element: <ProcessMasterNew />,
+			route: PrivateRoute,
+		},
+		{
+			path: '/pages/ProcessMasterinsert/:id',
+			name: 'ProcessMasterinsert ',
+			element: <ProcessMasterinsert />,
+			route: PrivateRoute,
+		},
+		{
+			path: '/pages/ProcessMasterinsert',
+			name: 'ProcessMasterinsert ',
+			element: <ProcessMasterinsert />,
 			route: PrivateRoute,
 		},
 		

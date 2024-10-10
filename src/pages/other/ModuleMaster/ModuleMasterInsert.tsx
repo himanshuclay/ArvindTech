@@ -9,7 +9,7 @@ interface Module {
     moduleDisplayName: string;
     fmsType: string;
     moduleID: string;
-    misExempt: number;
+    misExempt: string;
     statusID: number;
     moduleOwnerID: string;
     moduleOwnerName: string;
@@ -50,7 +50,7 @@ const EmployeeInsert = () => {
         moduleDisplayName: '',
         fmsType: '',
         moduleID: '',
-        misExempt: 0,
+        misExempt: '',
         statusID: 0,
         moduleOwnerID: '',
         moduleOwnerName: '',
