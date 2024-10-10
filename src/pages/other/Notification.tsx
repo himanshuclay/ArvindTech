@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { Button, Table, Collapse, Container, Row, Col, Alert } from 'react-bootstrap'; // Assuming DynamicForm is in the same directory
-import { addDays, parse } from 'date-fns';
+import { Button, Table, Container, Row, Col, Alert } from 'react-bootstrap'; // Assuming DynamicForm is in the same directory
+import { parse, format, addDays } from 'date-fns';
 import config from '../../config';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 
@@ -36,6 +36,7 @@ interface ProjectAssignListWithDoer {
   roleName: string;
   taskNumber: string
   inputs: Input[]
+  data: string;
 
 
 }
@@ -66,7 +67,6 @@ const ProjectAssignTable: React.FC = () => {
   const [data, setData] = useState<ProjectAssignListWithDoer[]>([]);
   const [preData, setPreData] = useState<FilteredTask[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
-  const [expandedRow, setExpandedRow] = useState<number | null>(null);
   const [parsedCondition, setParsedCondition] = useState<any[]>([]);
   const [taskCommonId, setTaskCommonId] = useState<number | null>(null);
   const [selectedTasknumber, setSelectedTasknumber] = useState<string>('');
@@ -186,17 +186,17 @@ const ProjectAssignTable: React.FC = () => {
         const response = await axios.get<ApiResponse>(
           `${config.API_URL_ACCOUNT}/ProcessInitiation/GetFilterTask?TaskCommonId=${taskCommonId}&Flag=${flag}`
         );
-    
+
         if (response.data && response.data.isSuccess) {
           const fetchedData = response.data.getFilterTasks || [];
           console.log(fetchedData);
-    
+
           // Filter out tasks with isCompleted as "Pending"
           const filteredTasks = fetchedData
             .filter((task) => task.isCompleted !== "Pending") // Filter step
             .map((task: ProjectAssignListWithDoer) => {
               const taskJsonArray = JSON.parse(task.task_Json); // Parse task_Json to get an array of taskJson objects
-              
+
               // Assuming taskJsonArray is an array, handle each taskJson object
               return taskJsonArray.map((taskJson: any) => {
                 // Ensure taskJson is valid and has taskJson and inputs
@@ -210,7 +210,7 @@ const ProjectAssignTable: React.FC = () => {
                     }
                     return map;
                   }, {});
-    
+
                   // Create a filtered array of inputs excluding specific inputIds
                   const filteredInputsdata = taskJson.taskJson.inputs
                     .filter((input: any) => !['99', '100', '102', '103'].includes(input.inputId)) // Exclude unwanted inputIds
@@ -218,7 +218,7 @@ const ProjectAssignTable: React.FC = () => {
                       label: input.label,
                       value: optionsMap[input.value] || input.value // Replace value with label if it exists in optionsMap
                     }));
-    
+
                   return {
                     messID: taskJson.messID, // Include messID for reference
                     inputs: filteredInputsdata // Return filtered inputs
@@ -229,7 +229,7 @@ const ProjectAssignTable: React.FC = () => {
                 }
               }).filter((item: number) => item !== null); // Filter out any null tasks resulting from invalid inputs
             }).flat(); // Flatten the array if needed
-    
+
           setPreData(filteredTasks);
         } else {
           console.error('API Response Error:', response.data?.message || 'Unknown error');
@@ -255,17 +255,21 @@ const ProjectAssignTable: React.FC = () => {
 
   const fetchSingleDataById = async (taskCommonId: number) => {
     try {
-
       const flag = 5;
       const response = await axios.get<ApiResponse>(
         `${config.API_URL_ACCOUNT}/ProcessInitiation/GetFilterTask?TaskCommonId=${taskCommonId}&Flag=${flag}`
       );
 
       if (response.data && response.data.isSuccess) {
-        const singledatabyID = response.data.getFilterTasks[0].task_Json || [];
-        console.log('fetch single  Data:', JSON.parse(singledatabyID));
+        // Safely access task_Json and ensure it's a string
+        const singledatabyID = response.data.getFilterTasks[0]?.task_Json;
 
-        setSingleDataById(JSON.parse(singledatabyID))
+        if (typeof singledatabyID === 'string') {
+          console.log('fetch single Data:', JSON.parse(singledatabyID));
+          setSingleDataById(JSON.parse(singledatabyID));
+        } else {
+          console.error('task_Json is not a valid string:', singledatabyID);
+        }
       } else {
         console.error('API Response Error:', response.data?.message || 'Unknown error');
       }
@@ -294,9 +298,9 @@ const ProjectAssignTable: React.FC = () => {
 
 
 
-  const toggleExpandRow = (id: number) => {
-    setExpandedRow(expandedRow === id ? null : id);
-  };
+  // const toggleExpandRow = (id: number) => {
+  //   setExpandedRow(expandedRow === id ? null : id);
+  // };
 
   const handleDoerChange = (taskNumber: string, selectedOption: any) => {
     // Handle the change for doer selection
@@ -315,7 +319,7 @@ const ProjectAssignTable: React.FC = () => {
 
   const formatAndUpdateDate = (createdDate: string, taskTime: string) => {
     // Parse the created date and task time
-    const createdDateObj = parse(createdDate, 'dd-MM-yyyy HH:mm:ss', new Date());
+    const createdDateObj = parse(createdDate, 'dd/MM/yyyy HH:mm:ss', new Date());
     const taskTimeValue = parseInt(taskTime, 10); // Assuming taskTime is in hours
 
     // Calculate the number of days to add
@@ -325,7 +329,7 @@ const ProjectAssignTable: React.FC = () => {
     const updatedDate = addDays(createdDateObj, daysToAdd);
 
     // Format the updated date to the desired format
-    // return format(updatedDate, 'dd-MM-yyyy HH:mm:ss');
+    return format(updatedDate, 'dd-MM-yyyy HH:mm:ss');
   };
 
 
@@ -342,6 +346,8 @@ const ProjectAssignTable: React.FC = () => {
   };
 
   // console.log(data)
+
+ 
 
   return (
 
@@ -369,33 +375,39 @@ const ProjectAssignTable: React.FC = () => {
               <Table hover className='bg-white '>
                 <thead>
                   <Droppable droppableId="columns" direction="horizontal">
+
                     {(provided) => (
-                      <tr {...provided.droppableProps} ref={provided.innerRef} className='text-nowrap'>
+                      <tr {...provided.droppableProps} ref={provided.innerRef}  className='text-nowrap'>
                         <th><i className="ri-list-ordered-2"></i>  Sr. No</th>
                         {columns.filter(col => col.visible).map((column, index) => (
-                          <Draggable key={column.id} draggableId={column.id} index={index}>
-                            {(provided) => (
-                              <th ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps}>
-                                {column.id === 'processName' && (<i className="ri-map-2-line"></i>)}
-                                {column.id === 'projectName' && (<i className="ri-building-line"></i>)}
-                                {column.id === 'task_Number' && (<i className="ri-health-book-line"></i>)}
-                                {column.id === 'roleName' && (<i className="ri-shield-user-line"></i>)}
-                                {column.id === 'taskType' && (<i className="ri-bookmark-line"></i>)}
-                                {column.id === 'taskTime' && (<i className="ri-calendar-line"></i>)}
-                                {column.id === 'createdDate' && (<i className="ri-hourglass-line"></i>)}
-                                {column.id === 'completedDate' && (<i className="ri-focus-3-line"></i>)}
-                                {column.id === 'moduleName' && (<i className="ri-box-3-line"></i>)}
+                            <Draggable key={column.id} draggableId={column.id} index={index}>
+                              {(provided) => (
+                                <th >
+                                  <div ref={provided.innerRef}
+                                    {...provided.draggableProps}
+                                    {...provided.dragHandleProps}>
+                                    {column.id === 'processName' && (<i className="ri-map-2-line"></i>)}
+                                    {column.id === 'projectName' && (<i className="ri-building-line"></i>)}
+                                    {column.id === 'task_Number' && (<i className="ri-health-book-line"></i>)}
+                                    {column.id === 'roleName' && (<i className="ri-shield-user-line"></i>)}
+                                    {column.id === 'taskType' && (<i className="ri-bookmark-line"></i>)}
+                                    {column.id === 'taskTime' && (<i className="ri-calendar-line"></i>)}
+                                    {column.id === 'createdDate' && (<i className="ri-hourglass-line"></i>)}
+                                    {column.id === 'completedDate' && (<i className="ri-focus-3-line"></i>)}
+                                    {column.id === 'moduleName' && (<i className="ri-box-3-line"></i>)}
 
 
-                                &nbsp; {column.label}
-                              </th>
-                            )}
-                          </Draggable>
+                                    &nbsp; {column.label}
+                                  </div>
+                                </th>
+                              )}
+                            </Draggable>
                         ))}
                         {provided.placeholder}
                         <th>Action</th>
                       </tr>
                     )}
+
                   </Droppable>
                 </thead>
                 <tbody>
@@ -437,27 +449,25 @@ const ProjectAssignTable: React.FC = () => {
                           </Button>
                         </td>
                         <td colSpan={10}>
-                          <Collapse in={expandedRow === item.id}>
-                            <div>
-                              <DynamicForm
-                                formData={JSON.parse(item.task_Json)}
-                                // singleDataById={singleDataById}
-                                taskNumber={item.task_Number}
-                                doer={null} // Replace with actual doer if available
-                                onDoerChange={handleDoerChange}
-                                data={data}
-                                show={show}
-                                setShow={setShow}
-                                parsedCondition={parsedCondition}
-                                preData={preData}
-                                selectedTasknumber={selectedTasknumber}
-                                setLoading={setLoading}
-                                taskCommonIDRow={taskCommonIDRow}
+                          <div>
+                            <DynamicForm
+                              formData={JSON.parse(item.task_Json)}
+                              taskNumber={item.task_Number}
+                              doer={null}
+                              onDoerChange={handleDoerChange}
+                              data={data}
+                              show={show}
+                              setShow={setShow}
+                              parsedCondition={parsedCondition}
+                              preData={preData}
+                              selectedTasknumber={selectedTasknumber}
+                              setLoading={setLoading}
+                              taskCommonIDRow={taskCommonIDRow}
+                              taskStatus
 
 
-                              />
-                            </div>
-                          </Collapse>
+                            />
+                          </div>
                         </td>
                       </tr>
                     ))

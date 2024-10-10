@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { Button, Row, Col, Modal, Offcanvas } from 'react-bootstrap'; // Assuming DynamicForm is in the same directory
+import { Modal } from 'react-bootstrap';
 import { FileUploader } from '@/components/FileUploader'
 import { useNavigate } from 'react-router-dom';
 import config from '@/config';
@@ -25,7 +25,6 @@ interface Input {
 }
 
 interface DynamicFormProps {
-    // formData: { inputs: Input[] };
     formData: {
         formId: string; // Add formId
         formName: string; // Add formName
@@ -34,15 +33,15 @@ interface DynamicFormProps {
     taskNumber: string;
     doer: string | null;
     onDoerChange: (taskNumber: string, selectedOption: Option | null) => void;
-    data: string;
+    data: any;
     show: boolean;
-    parsedCondition: string;
+    parsedCondition: any;
     setShow: any;
-    preData: string;
+    preData: any;
     selectedTasknumber: string
-    setLoading: string
-    taskCommonIDRow: string
-    taskStatus: string
+    setLoading: any
+    taskCommonIDRow: any
+    taskStatus: any
 }
 
 interface Condition {
@@ -55,14 +54,20 @@ interface Condition {
 }
 
 interface MessData {
-    messID: string;
+    messID: string; 
     taskJson: any;
-    comments: string;
+    comments: string; 
+}
+interface FormState {
+    [key: string]: any; // or more specific types
+}
+interface Task {
+    task_Number: any;
 }
 
 const DynamicForm: React.FC<DynamicFormProps> = ({
     // formData,
-    taskNumber, doer, onDoerChange,
+    taskNumber, 
     data,
     show,
     setShow,
@@ -73,7 +78,8 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
     taskCommonIDRow,
     taskStatus,
     setLoading }) => {
-    const [formState, setFormState] = useState<{ [key: string]: any }>({});
+  
+const [formState, setFormState] = useState<FormState>({});
     const [summary, setSummary] = useState('');
     const [taskJson, setTaskJson] = useState<{ [key: string]: any }>({});
     const [messManagers, setMessManagers] = useState<{ value: string, label: string }[]>([]);
@@ -388,7 +394,7 @@ const handleChange = (inputId: string, value: string | boolean | string[]) => {
     const input = formData.inputs.find(input => input.inputId === inputId);
 
     let updatedValue = value;
-    let selectedLabel: string | undefined;
+    let selectedLabel: string ;
 
     if (input) {
         selectedLabel = input.label;
@@ -473,7 +479,8 @@ const handleChange = (inputId: string, value: string | boolean | string[]) => {
             };
 
             // Set taskJson in JSON format, matching formData structure
-            setTaskJson(JSON.stringify(updatedTaskJson, null, 2)); // Pretty print for better readability
+            // setTaskJson(JSON.stringify(updatedTaskJson, null, 2)); 
+            setTaskJson(updatedTaskJson); 
         }
 
         console.log(taskJson);
@@ -492,11 +499,11 @@ const handleChange = (inputId: string, value: string | boolean | string[]) => {
     const handleSubmit = async (event: React.FormEvent, taskNumber: string) => {
         event.preventDefault();
         saveDataToLocalStorage();
-        const finalData = JSON.parse(localStorage.getItem(localStorageKey)) || [];
+        const finalData = JSON.parse(localStorage.getItem(localStorageKey) ?? '[]');
         localStorage.removeItem(localStorageKey);
         console.log('Final Submitted Data:', finalData);
         const role = localStorage.getItem('EmpId') || '';
-        const taskData = data.find(task => task.task_Number === taskNumber);
+        const taskData = data.find((task:Task) => task.task_Number === taskNumber);
 
         // Prepare the data to be posted
         // const taskCommonId = localStorage.getItem('taskCommonId') || 0;  // Retrieve from localStorage or set to 0 if not found
@@ -597,11 +604,17 @@ const handleChange = (inputId: string, value: string | boolean | string[]) => {
 
 
     useEffect(() => {
-        const savedData: MessData[] = JSON.parse(localStorage.getItem(localStorageKey)) || [];
+        const savedDataString = localStorage.getItem(localStorageKey);
+        const savedData: MessData[] = JSON.parse(savedDataString || '[]'); 
 
-        const currentData = savedData.find((data) => data.messID === messList[currentStep].messID) || {};
-        setFormState(currentData.taskJson || {});
-        setSummary(currentData.comments || '');
+        const currentData = savedData.find((data) => data.messID === messList[currentStep].messID);
+        if (currentData) {
+            setFormState(currentData.taskJson || []); 
+            setSummary(currentData.comments || ''); 
+        } else {
+            setFormState([]); 
+            setSummary(''); 
+        }
     }, [currentStep, messList]);
 
     return (
@@ -614,13 +627,13 @@ const handleChange = (inputId: string, value: string | boolean | string[]) => {
 
                 <div className='px-3'>
 
-                    {preData.map((task, index) => (
+                    {preData.map((task:any, index:any) => (
                         <div key={index}>
                             {selectedTasknumber != task.taskNumber && (
                                 <>
                                     <h5 className='mt-2'>Updated data from <span className='text-primary'>{task.taskNumber}</span></h5>
                                     <div>
-                                        {task.inputs.map((input, idx) => (
+                                        {task.inputs.map((input:any, idx:any) => (
                                             <div key={idx}>
                                                 <strong>{input.label}:</strong> <span className='text-primary'>{input.value}</span>
                                             </div>
@@ -638,11 +651,6 @@ const handleChange = (inputId: string, value: string | boolean | string[]) => {
 
                 {formData.inputs &&
                     <form className='side-scroll' onSubmit={(event) => handleSubmit(event, taskNumber)}>
-                        {/* <div className='d-flex flex-column mt-2 py-1 px-3'>
-                            <div className='fs-6 mb-1 fw-bolder col-12'>Task Name</div>
-                            <div className='col-12 fs-5 text-primary'>{formData.inputs.find((input: { inputId: string; label: string }) => input.inputId === "99")?.label}</div>
-                        </div> */}
-
 
                         <Modal.Body className=" p-4">
                             <div className="stepper-vertical" style={{
@@ -707,10 +715,6 @@ const handleChange = (inputId: string, value: string | boolean | string[]) => {
 
 
                             <div className="form-section" style={{ width: '90%', paddingLeft: '20px' }}>
-                                {/* {messList.map((mess, index) => (
-             currentStep === index && (
-                 <div key={mess.messID}>
-                                } */}
                                 <div className="my-task">
                                     {formData.inputs.map((input: Input) => (
                                         shouldDisplayInput(input) && (
