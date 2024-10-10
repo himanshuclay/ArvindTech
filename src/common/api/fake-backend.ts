@@ -1,5 +1,6 @@
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
 import MockAdapter from 'axios-mock-adapter';
+import { Message } from 'rsuite';
 
 
 // type User = {
@@ -63,25 +64,41 @@ export default function configureFakeBackend() {
     }
   }
 
-  mock.onPost('/login').reply(async function (config) {
+  interface ErrorResponse {
+    message: string;
+    // You can add other properties if your error response has them
+}
+
+// Inside your mock API handler
+mock.onPost('/login').reply(async function (config) {
     try {
-      const params = JSON.parse(config.data);
-      const { email, password } = params;
+        const params = JSON.parse(config.data);
+        const { email, password } = params;
 
-      // Call the loginUser function to handle real API login
-      const result = await loginUser(email, password);
+        // Call the loginUser function to handle real API login
+        const result = await loginUser(email, password);
 
-      // Return the response from the real API
-      if (result.status === 200) {
-        return [200, result.data];
-      } else {
-        return [result.status, { message: result.message }];
-      }
+        // Check if the loginUser function returned a successful response
+        if (result && result.status === 200) {
+            return [200, result.data]; // Return success response
+        } else {
+            return [result.status || 400, { Message}]; // Return error response
+        }
     } catch (error) {
-      // Handle the error inside the mock handler
-      console.error('Mock login error:', error);
-      return [error.status || 500, { message: error.message || 'Unknown error occurred' }];
+        // Handle the error inside the mock handler
+        console.error('Mock login error:', error);
+
+        // Type assertion for AxiosError
+        const axiosError = error as AxiosError;
+
+        // Handle different error types and return appropriate status
+        const status = axiosError.response?.status || 500; // Check if error has a response status
+        
+        // Use type assertion to extract the message safely
+        const message = (axiosError.response?.data as ErrorResponse)?.message || 'Login failed. Please try again.';
+
+        return [status, { message }];
     }
-  });
+});
 }
 
