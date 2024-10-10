@@ -360,9 +360,9 @@ const ModuleMaster = () => {
                                                                     <Draggable key={column.id} draggableId={column.id} index={index}>
                                                                         {(provided) => (
                                                                             <th
-                                                                                ref={provided.innerRef as React.Ref<HTMLTableHeaderCellElement>}
-                                                                                {...provided.draggableProps}
-                                                                                {...provided.dragHandleProps}
+                                                                                // ref={provided.innerRef as React.Ref<HTMLTableHeaderCellElement>}
+                                                                                // {...provided.draggableProps}
+                                                                                // {...provided.dragHandleProps}
                                                                             >
                                                                                 {column.id === 'moduleOwnerID' && (<i className="ri-settings-2-fill"></i>)}
                                                                                 {column.id === 'moduleID' && (<i className="ri-settings-2-fill"></i>)}

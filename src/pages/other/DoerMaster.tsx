@@ -358,15 +358,18 @@ const DoerMaster: React.FC = () => {
                             <thead>
                                 <Droppable droppableId="columns" direction="horizontal">
                                     {(provided) => (
-                                        <tr {...provided.droppableProps} ref={provided.innerRef}>
+                                        <tr 
+                                        // {...provided.droppableProps}
+                                        //  ref={provided.innerRef}
+                                         >
                                             <th><i className="ri-list-ordered-2"></i>  Sr. No</th>
                                             {columns.filter(col => col.visible).map((column, index) => (
                                                 <Draggable key={column.id} draggableId={column.id} index={index}>
                                                     {(provided) => (
                                                         <th
-                                                            ref={provided.innerRef}
-                                                            {...provided.draggableProps}
-                                                            {...provided.dragHandleProps}
+                                                            // ref={provided.innerRef}
+                                                            // {...provided.draggableProps}
+                                                            // {...provided.dragHandleProps}
 
 
                                                         >

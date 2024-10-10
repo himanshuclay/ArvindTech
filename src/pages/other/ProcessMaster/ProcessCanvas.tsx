@@ -6,8 +6,8 @@ import Select from 'react-select';
 
 interface ProcessCanvasProps {
     show: boolean;
-    setShow: (value: boolean) => void;
-    manageId: string;
+    setShow: (show: boolean) => void;
+    manageId: any; // Ensure this is defined as a string
 }
 
 interface AssignProjecttoProcess {

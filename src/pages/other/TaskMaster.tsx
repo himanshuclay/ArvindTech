@@ -33,30 +33,17 @@ interface Process {
     moduleName: string;
 }
 
-interface Role {
-    id: number;
-    roleName: string;
-    module: string;
-}
+// interface Role {
+//     id: number;
+//     roleName: string;
+//     module: string;
+// }
 
 interface Option {
     id: string;
     label: string;
     color: string;
 }
-
-type TaskJson = {
-    formId: string;
-    formName: string;
-    inputs: Array<{
-        inputId: string;
-        type: string;
-        label: string;
-        placeholder: string;
-        required: boolean;
-        value: string;
-    }>;
-};
 
 interface FilteredJsonInputType {
     inputId: string;
@@ -96,15 +83,15 @@ const AccountProcessTable: React.FC = () => {
     const [selectedProcess, setSelectedProcess] = useState<string>('');
     const [showModal, setShowModal] = useState(false);
     const [employees, setEmployees] = useState<Employee[]>([]);
-    const [roles, setRoles] = useState<Role[]>([]);
+    // const [roles, setRoles] = useState<Role[]>([]);
     const [selectedTask, setSelectedTask] = useState<AccountProcessTask | null>(null);
     const [selectedEmployee, setSelectedEmployee] = useState<string>('');
-    const [selectedRole, setSelectedRole] = useState<number | null>(null);
+    // const [selectedRole, setSelectedRole] = useState<number | null>(null);
     // const [Status, setStatus] = useState<number | null>(1);
     const [projects, setProjects] = useState<{ id: string; projectName: string }[]>([]);
     const [selectedProject, setSelectedProject] = useState<string>('');
     const [showApplyModal, setShowApplyModal] = useState(false);
-    const [assignedTasks, setAssignedTasks] = useState<Map<number, { employeeId: string, roleId: number }>>(new Map());
+    // const [assignedTasks, setAssignedTasks] = useState<Map<number, { employeeId: string, roleId: number }>>(new Map());
     const [filteredJson, setFilteredJson] = useState<FilteredJsonType | null>(null);
     const [selectedConditionTask, setSelectedConditionTask] = useState<string>('');
 
@@ -123,7 +110,6 @@ const AccountProcessTable: React.FC = () => {
         };
         fetchModules();
     }, []);
-    console.log(tasks)
 
     const ModalForm = ({ showModalone, handleClose, filteredJson }: ModalFormProps) => {
         // State to store task numbers for each option
@@ -150,12 +136,12 @@ const AccountProcessTable: React.FC = () => {
                 }));
             }
         };
-        const handleNextTask = (inputId: string, selectedTaskNumber: string) => {
-            setSelectedTaskNumbers(prevState => ({
-                ...prevState,
-                [inputId]: selectedTaskNumber // Update the task number for the corresponding input ID
-            }));
-        }
+        // const handleNextTask = (inputId: string, selectedTaskNumber: string) => {
+        //     setSelectedTaskNumbers(prevState => ({
+        //         ...prevState,
+        //         [inputId]: selectedTaskNumber // Update the task number for the corresponding input ID
+        //     }));
+        // }
 
 
         const [taskTiming, setTaskTiming] = useState<{ [key: string]: string }>({});
@@ -249,15 +235,22 @@ const AccountProcessTable: React.FC = () => {
                 // Log final converted hours and minutes in 24-hour format
                 console.log('Converted Hours (24-hour format):', hours, 'Minutes:', minutes);
 
+                interface TimeSelection {
+                    [key: string]: {
+                        time: string;
+                        hours: number;
+                        minutes: number;
+                    };
+                }
+
                 // Update the state with parsed hours and minutes
-                setTimeSelection((prev) => ({
+                setTimeSelection((prev: TimeSelection) => ({
                     ...prev,
                     [key]: {
                         time: timeString,
                         hours,
                         minutes: parseInt(minutes) || 0, // Ensure minutes is a number
                     },
-
                 }));
                 console.log(time)
             } else {
@@ -278,39 +271,40 @@ const AccountProcessTable: React.FC = () => {
         };
 
         // Function to process each option and return it in the desired structure
-        const processOption = (inputId: string, option: any): any => {
-            const optionId = option.id;
+        // const processOption = (inputId: string, option: any): any => {
+        //     const optionId = option.id;
 
-            return {
-                inputId: inputId, // Use inputId from filteredJson
-                optionId: optionId, // Use optionId from option
+        //     return {
+        //         inputId: inputId, // Use inputId from filteredJson
+        //         optionId: optionId, // Use optionId from option
 
-                // Fetch values from the state based on optionId
-                taskNumber: selectedTaskNumbers[optionId] || null,
-                taskTiming: taskTiming[optionId] || null,
-                taskType: selectedTaskTypes[optionId] || null,
+        //         // Fetch values from the state based on optionId
+        //         taskNumber: selectedTaskNumbers[optionId] || null,
+        //         taskTiming: taskTiming[optionId] || null,
+        //         taskType: selectedTaskTypes[optionId] || null,
 
-                // Check for taskTiming based on optionId and convert day selection accordingly
-                daySelection: taskTiming[optionId] === 'day' ? convertToHoursString(daySelection[optionId]) : null,
-            };
-        };
+        //         // Check for taskTiming based on optionId and convert day selection accordingly
+        //         daySelection: taskTiming[optionId] === 'day' ? convertToHoursString(daySelection[optionId]) : null,
+        //     };
+        // };
 
         // Function to flatten nested arrays and process options into a single array
-        const flattenAndProcessOptions = (inputId: string, options: any): any[] => {
-            const flatOptions: any[] = [];
+        // const flattenAndProcessOptions = (inputId: string, options: any): any[] => {
+        //     const flatOptions: any[] = [];
 
-            // Function to recursively flatten options
-            const flatten = (opt: any) => {
-                if (Array.isArray(opt)) {
-                    opt.forEach(item => flatten(item));
-                } else {
-                    flatOptions.push(processOption(inputId, opt)); // Process and add each option to the flat array
-                }
-            };
+        //     // Function to recursively flatten options
+        //     const flatten = (opt: any) => {
+        //         if (Array.isArray(opt)) {
+        //             opt.forEach(item => flatten(item));
+        //         } else {
+        //             flatOptions.push(processOption(inputId, opt)); // Process and add each option to the flat array
+        //         }
+        //     };
 
-            flatten(options); // Start flattening
-            return flatOptions; // Return the final flat array
-        };
+        //     flatten(options); // Start flattening
+        //     return flatOptions; // Return the final flat array
+        // };
+
 
         const handleSaveChanges = async () => {
             if (selectedTask && selectedEmployee) {
@@ -811,6 +805,19 @@ const AccountProcessTable: React.FC = () => {
         setShowModalone(true);
     };
 
+    type TaskJson = {
+        formId: string;
+        formName: string;
+        inputs: Array<{
+            inputId: string;
+            type: string;
+            label: string;
+            placeholder: string;
+            required: boolean;
+            value: string;
+        }>;
+    };
+
     const handleClose = () => setShowModalone(false);
 
 
@@ -983,14 +990,14 @@ const AccountProcessTable: React.FC = () => {
             }
 
             // Update assignedTasks for each task uniquely
-            if (selectedRole !== null) {
-                setAssignedTasks(
-                    new Map(assignedTasks).set(selectedTask.id, {
-                        employeeId: selectedEmployee,
-                        roleId: selectedRole,
-                    })
-                );
-            }
+            // if (selectedRole !== null) {
+            //     setAssignedTasks(
+            //         new Map(assignedTasks).set(selectedTask.id, {
+            //             employeeId: selectedEmployee,
+            //             roleId: selectedRole,
+            //         })
+            //     );
+            // }
 
             const payload = {
                 id: selectedTask.id ? selectedTask.id : 0, // Ensure this ID matches the task
@@ -1035,6 +1042,17 @@ const AccountProcessTable: React.FC = () => {
         setShowModal(false);
     };
 
+    const extractInputValue = (taskJson: string, inputId: string): string => {
+        try {
+            const parsedJson: TaskJson = JSON.parse(taskJson);
+            const inputField = parsedJson.inputs.find(input => input.inputId === inputId);
+            return inputField ? inputField.label || inputField.value : '';
+        } catch (error) {
+            console.error('Error parsing task_Json:', error);
+            return '';
+        }
+    };
+
     const handleApplyProcessToProject = async () => {
         if (selectedProject && selectedTask) {
             const payload = {
@@ -1065,17 +1083,6 @@ const AccountProcessTable: React.FC = () => {
         }
     }
 
-    const extractInputValue = (taskJson: string, inputId: string): string => {
-        try {
-            const parsedJson: TaskJson = JSON.parse(taskJson);
-            const inputField = parsedJson.inputs.find(input => input.inputId === inputId);
-            return inputField ? inputField.label || inputField.value : '';
-        } catch (error) {
-            console.error('Error parsing task_Json:', error);
-            return '';
-        }
-    };
-
     // Fetch Projects
     useEffect(() => {
         const fetchProjects = async () => {
@@ -1093,27 +1100,27 @@ const AccountProcessTable: React.FC = () => {
 
     return (
         <div>
-            {/* <div className="d-flex p-2 bg-white mt-2 mb-2 rounded shadow">Apply Process on Project</div> */}
-            {/* <div className="row m-0 align-items-end bg-white p-3 rounded shadow">
+            <div className="d-flex p-2 bg-white mt-2 mb-2 rounded shadow">Apply Process on Project</div>
+            <div className="row m-0 align-items-end bg-white p-3 rounded shadow">
                 <Form.Group className="col-md-4 my-1" controlId="moduleSelect">
                     <Form.Label>Select Module</Form.Label>
                     <Form.Control
                         as="select"
-                        value={selectedModule} 
+                        value={selectedModule}  // This holds the selected moduleName
                         onChange={(e) => {
                             const selectedModuleName = e.target.value;
                             const selectedModuleData = modules.find(module => module.moduleName === selectedModuleName);
 
-                            setSelectedModule(selectedModuleName);  
+                            setSelectedModule(selectedModuleName);  // Store moduleName
                             if (selectedModuleData) {
-                                setSelectedModuleId(selectedModuleData.moduleID);  
+                                setSelectedModuleId(selectedModuleData.moduleID);  // Store moduleID
                             }
                         }}
                     >
                         <option value="">Select a module</option>
                         {modules.map((module) => (
-                            <option key={module.moduleID} value={module.moduleName}> 
-                                {module.moduleName}  
+                            <option key={module.moduleID} value={module.moduleName}>  {/* Use moduleName as value */}
+                                {module.moduleName}  {/* Display moduleName */}
                             </option>
                         ))}
                     </Form.Control>
@@ -1170,9 +1177,9 @@ const AccountProcessTable: React.FC = () => {
                         </Modal.Footer>
                     </Modal>
                 </div>
-            </div> */}
+            </div>
 
-            <div className="d-flex p-2 bg-white my-3 rounded shadow">Task List</div>
+            <div className="d-flex p-2 bg-white mt-3 rounded shadow">Task List</div>
             <div className="bg-white p-3 rounded shadow">
                 <Table striped bordered hover responsive>
                     <thead>
@@ -1182,11 +1189,10 @@ const AccountProcessTable: React.FC = () => {
                             <th>Process</th>
                             <th>Task Number</th>
                             <th>Role Name</th>
+                            <th className='d-none'>Doer Name</th>
                             <th>Task Name</th>
-                            {/* <th>Doer Name</th> */}
-                            {/* <th>Action</th> */}
                             <th>Conditions</th>
-                            {/* <th>Action</th> */}
+                            <th className='d-none'>Action</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -1204,20 +1210,20 @@ const AccountProcessTable: React.FC = () => {
                                     <td>{taskName}</td>
                                     {/* <td>{selectedEmployeeObj.employeeName}</td> */}
                                     {/* <td>{doerName}</td> */}
-                                    {/* <td>{task.doerName}</td> */}
+                                    <td className='d-none'>{task.doerName}</td>
                                     <td>
                                         <Button variant='primary' onClick={() => handleShow(task)}>
                                             Conditions
                                         </Button>
                                     </td>
-                                    {/* <td>
+                                    <td className='d-none'>
                                         <Button
                                             variant="primary"
                                             onClick={() => handleAssigndoer(task)} // Open the modal for assigning doer
                                         >
                                             {task.doerName === "" ? "Select Doer" : "Update Doer"}
                                         </Button>
-                                    </td> */}
+                                    </td>
                                 </tr>
                             );
                         })}
@@ -1254,7 +1260,7 @@ const AccountProcessTable: React.FC = () => {
             </Modal> */}
 
 
-            {/* <Modal show={showModal} onHide={() => setShowModal(false)}>
+            <Modal show={showModal} onHide={() => setShowModal(false)}>
                 <Modal.Header closeButton>
                     <Modal.Title>Assign Role and Employee</Modal.Title>
                 </Modal.Header>
@@ -1284,7 +1290,7 @@ const AccountProcessTable: React.FC = () => {
                         Assign
                     </Button>
                 </Modal.Footer>
-            </Modal> */}
+            </Modal>
 
         </div>
     );

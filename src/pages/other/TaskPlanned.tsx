@@ -29,6 +29,7 @@ interface ProjectAssignListWithDoer {
   taskTime: string;
   taskType: string;
   roleName: string;
+  inputs: any;
 }
 
 interface ApiResponse {
@@ -114,50 +115,51 @@ const ProjectAssignTable: React.FC = () => {
 
   const fetchPreData = async (taskCommonId: number) => {
     try {
-      const role = localStorage.getItem('EmpId') || '';
-      const response = await axios.get<ApiResponse>(
-        `https://arvindo-api.clay.in/api/ProcessInitiation/GetFilterTask?Flag=4&DoerId=${role}`
-      );
+        const role = localStorage.getItem('EmpId') || '';
+        const response = await axios.get<ApiResponse>(
+            `https://arvindo-api.clay.in/api/ProcessInitiation/GetFilterTask?Flag=4&DoerId=${role}`
+        );
 
-      if (response.data && response.data.isSuccess) {
-        const fetchedData = response.data.getFilterTasks || [];
-        const filteredTasks = fetchedData.map((task: ProjectAssignListWithDoer) => {
-          const parsedTaskJson = JSON.parse(task.task_Json);
-          const optionsMap = parsedTaskJson.inputs.reduce((map: Record<string, string>, input: any) => {
-            if (input.options) {
-              input.options.forEach((option: any) => {
-                map[option.id] = option.label;
-              });
-            }
-            return map;
-          }, {});
+        if (response.data && response.data.isSuccess) {
+            const fetchedData = response.data.getFilterTasks || [];
+            const filteredTasks: ProjectAssignListWithDoer[] = fetchedData.map((task: ProjectAssignListWithDoer) => {
+                const parsedTaskJson = JSON.parse(task.task_Json);
+                const optionsMap = parsedTaskJson.inputs.reduce((map: Record<string, string>, input: any) => {
+                    if (input.options) {
+                        input.options.forEach((option: any) => {
+                            map[option.id] = option.label;
+                        });
+                    }
+                    return map;
+                }, {});
 
-          const filteredInputs = parsedTaskJson.inputs
-            .filter((input: any) => !['99', '100', '102', '103'].includes(input.inputId)) // Exclude unwanted inputIds
-            .map((input: any) => ({
-              label: input.label,
-              value: optionsMap[input.value] || input.value // Replace value with label if it exists in optionsMap
-            }));
+                const filteredInputs = parsedTaskJson.inputs
+                    .filter((input: any) => !['99', '100', '102', '103'].includes(input.inputId)) // Exclude unwanted inputIds
+                    .map((input: any) => ({
+                        label: input.label,
+                        value: optionsMap[input.value] || input.value // Replace value with label if it exists in optionsMap
+                    }));
 
-          return {
-            taskNumber: task.task_Number,
-            inputs: filteredInputs
-          };
-        });
-        setPreData(filteredTasks);
-      } else {
-        console.error('API Response Error:', response.data?.message || 'Unknown error');
-      }
+                return {
+                    ...task, // Spread the existing task properties to include all required fields
+                    inputs: filteredInputs
+                };
+            });
+            setPreData(filteredTasks);
+        } else {
+            console.error('API Response Error:', response.data?.message || 'Unknown error');
+        }
     } catch (error) {
-      if (axios.isAxiosError(error)) {
-        console.error('Axios Error:', error.message);
-      } else {
-        console.error('Unexpected Error:', error);
-      }
+        if (axios.isAxiosError(error)) {
+            console.error('Axios Error:', error.message);
+        } else {
+            console.error('Unexpected Error:', error);
+        }
     } finally {
-      setLoading(false);
+        setLoading(false);
     }
-  };
+};
+
 
   const handleEdit = (id: number) => {
     const taskCommonId = id
@@ -209,10 +211,10 @@ const ProjectAssignTable: React.FC = () => {
           {preData.map((task, index) => (
             <div key={index}>
               <h5 className="mt-2">
-                Updated data from <span className="text-primary">{task.taskNumber}</span>
+                Updated data from <span className="text-primary">{task.task_Number}</span>
               </h5>
               <div>
-                {task.inputs.map((input, i) => (
+                {task.inputs.map((input:any, i:any) => (
                   <div key={i}>
                     <strong>{input.label}:</strong> <span className="text-primary">{input.value}</span>
                   </div>

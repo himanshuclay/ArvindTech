@@ -26,7 +26,7 @@ const TemplateMaster = React.lazy(() => import('../pages/other/Modules-Master.ts
 const ActiveTasks = React.lazy(() => import('../pages/other/ActiveTasks.tsx'))
 const ActiveProject = React.lazy(() => import('../pages/other/ActiveProject.tsx'))
 // const FilterTasks = React.lazy(() => import('../pages/other/FilterTasks.tsx'))
-const Filtertask = React.lazy(() => import('../pages/other/Filtertask.tsx'))
+// const Filtertask = React.lazy(() => import('../pages/other/Filtertask.tsx'))
 const Notification = React.lazy(() => import('../pages/other/Notification.tsx'))
 const ModuleList = React.lazy(() => import('../pages/other/Module-list.tsx'))
 const EmployeeMaster = React.lazy(() => import('../pages/other/Employee-Master.tsx'))
@@ -52,7 +52,7 @@ const CompletedTask = React.lazy(() => import('../pages/other/CompletedTask.tsx'
 const TaskPlanned = React.lazy(() => import('../pages/other/TaskPlanned.tsx'))
 const ExpireTask = React.lazy(() => import('../pages/other/ExpireTask.tsx'))
 const PendingTask = React.lazy(() => import('../pages/other/PendingTask.tsx'))
-const RunningTask = React.lazy(() => import('../pages/other/RunningTask.tsx'))
+// const RunningTask = React.lazy(() => import('../pages/other/RunningTask.tsx'))
 const ModuleMasterNew = React.lazy(() => import('../pages/other/ModuleMaster/ModuleMaster.tsx'))
 const ModuleMasterinsert = React.lazy(() => import('../pages/other/ModuleMaster/ModuleMasterInsert.tsx'))
 const ProcessMasterNew = React.lazy(() => import('../pages/other/ProcessMaster/ProcessMaster.tsx'))
@@ -221,12 +221,12 @@ const customPagesRoutes = {
 			element: <ActiveProject />,
 			route: PrivateRoute,
 		},
-		{
-			path: '/pages/FilterTasks',
-			name: 'Filter Tasks',
-			element: <Filtertask />,
-			route: PrivateRoute,
-		},
+		// {
+		// 	path: '/pages/FilterTasks',
+		// 	name: 'Filter Tasks',
+		// 	element: <Filtertask />,
+		// 	route: PrivateRoute,
+		// },
 		
 		{
 			path: '/pages/Notification',
@@ -377,12 +377,12 @@ const customPagesRoutes = {
 			element: <PendingTask />,
 			route: PrivateRoute,
 		},
-		{
-			path: '/pages/RunningTask',
-			name: 'Running Task ',
-			element: <RunningTask />,
-			route: PrivateRoute,
-		},
+		// {
+		// 	path: '/pages/RunningTask',
+		// 	name: 'Running Task ',
+		// 	element: <RunningTask />,
+		// 	route: PrivateRoute,
+		// },
 		{
 			path: '/pages/ModuleMaster',
 			name: 'ModuleMaster ',

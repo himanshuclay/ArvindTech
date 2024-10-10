@@ -6,6 +6,7 @@ import {
   DraggableProvided,
   DroppableProvided,
 } from 'react-beautiful-dnd';
+import Select from 'react-select';
 import { Button, Form, Modal, ListGroup, Toast } from 'react-bootstrap';
 import axios from 'axios';
 import { useLocation } from 'react-router-dom';
@@ -79,6 +80,11 @@ type TransformedField = {
 interface ProcessOption {
   processName: string;
   processID: string;
+}
+
+interface Employee {
+  empId: string;
+  employeeName: string;
 }
 
 type Option = {
@@ -165,6 +171,8 @@ const App: React.FC = () => {
     options: [], // Initialize options as an empty array
   });
   const [selectedTaskIdx, setSelectedTaskIdx] = useState<number | null>(null);
+  const [employees, setEmployees] = useState<Employee[]>([]);
+  const [selectedEmployee, setSelectedEmployee] = useState<string>('');
   const [selectedFieldIdx, setSelectedFieldIdx] = useState<number | null>(null);
   const [showToast, setShowToast] = useState(false);
   const [roles, setRoles] = useState<Role[]>([]);
@@ -188,6 +196,24 @@ const App: React.FC = () => {
   const handleCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setConditionalField(event.target.checked);
   };
+
+  useEffect(() => {
+    const fetchEmployees = async () => {
+      try {
+        const response = await axios.get(`https://localhost:44307/api/CommonDropdown/GetEmployeeListWithId`);
+        if (response.data.isSuccess) {
+          setEmployees(response.data.employeeLists);
+        } else {
+          console.error("Failed to fetch employees");
+        }
+      } catch (error) {
+        console.error("Error fetching employees:", error);
+      }
+    };
+
+    fetchEmployees();
+  }, []);
+
 
   const handleSelectChange = (e: ChangeEvent<any>) => {
     const selectedIndex = e.target.selectedIndex;
@@ -438,6 +464,8 @@ const App: React.FC = () => {
       inputs: transformedFields,
     };
 
+    const selectedEmployeeObj = employees.find(emp => emp.empId === selectedEmployee)
+
     // Include finishID (finishPoint) in the payload
     const payload = {
       id: 0, // Adjust as needed
@@ -455,6 +483,7 @@ const App: React.FC = () => {
       isExpired: 0,
       task_Status: 1,
       template_Json: selectedTemplateJson,
+      problem_Solver: selectedEmployeeObj?.employeeName,
       task_Json: JSON.stringify(formJSON),
       createdBy: "HimanshuPant", // Replace with actual username or dynamic value
       finishPoint: parseFloat(finishID), // Convert finishID to float before sending
@@ -624,12 +653,12 @@ const App: React.FC = () => {
 
   const handleSelectTemplateChange = (e: ChangeEvent<any>) => {
     const selectedFormName = e.target.value;
-    
+
     // Use type assertion to tell TypeScript that the object has a `formName` property
     const selectedTemplate = templates.find(
       template => (template as { formName: string; templateJson: any }).formName === selectedFormName
     );
-  
+
     if (selectedTemplate) {
       setSelectedTemplateJson((selectedTemplate as { formName: string; templateJson: any }).templateJson);
     }
@@ -685,6 +714,10 @@ const App: React.FC = () => {
 
       return { ...prevField, options: newOptions };
     });
+  };
+
+  const handleEmployeeChange = (selectedOption: any) => {
+    setSelectedEmployee(selectedOption ? selectedOption.value : null);
   };
 
   const handleEditField = (field: FormField, taskIndex: number, fieldIndex: number) => {
@@ -1046,7 +1079,23 @@ const App: React.FC = () => {
               </Droppable>
 
             </div>
-            <Form.Group className="col-6 my-1">
+            <Form.Group className="col-4 my-1">
+              <Form.Label>Problem Solver</Form.Label>
+              <Select
+                value={employees
+                  .map(employee => ({ value: employee.empId, label: employee.employeeName }))
+                  .find(option => option.value === selectedEmployee)
+                }
+                onChange={handleEmployeeChange}
+                options={employees.map(employee => ({
+                  value: employee.empId,
+                  label: employee.employeeName,
+                }))}
+                placeholder="Select an employee"
+                isSearchable
+              />
+            </Form.Group>
+            <Form.Group className="col-4 my-1">
               <Form.Label>Set Finish Point</Form.Label>
               <Form.Control
                 as="select"
@@ -1068,7 +1117,7 @@ const App: React.FC = () => {
             {location.pathname != '/pages/CreateTemplates' &&
 
               (
-                <Form.Group className="col-6 my-1">
+                <Form.Group className="col-4 my-1">
                   <Form.Label>Select Template</Form.Label>
                   <Form.Control
                     as="select"

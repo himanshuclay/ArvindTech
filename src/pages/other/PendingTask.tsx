@@ -123,9 +123,9 @@ const ProjectAssignTable: React.FC = () => {
       // Find the input field in the formData
       const excludedInputIds = ['99', '100', '102', '103'];
       const input = formData.inputs.find(input => input.inputId === inputId);
-    
+
       let updatedValue = value;
-    
+
       // Handle 'select' and 'CustomSelect' input type
       if (input && (input.type === 'select' || input.type === 'CustomSelect')) {
         const selectedOption = input.options?.find(option => option.label === value);
@@ -133,7 +133,7 @@ const ProjectAssignTable: React.FC = () => {
           updatedValue = selectedOption.id;  // Use option ID instead of label
         }
       }
-    
+
       // Handle 'multiselect' input type (storing an array of selected option IDs)
       if (input && input.type === 'multiselect') {
         updatedValue = (value as string[]).map(label => {
@@ -141,7 +141,7 @@ const ProjectAssignTable: React.FC = () => {
           return selectedOption ? selectedOption.id : label;
         });
       }
-    
+
       // Handle 'text', 'radio', 'checkbox', 'date', and other input types
       if (input) {
         switch (input.type) {
@@ -166,7 +166,7 @@ const ProjectAssignTable: React.FC = () => {
             break;
         }
       }
-    
+
       // Update the formState with the new value
       setFormState(prevState => {
         // Only include updates for inputIds that are not in the excluded list
@@ -174,10 +174,10 @@ const ProjectAssignTable: React.FC = () => {
           ...prevState,
           ...(excludedInputIds.includes(inputId) ? {} : { [inputId]: updatedValue })
         };
-    
+
         // Re-evaluate conditions after state update
         reEvaluateConditions(newState);
-    
+
         return newState;
       });
     };
@@ -185,7 +185,7 @@ const ProjectAssignTable: React.FC = () => {
     const handleSubmit = async (event: React.FormEvent, taskNumber: string) => {
       event.preventDefault();
       const role = localStorage.getItem('EmpId') || '';
-  
+
       // Prepare the data to be posted
       const requestData = {
         id: 0,
@@ -197,9 +197,9 @@ const ProjectAssignTable: React.FC = () => {
         summary: formState['summary'] || 'Task Summary',
       };
       console.log(requestData)
-  
+
       setLoading(true);  // Show loader when the request is initiated
-  
+
       try {
         const response = await fetch('https://arvindo-api.clay.in/api/ProcessInitiation/UpdateDoerTask', {
           method: 'POST',
@@ -208,11 +208,11 @@ const ProjectAssignTable: React.FC = () => {
           },
           body: JSON.stringify(requestData),
         });
-  
+
         if (response.ok) {
           const responseData = await response.json();
           console.log('Task updated successfully:', responseData);
-          
+
         } else {
           console.error('Failed to update the task:', response.statusText);
         }
@@ -222,7 +222,7 @@ const ProjectAssignTable: React.FC = () => {
         setLoading(false);  // Hide loader when the request completes (success or error)
       }
     };
-    
+
 
     // Function to re-evaluate conditions for showing/hiding fields
     const reEvaluateConditions = (newState: { [key: string]: any }) => {
@@ -255,7 +255,7 @@ const ProjectAssignTable: React.FC = () => {
       for (const otherInput of formData.inputs) {
         if (otherInput.inputId === conditionValue) {
           return formState[otherInput.inputId] !== '';
-          
+
         }
         console.log(otherInput)
         if (otherInput.options && otherInput.options.some(option => option.id === conditionValue)) {
@@ -357,16 +357,22 @@ const ProjectAssignTable: React.FC = () => {
                               </select>
                             )}
                             {input.type === 'file' && (
-                              // <input
-                              //     type="file"
-                              //     placeholder={'file'}
-                              //     onChange={e => handleChange(input.fileId, e.target.value)}
-                              //     style={{ display: 'block', width: '100%', padding: '0.5rem' }}
-                              // />
                               <FileUploader
                                 icon="ri-upload-cloud-2-line"
                                 text="Drop files here or click to upload."
-
+                                additionalData={{
+                                  ModuleID: 'yourModuleID',
+                                  CreatedBy: 'yourUserID',
+                                  TaskCommonID: 3463,
+                                  Task_Number: 'yourTaskNumber',
+                                  ProcessInitiationID: 35635,
+                                  ProcessID: 'yourProcessID',
+                                  UpdatedBy: 'yourUpdatedBy',
+                                }}
+                                onFileUpload={(files) => {
+                                  // Handle file upload logic here
+                                  console.log('Files uploaded:', files);
+                                }}
                               />
                             )}
 
@@ -445,7 +451,7 @@ const ProjectAssignTable: React.FC = () => {
   };
 
 
-  
+
 
   if (loading) {
     return <div className="loader-fixed">

@@ -377,9 +377,9 @@ const ModuleMaster = () => {
                                                                     <Draggable key={column.id} draggableId={column.id} index={index}>
                                                                         {(provided) => (
                                                                             <th
-                                                                                ref={provided.innerRef }
-                                                                                {...provided.draggableProps}
-                                                                                {...provided.dragHandleProps}
+                                                                            // ref={provided.innerRef} // Proper ref for <th> element
+                                                                            // {...provided.draggableProps}
+                                                                            // {...provided.dragHandleProps}
                                                                             >
                                                                                 {column.id === 'moduleName' && (<i className="ri-settings-2-fill"></i>)}
                                                                                 {column.id === 'processID' && (<i className="ri-user-settings-fill"></i>)}
