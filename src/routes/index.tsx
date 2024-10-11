@@ -210,6 +210,18 @@ const customPagesRoutes = {
 			route: PrivateRoute,
 		},
 		{
+			path: '/pages/CreateTemplates',
+			name: 'Create Templates',
+			element: <TemplateMaster />,
+			route: PrivateRoute,
+		},
+		{
+			path: '/pages/CreateTemplates',
+			name: 'Modules Master',
+			element: <TemplateMaster />,
+			route: PrivateRoute,
+		},
+		{
 			path: '/pages/ActiveTasks',
 			name: 'Active Tasks',
 			element: <ActiveTasks />,
