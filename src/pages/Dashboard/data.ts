@@ -18,29 +18,29 @@ interface ProjectData {
 }
 export const statistics: Statistic[] = [
 	{
-		title: 'Daily Visits',
+		title: 'Total Employees',
 		stats: '8,652',
 		change: '2.97%',
 		icon: 'ri-eye-line',
 		variant: 'text-bg-pink',
 	},
 	{
-		title: 'Revenue',
-		stats: '$9,254.62',
+		title: 'Active Projects',
+		stats: '14',
 		change: '18.25%',
 		icon: 'ri-wallet-2-line',
 		variant: 'text-bg-purple',
 	},
 	{
-		title: 'Orders',
-		stats: '753',
+		title: 'Completed Projects',
+		stats: '56',
 		change: '-5.75%',
 		icon: 'ri-shopping-basket-line',
 		variant: 'text-bg-info',
 	},
 	{
-		title: 'Users',
-		stats: '63,154',
+		title: 'Total Tasks',
+		stats: '400',
 		change: '8.21%',
 		icon: 'ri-group-2-line',
 		variant: 'text-bg-primary',

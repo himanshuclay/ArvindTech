@@ -87,14 +87,14 @@ const getFilteredMenuItems = () => {
     },
     {
       key: 'ExpireTask',
-      label: 'Expire Task',
+      label: 'Expired Tasks',
       url: '/pages/ExpireTask',
       icon: 'ri-slideshow-line',
       parentKey: 'Modules-Master',
     },
     {
       key: 'TaskPlanned',
-      label: 'Task Planned',
+      label: 'Planned Tasks',
       url: '/pages/TaskPlanned',
       icon: 'ri-slideshow-line',
       parentKey: 'Modules-Master',
