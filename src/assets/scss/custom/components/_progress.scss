@@ -441,6 +441,7 @@ button.pendingtask-margin {
   width: 100%;
 }
 
+
 .step.completed .step-line {
   background-color: green; 
 }
@@ -479,5 +480,9 @@ span.flatpickr-weekday {
   box-shadow: none;
   color: #fff;
   border-color: #1f1d56  !important;
+}
+
+.text-left {
+  text-align: left !important;
 }
 

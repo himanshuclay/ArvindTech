@@ -54,9 +54,9 @@ interface Condition {
 }
 
 interface MessData {
-    messID: string; 
+    messID: string;
     taskJson: any;
-    comments: string; 
+    comments: string;
 }
 interface FormState {
     [key: string]: any; // or more specific types
@@ -67,7 +67,7 @@ interface Task {
 
 const DynamicForm: React.FC<DynamicFormProps> = ({
     // formData,
-    taskNumber, 
+    taskNumber,
     data,
     show,
     setShow,
@@ -78,8 +78,8 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
     taskCommonIDRow,
     taskStatus,
     setLoading }) => {
-  
-const [formState, setFormState] = useState<FormState>({});
+
+    const [formState, setFormState] = useState<FormState>({});
     const [summary, setSummary] = useState('');
     const [taskJson, setTaskJson] = useState<{ [key: string]: any }>({});
     const [messManagers, setMessManagers] = useState<{ value: string, label: string }[]>([]);
@@ -88,7 +88,7 @@ const [formState, setFormState] = useState<FormState>({});
     const [messList, setMessList] = useState<{ messID: string; messName: string; managerEmpID: string; managerName: string }[]>([]);
 
     const [selectedCondition, setSelectedCondition] = useState<any[]>([]);
-    
+
     const [currentStep, setCurrentStep] = useState(0); // Track the current step
 
 
@@ -220,7 +220,7 @@ const [formState, setFormState] = useState<FormState>({});
     const handleNextStep = () => {
         // Save current form data before moving to next step
         saveDataToLocalStorage();
-        
+
 
         // Move to the next step if it's within the bounds of the messList
         if (currentStep < messList.length - 1) {
@@ -294,31 +294,32 @@ const [formState, setFormState] = useState<FormState>({});
 
 
 
-    useEffect(() => {
-        const fetchMessManagers = async () => {
-            try {
-                const response = await axios.get(`${config.API_URL_APPLICATION}/CommonDropdown/GetMessManagerNameListWithId`);
-                const data = response.data.messManagerNameLists;
+    // useEffect(() => {
+    //     const fetchMessManagers = async () => {
+    //         try {
+    //             const response = await axios.get(`${config.API_URL_APPLICATION}/CommonDropdown/GetMessManagerNameListWithId`);
+    //             const data = response.data.messManagerNameLists;
 
-                // Map the response data to the format required for the Select component
-                const formattedData = data.map((manager: { messManagerEmpId: string, messManagerName: string }) => ({
-                    value: manager.messManagerEmpId,
-                    label: manager.messManagerName
-                }));
+    //             // Map the response data to the format required for the <select> component
+    //             const formattedData = data.map((manager: { messManagerEmpId: string, messManagerName: string }) => ({
+    //                 value: manager.messManagerEmpId,
+    //                 label: manager.messManagerName
+    //             }));
 
-                setMessManagers(formattedData);
-            } catch (error) {
-                console.error('Error fetching mess managers:', error);
-            }
-        };
+    //             setMessManagers(formattedData);
+    //         } catch (error) {
+    //             console.error('Error fetching mess managers:', error);
+    //         }
+    //     };
 
-        fetchMessManagers();
-    }, []);
+    //     fetchMessManagers();
+    // }, []);
 
-    const handleSelectMessImpChange = (selectedOption: any) => {
-        setSelectedManager(selectedOption ? selectedOption.value : null);
-        console.log('Selected manager ID:', selectedOption ? selectedOption.value : null);
-    };
+    // const handleSelectMessImpChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    //     const selectedValue = event.target.value;
+    //     setSelectedManager(selectedValue);
+    //     console.log('Selected manager ID:', selectedValue);
+    // };
 
 
     const handleClose = () => {
@@ -386,114 +387,114 @@ const [formState, setFormState] = useState<FormState>({});
 
 
     // Handle change in input values
-const handleChange = (inputId: string, value: string | boolean | string[]) => {
-    // Prevent default behavior (if needed)
-    // event.preventDefault(); 
+    const handleChange = (inputId: string, value: string | boolean | string[]) => {
+        // Prevent default behavior (if needed)
+        // event.preventDefault(); 
 
-    const excludedInputIds = ['99', '100', '102', '103'];
-    const input = formData.inputs.find(input => input.inputId === inputId);
+        const excludedInputIds = ['99', '100', '102', '103'];
+        const input = formData.inputs.find(input => input.inputId === inputId);
 
-    let updatedValue = value;
-    let selectedLabel: any;
-    console.log(selectedLabel);
+        let updatedValue = value;
+        let selectedLabel: any;
+        console.log(selectedLabel);
 
-    if (input) {
-        selectedLabel = input.label;
-    }
+        if (input) {
+            selectedLabel = input.label;
+        }
 
-    // Handle select and CustomSelect input types
-    if (input && (input.type === 'select' || input.type === 'CustomSelect')) {
-        const selectedOption = input.options?.find(option => option.label === value);
-        if (selectedOption) {
-            updatedValue = selectedOption.id;
-            selectedLabel = selectedOption.label;
-    
-            // Ensure parsedCondition is an array of arrays and has at least one array
-            if (Array.isArray(parsedCondition) && parsedCondition.length > 0) {
-                const selectedConditionFromParsed = parsedCondition[0].find((condition: Condition) => condition.optionId === updatedValue);
-                
-                if (selectedConditionFromParsed) {
-                    setSelectedCondition([selectedConditionFromParsed]);
+        // Handle select and CustomSelect input types
+        if (input && (input.type === 'select' || input.type === 'CustomSelect')) {
+            const selectedOption = input.options?.find(option => option.label === value);
+            if (selectedOption) {
+                updatedValue = selectedOption.id;
+                selectedLabel = selectedOption.label;
+
+                // Ensure parsedCondition is an array of arrays and has at least one array
+                if (Array.isArray(parsedCondition) && parsedCondition.length > 0) {
+                    const selectedConditionFromParsed = parsedCondition[0].find((condition: Condition) => condition.optionId === updatedValue);
+
+                    if (selectedConditionFromParsed) {
+                        setSelectedCondition([selectedConditionFromParsed]);
+                    }
                 }
+
+                // Update visibility based on the selected option ID
+                setShowMessManagerSelect(selectedOption.id === '11-1');
+            } else {
+                // Handle case where no option is selected
+                console.warn(`No option found for the value: ${value}`);
             }
-    
-            // Update visibility based on the selected option ID
-            setShowMessManagerSelect(selectedOption.id === '11-1');
-        } else {
-            // Handle case where no option is selected
-            console.warn(`No option found for the value: ${value}`);
         }
-    }
-    
 
-    // Handle multiselect input type
-    if (input && input.type === 'multiselect') {
-        updatedValue = (value as string[]).map(label => {
-            const selectedOption = input.options?.find(option => option.label === label);
-            return selectedOption ? selectedOption.id : label;
-        });
-    }
 
-    // Handle other input types
-    if (input) {
-        switch (input.type) {
-            case 'text':
-            case 'textarea':
-                updatedValue = value as string;
-                selectedLabel = input.label;
-                break;
-            case 'checkbox':
-                updatedValue = value as boolean;
-                selectedLabel = input.label;
-                break;
-            case 'radio':
-                updatedValue = value as boolean;
-                selectedLabel = input.label;
-                break;
-            case 'date':
-                updatedValue = value as string;
-                selectedLabel = input.label;
-                break;
-            case 'file':
-                // Handle file separately
-                break;
-            default:
-                break;
+        // Handle multiselect input type
+        if (input && input.type === 'multiselect') {
+            updatedValue = (value as string[]).map(label => {
+                const selectedOption = input.options?.find(option => option.label === label);
+                return selectedOption ? selectedOption.id : label;
+            });
         }
-    }
 
-    // Update formState
-    setFormState(prevState => {
-        const newState = {
-            ...prevState,
-            ...(excludedInputIds.includes(inputId) ? {} : { [inputId]: updatedValue }),
-        };
+        // Handle other input types
+        if (input) {
+            switch (input.type) {
+                case 'text':
+                case 'textarea':
+                    updatedValue = value as string;
+                    selectedLabel = input.label;
+                    break;
+                case 'checkbox':
+                    updatedValue = value as boolean;
+                    selectedLabel = input.label;
+                    break;
+                case 'radio':
+                    updatedValue = value as boolean;
+                    selectedLabel = input.label;
+                    break;
+                case 'date':
+                    updatedValue = value as string;
+                    selectedLabel = input.label;
+                    break;
+                case 'file':
+                    // Handle file separately
+                    break;
+                default:
+                    break;
+            }
+        }
 
-        // Update taskJson only when inputId is not excluded
-        if (!excludedInputIds.includes(inputId)) {
-            const updatedTaskJson = {
-                ...formData,
-                inputs: formData.inputs.map(input => ({
-                    ...input,
-                    value: newState[input.inputId] !== undefined ? newState[input.inputId] : input.value,
-                })),
+        // Update formState
+        setFormState(prevState => {
+            const newState = {
+                ...prevState,
+                ...(excludedInputIds.includes(inputId) ? {} : { [inputId]: updatedValue }),
             };
 
-            // Set taskJson in JSON format, matching formData structure
-            // setTaskJson(JSON.stringify(updatedTaskJson, null, 2)); 
-            setTaskJson(updatedTaskJson); 
-        }
+            // Update taskJson only when inputId is not excluded
+            if (!excludedInputIds.includes(inputId)) {
+                const updatedTaskJson = {
+                    ...formData,
+                    inputs: formData.inputs.map(input => ({
+                        ...input,
+                        value: newState[input.inputId] !== undefined ? newState[input.inputId] : input.value,
+                    })),
+                };
 
-        console.log(taskJson);
+                // Set taskJson in JSON format, matching formData structure
+                // setTaskJson(JSON.stringify(updatedTaskJson, null, 2)); 
+                setTaskJson(updatedTaskJson);
+            }
 
-        // Re-evaluate conditions after state update
-        reEvaluateConditions(newState);
+            console.log(taskJson);
 
-        console.log(newState);
+            // Re-evaluate conditions after state update
+            reEvaluateConditions(newState);
 
-        return newState;
-    });
-};
+            console.log(newState);
+
+            return newState;
+        });
+    };
 
 
 
@@ -504,7 +505,7 @@ const handleChange = (inputId: string, value: string | boolean | string[]) => {
         localStorage.removeItem(localStorageKey);
         console.log('Final Submitted Data:', finalData);
         const role = localStorage.getItem('EmpId') || '';
-        const taskData = data.find((task:Task) => task.task_Number === taskNumber);
+        const taskData = data.find((task: Task) => task.task_Number === taskNumber);
 
         // Prepare the data to be posted
         // const taskCommonId = localStorage.getItem('taskCommonId') || 0;  // Retrieve from localStorage or set to 0 if not found
@@ -599,28 +600,136 @@ const handleChange = (inputId: string, value: string | boolean | string[]) => {
 
     const [showBankModal, setShowBankModal] = useState(false);
 
+
+    const [bankDetails, setBankDetails] = useState({
+        reimbursementBankAccountNumber: '',
+        reimbursementBankName: '',
+        reimbursementBranchName: '',
+        reimbursementBankIfsc: '',
+        managerName: '',
+        userUpdateMobileNumber: ''
+    });
+
+    useEffect(() => {
+        if (selectedManager) {
+            const fetchBankDetails = async () => {
+                try {
+                    const response = await axios.get(`https://arvindo-api.clay.in/api/ProcessInitiation/GetMessData?EmpID=${selectedManager}`);
+                    const data = response.data.getMessDataByMessManagerEmpID[0]; // Assuming one result
+
+                    // Update bank details state with the fetched data
+                    setBankDetails({
+                        reimbursementBankAccountNumber: data.reimbursementBankAccountNumber,
+                        reimbursementBankName: data.reimbursementBankName,
+                        reimbursementBranchName: data.reimbursementBranchName,
+                        reimbursementBankIfsc: data.reimbursementBankIfsc,
+                        managerName: data.managerName,
+                        userUpdateMobileNumber: data.userUpdateMobileNumber
+                    });
+
+                } catch (error) {
+                    console.error('Error fetching bank details:', error);
+                }
+            };
+
+            fetchBankDetails();
+        }
+    }, [selectedManager]);
+
     // Handlers to show/hide the modal
-    const handleShow2 = () => setShowBankModal(true);
+    const handleShow2 = () => {
+        setShowBankModal(true); // Show the modal
+    };
+
+
     const handleClose2 = () => setShowBankModal(false);
+
+    const handleSelectMessImpChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+        const selectedValue = event.target.value;
+        setSelectedManager(selectedValue);
+        console.log('Selected manager ID:', selectedValue);
+    };
+
+
+    useEffect(() => {
+        const fetchMessManagers = async () => {
+            try {
+                const response = await axios.get(`${config.API_URL_APPLICATION}/CommonDropdown/GetMessManagerNameListWithId`);
+                const data = response.data.messManagerNameLists;
+
+                // Map the response data to the format required for the <select> component
+                const formattedData = data.map((manager: { messManagerEmpId: string, messManagerName: string }) => ({
+                    value: manager.messManagerEmpId,
+                    label: manager.messManagerName
+                }));
+
+                setMessManagers(formattedData);
+            } catch (error) {
+                console.error('Error fetching mess managers:', error);
+            }
+        };
+
+        fetchMessManagers();
+    }, []);
+
+
+
+    // useEffect(() => {
+    //     if (showBankModal && selectedManager) {
+    //         // Fetch details when modal is shown and selectedManager is set
+    //         fetchBankDetails(selectedManager);
+    //     }
+    // }, [showBankModal, selectedManager]);
+
+    // const fetchBankDetails = async (empID: string) => {
+    //     try {
+    //         const response = await axios.get(`https://arvindo-api.clay.in/api/ProcessInitiation/GetMessData?EmpID=${selectedManager}`);
+    //         if (response.data.isSuccess) {
+    //             const data = response.data.getMessDataByMessManagerEmpID[0];
+    //             setBankDetails({
+    //                 managerName: data.managerName,
+    //                 reimbursementBankAccountNumber: data.reimbursementBankAccountNumber,
+    //                 reimbursementBankName: data.reimbursementBankName,
+    //                 reimbursementBankIfsc: data.reimbursementBankIfsc,
+    //                 reimbursementBranchName: data.reimbursementBranchName,
+    //                 userUpdateMobileNumber: data.userUpdateMobileNumber,
+    //             });
+
+    //             console.log(data)
+    //         } else {
+    //             console.error('Failed to fetch bank details');
+    //         }
+    //     } catch (error) {
+    //         console.error('Error fetching bank details:', error);
+    //     }
+    // };
+
+    const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const { name, value } = event.target;
+        setBankDetails((prevDetails) => ({
+          ...prevDetails,
+          [name]: value
+        }));
+      };
 
 
     useEffect(() => {
         const savedDataString = localStorage.getItem(localStorageKey);
-        const savedData: MessData[] = JSON.parse(savedDataString || '[]'); 
+        const savedData: MessData[] = JSON.parse(savedDataString || '[]');
 
         const currentData = savedData.find((data) => data.messID === messList[currentStep].messID);
         if (currentData) {
-            setFormState(currentData.taskJson || []); 
-            setSummary(currentData.comments || ''); 
+            setFormState(currentData.taskJson || []);
+            setSummary(currentData.comments || '');
         } else {
-            setFormState([]); 
-            setSummary(''); 
+            setFormState([]);
+            setSummary('');
         }
     }, [currentStep, messList]);
 
     return (
         <>
-            <Modal className="p-3" show={show} placement="end" onHide={handleClose} >
+            <Modal size='lg' className="p-3" show={show} placement="end" onHide={handleClose} >
                 <Modal.Header closeButton className=' '>
                     <Modal.Title className='text-dark'>Task Details</Modal.Title>
                 </Modal.Header>
@@ -628,13 +737,13 @@ const handleChange = (inputId: string, value: string | boolean | string[]) => {
 
                 <div className='px-3'>
 
-                    {preData.map((task:any, index:any) => (
+                    {preData.map((task: any, index: any) => (
                         <div key={index}>
                             {selectedTasknumber != task.taskNumber && (
                                 <>
                                     <h5 className='mt-2'>Updated data from <span className='text-primary'>{task.taskNumber}</span></h5>
                                     <div>
-                                        {task.inputs.map((input:any, idx:any) => (
+                                        {task.inputs.map((input: any, idx: any) => (
                                             <div key={idx}>
                                                 <strong>{input.label}:</strong> <span className='text-primary'>{input.value}</span>
                                             </div>
@@ -673,10 +782,8 @@ const handleChange = (inputId: string, value: string | boolean | string[]) => {
                                     }
 
                                     return (
-                                        <>
-
+                                        <div key={mess.messID}> {/* Apply key to outermost element */}
                                             <div
-                                                key={mess.messID}
                                                 className={stepClass}
                                                 onClick={() => setCurrentStep(index)}
                                                 style={{
@@ -689,7 +796,6 @@ const handleChange = (inputId: string, value: string | boolean | string[]) => {
                                                     position: 'relative',
                                                 }}
                                             >
-
                                                 {index + 1}
 
                                                 {index < messList.length - 1 && (
@@ -700,17 +806,15 @@ const handleChange = (inputId: string, value: string | boolean | string[]) => {
                                                         }}
                                                     />
                                                 )}
-
                                             </div>
-                                            <br />
-                                            <div>
+
+                                            <div className='me-2'>
                                                 {mess.messName}
                                             </div>
-
-                                        </>
-
+                                        </div>
                                     );
                                 })}
+
                             </div>
 
 
@@ -850,21 +954,21 @@ const handleChange = (inputId: string, value: string | boolean | string[]) => {
 
                                     ))}
                                     {showMessManagerSelect && (
-                                        <div className='form-group my-2'>
+                                        <div className='form-group my-2 position-relative'>
                                             <label>Select Mess Manager</label>
                                             <select
                                                 className='form-control'
                                                 value={selectedManager} // Bound to selectedManager state
                                                 onChange={handleSelectMessImpChange} // Updates state on change
                                             >
-                                                <option value="Avisineni Pavan Kumar_LLP05337">Avisineni Pavan Kumar_LLP05337</option>
+                                                <option value="">Select a Manager</option> {/* Default placeholder option */}
                                                 {messManagers.map((manager) => (
                                                     <option key={manager.value} value={manager.value}>
                                                         {manager.label}
                                                     </option>
                                                 ))}
                                             </select>
-                                            <i className="ri-pencil-fill fs-4" onClick={handleShow2}></i>
+                                            <i style={{position: 'absolute', right:'10px', bottom:'6px'}} className="ri-pencil-fill fs-4" onClick={handleShow2}></i> {/* This shows the modal */}
                                         </div>
                                     )}
                                 </div>
@@ -873,42 +977,87 @@ const handleChange = (inputId: string, value: string | boolean | string[]) => {
                                     <div className="modal-overlay">
                                         <div className="modal-content">
                                             <h4>Bank Details</h4>
-                                            <form className='form-group'>
-                                                <div className="mt-3">
+                                            <form className='form-group row'>
+                                                <div className="mt-3 col-6">
                                                     <label>Reimbursement Account</label>
-                                                    <input className='form-control' type="text" placeholder="Enter account number" />
+                                                    <input
+                                                        className='form-control'
+                                                        type="text"
+                                                        name="reimbursementBankAccountNumber" // Name for state update
+                                                        value={bankDetails.reimbursementBankAccountNumber}
+                                                        placeholder="Enter account number"
+                                                        onChange={handleInputChange} // Handle changes in input
+                                                    />
                                                 </div>
 
-                                                <div className="mt-3">
+                                                <div className="mt-3 col-6">
                                                     <label>Reimbursement Bank</label>
-                                                    <input className='form-control' type="text" placeholder="Enter account number" />
-                                                </div>
-                                                <div className="mt-3">
-                                                    <label>Reimbursement Bank Branch</label>
-                                                    <input className='form-control' type="text" placeholder="Enter account number" />
+                                                    <input
+                                                        className='form-control'
+                                                        type="text"
+                                                        name="reimbursementBankName" // Name for state update
+                                                        value={bankDetails.reimbursementBankName}
+                                                        placeholder="Enter bank name"
+                                                        onChange={handleInputChange} // Handle changes in input
+                                                    />
                                                 </div>
 
-                                                <div className="mt-3">
+                                                <div className="mt-3 col-6">
+                                                    <label>Reimbursement Bank Branch</label>
+                                                    <input
+                                                        className='form-control'
+                                                        type="text"
+                                                        name="reimbursementBranchName" // Name for state update
+                                                        value={bankDetails.reimbursementBranchName}
+                                                        placeholder="Enter branch name"
+                                                        onChange={handleInputChange} // Handle changes in input
+                                                    />
+                                                </div>
+
+                                                <div className="mt-3 col-6">
                                                     <label>Reimbursement IFSC Code</label>
-                                                    <input className='form-control' type="text" placeholder="Enter IFSC code" />
+                                                    <input
+                                                        className='form-control'
+                                                        type="text"
+                                                        name="reimbursementBankIfsc" // Name for state update
+                                                        value={bankDetails.reimbursementBankIfsc}
+                                                        placeholder="Enter IFSC code"
+                                                        onChange={handleInputChange} // Handle changes in input
+                                                    />
                                                 </div>
-                                                <div className="mt-3">
+
+                                                <div className="mt-3 col-6">
                                                     <label>Mess Manager</label>
-                                                    <input className='form-control' type="text" placeholder="Enter IFSC code" />
+                                                    <input
+                                                        className='form-control'
+                                                        type="text"
+                                                        name="managerName" // Name for state update
+                                                        value={bankDetails.managerName}
+                                                        placeholder="Enter manager name"
+                                                        onChange={handleInputChange} // Handle changes in input
+                                                    />
                                                 </div>
-                                                <div className="mt-3">
+
+                                                <div className="mt-3 col-6">
                                                     <label>Mess Manager Mobile Number</label>
-                                                    <input className='form-control' type="text" placeholder="Enter IFSC code" />
+                                                    <input
+                                                        className='form-control'
+                                                        type="text"
+                                                        name="userUpdateMobileNumber" // Name for state update
+                                                        value={bankDetails.userUpdateMobileNumber}
+                                                        placeholder="Enter mobile number"
+                                                        onChange={handleInputChange} // Handle changes in input
+                                                    />
                                                 </div>
 
                                                 <div className="modal-buttons mt-3 d-flex justify-content-end">
-                                                    <button className='btn btn-primary' type="submit" onClick={handleClose2}>Save</button>
+                                                    <button className='btn btn-primary' type="button" onClick={handleClose2}>Close</button>
                                                 </div>
                                             </form>
                                         </div>
                                     </div>
                                 )}
-                                <div className="form-group mb-2">
+                                {/* <div className="form-group mb-2">
                                     <label htmlFor="taskSummary">Comments</label>
                                     <input
                                         type="text"
@@ -918,7 +1067,7 @@ const handleChange = (inputId: string, value: string | boolean | string[]) => {
                                         onChange={(e) => setSummary(e.target.value)}  // Update the state on input change
                                         style={{ display: 'block', width: '100%', padding: '0.5rem' }}
                                     />
-                                </div>
+                                </div> */}
                                 {/* </div>
              )
          ))} */}

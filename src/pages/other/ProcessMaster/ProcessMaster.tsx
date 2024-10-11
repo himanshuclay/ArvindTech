@@ -6,7 +6,7 @@ import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import IconWithLetter from '@/pages/ui/IconWithLetter';
 import config from '@/config';
 import ProcessCanvas from './ProcessCanvas';
-// import ProcessViewPopup from './ProcessViewPopup';
+import ProcessViewPopup from './ProcessViewPopup';
 
 interface Process {
     id: number;
@@ -41,10 +41,10 @@ const ModuleMaster = () => {
     const [ModuleName, setModuleName] = useState('');
     const [ProcessName, setProcessName] = useState('');
     const [ProcessOwnerName, setProcessOwnerName] = useState('');
-    const [manageId, setManageID] = useState<Process[]>([]);
+    const [manageId, setManageID] = useState<number>();
 
     const [show, setShow] = useState(false);
-    // const [showView, setShowView] = useState(false);
+    const [showView, setShowView] = useState(false);
 
     const handleSearch = (e: any) => {
         e.preventDefault();
@@ -215,21 +215,20 @@ const ModuleMaster = () => {
         setSearchQuery(e.target.value);
         setCurrentPage(1); // Reset to first page on search
     };
-
-
     const handleShow = () => setShow(true);
-    // const handleShowview = () => setShowView(true);
+
+    const handleShowview = () => setShowView(true);
 
     const handleEdit = (id: any) => {
         handleShow();
         setManageID(id)
 
     };
-    // const handleViewEdit = (id: any) => {
-    //     handleShowview();
-    //     setManageID(id)
+    const handleViewEdit = (id: any) => {
+        handleShowview();
+        setManageID(id)
 
-    // };
+    };
 
     return (
         <>
@@ -244,7 +243,6 @@ const ModuleMaster = () => {
 
                 </div>
             </div>
-
             {!processes ? (
                 <Container className="mt-5">
                     <Row className="justify-content-center">
@@ -288,7 +286,6 @@ const ModuleMaster = () => {
                                                     </Form.Control>
                                                 </Form.Group>
                                             </Col>
-
                                             <Col lg={3}>
                                                 <Form.Group controlId="ModuleOwnerName">
                                                     <Form.Label>Process Name:</Form.Label>
@@ -329,27 +326,19 @@ const ModuleMaster = () => {
                                                     </Form.Control>
                                                 </Form.Group>
                                             </Col>
-
                                             <Col className='align-items-end d-flex justify-content-end'>
-
                                                 <ButtonGroup aria-label="Basic example" className='w-100'>
                                                     <Button type="button" variant="primary" onClick={handleClear}>
                                                         <i className="ri-loop-left-line"></i>
                                                     </Button>
                                                     &nbsp;
-                                                    <Button type="submit" variant="primary" >
-                                                        Search
-                                                    </Button>
+                                                    <Button type="submit" variant="primary" >Search</Button>
                                                 </ButtonGroup>
                                             </Col>
                                         </Row>
-
                                     </Form>
-
                                     <Row className='mt-3'>
                                         <div className="d-flex justify-content-end bg-light p-1">
-
-
                                             <div className="app-search d-none d-lg-block me-4">
                                                 <form>
                                                     <div className="input-group px300 ">
@@ -373,7 +362,6 @@ const ModuleMaster = () => {
                                 </div>
                                 <div className="overflow-auto ">
                                     <DragDropContext onDragEnd={handleOnDragEnd}>
-
                                         <Table hover className='bg-white '>
                                             <thead className='text-nowrap'>
                                                 <Droppable droppableId="columns" direction="horizontal">
@@ -385,15 +373,10 @@ const ModuleMaster = () => {
                                                                 .map((column, index) => (
                                                                     <Draggable key={column.id} draggableId={column.id} index={index}>
                                                                         {(provided) => (
-                                                                            <th
-
-                                                                            >
-                                                                                <div ref={provided.innerRef} // Proper ref for <th> element
+                                                                            <th>
+                                                                                <div ref={provided.innerRef} 
                                                                                     {...provided.draggableProps}
                                                                                     {...provided.dragHandleProps}>
-
-
-
                                                                                     {column.id === 'moduleName' && (<i className="ri-settings-2-fill"></i>)}
                                                                                     {column.id === 'processID' && (<i className="ri-user-settings-fill"></i>)}
                                                                                     {column.id === 'processOwnerName' && (<i className="ri-user-fill"></i>)}
@@ -421,11 +404,8 @@ const ModuleMaster = () => {
                                                             {columns.filter(col => col.visible).map((col) => (
                                                                 <td key={col.id}
                                                                     className={
-                                                                        // Add class based on column id
                                                                         col.id === 'processOwnerName' ? 'fw-bold fs-13 text-dark text-nowrap' :
                                                                             col.id === 'moduleName' ? 'fw-bold fs-13   text-nowrap' :
-                                                                                // Add class based on value (e.g., expired tasks)
-                                                                                // (col.id === 'statusID' && item[col.id] === 0) ? 'task4' :
                                                                                 ''
                                                                     }
                                                                 >
@@ -445,8 +425,8 @@ const ModuleMaster = () => {
                                                                     </div>
                                                                 </td>
                                                             ))}
-                                                            <td><Button variant='primary' className='p-1 text-white' onClick={() => handleEdit(item.id)}>Manage</Button></td>
-                                                            <td><Button variant='primary' className='p-1 text-white' >View</Button></td>
+                                                            <td><Button variant='primary' className=' text-white' onClick={() => handleEdit(item.id)}>Manage</Button></td>
+                                                            <td><Button variant='primary' className='px-3 text-white' onClick={() => handleViewEdit(item.id)}>  <i className="ri-eye-line fs-4"></i></Button></td>
                                                             <td><Link to={`/pages/ProcessMasterinsert/${item.id}`}>
                                                                 <Button variant='primary' className='p-0 text-white'>
                                                                     <i className='btn ri-edit-line text-white' ></i>
@@ -490,7 +470,7 @@ const ModuleMaster = () => {
                     </div>
 
                     <ProcessCanvas show={show} setShow={setShow} manageId={manageId} />
-                    {/* <ProcessViewPopup showView={showView} setShowView={setShowView} manageId={manageId} /> */}
+                    <ProcessViewPopup showView={showView} setShowView={setShowView} id={manageId} />
 
 
                 </div>

@@ -18,6 +18,7 @@ interface AccountProcessTask {
     roleId: string;
     roleName: string;
     doerName: string;
+    condition_Json: string
 }
 
 interface Module {
@@ -997,7 +998,6 @@ const AccountProcessTable: React.FC = () => {
                 doerName: selectedEmployeeObj.employeeName, // Use employeeName from the selected object
                 task_Number: selectedTask.task_Number,
                 task_Json: selectedTask.task_Json,
-                condition_Json: "string",
                 isExpired: 0,
                 finishPoint: selectedTask.finishPoint,
                 task_Status: 1, // Set task status as true (active or assigned)
