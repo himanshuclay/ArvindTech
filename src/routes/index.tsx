@@ -52,7 +52,7 @@ const CompletedTask = React.lazy(() => import('../pages/other/CompletedTask.tsx'
 const TaskPlanned = React.lazy(() => import('../pages/other/TaskPlanned.tsx'))
 const ExpireTask = React.lazy(() => import('../pages/other/ExpireTask.tsx'))
 const PendingTask = React.lazy(() => import('../pages/other/PendingTask.tsx'))
-// const RunningTask = React.lazy(() => import('../pages/other/RunningTask.tsx'))
+const RunningTask = React.lazy(() => import('../pages/other/RunningTask.tsx'))
 const ModuleMasterNew = React.lazy(() => import('../pages/other/ModuleMaster/ModuleMaster.tsx'))
 const ModuleMasterinsert = React.lazy(() => import('../pages/other/ModuleMaster/ModuleMasterInsert.tsx'))
 const ProcessMasterNew = React.lazy(() => import('../pages/other/ProcessMaster/ProcessMaster.tsx'))
@@ -205,6 +205,18 @@ const customPagesRoutes = {
 		},
 		{
 			path: '/pages/Modules-Master',
+			name: 'Modules Master',
+			element: <TemplateMaster />,
+			route: PrivateRoute,
+		},
+		{
+			path: '/pages/CreateTemplates',
+			name: 'Create Templates',
+			element: <TemplateMaster />,
+			route: PrivateRoute,
+		},
+		{
+			path: '/pages/CreateTemplates',
 			name: 'Modules Master',
 			element: <TemplateMaster />,
 			route: PrivateRoute,
@@ -377,12 +389,12 @@ const customPagesRoutes = {
 			element: <PendingTask />,
 			route: PrivateRoute,
 		},
-		// {
-		// 	path: '/pages/RunningTask',
-		// 	name: 'Running Task ',
-		// 	element: <RunningTask />,
-		// 	route: PrivateRoute,
-		// },
+		{
+			path: '/pages/RunningTask',
+			name: 'Running Task ',
+			element: <RunningTask />,
+			route: PrivateRoute,
+		},
 		{
 			path: '/pages/ModuleMaster',
 			name: 'ModuleMaster ',

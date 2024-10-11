@@ -359,21 +359,23 @@ const ModuleMaster = () => {
                                                                 .map((column, index) => (
                                                                     <Draggable key={column.id} draggableId={column.id} index={index}>
                                                                         {(provided) => (
-                                                                            <th
-                                                                                // ref={provided.innerRef as React.Ref<HTMLTableHeaderCellElement>}
-                                                                                // {...provided.draggableProps}
-                                                                                // {...provided.dragHandleProps}
-                                                                            >
-                                                                                {column.id === 'moduleOwnerID' && (<i className="ri-settings-2-fill"></i>)}
-                                                                                {column.id === 'moduleID' && (<i className="ri-settings-2-fill"></i>)}
-                                                                                {column.id === 'moduleDisplayName' && (<i className="ri-user-settings-fill"></i>)}
-                                                                                {/* {column.id === 'userUpdatedMobileNumber' && (<i className="ri-phone-fill"></i>)} */}
-                                                                                {column.id === 'moduleOwnerName' && (<i className="ri-user-fill"></i>)}
-                                                                                {column.id === 'identifier' && (<i className="ri-price-tag-3-fill"></i>)}
-                                                                                {column.id === 'input' && (<i className="ri-pencil-fill"></i>)}
-                                                                                {column.id === 'fmsType' && (<i className="ri-user-follow-fill"></i>)}
-                                                                                {column.id === 'statusID' && (<i className="ri-information-fill"></i>)}
-                                                                                &nbsp; {column.label}
+                                                                            <th>
+                                                                                <div ref={provided.innerRef as React.Ref<HTMLTableHeaderCellElement>}
+                                                                                    {...provided.draggableProps}
+                                                                                    {...provided.dragHandleProps}>
+
+                                                                                    {column.id === 'moduleOwnerID' && (<i className="ri-settings-2-fill"></i>)}
+                                                                                    {column.id === 'moduleID' && (<i className="ri-settings-2-fill"></i>)}
+                                                                                    {column.id === 'moduleDisplayName' && (<i className="ri-user-settings-fill"></i>)}
+                                                                                    {/* {column.id === 'userUpdatedMobileNumber' && (<i className="ri-phone-fill"></i>)} */}
+                                                                                    {column.id === 'moduleOwnerName' && (<i className="ri-user-fill"></i>)}
+                                                                                    {column.id === 'identifier' && (<i className="ri-price-tag-3-fill"></i>)}
+                                                                                    {column.id === 'input' && (<i className="ri-pencil-fill"></i>)}
+                                                                                    {column.id === 'fmsType' && (<i className="ri-user-follow-fill"></i>)}
+                                                                                    {column.id === 'statusID' && (<i className="ri-information-fill"></i>)}
+                                                                                    &nbsp; {column.label}
+
+                                                                                </div>
                                                                             </th>
                                                                         )}
                                                                     </Draggable>

@@ -903,7 +903,7 @@ const App: React.FC = () => {
   return (
     <div className="App" id="taskTop">
       <div className="container mt-4">
-        <div className="d-flex p-2 bg-white mt-2 mb-2">
+        <div className="d-flex p-2 bg-white mt-2 mb-2 fw-bold text-dark fs-5">
           {
 
             (location.pathname === '/pages/CreateTemplates' ? '  Create Templates' : '  Create Task')

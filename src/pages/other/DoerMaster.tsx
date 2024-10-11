@@ -71,7 +71,7 @@ const DoerMaster: React.FC = () => {
         reorderedColumns.splice(result.destination.index, 0, movedColumn);
         setColumns(reorderedColumns);
     };
-// ==============================================================
+    // ==============================================================
 
 
     useEffect(() => {
@@ -231,10 +231,10 @@ const DoerMaster: React.FC = () => {
                         </form>
                     </div>
                     <Button variant="primary" onClick={handleShow} className="me-2">
-                    <i className="ri-add-line"></i> Add Doer
+                        <i className="ri-add-line"></i> Add Doer
                     </Button>
                     <Button variant="primary" onClick={downloadCSV} className="me-2">
-                    <i className="ri-download-fill"></i> Download CSV
+                        <i className="ri-download-fill"></i> Download CSV
                     </Button>
                 </div>
             </div>
@@ -358,32 +358,34 @@ const DoerMaster: React.FC = () => {
                             <thead>
                                 <Droppable droppableId="columns" direction="horizontal">
                                     {(provided) => (
-                                        <tr 
-                                        // {...provided.droppableProps}
-                                        //  ref={provided.innerRef}
-                                         >
+                                        <tr
+                                            {...provided.droppableProps}
+                                            ref={provided.innerRef as React.Ref<HTMLTableRowElement>}
+                                        >
                                             <th><i className="ri-list-ordered-2"></i>  Sr. No</th>
                                             {columns.filter(col => col.visible).map((column, index) => (
                                                 <Draggable key={column.id} draggableId={column.id} index={index}>
                                                     {(provided) => (
                                                         <th
-                                                            // ref={provided.innerRef}
-                                                            // {...provided.draggableProps}
-                                                            // {...provided.dragHandleProps}
-
 
                                                         >
-                                                            {column.id === 'inputValue' && (<i className="ri-keyboard-line"></i>)}
-                                                            {column.id === 'taskID' && (<i className="ri-settings-2-fill"></i>)}
-                                                            {column.id === 'doerRole' && (<i className="ri-user-settings-fill"></i>)}
-                                                            {column.id === 'empName' && (<i className="ri-user-fill"></i>)}
-                                                            {column.id === 'identifier' && (<i className="ri-price-tag-3-fill"></i>)}
-                                                            {column.id === 'input' && (<i className="ri-pencil-fill"></i>)}
-                                                            {column.id === 'empID' && (<i className="ri-user-follow-fill"></i>)}
+                                                            <div ref={provided.innerRef}
+                                                                {...provided.draggableProps}
+                                                                {...provided.dragHandleProps}>
+
+                                                                {column.id === 'inputValue' && (<i className="ri-keyboard-line"></i>)}
+                                                                {column.id === 'taskID' && (<i className="ri-settings-2-fill"></i>)}
+                                                                {column.id === 'doerRole' && (<i className="ri-user-settings-fill"></i>)}
+                                                                {column.id === 'empName' && (<i className="ri-user-fill"></i>)}
+                                                                {column.id === 'identifier' && (<i className="ri-price-tag-3-fill"></i>)}
+                                                                {column.id === 'input' && (<i className="ri-pencil-fill"></i>)}
+                                                                {column.id === 'empID' && (<i className="ri-user-follow-fill"></i>)}
 
 
 
-                                                            &nbsp; {column.label}
+                                                                &nbsp; {column.label}
+                                                            </div>
+
                                                         </th>
                                                     )}
                                                 </Draggable>
@@ -395,30 +397,12 @@ const DoerMaster: React.FC = () => {
                                 </Droppable>
                             </thead>
                             <tbody>
-                                {/* {filteredDoers.slice(0, 10).map((doer, index) => (
-                                    <tr key={doer.id}>
-                                        <td>{(currentPage - 1) * 10 + index + 1}</td>
-                                        <td>{doer.taskID}</td>
-                                        <td>{doer.identifier}</td>
-                                        <td>{doer.input}</td>
-                                        <td>{doer.inputValue}</td>
-                                        <td>{doer.doerRole}</td>
-                                        <td>{doer.empID}</td>
-                                        <td>{doer.empName}</td>
-                                        <td>
-                                            <Button variant="warning" onClick={() => handleEdit(index)}>
-                                                Edit
-                                            </Button>
-                                        </td>
-                                    </tr>
-                                ))} */}
+                             
 
                                 {filteredDoers.length > 0 ? (
                                     filteredDoers.slice(0, 10).map((item, index) => (
                                         <tr key={item.id}>
-                                            {/* Render the index for pagination (currentPage - 1) * pageSize + index + 1 */}
                                             <td>{(currentPage - 1) * 10 + index + 1}</td>
-                                            {/* Dynamically render visible columns */}
                                             {columns.filter(col => col.visible).map((col) => (
                                                 <td key={col.id}
 
@@ -472,16 +456,15 @@ const DoerMaster: React.FC = () => {
                 )}
 
             </div>
-                <div className="d-flex justify-content-center align-items-center bg-white w-20 rounded-5 m-auto py-1 pb-1 my-2 pagination-rounded">
-
-                    <Pagination >
-                        <Pagination.First onClick={() => setCurrentPage(1)} disabled={currentPage === 1} />
-                        <Pagination.Prev onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))} disabled={currentPage === 1} />
-                        <Pagination.Item active>{currentPage}</Pagination.Item>
-                        <Pagination.Next onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))} disabled={currentPage === totalPages} />
-                        <Pagination.Last onClick={() => setCurrentPage(totalPages)} disabled={currentPage === totalPages} />
-                    </Pagination>
-                </div>
+            <div className="d-flex justify-content-center align-items-center bg-white w-20 rounded-5 m-auto py-1 pb-1 my-2 pagination-rounded">
+                <Pagination >
+                    <Pagination.First onClick={() => setCurrentPage(1)} disabled={currentPage === 1} />
+                    <Pagination.Prev onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))} disabled={currentPage === 1} />
+                    <Pagination.Item active>{currentPage}</Pagination.Item>
+                    <Pagination.Next onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))} disabled={currentPage === totalPages} />
+                    <Pagination.Last onClick={() => setCurrentPage(totalPages)} disabled={currentPage === totalPages} />
+                </Pagination>
+            </div>
 
 
         </div>

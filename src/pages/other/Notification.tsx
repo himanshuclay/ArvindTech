@@ -378,7 +378,7 @@ const ProjectAssignTable: React.FC = () => {
 
                     {(provided) => (
                       <tr
-                      //  {...provided.droppableProps} ref={provided.innerRef}  
+                       {...provided.droppableProps} ref={provided.innerRef as React.Ref<HTMLTableRowElement>}
                        className='text-nowrap'>
                         <th><i className="ri-list-ordered-2"></i>  Sr. No</th>
                         {columns.filter(col => col.visible).map((column, index) => (

@@ -6,6 +6,7 @@ import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import IconWithLetter from '@/pages/ui/IconWithLetter';
 import config from '@/config';
 import ProcessCanvas from './ProcessCanvas';
+// import ProcessViewPopup from './ProcessViewPopup';
 
 interface Process {
     id: number;
@@ -19,7 +20,7 @@ interface Process {
     processName: string;
     empId: string;
     employeeName: string;
-    manageId :number;
+    manageId: number;
 }
 
 interface Column {
@@ -43,6 +44,7 @@ const ModuleMaster = () => {
     const [manageId, setManageID] = useState<Process[]>([]);
 
     const [show, setShow] = useState(false);
+    // const [showView, setShowView] = useState(false);
 
     const handleSearch = (e: any) => {
         e.preventDefault();
@@ -216,11 +218,18 @@ const ModuleMaster = () => {
 
 
     const handleShow = () => setShow(true);
-    const handleEdit = (id:any) => {
+    // const handleShowview = () => setShowView(true);
+
+    const handleEdit = (id: any) => {
         handleShow();
         setManageID(id)
-     
-      };
+
+    };
+    // const handleViewEdit = (id: any) => {
+    //     handleShowview();
+    //     setManageID(id)
+
+    // };
 
     return (
         <>
@@ -377,16 +386,21 @@ const ModuleMaster = () => {
                                                                     <Draggable key={column.id} draggableId={column.id} index={index}>
                                                                         {(provided) => (
                                                                             <th
-                                                                            // ref={provided.innerRef} // Proper ref for <th> element
-                                                                            // {...provided.draggableProps}
-                                                                            // {...provided.dragHandleProps}
+
                                                                             >
-                                                                                {column.id === 'moduleName' && (<i className="ri-settings-2-fill"></i>)}
-                                                                                {column.id === 'processID' && (<i className="ri-user-settings-fill"></i>)}
-                                                                                {column.id === 'processOwnerName' && (<i className="ri-user-fill"></i>)}
-                                                                                {column.id === 'processDisplayName' && (<i className="ri-user-follow-fill"></i>)}
-                                                                                {column.id === 'processObjective' && (<i className="ri-information-fill"></i>)}
-                                                                                &nbsp; {column.label}
+                                                                                <div ref={provided.innerRef} // Proper ref for <th> element
+                                                                                    {...provided.draggableProps}
+                                                                                    {...provided.dragHandleProps}>
+
+
+
+                                                                                    {column.id === 'moduleName' && (<i className="ri-settings-2-fill"></i>)}
+                                                                                    {column.id === 'processID' && (<i className="ri-user-settings-fill"></i>)}
+                                                                                    {column.id === 'processOwnerName' && (<i className="ri-user-fill"></i>)}
+                                                                                    {column.id === 'processDisplayName' && (<i className="ri-user-follow-fill"></i>)}
+                                                                                    {column.id === 'processObjective' && (<i className="ri-information-fill"></i>)}
+                                                                                    &nbsp; {column.label}
+                                                                                </div>
                                                                             </th>
                                                                         )}
                                                                     </Draggable>
@@ -423,9 +437,6 @@ const ModuleMaster = () => {
                                                                                         <IconWithLetter letter={item.processOwnerName.charAt(0)} />
                                                                                         {item.processOwnerName.split('_')[0]}
                                                                                     </div>
-
-
-
                                                                                 </div>
                                                                             </td>
                                                                         ) : (
@@ -434,20 +445,10 @@ const ModuleMaster = () => {
                                                                     </div>
                                                                 </td>
                                                             ))}
-                                                            <td>
-                                                                <Button variant='primary' className='p-1 text-white' onClick={() => handleEdit(item.id)}>
-                                                                    Manage
-                                                                </Button>
-                                                              
-                                                            </td>
-                                                            <td>
-                                                                <Button variant='primary' className='p-1 text-white'>
-                                                                    View
-                                                                </Button>
-                                                            </td>
+                                                            <td><Button variant='primary' className='p-1 text-white' onClick={() => handleEdit(item.id)}>Manage</Button></td>
+                                                            <td><Button variant='primary' className='p-1 text-white' >View</Button></td>
                                                             <td><Link to={`/pages/ProcessMasterinsert/${item.id}`}>
                                                                 <Button variant='primary' className='p-0 text-white'>
-
                                                                     <i className='btn ri-edit-line text-white' ></i>
                                                                 </Button>
                                                             </Link>
@@ -488,12 +489,8 @@ const ModuleMaster = () => {
                         </Pagination>
                     </div>
 
-                    <ProcessCanvas
-                        show={show}
-                        setShow={setShow}
-                        manageId={manageId}
-
-                    />
+                    <ProcessCanvas show={show} setShow={setShow} manageId={manageId} />
+                    {/* <ProcessViewPopup showView={showView} setShowView={setShowView} manageId={manageId} /> */}
 
 
                 </div>

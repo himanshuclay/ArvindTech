@@ -100,7 +100,7 @@ const TemplateTable: React.FC = () => {
   }
 
   return (
-    <Table className='bg-white' striped bordered hover>
+    <Table className='bg-white mt-3' striped bordered hover>
       <thead>
         <tr>
           <th>Sr.no</th>
