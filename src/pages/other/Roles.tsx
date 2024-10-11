@@ -36,7 +36,7 @@ const RoleMaster: React.FC = () => {
         setLoading(true);
 
         try {
-            const response = await axios.get('https://localhost:7074/api/RoleMaster/GetRole', {
+            const response = await axios.get('https://arvindo-api2.clay.in/api/RoleMaster/GetRole', {
                 params: {
                     PageIndex: currentPage
                 }
@@ -69,9 +69,9 @@ const RoleMaster: React.FC = () => {
         e.preventDefault();
         try {
             if (editingIndex !== null) {
-                await axios.post('https://localhost:7074/api/RoleMaster/UpdateRole', role);
+                await axios.post('https://arvindo-api2.clay.in/api/RoleMaster/UpdateRole', role);
             } else {
-                await axios.post('https://localhost:7074/api/RoleMaster/InsertRole', role);
+                await axios.post('https://arvindo-api2.clay.in/api/RoleMaster/InsertRole', role);
             }
             fetchRoles();
             handleClose();

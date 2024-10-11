@@ -22,13 +22,13 @@ const PageBreadcrumb = ({ subName, title, addedChild }: PageTitleProps) => {
 						<div className="page-title-box">
 							<div className="page-title-right">
 								<ol className="breadcrumb m-0 ">
-									<Link
+									{/* <Link
 										to="/"
 										style={{ color: '#6C757D' }}
 										className="breadcrumb-item"
 									>
 										Velonic
-									</Link>
+									</Link> */}
 									<Breadcrumb.Item>{subName}</Breadcrumb.Item>
 									<Breadcrumb.Item active>{title}</Breadcrumb.Item>
 								</ol>

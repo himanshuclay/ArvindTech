@@ -101,7 +101,7 @@ const getFilteredMenuItems = () => {
     },
     {
       key: 'Filtertask',
-      label: 'Filtertask',
+      label: 'Filter Task',
       isTitle: false,
       icon: 'ri-settings-fill',
       children: [
@@ -112,20 +112,20 @@ const getFilteredMenuItems = () => {
           icon: 'ri-slideshow-line',
           parentKey: 'Modules-Master',
         }, 
-        {
-          key: 'ActiveTasks',
-          label: 'Active Task',
-          url: '/pages/FilterTasks',
-          icon: 'ri-slideshow-line',
-          parentKey: 'Modules-Master',
-        },
-        {
-          key: 'FilterTasks',
-          label: 'Running Task',
-          url: '/pages/RunningTask',
-          icon: 'ri-slideshow-line',
-          parentKey: 'Modules-Master',
-        },
+        // {
+        //   key: 'ActiveTasks',
+        //   label: 'Active Task',
+        //   url: '/pages/FilterTasks',
+        //   icon: 'ri-slideshow-line',
+        //   parentKey: 'Modules-Master',
+        // },
+      {
+        key: 'FilterTasks',
+        label: 'Running Task',
+        url: '/pages/RunningTask',
+        icon: 'ri-slideshow-line',
+        parentKey: 'Modules-Master',
+      },
       ],
     },
     {
