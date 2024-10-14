@@ -39,7 +39,6 @@ const Bank = React.lazy(() => import('../pages/other/Bank.tsx'))
 const ModuleMaster = React.lazy(() => import('../pages/other/ModuleMaster.tsx'))
 // const ProcessMaster = React.lazy(() => import('../pages/other/ProcessMaster.tsx'))
 const TaskMaster = React.lazy(() => import('../pages/other/TaskMaster.tsx'))
-const DoerMaster = React.lazy(() => import('../pages/other/DoerMaster.tsx'))
 const FormMaster = React.lazy(() => import('../pages/other/FormMaster.tsx'))
 const MyTask = React.lazy(() => import('../pages/other/MyTask.tsx'))
 const ChkLnMaster = React.lazy(() => import('../pages/other/ChkLnMaster.tsx'))
@@ -57,6 +56,8 @@ const ModuleMasterNew = React.lazy(() => import('../pages/other/ModuleMaster/Mod
 const ModuleMasterinsert = React.lazy(() => import('../pages/other/ModuleMaster/ModuleMasterInsert.tsx'))
 const ProcessMasterNew = React.lazy(() => import('../pages/other/ProcessMaster/ProcessMaster.tsx'))
 const ProcessMasterinsert = React.lazy(() => import('../pages/other/ProcessMaster/ProcessMasterInsert.tsx'))
+const DoerMasterNew = React.lazy(() => import('../pages/other/DoerMaster/DoerMaster.tsx'))
+const DoerMasterinsert = React.lazy(() => import('../pages/other/DoerMaster/DoerMasterinsert.tsx'))
 
 
 
@@ -233,6 +234,24 @@ const customPagesRoutes = {
 			element: <ActiveProject />,
 			route: PrivateRoute,
 		},
+		{
+			path: '/pages/DoerMaster',
+			name: 'ModuleMaster ',
+			element: <DoerMasterNew />,
+			route: PrivateRoute,
+		},
+		{
+			path: '/pages/DoerMasterinsert/:id',
+			name: 'DoerMasterinsert ',
+			element: <DoerMasterinsert />,
+			route: PrivateRoute,
+		},
+		{
+			path: '/pages/DoerMasterinsert',
+			name: 'DoerMasterinsert ',
+			element: <DoerMasterinsert />,
+			route: PrivateRoute,
+		},
 		// {
 		// 	path: '/pages/FilterTasks',
 		// 	name: 'Filter Tasks',
@@ -302,12 +321,7 @@ const customPagesRoutes = {
 			element: <TaskMaster />,
 			route: PrivateRoute,
 		},
-		{
-			path: '/pages/DoerMaster',
-			name: 'Doer Master',
-			element: <DoerMaster />,
-			route: PrivateRoute,
-		},
+
 		{
 			path: '/pages/FormMaster',
 			name: 'Form Master',

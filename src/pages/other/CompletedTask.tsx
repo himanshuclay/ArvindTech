@@ -294,8 +294,6 @@ const ProjectAssignTable: React.FC = () => {
     );
   };
 
-
-
   return (
     <>
       <Offcanvas show={show} onHide={handleClose} placement="end">
