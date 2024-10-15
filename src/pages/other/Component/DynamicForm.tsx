@@ -42,6 +42,7 @@ interface DynamicFormProps {
     setLoading: any
     taskCommonIDRow: any
     taskStatus: any
+    processId: any
 }
 
 interface Condition {
@@ -68,6 +69,7 @@ interface Task {
 const DynamicForm: React.FC<DynamicFormProps> = ({
     // formData,
     taskNumber,
+    processId,
     data,
     show,
     setShow,
@@ -92,7 +94,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
     const [currentStep, setCurrentStep] = useState(0); // Track the current step
 
 
-    console.log("clicked id", taskCommonIDRow)
+    console.log("clicked process", processId)
 
     const navigate = useNavigate()
     console.log("value form", formState)
@@ -707,10 +709,10 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
     const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = event.target;
         setBankDetails((prevDetails) => ({
-          ...prevDetails,
-          [name]: value
+            ...prevDetails,
+            [name]: value
         }));
-      };
+    };
 
 
     useEffect(() => {
@@ -776,13 +778,13 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                                     let stepClass = 'step';
 
                                     if (index < currentStep) {
-                                        stepClass += ' completed'; // Add class for completed steps
+                                        stepClass += ' completed';
                                     } else if (index === currentStep) {
-                                        stepClass += ' active'; // Add class for the current active step
+                                        stepClass += ' active';
                                     }
 
                                     return (
-                                        <div key={mess.messID}> {/* Apply key to outermost element */}
+                                        <div key={mess.messID}>
                                             <div
                                                 className={stepClass}
                                                 onClick={() => setCurrentStep(index)}
@@ -791,8 +793,8 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                                                     padding: '10px 0',
                                                     margin: '0 20px 5px 0',
                                                     background: index < currentStep ? 'green' : index === currentStep ? 'green' : '#e1e1e1', // Change color based on step status
-                                                    color: "#fff", // Change text color for readability
-                                                    borderRadius: '50%', // Optional: Add rounded corners
+                                                    color: "#fff",
+                                                    borderRadius: '50%',
                                                     position: 'relative',
                                                 }}
                                             >
@@ -968,7 +970,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                                                     </option>
                                                 ))}
                                             </select>
-                                            <i style={{position: 'absolute', right:'10px', bottom:'6px'}} className="ri-pencil-fill fs-4" onClick={handleShow2}></i> {/* This shows the modal */}
+                                            <i style={{ position: 'absolute', right: '10px', bottom: '6px' }} className="ri-pencil-fill fs-4" onClick={handleShow2}></i> {/* This shows the modal */}
                                         </div>
                                     )}
                                 </div>
@@ -1071,38 +1073,37 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                                 {/* </div>
              )
          ))} */}
-
-                                <div className="d-flex justify-content-between">
-                                    {/* {currentStep <= messList.length - 1 && (
-                                        <button
-                                            type="button"  
-                                            className="btn btn-secondary"
-                                            onClick={handlePrevStep}
-                                            disabled={currentStep === 0}>
-                                            Previous
-                                        </button>
-                                    )}  */}
-                                    {currentStep < messList.length - 1 && (
-                                        <button
-                                            type="button"  // Add this to prevent form submission
-                                            className="btn btn-primary"
-                                            onClick={handleNextStep}
-                                        // disabled={currentStep === messList.length - 1}
-                                        >
-                                            Next
-                                        </button>
-                                    )}
-
-                                    {currentStep === messList.length - 1 && (
-                                        <button
-                                            type="submit"  // This button will submit the form
-                                            className="btn btn-success"
-                                        >
-                                            Submit
-                                        </button>
-                                    )}
-
+                                <div>
+                                    {processId === "ACC.01" ? (
+                                        <div className="d-flex justify-content-between">
+                                            {/* Next Button */}
+                                            {currentStep < messList.length - 1 && (
+                                                <button
+                                                    type="button" // Add this to prevent form submission
+                                                    className="btn btn-primary"
+                                                    onClick={handleNextStep}
+                                                >
+                                                    Next
+                                                </button>
+                                            )}
+                                            {currentStep === messList.length - 1 && (
+                                                <button
+                                                    type="submit" // This button will submit the form
+                                                    className="btn btn-success"
+                                                >
+                                                    Submit
+                                                </button>
+                                            )}
+                                        </div>
+                                    ) : <button
+                                        type="submit" // This button will submit the form
+                                        className="btn btn-success"
+                                    >
+                                        Submit
+                                    </button>}
                                 </div>
+
+
                             </div>
                         </Modal.Body>
 

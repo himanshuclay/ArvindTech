@@ -411,7 +411,7 @@ const AccountProcessTable: React.FC = () => {
                         processName: selectedTask.processName,
                         roleId: selectedTask.roleId,
                         roleName: selectedTask.roleName,
-                        doerId: selectedEmployee, // The employee ID assigned to this task
+                        doerId: selectedEmployeeObj?.empId, // The employee ID assigned to this task
                         doerName: selectedEmployeeObj?.employeeName || "", // Use employeeName from the selected object
                         task_Json: selectedTask.task_Json,
                         task_Number: selectedTask.task_Number,
@@ -999,6 +999,7 @@ const AccountProcessTable: React.FC = () => {
                 task_Number: selectedTask.task_Number,
                 task_Json: selectedTask.task_Json,
                 isExpired: 0,
+                Condition_json: selectedTask.condition_Json,
                 finishPoint: selectedTask.finishPoint,
                 task_Status: 1, // Set task status as true (active or assigned)
                 createdBy: 'sameer hussain',

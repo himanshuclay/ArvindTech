@@ -318,18 +318,28 @@ const ProjectAssignTable: React.FC = () => {
   }
 
   const formatAndUpdateDate = (createdDate: string, taskTime: string) => {
-    // Parse the created date and task time
-    const createdDateObj = parse(createdDate, 'dd/MM/yyyy HH:mm:ss', new Date());
+    // Log the input values for debugging
+    console.log('Created Date:', createdDate);
+    console.log('Task Time:', taskTime);
+  
+    // Parse the created date in MM/dd/yyyy HH:mm:ss format
+    const createdDateObj = parse(createdDate, 'MM/dd/yyyy HH:mm:ss', new Date());
+  
+    // Check if the createdDateObj is valid
+    if (isNaN(createdDateObj.getTime())) {
+      throw new Error('Invalid created date format');
+    }
+  
     const taskTimeValue = parseInt(taskTime, 10); // Assuming taskTime is in hours
-
+  
     // Calculate the number of days to add
     const daysToAdd = Math.floor(taskTimeValue / 24);
-
+  
     // Add days to the created date
     const updatedDate = addDays(createdDateObj, daysToAdd);
-
+  
     // Format the updated date to the desired format
-    return format(updatedDate, 'dd-MM-yyyy HH:mm:ss');
+    return format(updatedDate, 'MM/dd/yyyy HH:mm:ss');
   };
 
 
@@ -434,10 +444,12 @@ const ProjectAssignTable: React.FC = () => {
                                             ''
                             }
                           >
-                            <div>
+                            <div className=''>
 
                               {col.id === 'plannedDate' ? (
-                                <td>{formatAndUpdateDate(item.createdDate, item.taskTime)}</td>
+                                <td>
+                                  {formatAndUpdateDate(item.createdDate, item.taskTime)}
+                                  </td>
                               ) : (<>{item[col.id as keyof ProjectAssignListWithDoer]}</>
                               )}
 
@@ -466,6 +478,7 @@ const ProjectAssignTable: React.FC = () => {
                               setLoading={setLoading}
                               taskCommonIDRow={taskCommonIDRow}
                               taskStatus
+                              processId={item.processID}
 
 
                             />

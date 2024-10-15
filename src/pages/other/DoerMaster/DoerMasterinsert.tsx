@@ -180,7 +180,7 @@ const EmployeeInsert = () => {
 
     return (
         <div>
-            <div className="container  w-75">
+            <div className="container">
                 <div className="d-flex bg-white p-2 my-2 justify-content-between align-items-center fs-20 rounded-3 border">
                     <span><i className="ri-file-list-line me-2"></i><span className='fw-bold'>{editMode ? 'Edit Doer' : 'Add Doer'}</span></span>
                 </div>
