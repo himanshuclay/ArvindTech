@@ -262,7 +262,7 @@ const getFilteredMenuItems = () => {
         {
           key: 'Projects',
           label: 'Projects',
-          url: '/pages/Projects',
+          url: '/pages/ProjectMaster',
           icon: 'ri-file-chart-line',
           parentKey: 'pages',
         },
