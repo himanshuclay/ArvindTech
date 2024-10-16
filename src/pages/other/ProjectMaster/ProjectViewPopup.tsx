@@ -8,7 +8,7 @@ import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 interface ProcessCanvasProps {
     showView: boolean;
     setShowView: (show: boolean) => void;
-    id: any;
+    projectName: string;
 }
 
 interface Project {
@@ -35,24 +35,24 @@ interface Column {
 }
 
 
-const ProjectViewPopup: React.FC<ProcessCanvasProps> = ({ showView, setShowView, id }) => {
+const ProjectViewPopup: React.FC<ProcessCanvasProps> = ({ showView, setShowView, projectName }) => {
 
 
     const [loading, setLoading] = useState<boolean>(false);
-    const [currentPage, setCurrentPage] = useState(1);
+    // const [currentPage, setCurrentPage] = useState(1);
     const [project, setProject] = useState<Project[]>([]);
-    const [totalPages, setTotalPages] = useState(1);
+    // const [totalPages, setTotalPages] = useState(1);
 
 
 
     const [columns, setColumns] = useState<Column[]>([
-        { id: 'projectName', label: 'Project Name', visible: true },
-        { id: 'projectID', label: 'Project ID', visible: true },
-        { id: 'stateId', label: 'State Name', visible: true },
-        { id: 'projectType', label: 'Project Type', visible: true },
-        { id: 'managementContract', label: 'Management Contract', visible: true },
-        { id: 'projectIncharge', label: 'Project Incharge', visible: true },
-        { id: 'projectCoordinator', label: 'Project Coordinator', visible: true },
+        { id: 'subProjectID', label: 'Sub Project ID', visible: true },
+        { id: 'subProjectName', label: 'Sub Project Name', visible: true },
+        { id: 'state', label: 'State Name', visible: true },
+        { id: 'projectTypeName', label: 'Project Type Name', visible: true },
+        { id: 'managementContractName', label: 'Management Contract Name', visible: true },
+        { id: 'projectInchargeName', label: 'Project Incharge', visible: true },
+        { id: 'projectCoordinatorName', label: 'Project Coordinator', visible: true },
         { id: 'completionStatus', label: 'Completion Status', visible: true },
         { id: 'nameOfWork', label: 'Name of Work', visible: true }
     ]);
@@ -68,29 +68,30 @@ const ProjectViewPopup: React.FC<ProcessCanvasProps> = ({ showView, setShowView,
 
 
     useEffect(() => {
-        fetchDoers();
-    }, [currentPage]);
+        const fetchSubProjects = async () => {
+            setLoading(true);
+            try {
+                const response = await axios.get(`${config.API_URL_APPLICATION}/SubProjectMaster/GetSubProject`, {
+                    params: { ProjectName: projectName }
+                });
 
-    const fetchDoers = async () => {
-        setLoading(true);
-        try {
-            const response = await axios.get(`${config.API_URL_APPLICATION}/ProjectMaster/GetProject`, {
-                params: { PageIndex: currentPage }
-            });
-            if (response.data.isSuccess) {
-                setProject(response.data.projectMasterList);
-                setTotalPages(Math.ceil(response.data.totalCount / 10));
-            } else {
-                console.error(response.data.message);
+                if (response.data.isSuccess) {
+                    setProject(response.data.subProjects); // Assuming subProjects is the correct key
+                    // setTotalPages(Math.ceil(response.data.totalCount / 10));
+                } else {
+                    console.error(response.data.message);
+                }
+            } catch (error) {
+                console.error('Error fetching sub-projects:', error);
+            } finally {
+                setLoading(false);
             }
-        } catch (error) {
-            console.error('Error fetching doers:', error);
-        }
-        finally {
-            setLoading(false);
-        }
-    };
+        };
 
+        if (projectName) {
+            fetchSubProjects(); // Fetch data only if projectName is available
+        }
+    }, [projectName]);
 
     const handleClose = () => {
         setShowView(false);
@@ -163,7 +164,7 @@ const ProjectViewPopup: React.FC<ProcessCanvasProps> = ({ showView, setShowView,
                                                 {project.length > 0 ? (
                                                     project.slice(0, 10).map((item, index) => (
                                                         <tr key={item.id}>
-                                                            <td>{(currentPage - 1) * 10 + index + 1}</td>
+                                                            {/* <td>{(currentPage - 1) * 10 + index + 1}</td> */}
                                                             {columns.filter(col => col.visible).map((col) => (
                                                                 <td key={col.id}>
                                                                     <div>{item[col.id as keyof Project]}</div>
@@ -192,7 +193,7 @@ const ProjectViewPopup: React.FC<ProcessCanvasProps> = ({ showView, setShowView,
 
                         </>
                     )}
-                    <div className="d-flex justify-content-center align-items-center bg-white w-20 rounded-5 m-auto py-1 pb-1 my-2 pagination-rounded">
+                    {/* <div className="d-flex justify-content-center align-items-center bg-white w-20 rounded-5 m-auto py-1 pb-1 my-2 pagination-rounded">
                         <Pagination >
                             <Pagination.First onClick={() => setCurrentPage(1)} disabled={currentPage === 1} />
                             <Pagination.Prev onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))} disabled={currentPage === 1} />
@@ -200,7 +201,7 @@ const ProjectViewPopup: React.FC<ProcessCanvasProps> = ({ showView, setShowView,
                             <Pagination.Next onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))} disabled={currentPage === totalPages} />
                             <Pagination.Last onClick={() => setCurrentPage(totalPages)} disabled={currentPage === totalPages} />
                         </Pagination>
-                    </div>
+                    </div> */}
                     <Link to={`/pages/ProjectSubmasterinsert`}>
                         <Button variant='primary' className='p-1 text-white'>
                             Edit

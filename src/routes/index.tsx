@@ -460,7 +460,7 @@ const customPagesRoutes = {
 			route: PrivateRoute,
 		},
 		{
-			path: '/pages/ProjectSubmasterinsert/:id',
+			path: '/pages/ProjectSubmasterinsert/:projectName',
 			name: 'ProjectSubmasterinsert ',
 			element: <ProjectSubmasterinsert />,
 			route: PrivateRoute,

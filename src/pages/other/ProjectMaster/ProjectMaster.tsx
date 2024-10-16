@@ -52,7 +52,7 @@ const ProjectMaster = () => {
     const [totalPages, setTotalPages] = useState(1);
     const [searchQuery, setSearchQuery] = useState('');
     const [showView, setShowView] = useState(false);
-    const [manageId, setManageID] = useState<number>();
+    const [manageId, setManageID] = useState<string>('');
     const [employeeList, setEmployeeList] = useState<EmployeeList[]>([]);
     const [projectList, setProjectList] = useState<ProjectList[]>([]);
     const [completionStatus, setCompletionStatus] = useState<CompletionStatus[]>([]);
@@ -69,13 +69,12 @@ const ProjectMaster = () => {
     const [columns, setColumns] = useState<Column[]>([
         { id: 'projectName', label: 'Project Name', visible: true },
         { id: 'projectID', label: 'Project ID', visible: true },
-        { id: 'stateId', label: 'State Name', visible: true },
-        { id: 'projectType', label: 'Project Type', visible: true },
+        { id: 'stateName', label: 'State Name', visible: true },
+        { id: 'projectTypeName', label: 'Project Type', visible: true },
         { id: 'managementContract', label: 'Management Contract', visible: true },
-        { id: 'projectIncharge', label: 'Project Incharge', visible: true },
-        { id: 'projectCoordinator', label: 'Project Coordinator', visible: true },
-        { id: 'completionStatus', label: 'Completion Status', visible: true },
-        { id: 'nameOfWork', label: 'Name of Work', visible: true }
+        { id: 'projectInchargeName', label: 'Project Incharge', visible: true },
+        { id: 'projectCoordinatorName', label: 'Project Coordinator', visible: true },
+        { id: 'completionStatusName', label: 'Completion Status', visible: true }
     ]);
 
     const handleOnDragEnd = (result: any) => {
@@ -216,9 +215,9 @@ const ProjectMaster = () => {
     const handleShowview = () => setShowView(true);
 
 
-    const handleViewEdit = (id: any) => {
+    const handleViewEdit = (projectName: string) => {
         handleShowview();
-        setManageID(id)
+        setManageID(projectName)
 
     };
 
@@ -381,7 +380,7 @@ const ProjectMaster = () => {
                                 </div>
                             </Row>
                         </div>
-                        <div className="overflow-auto text-nowrap">
+                        <div className="overflow-auto text-nowrap ">
                             {!filteredDoers ? (
                                 <Container className="mt-5">
                                     <Row className="justify-content-center">
@@ -395,7 +394,7 @@ const ProjectMaster = () => {
                                 </Container>
                             ) : (
                                 <DragDropContext onDragEnd={handleOnDragEnd}>
-                                    <Table hover className='bg-white '>
+                                    <Table hover className='bg-white'>
                                         <thead>
                                             <Droppable droppableId="columns" direction="horizontal">
                                                 {(provided) => (
@@ -450,7 +449,7 @@ const ProjectMaster = () => {
                                                             </td>
                                                         ))}
                                                         {/* Action Button */}
-                                                        <td><Button variant='primary' className='px-3 text-white' onClick={() => handleViewEdit(item.id)}>  <i className="ri-eye-line fs-4"></i></Button></td>
+                                                        <td><Button variant='primary' className='px-3 text-white' onClick={() => handleViewEdit(item.projectName)}>  <i className="ri-eye-line fs-4"></i></Button></td>
                                                         <td><Link to={`/pages/ProjectMasterinsert/${item.id}`}>
                                                             <Button variant='primary' className='p-0 text-white'>
                                                                 <i className='btn ri-edit-line text-white' ></i>
@@ -484,7 +483,7 @@ const ProjectMaster = () => {
                 </div>
 
 
-                <ProjectViewPopup showView={showView} setShowView={setShowView} id={manageId} />
+                <ProjectViewPopup showView={showView} setShowView={setShowView} projectName={manageId} />
 
 
             </div>
