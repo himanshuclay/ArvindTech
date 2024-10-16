@@ -31,13 +31,11 @@ const Notification = React.lazy(() => import('../pages/other/Notification.tsx'))
 const ModuleList = React.lazy(() => import('../pages/other/Module-list.tsx'))
 const EmployeeMaster = React.lazy(() => import('../pages/other/Employee-Master.tsx'))
 const MessMaster = React.lazy(() => import('../pages/other/MessMaster.tsx'))
-const Projects = React.lazy(() => import('../pages/other/Projects.tsx'))
 const Roles = React.lazy(() => import('../pages/other/Roles.tsx'))
 const Tender = React.lazy(() => import('../pages/other/Tender.tsx'))
 const Vender = React.lazy(() => import('../pages/other/Vender.tsx'))
 const Bank = React.lazy(() => import('../pages/other/Bank.tsx'))
 const ModuleMaster = React.lazy(() => import('../pages/other/ModuleMaster.tsx'))
-// const ProcessMaster = React.lazy(() => import('../pages/other/ProcessMaster.tsx'))
 const TaskMaster = React.lazy(() => import('../pages/other/TaskMaster.tsx'))
 const FormMaster = React.lazy(() => import('../pages/other/FormMaster.tsx'))
 const MyTask = React.lazy(() => import('../pages/other/MyTask.tsx'))
@@ -58,7 +56,9 @@ const ProcessMasterNew = React.lazy(() => import('../pages/other/ProcessMaster/P
 const ProcessMasterinsert = React.lazy(() => import('../pages/other/ProcessMaster/ProcessMasterInsert.tsx'))
 const DoerMasterNew = React.lazy(() => import('../pages/other/DoerMaster/DoerMaster.tsx'))
 const DoerMasterinsert = React.lazy(() => import('../pages/other/DoerMaster/DoerMasterinsert.tsx'))
-
+const ProjectMasterNew = React.lazy(() => import('../pages/other/ProjectMaster/ProjectMaster.tsx'))
+const ProjectMasterinsert = React.lazy(() => import('../pages/other/ProjectMaster/ProjectMasterinsert.tsx'))
+const ProjectSubmasterinsert = React.lazy(() => import('../pages/other/ProjectMaster/ProjectSubmasterinsert.tsx'))
 
 
 
@@ -283,12 +283,7 @@ const customPagesRoutes = {
 			element: <MessMaster />,
 			route: PrivateRoute,
 		},
-		{
-			path: '/pages/Projects',
-			name: 'Projects',
-			element: <Projects />,
-			route: PrivateRoute,
-		},
+		
 		{
 			path: '/pages/Roles',
 			name: 'Roles Master',
@@ -446,6 +441,37 @@ const customPagesRoutes = {
 			route: PrivateRoute,
 		},
 		
+		{
+			path: '/pages/ProjectMaster',
+			name: 'ProjectMasterNew ',
+			element: <ProjectMasterNew />,
+			route: PrivateRoute,
+		},
+		{
+			path: '/pages/ProjectMasterinsert/:id',
+			name: 'ProjectMasterinsert ',
+			element: <ProjectMasterinsert />,
+			route: PrivateRoute,
+		},
+		{
+			path: '/pages/ProjectMasterinsert',
+			name: 'ProjectMasterinsert ',
+			element: <ProjectMasterinsert />,
+			route: PrivateRoute,
+		},
+		{
+			path: '/pages/ProjectSubmasterinsert/:id',
+			name: 'ProjectSubmasterinsert ',
+			element: <ProjectSubmasterinsert />,
+			route: PrivateRoute,
+		},
+		{
+			path: '/pages/ProjectSubmasterinsert',
+			name: 'ProjectSubmasterinsert ',
+			element: <ProjectSubmasterinsert />,
+			route: PrivateRoute,
+		},
+
 		///////////////////////////////////////////////////////////////////////////////////////////
 		{
 			path: '/pages/contact-list',
