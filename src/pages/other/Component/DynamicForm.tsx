@@ -774,48 +774,53 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                                 marginBottom: '20px'
 
                             }}>
-                                {messList.map((mess, index) => {
-                                    let stepClass = 'step';
+                                {processId === "ACC.01" && (
+                                    <>
+                                        {messList.map((mess, index) => {
+                                            let stepClass = 'step';
 
-                                    if (index < currentStep) {
-                                        stepClass += ' completed';
-                                    } else if (index === currentStep) {
-                                        stepClass += ' active';
-                                    }
+                                            if (index < currentStep) {
+                                                stepClass += ' completed';
+                                            } else if (index === currentStep) {
+                                                stepClass += ' active';
+                                            }
 
-                                    return (
-                                        <div key={mess.messID}>
-                                            <div
-                                                className={stepClass}
-                                                onClick={() => setCurrentStep(index)}
-                                                style={{
-                                                    cursor: 'pointer',
-                                                    padding: '10px 0',
-                                                    margin: '0 20px 5px 0',
-                                                    background: index < currentStep ? 'green' : index === currentStep ? 'green' : '#e1e1e1', // Change color based on step status
-                                                    color: "#fff",
-                                                    borderRadius: '50%',
-                                                    position: 'relative',
-                                                }}
-                                            >
-                                                {index + 1}
-
-                                                {index < messList.length - 1 && (
+                                            return (
+                                                <div key={mess.messID}>
                                                     <div
-                                                        className={`step-line ${index < currentStep ? 'completed' : ''}`}
+                                                        className={stepClass}
+                                                        onClick={() => setCurrentStep(index)}
                                                         style={{
-                                                            backgroundColor: index < currentStep ? 'green' : '#e1e1e1',
+                                                            cursor: 'pointer',
+                                                            padding: '10px 0',
+                                                            margin: '0 20px 5px 0',
+                                                            background: index < currentStep ? 'green' : index === currentStep ? 'green' : '#e1e1e1', // Change color based on step status
+                                                            color: "#fff",
+                                                            borderRadius: '50%',
+                                                            position: 'relative',
                                                         }}
-                                                    />
-                                                )}
-                                            </div>
+                                                    >
+                                                        {index + 1}
 
-                                            <div className='me-2'>
-                                                {mess.messName}
-                                            </div>
-                                        </div>
-                                    );
-                                })}
+                                                        {index < messList.length - 1 && (
+                                                            <div
+                                                                className={`step-line ${index < currentStep ? 'completed' : ''}`}
+                                                                style={{
+                                                                    backgroundColor: index < currentStep ? 'green' : '#e1e1e1',
+                                                                }}
+                                                            />
+                                                        )}
+                                                    </div>
+
+                                                    <div className='me-2'>
+                                                        {mess.messName}
+                                                    </div>
+                                                </div>
+                                            );
+                                        })}
+                                    </>
+                                )
+                            }
 
                             </div>
 

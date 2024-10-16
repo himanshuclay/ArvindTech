@@ -23,6 +23,7 @@ const IconWithLetter: React.FC<{ letter: string }> = ({ letter }) => {
                 justifyContent: 'center',
                 fontWeight: 'bold',
                 marginRight: '8px',
+                opacity: '0.6'
             }}
         >
             {letter.toUpperCase()} {/* Display the letter in uppercase */}
