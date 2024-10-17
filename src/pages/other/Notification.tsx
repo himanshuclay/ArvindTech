@@ -479,8 +479,8 @@ const ProjectAssignTable: React.FC = () => {
                               taskCommonIDRow={taskCommonIDRow}
                               taskStatus
                               processId={item.processID}
-
-
+                              moduleId= {item.moduleID}
+                              
                             />
                           </div>
                         </td>

@@ -43,6 +43,7 @@ interface DynamicFormProps {
     taskCommonIDRow: any
     taskStatus: any
     processId: any
+    moduleId: any
 }
 
 interface Condition {
@@ -70,6 +71,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
     // formData,
     taskNumber,
     processId,
+    moduleId,
     data,
     show,
     setShow,
@@ -903,12 +905,12 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                                                         icon="ri-upload-cloud-2-line"
                                                         text="Drop files here or click to upload."
                                                         additionalData={{
-                                                            ModuleID: 'yourModuleID',
+                                                            ModuleID: moduleId,
                                                             CreatedBy: 'yourUserID',
                                                             TaskCommonID: 3463,
-                                                            Task_Number: 'yourTaskNumber',
+                                                            Task_Number: taskNumber,
                                                             ProcessInitiationID: 35635,
-                                                            ProcessID: 'yourProcessID',
+                                                            ProcessID: processId,
                                                             UpdatedBy: 'yourUpdatedBy',
                                                         }}
                                                         onFileUpload={(files) => {
