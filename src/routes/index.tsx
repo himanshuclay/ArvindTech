@@ -59,6 +59,9 @@ const DoerMasterinsert = React.lazy(() => import('../pages/other/DoerMaster/Doer
 const ProjectMasterNew = React.lazy(() => import('../pages/other/ProjectMaster/ProjectMaster.tsx'))
 const ProjectMasterinsert = React.lazy(() => import('../pages/other/ProjectMaster/ProjectMasterinsert.tsx'))
 const ProjectSubmasterinsert = React.lazy(() => import('../pages/other/ProjectMaster/ProjectSubmasterinsert.tsx'))
+const EmployeeMasterNew = React.lazy(() => import('../pages/other/EmployeeMaster/EmployeeMaster.tsx'))
+const EmployeeMasterinsert = React.lazy(() => import('../pages/other/EmployeeMaster/EmployeeMasterinsert.tsx'))
+
 
 
 
@@ -438,6 +441,25 @@ const customPagesRoutes = {
 			path: '/pages/ProcessMasterinsert',
 			name: 'ProcessMasterinsert ',
 			element: <ProcessMasterinsert />,
+			route: PrivateRoute,
+		},
+
+		{
+			path: '/pages/EmployeeMasterNew',
+			name: 'EmployeeMasterNew ',
+			element: <EmployeeMasterNew />,
+			route: PrivateRoute,
+		},
+		{
+			path: '/pages/EmployeeMasterinsert/:id',
+			name: 'ProcessMasterinsert ',
+			element: <EmployeeMasterinsert />,
+			route: PrivateRoute,
+		},
+		{
+			path: '/pages/EmployeeMasterinsert',
+			name: 'ProcessMasterinsert ',
+			element: <EmployeeMasterinsert />,
 			route: PrivateRoute,
 		},
 		
