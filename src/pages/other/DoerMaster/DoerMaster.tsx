@@ -5,7 +5,7 @@ import { Link } from 'react-router-dom';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import IconWithLetter from '@/pages/ui/IconWithLetter';
 import config from '@/config';
-// import Select from 'react-select';
+import Select from 'react-select';
 
 
 
@@ -101,6 +101,7 @@ const ModuleMaster = () => {
     const [searchIdentifier, setSearchIdentifier] = useState('');
     const [searchInput, setSearchInput] = useState('');
     const [searchInputValue, setSearchInputValue] = useState('');
+
     const handleSearch = (e: any) => {
         e.preventDefault();
 
@@ -255,147 +256,128 @@ const ModuleMaster = () => {
 
                     <>
                         <div className='bg-white p-2 pb-2'>
-                            <Form onSubmit={handleSearch}>
+                           <Form onSubmit={handleSearch}>
                                 <Row>
-                                    <Col lg={4} >
+                                    <Col lg={4}>
                                         <Form.Group controlId="searchEmployeeName">
                                             <Form.Label>Doer Name:</Form.Label>
-                                            <Form.Control
-                                                as="select"
+                                            <Select
                                                 name="searchEmployeeName"
-                                                value={searchEmployeeName}
-                                                onChange={(e) => setSearchEmployeeName(e.target.value)}
-                                                className='h45'
-                                            >
-                                                <option value="">Search...</option>
-                                                {employeeList.map(emp => (
-                                                    <option key={emp.empId} value={emp.empId}>
-                                                        {emp.employeeName}
-                                                    </option>
-                                                ))}
-                                            </Form.Control>
+                                                value={employeeList.find(emp => emp.empId === searchEmployeeName) || null} // handle null
+                                                onChange={(selectedOption) => setSearchEmployeeName(selectedOption ? selectedOption.empId : "")} // null check
+                                                options={employeeList}
+                                                getOptionLabel={(emp) => emp.employeeName}
+                                                getOptionValue={(emp) => emp.empId}
+                                                isSearchable={true}
+                                                placeholder="Search..."
+                                                className="h45"
+                                            />
                                         </Form.Group>
                                     </Col>
 
                                     <Col lg={4}>
                                         <Form.Group controlId="searchDoerRole">
                                             <Form.Label>Doer Role:</Form.Label>
-                                            <Form.Control
-                                                as="select"
+                                            <Select
                                                 name="searchDoerRole"
-                                                value={searchDoerRole}
-                                                onChange={(e) => setSearchDoerRole(e.target.value)}
-                                                className='h45'
-                                            >
-                                                <option value="">Search...</option>
-                                                {roleList.map(emp => (
-                                                    <option key={emp.id} value={emp.roleName}>
-                                                        {emp.roleName}
-                                                    </option>
-                                                ))}
-                                            </Form.Control>
+                                                value={roleList.find(role => role.roleName === searchDoerRole) || null} // handle null
+                                                onChange={(selectedOption) => setSearchDoerRole(selectedOption ? selectedOption.roleName : "")} // null check
+                                                options={roleList}
+                                                getOptionLabel={(role) => role.roleName}
+                                                getOptionValue={(role) => role.roleName}
+                                                isSearchable={true}
+                                                placeholder="Search..."
+                                                className="h45"
+                                            />
                                         </Form.Group>
                                     </Col>
 
                                     <Col lg={4}>
                                         <Form.Group controlId="searchTaskId">
                                             <Form.Label>Task ID:</Form.Label>
-                                            <Form.Control
-                                                as="select"
+                                            <Select
                                                 name="searchTaskId"
-                                                value={searchTaskId}
-                                                onChange={(e) => setSearchTaskId(e.target.value)}
-                                                className='h45'
-                                            >
-                                                <option value="">Search...</option>
-                                                {taskList.map(item => (
-                                                    <option key={item.id} value={item.taskID}>
-                                                        {item.taskID}
-                                                    </option>
-                                                ))}
-                                            </Form.Control>
+                                                value={taskList.find(task => task.taskID === searchTaskId) || null} // handle null
+                                                onChange={(selectedOption) => setSearchTaskId(selectedOption ? selectedOption.taskID : "")} // null check
+                                                options={taskList}
+                                                getOptionLabel={(task) => task.taskID}
+                                                getOptionValue={(task) => task.taskID}
+                                                isSearchable={true}
+                                                placeholder="Search..."
+                                                className="h45"
+                                            />
                                         </Form.Group>
                                     </Col>
-                                    <Col lg={4}className='mt-2'>
+
+                                    <Col lg={4} className="mt-2">
                                         <Form.Group controlId="searchIdentifier">
                                             <Form.Label>Identifier:</Form.Label>
-                                            <Form.Control
-                                                as="select"
+                                            <Select
                                                 name="searchIdentifier"
-                                                value={searchIdentifier}
-                                                onChange={(e) => setSearchIdentifier(e.target.value)}
-                                                className='h45'
-                                            >
-                                                <option value="">Search...</option>
-                                                {identifierList.map(item => (
-                                                    <option key={item.id} value={item.identifier}>
-                                                        {item.identifier}
-                                                    </option>
-                                                ))}
-                                            </Form.Control>
+                                                value={identifierList.find(item => item.identifier === searchIdentifier) || null} // handle null
+                                                onChange={(selectedOption) => setSearchIdentifier(selectedOption ? selectedOption.identifier : "")} // null check
+                                                options={identifierList}
+                                                getOptionLabel={(item) => item.identifier}
+                                                getOptionValue={(item) => item.identifier}
+                                                isSearchable={true}
+                                                placeholder="Search..."
+                                                className="h45"
+                                            />
                                         </Form.Group>
                                     </Col>
-                                    <Col lg={4}className='mt-2'>
+
+                                    <Col lg={4} className="mt-2">
                                         <Form.Group controlId="searchInput">
                                             <Form.Label>Input:</Form.Label>
-                                            <Form.Control
-                                                as="select"
+                                            <Select
                                                 name="searchInput"
-                                                value={searchInput}
-                                                onChange={(e) => setSearchInput(e.target.value)}
-                                                className='h45'
-                                            >
-                                                <option value="">Search...</option>
-                                                {inputList.map(item => (
-                                                    <option key={item.id} value={item.input}>
-                                                        {item.input}
-                                                    </option>
-                                                ))}
-                                            </Form.Control>
+                                                value={inputList.find(item => item.input === searchInput) || null} // handle null
+                                                onChange={(selectedOption) => setSearchInput(selectedOption ? selectedOption.input : "")} // null check
+                                                options={inputList}
+                                                getOptionLabel={(item) => item.input}
+                                                getOptionValue={(item) => item.input}
+                                                isSearchable={true}
+                                                placeholder="Search..."
+                                                className="h45"
+                                            />
                                         </Form.Group>
                                     </Col>
-                                    <Col lg={4}className='mt-2'>
+
+                                    <Col lg={4} className="mt-2">
                                         <Form.Group controlId="searchInputValue">
                                             <Form.Label>Input Value:</Form.Label>
-                                            <Form.Control
-                                                as="select"
+                                            <Select
                                                 name="searchInputValue"
-                                                value={searchInputValue}
-                                                onChange={(e) => setSearchInputValue(e.target.value)}
-                                                className='h45'
-                                            >
-                                                <option value="">Search...</option>
-                                                {inputValueList.map(item => (
-                                                    <option key={item.id} value={item.inputValue}>
-                                                        {item.inputValue}
-                                                    </option>
-                                                ))}
-                                            </Form.Control>
+                                                value={inputValueList.find(item => item.inputValue === searchInputValue) || null} // handle null
+                                                onChange={(selectedOption) => setSearchInputValue(selectedOption ? selectedOption.inputValue : "")} // null check
+                                                options={inputValueList}
+                                                getOptionLabel={(item) => item.inputValue}
+                                                getOptionValue={(item) => item.inputValue}
+                                                isSearchable={true}
+                                                placeholder="Search..."
+                                                className="h45"
+                                            />
                                         </Form.Group>
                                     </Col>
+                                    <Col lg={4} className="mt-2"></Col>
+                                    <Col lg={4} className="mt-2"></Col>
 
-                                    <Col lg={4}className='mt-2'>
-                                      
-                                    </Col>
-                                    <Col lg={4}className='mt-2'>
-                                      
-                                    </Col>
-
-                                    <Col lg={4} className='align-items-end d-flex justify-content-end mt-2'>
-
-                                        <ButtonGroup aria-label="Basic example" className='w-100'>
+                                    <Col lg={4} className="align-items-end d-flex justify-content-end mt-2">
+                                        <ButtonGroup aria-label="Basic example" className="w-100">
                                             <Button type="button" variant="primary" onClick={handleClear}>
                                                 <i className="ri-loop-left-line"></i>
                                             </Button>
                                             &nbsp;
-                                            <Button type="submit" variant="primary" >
+                                            <Button type="submit" variant="primary">
                                                 Search
                                             </Button>
                                         </ButtonGroup>
                                     </Col>
                                 </Row>
-
                             </Form>
+
+
+
                             <Row className='mt-3'>
                                 <div className="d-flex justify-content-end bg-light p-1">
                                     <div className="app-search d-none d-lg-block me-4">

@@ -4,6 +4,8 @@ import { Button, Col, Form, Row } from 'react-bootstrap';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import config from '@/config';
 import Select from 'react-select';
+import Flatpickr from 'react-flatpickr';
+import 'flatpickr/dist/themes/material_green.css'; // You can choose other themes as well
 
 
 interface Project {
@@ -13,15 +15,32 @@ interface Project {
     stateId: number;
     projectType: number;
     managementContract: number;
-    projectIncharge: number;
-    projectCoordinator: number;
+    projectIncharge: string;
+    projectCoordinator: string;
     completionStatus: number;
     nameOfWork: string;
     createdBy: string;
     updatedBy: string;
-
-
+    contractualWorkValue: string;
+    executorCompany: string;
+    nextValueofWorkItemForTeam: string;
+    percentageofWorkDone: string;
+    revisedContractualWorkValue: string;
+    totalWorkDoneValueuptoPreviousMonth: string;
+    valueofWorkDoneinthisMonth: string;
+    valueofWorkDoneinthisFY: string;
+    contractualStartDate: string;
+    contractualCompletionDate: string;
+    expectedDateofEarliestProjectCompletion: string;
+    expectedDateofLatestProjectCompletion: string;
+    refreshWorkDate: string;
+    estimateCompletionDate: string;
+    recordedMonth: string;
+    recordedYear: string;
 }
+
+
+
 
 interface StateList {
     id: number;
@@ -36,6 +55,10 @@ interface EmployeeList {
     empId: string;
     employeeName: string;
 }
+interface PorjectTypeList {
+    id: number;
+    name: string;
+}
 
 
 const ProjectInsert = () => {
@@ -46,6 +69,8 @@ const ProjectInsert = () => {
     const [stateList, setStateList] = useState<StateList[]>([]);
     const [completionStatus, setCompletionStatus] = useState<CompletionStatus[]>([]);
     const [employeeList, setEmployeeList] = useState<EmployeeList[]>([]);
+    const [projectTypeList, setProjectTypeList] = useState<PorjectTypeList[]>([]);
+    const [managementContractList, setManagementContractList] = useState<PorjectTypeList[]>([]);
 
 
     const [project, setProject] = useState<Project>({
@@ -55,12 +80,28 @@ const ProjectInsert = () => {
         stateId: 0,
         projectType: 0,
         managementContract: 0,
-        projectIncharge: 0,
-        projectCoordinator: 0,
+        projectIncharge: '',
+        projectCoordinator: '',
         completionStatus: 0,
         nameOfWork: '',
         createdBy: '',
-        updatedBy: ''
+        updatedBy: '',
+        contractualWorkValue: '',
+        executorCompany: '',
+        nextValueofWorkItemForTeam: '',
+        percentageofWorkDone: '',
+        revisedContractualWorkValue: '',
+        totalWorkDoneValueuptoPreviousMonth: '',
+        valueofWorkDoneinthisMonth: '',
+        valueofWorkDoneinthisFY: '',
+        contractualStartDate: '',
+        contractualCompletionDate: '',
+        expectedDateofEarliestProjectCompletion: '',
+        expectedDateofLatestProjectCompletion: '',
+        refreshWorkDate: '',
+        estimateCompletionDate: '',
+        recordedMonth: '',
+        recordedYear: '',
     });
 
 
@@ -119,6 +160,8 @@ const ProjectInsert = () => {
         fetchData('CommonDropdown/GetStateList', setStateList, 'stateListResponses');
         fetchData('CommonDropdown/GetCompletionStatus', setCompletionStatus, 'completionStatusListResponses');
         fetchData('CommonDropdown/GetEmployeeListWithId', setEmployeeList, 'employeeLists');
+        fetchData('CommonDropdown/GetProjectType', setProjectTypeList, 'projectTypeListResponses');
+        fetchData('CommonDropdown/GetManagementContract', setManagementContractList, 'managementContractListResponses');
 
     }, []);
 
@@ -151,16 +194,16 @@ const ProjectInsert = () => {
         };
         console.log(payload)
 
-        // try {
-        //     if (editMode) {
-        //         await axios.post(`${config.API_URL_APPLICATION}/ProjectMaster/UpdateProject`, payload);
-        //     } else {
-        //         await axios.post(`${config.API_URL_APPLICATION}/ProjectMaster/InsertProject`, payload);
-        //     }
-        //     navigate('/pages/DoerMaster');
-        // } catch (error) {
-        //     console.error('Error submitting module:', error);
-        // }
+        try {
+            if (editMode) {
+                await axios.post(`${config.API_URL_APPLICATION}/ProjectMaster/UpdateProject`, payload);
+            } else {
+                await axios.post(`${config.API_URL_APPLICATION}/ProjectMaster/InsertProject`, payload);
+            }
+            navigate('/pages/ProjectMaster');
+        } catch (error) {
+            console.error('Error submitting module:', error);
+        }
     };
 
 
@@ -184,7 +227,7 @@ const ProjectInsert = () => {
                                         value={project.projectName}
                                         onChange={handleChange}
                                         required
-                                        
+
                                     />
                                 </Form.Group>
                             </Col>
@@ -193,7 +236,7 @@ const ProjectInsert = () => {
                                     <Form.Label>State Name *:</Form.Label>
                                     <Select
                                         name="stateName"
-                                        value={stateList.find((mod) => mod.stateName === project.id)}
+                                        value={stateList.find((mod) => mod.id === project.stateId)}
                                         onChange={(selectedOption) => {
                                             setProject({
                                                 ...project,
@@ -211,40 +254,65 @@ const ProjectInsert = () => {
                             </Col>
 
                             <Col lg={6}>
-                                <Form.Group controlId="projectType" className="mb-3">
+                                <Form.Group controlId="projectTypeList" className="mb-3">
                                     <Form.Label>Project Type *:</Form.Label>
-                                    <Form.Control
-                                        type="text"
-                                        name="projectType"
-                                        value={project.projectType}
-                                        onChange={handleChange}
+                                    <Select
+                                        name="projectTypeList"
+                                        value={projectTypeList.find((mod) => mod.id === project.projectType)}
+                                        onChange={(selectedOption) => {
+                                            setProject({
+                                                ...project,
+                                                projectType: selectedOption?.id || 0,
+                                            });
+                                        }}
+                                        getOptionLabel={(mod) => mod.name}
+                                        getOptionValue={(mod) => mod.name}
+                                        options={projectTypeList}
+                                        isSearchable={true}
+                                        placeholder="Select Project Type"
+                                        required
                                     />
                                 </Form.Group>
                             </Col>
+
+
                             <Col lg={6}>
-                                <Form.Group controlId="managementContract" className="mb-3">
+                                <Form.Group controlId="managementContractList" className="mb-3">
                                     <Form.Label>Management Contract *:</Form.Label>
-                                    <Form.Control
-                                        type="text"
-                                        name="managementContract"
-                                        value={project.managementContract}
-                                        onChange={handleChange}
+                                    <Select
+                                        name="managementContractList"
+                                        value={managementContractList.find((mod) => mod.id === project.managementContract)}
+                                        onChange={(selectedOption) => {
+                                            setProject({
+                                                ...project,
+                                                managementContract: selectedOption?.id || 0,
+                                            });
+                                        }}
+                                        getOptionLabel={(mod) => mod.name}
+                                        getOptionValue={(mod) => mod.name}
+                                        options={managementContractList}
+                                        isSearchable={true}
+                                        placeholder="Select Management Contract"
+                                        required
                                     />
                                 </Form.Group>
                             </Col>
+
+
+
 
                             <Col lg={6}>
                                 <Form.Group controlId="incharge" className="mb-3">
                                     <Form.Label>Project Incharge *:</Form.Label>
                                     <Select
                                         name="incharge"
-                                        // value={employeeList.find((emp) => emp.employeeName === project.incharge)}
-                                        // onChange={(selectedOption) => {
-                                        //     setProject({
-                                        //         ...project,
-                                        //         incharge: selectedOption?.employeeName || "",
-                                        //     });
-                                        // }}
+                                        value={employeeList.find((emp) => emp.empId === project.projectIncharge)}
+                                        onChange={(selectedOption) => {
+                                            setProject({
+                                                ...project,
+                                                projectIncharge: selectedOption?.empId || "",
+                                            });
+                                        }}
                                         getOptionLabel={(emp) => emp.employeeName}
                                         getOptionValue={(emp) => emp.employeeName}
                                         options={employeeList}
@@ -260,13 +328,13 @@ const ProjectInsert = () => {
                                     <Form.Label>Project Coordinator *:</Form.Label>
                                     <Select
                                         name="coordinator"
-                                        // value={employeeList.find((emp) => emp.employeeName === project.coordinator)}
-                                        // onChange={(selectedOption) => {
-                                        //     setProject({
-                                        //         ...project,
-                                        //         coordinator: selectedOption?.employeeName || "",
-                                        //     });
-                                        // }}
+                                        value={employeeList.find((emp) => emp.empId === project.projectCoordinator)}
+                                        onChange={(selectedOption) => {
+                                            setProject({
+                                                ...project,
+                                                projectCoordinator: selectedOption?.empId || "",
+                                            });
+                                        }}
                                         getOptionLabel={(emp) => emp.employeeName}
                                         getOptionValue={(emp) => emp.employeeName}
                                         options={employeeList}
@@ -284,7 +352,7 @@ const ProjectInsert = () => {
                                     <Form.Label>Completion Status *:</Form.Label>
                                     <Select
                                         name="completionStatus"
-                                        value={completionStatus.find((mod) => mod.name === project.id)}
+                                        value={completionStatus.find((mod) => mod.id === project.completionStatus)}
                                         onChange={(selectedOption) => {
                                             setProject({
                                                 ...project,
@@ -302,15 +370,15 @@ const ProjectInsert = () => {
                             </Col>
 
                             {id && <>
-                              
+
 
                                 <Col lg={6}>
-                                    <Form.Group controlId="contractualWorkVAlue" className="mb-3">
+                                    <Form.Group controlId="contractualWorkValue" className="mb-3">
                                         <Form.Label>Contractual Work Value :</Form.Label>
                                         <Form.Control
                                             type="text"
-                                            name="contractualWorkVAlue"
-                                            // value={project.contractualWorkVAlue}
+                                            name="contractualWorkValue"
+                                            value={project.contractualWorkValue}
                                             onChange={handleChange}
                                         />
                                     </Form.Group>
@@ -322,31 +390,31 @@ const ProjectInsert = () => {
                                         <Form.Control
                                             type="text"
                                             name="executorCompany"
-                                            // value={project.executorCompany}
+                                            value={project.executorCompany}
                                             onChange={handleChange}
                                         />
                                     </Form.Group>
                                 </Col>
 
                                 <Col lg={6}>
-                                    <Form.Group controlId="nextValueOfWorkItemForTeam" className="mb-3">
+                                    <Form.Group controlId="nextValueofWorkItemForTeam" className="mb-3">
                                         <Form.Label>Next Value Of Work Item For Team :</Form.Label>
                                         <Form.Control
                                             type="text"
-                                            name="nextValueOfWorkItemForTeam"
-                                            // value={project.nextValueOfWorkItemForTeam}
+                                            name="nextValueofWorkItemForTeam"
+                                            value={project.nextValueofWorkItemForTeam}
                                             onChange={handleChange}
                                         />
                                     </Form.Group>
                                 </Col>
 
                                 <Col lg={6}>
-                                    <Form.Group controlId="percentageOfWorkDone" className="mb-3">
+                                    <Form.Group controlId="percentageofWorkDone" className="mb-3">
                                         <Form.Label>Percentage Of Work Done :</Form.Label>
                                         <Form.Control
                                             type="text"
-                                            name="percentageOfWorkDone"
-                                            // value={project.percentageOfWorkDone}
+                                            name="percentageofWorkDone"
+                                            value={project.percentageofWorkDone}
                                             onChange={handleChange}
                                         />
                                     </Form.Group>
@@ -358,7 +426,7 @@ const ProjectInsert = () => {
                                         <Form.Control
                                             type="text"
                                             name="revisedContractualWorkValue"
-                                            // value={project.revisedContractualWorkValue}
+                                            value={project.revisedContractualWorkValue}
                                             onChange={handleChange}
                                         />
                                     </Form.Group>
@@ -366,36 +434,36 @@ const ProjectInsert = () => {
 
 
                                 <Col lg={6}>
-                                    <Form.Group controlId="totalWorkDoneValueUptoPreviousMonth" className="mb-3">
+                                    <Form.Group controlId="totalWorkDoneValueuptoPreviousMonth" className="mb-3">
                                         <Form.Label>Total Work Done Value Upto Previous Month:</Form.Label>
                                         <Form.Control
                                             type="text"
-                                            name="totalWorkDoneValueUptoPreviousMonth"
-                                            // value={project.totalWorkDoneValueUptoPreviousMonth}
+                                            name="totalWorkDoneValueuptoPreviousMonth"
+                                            value={project.totalWorkDoneValueuptoPreviousMonth}
                                             onChange={handleChange}
                                         />
                                     </Form.Group>
                                 </Col>
 
                                 <Col lg={6}>
-                                    <Form.Group controlId="valueOfWorkDoneInThisMonth" className="mb-3">
+                                    <Form.Group controlId="valueofWorkDoneinthisMonth" className="mb-3">
                                         <Form.Label>Value Of Work Done In This Month:</Form.Label>
                                         <Form.Control
                                             type="text"
-                                            name="valueOfWorkDoneInThisMonth"
-                                            // value={project.valueOfWorkDoneInThisMonth}
+                                            name="valueofWorkDoneinthisMonth"
+                                            value={project.valueofWorkDoneinthisMonth}
                                             onChange={handleChange}
                                         />
                                     </Form.Group>
                                 </Col>
 
                                 <Col lg={6}>
-                                    <Form.Group controlId="valueOfWorkDoneInThisFY" className="mb-3">
+                                    <Form.Group controlId="valueofWorkDoneinthisFY" className="mb-3">
                                         <Form.Label>Value Of Work Done In This FY:</Form.Label>
                                         <Form.Control
                                             type="text"
-                                            name="valueOfWorkDoneInThisFY"
-                                            // value={project.valueOfWorkDoneInThisFY}
+                                            name="valueofWorkDoneinthisFY"
+                                            value={project.valueofWorkDoneinthisFY}
                                             onChange={handleChange}
                                         />
                                     </Form.Group>
@@ -404,47 +472,85 @@ const ProjectInsert = () => {
                                 <Col lg={6}>
                                     <Form.Group controlId="contractualStartDate" className="mb-3">
                                         <Form.Label>Contractual Start Date:</Form.Label>
-                                        <Form.Control
-                                            type="date"
-                                            name="contractualStartDate"
-                                            // value={project.contractualStartDate}
-                                            onChange={handleChange}
+                                        <Flatpickr
+                                            value={project.contractualStartDate}
+                                            onChange={([date]) => setProject({
+                                                ...project,
+                                                contractualStartDate: date.toISOString()
+                                            })}
+                                            options={{
+                                                enableTime: false,
+                                                dateFormat: "Y-m-d",
+                                                time_24hr: false,
+                                            }}
+                                            placeholder="Contractual Start Date"
+                                            className="form-control"
+                                            required
                                         />
                                     </Form.Group>
                                 </Col>
+
 
                                 <Col lg={6}>
                                     <Form.Group controlId="contractualCompletionDate" className="mb-3">
                                         <Form.Label>Contractual Completion Date:</Form.Label>
-                                        <Form.Control
-                                            type="date"
-                                            name="contractualCompletionDate"
-                                            // value={project.contractualCompletionDate}
-                                            onChange={handleChange}
+                                        <Flatpickr
+                                            value={project.contractualCompletionDate}
+                                            onChange={([date]) => setProject({
+                                                ...project,
+                                                contractualCompletionDate: date.toISOString()
+                                            })}
+                                            options={{
+                                                enableTime: false,
+                                                dateFormat: "Y-m-d",
+                                                time_24hr: false,
+                                            }}
+                                            placeholder="Contractual Completion Date"
+                                            className="form-control"
+                                            required
                                         />
                                     </Form.Group>
                                 </Col>
 
                                 <Col lg={6}>
-                                    <Form.Group controlId="expectedDateOfEarliestProjectCompletion" className="mb-3">
+                                    <Form.Group controlId="expectedDateofEarliestProjectCompletion" className="mb-3">
                                         <Form.Label>Expected Date Of Earliest Project Completion:</Form.Label>
-                                        <Form.Control
-                                            type="date"
-                                            name="expectedDateOfEarliestProjectCompletion"
-                                            // value={project.expectedDateOfEarliestProjectCompletion}
-                                            onChange={handleChange}
+                                           <Flatpickr
+                                            value={project.expectedDateofEarliestProjectCompletion}
+                                            onChange={([date]) => setProject({
+                                                ...project,
+                                                expectedDateofEarliestProjectCompletion: date.toISOString()
+                                            })}
+                                            options={{
+                                                enableTime: false,
+                                                dateFormat: "Y-m-d",
+                                                time_24hr: false,
+                                            }}
+                                            placeholder="Expected Date Of Earliest Project Completion"
+                                            className="form-control"
+                                            required
                                         />
                                     </Form.Group>
                                 </Col>
 
                                 <Col lg={6}>
-                                    <Form.Group controlId="expectedDateOfLatestProjectCompletion" className="mb-3">
+                                    <Form.Group controlId="expectedDateofLatestProjectCompletion" className="mb-3">
                                         <Form.Label>Expected Date Of Latest Project Completion:</Form.Label>
-                                        <Form.Control
-                                            type="date"
-                                            name="expectedDateOfLatestProjectCompletion"
-                                            // value={project.expectedDateOfLatestProjectCompletion}
-                                            onChange={handleChange}
+                                      
+                                           <Flatpickr
+                                            value={project.expectedDateofLatestProjectCompletion}
+                                            onChange={([date]) => setProject({
+                                                ...project,
+                                                expectedDateofLatestProjectCompletion: date.toISOString()
+                                            })}
+                                            options={{
+                                                enableTime: false,
+                                                dateFormat: "Y-m-d",
+                                                time_24hr: false,
+                                            }}
+                                            placeholder="Expected Date Of Latest Project Completion"
+                                            className="form-control"
+                                            required
                                         />
                                     </Form.Group>
                                 </Col>
@@ -452,11 +558,20 @@ const ProjectInsert = () => {
                                 <Col lg={6}>
                                     <Form.Group controlId="refreshWorkDate" className="mb-3">
                                         <Form.Label>Refresh Work Date:</Form.Label>
-                                        <Form.Control
-                                            type="date"
-                                            name="refreshWorkDate"
-                                            // value={project.refreshWorkDate}
-                                            onChange={handleChange}
+                                           <Flatpickr
+                                            value={project.refreshWorkDate}
+                                            onChange={([date]) => setProject({
+                                                ...project,
+                                                refreshWorkDate: date.toISOString()
+                                            })}
+                                            options={{
+                                                enableTime: false,
+                                                dateFormat: "Y-m-d",
+                                                time_24hr: false,
+                                            }}
+                                            placeholder="Refresh Work Date"
+                                            className="form-control"
+                                            required
                                         />
                                     </Form.Group>
                                 </Col>
@@ -464,11 +579,20 @@ const ProjectInsert = () => {
                                 <Col lg={6}>
                                     <Form.Group controlId="estimateCompletionDate" className="mb-3">
                                         <Form.Label>Estimate Completion Date:</Form.Label>
-                                        <Form.Control
-                                            type="date"
-                                            name="estimateCompletionDate"
-                                            // value={project.estimateCompletionDate}
-                                            onChange={handleChange}
+                                           <Flatpickr
+                                            value={project.estimateCompletionDate}
+                                            onChange={([date]) => setProject({
+                                                ...project,
+                                                estimateCompletionDate: date.toISOString()
+                                            })}
+                                            options={{
+                                                enableTime: false,
+                                                dateFormat: "Y-m-d",
+                                                time_24hr: false,
+                                            }}
+                                            placeholder="Estimate Completion Date"
+                                            className="form-control"
+                                            required
                                         />
                                     </Form.Group>
                                 </Col>
@@ -479,7 +603,7 @@ const ProjectInsert = () => {
                                         <Form.Control
                                             type="text"
                                             name="recordedMonth"
-                                            // value={project.recordedMonth}
+                                            value={project.recordedMonth}
                                             onChange={handleChange}
                                         />
                                     </Form.Group>
@@ -491,18 +615,13 @@ const ProjectInsert = () => {
                                         <Form.Control
                                             type="text"
                                             name="recordedYear"
-                                            // value={project.recordedYear}
+                                            value={project.recordedYear}
                                             onChange={handleChange}
                                         />
                                     </Form.Group>
                                 </Col>
 
-
-
-
                             </>}
-
-
 
                             <Col lg={6}>
                                 <Form.Group controlId="nameOfWork" className="mb-3">
@@ -512,12 +631,10 @@ const ProjectInsert = () => {
                                         name="nameOfWork"
                                         value={project.nameOfWork}
                                         onChange={handleChange}
+                                        required
                                     />
                                 </Form.Group>
                             </Col>
-
-
-
 
 
                             <Col className='align-items-end d-flex justify-content-between mb-3'>
