@@ -14,7 +14,7 @@ interface Project {
     projectID: string;
     stateId: number;
     projectType: number;
-    managementContract: string;
+    managementContract: number;
     projectIncharge: string;
     projectCoordinator: string;
     completionStatus: number;
@@ -79,7 +79,7 @@ const ProjectInsert = () => {
         projectID: '',
         stateId: 0,
         projectType: 0,
-        managementContract: '',
+        managementContract: 0,
         projectIncharge: '',
         projectCoordinator: '',
         completionStatus: 0,
@@ -281,11 +281,11 @@ const ProjectInsert = () => {
                                     <Form.Label>Management Contract *:</Form.Label>
                                     <Select
                                         name="managementContractList"
-                                        value={managementContractList.find((mod) => mod.name === project.managementContract)}
+                                        value={managementContractList.find((mod) => mod.id === project.managementContract)}
                                         onChange={(selectedOption) => {
                                             setProject({
                                                 ...project,
-                                                managementContract: selectedOption?.name || '',
+                                                managementContract: selectedOption?.id || 0,
                                             });
                                         }}
                                         getOptionLabel={(mod) => mod.name}

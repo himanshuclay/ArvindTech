@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { useEffect, useState, ChangeEvent } from 'react';
 import { Button, Col, Form, Row } from 'react-bootstrap';
-import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import config from '@/config';
 import Select from 'react-select';
 import Flatpickr from 'react-flatpickr';
@@ -57,7 +57,7 @@ interface PorjectList {
 
 const ProjectInsert = () => {
     const { id } = useParams<{ id: string }>();
-    const navigate = useNavigate();
+    // const navigate = useNavigate();
     const [editMode, setEditMode] = useState<boolean>(false);
     const [empName, setEmpName] = useState<string | null>()
     const [completionStatus, setCompletionStatus] = useState<CompletionStatus[]>([]);
@@ -96,6 +96,8 @@ const ProjectInsert = () => {
     });
 
 
+
+
     useEffect(() => {
         const storedEmpName = localStorage.getItem('EmpName');
         if (storedEmpName) {
@@ -107,7 +109,7 @@ const ProjectInsert = () => {
     useEffect(() => {
         if (id) {
             setEditMode(true);
-            fetchDoerById(id);
+            fetchdubProjectById(id);
         } else {
             setEditMode(false);
         }
@@ -115,7 +117,7 @@ const ProjectInsert = () => {
 
 
 
-    const fetchDoerById = async (id: string) => {
+    const fetchdubProjectById = async (id: string) => {
         try {
             const response = await axios.get(`${config.API_URL_APPLICATION}/SubProjectMaster/GetSubProject`, {
                 params: { id: id }

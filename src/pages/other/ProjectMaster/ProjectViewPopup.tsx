@@ -1,4 +1,4 @@
-import { Row, Col, Container, Alert, Modal, Button, Pagination, Table } from 'react-bootstrap';
+import { Row, Col, Container, Alert, Modal, Button, Table } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import axios from "axios";
 import config from "@/config";
@@ -40,7 +40,7 @@ const ProjectViewPopup: React.FC<ProcessCanvasProps> = ({ showView, setShowView,
 
     const [loading, setLoading] = useState<boolean>(false);
     // const [currentPage, setCurrentPage] = useState(1);
-    const [project, setProject] = useState<Project[]>([]);
+    const [subProject, setSubProject] = useState<Project[]>([]);
     // const [totalPages, setTotalPages] = useState(1);
 
 
@@ -53,7 +53,7 @@ const ProjectViewPopup: React.FC<ProcessCanvasProps> = ({ showView, setShowView,
         { id: 'managementContractName', label: 'Management Contract Name', visible: true },
         { id: 'projectInchargeName', label: 'Project Incharge', visible: true },
         { id: 'projectCoordinatorName', label: 'Project Coordinator', visible: true },
-        { id: 'completionStatus', label: 'Completion Status', visible: true },
+        { id: 'completionStatusName', label: 'Completion Status', visible: true },
         { id: 'nameOfWork', label: 'Name of Work', visible: true }
     ]);
 
@@ -76,7 +76,7 @@ const ProjectViewPopup: React.FC<ProcessCanvasProps> = ({ showView, setShowView,
                 });
 
                 if (response.data.isSuccess) {
-                    setProject(response.data.subProjects); // Assuming subProjects is the correct key
+                    setSubProject(response.data.subProjects); // Assuming subProjects is the correct key
                     // setTotalPages(Math.ceil(response.data.totalCount / 10));
                 } else {
                     console.error(response.data.message);
@@ -98,6 +98,8 @@ const ProjectViewPopup: React.FC<ProcessCanvasProps> = ({ showView, setShowView,
     };
 
 
+    console.log(subProject)
+
     return (
         <div>
             <Modal className="" show={showView} onHide={handleClose} size='xl'>
@@ -113,7 +115,7 @@ const ProjectViewPopup: React.FC<ProcessCanvasProps> = ({ showView, setShowView,
                         </div>
                     ) : (
                         <>
-                            {!project ? (
+                            {!subProject ? (
                                 <Container className="mt-5">
                                     <Row className="justify-content-center">
                                         <Col xs={12} md={8} lg={6}>
@@ -161,10 +163,10 @@ const ProjectViewPopup: React.FC<ProcessCanvasProps> = ({ showView, setShowView,
                                                 </Droppable>
                                             </thead>
                                             <tbody>
-                                                {project.length > 0 ? (
-                                                    project.slice(0, 10).map((item, index) => (
+                                                {subProject.length > 0 ? (
+                                                    subProject.map((item, index) => (
                                                         <tr key={item.id}>
-                                                            {/* <td>{(currentPage - 1) * 10 + index + 1}</td> */}
+                                                            <td>{ index + 1}</td>
                                                             {columns.filter(col => col.visible).map((col) => (
                                                                 <td key={col.id}>
                                                                     <div>{item[col.id as keyof Project]}</div>

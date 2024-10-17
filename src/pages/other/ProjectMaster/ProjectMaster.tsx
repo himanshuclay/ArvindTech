@@ -62,7 +62,7 @@ const ProjectMaster = () => {
     const [searchProjectInchage, setSearchProjectInchage] = useState('');
     const [searchProjectCoordinator, setSearchProjectCoordinator] = useState('');
     const [searchProjectName, setSearchProjectName] = useState('');
-    const [searchCompletionStatus, setSearchCompletionStatus] = useState('');
+    const [searchCompletionStatus, setSearchCompletionStatus] = useState<number>();
 
 
     // both are required to make dragable column of table 
@@ -71,7 +71,7 @@ const ProjectMaster = () => {
         { id: 'projectID', label: 'Project ID', visible: true },
         { id: 'stateName', label: 'State Name', visible: true },
         { id: 'projectTypeName', label: 'Project Type', visible: true },
-        { id: 'managementContract', label: 'Management Contract', visible: true },
+        { id: 'managementContractName', label: 'Management Contract', visible: true },
         { id: 'projectInchargeName', label: 'Project Incharge', visible: true },
         { id: 'projectCoordinatorName', label: 'Project Coordinator', visible: true },
         { id: 'completionStatusName', label: 'Completion Status', visible: true }
@@ -87,22 +87,26 @@ const ProjectMaster = () => {
     // ==============================================================
 
     const handleClear = () => {
+        setSearchProjectInchage('')
+        setSearchProjectCoordinator('')
+        setSearchProjectName('')
+        setSearchCompletionStatus(0)
+        fetchDoers();
     };
 
     const handleSearch = (e: any) => {
         e.preventDefault();
 
         let query = `?`;
-        if (searchProjectInchage) query += `DoerName=${searchProjectInchage}&`;
-        if (searchProjectCoordinator) query += `DoerRole=${searchProjectCoordinator}&`;
-        if (searchProjectName) query += `TaskID=${searchProjectName}&`;
-        if (searchCompletionStatus) query += `Identifier=${searchCompletionStatus}&`;
-        // if (searchInput) query += `Input=${searchInput}&`;
-        // if (searchInputValue) query += `InputValue=${searchInputValue}&`;
+        if (searchProjectInchage) query += `ProjectIncharge=${searchProjectInchage}&`;
+        if (searchProjectCoordinator) query += `ProjectCoordinator=${searchProjectCoordinator}&`;
+        if (searchProjectName) query += `ProjectName=${searchProjectName}&`;
+        if (searchCompletionStatus) query += `CompletionStatus=${searchCompletionStatus}&`;
+     
 
         query = query.endsWith('&') ? query.slice(0, -1) : query;
 
-        const apiUrl = `${config.API_URL_APPLICATION}/DoerMaster/SearchDoer${query}`;
+        const apiUrl = `${config.API_URL_APPLICATION}/ProjectMaster/SearchProject${query}`;
 
         console.log(apiUrl)
         axios.get(apiUrl, {
@@ -111,8 +115,8 @@ const ProjectMaster = () => {
             }
         })
             .then((response) => {
-                console.log("search response ", response.data.doerMasterListResponses);
-                // setDoers(response.data.doerMasterListResponses)
+                console.log("search response ", response.data.projectMasterList);
+                setProject(response.data.projectMasterList)
             })
             .catch((error) => {
                 console.error('Error fetching data:', error);
@@ -324,8 +328,8 @@ const ProjectMaster = () => {
                                             <Form.Label>Completion Status:</Form.Label>
                                             <Select
                                                 name="searchCompletionStatus"
-                                                value={completionStatus.find(task => task.name === searchCompletionStatus) || null} // handle null
-                                                onChange={(selectedOption) => setSearchCompletionStatus(selectedOption ? selectedOption.name : "")} // null check
+                                                value={completionStatus.find(task => task.id === searchCompletionStatus) } 
+                                                onChange={(selectedOption) => setSearchCompletionStatus(selectedOption ? selectedOption.id : 0)} 
                                                 options={completionStatus}
                                                 getOptionLabel={(task) => task.id == 1 ? "Ongoing" : 'Completed'}
                                                 getOptionValue={(task) => task.id == 1 ? "Ongoing" : 'Completed'}
@@ -411,12 +415,12 @@ const ProjectMaster = () => {
 
                                                                             {column.id === 'projectName' && (<i className="ri-file-list-line"></i>)}
                                                                             {column.id === 'projectID' && (<i className="ri-barcode-box-line"></i>)}
-                                                                            {column.id === 'stateId' && (<i className="ri-map-pin-line"></i>)}
-                                                                            {column.id === 'projectType' && (<i className="ri-treasure-map-line"></i>)}
-                                                                            {column.id === 'managementContract' && (<i className="ri-briefcase-line"></i>)}
-                                                                            {column.id === 'projectIncharge' && (<i className="ri-user-settings-line"></i>)}
-                                                                            {column.id === 'projectCoordinator' && (<i className="ri-group-line"></i>)}
-                                                                            {column.id === 'completionStatus' && (<i className="ri-check-line"></i>)}
+                                                                            {column.id === 'stateName' && (<i className="ri-map-pin-line"></i>)}
+                                                                            {column.id === 'projectTypeName' && (<i className="ri-treasure-map-line"></i>)}
+                                                                            {column.id === 'managementContractName' && (<i className="ri-briefcase-line"></i>)}
+                                                                            {column.id === 'projectInchargeName' && (<i className="ri-user-settings-line"></i>)}
+                                                                            {column.id === 'projectCoordinatorName' && (<i className="ri-group-line"></i>)}
+                                                                            {column.id === 'completionStatusName' && (<i className="ri-check-line"></i>)}
                                                                             {column.id === 'nameOfWork' && (<i className="ri-pencil-ruler-2-line"></i>)}
 
 
