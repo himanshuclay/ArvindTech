@@ -7,6 +7,8 @@ import IconWithLetter from '@/pages/ui/IconWithLetter';
 import config from '@/config';
 import ProcessCanvas from './ProcessCanvas';
 import ProcessViewPopup from './ProcessViewPopup';
+import Select from 'react-select';
+
 
 interface Process {
     id: number;
@@ -57,7 +59,10 @@ const ModuleMaster = () => {
         // Remove trailing '&' or '?' from the query string
         query = query.endsWith('&') ? query.slice(0, -1) : query;
 
-        axios.get(`https://arvindo-api2.clay.in/api/ProcessMaster/SearchProcessList${query}`, {
+        const apiUrl = `https://arvindo-api2.clay.in/api/ProcessMaster/SearchProcessList${query}`;
+
+        console.log(apiUrl)
+        axios.get(apiUrl, {
             headers: {
                 'accept': '*/*'
             }
@@ -270,60 +275,53 @@ const ModuleMaster = () => {
                                             <Col lg={4}>
                                                 <Form.Group controlId="ModuleName">
                                                     <Form.Label>Module Name:</Form.Label>
-                                                    <Form.Control
-                                                        as="select"
+                                                    
+                                                    <Select
                                                         name="ModuleName"
-                                                        value={ModuleName}
-                                                        onChange={(e) => setModuleName(e.target.value)}
-                                                        className='h45'
-                                                    >
-                                                        <option value="">Search...</option>
-                                                        {moduleList.map(module => (
-                                                            <option key={module.id} value={module.moduleName}>
-                                                                {module.moduleName}
-                                                            </option>
-                                                        ))}
-                                                    </Form.Control>
+                                                        value={moduleList.find(item => item.moduleName === ModuleName) || null} // handle null
+                                                        onChange={(selectedOption) => setModuleName(selectedOption ? selectedOption.moduleName : "")} // null check
+                                                        options={moduleList}
+                                                        getOptionLabel={(item) => item.moduleName}
+                                                        getOptionValue={(item) => item.moduleName}
+                                                        isSearchable={true}
+                                                        placeholder="Search..."
+                                                        className="h45"
+                                                    />
                                                 </Form.Group>
                                             </Col>
                                             <Col lg={3}>
                                                 <Form.Group controlId="ModuleOwnerName">
                                                     <Form.Label>Process Name:</Form.Label>
-                                                    <Form.Control
-                                                        as="select"
+                                                 
+                                                    <Select
                                                         name="ModuleOwnerName"
-                                                        value={ProcessName}
-                                                        onChange={(e) => setProcessName(e.target.value)}
-                                                        className='h45'
-                                                        disabled={!ModuleName}
-                                                    >
-                                                        <option value="">Search...</option>
-                                                        {processList.map(emp => (
-                                                            <option key={emp.processID} value={emp.processName}>
-                                                                {emp.processName}
-                                                            </option>
-                                                        ))}
-                                                    </Form.Control>
+                                                        value={processList.find(item => item.processName === ProcessName) || null} // handle null
+                                                        onChange={(selectedOption) => setProcessName(selectedOption ? selectedOption.processName : "")} // null check
+                                                        options={processList}
+                                                        getOptionLabel={(item) => item.processName}
+                                                        getOptionValue={(item) => item.processName}
+                                                        isSearchable={true}
+                                                        placeholder="Search..."
+                                                        className="h45"
+                                                        isDisabled={!ModuleName}
+                                                    />
                                                 </Form.Group>
                                             </Col>
 
                                             <Col lg={3}>
                                                 <Form.Group controlId="ProcessOwnerName">
                                                     <Form.Label>Process Owner Name:</Form.Label>
-                                                    <Form.Control
-                                                        as="select"
-                                                        name="ProcessOwnerName"
-                                                        value={ProcessOwnerName}
-                                                        onChange={(e) => setProcessOwnerName(e.target.value)}
-                                                        className='h45'
-                                                    >
-                                                        <option value="">Search...</option>
-                                                        {employeeList.map(emp => (
-                                                            <option key={emp.empId} value={emp.empId}>
-                                                                {emp.employeeName.split('_')[0]}
-                                                            </option>
-                                                        ))}
-                                                    </Form.Control>
+                                                    <Select
+                                                        name="ModuleOwnerName"
+                                                        value={employeeList.find(item => item.empId === ModuleName) || null} // handle null
+                                                        onChange={(selectedOption) => setProcessOwnerName(selectedOption ? selectedOption.empId : "")} // null check
+                                                        options={employeeList}
+                                                        getOptionLabel={(item) => item.employeeName.split('_')[0]}
+                                                        getOptionValue={(item) => item.empId}
+                                                        isSearchable={true}
+                                                        placeholder="Search..."
+                                                        className="h45"
+                                                    />
                                                 </Form.Group>
                                             </Col>
                                             <Col className='align-items-end d-flex justify-content-end'>

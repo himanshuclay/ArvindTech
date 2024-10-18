@@ -5,7 +5,7 @@ import { Link } from 'react-router-dom';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import IconWithLetter from '@/pages/ui/IconWithLetter';
 import config from '@/config';
-
+import Select from 'react-select';
 
 interface Module {
     id: number;
@@ -268,40 +268,35 @@ const ModuleMaster = () => {
                                             <Col lg={5}>
                                                 <Form.Group controlId="ModuleDisplayName">
                                                     <Form.Label>Module Display Name:</Form.Label>
-                                                    <Form.Control
-                                                        as="select"
-                                                        name="ModuleDisplayName"
-                                                        value={moduleDisplayName}
-                                                        onChange={(e) => setModuleDisplayName(e.target.value)}
-                                                        className='h45'
-                                                    >
-                                                        <option value="">Search...</option>
-                                                        {moduleList.map(module => (
-                                                            <option key={module.id} value={module.moduleName}>
-                                                                {module.moduleName}
-                                                            </option>
-                                                        ))}
-                                                    </Form.Control>
+
+                                                    <Select
+                                                        name="searchProjectName"
+                                                        value={moduleList.find(item => item.moduleName === moduleDisplayName) || null} // handle null
+                                                        onChange={(selectedOption) => setModuleDisplayName(selectedOption ? selectedOption.moduleName : "")} // null check
+                                                        options={moduleList}
+                                                        getOptionLabel={(item) => item.moduleName}
+                                                        getOptionValue={(item) => item.moduleName}
+                                                        isSearchable={true}
+                                                        placeholder="Search..."
+                                                        className="h45"
+                                                    />
                                                 </Form.Group>
                                             </Col>
 
                                             <Col lg={5}>
                                                 <Form.Group controlId="ModuleOwnerName">
                                                     <Form.Label>Module Owner Name:</Form.Label>
-                                                    <Form.Control
-                                                        as="select"
+                                                    <Select
                                                         name="ModuleOwnerName"
-                                                        value={moduleOwnerName}
-                                                        onChange={(e) => setModuleOwnerName(e.target.value)}
-                                                        className='h45'
-                                                    >
-                                                        <option value="">Search...</option>
-                                                        {employeeList.map(emp => (
-                                                            <option key={emp.empId} value={emp.employeeName}>
-                                                                {emp.employeeName}
-                                                            </option>
-                                                        ))}
-                                                    </Form.Control>
+                                                        value={employeeList.find(emp => emp.empId === moduleOwnerName) || null} // handle null
+                                                        onChange={(selectedOption) => setModuleOwnerName(selectedOption ? selectedOption.empId : "")} // null check
+                                                        options={employeeList}
+                                                        getOptionLabel={(emp) => emp.employeeName}
+                                                        getOptionValue={(emp) => emp.empId}
+                                                        isSearchable={true}
+                                                        placeholder="Search..."
+                                                        className="h45"
+                                                    />
                                                 </Form.Group>
                                             </Col>
 
@@ -327,7 +322,7 @@ const ModuleMaster = () => {
                                                     <div className="input-group px300 ">
                                                         <input
                                                             type="search"
-                                                            className=" bg-white"
+                                                            className=" bg-white "
                                                             placeholder="Search..."
                                                             value={searchQuery}
                                                             onChange={handleSearchcurrent}

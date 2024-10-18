@@ -487,6 +487,12 @@ span.flatpickr-weekday {
 }
 
 
-Input:focus{
+.form-control:focus{
   border: 2px solid #2684FF !important;
 }
+
+.form-control{
+  min-height: 38px;
+  border-color: hsl(0, 0%, 80%);
+}
+

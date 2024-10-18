@@ -64,7 +64,19 @@ interface GenderList {
     name: string
 }
 
+interface ProjectList {
+    id: string;
+    projectName: string
+}
 
+interface MISExempt {
+    id: number;
+    name: string;
+}
+interface AppAccess {
+    id: number;
+    name: string;
+}
 
 
 
@@ -74,6 +86,9 @@ const EmployeeMasterInsert = () => {
     const [editMode, setEditMode] = useState<boolean>(false);
     const [empName, setEmpName] = useState<string | null>()
     const [genderList, setGenderList] = useState<GenderList[]>([])
+    const [projectList, setProjectList] = useState<ProjectList[]>([])
+    const [misExempt, setMisExempt] = useState<MISExempt[]>([]);
+    const [appAccess, setAppAccess] = useState<AppAccess[]>([]);
 
     const [employee, setEmployee] = useState<Employee>({
         id: 0,
@@ -181,6 +196,9 @@ const EmployeeMasterInsert = () => {
         };
 
         fetchData('CommonDropdown/GetGender', setGenderList, 'genderListResponses');
+        fetchData('CommonDropdown/GetProjectList', setProjectList, 'projectListResponses');
+        fetchData('CommonDropdown/GetMISExempt', setMisExempt, 'mISExemptListResponses');
+        fetchData('CommonDropdown/GetAppAccess', setAppAccess, 'appAccessListResponses');
 
 
     }, []);
@@ -214,16 +232,16 @@ const EmployeeMasterInsert = () => {
         };
         console.log(payload)
 
-        try {
-            if (editMode) {
-                await axios.post(`${config.API_URL_APPLICATION}/ProjectMaster/UpdateProject`, payload);
-            } else {
-                await axios.post(`${config.API_URL_APPLICATION}/ProjectMaster/InsertProject`, payload);
-            }
-            navigate('/pages/ProjectMaster');
-        } catch (error) {
-            console.error('Error submitting module:', error);
-        }
+        // try {
+        //     if (editMode) {
+        //         await axios.post(`${config.API_URL_APPLICATION}/EmployeeMaster/UpdateEmployee`, payload);
+        //     } else {
+        //         await axios.post(`${config.API_URL_APPLICATION}/EmployeeMaster/InsertEmployee`, payload);
+        //     }
+        //     navigate('/pages/EmployeeMasterNew');
+        // } catch (error) {
+        //     console.error('Error submitting module:', error);
+        // }
     };
 
 
@@ -328,19 +346,16 @@ const EmployeeMasterInsert = () => {
                                 </Form.Group>
                             </Col>
 
-
-
-
-
                             <Col lg={6}>
                                 <Form.Group controlId="fatherName" className="mb-3">
-                                    <Form.Label>bapu Name:</Form.Label>
+                                    <Form.Label>Father Name:</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="fatherName"
                                         value={employee.fatherName}
                                         onChange={handleChange}
                                         required
+                                        placeholder='Father Name'
                                     />
                                 </Form.Group>
                             </Col>
@@ -366,7 +381,7 @@ const EmployeeMasterInsert = () => {
                                     />
                                 </Form.Group>
                             </Col>
-                            
+
                             <Col lg={6}>
                                 <Form.Group controlId="estimateCompletionDate" className="mb-3">
                                     <Form.Label>Estimate Completion Date:</Form.Label>
@@ -395,16 +410,16 @@ const EmployeeMasterInsert = () => {
                                     <Form.Label>Current Project *:</Form.Label>
                                     <Select
                                         name="currentProjectName"
-                                        value={genderList.find((emp) => emp.name === employee.gender)}
+                                        value={projectList.find((emp) => emp.projectName === employee.currentProjectName)}
                                         onChange={(selectedOption) => {
                                             setEmployee({
                                                 ...employee,
-                                                gender: selectedOption?.name || "",
+                                                currentProjectName: selectedOption?.projectName || "",
                                             });
                                         }}
-                                        getOptionLabel={(emp) => emp.name}
-                                        getOptionValue={(emp) => emp.name}
-                                        options={genderList}
+                                        getOptionLabel={(emp) => emp.projectName}
+                                        getOptionValue={(emp) => emp.projectName}
+                                        options={projectList}
                                         isSearchable={true}
                                         placeholder="Select currentProjectName"
                                         required
@@ -412,20 +427,20 @@ const EmployeeMasterInsert = () => {
                                 </Form.Group>
                             </Col>
                             <Col lg={6}>
-                                <Form.Group controlId="currentProjectName" className="mb-3">
+                                <Form.Group controlId="appAccessLevel" className="mb-3">
                                     <Form.Label>App Access *:</Form.Label>
                                     <Select
-                                        name="currentProjectName"
-                                        value={genderList.find((emp) => emp.name === employee.gender)}
+                                        name="appAccessLevel"
+                                        value={appAccess.find((emp) => emp.name === employee.appAccessLevel)}
                                         onChange={(selectedOption) => {
                                             setEmployee({
                                                 ...employee,
-                                                gender: selectedOption?.name || "",
+                                                appAccessLevel: selectedOption?.name || "",
                                             });
                                         }}
                                         getOptionLabel={(emp) => emp.name}
                                         getOptionValue={(emp) => emp.name}
-                                        options={genderList}
+                                        options={appAccess}
                                         isSearchable={true}
                                         placeholder="Select App Access"
                                         required
@@ -434,20 +449,20 @@ const EmployeeMasterInsert = () => {
                             </Col>
 
                             <Col lg={6}>
-                                <Form.Group controlId="currentProjectName" className="mb-3">
+                                <Form.Group controlId="appExempt" className="mb-3">
                                     <Form.Label>Exempt Status *:</Form.Label>
                                     <Select
-                                        name="currentProjectName"
-                                        value={genderList.find((emp) => emp.name === employee.gender)}
+                                        name="appExempt"
+                                        value={misExempt.find((emp) => emp.name === employee.appExempt)}
                                         onChange={(selectedOption) => {
                                             setEmployee({
                                                 ...employee,
-                                                gender: selectedOption?.name || "",
+                                                appExempt: selectedOption?.name || "",
                                             });
                                         }}
                                         getOptionLabel={(emp) => emp.name}
                                         getOptionValue={(emp) => emp.name}
-                                        options={genderList}
+                                        options={misExempt}
                                         isSearchable={true}
                                         placeholder="Select Exempt Status"
                                         required
@@ -460,7 +475,7 @@ const EmployeeMasterInsert = () => {
                                     <Form.Label>Performance Review Applicapblity *:</Form.Label>
                                     <Select
                                         name="currentProjectName"
-                                        value={genderList.find((emp) => emp.name === employee.gender)}
+                                        value={misExempt.find((emp) => emp.name === employee.gender)}
                                         onChange={(selectedOption) => {
                                             setEmployee({
                                                 ...employee,
@@ -469,13 +484,16 @@ const EmployeeMasterInsert = () => {
                                         }}
                                         getOptionLabel={(emp) => emp.name}
                                         getOptionValue={(emp) => emp.name}
-                                        options={genderList}
+                                        options={misExempt}
                                         isSearchable={true}
                                         placeholder="Select Performance Review Applicapblity"
                                         required
                                     />
                                 </Form.Group>
                             </Col>
+
+
+                            <h3>Address Details</h3>
 
                             <Col lg={6}>
                                 <Form.Group controlId="Pincode" className="mb-3">
@@ -486,6 +504,7 @@ const EmployeeMasterInsert = () => {
                                         // value={employee.nameOfWork}
                                         onChange={handleChange}
                                         required
+                                        placeholder='Enter Pincode'
                                     />
                                 </Form.Group>
                             </Col>
@@ -498,6 +517,7 @@ const EmployeeMasterInsert = () => {
                                         // value={employee.nameOfWork}
                                         onChange={handleChange}
                                         required
+                                        placeholder='Enter State Name'
                                     />
                                 </Form.Group>
                             </Col>
@@ -510,6 +530,7 @@ const EmployeeMasterInsert = () => {
                                         // value={employee.nameOfWork}
                                         onChange={handleChange}
                                         required
+                                        placeholder='Enter District Name'
                                     />
                                 </Form.Group>
                             </Col>
@@ -522,21 +543,205 @@ const EmployeeMasterInsert = () => {
                                         // value={employee.nameOfWork}
                                         onChange={handleChange}
                                         required
+                                        placeholder='Enter Area Name'
                                     />
                                 </Form.Group>
                             </Col>
-                            <Col lg={6}>
+                            <Col lg={12}>
                                 <Form.Group controlId="Address" className="mb-3">
                                     <Form.Label>Address:</Form.Label>
                                     <Form.Control
-                                        type="text"
+                                        as="textarea"
                                         name="Address"
-                                        // value={employee.nameOfWork}
+                                        rows={3}
                                         onChange={handleChange}
                                         required
+                                        placeholder='Enter Your Full Address'
                                     />
                                 </Form.Group>
                             </Col>
+
+
+                            <h3>Salary Account Details</h3>
+                            <Col lg={6}>
+                                <Form.Group controlId="State" className="mb-3">
+                                    <Form.Label>IFSC Code:</Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        name="State"
+                                        // value={employee.nameOfWork}
+                                        onChange={handleChange}
+                                        required
+                                        placeholder='Enter IFSC Code'
+                                    />
+                                </Form.Group>
+                            </Col>
+
+                            <Col lg={6}>
+                                <Form.Group controlId="State" className="mb-3">
+                                    <Form.Label>Bank Name:</Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        name="State"
+                                        // value={employee.nameOfWork}
+                                        onChange={handleChange}
+                                        required
+                                        placeholder='Enter Bank Name'
+                                    />
+                                </Form.Group>
+                            </Col>
+
+                            <Col lg={6}>
+                                <Form.Group controlId="State" className="mb-3">
+                                    <Form.Label>Branch  Name:</Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        name="State"
+                                        // value={employee.nameOfWork}
+                                        onChange={handleChange}
+                                        required
+                                        placeholder='Enter Branch  Name'
+                                    />
+                                </Form.Group>
+                            </Col>
+
+                       
+
+                            <Col lg={6}>
+                                <Form.Group controlId="State" className="mb-3">
+                                    <Form.Label>Bank Account Number:</Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        name="State"
+                                        // value={employee.nameOfWork}
+                                        onChange={handleChange}
+                                        required
+                                        placeholder='Enter Bank Account Number'
+                                    />
+                                </Form.Group>
+                            </Col>
+
+
+                            <h3>Reimbursement Account Details</h3>
+                            <Col lg={6}>
+                                <Form.Group controlId="State" className="mb-3">
+                                    <Form.Label>IFSC Code:</Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        name="State"
+                                        // value={employee.nameOfWork}
+                                        onChange={handleChange}
+                                        required
+                                        placeholder='Enter IFSC Code'
+                                    />
+                                </Form.Group>
+                            </Col>
+
+                            <Col lg={6}>
+                                <Form.Group controlId="State" className="mb-3">
+                                    <Form.Label>Bank Name:</Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        name="State"
+                                        // value={employee.nameOfWork}
+                                        onChange={handleChange}
+                                        required
+                                        placeholder='Enter Bank Name'
+                                    />
+                                </Form.Group>
+                            </Col>
+
+                            <Col lg={6}>
+                                <Form.Group controlId="State" className="mb-3">
+                                    <Form.Label>Branch  Name:</Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        name="State"
+                                        // value={employee.nameOfWork}
+                                        onChange={handleChange}
+                                        required
+                                        placeholder='Enter Branch  Name'
+                                    />
+                                </Form.Group>
+                            </Col>
+
+                       
+
+                            <Col lg={6}>
+                                <Form.Group controlId="State" className="mb-3">
+                                    <Form.Label>Bank Account Number:</Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        name="State"
+                                        // value={employee.nameOfWork}
+                                        onChange={handleChange}
+                                        required
+                                        placeholder='Enter Bank Account Number'
+                                    />
+                                </Form.Group>
+                            </Col>
+
+
+                            <h3>Expense Account Details</h3>
+                            <Col lg={6}>
+                                <Form.Group controlId="State" className="mb-3">
+                                    <Form.Label>IFSC Code:</Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        name="State"
+                                        // value={employee.nameOfWork}
+                                        onChange={handleChange}
+                                        required
+                                        placeholder='Enter IFSC Code'
+                                    />
+                                </Form.Group>
+                            </Col>
+
+                            <Col lg={6}>
+                                <Form.Group controlId="State" className="mb-3">
+                                    <Form.Label>Bank Name:</Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        name="State"
+                                        // value={employee.nameOfWork}
+                                        onChange={handleChange}
+                                        required
+                                        placeholder='Enter Bank Name'
+                                    />
+                                </Form.Group>
+                            </Col>
+
+                            <Col lg={6}>
+                                <Form.Group controlId="State" className="mb-3">
+                                    <Form.Label>Branch  Name:</Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        name="State"
+                                        // value={employee.nameOfWork}
+                                        onChange={handleChange}
+                                        required
+                                        placeholder='Enter Branch  Name'
+                                    />
+                                </Form.Group>
+                            </Col>
+
+                       
+
+                            <Col lg={6}>
+                                <Form.Group controlId="State" className="mb-3">
+                                    <Form.Label>Bank Account Number:</Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        name="State"
+                                        // value={employee.nameOfWork}
+                                        onChange={handleChange}
+                                        required
+                                        placeholder='Enter Bank Account Number'
+                                    />
+                                </Form.Group>
+                            </Col>
+
+
 
 
                             <Col className='align-items-end d-flex justify-content-between mb-3'>

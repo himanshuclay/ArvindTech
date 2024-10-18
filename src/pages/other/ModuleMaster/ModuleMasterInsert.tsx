@@ -1,15 +1,17 @@
 import axios from 'axios';
 import { useEffect, useState, ChangeEvent } from 'react';
-import { Button, Col, Form, Row } from 'react-bootstrap';
+import { Button, Col, Form, Row, ButtonGroup } from 'react-bootstrap';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import config from '@/config';
+import Select from 'react-select';
 
 interface Module {
     id: number;
     moduleDisplayName: string;
     fmsType: string;
-    moduleID: string;
     misExempt: string;
+    ModuleID: string;
+
     statusID: number;
     moduleOwnerID: string;
     moduleOwnerName: string;
@@ -25,11 +27,7 @@ interface Status {
     id: number;
     name: boolean;
 }
-interface ModuleDisplayName {
-    id: number;
-    moduleID: string;
-    moduleName: string;
-}
+
 interface ModuleOwnerName {
     empId: string;
     employeeName: string;
@@ -42,15 +40,14 @@ const EmployeeInsert = () => {
     const [editMode, setEditMode] = useState<boolean>(false);
     const [misExempt, setMisExempt] = useState<MISExempt[]>([]);
     const [statusID, setStatusID] = useState<Status[]>([]);
-    const [moduleDisplayName, setModuleDisplayName] = useState<ModuleDisplayName[]>([]);
     const [moduleOwnerName, setModuleOwnerName] = useState<ModuleOwnerName[]>([]);
-    const [empName, setEmpName] = useState<string | null>('Admin')
+    const [empName, setEmpName] = useState<string | null>('')
     const [module, setModule] = useState<Module>({
         id: 0,
         moduleDisplayName: '',
         fmsType: '',
-        moduleID: '',
         misExempt: '',
+        ModuleID: '',
         statusID: 0,
         moduleOwnerID: '',
         moduleOwnerName: '',
@@ -68,22 +65,11 @@ const EmployeeInsert = () => {
         if (id) {
             setEditMode(true);
             fetchModuleById(id);
-            setModule((module) => ({
-                ...module,
-                updatedBy: empName || '',
-                createdBy: ''
-
-            }));
         } else {
             setEditMode(false);
-            setModule((module) => ({
-                ...module,
-                createdBy: empName || '',
-                updatedBy: ''
-
-            }));
         }
     }, [id]);
+
 
     const fetchModuleById = async (id: string) => {
         try {
@@ -101,72 +87,27 @@ const EmployeeInsert = () => {
         }
     };
 
-
     useEffect(() => {
-        const fetchMISExempt = async () => {
+        const fetchData = async (endpoint: string, setter: Function, listName: string) => {
             try {
-                const response = await axios.get(`${config.API_URL_APPLICATION}/CommonDropdown/GetMISExempt`);
+                const response = await axios.get(`${config.API_URL_APPLICATION}/${endpoint}`);
                 if (response.data.isSuccess) {
-                    setMisExempt(response.data.mISExemptListResponses);
+                    setter(response.data[listName]);
                 } else {
                     console.error(response.data.message);
                 }
             } catch (error) {
-                console.error('Error fetching MIS Exempt list:', error);
+                console.error(`Error fetching data from ${endpoint}:`, error);
             }
         };
-        fetchMISExempt();
-    }, []);
 
-    useEffect(() => {
-        const fetchStatusID = async () => {
-            try {
-                const response = await axios.get(`${config.API_URL_APPLICATION}/CommonDropdown/GetStatus`);
-                if (response.data.isSuccess) {
-                    setStatusID(response.data.statusListResponses);
-                } else {
-                    console.error(response.data.message);
-                }
-            } catch (error) {
-                console.error('Error fetching MIS Exempt list:', error);
-            }
-        };
-        fetchStatusID();
+        fetchData('CommonDropdown/GetStatus', setStatusID, 'statusListResponses');
+        fetchData('CommonDropdown/GetMISExempt', setMisExempt, 'mISExemptListResponses');
+        fetchData('CommonDropdown/GetEmployeeListWithId', setModuleOwnerName, 'employeeLists');
     }, []);
 
 
-    useEffect(() => {
-        const fetchModuleDisplayName = async () => {
-            try {
-                const response = await axios.get(`${config.API_URL_APPLICATION}/CommonDropdown/GetModuleList`);
-                if (response.data.isSuccess) {
-                    setModuleDisplayName(response.data.moduleNameListResponses);
-                } else {
-                    console.error(response.data.message);
-                }
-            } catch (error) {
-                console.error('Error fetching MIS Exempt list:', error);
-            }
-        };
-        fetchModuleDisplayName();
-    }, []);
 
-
-    useEffect(() => {
-        const fetchModuleOwnerName = async () => {
-            try {
-                const response = await axios.get(`${config.API_URL_APPLICATION}/CommonDropdown/GetEmployeeListWithId`);
-                if (response.data.isSuccess) {
-                    setModuleOwnerName(response.data.employeeLists);
-                } else {
-                    console.error(response.data.message);
-                }
-            } catch (error) {
-                console.error('Error fetching MIS Exempt list:', error);
-            }
-        };
-        fetchModuleOwnerName();
-    }, []);
 
 
     // Handle form field changes
@@ -190,15 +131,24 @@ const EmployeeInsert = () => {
     // Handle form submission
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
 
-        console.log(module)
+
+
+
+        const payload = {
+            ...module,
+            createdBy: editMode ? module.createdBy : empName,
+            updatedBy: editMode ? empName : '',
+        };
+        console.log(payload)
+
         e.preventDefault();
         try {
             if (editMode) {
-                await axios.post(`${config.API_URL_APPLICATION}/ModuleMaster/UpdateModule`, module);
+                await axios.post(`${config.API_URL_APPLICATION}/ModuleMaster/UpdateModule`, payload);
             } else {
-                await axios.post(`${config.API_URL_APPLICATION}/ModuleMaster/InsertModule`, module);
+                await axios.post(`${config.API_URL_APPLICATION}/ModuleMaster/InsertModule`, payload);
             }
-            navigate('/pages/ModuleMaster');  
+            navigate('/pages/ModuleMaster');
         } catch (error) {
             console.error('Error submitting module:', error);
         }
@@ -207,163 +157,150 @@ const EmployeeInsert = () => {
     return (
         <div>
             <div className="container">
-                <div className="d-flex bg-white p-2 my-2 justify-content-between align-items-center fs-20">
+                <div className="d-flex bg-white p-2 my-2 justify-content-between align-items-center fs-20 rounded-3 border">
                     <span><i className="ri-file-list-line me-2"></i><span className='fw-bold'>{editMode ? 'Edit Module' : 'Add Module'}</span></span>
                 </div>
+                <div className='bg-white p-2 rounded-3 border'>
+                    <Form onSubmit={handleSubmit}>
 
-                <Form onSubmit={handleSubmit}>
 
+                        <Row>
 
-                    <Row>
+                            <Col lg={6}>
+                                <Form.Group controlId="moduleDisplayName" className="mb-3">
+                                    <Form.Label>Module Display Name</Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        name="moduleDisplayName"
+                                        value={module.moduleDisplayName}
+                                        onChange={handleChange}
+                                        required
+                                        placeholder='Enter Module Name'
+                                    />
 
-                        <Col lg={6}>
+                                </Form.Group>
 
-                            <Form.Group controlId="moduleDisplayName" className="mb-3">
-                                <Form.Label>Module Display Name</Form.Label>
-                                <Form.Control
-                                    as="select"
-                                    name="moduleDisplayName"
-                                    value={module.moduleDisplayName}
-                                    onChange={(e) => {
-                                        const selectedModule = moduleDisplayName.find(
-                                            (mod) => mod.moduleName === e.target.value
-                                        ); // Find the corresponding module object
-                                        setModule({
-                                            ...module,
-                                            moduleDisplayName: e.target.value,
-                                            moduleID: selectedModule?.moduleID || '', // Set the moduleID if found
-                                        });
-                                    }}
-                                >
-                                    <option value="">Select Module Display Name</option>
-                                    {moduleDisplayName ? (
-                                        moduleDisplayName.map((mod) => (
-                                            <option key={mod.id} value={mod.moduleName}>
-                                                {mod.moduleName}
-                                            </option>
-                                        ))
-                                    ) : (
-                                        <option disabled>No modules available</option> // Fallback when no data is available
-                                    )}
-                                </Form.Control>
-                            </Form.Group>
+                            </Col>
 
-                        </Col>
+                            <Col lg={6}>
+                                <Form.Group controlId="ModuleID" className="mb-3">
+                                    <Form.Label>ModuleID:</Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        name="ModuleID"
+                                        value={module.ModuleID}
+                                        onChange={handleChange}
+                                        required
+                                        placeholder='Enter Module ID'
+                                    />
+                                </Form.Group>
+                            </Col>
 
-                        <Col lg={6}>
+                            <Col lg={6}>
+                                <Form.Group controlId="fmsType" className="mb-3">
+                                    <Form.Label>FMS Type:</Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        name="fmsType"
+                                        value={module.fmsType}
+                                        onChange={handleChange}
+                                        required
+                                        placeholder='Enter FMS Type'
+                                    />
+                                </Form.Group>
+                            </Col>
 
-                            <Form.Group controlId="fmsType" className="mb-3">
-                                <Form.Label>FMS Type:</Form.Label>
-                                <Form.Control
-                                    type="text"
-                                    name="fmsType"
-                                    value={module.fmsType}
-                                    onChange={handleChange}
-                                    required
-                                />
-                            </Form.Group>
-                        </Col>
+                            <Col lg={6}>
 
-                        <Col lg={6}>
+                                <Form.Group controlId="misExempt" className="mb-3">
+                                    <Form.Label>MIS Exempt:</Form.Label>
 
-                            <Form.Group controlId="misExempt" className="mb-3">
-                                <Form.Label>MIS Exempt:</Form.Label>
-                                <Form.Control
-                                    as="select"
-                                    name="misExempt"
-                                    value={module.misExempt}
-                                    onChange={(e) => setModule({ ...module, misExempt: e.target.value })}
-                                >
-                                    <option value="">Select MIS Exempt</option>
-                                    {misExempt.length > 0 ? (
-                                        misExempt.map((exempt) => (
-                                            <option key={exempt.id} value={exempt.name}>
-                                                {exempt.name}
-                                            </option>
-                                        ))
-                                    ) : (
-                                        <option disabled>No MIS Exempt IDs available</option>
-                                    )}
-                                </Form.Control>
-                            </Form.Group>
-                        </Col>
+                                    <Select
+                                        name="statusID"
+                                        value={misExempt.find((mod) => mod.name === module.misExempt)}
+                                        onChange={(selectedOption) => {
+                                            setModule({
+                                                ...module,
+                                                misExempt: selectedOption?.name || '',
+                                            });
+                                        }}
+                                        getOptionLabel={(mod) => mod.name}
+                                        getOptionValue={(mod) => mod.name}
+                                        options={misExempt}
+                                        isSearchable={true}
+                                        placeholder="Select Status"
+                                        required
+                                    />
+                                </Form.Group>
+                            </Col>
 
-                        <Col lg={6}>
+                            <Col lg={6}>
 
-                            <Form.Group controlId="statusID" className="mb-3">
-                                <Form.Label>Status ID:</Form.Label>
-                                <Form.Control
-                                    as="select"
-                                    name="statusID"
-                                    value={module.statusID}
-                                    onChange={(e) => setModule({ ...module, statusID: parseInt(e.target.value) })}
-                                >
-                                    <option value="">Select Status ID</option>
-                                    {statusID.length > 0 ? (
-                                        statusID.map((item) => (
-                                            <option key={item.id} value={item.id}>
-                                                {item.id == 1 ? "True" : "False"}
-                                            </option>
-                                        ))
-                                    ) : (
-                                        <option disabled>No Status IDs available</option>
-                                    )}
-                                </Form.Control>
-                            </Form.Group>
-                        </Col>
+                                <Form.Group controlId="statusID" className="mb-3">
+                                    <Form.Label>Status:</Form.Label>
+                                    <Select
+                                        name="statusID"
+                                        value={statusID.find((mod) => mod.id === module.statusID)}
+                                        onChange={(selectedOption) => {
+                                            setModule({
+                                                ...module,
+                                                statusID: selectedOption?.id || 0,
+                                            });
+                                        }}
+                                        getOptionLabel={(mod) => mod.id === 1 ? 'Active' : "Deactive"}
+                                        getOptionValue={(mod) => mod.id === 1 ? 'Active' : "Deactive"}
+                                        options={statusID}
+                                        isSearchable={true}
+                                        placeholder="Select Status"
+                                        required
+                                    />
+                                </Form.Group>
+                            </Col>
 
-                        <Col lg={6}>
+                            <Col lg={6}>
 
-                            <Form.Group controlId="moduleOwnerName" className="mb-3">
-                                <Form.Label>Module Owner Name</Form.Label>
-                                <Form.Control
-                                    as="select"
-                                    name="moduleOwnerName"
-                                    value={module.moduleOwnerName}
-                                    onChange={(e) => {
-                                        const selectedModule = moduleOwnerName.find(
-                                            (mod) => mod.employeeName === e.target.value
-                                        ); // Find the corresponding module object
-                                        setModule({
-                                            ...module,
-                                            moduleOwnerName: e.target.value,
-                                            moduleOwnerID: selectedModule?.empId || '', // Set the moduleID if found
-                                        });
-                                    }}
-                                >
-                                    <option value="">Select Module Owner Name</option>
-                                    {moduleOwnerName ? (
-                                        moduleOwnerName.map((mod) => (
-                                            <option key={mod.empId} value={mod.employeeName}>
-                                                {mod.employeeName}
-                                            </option>
-                                        ))
-                                    ) : (
-                                        <option disabled>No modules available</option> // Fallback when no data is available
-                                    )}
-                                </Form.Control>
-                            </Form.Group>
-                        </Col>
+                                <Form.Group controlId="moduleOwnerName" className="mb-3">
+                                    <Form.Label>Module Owner Name</Form.Label>
+
+                                    <Select
+                                        name="statusID"
+                                        value={moduleOwnerName.find((mod) => mod.employeeName === module.moduleOwnerName)}
+                                        onChange={(selectedOption) => {
+                                            setModule({
+                                                ...module,
+                                                moduleOwnerName: selectedOption?.employeeName || '',
+                                                moduleOwnerID: selectedOption?.empId || '',
+                                            });
+                                        }}
+                                        getOptionLabel={(mod) => mod.employeeName}
+                                        getOptionValue={(mod) => mod.employeeName}
+                                        options={moduleOwnerName}
+                                        isSearchable={true}
+                                        placeholder="Select  Module Owner Name"
+                                        required
+                                    />
+                                </Form.Group>
+                            </Col>
 
 
 
-                        <Col className='align-items-end d-flex justify-content-end mb-3'>
+                            <Col></Col>
+                            <Col lg={2} className='align-items-end d-flex justify-content-end mb-3'>
+                                <ButtonGroup aria-label="Basic example" className='w-100'>
+                                    <Link to={'/pages/ModuleMaster'} className="btn btn-primary">
+                                        Back
+                                    </Link>
+                                    &nbsp;
+                                    <Button variant="primary" type="submit">
+                                        {editMode ? 'Update Module' : 'Add Module'}
+                                    </Button>
+                                </ButtonGroup>
+                            </Col>
 
-                            <Link to={'/pages/ModuleMaster'}>
-                                <Button variant="primary" >
-                                    Back
-                                </Button>
-                            </Link>
+                        </Row>
 
-                            &nbsp;
-                            <Button variant="primary" type="submit">
-                                {editMode ? 'Update Module' : 'Add Module'}
-                            </Button>
-                        </Col>
-
-                    </Row>
-
-                </Form>
+                    </Form>
+                </div>
             </div>
         </div>
     );
