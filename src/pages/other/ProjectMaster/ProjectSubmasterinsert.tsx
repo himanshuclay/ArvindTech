@@ -173,7 +173,6 @@ const ProjectInsert = () => {
     };
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
 
         const payload = {
             ...subProject,
@@ -181,6 +180,7 @@ const ProjectInsert = () => {
             updatedBy: editMode ? empName : '',
         };
         console.log(payload)
+        e.preventDefault();
 
         try {
             if (editMode) {

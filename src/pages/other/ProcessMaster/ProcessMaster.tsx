@@ -20,6 +20,8 @@ interface Process {
     createdBy: string;
     updatedBy: string;
     processName: string;
+    userUpdatedMobileNumber: string;
+    status: string;
     empId: string;
     employeeName: string;
     manageId: number;
@@ -44,6 +46,7 @@ const ModuleMaster = () => {
     const [ProcessName, setProcessName] = useState('');
     const [ProcessOwnerName, setProcessOwnerName] = useState('');
     const [manageId, setManageID] = useState<number>();
+    const [downloadCsv, setDownloadCsv] = useState<Process[]>([]);
 
     const [show, setShow] = useState(false);
     const [showView, setShowView] = useState(false);
@@ -82,6 +85,7 @@ const ModuleMaster = () => {
         { id: 'processDisplayName', label: 'Process Display Name', visible: true },
         { id: 'processOwnerName', label: 'Process Owner Name', visible: true },
         { id: 'processObjective', label: 'Process Objective', visible: true },
+        { id: 'status', label: 'Status', visible: true },
     ]);
 
     const handleOnDragEnd = (result: any) => {
@@ -94,15 +98,12 @@ const ModuleMaster = () => {
     // ==============================================================
 
     useEffect(() => {
-        fetchModules();
+        fetchProcess();
+        fetchProcessCsv()
     }, [currentPage]);
 
-    useEffect(() => {
-        fetchEmployeeList();
-        fetchModulesList();
-    }, [])
 
-    const fetchModules = async () => {
+    const fetchProcess = async () => {
         setLoading(true);
         try {
             const response = await axios.get(`${config.API_URL_APPLICATION}/ProcessMaster/GetProcess`, {
@@ -124,33 +125,39 @@ const ModuleMaster = () => {
         }
     };
 
-    const fetchModulesList = async () => {
+    const fetchProcessCsv = async () => {
         try {
-            const response = await axios.get(`${config.API_URL_APPLICATION}/CommonDropdown/GetModuleList`);
+            const response = await axios.get(`${config.API_URL_APPLICATION}/ProcessMaster/GetProcess`);
             if (response.data.isSuccess) {
-                setModuleList(response.data.moduleNameListResponses);
+                setDownloadCsv(response.data.processMasterList);
             } else {
                 console.error(response.data.message);
             }
         } catch (error) {
             console.error('Error fetching modules:', error);
         }
-
     };
 
-    const fetchEmployeeList = async () => {
-        try {
-            const response = await axios.get(`${config.API_URL_APPLICATION}/CommonDropdown/GetEmployeeListWithId`);
-            if (response.data.isSuccess) {
-                setEmployeeList(response.data.employeeLists);
-            } else {
-                console.error(response.data.message);
+    
+    useEffect(() => {
+        const fetchData = async (endpoint: string, setter: Function, listName: string) => {
+            try {
+                const response = await axios.get(`${config.API_URL_APPLICATION}/${endpoint}`);
+                if (response.data.isSuccess) {
+                    setter(response.data[listName]);
+                } else {
+                    console.error(response.data.message);
+                }
+            } catch (error) {
+                console.error(`Error fetching data from ${endpoint}:`, error);
             }
-        } catch (error) {
-            console.error('Error fetching modules:', error);
-        }
+        };
 
-    };
+        fetchData('CommonDropdown/GetModuleList', setModuleList, 'moduleNameListResponses');
+        fetchData('CommonDropdown/GetEmployeeListWithId', setEmployeeList, 'employeeLists');
+    }, []);
+
+
 
     useEffect(() => {
         const fetchProcessName = async () => {
@@ -174,7 +181,7 @@ const ModuleMaster = () => {
         setModuleName('');
         setProcessName('');
         setProcessOwnerName('');
-        fetchModules();
+        fetchProcess();
     };
 
     const filteredModules = processes.filter(process =>
@@ -186,29 +193,31 @@ const ModuleMaster = () => {
 
     const convertToCSV = (data: Process[]) => {
         const csvRows = [
-            ['ID', 'Module  Name', 'Process ID', 'Process Display Name', 'Process Objective', 'Process Owner Name', 'Created By', 'Updated By'],
+            ['ID', 'Module Name', 'Process ID', 'Process Display Name', 'Process Objective', 'Process Owner Name', 'User Updated Mobile Number', 'Created By', 'Updated By'],
             ...data.map(mod => [
                 mod.id,
                 mod.moduleName,
                 mod.processID,
                 mod.processDisplayName,
-                mod.processObjective,
-                mod.processOwnerName,
+                `"${mod.processObjective}"`, 
+                mod.processOwnerName || '', 
+                mod.userUpdatedMobileNumber || '', 
                 mod.createdBy,
                 mod.updatedBy
             ])
         ];
         return csvRows.map(row => row.join(',')).join('\n');
     };
+    
 
     const downloadCSV = () => {
-        const csvData = convertToCSV(processes);
+        const csvData = convertToCSV(downloadCsv);
         const blob = new Blob([csvData], { type: 'text/csv;charset=utf-8;' });
         const link = document.createElement('a');
         if (link.download !== undefined) {
             const url = URL.createObjectURL(blob);
             link.setAttribute('href', url);
-            link.setAttribute('download', 'Doers.csv');
+            link.setAttribute('download', 'Process.csv');
             link.style.visibility = 'hidden';
             document.body.appendChild(link);
             link.click();
@@ -253,7 +262,7 @@ const ModuleMaster = () => {
                     <Row className="justify-content-center">
                         <Col xs={12} md={8} lg={6}>
                             <Alert variant="info" className="text-center">
-                                <h4>No Task Found</h4>
+                                <h4>No Process Found</h4>
                                 <p>You currently don't have Completed tasks</p>
                             </Alert>
                         </Col>
@@ -275,7 +284,7 @@ const ModuleMaster = () => {
                                             <Col lg={4}>
                                                 <Form.Group controlId="ModuleName">
                                                     <Form.Label>Module Name:</Form.Label>
-                                                    
+
                                                     <Select
                                                         name="ModuleName"
                                                         value={moduleList.find(item => item.moduleName === ModuleName) || null} // handle null
@@ -292,7 +301,7 @@ const ModuleMaster = () => {
                                             <Col lg={3}>
                                                 <Form.Group controlId="ModuleOwnerName">
                                                     <Form.Label>Process Name:</Form.Label>
-                                                 
+
                                                     <Select
                                                         name="ModuleOwnerName"
                                                         value={processList.find(item => item.processName === ProcessName) || null} // handle null
@@ -312,8 +321,8 @@ const ModuleMaster = () => {
                                                 <Form.Group controlId="ProcessOwnerName">
                                                     <Form.Label>Process Owner Name:</Form.Label>
                                                     <Select
-                                                        name="ModuleOwnerName"
-                                                        value={employeeList.find(item => item.empId === ModuleName) || null} // handle null
+                                                        name="ProcessOwnerName"
+                                                        value={employeeList.find(item => item.empId === ProcessOwnerName) || null} // handle null
                                                         onChange={(selectedOption) => setProcessOwnerName(selectedOption ? selectedOption.empId : "")} // null check
                                                         options={employeeList}
                                                         getOptionLabel={(item) => item.employeeName.split('_')[0]}
@@ -372,7 +381,7 @@ const ModuleMaster = () => {
                                                                     <Draggable key={column.id} draggableId={column.id} index={index}>
                                                                         {(provided) => (
                                                                             <th>
-                                                                                <div ref={provided.innerRef} 
+                                                                                <div ref={provided.innerRef}
                                                                                     {...provided.draggableProps}
                                                                                     {...provided.dragHandleProps}>
                                                                                     {column.id === 'moduleName' && (<i className="ri-settings-2-fill"></i>)}
@@ -404,23 +413,30 @@ const ModuleMaster = () => {
                                                                     className={
                                                                         col.id === 'processOwnerName' ? 'fw-bold fs-13 text-dark text-nowrap' :
                                                                             col.id === 'moduleName' ? 'fw-bold fs-13   text-nowrap' :
-                                                                                ''
+                                                                                (col.id === 'status' && item[col.id] === "NO") ? 'task4' :
+                                                                                    (col.id === 'status' && item[col.id] === "YES") ? 'task1' :
+                                                                                        ''
                                                                     }
                                                                 >
-                                                                    <div>
-                                                                        {col.id === 'processOwnerName' ? (
-                                                                            <td>
-                                                                                <div >
-                                                                                    <div className='d-flex align-items-center'>
-                                                                                        <IconWithLetter letter={item.processOwnerName.charAt(0)} />
-                                                                                        {item.processOwnerName.split('_')[0]}
-                                                                                    </div>
-                                                                                </div>
-                                                                            </td>
-                                                                        ) : (
-                                                                            <td>{item[col.id as keyof Process]}</td>
-                                                                        )}
-                                                                    </div>
+                                                                    {col.id === 'processOwnerName' ? (
+                                                                        <td>
+                                                                            <div className='d-flex align-items-center'>
+                                                                                <IconWithLetter letter={item.processOwnerName.charAt(0)} />
+                                                                                {item.processOwnerName.split('_')[0]}
+                                                                            </div>
+                                                                        </td>
+                                                                    ) : col.id === 'status' ? (
+                                                                        <td>
+                                                                            <div className='d-flex align-items-center'>
+                                                                                {item.status === "YES" ? "Active" : "Deactive"}
+                                                                            </div>
+                                                                        </td>
+                                                                    ) : (
+                                                                        <td>{item[col.id as keyof Process]}</td>
+                                                                    )}
+
+
+
                                                                 </td>
                                                             ))}
                                                             <td><Button variant='primary' className=' text-white' onClick={() => handleEdit(item.id)}>Manage</Button></td>

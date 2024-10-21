@@ -1,12 +1,11 @@
 import axios from 'axios';
 import { useEffect, useState, ChangeEvent } from 'react';
-import { Button, Col, Form, Row,ButtonGroup } from 'react-bootstrap';
+import { Button, Col, Form, Row, ButtonGroup } from 'react-bootstrap';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import config from '@/config';
-import Select from 'react-select'; // Make sure you have this or the appropriate select component imported
+import Select from 'react-select'; 
 import Flatpickr from 'react-flatpickr';
-import 'flatpickr/dist/themes/material_green.css'; // You can choose other themes as well
-
+import 'flatpickr/dist/themes/material_green.css'; 
 
 interface Process {
     id: number;
@@ -19,6 +18,7 @@ interface Process {
     processOwnerID: string;
     processOwnerName: string;
     intervalType: string;
+    status: string;
     day: string;
     time: string;
     periodFrom: string;
@@ -32,12 +32,7 @@ interface MISExempt {
     id: number;
     name: string;
 }
-interface ProcessList {
-    processID: string;
-    processName: string;
-    moduleId: string
-    moduleName: string
-}
+
 
 interface ModuleDisplayName {
     id: number;
@@ -61,8 +56,7 @@ const EmployeeInsert = () => {
     const [misExempt, setMisExempt] = useState<MISExempt[]>([]);
     const [moduleDisplayName, setModuleDisplayName] = useState<ModuleDisplayName[]>([]);
     const [processOwnerName, setProcessOwnerName] = useState<ModuleOwnerName[]>([]);
-    const [empName, setEmpName] = useState<string | null>('Admin')
-    const [processList, setProcessList] = useState<ProcessList[]>([]);
+    const [empName, setEmpName] = useState<string | null>('')
     const [process, setProcess] = useState<Process>({
         id: 0,
         moduleName: '',
@@ -73,6 +67,7 @@ const EmployeeInsert = () => {
         processFlowchart: '',
         processOwnerID: '',
         processOwnerName: '',
+        status: '',
         intervalType: '',
         day: '',
         time: '',
@@ -93,7 +88,6 @@ const EmployeeInsert = () => {
         }
     }, []);
 
-    console.log(process)
     useEffect(() => {
         if (id) {
             setEditMode(true);
@@ -190,24 +184,6 @@ const EmployeeInsert = () => {
         fetchModuleOwnerName();
     }, []);
 
-    useEffect(() => {
-        const fetchProcessName = async () => {
-            try {
-                const response = await axios.get(`${config.API_URL_APPLICATION}/CommonDropdown/GetProcessNameByModuleName?ModuleName=${process.moduleName}`);
-                if (response.data.isSuccess) {
-                    setProcessList(response.data.processListResponses);
-                } else {
-                    console.error(response.data.message);
-                }
-            } catch (error) {
-                console.error('Error fetching modules:', error);
-            }
-
-        };
-        if (process.moduleName) {
-            fetchProcessName();
-        }
-    }, [process.moduleName])
 
 
     const GetTypeDayTimeList = async (flag: any, setStateCallback: any) => {
@@ -248,13 +224,18 @@ const EmployeeInsert = () => {
     // Handle form submission
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
 
-        console.log(process)
+        const payload = {
+            ...process,
+            createdBy: editMode ? process.createdBy : empName,
+            updatedBy: editMode ? empName : '',
+        };
+        console.log(payload)
         e.preventDefault();
         try {
             if (editMode) {
-                await axios.post(`${config.API_URL_APPLICATION}/ProcessMaster/UpdateProcess`, process);
+                await axios.post(`${config.API_URL_APPLICATION}/ProcessMaster/UpdateProcess`, payload);
             } else {
-                await axios.post(`${config.API_URL_APPLICATION}/ProcessMaster/InsertProcess`, process);
+                await axios.post(`${config.API_URL_APPLICATION}/ProcessMaster/InsertProcess`, payload);
             }
             navigate('/pages/ProcessMaster');
         } catch (error) {
@@ -294,26 +275,15 @@ const EmployeeInsert = () => {
                                 </Form.Group>
                             </Col>
                             <Col lg={6}>
-                                <Form.Group controlId="processList" className="mb-3">
+                                <Form.Group controlId="processDisplayName" className="mb-3">
                                     <Form.Label>Process  Name</Form.Label>
-                                    <Select
-                                        name="processList"
-                                        value={processList.find(
-                                            (mod) => mod.processName === process.processDisplayName
-                                        )}
-                                        onChange={(selectedOption) => {
-                                            setProcess({
-                                                ...process,
-                                                processDisplayName: selectedOption?.processName || '',
-                                                processID: selectedOption?.processID || '',
-                                            });
-                                        }}
-                                        getOptionLabel={(mod) => mod.processName}
-                                        getOptionValue={(mod) => mod.processName}
-                                        options={processList}
-                                        isSearchable={true}
-                                        placeholder="Select Process Name"
+                                    <Form.Control
+                                        type="text"
+                                        name="processDisplayName"
+                                        value={process.processDisplayName}
+                                        onChange={handleChange}
                                         required
+                                        placeholder='Enter Process Name'
                                     />
                                 </Form.Group>
                             </Col>
@@ -338,6 +308,48 @@ const EmployeeInsert = () => {
                                         name="processFlowchart"
                                         value={process.processFlowchart}
                                         onChange={handleChange}
+                                        required
+                                    />
+                                </Form.Group>
+                            </Col>
+                            <Col lg={6}>
+                                <Form.Group controlId="misExempt" className="mb-3">
+                                    <Form.Label>MIS Exempt:</Form.Label>
+                                    <Select
+                                        name="misExempt"
+                                        value={misExempt.find((exempt) => exempt.name === process.misExempt)}
+                                        onChange={(selectedOption) => {
+                                            setProcess({
+                                                ...process,
+                                                misExempt: selectedOption?.name || '',
+                                            });
+                                        }}
+                                        getOptionLabel={(exempt) => exempt.name}
+                                        getOptionValue={(exempt) => exempt.name}
+                                        options={misExempt}
+                                        isSearchable={true}
+                                        placeholder="Select MIS Exempt"
+                                        required
+                                    />
+                                </Form.Group>
+                            </Col>
+                            <Col lg={6}>
+                                <Form.Group controlId="status" className="mb-3">
+                                    <Form.Label>Status:</Form.Label>
+                                    <Select
+                                        name="status"
+                                        value={misExempt.find((exempt) => exempt.name === process.status)}
+                                        onChange={(selectedOption) => {
+                                            setProcess({
+                                                ...process,
+                                                status: selectedOption?.name || '',
+                                            });
+                                        }}
+                                        getOptionLabel={(item) => item.id == 1 ? "Active " : " Deactive"}
+                                        getOptionValue={(item) => item.name}
+                                        options={misExempt}
+                                        isSearchable={true}
+                                        placeholder="Select Status"
                                         required
                                     />
                                 </Form.Group>
@@ -383,27 +395,7 @@ const EmployeeInsert = () => {
                                     />
                                 </Form.Group>
                             </Col>
-                            <Col lg={6}>
-                                <Form.Group controlId="misExempt" className="mb-3">
-                                    <Form.Label>MIS Exempt:</Form.Label>
-                                    <Select
-                                        name="misExempt"
-                                        value={misExempt.find((exempt) => exempt.name === process.misExempt)}
-                                        onChange={(selectedOption) => {
-                                            setProcess({
-                                                ...process,
-                                                misExempt: selectedOption?.name || '',
-                                            });
-                                        }}
-                                        getOptionLabel={(exempt) => exempt.name}
-                                        getOptionValue={(exempt) => exempt.name}
-                                        options={misExempt}
-                                        isSearchable={true}
-                                        placeholder="Select MIS Exempt"
-                                        required
-                                    />
-                                </Form.Group>
-                            </Col>
+
                             <Col lg={6}>
                                 <Form.Group controlId="intervalType" className="mb-3">
                                     <Form.Label>Interval Type:</Form.Label>
@@ -425,28 +417,32 @@ const EmployeeInsert = () => {
                                     />
                                 </Form.Group>
                             </Col>
-                            <Col lg={6}>
-                                <Form.Group controlId="intervalType" className="mb-3">
-                                    <Form.Label>Day:</Form.Label>
-                                    <Select
-                                        name="day"
-                                        value={dropdownValuesFlag2.find((item) => item.name === process.day)}
-                                        onChange={(selectedOption) => {
-                                            setProcess({
-                                                ...process,
-                                                day: selectedOption?.name || '',
-                                            });
-                                        }}
-                                        getOptionLabel={(item) => item.name}
-                                        getOptionValue={(item) => item.name}
-                                        options={dropdownValuesFlag2}
-                                        isSearchable={true}
-                                        placeholder="Select Day"
-                                        required
-                                    />
-                                </Form.Group>
-                            </Col>
-                            <Col lg={6}>
+
+                            {["Weekly", "Monthly", "Yearly"].includes(process.intervalType) &&
+                                <Col lg={6}>
+                                    <Form.Group controlId="intervalType" className="mb-3">
+                                        <Form.Label>Day:</Form.Label>
+                                        <Select
+                                            name="day"
+                                            value={dropdownValuesFlag2.find((item) => item.name === process.day)}
+                                            onChange={(selectedOption) => {
+                                                setProcess({
+                                                    ...process,
+                                                    day: selectedOption?.name || '',
+                                                });
+                                            }}
+                                            getOptionLabel={(item) => item.name}
+                                            getOptionValue={(item) => item.name}
+                                            options={dropdownValuesFlag2}
+                                            isSearchable={true}
+                                            placeholder="Select Day"
+                                            required
+                                        />
+                                    </Form.Group>
+                                </Col>
+                            }
+
+                            < Col lg={6}>
                                 <Form.Group controlId="time" className="mb-3">
                                     <Form.Label>Time:</Form.Label>
                                     <Select
@@ -511,7 +507,7 @@ const EmployeeInsert = () => {
                     </Form>
                 </div>
             </div>
-        </div>
+        </div >
     );
 };
 

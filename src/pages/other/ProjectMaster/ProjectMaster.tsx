@@ -231,20 +231,7 @@ const ProjectMaster = () => {
                 <div className="d-flex bg-white p-2 my-2 justify-content-between align-items-center">
                     <span><i className="ri-file-list-line me-2 text-dark fs-16"></i><span className='fw-bold text-dark fs-15'>Project List</span></span>
                     <div className="d-flex justify-content-end  ">
-                        <div className="app-search d-none d-lg-block me-4">
-                            <form>
-                                <div className="input-group px300 ">
-                                    <input
-                                        type="search"
-                                        className=" "
-                                        placeholder="Search Project..."
-                                        value={searchQuery}
-                                        onChange={handleSearch}
-                                    />
-                                    <span className="ri-search-line search-icon text-muted" />
-                                </div>
-                            </form>
-                        </div>
+                       
                         <Link to='/pages/ProjectMasterinsert'>
                             <Button variant="primary" className="me-2">
                                 Add Project

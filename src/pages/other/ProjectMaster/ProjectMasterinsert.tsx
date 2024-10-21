@@ -225,6 +225,7 @@ const ProjectInsert = () => {
                                         value={project.projectName}
                                         onChange={handleChange}
                                         required
+                                        placeholder='Enter Project Name'
 
                                     />
                                 </Form.Group>
@@ -623,7 +624,7 @@ const ProjectInsert = () => {
 
                             <Col lg={6}>
                                 <Form.Group controlId="nameOfWork" className="mb-3">
-                                    <Form.Label>nameOfWork:</Form.Label>
+                                    <Form.Label>Name Of Work:</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="nameOfWork"

@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { useEffect, useState, ChangeEvent } from 'react';
 import { Button, Col, Form, Row } from 'react-bootstrap';
-import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import config from '@/config';
 import Select from 'react-select';
 import Flatpickr from 'react-flatpickr';
@@ -82,7 +82,7 @@ interface AppAccess {
 
 const EmployeeMasterInsert = () => {
     const { id } = useParams<{ id: string }>();
-    const navigate = useNavigate();
+    // const navigate = useNavigate();
     const [editMode, setEditMode] = useState<boolean>(false);
     const [empName, setEmpName] = useState<string | null>()
     const [genderList, setGenderList] = useState<GenderList[]>([])

@@ -1,11 +1,12 @@
 import axios from 'axios';
 import { useState, useEffect, ChangeEvent } from 'react';
-import { Button, Pagination, Table, Container, Row, Col, Alert, Form, ButtonGroup } from 'react-bootstrap';
+import { Button, Pagination, Table, Container, Row, Col, Alert} from 'react-bootstrap';
+// import { Button, Pagination, Table, Container, Row, Col, Alert, Form, ButtonGroup } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import config from '@/config';
 // import ProjectViewPopup from './ProjectViewPopup';
-import Select from 'react-select';
+// import Select from 'react-select';
 
 
 
@@ -25,18 +26,18 @@ interface Column {
     visible: boolean;
 }
 
-interface EmployeeList {
-    empId: string;
-    employeeName: string;
-}
-interface ProjectList {
-    id: number;
-    projectName: string;
-}
-interface CompletionStatus {
-    id: number;
-    name: any;
-}
+// interface EmployeeList {
+//     empId: string;
+//     employeeName: string;
+// }
+// interface ProjectList {
+//     id: number;
+//     projectName: string;
+// }
+// interface CompletionStatus {
+//     id: number;
+//     name: any;
+// }
 
 const EmployeeMaster = () => {
     const [employee, setEmployee] = useState<Project[]>([]);
@@ -44,18 +45,18 @@ const EmployeeMaster = () => {
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
     const [searchQuery, setSearchQuery] = useState('');
-    const [showView, setShowView] = useState(false);
-    const [manageId, setManageID] = useState<string>('');
-    const [employeeList, setEmployeeList] = useState<EmployeeList[]>([]);
-    const [projectList, setProjectList] = useState<ProjectList[]>([]);
-    const [completionStatus, setCompletionStatus] = useState<CompletionStatus[]>([]);
+    // const [showView, setShowView] = useState(false);
+    // const [manageId, setManageID] = useState<string>('');
+    // const [employeeList, setEmployeeList] = useState<EmployeeList[]>([]);
+    // const [projectList, setProjectList] = useState<ProjectList[]>([]);
+    // const [completionStatus, setCompletionStatus] = useState<CompletionStatus[]>([]);
 
 
 
-    const [searchProjectInchage, setSearchProjectInchage] = useState('');
-    const [searchProjectCoordinator, setSearchProjectCoordinator] = useState('');
-    const [searchProjectName, setSearchProjectName] = useState('');
-    const [searchCompletionStatus, setSearchCompletionStatus] = useState<number>();
+    // const [searchProjectInchage, setSearchProjectInchage] = useState('');
+    // const [searchProjectCoordinator, setSearchProjectCoordinator] = useState('');
+    // const [searchProjectName, setSearchProjectName] = useState('');
+    // const [searchCompletionStatus, setSearchCompletionStatus] = useState<number>();
 
 
     // both are required to make dragable column of table 
@@ -88,10 +89,10 @@ const EmployeeMaster = () => {
         e.preventDefault();
 
         let query = `?`;
-        if (searchProjectInchage) query += `ProjectIncharge=${searchProjectInchage}&`;
-        if (searchProjectCoordinator) query += `ProjectCoordinator=${searchProjectCoordinator}&`;
-        if (searchProjectName) query += `ProjectName=${searchProjectName}&`;
-        if (searchCompletionStatus) query += `CompletionStatus=${searchCompletionStatus}&`;
+        // if (searchProjectInchage) query += `ProjectIncharge=${searchProjectInchage}&`;
+        // if (searchProjectCoordinator) query += `ProjectCoordinator=${searchProjectCoordinator}&`;
+        // if (searchProjectName) query += `ProjectName=${searchProjectName}&`;
+        // if (searchCompletionStatus) query += `CompletionStatus=${searchCompletionStatus}&`;
      
 
         query = query.endsWith('&') ? query.slice(0, -1) : query;
@@ -140,60 +141,60 @@ const EmployeeMaster = () => {
 
 
 
-    useEffect(() => {
-        const fetchData = async (endpoint: string, setter: Function, listName: string) => {
-            try {
-                const response = await axios.get(`${config.API_URL_APPLICATION}/${endpoint}`);
-                if (response.data.isSuccess) {
-                    setter(response.data[listName]);
-                } else {
-                    console.error(response.data.message);
-                }
-            } catch (error) {
-                console.error(`Error fetching data from ${endpoint}:`, error);
-            }
-        };
+    // useEffect(() => {
+    //     const fetchData = async (endpoint: string, setter: Function, listName: string) => {
+    //         try {
+    //             const response = await axios.get(`${config.API_URL_APPLICATION}/${endpoint}`);
+    //             if (response.data.isSuccess) {
+    //                 setter(response.data[listName]);
+    //             } else {
+    //                 console.error(response.data.message);
+    //             }
+    //         } catch (error) {
+    //             console.error(`Error fetching data from ${endpoint}:`, error);
+    //         }
+    //     };
 
-        fetchData('CommonDropdown/GetEmployeeListWithId', setEmployeeList, 'employeeLists');
-        fetchData('CommonDropdown/GetProjectList', setProjectList, 'projectListResponses');
-        fetchData('CommonDropdown/GetCompletionStatus', setCompletionStatus, 'completionStatusListResponses');
+    //     fetchData('CommonDropdown/GetEmployeeListWithId', setEmployeeList, 'employeeLists');
+    //     fetchData('CommonDropdown/GetProjectList', setProjectList, 'projectListResponses');
+    //     fetchData('CommonDropdown/GetCompletionStatus', setCompletionStatus, 'completionStatusListResponses');
 
-    }, []);
+    // }, []);
 
-    const convertToCSV = (data: Project[]) => {
-        const csvRows = [
-            ['ID', 'Project Name', 'Project ID', 'State Name', 'Project Type', 'Management Contract', 'Project Incharge', 'Project Coordinator', 'Completion Status', 'Name of Work'],
-            ...data.map(employee => [
-                employee.id,
-                employee.projectName,
-                employee.projectID,
-                employee.stateId,
-                employee.projectType,
-                employee.managementContract,
-                employee.projectIncharge,
-                employee.projectCoordinator,
-                employee.completionStatus,
-                employee.nameOfWork
-            ])
-        ];
-        return csvRows.map(row => row.join(',')).join('\n');
-    };
+    // const convertToCSV = (data: Project[]) => {
+    //     const csvRows = [
+    //         ['ID', 'Project Name', 'Project ID', 'State Name', 'Project Type', 'Management Contract', 'Project Incharge', 'Project Coordinator', 'Completion Status', 'Name of Work'],
+    //         ...data.map(employee => [
+    //             employee.id,
+    //             employee.projectName,
+    //             employee.projectID,
+    //             employee.stateId,
+    //             employee.projectType,
+    //             employee.managementContract,
+    //             employee.projectIncharge,
+    //             employee.projectCoordinator,
+    //             employee.completionStatus,
+    //             employee.nameOfWork
+    //         ])
+    //     ];
+    //     return csvRows.map(row => row.join(',')).join('\n');
+    // };
 
 
-    const downloadCSV = () => {
-        const csvData = convertToCSV(employee);
-        const blob = new Blob([csvData], { type: 'text/csv;charset=utf-8;' });
-        const link = document.createElement('a');
-        if (link.download !== undefined) {
-            const url = URL.createObjectURL(blob);
-            link.setAttribute('href', url);
-            link.setAttribute('download', 'Projects.csv');
-            link.style.visibility = 'hidden';
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-        }
-    };
+    // const downloadCSV = () => {
+    //     const csvData = convertToCSV(employee);
+    //     const blob = new Blob([csvData], { type: 'text/csv;charset=utf-8;' });
+    //     const link = document.createElement('a');
+    //     if (link.download !== undefined) {
+    //         const url = URL.createObjectURL(blob);
+    //         link.setAttribute('href', url);
+    //         link.setAttribute('download', 'Projects.csv');
+    //         link.style.visibility = 'hidden';
+    //         document.body.appendChild(link);
+    //         link.click();
+    //         document.body.removeChild(link);
+    //     }
+    // };
 
     const handleSearchcurrent = (e: ChangeEvent<HTMLInputElement>) => {
         setSearchQuery(e.target.value);
@@ -206,14 +207,14 @@ const EmployeeMaster = () => {
     );
 
 
-    const handleShowview = () => setShowView(true);
+    // const handleShowview = () => setShowView(true);
 
 
-    const handleViewEdit = (projectName: string) => {
-        handleShowview();
-        setManageID(projectName)
+    // const handleViewEdit = (projectName: string) => {
+    //     handleShowview();
+    //     setManageID(projectName)
 
-    };
+    // };
 
     return (
         <>
@@ -369,9 +370,9 @@ const EmployeeMaster = () => {
                                         </form>
                                     </div>
 
-                                    <Button variant="primary" onClick={downloadCSV} className="">
+                                    {/* <Button variant="primary" onClick={downloadCSV} className="">
                                         Download CSV
-                                    </Button>
+                                    </Button> */}
                                 </div>
                             </Row>
                         </div>

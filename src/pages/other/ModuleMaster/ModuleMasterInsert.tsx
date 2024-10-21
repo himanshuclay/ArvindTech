@@ -10,8 +10,7 @@ interface Module {
     moduleDisplayName: string;
     fmsType: string;
     misExempt: string;
-    ModuleID: string;
-
+    moduleID: string;
     statusID: number;
     moduleOwnerID: string;
     moduleOwnerName: string;
@@ -47,7 +46,7 @@ const EmployeeInsert = () => {
         moduleDisplayName: '',
         fmsType: '',
         misExempt: '',
-        ModuleID: '',
+        moduleID: '',
         statusID: 0,
         moduleOwnerID: '',
         moduleOwnerName: '',
@@ -187,8 +186,8 @@ const EmployeeInsert = () => {
                                     <Form.Label>ModuleID:</Form.Label>
                                     <Form.Control
                                         type="text"
-                                        name="ModuleID"
-                                        value={module.ModuleID}
+                                        name="moduleID"
+                                        value={module.moduleID}
                                         onChange={handleChange}
                                         required
                                         placeholder='Enter Module ID'

@@ -41,6 +41,8 @@ const ModuleMaster = () => {
     const [moduleList, setModuleList] = useState<Module[]>([]);
     const [employeeList, setEmployeeList] = useState<Module[]>([]);
     const [searchQuery, setSearchQuery] = useState('');
+    const [downloadCsv, setDownloadCsv] = useState<Module[]>([]);
+
 
 
 
@@ -48,30 +50,24 @@ const ModuleMaster = () => {
     const [moduleDisplayName, setModuleDisplayName] = useState('');
     const [moduleOwnerName, setModuleOwnerName] = useState('');
 
-    console.log(moduleOwnerName)
 
     const handleSearch = (e: any) => {
         e.preventDefault();
 
-        // Construct the query string based on the selected inputs
         let query = `?`;
         if (moduleDisplayName) query += `ModuleDisplayName=${moduleDisplayName}&`;
         if (moduleOwnerName) query += `ModuleOwnerName=${moduleOwnerName}&`;
 
-        // Remove trailing '&' or '?' from the query string
         query = query.endsWith('&') ? query.slice(0, -1) : query;
 
-        // API URL
         const apiUrl = `https://arvindo-api2.clay.in/api/ModuleMaster/SearchModuleList${query}`;
 
-        // Make the API call using axios
         axios.get(apiUrl, {
             headers: {
                 'accept': '*/*'
             }
         })
             .then((response) => {
-                // Handle the response data (you can update state or display the results)
                 console.log(response.data.moduleMasterListResponses);
                 setModules(response.data.moduleMasterListResponses)
             })
@@ -111,6 +107,7 @@ const ModuleMaster = () => {
     // Fetch the department list on component mount
     useEffect(() => {
         fetchModules();
+        fetchModulesCsv()
     }, [currentPage]);
 
     const fetchModules = async () => {
@@ -135,41 +132,44 @@ const ModuleMaster = () => {
         }
     };
 
+    const fetchModulesCsv = async () => {
+        try {
+            const response = await axios.get(`${config.API_URL_APPLICATION}/ModuleMaster/GetModule`);
+            if (response.data.isSuccess) {
+                setDownloadCsv(response.data.moduleMasterList);
+            } else {
+                console.error(response.data.message);
+            }
+        } catch (error) {
+            console.error('Error fetching modules:', error);
+        }
+      
+    };
+
+
 
     useEffect(() => {
-        const fetchModulesList = async () => {
+        const fetchData = async (endpoint: string, setter: Function, listName: string) => {
             try {
-                const response = await axios.get(`${config.API_URL_APPLICATION}/CommonDropdown/GetModuleList`);
+                const response = await axios.get(`${config.API_URL_APPLICATION}/${endpoint}`);
                 if (response.data.isSuccess) {
-                    setModuleList(response.data.moduleNameListResponses);
+                    setter(response.data[listName]);
                 } else {
                     console.error(response.data.message);
                 }
             } catch (error) {
-                console.error('Error fetching modules:', error);
+                console.error(`Error fetching data from ${endpoint}:`, error);
             }
-
         };
-        fetchModulesList();
-    }, [])
+
+        fetchData('CommonDropdown/GetModuleList', setModuleList, 'moduleNameListResponses');
+        fetchData('CommonDropdown/GetEmployeeListWithId', setEmployeeList, 'employeeLists');
+    }, []);
 
 
-    useEffect(() => {
-        const fetchEmployeeList = async () => {
-            try {
-                const response = await axios.get(`${config.API_URL_APPLICATION}/CommonDropdown/GetEmployeeListWithId`);
-                if (response.data.isSuccess) {
-                    setEmployeeList(response.data.employeeLists);
-                } else {
-                    console.error(response.data.message);
-                }
-            } catch (error) {
-                console.error('Error fetching modules:', error);
-            }
 
-        };
-        fetchEmployeeList();
-    }, [])
+
+
 
     const handleClear = () => {
         setModuleDisplayName('');
@@ -207,13 +207,14 @@ const ModuleMaster = () => {
     };
 
     const downloadCSV = () => {
-        const csvData = convertToCSV(modules);
+
+        const csvData = convertToCSV(downloadCsv);
         const blob = new Blob([csvData], { type: 'text/csv;charset=utf-8;' });
         const link = document.createElement('a');
         if (link.download !== undefined) {
             const url = URL.createObjectURL(blob);
             link.setAttribute('href', url);
-            link.setAttribute('download', 'Doers.csv');
+            link.setAttribute('download', 'Modules.csv');
             link.style.visibility = 'hidden';
             document.body.appendChild(link);
             link.click();
@@ -394,7 +395,7 @@ const ModuleMaster = () => {
                                                                         col.id === 'moduleOwnerName' ? 'fw-bold fs-14 text-dark' :
                                                                             col.id === 'moduleOwnerID' ? 'fw-bold fs-13  ' :
                                                                                 // Add class based on value (e.g., expired tasks)
-                                                                                (col.id === 'statusID' && item[col.id] === 0) ? 'task4' :
+                                                                                (col.id === 'statusID' && item[col.id] === 2) ? 'task4' :
                                                                                     (col.id === 'statusID' && item[col.id] === 1) ? 'task1' :
                                                                                         ''
                                                                     }

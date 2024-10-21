@@ -31,7 +31,6 @@ const Notification = React.lazy(() => import('../pages/other/Notification.tsx'))
 const ModuleList = React.lazy(() => import('../pages/other/Module-list.tsx'))
 const EmployeeMaster = React.lazy(() => import('../pages/other/Employee-Master.tsx'))
 const MessMaster = React.lazy(() => import('../pages/other/MessMaster.tsx'))
-const Roles = React.lazy(() => import('../pages/other/Roles.tsx'))
 const Tender = React.lazy(() => import('../pages/other/Tender.tsx'))
 const Vender = React.lazy(() => import('../pages/other/Vender.tsx'))
 const Bank = React.lazy(() => import('../pages/other/Bank.tsx'))
@@ -61,6 +60,11 @@ const ProjectMasterinsert = React.lazy(() => import('../pages/other/ProjectMaste
 const ProjectSubmasterinsert = React.lazy(() => import('../pages/other/ProjectMaster/ProjectSubmasterinsert.tsx'))
 const EmployeeMasterNew = React.lazy(() => import('../pages/other/EmployeeMaster/EmployeeMaster.tsx'))
 const EmployeeMasterinsert = React.lazy(() => import('../pages/other/EmployeeMaster/EmployeeMasterinsert.tsx'))
+
+const RoleMasterNew = React.lazy(() => import('../pages/other/RoleMaster/RoleMaster.tsx'))
+const RoleMasterinsert = React.lazy(() => import('../pages/other/RoleMaster/RoleMasterinsert.tsx'))
+const IdentifierMaster = React.lazy(() => import('../pages/other/Identifier/IdentifierMaster.tsx'))
+const IdentifierMasterinsert = React.lazy(() => import('../pages/other/Identifier/Identifiermasterinsert.tsx'))
 
 
 
@@ -286,13 +290,6 @@ const customPagesRoutes = {
 			element: <MessMaster />,
 			route: PrivateRoute,
 		},
-		
-		{
-			path: '/pages/Roles',
-			name: 'Roles Master',
-			element: <Roles />,
-			route: PrivateRoute,
-		},
 		{
 			path: '/pages/Tender',
 			name: 'Tender Master',
@@ -493,6 +490,44 @@ const customPagesRoutes = {
 			element: <ProjectSubmasterinsert />,
 			route: PrivateRoute,
 		},
+
+		{
+			path: '/pages/RoleMaster',
+			name: 'RoleMasterNew ',
+			element: <RoleMasterNew />,
+			route: PrivateRoute,
+		},
+		{
+			path: '/pages/RoleMasterinsert/:id',
+			name: 'RoleMasterinsert ',
+			element: <RoleMasterinsert />,
+			route: PrivateRoute,
+		},
+		{
+			path: '/pages/RoleMasterinsert',
+			name: 'RoleMasterinsert ',
+			element: <RoleMasterinsert />,
+			route: PrivateRoute,
+		},
+		{
+			path: '/pages/IdentifierMaster',
+			name: 'IdentifierMaster ',
+			element: <IdentifierMaster />,
+			route: PrivateRoute,
+		},
+		{
+			path: '/pages/IdentifierMasterinsert/:id',
+			name: 'IdentifierMasterinsert ',
+			element: <IdentifierMasterinsert />,
+			route: PrivateRoute,
+		},
+		{
+			path: '/pages/IdentifierMasterinsert',
+			name: 'IdentifierMasterinsert ',
+			element: <IdentifierMasterinsert />,
+			route: PrivateRoute,
+		},
+
 
 		///////////////////////////////////////////////////////////////////////////////////////////
 		{
