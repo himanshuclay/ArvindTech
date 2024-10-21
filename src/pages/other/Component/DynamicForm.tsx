@@ -44,6 +44,7 @@ interface DynamicFormProps {
     taskStatus: any
     processId: any
     moduleId: any
+    ProcessInitiationID: any
 }
 
 interface Condition {
@@ -71,6 +72,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
     // formData,
     taskNumber,
     processId,
+    ProcessInitiationID,
     moduleId,
     data,
     show,
@@ -822,7 +824,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                                         })}
                                     </>
                                 )
-                            }
+                                }
 
                             </div>
 
@@ -907,18 +909,18 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                                                         additionalData={{
                                                             ModuleID: moduleId,
                                                             CreatedBy: 'yourUserID',
-                                                            TaskCommonID: 3463,
+                                                            TaskCommonID: taskCommonIDRow,
                                                             Task_Number: taskNumber,
-                                                            ProcessInitiationID: 35635,
+                                                            ProcessInitiationID: ProcessInitiationID,
                                                             ProcessID: processId,
                                                             UpdatedBy: 'yourUpdatedBy',
                                                         }}
                                                         onFileUpload={(files) => {
-                                                            // Handle file upload logic here
                                                             console.log('Files uploaded:', files);
                                                         }}
                                                     />
                                                 )}
+
 
                                                 {input.type === 'checkbox' && (
 

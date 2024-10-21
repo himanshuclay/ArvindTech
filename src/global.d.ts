@@ -1,4 +1,4 @@
-declare module 'google-maps-react'
+// declare module 'google-maps-react'
 declare module 'react-easy-edit'
 
 import React from 'react';

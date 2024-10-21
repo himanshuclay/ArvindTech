@@ -480,6 +480,7 @@ const ProjectAssignTable: React.FC = () => {
                               taskStatus
                               processId={item.processID}
                               moduleId= {item.moduleID}
+                              ProcessInitiationID= {item.id}
                               
                             />
                           </div>

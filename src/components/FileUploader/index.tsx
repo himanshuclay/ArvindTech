@@ -41,6 +41,14 @@ const FileUploader = ({
 	const { selectedFiles, handleAcceptedFiles, removeFile } = useFileUploader(showPreview);
 	const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
+	// Generate a preview URL for the files (only if showPreview is enabled)
+	const generatePreview = (file: FileType) => {
+		if (showPreview && file.type.startsWith('image/')) {
+			file.preview = URL.createObjectURL(file);
+		}
+		return file;
+	};
+
 	// Define the uploadFiles function
 	const uploadFiles = async (files: FileType[], additionalData: object) => {
 		const formData = new FormData();
@@ -52,11 +60,9 @@ const FileUploader = ({
 
 		// Append additional data to FormData
 		Object.entries(additionalData).forEach(([key, value]) => {
-			console.log(`Appending to FormData: ${key} = ${value}`);
 			formData.append(`fileUploadRequest.${key}`, value);
 		});
 
-		// Hardcoding a FileType value
 		formData.append('FileType', 'pdf');
 
 		try {
@@ -72,15 +78,12 @@ const FileUploader = ({
 			const result = await response.json();
 			console.log('Upload successful:', result);
 
-			// Show success message
 			setSuccessMessage('Files uploaded successfully!');
 
-			// Clear selected files after successful upload
 			if (selectedFiles.length > 0) {
-				selectedFiles.forEach((file) => removeFile(file)); // Call removeFile for each selected file
+				selectedFiles.forEach((file) => removeFile(file)); // Remove files after successful upload
 			}
 
-			// Optionally call onFileUpload to notify parent
 			if (onFileUpload) {
 				onFileUpload(files);
 			}
@@ -91,17 +94,18 @@ const FileUploader = ({
 
 	// Update the file upload function
 	const handleFileUpload = (acceptedFiles: FileType[]) => {
+		// Generate preview URLs for files (for image files only)
+		const filesWithPreviews = acceptedFiles.map((file) => generatePreview(file));
+
 		if (onFileUpload) {
-			onFileUpload(acceptedFiles);
+			onFileUpload(filesWithPreviews);
 		}
-		uploadFiles(acceptedFiles, additionalData);
+		uploadFiles(filesWithPreviews, additionalData);
 	};
 
 	return (
 		<>
-			<Dropzone
-				onDrop={(acceptedFiles) => handleAcceptedFiles(acceptedFiles, handleFileUpload)}
-			>
+			<Dropzone onDrop={(acceptedFiles) => handleAcceptedFiles(acceptedFiles, handleFileUpload)}>
 				{({ getRootProps, getInputProps }) => (
 					<div className="dropzone">
 						<div className="dz-message needsclick" {...getRootProps()}>
@@ -114,7 +118,6 @@ const FileUploader = ({
 				)}
 			</Dropzone>
 
-			{/* Success Message */}
 			{successMessage && (
 				<Alert variant="success" className="mt-3">
 					{successMessage}
@@ -141,7 +144,7 @@ const FileUploader = ({
 									<Col className="col-auto">
 										<div className="avatar-sm">
 											<span className="avatar-title bg-primary rounded">
-												{file.type.split('/')[0]}
+												{file.type.split('/')[0].toUpperCase()}
 											</span>
 										</div>
 									</Col>

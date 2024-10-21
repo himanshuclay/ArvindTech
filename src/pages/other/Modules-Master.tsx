@@ -34,7 +34,9 @@ type FormField = {
   placeholder?: string;   // Placeholder for inputs
   options?: FormFieldOption[];     // Options for select, multiselect, or radio inputs
   conditions?: TransformedField[]; // Conditions or subtasks linked to this field
-  value?: string;         // The value of the input
+  value?: string;
+  fileType?: string;        // The value of the input
+  fileSize?: string;
 };
 
 interface FormFieldOption {
@@ -232,6 +234,32 @@ const App: React.FC = () => {
 
     console.log(`Selected Label: ${label}, ID: ${value}, Color: ${color}`);
   };
+
+  interface MasterItem {
+    id: number;
+    mastersName: string;
+  }
+
+  const [mastersList, setMastersList] = useState<MasterItem[]>([]); // State to store the fetched options
+  const [selectedMaster, setSelectedMaster] = useState(''); // State to track selected option
+
+  useEffect(() => {
+    // Fetch the master list data from the API when the component loads
+    const fetchMastersList = async () => {
+      try {
+        const response = await axios.get('https://arvindo-api2.clay.in/api/CommonDropdown/GetMastersList');
+        if (response.data.isSuccess) {
+          setMastersList(response.data.mastersLists);
+        } else {
+          console.error('Failed to fetch master list');
+        }
+      } catch (error) {
+        console.error('Error fetching masters list:', error);
+      }
+    };
+
+    fetchMastersList();
+  }, []);
 
 
   const handleFormSubmit = (e: React.FormEvent<HTMLFormElement>) => {
@@ -446,6 +474,22 @@ const App: React.FC = () => {
         color: option.color || "" // Include color if available
       })) || [];
 
+      if (field.type === 'file') {
+        return {
+          inputId,
+          type: field.type,
+          label: field.labeltext || "Default Label",
+          placeholder: field.placeholder || "",
+          options,
+          required: field.required || false,
+          conditionalFieldId: field.conditionalFieldId || "", // Use existing conditionalFieldId if any
+          value: field.value || "",
+          fileType: fileType || "", // Add fileType if available
+          fileSize: fileSize || "", // Add fileSize if available
+        };
+      }
+
+      // Default return for other input types
       return {
         inputId,
         type: field.type,
@@ -496,7 +540,7 @@ const App: React.FC = () => {
     setLoading(true);
 
     try {
-      const response = await fetch('https://arvindo-api.clay.in/api/ProcessTaskMaster/InsertUpdateProcessTaskandDoer', {
+      const response = await fetch('https://arvindo-api.clay.in/api/ProcessTaskMaster/InsertUpdateProcessTaskandDoers', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -672,6 +716,9 @@ const App: React.FC = () => {
       setEditField({ ...editField, options: updatedOptions });
     }
   };
+
+  const [fileType, setFileType] = useState('');
+  const [fileSize, setFileSize] = useState('');
 
   const handleDeleteField = (taskIndex: number, fieldIndex: number) => {
     if (taskIndex === -1) {
@@ -870,11 +917,20 @@ const App: React.FC = () => {
         case 'CustomSelect':
           return (
             <div className='col-6'>
-              <div className='form-group'>
-                <div className='label mb-1'>{field.labeltext}</div>
-                <select className='form-control' id="employee-select" style={{ width: '200px' }}>
-                </select>
-              </div>
+              <Form.Group className='mt-2'>
+                <Form.Label>Select Master</Form.Label>
+                <Form.Select
+                  value={selectedMaster} // Bind state variable to the value of the select
+                  onChange={(e) => setSelectedMaster(e.target.value)} // Update the state on selection
+                >
+                  <option value="">Select a Master</option>
+                  {mastersList.map((master) => (
+                    <option key={master.id} value={master.id}>
+                      {master.mastersName}
+                    </option>
+                  ))}
+                </Form.Select>
+              </Form.Group>
             </div>
           );
 
@@ -1221,17 +1277,66 @@ const App: React.FC = () => {
                   </Form.Group>
                 )}
 
-                {(editField.type === 'file') &&
-                  (<Form.Group className='mt-2'>
+                {(editField.type === 'file') && (
+                  <Form.Group className='mt-2'>
                     <Form.Control
                       type='file'
                     />
-                  </Form.Group>)
-                }
+
+                    {/* Select for File Type */}
+                    <Form.Group className='mt-2'>
+                      <Form.Label>File Type</Form.Label>
+                      <Form.Select
+                        value={fileType} // Replace with your state variable for file type
+                        onChange={(e) => setFileType(e.target.value)} // Update the file type state
+                      >
+                        <option value="">Select File Type</option>
+                        <option value=".jpg">JPG</option>
+                        <option value=".jpeg">JPEG</option>
+                        <option value=".png">PNG</option>
+                        <option value=".pdf">PDF</option>
+                        <option value=".docx">DOCX (Word Document)</option>
+                        <option value=".xlsx">XLSX (Excel Spreadsheet)</option>
+                        {/* Add more options as needed */}
+                      </Form.Select>
+                    </Form.Group>
+
+                    {/* Select for File Size */}
+                    <Form.Group className='mt-2'>
+                      <Form.Label>File Size</Form.Label>
+                      <Form.Select
+                        value={fileSize} // Replace with your state variable for file size
+                        onChange={(e) => setFileSize(e.target.value)} // Update the file size state
+                      >
+                        <option value="">Select File Size</option>
+                        <option value="1">Less than 1 MB</option>
+                        <option value="5">Less than 2 MB</option>
+                        <option value="10">Less than 5 MB</option>
+                        <option value="50">Less than 10 MB</option>
+                        {/* Add more options as needed */}
+                      </Form.Select>
+                    </Form.Group>
+                  </Form.Group>
+                )}
+
 
                 {editField.type === 'CustomSelect' && (
                   <Form.Group key={editField.inputId}>
                     <Form.Label>{editField.labeltext}</Form.Label>
+                    <Form.Group className='mt-2'>
+                      <Form.Label>Select Master</Form.Label>
+                      <Form.Select
+                        value={selectedMaster} // Bind state variable to the value of the select
+                        onChange={(e) => setSelectedMaster(e.target.value)} // Update the state on selection
+                      >
+                        <option value="">Select a Master</option>
+                        {mastersList.map((master) => (
+                          <option key={master.id} value={master.id}>
+                            {master.mastersName}
+                          </option>
+                        ))}
+                      </Form.Select>
+                    </Form.Group>
                   </Form.Group>
                 )}
                 {editField.type === 'paragraph' && (
@@ -1300,6 +1405,41 @@ const App: React.FC = () => {
                       Add Option
                     </Button>
 
+                    <div className='form-group mt-2'>
+                      <label className="form-label">
+                        <input className='me-1' type="checkbox"
+                          checked={conditionalField}
+                          onChange={handleCheckboxChange} />
+                        Is Conditionally bound?
+                      </label>
+                    </div>
+                    {conditionalField == true &&
+                      <Form.Control
+                        as="select"
+                        className="mt-2"
+                        value={editField.conditionalFieldId || ''}
+                        onChange={handleSelectChange}
+                      >
+                        <option value="">Select an option</option>
+                        {taskFields.map((field) => (
+                          <React.Fragment key={field.inputId}>
+                            <option value={field.inputId}>{field.labeltext}</option>
+                            {field.options?.map((option) => (
+                              <option
+                                key={option.id}
+                                value={option.id}
+                                data-color={option.color || ""}
+                                style={{ color: option.color || "inherit" }}
+                              >
+                                {option.label}
+                              </option>
+                            ))}
+                          </React.Fragment>
+                        ))}
+                      </Form.Control>
+
+                    }
+
                   </Form.Group>
                 )}
 
@@ -1316,6 +1456,40 @@ const App: React.FC = () => {
                         })
                       }
                     />
+                    <div className='form-group mt-2'>
+                      <label className="form-label">
+                        <input className='me-1' type="checkbox"
+                          checked={conditionalField}
+                          onChange={handleCheckboxChange} />
+                        Is Conditionally bound?
+                      </label>
+                    </div>
+                    {conditionalField == true &&
+                      <Form.Control
+                        as="select"
+                        className="mt-2"
+                        value={editField.conditionalFieldId || ''}
+                        onChange={handleSelectChange}
+                      >
+                        <option value="">Select an option</option>
+                        {taskFields.map((field) => (
+                          <React.Fragment key={field.inputId}>
+                            <option value={field.inputId}>{field.labeltext}</option>
+                            {field.options?.map((option) => (
+                              <option
+                                key={option.id}
+                                value={option.id}
+                                data-color={option.color || ""}
+                                style={{ color: option.color || "inherit" }}
+                              >
+                                {option.label}
+                              </option>
+                            ))}
+                          </React.Fragment>
+                        ))}
+                      </Form.Control>
+
+                    }
                   </Form.Group>
                 )}
                 <Form.Group className='mt-2'>

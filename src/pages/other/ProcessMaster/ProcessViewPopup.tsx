@@ -109,7 +109,7 @@ const ProcessViewPopup: React.FC<ProcessCanvasProps> = ({ showView, setShowView,
         <div>
             <Offcanvas className="" show={showView} placement="end" onHide={handleClose}>
                 <Offcanvas.Header closeButton>
-                    <Offcanvas.Title className="text-dark">View Projects</Offcanvas.Title>
+                    <Offcanvas.Title className="text-dark">View Tasks</Offcanvas.Title>
                 </Offcanvas.Header>
                 <Offcanvas.Body>
 

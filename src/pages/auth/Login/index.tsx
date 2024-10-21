@@ -1,5 +1,5 @@
 import { Button, Col, Row } from 'react-bootstrap'
-import { Navigate } from 'react-router-dom'
+import { Navigate, Link } from 'react-router-dom'
 import { yupResolver } from '@hookform/resolvers/yup'
 import * as yup from 'yup'
 import AuthLayout from '../AuthLayout'
@@ -17,7 +17,7 @@ const BottomLinks = () => {
 	return (
 		<Row>
 			<Col xs={12} className="text-center">
-				{/* <p className="text-dark-emphasis">
+				<p className="text-dark-emphasis">
 					Don't have an account?{' '}
 					<Link
 						to="/auth/register"
@@ -25,7 +25,7 @@ const BottomLinks = () => {
 					>
 						<b>Sign up</b>
 					</Link>
-				</p> */}
+				</p>
 			</Col>
 		</Row>
 	)
@@ -73,9 +73,9 @@ const Login = () => {
 						placeholder="Enter your password"
 						containerClass="mb-3"
 					>
-						{/* <Link to="/auth/forgot-password" className="text-muted float-end">
+						<Link to="/auth/forgot-password" className="text-muted float-end">
 							<small>Forgot your password?</small>
-						</Link> */}
+						</Link>
 					</FormInput>
 					<FormInput
 						label="Remember me"
@@ -96,6 +96,7 @@ const Login = () => {
 					</div>
 				</VerticalForm>
 			</AuthLayout>
+			<BottomLinks></BottomLinks>
 		</>
 	)
 }
