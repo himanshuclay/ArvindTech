@@ -227,7 +227,7 @@ const EmployeeInsert = () => {
                                         getOptionValue={(mod) => mod.name}
                                         options={misExempt}
                                         isSearchable={true}
-                                        placeholder="Select Status"
+                                        placeholder="Select Exempt"
                                         required
                                     />
                                 </Form.Group>
@@ -246,8 +246,8 @@ const EmployeeInsert = () => {
                                                 statusID: selectedOption?.id || 0,
                                             });
                                         }}
-                                        getOptionLabel={(mod) => mod.id === 1 ? 'Active' : "Deactive"}
-                                        getOptionValue={(mod) => mod.id === 1 ? 'Active' : "Deactive"}
+                                        getOptionLabel={(mod) => mod.id === 1 ? 'Active' : "Inactive"}
+                                        getOptionValue={(mod) => mod.id === 1 ? 'Active' : "Inactive"}
                                         options={statusID}
                                         isSearchable={true}
                                         placeholder="Select Status"

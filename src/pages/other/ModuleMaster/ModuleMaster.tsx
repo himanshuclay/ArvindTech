@@ -405,7 +405,7 @@ const ModuleMaster = () => {
 
                                                                         {col.id === 'statusID' ? (
                                                                             <td>
-                                                                                {item.statusID === 1 ? 'Active' : 'Deactive'}
+                                                                                {item.statusID === 1 ? 'Active' : 'Inactive'}
                                                                             </td>
                                                                         ) : col.id === 'moduleOwnerName' ? (
                                                                             <td>
