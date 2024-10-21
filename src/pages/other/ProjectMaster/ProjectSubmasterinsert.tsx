@@ -1,19 +1,17 @@
 import axios from 'axios';
 import { useEffect, useState, ChangeEvent } from 'react';
 import { Button, Col, Form, Row } from 'react-bootstrap';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import config from '@/config';
 import Select from 'react-select';
 import Flatpickr from 'react-flatpickr';
 import 'flatpickr/dist/themes/material_green.css'; // You can choose other themes as well
 
 
-interface Project {
+interface SubProject {
     id: number;
     projectName: string;
     subProjectName: string;
-    projectID: string;
-    stateId: number;
     projectIncharge: string;
     projectCoordinator: string;
     completionStatus: number;
@@ -57,7 +55,7 @@ interface PorjectList {
 
 const ProjectInsert = () => {
     const { id } = useParams<{ id: string }>();
-    // const navigate = useNavigate();
+    const navigate = useNavigate();
     const [editMode, setEditMode] = useState<boolean>(false);
     const [empName, setEmpName] = useState<string | null>()
     const [completionStatus, setCompletionStatus] = useState<CompletionStatus[]>([]);
@@ -65,12 +63,10 @@ const ProjectInsert = () => {
     const [projectList, setProjectList] = useState<PorjectList[]>([]);
 
 
-    const [subProject, setSubProject] = useState<Project>({
+    const [subProject, setSubProject] = useState<SubProject>({
         id: 0,
         projectName: '',
         subProjectName: '',
-        projectID: '',
-        stateId: 0,
         projectIncharge: '',
         projectCoordinator: '',
         completionStatus: 0,
@@ -94,7 +90,6 @@ const ProjectInsert = () => {
         recordedMonth: '',
         recordedYear: '',
     });
-
 
 
 
@@ -124,6 +119,7 @@ const ProjectInsert = () => {
             });
             if (response.data.isSuccess) {
                 const fetchedModule = response.data.subProjects[0];
+                console.log(fetchedModule)
                 setSubProject(fetchedModule);
             } else {
                 console.error(response.data.message);
@@ -132,6 +128,7 @@ const ProjectInsert = () => {
             console.error('Error fetching module:', error);
         }
     };
+
 
 
 
@@ -176,7 +173,6 @@ const ProjectInsert = () => {
     };
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
 
         const payload = {
             ...subProject,
@@ -184,17 +180,18 @@ const ProjectInsert = () => {
             updatedBy: editMode ? empName : '',
         };
         console.log(payload)
+        e.preventDefault();
 
-        // try {
-        //     if (editMode) {
-        //         await axios.post(`${config.API_URL_APPLICATION}/SubProjectMaster/UpdateSubProject`, payload);
-        //     } else {
-        //         await axios.post(`${config.API_URL_APPLICATION}/SubProjectMaster/InsertSubProject`, payload);
-        //     }
-        //     navigate('/pages/ProjectMaster');
-        // } catch (error) {
-        //     console.error('Error submitting module:', error);
-        // }
+        try {
+            if (editMode) {
+                await axios.post(`${config.API_URL_APPLICATION}/SubProjectMaster/UpdateSubProject`, payload);
+            } else {
+                await axios.post(`${config.API_URL_APPLICATION}/SubProjectMaster/InsertSubProject`, payload);
+            }
+            navigate('/pages/ProjectMaster');
+        } catch (error) {
+            console.error('Error submitting module:', error);
+        }
     };
 
 

@@ -154,13 +154,13 @@ const getFilteredMenuItems = () => {
 
 
 
-    {
-      key: 'ChkLnMaster',
-      label: 'Action Center',
-      url: '/pages/ChkLnMaster',
-      icon: 'ri-user-settings-line',
-      parentKey: 'pages',
-    },
+    // {
+    //   key: 'ChkLnMaster',
+    //   label: 'Action Center',
+    //   url: '/pages/ChkLnMaster',
+    //   icon: 'ri-user-settings-line',
+    //   parentKey: 'pages',
+    // },
     {
       key: 'systemmaster',
       label: 'System Master',
@@ -191,7 +191,14 @@ const getFilteredMenuItems = () => {
         {
           key: 'Roles',
           label: 'Role Master',
-          url: '/pages/Roles',
+          url: '/pages/RoleMaster',
+          icon: 'ri-user-settings-line',
+          parentKey: 'pages',
+        },
+        {
+          key: 'Identifier',
+          label: 'Identifier Master',
+          url: '/pages/IdentifierMaster',
           icon: 'ri-user-settings-line',
           parentKey: 'pages',
         },

@@ -11,7 +11,6 @@ import 'flatpickr/dist/themes/material_green.css'; // You can choose other theme
 interface Project {
     id: number;
     projectName: string;
-    projectID: string;
     stateId: number;
     projectType: number;
     managementContract: number;
@@ -76,7 +75,6 @@ const ProjectInsert = () => {
     const [project, setProject] = useState<Project>({
         id: 0,
         projectName: '',
-        projectID: '',
         stateId: 0,
         projectType: 0,
         managementContract: 0,
@@ -227,6 +225,7 @@ const ProjectInsert = () => {
                                         value={project.projectName}
                                         onChange={handleChange}
                                         required
+                                        placeholder='Enter Project Name'
 
                                     />
                                 </Form.Group>
@@ -625,7 +624,7 @@ const ProjectInsert = () => {
 
                             <Col lg={6}>
                                 <Form.Group controlId="nameOfWork" className="mb-3">
-                                    <Form.Label>nameOfWork:</Form.Label>
+                                    <Form.Label>Name Of Work:</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="nameOfWork"

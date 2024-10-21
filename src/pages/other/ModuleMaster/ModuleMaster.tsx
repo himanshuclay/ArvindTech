@@ -5,7 +5,7 @@ import { Link } from 'react-router-dom';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import IconWithLetter from '@/pages/ui/IconWithLetter';
 import config from '@/config';
-
+import Select from 'react-select';
 
 interface Module {
     id: number;
@@ -41,6 +41,8 @@ const ModuleMaster = () => {
     const [moduleList, setModuleList] = useState<Module[]>([]);
     const [employeeList, setEmployeeList] = useState<Module[]>([]);
     const [searchQuery, setSearchQuery] = useState('');
+    const [downloadCsv, setDownloadCsv] = useState<Module[]>([]);
+
 
 
 
@@ -48,30 +50,24 @@ const ModuleMaster = () => {
     const [moduleDisplayName, setModuleDisplayName] = useState('');
     const [moduleOwnerName, setModuleOwnerName] = useState('');
 
-    console.log(moduleOwnerName)
 
     const handleSearch = (e: any) => {
         e.preventDefault();
 
-        // Construct the query string based on the selected inputs
         let query = `?`;
         if (moduleDisplayName) query += `ModuleDisplayName=${moduleDisplayName}&`;
         if (moduleOwnerName) query += `ModuleOwnerName=${moduleOwnerName}&`;
 
-        // Remove trailing '&' or '?' from the query string
         query = query.endsWith('&') ? query.slice(0, -1) : query;
 
-        // API URL
         const apiUrl = `https://arvindo-api2.clay.in/api/ModuleMaster/SearchModuleList${query}`;
 
-        // Make the API call using axios
         axios.get(apiUrl, {
             headers: {
                 'accept': '*/*'
             }
         })
             .then((response) => {
-                // Handle the response data (you can update state or display the results)
                 console.log(response.data.moduleMasterListResponses);
                 setModules(response.data.moduleMasterListResponses)
             })
@@ -111,6 +107,7 @@ const ModuleMaster = () => {
     // Fetch the department list on component mount
     useEffect(() => {
         fetchModules();
+        fetchModulesCsv()
     }, [currentPage]);
 
     const fetchModules = async () => {
@@ -135,41 +132,44 @@ const ModuleMaster = () => {
         }
     };
 
+    const fetchModulesCsv = async () => {
+        try {
+            const response = await axios.get(`${config.API_URL_APPLICATION}/ModuleMaster/GetModule`);
+            if (response.data.isSuccess) {
+                setDownloadCsv(response.data.moduleMasterList);
+            } else {
+                console.error(response.data.message);
+            }
+        } catch (error) {
+            console.error('Error fetching modules:', error);
+        }
+      
+    };
+
+
 
     useEffect(() => {
-        const fetchModulesList = async () => {
+        const fetchData = async (endpoint: string, setter: Function, listName: string) => {
             try {
-                const response = await axios.get(`${config.API_URL_APPLICATION}/CommonDropdown/GetModuleList`);
+                const response = await axios.get(`${config.API_URL_APPLICATION}/${endpoint}`);
                 if (response.data.isSuccess) {
-                    setModuleList(response.data.moduleNameListResponses);
+                    setter(response.data[listName]);
                 } else {
                     console.error(response.data.message);
                 }
             } catch (error) {
-                console.error('Error fetching modules:', error);
+                console.error(`Error fetching data from ${endpoint}:`, error);
             }
-
         };
-        fetchModulesList();
-    }, [])
+
+        fetchData('CommonDropdown/GetModuleList', setModuleList, 'moduleNameListResponses');
+        fetchData('CommonDropdown/GetEmployeeListWithId', setEmployeeList, 'employeeLists');
+    }, []);
 
 
-    useEffect(() => {
-        const fetchEmployeeList = async () => {
-            try {
-                const response = await axios.get(`${config.API_URL_APPLICATION}/CommonDropdown/GetEmployeeListWithId`);
-                if (response.data.isSuccess) {
-                    setEmployeeList(response.data.employeeLists);
-                } else {
-                    console.error(response.data.message);
-                }
-            } catch (error) {
-                console.error('Error fetching modules:', error);
-            }
 
-        };
-        fetchEmployeeList();
-    }, [])
+
+
 
     const handleClear = () => {
         setModuleDisplayName('');
@@ -207,13 +207,14 @@ const ModuleMaster = () => {
     };
 
     const downloadCSV = () => {
-        const csvData = convertToCSV(modules);
+
+        const csvData = convertToCSV(downloadCsv);
         const blob = new Blob([csvData], { type: 'text/csv;charset=utf-8;' });
         const link = document.createElement('a');
         if (link.download !== undefined) {
             const url = URL.createObjectURL(blob);
             link.setAttribute('href', url);
-            link.setAttribute('download', 'Doers.csv');
+            link.setAttribute('download', 'Modules.csv');
             link.style.visibility = 'hidden';
             document.body.appendChild(link);
             link.click();
@@ -268,40 +269,35 @@ const ModuleMaster = () => {
                                             <Col lg={5}>
                                                 <Form.Group controlId="ModuleDisplayName">
                                                     <Form.Label>Module Display Name:</Form.Label>
-                                                    <Form.Control
-                                                        as="select"
-                                                        name="ModuleDisplayName"
-                                                        value={moduleDisplayName}
-                                                        onChange={(e) => setModuleDisplayName(e.target.value)}
-                                                        className='h45'
-                                                    >
-                                                        <option value="">Search...</option>
-                                                        {moduleList.map(module => (
-                                                            <option key={module.id} value={module.moduleName}>
-                                                                {module.moduleName}
-                                                            </option>
-                                                        ))}
-                                                    </Form.Control>
+
+                                                    <Select
+                                                        name="searchProjectName"
+                                                        value={moduleList.find(item => item.moduleName === moduleDisplayName) || null} // handle null
+                                                        onChange={(selectedOption) => setModuleDisplayName(selectedOption ? selectedOption.moduleName : "")} // null check
+                                                        options={moduleList}
+                                                        getOptionLabel={(item) => item.moduleName}
+                                                        getOptionValue={(item) => item.moduleName}
+                                                        isSearchable={true}
+                                                        placeholder="Search..."
+                                                        className="h45"
+                                                    />
                                                 </Form.Group>
                                             </Col>
 
                                             <Col lg={5}>
                                                 <Form.Group controlId="ModuleOwnerName">
                                                     <Form.Label>Module Owner Name:</Form.Label>
-                                                    <Form.Control
-                                                        as="select"
+                                                    <Select
                                                         name="ModuleOwnerName"
-                                                        value={moduleOwnerName}
-                                                        onChange={(e) => setModuleOwnerName(e.target.value)}
-                                                        className='h45'
-                                                    >
-                                                        <option value="">Search...</option>
-                                                        {employeeList.map(emp => (
-                                                            <option key={emp.empId} value={emp.employeeName}>
-                                                                {emp.employeeName}
-                                                            </option>
-                                                        ))}
-                                                    </Form.Control>
+                                                        value={employeeList.find(emp => emp.empId === moduleOwnerName) || null} // handle null
+                                                        onChange={(selectedOption) => setModuleOwnerName(selectedOption ? selectedOption.empId : "")} // null check
+                                                        options={employeeList}
+                                                        getOptionLabel={(emp) => emp.employeeName}
+                                                        getOptionValue={(emp) => emp.empId}
+                                                        isSearchable={true}
+                                                        placeholder="Search..."
+                                                        className="h45"
+                                                    />
                                                 </Form.Group>
                                             </Col>
 
@@ -327,7 +323,7 @@ const ModuleMaster = () => {
                                                     <div className="input-group px300 ">
                                                         <input
                                                             type="search"
-                                                            className=" bg-white"
+                                                            className=" bg-white "
                                                             placeholder="Search..."
                                                             value={searchQuery}
                                                             onChange={handleSearchcurrent}
@@ -399,7 +395,7 @@ const ModuleMaster = () => {
                                                                         col.id === 'moduleOwnerName' ? 'fw-bold fs-14 text-dark' :
                                                                             col.id === 'moduleOwnerID' ? 'fw-bold fs-13  ' :
                                                                                 // Add class based on value (e.g., expired tasks)
-                                                                                (col.id === 'statusID' && item[col.id] === 0) ? 'task4' :
+                                                                                (col.id === 'statusID' && item[col.id] === 2) ? 'task4' :
                                                                                     (col.id === 'statusID' && item[col.id] === 1) ? 'task1' :
                                                                                         ''
                                                                     }
@@ -409,7 +405,7 @@ const ModuleMaster = () => {
 
                                                                         {col.id === 'statusID' ? (
                                                                             <td>
-                                                                                {item.statusID === 1 ? 'Active' : 'Deactive'}
+                                                                                {item.statusID === 1 ? 'Active' : 'Inactive'}
                                                                             </td>
                                                                         ) : col.id === 'moduleOwnerName' ? (
                                                                             <td>
