@@ -60,7 +60,6 @@ const ProjectMasterinsert = React.lazy(() => import('../pages/other/ProjectMaste
 const ProjectSubmasterinsert = React.lazy(() => import('../pages/other/ProjectMaster/ProjectSubmasterinsert.tsx'))
 const EmployeeMasterNew = React.lazy(() => import('../pages/other/EmployeeMaster/EmployeeMaster.tsx'))
 const EmployeeMasterinsert = React.lazy(() => import('../pages/other/EmployeeMaster/EmployeeMasterinsert.tsx'))
-
 const RoleMasterNew = React.lazy(() => import('../pages/other/RoleMaster/RoleMaster.tsx'))
 const RoleMasterinsert = React.lazy(() => import('../pages/other/RoleMaster/RoleMasterinsert.tsx'))
 const IdentifierMaster = React.lazy(() => import('../pages/other/Identifier/IdentifierMaster.tsx'))

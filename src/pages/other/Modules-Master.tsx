@@ -855,6 +855,24 @@ const App: React.FC = () => {
               {/* <div>Placeholder: {field.placeholder}</div> */}
             </div>
           );
+        case 'number':
+          return (
+            <div className='col-6 col-new'>
+              <div>{field.labeltext}</div>
+            </div>
+          );
+        case 'email':
+          return (
+            <div className='col-6 col-new'>
+              <div>{field.labeltext}</div>
+            </div>
+          );
+        case 'tel':
+          return (
+            <div className='col-6 col-new'>
+              <div>{field.labeltext}</div>
+            </div>
+          );
         case 'checkbox':
           return <div>{field.labeltext}</div>;
         case 'select':
@@ -1232,50 +1250,75 @@ const App: React.FC = () => {
                     onChange={(e) => setEditField({ ...editField, labeltext: e.target.value })}
                   />
                 </Form.Group>
-                {(editField.type === 'text' || editField.type === 'custom') && (
-                  <Form.Group>
-                    <Form.Label>Placeholder</Form.Label>
-                    <Form.Control
-                      type="text"
-                      value={editField.placeholder}
-                      onChange={(e) => setEditField({ ...editField, placeholder: e.target.value })}
-                    />
-                    <div className='form-group mt-2'>
-                      <label className="form-label">
-                        <input className='me-1' type="checkbox"
-                          checked={conditionalField}
-                          onChange={handleCheckboxChange} />
-                        Is Conditionally bound?
-                      </label>
-                    </div>
-                    {conditionalField == true &&
+                {(editField.type === 'text' || editField.type === 'custom' ||
+                  editField.type === 'number' || editField.type === 'email' ||
+                  editField.type === 'tel') && (
+                    <Form.Group>
+                      {/* Dropdown to select input type */}
+                      <Form.Label>Select Input Type</Form.Label>
                       <Form.Control
                         as="select"
-                        className="mt-2"
-                        value={editField.conditionalFieldId || ''}
-                        onChange={handleSelectChange}
+                        value={editField.type} // Select the current type
+                        onChange={(e) => setEditField({ ...editField, type: e.target.value })} // Update the type dynamically
                       >
-                        <option value="">Select an option</option>
-                        {taskFields.map((field) => (
-                          <React.Fragment key={field.inputId}>
-                            <option value={field.inputId}>{field.labeltext}</option>
-                            {field.options?.map((option) => (
-                              <option
-                                key={option.id}
-                                value={option.id}
-                                data-color={option.color || ""}
-                                style={{ color: option.color || "inherit" }}
-                              >
-                                {option.label}
-                              </option>
-                            ))}
-                          </React.Fragment>
-                        ))}
+                        <option value="text">Text</option>
+                        <option value="number">Number</option>
+                        <option value="email">Email</option>
+                        <option value="tel">Telephone</option>
+                        <option value="custom">Custom</option> {/* For custom handling */}
                       </Form.Control>
 
-                    }
-                  </Form.Group>
-                )}
+                      {/* Input field depending on the selected type */}
+                      <Form.Label>Placeholder</Form.Label>
+                      <Form.Control
+                        type={editField.type}  // Use the dynamic type for the input field
+                        placeholder={editField.placeholder}
+                        value={editField.placeholder || ''}
+                        onChange={(e) => setEditField({ ...editField, placeholder: e.target.value })}
+                      />
+
+                      {/* Conditional Checkbox */}
+                      <div className='form-group mt-2'>
+                        <label className="form-label">
+                          <input
+                            className='me-1'
+                            type="checkbox"
+                            checked={conditionalField}
+                            onChange={handleCheckboxChange}
+                          />
+                          Is Conditionally bound?
+                        </label>
+                      </div>
+
+                      {/* Conditional Select Dropdown */}
+                      {conditionalField && (
+                        <Form.Control
+                          as="select"
+                          className="mt-2"
+                          value={editField.conditionalFieldId || ''}
+                          onChange={handleSelectChange}
+                        >
+                          <option value="">Select an option</option>
+                          {taskFields.map((field) => (
+                            <React.Fragment key={field.inputId}>
+                              <option value={field.inputId}>{field.labeltext}</option>
+                              {field.options?.map((option) => (
+                                <option
+                                  key={option.id}
+                                  value={option.id}
+                                  data-color={option.color || ""}
+                                  style={{ color: option.color || "inherit" }}
+                                >
+                                  {option.label}
+                                </option>
+                              ))}
+                            </React.Fragment>
+                          ))}
+                        </Form.Control>
+                      )}
+                    </Form.Group>
+                  )}
+
 
                 {(editField.type === 'file') && (
                   <Form.Group className='mt-2'>
@@ -1308,11 +1351,11 @@ const App: React.FC = () => {
                         value={fileSize} // Replace with your state variable for file size
                         onChange={(e) => setFileSize(e.target.value)} // Update the file size state
                       >
-                        <option value="">Select File Size</option>
-                        <option value="1">Less than 1 MB</option>
-                        <option value="5">Less than 2 MB</option>
-                        <option value="10">Less than 5 MB</option>
-                        <option value="50">Less than 10 MB</option>
+                        <option value="">Select maximum file limit</option>
+                        <option value="1">1</option>
+                        <option value="5">5</option>
+                        <option value="10">10</option>
+                        <option value="20">20</option>
                         {/* Add more options as needed */}
                       </Form.Select>
                     </Form.Group>
