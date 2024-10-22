@@ -3,9 +3,10 @@ import { useEffect, useState, ChangeEvent } from 'react';
 import { Button, Col, Form, Row, ButtonGroup } from 'react-bootstrap';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import config from '@/config';
-import Select from 'react-select'; 
+import Select from 'react-select';
 import Flatpickr from 'react-flatpickr';
-import 'flatpickr/dist/themes/material_green.css'; 
+import 'flatpickr/dist/themes/material_green.css';
+import CustomSuccessToast from '../Component/CustomSuccessToast';
 
 interface Process {
     id: number;
@@ -21,6 +22,7 @@ interface Process {
     status: string;
     day: string;
     time: string;
+    date: string;
     periodFrom: string;
     periodTo: string;
     createdBy: string;
@@ -52,6 +54,9 @@ const EmployeeInsert = () => {
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
 
+    const [showToast, setShowToast] = useState(false);
+    const [toastMessage, setToastMessage] = useState("");
+    const [toastVariant, setToastVariant] = useState('');
     const [editMode, setEditMode] = useState<boolean>(false);
     const [misExempt, setMisExempt] = useState<MISExempt[]>([]);
     const [moduleDisplayName, setModuleDisplayName] = useState<ModuleDisplayName[]>([]);
@@ -71,6 +76,7 @@ const EmployeeInsert = () => {
         intervalType: '',
         day: '',
         time: '',
+        date: '',
         periodFrom: '',
         periodTo: '',
         createdBy: '',
@@ -79,6 +85,7 @@ const EmployeeInsert = () => {
     const [dropdownValuesFlag1, setDropdownValuesFlag1] = useState<GetTypeDayTimeList[]>([]);
     const [dropdownValuesFlag2, setDropdownValuesFlag2] = useState<GetTypeDayTimeList[]>([]);
     const [dropdownValuesFlag3, setDropdownValuesFlag3] = useState<GetTypeDayTimeList[]>([]);
+    const [dropdownValuesFlag4, setDropdownValuesFlag4] = useState<GetTypeDayTimeList[]>([]);
 
 
     useEffect(() => {
@@ -113,6 +120,7 @@ const EmployeeInsert = () => {
         GetTypeDayTimeList(1, setDropdownValuesFlag1);
         GetTypeDayTimeList(2, setDropdownValuesFlag2);
         GetTypeDayTimeList(3, setDropdownValuesFlag3);
+        GetTypeDayTimeList(4, setDropdownValuesFlag4);
     }, []);
 
     const fetchModuleById = async (id: string) => {
@@ -234,11 +242,25 @@ const EmployeeInsert = () => {
         try {
             if (editMode) {
                 await axios.post(`${config.API_URL_APPLICATION}/ProcessMaster/UpdateProcess`, payload);
+                navigate('/pages/ProcessMaster', { state: { 
+                    showToast: true,
+                    toastMessage:"Process Updated successfully!",
+                    toastVariant:"rgb(28 175 85)"
+                   } });
             } else {
                 await axios.post(`${config.API_URL_APPLICATION}/ProcessMaster/InsertProcess`, payload);
+                navigate('/pages/ProcessMaster', { state: { 
+                    showToast: true,
+                    toastMessage:"Process Added successfully!",
+                    toastVariant:"rgb(28 175 85)"
+                   } });
             }
-            navigate('/pages/ProcessMaster');
+          
+
         } catch (error) {
+            setToastMessage("Error deleting project assignment");
+            setToastVariant("rgb(213 18 18)");
+            setShowToast(true);
             console.error('Error submitting module:', error);
         }
     };
@@ -418,7 +440,7 @@ const EmployeeInsert = () => {
                                 </Form.Group>
                             </Col>
 
-                            {["Weekly", "Monthly", "Yearly"].includes(process.intervalType) &&
+                            {["Weekly"].includes(process.intervalType) &&
                                 <Col lg={6}>
                                     <Form.Group controlId="intervalType" className="mb-3">
                                         <Form.Label>Day:</Form.Label>
@@ -434,6 +456,30 @@ const EmployeeInsert = () => {
                                             getOptionLabel={(item) => item.name}
                                             getOptionValue={(item) => item.name}
                                             options={dropdownValuesFlag2}
+                                            isSearchable={true}
+                                            placeholder="Select Day"
+                                            required
+                                        />
+                                    </Form.Group>
+                                </Col>
+                            }
+
+                            {["Monthly"].includes(process.intervalType) &&
+                                <Col lg={6}>
+                                    <Form.Group controlId="date" className="mb-3">
+                                        <Form.Label>Date:</Form.Label>
+                                        <Select
+                                            name="date"
+                                            value={dropdownValuesFlag4.find((item) => item.name === process.day)}
+                                            onChange={(selectedOption) => {
+                                                setProcess({
+                                                    ...process,
+                                                    date: selectedOption?.name || '',
+                                                });
+                                            }}
+                                            getOptionLabel={(item) => item.name}
+                                            getOptionValue={(item) => item.name}
+                                            options={dropdownValuesFlag4}
                                             isSearchable={true}
                                             placeholder="Select Day"
                                             required
@@ -507,6 +553,8 @@ const EmployeeInsert = () => {
                     </Form>
                 </div>
             </div>
+            <CustomSuccessToast show={showToast} toastMessage={toastMessage} toastVariant={toastVariant} onClose={() => setShowToast(false)} />
+
         </div >
     );
 };

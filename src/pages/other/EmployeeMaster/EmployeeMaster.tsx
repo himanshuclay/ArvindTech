@@ -1,20 +1,22 @@
 import axios from 'axios';
 import { useState, useEffect, ChangeEvent } from 'react';
-import { Button, Pagination, Table, Container, Row, Col, Alert} from 'react-bootstrap';
-// import { Button, Pagination, Table, Container, Row, Col, Alert, Form, ButtonGroup } from 'react-bootstrap';
+// import { Button, Pagination, Table, Container, Row, Col, Alert} from 'react-bootstrap';
+import { Button, Pagination, Table, Container, Row, Col, Alert, Form, ButtonGroup } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import config from '@/config';
-// import ProjectViewPopup from './ProjectViewPopup';
-// import Select from 'react-select';
+import EmployeeBankPopup from './EmployeeBankPopup';
+import Select from 'react-select';
+import IconWithLetter from '@/pages/ui/IconWithLetter';
 
 
 
 
-interface Project {
+interface Employee {
     id: number;
     employeeName: string;
     empID: string;
+    userUpdatedMobileNo: string
     createdBy: string;
     updatedBy: string;
 }
@@ -26,46 +28,48 @@ interface Column {
     visible: boolean;
 }
 
-// interface EmployeeList {
-//     empId: string;
-//     employeeName: string;
-// }
-// interface ProjectList {
-//     id: number;
-//     projectName: string;
-// }
-// interface CompletionStatus {
-//     id: number;
-//     name: any;
-// }
+interface EmployeeList {
+    empId: string;
+    employeeName: string;
+}
+interface ProjectList {
+    id: number;
+    projectName: string;
+}
+interface CompletionStatus {
+    id: number;
+    name: any;
+}
 
 const EmployeeMaster = () => {
-    const [employee, setEmployee] = useState<Project[]>([]);
+    const [employee, setEmployee] = useState<Employee[]>([]);
     const [loading, setLoading] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
     const [searchQuery, setSearchQuery] = useState('');
-    // const [showView, setShowView] = useState(false);
-    // const [manageId, setManageID] = useState<string>('');
-    // const [employeeList, setEmployeeList] = useState<EmployeeList[]>([]);
-    // const [projectList, setProjectList] = useState<ProjectList[]>([]);
-    // const [completionStatus, setCompletionStatus] = useState<CompletionStatus[]>([]);
+    const [showView, setShowView] = useState(false);
+    const [manageId, setManageID] = useState<number>();
+    const [employeeList, setEmployeeList] = useState<EmployeeList[]>([]);
+    const [projectList, setProjectList] = useState<ProjectList[]>([]);
+    const [completionStatus, setCompletionStatus] = useState<CompletionStatus[]>([]);
 
 
 
-    // const [searchProjectInchage, setSearchProjectInchage] = useState('');
-    // const [searchProjectCoordinator, setSearchProjectCoordinator] = useState('');
-    // const [searchProjectName, setSearchProjectName] = useState('');
-    // const [searchCompletionStatus, setSearchCompletionStatus] = useState<number>();
+    const [searchProjectInchage, setSearchProjectInchage] = useState('');
+    const [searchProjectCoordinator, setSearchProjectCoordinator] = useState('');
+    const [searchProjectName, setSearchProjectName] = useState('');
+    const [searchCompletionStatus, setSearchCompletionStatus] = useState<number>();
 
 
     // both are required to make dragable column of table 
     const [columns, setColumns] = useState<Column[]>([
-        { id: 'empID', label: 'Employee ID', visible: true },
+        { id: 'empID', label: 'Employee ID ', visible: true },
         { id: 'employeeName', label: 'Employee Name ', visible: true },
-        { id: 'empStatus', label: 'Status', visible: true },
+        { id: 'currentProjectName', label: 'Current Project Name', visible: true },
         { id: 'dataAccessLevel', label: 'Data Access Level', visible: true },
-       
+        { id: 'appAccessLevel', label: 'App Access Level', visible: true },
+        { id: 'empStatus', label: 'Status', visible: true },
+
     ]);
 
     const handleOnDragEnd = (result: any) => {
@@ -77,23 +81,23 @@ const EmployeeMaster = () => {
     };
     // ==============================================================
 
-    // const handleClear = () => {
-    //     setSearchProjectInchage('')
-    //     setSearchProjectCoordinator('')
-    //     setSearchProjectName('')
-    //     setSearchCompletionStatus(0)
-    //     fetchEmployee();
-    // };
+    const handleClear = () => {
+        setSearchProjectInchage('')
+        setSearchProjectCoordinator('')
+        setSearchProjectName('')
+        setSearchCompletionStatus(0)
+        fetchEmployee();
+    };
 
     const handleSearch = (e: any) => {
         e.preventDefault();
 
         let query = `?`;
-        // if (searchProjectInchage) query += `ProjectIncharge=${searchProjectInchage}&`;
-        // if (searchProjectCoordinator) query += `ProjectCoordinator=${searchProjectCoordinator}&`;
-        // if (searchProjectName) query += `ProjectName=${searchProjectName}&`;
-        // if (searchCompletionStatus) query += `CompletionStatus=${searchCompletionStatus}&`;
-     
+        if (searchProjectInchage) query += `ProjectIncharge=${searchProjectInchage}&`;
+        if (searchProjectCoordinator) query += `ProjectCoordinator=${searchProjectCoordinator}&`;
+        if (searchProjectName) query += `ProjectName=${searchProjectName}&`;
+        if (searchCompletionStatus) query += `CompletionStatus=${searchCompletionStatus}&`;
+
 
         query = query.endsWith('&') ? query.slice(0, -1) : query;
 
@@ -141,60 +145,59 @@ const EmployeeMaster = () => {
 
 
 
-    // useEffect(() => {
-    //     const fetchData = async (endpoint: string, setter: Function, listName: string) => {
-    //         try {
-    //             const response = await axios.get(`${config.API_URL_APPLICATION}/${endpoint}`);
-    //             if (response.data.isSuccess) {
-    //                 setter(response.data[listName]);
-    //             } else {
-    //                 console.error(response.data.message);
-    //             }
-    //         } catch (error) {
-    //             console.error(`Error fetching data from ${endpoint}:`, error);
-    //         }
-    //     };
+    useEffect(() => {
+        const fetchData = async (endpoint: string, setter: Function, listName: string) => {
+            try {
+                const response = await axios.get(`${config.API_URL_APPLICATION}/${endpoint}`);
+                if (response.data.isSuccess) {
+                    setter(response.data[listName]);
+                } else {
+                    console.error(response.data.message);
+                }
+            } catch (error) {
+                console.error(`Error fetching data from ${endpoint}:`, error);
+            }
+        };
 
-    //     fetchData('CommonDropdown/GetEmployeeListWithId', setEmployeeList, 'employeeLists');
-    //     fetchData('CommonDropdown/GetProjectList', setProjectList, 'projectListResponses');
-    //     fetchData('CommonDropdown/GetCompletionStatus', setCompletionStatus, 'completionStatusListResponses');
+        fetchData('CommonDropdown/GetEmployeeListWithId', setEmployeeList, 'employeeLists');
+        fetchData('CommonDropdown/GetProjectList', setProjectList, 'projectListResponses');
+        fetchData('CommonDropdown/GetCompletionStatus', setCompletionStatus, 'completionStatusListResponses');
+    }, []);
 
-    // }, []);
-
-    // const convertToCSV = (data: Project[]) => {
-    //     const csvRows = [
-    //         ['ID', 'Project Name', 'Project ID', 'State Name', 'Project Type', 'Management Contract', 'Project Incharge', 'Project Coordinator', 'Completion Status', 'Name of Work'],
-    //         ...data.map(employee => [
-    //             employee.id,
-    //             employee.projectName,
-    //             employee.projectID,
-    //             employee.stateId,
-    //             employee.projectType,
-    //             employee.managementContract,
-    //             employee.projectIncharge,
-    //             employee.projectCoordinator,
-    //             employee.completionStatus,
-    //             employee.nameOfWork
-    //         ])
-    //     ];
-    //     return csvRows.map(row => row.join(',')).join('\n');
-    // };
+    const convertToCSV = (data: Employee[]) => {
+        const csvRows = [
+            ['ID', 'Project Name', 'Project ID', 'State Name', 'Project Type', 'Management Contract', 'Project Incharge', 'Project Coordinator', 'Completion Status', 'Name of Work'],
+            ...data.map(employee => [
+                employee.id,
+                employee.projectName,
+                employee.projectID,
+                employee.stateId,
+                employee.projectType,
+                employee.managementContract,
+                employee.projectIncharge,
+                employee.projectCoordinator,
+                employee.completionStatus,
+                employee.nameOfWork
+            ])
+        ];
+        return csvRows.map(row => row.join(',')).join('\n');
+    };
 
 
-    // const downloadCSV = () => {
-    //     const csvData = convertToCSV(employee);
-    //     const blob = new Blob([csvData], { type: 'text/csv;charset=utf-8;' });
-    //     const link = document.createElement('a');
-    //     if (link.download !== undefined) {
-    //         const url = URL.createObjectURL(blob);
-    //         link.setAttribute('href', url);
-    //         link.setAttribute('download', 'Projects.csv');
-    //         link.style.visibility = 'hidden';
-    //         document.body.appendChild(link);
-    //         link.click();
-    //         document.body.removeChild(link);
-    //     }
-    // };
+    const downloadCSV = () => {
+        const csvData = convertToCSV(employee);
+        const blob = new Blob([csvData], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement('a');
+        if (link.download !== undefined) {
+            const url = URL.createObjectURL(blob);
+            link.setAttribute('href', url);
+            link.setAttribute('download', 'Projects.csv');
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+    };
 
     const handleSearchcurrent = (e: ChangeEvent<HTMLInputElement>) => {
         setSearchQuery(e.target.value);
@@ -207,14 +210,14 @@ const EmployeeMaster = () => {
     );
 
 
-    // const handleShowview = () => setShowView(true);
+    const handleShowview = () => setShowView(true);
 
 
-    // const handleViewEdit = (projectName: string) => {
-    //     handleShowview();
-    //     setManageID(projectName)
+    const handleViewEdit = (id: number) => {
+        handleShowview();
+        setManageID(id)
 
-    // };
+    };
 
     return (
         <>
@@ -222,31 +225,12 @@ const EmployeeMaster = () => {
                 <div className="d-flex bg-white p-2 my-2 justify-content-between align-items-center">
                     <span><i className="ri-file-list-line me-2 text-dark fs-16"></i><span className='fw-bold text-dark fs-15'>Employee List</span></span>
                     <div className="d-flex justify-content-end  ">
-                        <div className="app-search d-none d-lg-block me-4">
-                            <form>
-                                <div className="input-group px300 ">
-                                    <input
-                                        type="search"
-                                        className=" "
-                                        placeholder="Search Project..."
-                                        value={searchQuery}
-                                        onChange={handleSearch}
-                                    />
-                                    <span className="ri-search-line search-icon text-muted" />
-                                </div>
-                            </form>
-                        </div>
-                        <Link to='/pages/ProjectMasterinsert'>
-                            <Button variant="primary" className="me-2">
-                                Add Project
-                            </Button>
-                        </Link>
-                        <Link to='/pages/ProjectSubmasterinsert'>
-                            <Button variant="primary" className="me-2">
-                                Add Sub Project
-                            </Button>
-                        </Link>
 
+                        <Link to='/pages/EmployeeMasterinsert'>
+                            <Button variant="primary" className="me-2">
+                                Add Employee
+                            </Button>
+                        </Link>
                     </div>
                 </div>
 
@@ -259,45 +243,13 @@ const EmployeeMaster = () => {
                 ) : (
                     <>
                         <div className='bg-white p-2 pb-2'>
-                            {/* <Form onSubmit={handleSearch}>
+                            <Form onSubmit={handleSearch}>
                                 <Row>
 
-                                    <Col lg={6} className="">
-                                        <Form.Group controlId="searchProjectName">
-                                            <Form.Label>Project Name:</Form.Label>
-                                            <Select
-                                                name="searchProjectName"
-                                                value={projectList.find(item => item.projectName === searchProjectName) || null} // handle null
-                                                onChange={(selectedOption) => setSearchProjectName(selectedOption ? selectedOption.projectName : "")} // null check
-                                                options={projectList}
-                                                getOptionLabel={(item) => item.projectName}
-                                                getOptionValue={(item) => item.projectName}
-                                                isSearchable={true}
-                                                placeholder="Search..."
-                                                className="h45"
-                                            />
-                                        </Form.Group>
-                                    </Col>
-
-                                    <Col lg={6}>
-                                        <Form.Group controlId="searchProjectIncharge">
-                                            <Form.Label>Project Incharge:</Form.Label>
-                                            <Select
-                                                name="searchProjectIncharge"
-                                                value={employeeList.find(emp => emp.empId === searchProjectInchage) || null} // handle null
-                                                onChange={(selectedOption) => setSearchProjectInchage(selectedOption ? selectedOption.empId : "")} // null check
-                                                options={employeeList}
-                                                getOptionLabel={(emp) => emp.employeeName}
-                                                getOptionValue={(emp) => emp.empId}
-                                                isSearchable={true}
-                                                placeholder="Search..."
-                                                className="h45"
-                                            />
-                                        </Form.Group>
-                                    </Col>
+                                  
                                     <Col lg={6} className="mt-2">
                                         <Form.Group controlId="searchProjectCoordinator">
-                                            <Form.Label>Project Coordinator:</Form.Label>
+                                            <Form.Label>Employee Name:</Form.Label>
                                             <Select
                                                 name="searchProjectCoordinator"
                                                 value={employeeList.find(emp => emp.empId === searchProjectCoordinator) || null} // handle null
@@ -316,7 +268,7 @@ const EmployeeMaster = () => {
 
                                     <Col lg={6} className="mt-2">
                                         <Form.Group controlId="searchCompletionStatus">
-                                            <Form.Label>Completion Status:</Form.Label>
+                                            <Form.Label>Project Name:</Form.Label>
                                             <Select
                                                 name="searchCompletionStatus"
                                                 value={completionStatus.find(task => task.id === searchCompletionStatus) } 
@@ -331,12 +283,7 @@ const EmployeeMaster = () => {
                                         </Form.Group>
                                     </Col>
 
-
-
-                                 
-
-                                 
-                                    <Col lg={8} className="mt-2"></Col>
+                                    <Col></Col>
 
                                     <Col lg={4} className="align-items-end d-flex justify-content-end mt-3">
                                         <ButtonGroup aria-label="Basic example" className="w-100">
@@ -350,8 +297,7 @@ const EmployeeMaster = () => {
                                         </ButtonGroup>
                                     </Col>
                                 </Row>
-                            </Form> */}
-                            search filter will be Available here 
+                            </Form> 
 
                             <Row className='mt-3'>
                                 <div className="d-flex justify-content-end bg-light p-1">
@@ -370,9 +316,9 @@ const EmployeeMaster = () => {
                                         </form>
                                     </div>
 
-                                    {/* <Button variant="primary" onClick={downloadCSV} className="">
+                                    <Button variant="primary" onClick={downloadCSV} className="">
                                         Download CSV
-                                    </Button> */}
+                                    </Button>
                                 </div>
                             </Row>
                         </div>
@@ -405,7 +351,7 @@ const EmployeeMaster = () => {
                                                                             {...provided.dragHandleProps}>
 
 
-                                                                            {column.id === 'projectName' && (<i className="ri-file-list-line"></i>)}
+                                                                            {column.id === 'employeeName' && (<i className="ri-user-line"></i>)}
                                                                             {column.id === 'projectID' && (<i className="ri-barcode-box-line"></i>)}
                                                                             {column.id === 'stateName' && (<i className="ri-map-pin-line"></i>)}
                                                                             {column.id === 'projectTypeName' && (<i className="ri-treasure-map-line"></i>)}
@@ -436,17 +382,27 @@ const EmployeeMaster = () => {
                                                         <td>{(currentPage - 1) * 10 + index + 1}</td>
                                                         {columns.filter(col => col.visible).map((col) => (
                                                             <td key={col.id}
-                                                            // className={
-                                                            //     // Add class based on column id
-                                                            //     col.id === 'empID' ? 'fw-bold fs-13 text-dark' :''
-                                                            // }
+                                                                className={
+                                                                    col.id === 'employeeName' ? 'fw-bold fs-13 text-dark' : ''
+                                                                }
                                                             >
-                                                                <div>{item[col.id as keyof Project]}</div>
+                                                                {col.id === 'employeeName' ? (
+                                                                    <td>
+                                                                        <div className='d-flex align-items-center'>
+                                                                            <IconWithLetter letter={item.employeeName.charAt(0)} />
+                                                                            {item.employeeName.split('_')[0]}
+                                                                        </div>
+                                                                        {item.userUpdatedMobileNo ?
+                                                                            <p className='phone_user fw-normal m-0'><a href={`tel:${item.userUpdatedMobileNo}`}> <i className="ri-phone-fill"></i> {item.userUpdatedMobileNo}</a></p> : ""
+                                                                        }
+                                                                    </td>
+                                                                ) : (<>{item[col.id as keyof Employee]}</>
+                                                                )}
                                                             </td>
                                                         ))}
                                                         {/* Action Button */}
-                                                        {/* <td><Button variant='primary' className='px-3 text-white' onClick={() => handleViewEdit(item.id)}>  <i className="ri-eye-line fs-4"></i></Button></td> */}
-                                                        <td><Link to={`/pages/ProjectMasterinsert/${item.id}`}>
+                                                        <td><Button variant='primary' className='px-3 text-white' onClick={() => handleViewEdit(item.id)}>  <i className="ri-eye-line fs-4"></i></Button></td>
+                                                        <td><Link to={`/pages/EmployeeMasterinsert/${item.id}`}>
                                                             <Button variant='primary' className='p-0 text-white'>
                                                                 <i className='btn ri-edit-line text-white' ></i>
                                                             </Button>
@@ -479,7 +435,7 @@ const EmployeeMaster = () => {
                 </div>
 
 
-                {/* <ProjectViewPopup showView={showView} setShowView={setShowView} projectName={manageId} /> */}
+                <EmployeeBankPopup showView={showView} setShowView={setShowView} id={manageId} />
 
 
             </div>
