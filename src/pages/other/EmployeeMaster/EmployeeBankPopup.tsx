@@ -7,7 +7,7 @@ import { useEffect, useState } from "react";
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 
 
-interface Employee {
+interface Employee  {
     id: number;
     employeeName: string;
     empID: string;
@@ -15,6 +15,10 @@ interface Employee {
     createdBy: string;
     updatedBy: string;
 }
+
+
+
+
 interface EmployeePopusProps {
     showView: boolean;
     setShowView: (show: boolean) => void;
@@ -70,7 +74,7 @@ const EmployeeBankPopup: React.FC<EmployeePopusProps> = ({ showView, setShowView
                 params: { id: id }
             });
             if (response.data.isSuccess) {
-                setEmployee(response.data.employeeMasterList[0]);
+                setEmployee(response.data.employeeMasterList);
             } else {
                 console.error(response.data.message);
             }
@@ -88,6 +92,12 @@ const EmployeeBankPopup: React.FC<EmployeePopusProps> = ({ showView, setShowView
     };
 
 
+
+
+
+
+
+
     return (
         <div>
             <Modal className="" show={showView} placement="end" onHide={handleClose} size='lg'>
@@ -102,7 +112,12 @@ const EmployeeBankPopup: React.FC<EmployeePopusProps> = ({ showView, setShowView
                         </div>
                     ) : (
                         <>
-                            <h3 className='text-dark'>{employee.employeeName}</h3>
+                            <h3 className='text-dark'>
+                                {employee.map((item, index) => (
+                                    <span key={index}>{item.employeeName}</span>
+                                ))}
+                            </h3>
+
 
 
                             <div className="overflow-auto text-nowrap ">
@@ -162,7 +177,7 @@ const EmployeeBankPopup: React.FC<EmployeePopusProps> = ({ showView, setShowView
                                                                         col.id === 'employeeName' ? 'fw-bold fs-13 text-dark' : ''
                                                                     }
                                                                 >
-                                                                   <>{item[col.id as keyof Employee]}</>
+                                                                    <>{item[col.id as keyof Employee]}</>
                                                                 </td>
                                                             ))}
                                                             {/* Action Button */}

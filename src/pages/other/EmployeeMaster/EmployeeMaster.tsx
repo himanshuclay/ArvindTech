@@ -50,14 +50,11 @@ const EmployeeMaster = () => {
     const [showView, setShowView] = useState(false);
     const [manageId, setManageID] = useState<number>();
     const [employeeList, setEmployeeList] = useState<EmployeeList[]>([]);
-    const [projectList, setProjectList] = useState<ProjectList[]>([]);
     const [completionStatus, setCompletionStatus] = useState<CompletionStatus[]>([]);
 
 
 
-    const [searchProjectInchage, setSearchProjectInchage] = useState('');
     const [searchProjectCoordinator, setSearchProjectCoordinator] = useState('');
-    const [searchProjectName, setSearchProjectName] = useState('');
     const [searchCompletionStatus, setSearchCompletionStatus] = useState<number>();
 
 
@@ -82,9 +79,7 @@ const EmployeeMaster = () => {
     // ==============================================================
 
     const handleClear = () => {
-        setSearchProjectInchage('')
         setSearchProjectCoordinator('')
-        setSearchProjectName('')
         setSearchCompletionStatus(0)
         fetchEmployee();
     };
@@ -93,9 +88,7 @@ const EmployeeMaster = () => {
         e.preventDefault();
 
         let query = `?`;
-        if (searchProjectInchage) query += `ProjectIncharge=${searchProjectInchage}&`;
         if (searchProjectCoordinator) query += `ProjectCoordinator=${searchProjectCoordinator}&`;
-        if (searchProjectName) query += `ProjectName=${searchProjectName}&`;
         if (searchCompletionStatus) query += `CompletionStatus=${searchCompletionStatus}&`;
 
 
@@ -160,43 +153,42 @@ const EmployeeMaster = () => {
         };
 
         fetchData('CommonDropdown/GetEmployeeListWithId', setEmployeeList, 'employeeLists');
-        fetchData('CommonDropdown/GetProjectList', setProjectList, 'projectListResponses');
         fetchData('CommonDropdown/GetCompletionStatus', setCompletionStatus, 'completionStatusListResponses');
     }, []);
 
-    const convertToCSV = (data: Employee[]) => {
-        const csvRows = [
-            ['ID', 'Project Name', 'Project ID', 'State Name', 'Project Type', 'Management Contract', 'Project Incharge', 'Project Coordinator', 'Completion Status', 'Name of Work'],
-            ...data.map(employee => [
-                employee.id,
-                employee.projectName,
-                employee.projectID,
-                employee.stateId,
-                employee.projectType,
-                employee.managementContract,
-                employee.projectIncharge,
-                employee.projectCoordinator,
-                employee.completionStatus,
-                employee.nameOfWork
-            ])
-        ];
-        return csvRows.map(row => row.join(',')).join('\n');
-    };
+    // const convertToCSV = (data: Employee[]) => {
+    //     const csvRows = [
+    //         ['ID', 'Project Name', 'Project ID', 'State Name', 'Project Type', 'Management Contract', 'Project Incharge', 'Project Coordinator', 'Completion Status', 'Name of Work'],
+    //         ...data.map(employee => [
+    //             employee.id,
+    //             employee.projectName,
+    //             employee.projectID,
+    //             employee.stateId,
+    //             employee.projectType,
+    //             employee.managementContract,
+    //             employee.projectIncharge,
+    //             employee.projectCoordinator,
+    //             employee.completionStatus,
+    //             employee.nameOfWork
+    //         ])
+    //     ];
+    //     return csvRows.map(row => row.join(',')).join('\n');
+    // };
 
 
     const downloadCSV = () => {
-        const csvData = convertToCSV(employee);
-        const blob = new Blob([csvData], { type: 'text/csv;charset=utf-8;' });
-        const link = document.createElement('a');
-        if (link.download !== undefined) {
-            const url = URL.createObjectURL(blob);
-            link.setAttribute('href', url);
-            link.setAttribute('download', 'Projects.csv');
-            link.style.visibility = 'hidden';
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-        }
+        // const csvData = convertToCSV(employee);
+        // const blob = new Blob([csvData], { type: 'text/csv;charset=utf-8;' });
+        // const link = document.createElement('a');
+        // if (link.download !== undefined) {
+        //     const url = URL.createObjectURL(blob);
+        //     link.setAttribute('href', url);
+        //     link.setAttribute('download', 'Projects.csv');
+        //     link.style.visibility = 'hidden';
+        //     document.body.appendChild(link);
+        //     link.click();
+        //     document.body.removeChild(link);
+        // }
     };
 
     const handleSearchcurrent = (e: ChangeEvent<HTMLInputElement>) => {
