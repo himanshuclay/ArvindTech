@@ -428,7 +428,7 @@ const ModuleMaster = () => {
                                                                     ) : col.id === 'status' ? (
                                                                         <td>
                                                                             <div className='d-flex align-items-center'>
-                                                                                {item.status === "YES" ? "Active" : "Deactive"}
+                                                                                {item.status === "YES" ? "Active" : "Inactive"}
                                                                             </div>
                                                                         </td>
                                                                     ) : (

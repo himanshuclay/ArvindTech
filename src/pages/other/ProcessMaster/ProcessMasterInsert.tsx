@@ -345,7 +345,7 @@ const EmployeeInsert = () => {
                                                 status: selectedOption?.name || '',
                                             });
                                         }}
-                                        getOptionLabel={(item) => item.id == 1 ? "Active " : " Deactive"}
+                                        getOptionLabel={(item) => item.id == 1 ? "Active " : " Inactive"}
                                         getOptionValue={(item) => item.name}
                                         options={misExempt}
                                         isSearchable={true}

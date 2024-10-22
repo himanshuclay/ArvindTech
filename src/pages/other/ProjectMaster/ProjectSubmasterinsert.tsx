@@ -174,19 +174,28 @@ const ProjectInsert = () => {
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
 
-        const payload = {
+        const payloadInsert = {
             ...subProject,
             createdBy: editMode ? subProject.createdBy : empName,
             updatedBy: editMode ? empName : '',
         };
-        console.log(payload)
+        const payloadUpdate = {
+            ...subProject,
+            createdBy: editMode ? subProject.createdBy : empName,
+            updatedBy: editMode ? empName : '',
+        };
+        console.log(payloadUpdate)
+        console.log(payloadInsert)
         e.preventDefault();
 
         try {
             if (editMode) {
-                await axios.post(`${config.API_URL_APPLICATION}/SubProjectMaster/UpdateSubProject`, payload);
+                await axios.post(`${config.API_URL_APPLICATION}/SubProjectMaster/UpdateSubProject`, payloadUpdate);
+                console.log('SubProjectMaster/UpdateSubProject')
             } else {
-                await axios.post(`${config.API_URL_APPLICATION}/SubProjectMaster/InsertSubProject`, payload);
+                await axios.post(`${config.API_URL_APPLICATION}/SubProjectMaster/InsertSubProject`, payloadInsert);
+                console.log('SubProjectMaster/InsertSubProject')
+
             }
             navigate('/pages/ProjectMaster');
         } catch (error) {
