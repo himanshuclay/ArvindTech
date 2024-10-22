@@ -3,6 +3,8 @@ import axios from "axios";
 import config from "@/config";
 import { useEffect, useState } from "react";
 import Select from 'react-select';
+import CustomSuccessToast from "../Component/CustomSuccessToast";
+
 
 interface ProcessCanvasProps {
     show: boolean;
@@ -32,7 +34,7 @@ const ProcessCanvas: React.FC<ProcessCanvasProps> = ({ show, setShow, manageId }
     const [projectList, setProjectList] = useState<Project[]>([]);
     const [moduleName, setModuleName] = useState<string>("");
     const [processId, setProcessId] = useState<string>("");
-    const [empName, setEmpName] = useState<string | null>('Admin');
+    const [empName, setEmpName] = useState<string | null>('');
     const [assignProject, setAssignProject] = useState<AssignProjecttoProcess>({
         id: 0,
         moduleName: '',
@@ -41,6 +43,12 @@ const ProcessCanvas: React.FC<ProcessCanvasProps> = ({ show, setShow, manageId }
         createdBy: '',
         updatedBy: empName || '',
     });
+
+
+    const [showToast, setShowToast] = useState(false);
+    const [toastMessage, setToastMessage] = useState("");
+    const [toastVariant, setToastVariant] = useState('');
+
 
     useEffect(() => {
         const storedEmpName = localStorage.getItem('EmpName');
@@ -126,6 +134,8 @@ const ProcessCanvas: React.FC<ProcessCanvasProps> = ({ show, setShow, manageId }
         setShow(false);
     };
 
+
+
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         try {
@@ -133,31 +143,62 @@ const ProcessCanvas: React.FC<ProcessCanvasProps> = ({ show, setShow, manageId }
             // Reset the projects in state
             setAssignProject(prev => ({
                 ...prev,
-                projects: []  
+                projects: []
             }));
             fetchGetProject(moduleName, processId);
+            setToastMessage("Project assigned successfully!");
+            setToastVariant("rgb(28 175 85)");
+            setShowToast(true);
         } catch (error) {
             console.error('Error submitting project assignment:', error);
         }
     };
 
+
+    const handleDelete = async (id: any) => {
+        try {
+            await axios.delete(
+                `${config.API_URL_APPLICATION}/AssignProjecttoProcess/DeleteProjectAssigntoProcess`,
+                {
+                    params: {
+                        id: id,
+                        ModuleName: moduleName,
+                        ProcessID: processId,
+                    },
+                }
+            );
+            fetchGetProject(moduleName, processId);
+            setToastMessage("Project deleted successfully!");
+            setToastVariant("rgb(213 18 18)");
+            setShowToast(true);
+        } catch (error) {
+            setToastMessage("Error deleting project assignment");
+            setShowToast(true);
+            console.error("Error deleting project assignment:", error);
+        }
+    };
+
+
     return (
         <div>
-            <Offcanvas className="p-3" show={show} placement="end" onHide={handleClose}>
+            <Offcanvas className="p-2" show={show} placement="end" onHide={handleClose}>
                 <Offcanvas.Header closeButton>
                     <Offcanvas.Title className="text-dark">Assign Project to Process</Offcanvas.Title>
                 </Offcanvas.Header>
                 <Offcanvas.Body>
                     <div className="">
                         {assignedProject.map((project, index) => (
-                            <div key={project.projectID} className="m-1 p-1 bg-light rounded-1 border"> 
-                                {index + 1}. {project.projectName} - {project.projectID}
+                            <div key={project.projectID} className="my-1 p-1 bg-light rounded-1 border d-flex justify-content-between">
+                                <> {index + 1}. {project.projectName} - {project.projectID}</>
+                                <div className="cursor-pointer">
+                                    <i className="ri-close-line fs-14 " onClick={() => handleDelete(project.id)}></i>
+                                </div>
                             </div>
                         ))}
                     </div>
 
                     <Form onSubmit={handleSubmit}>
-                        <Form.Group controlId="moduleName" className="mb-3">
+                        <Form.Group controlId="moduleName" className="mb-3 mt-2">
                             <Form.Label>Project Name</Form.Label>
                             <Select
                                 name="projectName"
@@ -174,10 +215,10 @@ const ProcessCanvas: React.FC<ProcessCanvasProps> = ({ show, setShow, manageId }
                                     }));
                                 }}
                                 getOptionLabel={(project) => project.projectName}
-                                getOptionValue={(project) => project.id} 
+                                getOptionValue={(project) => project.id}
                                 options={projectList}
                                 isSearchable={true}
-                                isMulti={true}  
+                                isMulti={true}
                                 placeholder="Select Projects"
                                 required
                             />
@@ -188,6 +229,7 @@ const ProcessCanvas: React.FC<ProcessCanvasProps> = ({ show, setShow, manageId }
                     </Form>
                 </Offcanvas.Body>
             </Offcanvas>
+            <CustomSuccessToast show={showToast} toastMessage={toastMessage} toastVariant={toastVariant} onClose={() => setShowToast(false)} />
         </div>
     );
 };

@@ -276,7 +276,7 @@ const getFilteredMenuItems = () => {
         {
           key: 'Employee-Master',
           label: 'Employee Master',
-          url: '/pages/Employee-Master',
+          url: '/pages/EmployeeMaster',
           icon: 'ri-user-settings-line',
           parentKey: 'pages',
         },

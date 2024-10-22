@@ -126,10 +126,9 @@ const ProcessViewPopup: React.FC<ProcessCanvasProps> = ({ showView, setShowView,
                                         ref={(el) => (targetRefs.current[index] = el)}
                                         onClick={() => setPopoverIndex(popoverIndex === index ? null : index)}
                                     >
-                                        <h5 className="mt-2 border border-primary rounded-1 p-2 d-flex justify-content-between">
+                                        <h5 className="mt-2 border border-primary rounded-1 p-2 d-flex justify-content-between cursor-pointer">
 
                                             <span>
-
                                                 <span className='fs-4 fw-bold text-primary'> Task Id : </span> <span className="text-primary fs-13 fw-500"> {task.task_Number}</span> &nbsp;&nbsp;&nbsp;
                                             </span>
 

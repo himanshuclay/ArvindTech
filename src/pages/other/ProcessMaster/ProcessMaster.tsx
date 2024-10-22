@@ -8,6 +8,9 @@ import config from '@/config';
 import ProcessCanvas from './ProcessCanvas';
 import ProcessViewPopup from './ProcessViewPopup';
 import Select from 'react-select';
+import { useLocation, useNavigate } from 'react-router-dom';
+import CustomSuccessToast from '../Component/CustomSuccessToast';
+
 
 
 interface Process {
@@ -50,6 +53,34 @@ const ModuleMaster = () => {
 
     const [show, setShow] = useState(false);
     const [showView, setShowView] = useState(false);
+
+    const location = useLocation();
+    const navigate = useNavigate();
+    const [showToast, setShowToast] = useState(false);
+    const [toastMessage, setToastMessage] = useState('');
+    const [toastVariant, setToastVariant] = useState('');
+
+
+
+    useEffect(() => {
+        if (location.state && location.state.showToast) {
+            setShowToast(true);
+            setToastMessage(location.state.toastMessage);
+            setToastVariant(location.state.toastVariant);
+            
+            setTimeout(() => {
+                setShowToast(false);
+                navigate(location.pathname, { replace: true });
+            }, 5000);
+        }
+        return () => {
+            setShowToast(false);
+            setToastMessage('');
+            setToastVariant('');
+        };
+    }, [location.state, navigate]);
+
+
 
     const handleSearch = (e: any) => {
         e.preventDefault();
@@ -138,7 +169,7 @@ const ModuleMaster = () => {
         }
     };
 
-    
+
     useEffect(() => {
         const fetchData = async (endpoint: string, setter: Function, listName: string) => {
             try {
@@ -199,16 +230,16 @@ const ModuleMaster = () => {
                 mod.moduleName,
                 mod.processID,
                 mod.processDisplayName,
-                `"${mod.processObjective}"`, 
-                mod.processOwnerName || '', 
-                mod.userUpdatedMobileNumber || '', 
+                `"${mod.processObjective}"`,
+                mod.processOwnerName || '',
+                mod.userUpdatedMobileNumber || '',
                 mod.createdBy,
                 mod.updatedBy
             ])
         ];
         return csvRows.map(row => row.join(',')).join('\n');
     };
-    
+
 
     const downloadCSV = () => {
         const csvData = convertToCSV(downloadCsv);
@@ -428,7 +459,7 @@ const ModuleMaster = () => {
                                                                     ) : col.id === 'status' ? (
                                                                         <td>
                                                                             <div className='d-flex align-items-center'>
-                                                                                {item.status === "YES" ? "Active" : "Deactive"}
+                                                                                {item.status === "YES" ? "Active" : "Inactive"}
                                                                             </div>
                                                                         </td>
                                                                     ) : (
@@ -486,6 +517,12 @@ const ModuleMaster = () => {
                     <ProcessCanvas show={show} setShow={setShow} manageId={manageId} />
                     <ProcessViewPopup showView={showView} setShowView={setShowView} id={manageId} />
 
+                    <CustomSuccessToast
+                        show={showToast}
+                        toastMessage={toastMessage}
+                        toastVariant={toastVariant}
+                        onClose={() => setShowToast(false)}
+                    />
 
                 </div>
             )}

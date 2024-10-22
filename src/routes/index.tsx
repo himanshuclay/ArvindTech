@@ -442,7 +442,7 @@ const customPagesRoutes = {
 		},
 
 		{
-			path: '/pages/EmployeeMasterNew',
+			path: '/pages/EmployeeMaster',
 			name: 'EmployeeMasterNew ',
 			element: <EmployeeMasterNew />,
 			route: PrivateRoute,
