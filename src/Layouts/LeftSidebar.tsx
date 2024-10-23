@@ -320,7 +320,7 @@ const getFilteredMenuItems = () => {
   ];
 
   // Example logic to filter items based on role
-  if (role === 'Admin') {
+  if (role === 'ADMIN') {
     // Admin role: Exclude 'CompleteTask' and 'LocalTask'
     return MENU_ITEMS.filter(item => {
       return item.key !== 'CompletedTask' && item.key !== 'ExpireTask'  && item.key !== 'TaskPlanned' && item.key !== 'Action'  && item.key !== 'Notification';

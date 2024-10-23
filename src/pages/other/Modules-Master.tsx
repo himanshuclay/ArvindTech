@@ -10,6 +10,7 @@ import Select from 'react-select';
 import { Button, Form, Modal, ListGroup, Toast } from 'react-bootstrap';
 import axios from 'axios';
 import { useLocation } from 'react-router-dom';
+import config from '@/config';
 
 type FormField = {
   inputId: string;
@@ -202,7 +203,7 @@ const App: React.FC = () => {
   useEffect(() => {
     const fetchEmployees = async () => {
       try {
-        const response = await axios.get(`https://arvindo-api2.clay.in/api/CommonDropdown/GetEmployeeListWithId`);
+        const response = await axios.get(`${config.API_URL_APPLICATION}/CommonDropdown/GetEmployeeListWithId`);
         if (response.data.isSuccess) {
           setEmployees(response.data.employeeLists);
         } else {
@@ -247,7 +248,7 @@ const App: React.FC = () => {
     // Fetch the master list data from the API when the component loads
     const fetchMastersList = async () => {
       try {
-        const response = await axios.get('https://arvindo-api2.clay.in/api/CommonDropdown/GetMastersList');
+        const response = await axios.get(`${config.API_URL_APPLICATION}/CommonDropdown/GetMastersList`);
         if (response.data.isSuccess) {
           setMastersList(response.data.mastersLists);
         } else {
@@ -327,7 +328,7 @@ const App: React.FC = () => {
   useEffect(() => {
     const fetchModules = async () => {
       try {
-        const response = await axios.get('https://arvindo-api2.clay.in/api/CommonDropdown/GetModuleList');
+        const response = await axios.get(`${config.API_URL_APPLICATION}/CommonDropdown/GetModuleList`);
         if (response.data.isSuccess) {
           setModules(response.data.moduleNameListResponses);
         } else {
@@ -344,7 +345,7 @@ const App: React.FC = () => {
   useEffect(() => {
     const fetchRoles = async () => {
       try {
-        const response = await axios.get('https://arvindo-api2.clay.in/api/CommonDropdown/GetRoleMasterList');
+        const response = await axios.get(`${config.API_URL_APPLICATION}/CommonDropdown/GetRoleMasterList`);
         if (response.data.isSuccess) {
           setRoles(response.data.roleMasterLists); // roleMasterLists is an array of Role objects
         } else {
@@ -355,30 +356,30 @@ const App: React.FC = () => {
       }
     };
 
-    // Load selectedRole from localStorage if it exists
-    const savedRole = localStorage.getItem('selectedRole');
-    if (savedRole) {
-      setSelectedRole(JSON.parse(savedRole));
-    }
+
 
     fetchRoles();
   }, []);
 
-  // Save selectedRole to localStorage whenever it changes
-  useEffect(() => {
-    if (selectedRole) {
-      localStorage.setItem('selectedRole', JSON.stringify(selectedRole));
-    }
-  }, [selectedRole]);
 
-  const handleRoleSelect = (e: ChangeEvent<any>) => {
-    const { value } = e.target as HTMLSelectElement;
-    const selectedId = parseInt(value, 10); // Parse the value as an integer
-    const selected = roles.find((role) => role.id === selectedId) || null; // Find the role by ID
-    setSelectedRole(selected); // Update the selected role
+  console.log(formData)
+
+
+
+  const handleRoleSelect = (selectedOption: { id: number; roleName: string } | null) => {
+    if (selectedOption) {
+      const selectedId = selectedOption.id; 
+      const selected = roles.find((role) => role.id === selectedId) || null; 
+      setSelectedRole(selected); 
+    } else {
+      setSelectedRole(null); 
+    }
   };
 
-  const handleFormChange = (e: ChangeEvent<any>) => {
+
+
+
+  const handleFormChange = (e: { target: { name: string; value: string; } }) => {
     const { name, value } = e.target as HTMLSelectElement | HTMLInputElement;
 
     // Update form data
@@ -396,7 +397,7 @@ const App: React.FC = () => {
         localStorage.setItem('selectedModuleId', selectedModule.moduleID); // Save selectedModuleId to localStorage
         localStorage.setItem('selectedModuleName', selectedModule.moduleName); // Save selectedModuleName to localStorage
 
-        fetch(`https://arvindo-api2.clay.in/api/CommonDropdown/GetProcessNameByModuleName?ModuleName=${value}`)
+        fetch(`${config.API_URL_APPLICATION}/CommonDropdown/GetProcessNameByModuleName?ModuleName=${value}`)
           .then((response) => response.json())
           .then((data) => {
             if (data.isSuccess) {
@@ -540,7 +541,7 @@ const App: React.FC = () => {
     setLoading(true);
 
     try {
-      const response = await fetch('https://arvindo-api.clay.in/api/ProcessTaskMaster/InsertUpdateProcessTaskandDoers', {
+      const response = await fetch(`${config.API_URL_ACCOUNT}/ProcessTaskMaster/InsertUpdateProcessTaskandDoers`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -633,7 +634,7 @@ const App: React.FC = () => {
     setLoading(true);
 
     try {
-      const response = await fetch('https://arvindo-api.clay.in/api/ProcessTaskMaster/InsertTemplateJson', {
+      const response = await fetch(`${config.API_URL_ACCOUNT}/ProcessTaskMaster/InsertTemplateJson`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -676,7 +677,7 @@ const App: React.FC = () => {
   useEffect(() => {
     const fetchTemplateData = async () => {
       try {
-        const response = await axios.get('https://arvindo-api.clay.in/api/ProcessTaskMaster/GetTemplateJson');
+        const response = await axios.get(`${config.API_URL_ACCOUNT}/ProcessTaskMaster/GetTemplateJson`);
         if (response.data.isSuccess) {
           const templates = response.data.getTemplateJsons;
 
@@ -993,70 +994,68 @@ const App: React.FC = () => {
             <Form className='row col-md-12 p-2 bg-white rounded align-items-end m-0' onSubmit={handleFormSubmit}>
               <Form.Group className="col-md-3 my-1">
                 <Form.Label>Module Name</Form.Label>
-                <Form.Control
-                  as="select"
+
+                <Select
                   name="ModuleName"
-                  value={formData.ModuleName}
-                  onChange={handleFormChange}
+                  value={modules.find((module) => module.moduleName === formData.ModuleName) || null}
+                  onChange={(selectedOption) => {
+                    handleFormChange({
+                      target: {
+                        name: 'ModuleName',
+                        value: selectedOption?.moduleName || '',
+                      },
+                    });
+                  }}
+                  getOptionLabel={(module) => module.moduleName}
+                  getOptionValue={(module) => module.moduleName}
+                  options={modules}
+                  isSearchable={true}
+                  placeholder="Select Module"
+                  className="h45"
                   required
-                >
-                  <option value="">Select Modules</option>
-                  {modules.map((module) => (
-                    <option key={module.moduleID} value={module.moduleName}>
-                      {module.moduleName}
-                    </option>
-                  ))}
-                </Form.Control>
+                />
               </Form.Group>
 
               <Form.Group className="col-md-3 my-1">
                 <Form.Label>Process Name</Form.Label>
-                <Form.Control
-                  as="select"
+                <Select
                   name="processes"
-                  value={formData.processName}
-                  onChange={handleFormChange}
+                  value={formData.processOptions?.find((process) => process.processName === formData.processName) || null}
+                  onChange={(selectedOption) => {
+                    handleFormChange({
+                      target: {
+                        name: 'processes',
+                        value: selectedOption?.processName || '',
+                      },
+                    });
+                  }}
+                  getOptionLabel={(process) => process.processName}
+                  getOptionValue={(process) => process.processName}
+                  options={formData.processOptions || []}
+                  isSearchable={true}
+                  placeholder="Select Process"
+                  className="h45"
                   required
-                >
-                  <option value="">Select Process</option>
-                  {formData.processOptions?.map((process) => (
-                    <option key={process.processID} value={process.processName}>
-                      {process.processName}
-                    </option>
-                  ))}
-                </Form.Control>
+                />
               </Form.Group>
 
-
-              {/* <Form.Group className='col-md-3 my-1'>
-                <Form.Label>Start Date</Form.Label>
-                <CustomFlatpickr
-                  className="form-control"
-                  placeholder="Date & Time"
-                  value={formData.Date}
-                  onChange={handleDateChange} // Use date-specific handler
-                  options={{
-                    enableTime: true,
-                    dateFormat: 'Y-m-d H:i',
-                  }}
-                />
-              </Form.Group> */}
               <Form.Group className="col-md-3 my-1">
                 <Form.Label>Role Name</Form.Label>
-                <Form.Control
-                  as="select"
+                <Select
                   name="RoleName"
-                  value={selectedRole?.id || ''}
-                  onChange={handleRoleSelect}
+                  value={roles.find((role) => role.id === selectedRole?.id) || null}
+                  onChange={(selectedOption) => handleRoleSelect(selectedOption)} 
+                  getOptionLabel={(role) => role.roleName}  
+                  getOptionValue={(role) => String(role.id)}  
+                  options={roles}
+                  isSearchable={true}
+                  placeholder="Select Role"
+                  className="h45"
                   required
-                >
-                  <option value="">Select Role</option>
-                  {roles.map((role) => (
-                    <option key={role.id} value={role.id}>
-                      {role.roleName}
-                    </option>
-                  ))}
-                </Form.Control>
+                />
+
+
+
               </Form.Group>
 
               <Form.Group className='col-md-3 my-1'>

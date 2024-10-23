@@ -32,10 +32,7 @@ interface EmployeeList {
     empId: string;
     employeeName: string;
 }
-interface ProjectList {
-    id: number;
-    projectName: string;
-}
+
 interface CompletionStatus {
     id: number;
     name: any;
