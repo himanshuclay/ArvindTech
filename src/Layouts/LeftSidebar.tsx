@@ -110,7 +110,7 @@ const getFilteredMenuItems = () => {
           label: 'Active Project',
           url: '/pages/ActiveProject',
           icon: 'ri-slideshow-line',
-          parentKey: 'Modules-Master',
+          parentKey: 'Filtertask',
         }, 
         // {
         //   key: 'ActiveTasks',
@@ -124,7 +124,7 @@ const getFilteredMenuItems = () => {
         label: 'Running Task',
         url: '/pages/RunningTask',
         icon: 'ri-slideshow-line',
-        parentKey: 'Modules-Master',
+        parentKey: 'Filtertask',
       },
       ],
     },
@@ -135,14 +135,14 @@ const getFilteredMenuItems = () => {
       icon: 'ri-user-settings-line',
       children: [
         {
-          key: 'Action',
+          key: 'GetTestData-Templates',
           label: 'Create Templates',
           url: '/pages/CreateTemplates',
           icon: 'ri-slideshow-line',
           parentKey: 'GetTestData',
         }, 
         {
-          key: 'ActiveTasks',
+          key: 'GetTestData-Lists',
           label: 'Template Lists',
           url: '/pages/invoice',
           icon: 'ri-slideshow-line',
@@ -168,95 +168,95 @@ const getFilteredMenuItems = () => {
       icon: 'ri-settings-fill',
       children: [
         {
-          key: 'ModuleMaster',
+          key: 'systemmaster-ModuleMaster',
           label: 'Module Master',
           url: '/pages/ModuleMaster',
           icon: 'ri-slideshow-line',
-          parentKey: 'pages',
+          parentKey: 'systemmaster',
         },
         {
-          key: 'ProcessMaster',
+          key: 'systemmaster-ProcessMaster',
           label: 'Process Master',
           url: '/pages/ProcessMaster',
           icon: 'ri-bubble-chart-line',
-          parentKey: 'pages',
+          parentKey: 'systemmaster',
         },
         {
-          key: 'TaskMaster',
+          key: 'systemmaster-TaskMaster',
           label: 'Task Master',
           url: '/pages/TaskMaster',
           icon: 'ri-pie-chart-2-line',
-          parentKey: 'pages',
+          parentKey: 'systemmaster',
         },
         {
           key: 'Roles',
           label: 'Role Master',
           url: '/pages/RoleMaster',
           icon: 'ri-user-settings-line',
-          parentKey: 'pages',
+          parentKey: 'systemmaster',
         },
         {
           key: 'Identifier',
           label: 'Identifier Master',
           url: '/pages/IdentifierMaster',
           icon: 'ri-user-settings-line',
-          parentKey: 'pages',
+          parentKey: 'systemmaster',
         },
         {
           key: 'DoerMaster',
           label: 'Doer Master',
           url: '/pages/DoerMaster',
           icon: 'ri-brain-line',
-          parentKey: 'pages',
+          parentKey: 'systemmaster',
         },
         {
           key: 'FormMaster',
           label: 'Form Master',
           url: '/pages/FormMaster',
           icon: 'ri-survey-line',
-          parentKey: 'pages',
+          parentKey: 'systemmaster',
         },
         {
           key: 'LnMaster',
           label: 'Task List',
           url: '/pages/MyTask',
           icon: 'ri-user-settings-line',
-          parentKey: 'pages',
+          parentKey: 'systemmaster',
         },
         {
           key: 'TicketMaster',
           label: 'Ticket Master',
           url: '/pages/TicketMaster',
           icon: 'ri-coupon-2-line',
-          parentKey: 'pages',
+          parentKey: 'systemmaster',
         },
         {
           key: 'SystemLogs',
           label: 'System Logs',
           url: '/pages/SystemLogs',
           icon: 'ri-login-circle-line',
-          parentKey: 'pages',
+          parentKey: 'systemmaster',
         },
         {
           key: 'ChkTaskMaster',
           label: 'CHK Task Master',
           url: '/pages/ChkTaskMaster',
           icon: 'ri-user-settings-line',
-          parentKey: 'pages',
+          parentKey: 'systemmaster',
         },
         {
           key: 'ChkInputMaster',
           label: 'CHK Input Master',
           url: '/pages/ChkInputMaster',
           icon: 'ri-user-settings-line',
-          parentKey: 'pages',
+          parentKey: 'systemmaster',
         },
         {
           key: 'ChecklistMaster',
           label: 'Checklist Master',
           url: '/pages/ChecklistMaster',
           icon: 'ri-list-check-3',
-          parentKey: 'pages',
+          parentKey: 'systemmaster',
         },
       ],
     },
@@ -271,70 +271,64 @@ const getFilteredMenuItems = () => {
           label: 'Project Master',
           url: '/pages/ProjectMaster',
           icon: 'ri-file-chart-line',
-          parentKey: 'pages',
+          parentKey: 'master',
         },
         {
           key: 'Employee-Master',
           label: 'Employee Master',
           url: '/pages/EmployeeMaster',
           icon: 'ri-user-settings-line',
-          parentKey: 'pages',
+          parentKey: 'master',
         },
         {
           key: 'Mess-Master',
           label: 'Mess Master',
           url: '/pages/MessMaster',
           icon: 'ri-restaurant-line',
-          parentKey: 'pages',
+          parentKey: 'master',
         },
         {
           key: 'Tender',
           label: 'Tender Master',
           url: '/pages/Tender',
           icon: 'ri-service-line',
-          parentKey: 'pages',
+          parentKey: 'master',
         },
         {
           key: 'Vender',
           label: 'Vender Master',
           url: '/pages/Vender',
           icon: 'ri-store-line',
-          parentKey: 'pages',
+          parentKey: 'master',
         },
         {
           key: 'Bank',
           label: 'Bank Master',
           url: '/pages/Bank',
           icon: 'ri-bank-line',
-          parentKey: 'pages',
+          parentKey: 'master',
         },
         {
           key: 'AddressMaster',
           label: 'Address Master',
           url: '/pages/AddressMaster',
           icon: 'ri-restaurant-line',
-          parentKey: 'pages',
+          parentKey: 'master',
         },
       ],
     },
   ];
 
-  // Example logic to filter items based on role
   if (role === 'ADMIN') {
-    // Admin role: Exclude 'CompleteTask' and 'LocalTask'
     return MENU_ITEMS.filter(item => {
       return item.key !== 'CompletedTask' && item.key !== 'ExpireTask'  && item.key !== 'TaskPlanned' && item.key !== 'Action'  && item.key !== 'Notification';
     });
   }
-  // Filter out items or customize based on other roles
   return MENU_ITEMS.filter(item => {
-    // Add your filtering logic here
     if (role === 'EMPLOYEE') {
-      // For example, remove specific items for 'user' role
       return item.key !== 'Filtertask' && item.key !== 'master'&&  item.key !== 'Modules-Master' && item.key !== 'Action'  && item.key !== 'ChkLnMaster'  && item.key !== 'systemmaster' && item.key !== 'Modules-Master'; // Exclude 'System Master' and 'Modules-Master' for 'user' role
     }
 
-    // Default: show all items if role is not 'admin' or 'user'
     return true;
   });
 }

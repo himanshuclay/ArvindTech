@@ -227,7 +227,7 @@ const AppMenu = ({ menuItems }: AppMenuProps) => {
 	useEffect(() => {
 		activeMenu()
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [])
+	}, [menuItems])
 
 	return (
 		<>

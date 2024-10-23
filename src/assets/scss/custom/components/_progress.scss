@@ -504,3 +504,15 @@ td {
 .cursor-pointer {
   cursor: pointer !important;
 }
+
+.side-nav  .menuitem-active .menuitem-active .active {
+  color: #ffffff;
+  font-weight: bold;
+  background-color: rgb(32 29 86);
+}
+
+.side-nav .menuitem-active > a {
+  color: #ffffff !important;
+  font-weight: bold;
+  background-color: rgb(32 29 86);
+}
