@@ -70,7 +70,7 @@ const getFilteredMenuItems = () => {
 
 
 
-    
+
     {
       key: 'Notification',
       label: 'My Task',
@@ -110,8 +110,8 @@ const getFilteredMenuItems = () => {
           label: 'Active Project',
           url: '/pages/ActiveProject',
           icon: 'ri-slideshow-line',
-          parentKey: 'Modules-Master',
-        }, 
+          parentKey: 'Filtertask',
+        },
         // {
         //   key: 'ActiveTasks',
         //   label: 'Active Task',
@@ -119,13 +119,13 @@ const getFilteredMenuItems = () => {
         //   icon: 'ri-slideshow-line',
         //   parentKey: 'Modules-Master',
         // },
-      {
-        key: 'FilterTasks',
-        label: 'Running Task',
-        url: '/pages/RunningTask',
-        icon: 'ri-slideshow-line',
-        parentKey: 'Modules-Master',
-      },
+        {
+          key: 'FilterTasks',
+          label: 'Running Task',
+          url: '/pages/RunningTask',
+          icon: 'ri-slideshow-line',
+          parentKey: 'Filtertask',
+        },
       ],
     },
     {
@@ -135,20 +135,20 @@ const getFilteredMenuItems = () => {
       icon: 'ri-user-settings-line',
       children: [
         {
-          key: 'Action',
+          key: 'GetTestData-Templates',
           label: 'Create Templates',
           url: '/pages/CreateTemplates',
           icon: 'ri-slideshow-line',
           parentKey: 'GetTestData',
-        }, 
+        },
         {
-          key: 'ActiveTasks',
+          key: 'GetTestData-Lists',
           label: 'Template Lists',
           url: '/pages/invoice',
           icon: 'ri-slideshow-line',
           parentKey: 'GetTestData',
         },
-      
+
       ],
     },
 
@@ -168,98 +168,188 @@ const getFilteredMenuItems = () => {
       icon: 'ri-settings-fill',
       children: [
         {
-          key: 'ModuleMaster',
+          key: 'systemmaster-ModuleMaster',
           label: 'Module Master',
           url: '/pages/ModuleMaster',
           icon: 'ri-slideshow-line',
-          parentKey: 'pages',
+          parentKey: 'systemmaster',
         },
         {
-          key: 'ProcessMaster',
+          key: 'systemmaster-ProcessMaster',
           label: 'Process Master',
           url: '/pages/ProcessMaster',
           icon: 'ri-bubble-chart-line',
-          parentKey: 'pages',
+          parentKey: 'systemmaster',
         },
         {
-          key: 'TaskMaster',
+          key: 'systemmaster-TaskMaster',
           label: 'Task Master',
           url: '/pages/TaskMaster',
           icon: 'ri-pie-chart-2-line',
-          parentKey: 'pages',
+          parentKey: 'systemmaster',
         },
         {
           key: 'Roles',
           label: 'Role Master',
           url: '/pages/RoleMaster',
           icon: 'ri-user-settings-line',
-          parentKey: 'pages',
+          parentKey: 'systemmaster',
         },
         {
           key: 'Identifier',
           label: 'Identifier Master',
           url: '/pages/IdentifierMaster',
           icon: 'ri-user-settings-line',
-          parentKey: 'pages',
+          parentKey: 'systemmaster',
         },
         {
           key: 'DoerMaster',
           label: 'Doer Master',
           url: '/pages/DoerMaster',
           icon: 'ri-brain-line',
-          parentKey: 'pages',
+          parentKey: 'systemmaster',
         },
         {
           key: 'FormMaster',
           label: 'Form Master',
           url: '/pages/FormMaster',
           icon: 'ri-survey-line',
-          parentKey: 'pages',
+          parentKey: 'systemmaster',
         },
         {
           key: 'LnMaster',
           label: 'Task List',
           url: '/pages/MyTask',
           icon: 'ri-user-settings-line',
-          parentKey: 'pages',
+          parentKey: 'systemmaster',
         },
         {
           key: 'TicketMaster',
           label: 'Ticket Master',
           url: '/pages/TicketMaster',
           icon: 'ri-coupon-2-line',
-          parentKey: 'pages',
+          parentKey: 'systemmaster',
         },
         {
           key: 'SystemLogs',
           label: 'System Logs',
           url: '/pages/SystemLogs',
           icon: 'ri-login-circle-line',
-          parentKey: 'pages',
+          parentKey: 'systemmaster',
         },
         {
           key: 'ChkTaskMaster',
           label: 'CHK Task Master',
           url: '/pages/ChkTaskMaster',
           icon: 'ri-user-settings-line',
-          parentKey: 'pages',
+          parentKey: 'systemmaster',
         },
         {
           key: 'ChkInputMaster',
           label: 'CHK Input Master',
           url: '/pages/ChkInputMaster',
           icon: 'ri-user-settings-line',
-          parentKey: 'pages',
+          parentKey: 'systemmaster',
         },
         {
           key: 'ChecklistMaster',
           label: 'Checklist Master',
           url: '/pages/ChecklistMaster',
           icon: 'ri-list-check-3',
-          parentKey: 'pages',
+          parentKey: 'systemmaster',
         },
+        {
+          key: 'second-level',
+          label: 'HR Masters',
+          parentKey: 'systemmaster',
+          icon: 'ri-list-check-3',
+          children: [
+            {
+              key: 'second-level-1',
+              label: 'Staff Requirement Master',
+              url: '/pages/StaffRequirementMaster',
+              parentKey: 'second-level',
+              icon: 'ri-list-check-3',
+            },
+            {
+              key: 'second-level-1',
+              label: 'Designation Master',
+              url: '/pages/DesignationMaster',
+              parentKey: 'second-level',
+              icon: 'ri-list-check-3',
+            },
+            {
+              key: 'second-level-2',
+              label: 'Candidate Master',
+              url: '/pages/CandidateMaster',
+              parentKey: 'second-level',
+              icon: 'ri-list-check-3',
+            },
+            {
+              key: 'second-level-2',
+              label: 'Hr Input Master',
+              url: '/pages/HrInputMaster',
+              parentKey: 'second-level',
+              icon: 'ri-list-check-3',
+            },
+            {
+              key: 'second-level-2',
+              label: 'Hr Task Master',
+              url: '/pages/HrTaskMaster',
+              parentKey: 'second-level',
+              icon: 'ri-list-check-3',
+            },
+            {
+              key: 'second-level-2',
+              label: 'Hr Doer Master',
+              url: '/pages/HrDoerMaster',
+              parentKey: 'second-level',
+              icon: 'ri-list-check-3',
+            },
+            {
+              key: 'second-level-2',
+              label: 'Resume Master',
+              url: '/pages/ResumeMaster',
+              parentKey: 'second-level',
+              icon: 'ri-list-check-3',
+            },
+          ],
+        },
+        {
+          key: 'second-level',
+          label: 'BD Masters',
+          parentKey: 'systemmaster',
+          icon: 'ri-list-check-3',
+          children: [
+            {
+              key: 'second-level-2',
+              label: 'BD Input Master',
+              url: '/pages/HrInputMaster',
+              parentKey: 'second-level',
+              icon: 'ri-list-check-3',
+            },
+            {
+              key: 'second-level-2',
+              label: 'BD Task Master',
+              url: '/pages/HrTaskMaster',
+              parentKey: 'second-level',
+              icon: 'ri-list-check-3',
+            },
+            {
+              key: 'second-level-2',
+              label: 'BD Doer Master',
+              url: '/pages/HrDoerMaster',
+              parentKey: 'second-level',
+              icon: 'ri-list-check-3',
+            },
+          ],
+        },
+       
       ],
     },
+
+
+    
     {
       key: 'master',
       label: 'Business Master',
@@ -271,70 +361,64 @@ const getFilteredMenuItems = () => {
           label: 'Project Master',
           url: '/pages/ProjectMaster',
           icon: 'ri-file-chart-line',
-          parentKey: 'pages',
+          parentKey: 'master',
         },
         {
           key: 'Employee-Master',
           label: 'Employee Master',
           url: '/pages/EmployeeMaster',
           icon: 'ri-user-settings-line',
-          parentKey: 'pages',
+          parentKey: 'master',
         },
         {
           key: 'Mess-Master',
           label: 'Mess Master',
           url: '/pages/MessMaster',
           icon: 'ri-restaurant-line',
-          parentKey: 'pages',
+          parentKey: 'master',
         },
         {
           key: 'Tender',
           label: 'Tender Master',
           url: '/pages/Tender',
           icon: 'ri-service-line',
-          parentKey: 'pages',
+          parentKey: 'master',
         },
         {
           key: 'Vender',
           label: 'Vender Master',
           url: '/pages/Vender',
           icon: 'ri-store-line',
-          parentKey: 'pages',
+          parentKey: 'master',
         },
         {
           key: 'Bank',
           label: 'Bank Master',
           url: '/pages/Bank',
           icon: 'ri-bank-line',
-          parentKey: 'pages',
+          parentKey: 'master',
         },
         {
           key: 'AddressMaster',
           label: 'Address Master',
           url: '/pages/AddressMaster',
           icon: 'ri-restaurant-line',
-          parentKey: 'pages',
+          parentKey: 'master',
         },
       ],
     },
   ];
 
-  // Example logic to filter items based on role
-  if (role === 'ADMIN') {
-    // Admin role: Exclude 'CompleteTask' and 'LocalTask'
+  if (role === 'Admin') {
     return MENU_ITEMS.filter(item => {
-      return item.key !== 'CompletedTask' && item.key !== 'ExpireTask'  && item.key !== 'TaskPlanned' && item.key !== 'Action'  && item.key !== 'Notification';
+      return item.key !== 'CompletedTask' && item.key !== 'ExpireTask' && item.key !== 'TaskPlanned' && item.key !== 'Action' && item.key !== 'Notification';
     });
   }
-  // Filter out items or customize based on other roles
   return MENU_ITEMS.filter(item => {
-    // Add your filtering logic here
     if (role === 'EMPLOYEE') {
-      // For example, remove specific items for 'user' role
-      return item.key !== 'Filtertask' && item.key !== 'master'&&  item.key !== 'Modules-Master' && item.key !== 'Action'  && item.key !== 'ChkLnMaster'  && item.key !== 'systemmaster' && item.key !== 'Modules-Master'; // Exclude 'System Master' and 'Modules-Master' for 'user' role
+      return item.key !== 'Filtertask' && item.key !== 'master' && item.key !== 'Modules-Master' && item.key !== 'Action' && item.key !== 'ChkLnMaster' && item.key !== 'systemmaster' && item.key !== 'Modules-Master'; // Exclude 'System Master' and 'Modules-Master' for 'user' role
     }
 
-    // Default: show all items if role is not 'admin' or 'user'
     return true;
   });
 }
@@ -353,7 +437,6 @@ const LeftSidebar = () => {
   return (
     <>
       <div className="leftside-menu">
-        {/* Brand Logo Light */}
         <Link to="/ModuleMaster" className="logo logo-light">
           <span className="logo-lg">
             <img src={logo} style={{ width: '86%', height: 'auto', padding: '10px' }} alt="logo" />
@@ -362,7 +445,6 @@ const LeftSidebar = () => {
             <img src={logoSm} alt="small logo" />
           </span>
         </Link>
-        {/* Brand Logo Dark */}
         <a href="ModuleMaster" className="logo logo-dark">
           <span className="logo-lg">
             <img src={logoDark} alt="dark logo" style={{ height: '50px' }} />
@@ -371,7 +453,6 @@ const LeftSidebar = () => {
             <img src={logoSm} alt="small logo" />
           </span>
         </a>
-        {/* Sidebar -left */}
         <SimpleBar className="h-100" id="leftside-menu-container" data-simplebar="">
           {/*- Sidemenu */}
           <SideBarContent />
