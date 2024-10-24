@@ -14,13 +14,54 @@ import IconWithLetter from '@/pages/ui/IconWithLetter';
 
 interface Employee {
     id: number;
-    employeeName: string;
     empID: string;
-    userUpdatedMobileNo: string
+    employeeName: string;
+    fatherName: string;
+    email: string;
+    role: string;
+    dataAccessLevel: string;
+    empStatus: string;
+    hrUpdatedMobileNo: string;
+    userUpdatedMobileNo: string;
+    state: string;
+    district: string;
+    area: string;
+    pin: string;
+    address: string;
+    photo: string;
+    gender: string;
+    dateOfBirth: string;
+    dateOfJoining: string;
+    dateOfLeaving: string;
+    departmentName: string;
+    designation: string;
+    appExempt: string;
+    isPerformanceReview: string;
+    appAccessLevel: string;
+    appAccess: string;
+    currentProjectName: string;
+    salaryBankAccountType: string;
+    salaryBankAccountNumber: string;
+    salaryBankName: string;
+    salaryBankIfsc: string;
+    salaryBranchName: string;
+    reimbursementBankAccountType: string;
+    reimbursementBankAccountNumber: string;
+    reimbursementBankName: string;
+    reimbursementBankIfsc: string;
+    reimbursementBranchName: string;
+    expenseBankAccountType: string;
+    expenseBankAccountNumber: string;
+    expenseBankName: string;
+    expenseBankIfsc: string;
+    expenseBranchName: string;
+    excelDobValue: string;
+    excelDojValue: string;
+    excelDolValue: string;
+    isRegistered: string;
     createdBy: string;
     updatedBy: string;
 }
-
 
 interface Column {
     id: string;
@@ -62,7 +103,7 @@ const EmployeeMaster = () => {
         { id: 'currentProjectName', label: 'Current Project Name', visible: true },
         { id: 'dataAccessLevel', label: 'Data Access Level', visible: true },
         { id: 'appAccessLevel', label: 'App Access Level', visible: true },
-        { id: 'empStatus', label: 'Status', visible: true },
+        { id: 'empStatus', label: 'Employee Status', visible: true },
 
     ]);
 
@@ -153,39 +194,127 @@ const EmployeeMaster = () => {
         fetchData('CommonDropdown/GetCompletionStatus', setCompletionStatus, 'completionStatusListResponses');
     }, []);
 
-    // const convertToCSV = (data: Employee[]) => {
-    //     const csvRows = [
-    //         ['ID', 'Project Name', 'Project ID', 'State Name', 'Project Type', 'Management Contract', 'Project Incharge', 'Project Coordinator', 'Completion Status', 'Name of Work'],
-    //         ...data.map(employee => [
-    //             employee.id,
-    //             employee.projectName,
-    //             employee.projectID,
-    //             employee.stateId,
-    //             employee.projectType,
-    //             employee.managementContract,
-    //             employee.projectIncharge,
-    //             employee.projectCoordinator,
-    //             employee.completionStatus,
-    //             employee.nameOfWork
-    //         ])
-    //     ];
-    //     return csvRows.map(row => row.join(',')).join('\n');
-    // };
+    const convertToCSV = (data: Employee[]) => {
+        const csvRows = [
+            [
+                'ID',
+                'Employee ID',
+                'Employee Name',
+                'Father Name',
+                'Email',
+                'Role',
+                'Data Access Level',
+                'Employee Status',
+                'HR Updated Mobile No',
+                'User Updated Mobile No',
+                'State',
+                'District',
+                'Area',
+                'Pin',
+                'Address',
+                'Photo',
+                'Gender',
+                'Date of Birth',
+                'Date of Joining',
+                'Date of Leaving',
+                'Department Name',
+                'Designation',
+                'App Exempt',
+                'Is Performance Review',
+                'App Access Level',
+                'App Access',
+                'Current Project Name',
+                'Salary Bank Account Type',
+                'Salary Bank Account Number',
+                'Salary Bank Name',
+                'Salary Bank IFSC',
+                'Salary Branch Name',
+                'Reimbursement Bank Account Type',
+                'Reimbursement Bank Account Number',
+                'Reimbursement Bank Name',
+                'Reimbursement Bank IFSC',
+                'Reimbursement Branch Name',
+                'Expense Bank Account Type',
+                'Expense Bank Account Number',
+                'Expense Bank Name',
+                'Expense Bank IFSC',
+                'Expense Branch Name',
+                'Excel DOB Value',
+                'Excel DOJ Value',
+                'Excel DOL Value',
+                'Is Registered',
+                'Created By',
+                'Updated By'
+            ],
+            ...data.map(employee => [
+                employee.id,
+                employee.empID,
+                employee.employeeName,
+                employee.fatherName,
+                employee.email,
+                employee.role,
+                employee.dataAccessLevel,
+                employee.empStatus,
+                employee.hrUpdatedMobileNo,
+                employee.userUpdatedMobileNo,
+                employee.state,
+                employee.district,
+                employee.area,
+                employee.pin,
+                employee.address,
+                employee.photo,
+                employee.gender,
+                employee.dateOfBirth,
+                employee.dateOfJoining,
+                employee.dateOfLeaving,
+                employee.departmentName,
+                employee.designation,
+                employee.appExempt,
+                employee.isPerformanceReview,
+                employee.appAccessLevel,
+                employee.appAccess,
+                employee.currentProjectName,
+                employee.salaryBankAccountType,
+                employee.salaryBankAccountNumber,
+                employee.salaryBankName,
+                employee.salaryBankIfsc,
+                employee.salaryBranchName,
+                employee.reimbursementBankAccountType,
+                employee.reimbursementBankAccountNumber,
+                employee.reimbursementBankName,
+                employee.reimbursementBankIfsc,
+                employee.reimbursementBranchName,
+                employee.expenseBankAccountType,
+                employee.expenseBankAccountNumber,
+                employee.expenseBankName,
+                employee.expenseBankIfsc,
+                employee.expenseBranchName,
+                employee.excelDobValue,
+                employee.excelDojValue,
+                employee.excelDolValue,
+                employee.isRegistered,
+                employee.createdBy,
+                employee.updatedBy
+            ])
+        ];
+        return csvRows.map(row => row.join(',')).join('\n');
+    };
+
 
 
     const downloadCSV = () => {
-        // const csvData = convertToCSV(employee);
-        // const blob = new Blob([csvData], { type: 'text/csv;charset=utf-8;' });
-        // const link = document.createElement('a');
-        // if (link.download !== undefined) {
-        //     const url = URL.createObjectURL(blob);
-        //     link.setAttribute('href', url);
-        //     link.setAttribute('download', 'Projects.csv');
-        //     link.style.visibility = 'hidden';
-        //     document.body.appendChild(link);
-        //     link.click();
-        //     document.body.removeChild(link);
-        // }
+        const csvData = convertToCSV(employee);
+        const blob = new Blob([csvData], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement('a');
+        if (link.download !== undefined) {
+            const url = URL.createObjectURL(blob);
+            link.setAttribute('href', url);
+            link.setAttribute('download', 'Projects.csv');
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
     };
 
     const handleSearchcurrent = (e: ChangeEvent<HTMLInputElement>) => {
@@ -194,8 +323,8 @@ const EmployeeMaster = () => {
     };
 
     const filteredDoers = employee.filter(doer =>
-        doer.employeeName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        doer.empID.toLowerCase().includes(searchQuery.toLowerCase())
+        doer.employeeName.includes(searchQuery.toLowerCase()) ||
+        doer.empID.includes(searchQuery.toLowerCase())
     );
 
 
@@ -235,8 +364,8 @@ const EmployeeMaster = () => {
                             <Form onSubmit={handleSearch}>
                                 <Row>
 
-                                  
-                                    <Col lg={6} className="mt-2">
+
+                                    <Col lg={4} className="mt-2">
                                         <Form.Group controlId="searchProjectCoordinator">
                                             <Form.Label>Employee Name:</Form.Label>
                                             <Select
@@ -255,16 +384,96 @@ const EmployeeMaster = () => {
 
 
 
-                                    <Col lg={6} className="mt-2">
+                                    <Col lg={4} className="mt-2">
                                         <Form.Group controlId="searchCompletionStatus">
                                             <Form.Label>Project Name:</Form.Label>
                                             <Select
+                                                // name="searchCompletionStatus"
+                                                // value={completionStatus.find(task => task.id === searchCompletionStatus)}
+                                                // onChange={(selectedOption) => setSearchCompletionStatus(selectedOption ? selectedOption.id : 0)}
+                                                // options={completionStatus}
+                                                // getOptionLabel={(task) => task.id == 1 ? "Ongoing" : 'Completed'}
+                                                // getOptionValue={(task) => task.id == 1 ? "Ongoing" : 'Completed'}
+                                                isSearchable={true}
+                                                placeholder="Search..."
+                                                className="h45"
+                                            />
+                                        </Form.Group>
+                                    </Col>
+                                    <Col lg={4} className="mt-2">
+                                        <Form.Group controlId="searchCompletionStatus">
+                                            <Form.Label>App Access Level</Form.Label>
+                                            <Select
                                                 name="searchCompletionStatus"
-                                                value={completionStatus.find(task => task.id === searchCompletionStatus) } 
-                                                onChange={(selectedOption) => setSearchCompletionStatus(selectedOption ? selectedOption.id : 0)} 
-                                                options={completionStatus}
-                                                getOptionLabel={(task) => task.id == 1 ? "Ongoing" : 'Completed'}
-                                                getOptionValue={(task) => task.id == 1 ? "Ongoing" : 'Completed'}
+                                                // value={completionStatus.find(task => task.id === searchCompletionStatus)}
+                                                // onChange={(selectedOption) => setSearchCompletionStatus(selectedOption ? selectedOption.id : 0)}
+                                                // options={completionStatus}
+                                                // getOptionLabel={(task) => task.id == 1 ? "Ongoing" : 'Completed'}
+                                                // getOptionValue={(task) => task.id == 1 ? "Ongoing" : 'Completed'}
+                                                isSearchable={true}
+                                                placeholder="Search..."
+                                                className="h45"
+                                            />
+                                        </Form.Group>
+                                    </Col>
+                                    <Col lg={4} className="mt-2">
+                                        <Form.Group controlId="searchCompletionStatus">
+                                            <Form.Label>Data Access Level</Form.Label>
+                                            <Select
+                                                name="searchCompletionStatus"
+                                                // value={completionStatus.find(task => task.id === searchCompletionStatus)}
+                                                // onChange={(selectedOption) => setSearchCompletionStatus(selectedOption ? selectedOption.id : 0)}
+                                                // options={completionStatus}
+                                                // getOptionLabel={(task) => task.id == 1 ? "Ongoing" : 'Completed'}
+                                                // getOptionValue={(task) => task.id == 1 ? "Ongoing" : 'Completed'}
+                                                isSearchable={true}
+                                                placeholder="Search..."
+                                                className="h45"
+                                            />
+                                        </Form.Group>
+                                    </Col>
+                                    <Col lg={4} className="mt-2">
+                                        <Form.Group controlId="searchCompletionStatus">
+                                            <Form.Label>Status</Form.Label>
+                                            <Select
+                                                name="searchCompletionStatus"
+                                                // value={completionStatus.find(task => task.id === searchCompletionStatus)}
+                                                // onChange={(selectedOption) => setSearchCompletionStatus(selectedOption ? selectedOption.id : 0)}
+                                                // options={completionStatus}
+                                                // getOptionLabel={(task) => task.id == 1 ? "Ongoing" : 'Completed'}
+                                                // getOptionValue={(task) => task.id == 1 ? "Ongoing" : 'Completed'}
+                                                isSearchable={true}
+                                                placeholder="Search..."
+                                                className="h45"
+                                            />
+                                        </Form.Group>
+                                    </Col>
+                                    <Col lg={4} className="mt-2">
+                                        <Form.Group controlId="searchCompletionStatus">
+                                            <Form.Label>App Access</Form.Label>
+                                            <Select
+                                                name="searchCompletionStatus"
+                                                value={completionStatus.find(task => task.id === searchCompletionStatus)}
+                                                // onChange={(selectedOption) => setSearchCompletionStatus(selectedOption ? selectedOption.id : 0)}
+                                                // options={completionStatus}
+                                                // getOptionLabel={(task) => task.id == 1 ? "Ongoing" : 'Completed'}
+                                                // getOptionValue={(task) => task.id == 1 ? "Ongoing" : 'Completed'}
+                                                isSearchable={true}
+                                                placeholder="Search..."
+                                                className="h45"
+                                            />
+                                        </Form.Group>
+                                    </Col>
+                                    <Col lg={4} className="mt-2">
+                                        <Form.Group controlId="searchCompletionStatus">
+                                            <Form.Label>Employee Status</Form.Label>
+                                            <Select
+                                                name="searchCompletionStatus"
+                                                // value={completionStatus.find(task => task.id === searchCompletionStatus)}
+                                                // onChange={(selectedOption) => setSearchCompletionStatus(selectedOption ? selectedOption.id : 0)}
+                                                // options={completionStatus}
+                                                // getOptionLabel={(task) => task.id == 1 ? "Ongoing" : 'Completed'}
+                                                // getOptionValue={(task) => task.id == 1 ? "Ongoing" : 'Completed'}
                                                 isSearchable={true}
                                                 placeholder="Search..."
                                                 className="h45"
@@ -286,7 +495,7 @@ const EmployeeMaster = () => {
                                         </ButtonGroup>
                                     </Col>
                                 </Row>
-                            </Form> 
+                            </Form>
 
                             <Row className='mt-3'>
                                 <div className="d-flex justify-content-end bg-light p-1">

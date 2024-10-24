@@ -14,6 +14,9 @@ interface Employee  {
     userUpdatedMobileNo: string
     createdBy: string;
     updatedBy: string;
+    salaryBankName: string;
+    salaryBankIfsc: string;
+
 }
 
 
@@ -46,7 +49,6 @@ const EmployeeBankPopup: React.FC<EmployeePopusProps> = ({ showView, setShowView
         { id: 'salaryBranchName', label: 'Branch Name', visible: true },
         { id: 'salaryBankAccountType', label: 'Bank Account Type', visible: true },
         { id: 'salaryBankAccountNumber', label: 'Bank Account Number', visible: true },
-
     ]);
 
     const handleOnDragEnd = (result: any) => {
@@ -92,6 +94,7 @@ const EmployeeBankPopup: React.FC<EmployeePopusProps> = ({ showView, setShowView
     };
 
 
+    const hasBankDetails = employee.some(emp => emp.salaryBankName && emp.salaryBankIfsc);
 
 
 
@@ -168,7 +171,7 @@ const EmployeeBankPopup: React.FC<EmployeePopusProps> = ({ showView, setShowView
                                                 </Droppable>
                                             </thead>
                                             <tbody>
-                                                {employee.length > 0 ? (
+                                                {hasBankDetails ? (
                                                     employee.slice(0, 10).map((item, index) => (
                                                         <tr key={item.id}>
                                                             {columns.filter(col => col.visible).map((col) => (

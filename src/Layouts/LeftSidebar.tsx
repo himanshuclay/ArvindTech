@@ -70,7 +70,7 @@ const getFilteredMenuItems = () => {
 
 
 
-    
+
     {
       key: 'Notification',
       label: 'My Task',
@@ -111,7 +111,7 @@ const getFilteredMenuItems = () => {
           url: '/pages/ActiveProject',
           icon: 'ri-slideshow-line',
           parentKey: 'Filtertask',
-        }, 
+        },
         // {
         //   key: 'ActiveTasks',
         //   label: 'Active Task',
@@ -119,13 +119,13 @@ const getFilteredMenuItems = () => {
         //   icon: 'ri-slideshow-line',
         //   parentKey: 'Modules-Master',
         // },
-      {
-        key: 'FilterTasks',
-        label: 'Running Task',
-        url: '/pages/RunningTask',
-        icon: 'ri-slideshow-line',
-        parentKey: 'Filtertask',
-      },
+        {
+          key: 'FilterTasks',
+          label: 'Running Task',
+          url: '/pages/RunningTask',
+          icon: 'ri-slideshow-line',
+          parentKey: 'Filtertask',
+        },
       ],
     },
     {
@@ -140,7 +140,7 @@ const getFilteredMenuItems = () => {
           url: '/pages/CreateTemplates',
           icon: 'ri-slideshow-line',
           parentKey: 'GetTestData',
-        }, 
+        },
         {
           key: 'GetTestData-Lists',
           label: 'Template Lists',
@@ -148,7 +148,7 @@ const getFilteredMenuItems = () => {
           icon: 'ri-slideshow-line',
           parentKey: 'GetTestData',
         },
-      
+
       ],
     },
 
@@ -258,8 +258,98 @@ const getFilteredMenuItems = () => {
           icon: 'ri-list-check-3',
           parentKey: 'systemmaster',
         },
+        {
+          key: 'HR Masters',
+          label: 'HR Masters',
+          parentKey: 'systemmaster',
+          icon: 'ri-list-check-3',
+          children: [
+            {
+              key: 'RequirementMaster',
+              label: 'Staff Requirement Master',
+              url: '/pages/RequirementMaster',
+              parentKey: 'HR Masters',
+              icon: 'ri-list-check-3',
+            },
+            {
+              key: 'DesignationMaster',
+              label: 'Designation Master',
+              url: '/pages/DesignationMaster',
+              parentKey: 'HR Masters',
+              icon: 'ri-list-check-3',
+            },
+            {
+              key: 'CandidateMaster',
+              label: 'Candidate Master',
+              url: '/pages/CandidateMaster',
+              parentKey: 'HR Masters',
+              icon: 'ri-list-check-3',
+            },
+            {
+              key: 'HrInputMaster',
+              label: 'Hr Input Master',
+              url: '/pages/HrInputMaster',
+              parentKey: 'HR Masters',
+              icon: 'ri-list-check-3',
+            },
+            {
+              key: 'HrTaskMaster',
+              label: 'Hr Task Master',
+              url: '/pages/HrTaskMaster',
+              parentKey: 'HR Masters',
+              icon: 'ri-list-check-3',
+            },
+            {
+              key: 'HrDoerMaster',
+              label: 'Hr Doer Master',
+              url: '/pages/HrDoerMaster',
+              parentKey: 'HR Masters',
+              icon: 'ri-list-check-3',
+            },
+            {
+              key: 'ResumeMaster',
+              label: 'Resume Master',
+              url: '/pages/ResumeMaster',
+              parentKey: 'HR Masters',
+              icon: 'ri-list-check-3',
+            },
+          ],
+        },
+        {
+          key: 'second-level-2',
+          label: 'BD Masters',
+          parentKey: 'systemmaster',
+          icon: 'ri-list-check-3',
+          children: [
+            {
+              key: 'BD Input Master',
+              label: 'BD Input Master',
+              url: '/pages/HrInputMaster',
+              parentKey: 'second-level-2',
+              icon: 'ri-list-check-3',
+            },
+            {
+              key: 'BD Task Master',
+              label: 'BD Task Master',
+              url: '/pages/HrTaskMaster',
+              parentKey: 'second-level-2',
+              icon: 'ri-list-check-3',
+            },
+            {
+              key: 'BD Doer Master',
+              label: 'BD Doer Master',
+              url: '/pages/HrDoerMaster',
+              parentKey: 'second-level-2',
+              icon: 'ri-list-check-3',
+            },
+          ],
+        },
+       
       ],
     },
+
+
+    
     {
       key: 'master',
       label: 'Business Master',
@@ -319,14 +409,14 @@ const getFilteredMenuItems = () => {
     },
   ];
 
-  if (role === 'ADMIN') {
+  if (role === 'Admin') {
     return MENU_ITEMS.filter(item => {
-      return item.key !== 'CompletedTask' && item.key !== 'ExpireTask'  && item.key !== 'TaskPlanned' && item.key !== 'Action'  && item.key !== 'Notification';
+      return item.key !== 'CompletedTask' && item.key !== 'ExpireTask' && item.key !== 'TaskPlanned' && item.key !== 'Action' && item.key !== 'Notification';
     });
   }
   return MENU_ITEMS.filter(item => {
     if (role === 'EMPLOYEE') {
-      return item.key !== 'Filtertask' && item.key !== 'master'&&  item.key !== 'Modules-Master' && item.key !== 'Action'  && item.key !== 'ChkLnMaster'  && item.key !== 'systemmaster' && item.key !== 'Modules-Master'; // Exclude 'System Master' and 'Modules-Master' for 'user' role
+      return item.key !== 'Filtertask' && item.key !== 'master' && item.key !== 'Modules-Master' && item.key !== 'Action' && item.key !== 'ChkLnMaster' && item.key !== 'systemmaster' && item.key !== 'Modules-Master'; // Exclude 'System Master' and 'Modules-Master' for 'user' role
     }
 
     return true;
@@ -347,7 +437,6 @@ const LeftSidebar = () => {
   return (
     <>
       <div className="leftside-menu">
-        {/* Brand Logo Light */}
         <Link to="/ModuleMaster" className="logo logo-light">
           <span className="logo-lg">
             <img src={logo} style={{ width: '86%', height: 'auto', padding: '10px' }} alt="logo" />
@@ -356,7 +445,6 @@ const LeftSidebar = () => {
             <img src={logoSm} alt="small logo" />
           </span>
         </Link>
-        {/* Brand Logo Dark */}
         <a href="ModuleMaster" className="logo logo-dark">
           <span className="logo-lg">
             <img src={logoDark} alt="dark logo" style={{ height: '50px' }} />
@@ -365,7 +453,6 @@ const LeftSidebar = () => {
             <img src={logoSm} alt="small logo" />
           </span>
         </a>
-        {/* Sidebar -left */}
         <SimpleBar className="h-100" id="leftside-menu-container" data-simplebar="">
           {/*- Sidemenu */}
           <SideBarContent />
