@@ -7,7 +7,7 @@ import {
   DroppableProvided,
 } from 'react-beautiful-dnd';
 import Select from 'react-select';
-import { Button, Form, Modal, ListGroup, Toast } from 'react-bootstrap';
+import { Button, Form, Modal, ListGroup, Toast, Popover } from 'react-bootstrap';
 import axios from 'axios';
 import { useLocation } from 'react-router-dom';
 import config from '@/config';
@@ -176,6 +176,8 @@ const App: React.FC = () => {
   const [selectedTaskIdx, setSelectedTaskIdx] = useState<number | null>(null);
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [selectedEmployee, setSelectedEmployee] = useState<string>('');
+  const [isApprovalConsoleActive, setApprovalConsoleActive] = useState(false);
+  const [approvalSelectedEmployee, setApprovalSelectedEmployee] = useState<string>('');  // For approval field
   const [selectedFieldIdx, setSelectedFieldIdx] = useState<number | null>(null);
   const [showToast, setShowToast] = useState(false);
   const [roles, setRoles] = useState<Role[]>([]);
@@ -188,6 +190,7 @@ const App: React.FC = () => {
     RoleName: '',
     processID: '',
     finishID: '',
+    approvalConsoleId: 0,
     Date: new Date(),
     processOptions: [] as ProcessOption[], // Add processOptions to store the list of processes
   });
@@ -195,9 +198,16 @@ const App: React.FC = () => {
 
   const location = useLocation();
 
+  const handleApprovalEmployeeSelect = (selectedOption: any) => {
+    setApprovalSelectedEmployee(selectedOption?.value || null); // Handle employee selection
+  };
+
 
   const handleCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setConditionalField(event.target.checked);
+  };
+  const handleApprovalCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setApprovalConsoleActive(event.target.checked); // Toggle the Approval Console based on checkbox
   };
 
   useEffect(() => {
@@ -233,6 +243,7 @@ const App: React.FC = () => {
       }));
     }
 
+
     console.log(`Selected Label: ${label}, ID: ${value}, Color: ${color}`);
   };
 
@@ -241,8 +252,13 @@ const App: React.FC = () => {
     mastersName: string;
   }
 
+  interface HeaderItem {
+    headerName: string;
+  }
+
   const [mastersList, setMastersList] = useState<MasterItem[]>([]); // State to store the fetched options
   const [selectedMaster, setSelectedMaster] = useState(''); // State to track selected option
+  const [headersList, setHeadersList] = useState<HeaderItem[]>([]);
 
   useEffect(() => {
     // Fetch the master list data from the API when the component loads
@@ -261,6 +277,26 @@ const App: React.FC = () => {
 
     fetchMastersList();
   }, []);
+
+  const handleMasterChange = async (masterId: string) => {
+    setSelectedMaster(masterId);
+
+    // Assuming you need to fetch the headers based on the selected master
+    if (masterId) {
+      try {
+        const response = await axios.get(`https://arvindo-api2.clay.in/api/CommonDropdown/GettableHeaderName?flag=${masterId}`);
+        if (response.data.isSuccess) {
+          setHeadersList(response.data.gettableHeaderNames); // Update headers based on the selected master
+        } else {
+          console.error('Failed to fetch headers for the selected master');
+        }
+      } catch (error) {
+        console.error('Error fetching headers:', error);
+      }
+    } else {
+      setHeadersList([]); // Clear headers if no master is selected
+    }
+  };
 
 
   const handleFormSubmit = (e: React.FormEvent<HTMLFormElement>) => {
@@ -368,11 +404,11 @@ const App: React.FC = () => {
 
   const handleRoleSelect = (selectedOption: { id: number; roleName: string } | null) => {
     if (selectedOption) {
-      const selectedId = selectedOption.id; 
-      const selected = roles.find((role) => role.id === selectedId) || null; 
-      setSelectedRole(selected); 
+      const selectedId = selectedOption.id;
+      const selected = roles.find((role) => role.id === selectedId) || null;
+      setSelectedRole(selected);
     } else {
-      setSelectedRole(null); 
+      setSelectedRole(null);
     }
   };
 
@@ -431,6 +467,22 @@ const App: React.FC = () => {
           processID: selectedProcess.processID,
         }));
       }
+    }
+  };
+
+  const handleApprovalConsoleId = (e: ChangeEvent<any>) => {
+    const { name, value } = e.target as HTMLSelectElement | HTMLInputElement;
+
+    // Update the form data state
+    setFormData(prevFormData => ({
+      ...prevFormData,
+      [name]: value
+    }));
+
+    // Store the selected approvalConsoleId in localStorage
+    if (name === 'approvalConsoleId') {
+      localStorage.setItem('selectedApprovalConsoleId', value);
+      console.log(value); // You can remove this log later
     }
   };
 
@@ -510,6 +562,7 @@ const App: React.FC = () => {
     };
 
     const selectedEmployeeObj = employees.find(emp => emp.empId === selectedEmployee)
+    const selectedapprovalEmployee = employees.find(emp => emp.empId === approvalSelectedEmployee);
 
     // Include finishID (finishPoint) in the payload
     const payload = {
@@ -532,6 +585,10 @@ const App: React.FC = () => {
       task_Json: JSON.stringify(formJSON),
       createdBy: "HimanshuPant", // Replace with actual username or dynamic value
       finishPoint: parseFloat(finishID), // Convert finishID to float before sending
+      approval_Console: isApprovalConsoleActive ? "Select Approval_Console" : "",
+      approvalConsoleDoerID: approvalSelectedEmployee,
+      approvalConsoleDoerName: selectedapprovalEmployee ? selectedapprovalEmployee.employeeName : "", // Use employee name from selectedapprovalEmployee
+      approvalConsoleInputID: formData.approvalConsoleId
     };
 
 
@@ -950,6 +1007,12 @@ const App: React.FC = () => {
                   ))}
                 </Form.Select>
               </Form.Group>
+              <Form.Group className='mt-2'>
+                <Form.Label>Select header</Form.Label>
+                <Form.Select
+                >
+                </Form.Select>
+              </Form.Group>
             </div>
           );
 
@@ -1044,9 +1107,9 @@ const App: React.FC = () => {
                 <Select
                   name="RoleName"
                   value={roles.find((role) => role.id === selectedRole?.id) || null}
-                  onChange={(selectedOption) => handleRoleSelect(selectedOption)} 
-                  getOptionLabel={(role) => role.roleName}  
-                  getOptionValue={(role) => String(role.id)}  
+                  onChange={(selectedOption) => handleRoleSelect(selectedOption)}
+                  getOptionLabel={(role) => role.roleName}
+                  getOptionValue={(role) => String(role.id)}
                   options={roles}
                   isSearchable={true}
                   placeholder="Select Role"
@@ -1152,7 +1215,7 @@ const App: React.FC = () => {
               </Droppable>
 
             </div>
-            <Form.Group className="col-4 my-1">
+            <Form.Group className="col-3 my-1">
               <Form.Label>Problem Solver</Form.Label>
               <Select
                 value={employees
@@ -1168,7 +1231,7 @@ const App: React.FC = () => {
                 isSearchable
               />
             </Form.Group>
-            <Form.Group className="col-4 my-1">
+            <Form.Group className="col-3 my-1">
               <Form.Label>Set Finish Point</Form.Label>
               <Form.Control
                 as="select"
@@ -1187,10 +1250,68 @@ const App: React.FC = () => {
                   ))}
               </Form.Control>
             </Form.Group>
+            <div className="col-3 my-1">
+              <div className="row col-12 position-relative">
+                {/* Approval console checkbox */}
+                <Form.Group className="my-1">
+                  <Form.Label>Is approval is applicable?</Form.Label>
+                  <Form.Check
+                    type="checkbox"
+                    label="Activate Approval Console"
+                    checked={isApprovalConsoleActive}
+                    onChange={handleApprovalCheckboxChange}
+                  />
+                </Form.Group>
+
+                {/* Conditionally render the Approval Console popover */}
+                {isApprovalConsoleActive && (
+                  <Popover id="approval-popover" style={{ position: 'absolute', bottom: '100%' }}>
+                    <Popover.Header as="h3">Select Doer for Approval</Popover.Header>
+                    <Popover.Body>
+                      <Form.Group>
+                        <Form.Label>Employee Name</Form.Label>
+                        <Select
+                          value={employees
+                            .map(employee => ({ value: employee.empId, label: employee.employeeName }))
+                            .find(option => option.value === approvalSelectedEmployee) || null
+                          }
+                          onChange={handleApprovalEmployeeSelect}
+                          options={employees.map(employee => ({
+                            value: employee.empId,
+                            label: employee.employeeName,
+                          }))}
+                          placeholder="Select an employee"
+                          isSearchable
+                        />
+                      </Form.Group>
+                      <Form.Group className="mt-2">
+                        <Form.Label>Select Approval Input</Form.Label>
+                        <Form.Control
+                          as="select"
+                          name="approvalConsoleId"  // Changed from finishID to approvalConsoleId
+                          value={formData.approvalConsoleId}  // Updated to approvalConsoleId
+                          onChange={handleApprovalConsoleId}  // Updated handler
+                          required
+                        >
+                          <option value="">Select Field</option>
+                          {taskFields
+                            .filter(field => !['99', '100', '102', '103'].includes(field.inputId)) // Filter out specific fields
+                            .map((field) => (
+                              <option key={field.inputId} value={field.inputId}>
+                                {field.labeltext}
+                              </option>
+                            ))}
+                        </Form.Control>
+                      </Form.Group>
+                    </Popover.Body>
+                  </Popover>
+                )}
+              </div>
+            </div>
             {location.pathname != '/pages/CreateTemplates' &&
 
               (
-                <Form.Group className="col-4 my-1">
+                <Form.Group className="col-3 my-1">
                   <Form.Label>Select Template</Form.Label>
                   <Form.Control
                     as="select"
@@ -1368,13 +1489,24 @@ const App: React.FC = () => {
                     <Form.Group className='mt-2'>
                       <Form.Label>Select Master</Form.Label>
                       <Form.Select
-                        value={selectedMaster} // Bind state variable to the value of the select
-                        onChange={(e) => setSelectedMaster(e.target.value)} // Update the state on selection
+                        value={selectedMaster}
+                        onChange={(e) => handleMasterChange(e.target.value)} // Handle selection change
                       >
                         <option value="">Select a Master</option>
                         {mastersList.map((master) => (
                           <option key={master.id} value={master.id}>
                             {master.mastersName}
+                          </option>
+                        ))}
+                      </Form.Select>
+                    </Form.Group>
+                    <Form.Group className='mt-2'>
+                      <Form.Label>Select Header</Form.Label>
+                      <Form.Select>
+                        <option value="">Select a Header</option>
+                        {headersList.map((header) => (
+                          <option key={header.headerName} value={header.headerName}>
+                            {header.headerName}
                           </option>
                         ))}
                       </Form.Select>
