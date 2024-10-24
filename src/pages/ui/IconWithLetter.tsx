@@ -1,14 +1,16 @@
-const getRandomColor = () => {
+const getRandomDarkColor = () => {
     const letters = '0123456789ABCDEF';
     let color = '#';
     for (let i = 0; i < 6; i++) {
-        color += letters[Math.floor(Math.random() * 16)];
+        // Generate a random value in the range of 0 to 128 to ensure darker colors
+        const value = Math.floor(Math.random() * 128);
+        color += letters[value % 16]; // Convert to hex
     }
     return color;
 };
 
 const IconWithLetter: React.FC<{ letter: string }> = ({ letter }) => {
-    const randomColor = getRandomColor();
+    const randomColor = getRandomDarkColor();
     return (
         <div
             className="letter-icon"
@@ -23,13 +25,12 @@ const IconWithLetter: React.FC<{ letter: string }> = ({ letter }) => {
                 justifyContent: 'center',
                 fontWeight: 'bold',
                 marginRight: '8px',
-                opacity: '0.6'
+                opacity: '1'
             }}
         >
             {letter.toUpperCase()} {/* Display the letter in uppercase */}
         </div>
     );
 };
-
 
 export default IconWithLetter;

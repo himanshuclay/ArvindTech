@@ -30,7 +30,6 @@ const ActiveProject = React.lazy(() => import('../pages/other/ActiveProject.tsx'
 const Notification = React.lazy(() => import('../pages/other/Notification.tsx'))
 const ModuleList = React.lazy(() => import('../pages/other/Module-list.tsx'))
 const EmployeeMaster = React.lazy(() => import('../pages/other/Employee-Master.tsx'))
-const MessMaster = React.lazy(() => import('../pages/other/MessMaster.tsx'))
 const Tender = React.lazy(() => import('../pages/other/Tender.tsx'))
 const Vender = React.lazy(() => import('../pages/other/Vender.tsx'))
 const Bank = React.lazy(() => import('../pages/other/Bank.tsx'))
@@ -64,6 +63,13 @@ const RoleMasterNew = React.lazy(() => import('../pages/other/RoleMaster/RoleMas
 const RoleMasterinsert = React.lazy(() => import('../pages/other/RoleMaster/RoleMasterinsert.tsx'))
 const IdentifierMaster = React.lazy(() => import('../pages/other/Identifier/IdentifierMaster.tsx'))
 const IdentifierMasterinsert = React.lazy(() => import('../pages/other/Identifier/Identifiermasterinsert.tsx'))
+const MessMaster = React.lazy(() => import('../pages/other/MessMaster/MessMaster.tsx'))
+const MessMasterinsert = React.lazy(() => import('../pages/other/MessMaster/MessMasterinsert.tsx'))
+const Requirementmaster = React.lazy(() => import('../pages/other/HrMaster/RequirementMaster/Requirementmaster.tsx'))
+const Requirementmasterinsert = React.lazy(() => import('../pages/other/HrMaster/RequirementMaster/RequirementMasterinsert.tsx'))
+
+
+
 
 
 
@@ -527,6 +533,38 @@ const customPagesRoutes = {
 			route: PrivateRoute,
 		},
 
+		{
+			path: '/pages/MessMasterinsert/:id',
+			name: 'MessMasterinsert ',
+			element: <MessMasterinsert />,
+			route: PrivateRoute,
+		},
+		{
+			path: '/pages/MessMasterinsert',
+			name: 'MessMasterinsert ',
+			element: <MessMasterinsert />,
+			route: PrivateRoute,
+		},
+
+
+		{
+			path: '/pages/Requirementmaster',
+			name: 'Requirementmaster ',
+			element: <Requirementmaster />,
+			route: PrivateRoute,
+		},
+		{
+			path: '/pages/Requirementmasterinsert/:id',
+			name: 'Requirementmasterinsert ',
+			element: <Requirementmasterinsert />,
+			route: PrivateRoute,
+		},
+		{
+			path: '/pages/Requirementmasterinsert',
+			name: 'Requirementmasterinsert ',
+			element: <Requirementmasterinsert />,
+			route: PrivateRoute,
+		},
 
 		///////////////////////////////////////////////////////////////////////////////////////////
 		{
