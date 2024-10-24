@@ -79,32 +79,32 @@ const MessMaster = () => {
     }, [currentPage]);
 
 
-    const handleSearch = (e: any) => {
-        e.preventDefault();
+    // const handleSearch = (e: any) => {
+    //     e.preventDefault();
 
-        let query = `?`;
-        if (ProcessName) query += `ProcessName=${ProcessName}&`;
-        if (ModuleName) query += `ModuleName=${ModuleName}&`;
-        if (ProcessOwnerName) query += `ProcessOwnerName=${ProcessOwnerName}&`;
+    //     let query = `?`;
+    //     if (ProcessName) query += `ProcessName=${ProcessName}&`;
+    //     if (ModuleName) query += `ModuleName=${ModuleName}&`;
+    //     if (ProcessOwnerName) query += `ProcessOwnerName=${ProcessOwnerName}&`;
 
-        // Remove trailing '&' or '?' from the query string
-        query = query.endsWith('&') ? query.slice(0, -1) : query;
+    //     // Remove trailing '&' or '?' from the query string
+    //     query = query.endsWith('&') ? query.slice(0, -1) : query;
 
-        const apiUrl = `https://arvindo-api2.clay.in/api/ProcessMaster/SearchProcessList${query}`;
+    //     const apiUrl = `https://arvindo-api2.clay.in/api/ProcessMaster/SearchProcessList${query}`;
 
-        console.log(apiUrl)
-        axios.get(apiUrl, {
-            headers: {
-                'accept': '*/*'
-            }
-        })
-            .then((response) => {
-                setProcesses(response.data.processMasterListResponses)
-            })
-            .catch((error) => {
-                console.error('Error fetching data:', error);
-            });
-    };
+    //     console.log(apiUrl)
+    //     axios.get(apiUrl, {
+    //         headers: {
+    //             'accept': '*/*'
+    //         }
+    //     })
+    //         .then((response) => {
+    //             setProcesses(response.data.processMasterListResponses)
+    //         })
+    //         .catch((error) => {
+    //             console.error('Error fetching data:', error);
+    //         });
+    // };
 
 
     const fetchRoles = async () => {
@@ -238,7 +238,9 @@ const MessMaster = () => {
                     </div>
                 ) : (<>
                     <div className='bg-white p-2 pb-2'>
-                        <Form onSubmit={handleSearch}>
+                        <Form 
+                        // onSubmit={handleSearch}
+                        >
                             <Row>
 
                                 <Col lg={6}>
