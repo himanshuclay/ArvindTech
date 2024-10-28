@@ -222,7 +222,7 @@ const ModuleMaster = () => {
                                             getOptionLabel={(item) => item.identifier} 
                                             getOptionValue={(item) => item.identifier}
                                             isSearchable={true} 
-                                            placeholder="Search..."
+                                            placeholder="Select Identifier"
                                             className="h45"
                                         />
                                     </Form.Group>

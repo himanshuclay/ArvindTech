@@ -278,7 +278,7 @@ const ModuleMaster = () => {
                                                         getOptionLabel={(item) => item.moduleName}
                                                         getOptionValue={(item) => item.moduleName}
                                                         isSearchable={true}
-                                                        placeholder="Search..."
+                                                        placeholder="Select Module Display Name"
                                                         className="h45"
                                                     />
                                                 </Form.Group>
@@ -295,7 +295,7 @@ const ModuleMaster = () => {
                                                         getOptionLabel={(emp) => emp.employeeName}
                                                         getOptionValue={(emp) => emp.empId}
                                                         isSearchable={true}
-                                                        placeholder="Search..."
+                                                        placeholder="Select Module Owner Name."
                                                         className="h45"
                                                     />
                                                 </Form.Group>
@@ -405,7 +405,7 @@ const ModuleMaster = () => {
 
                                                                         {col.id === 'statusID' ? (
                                                                             <td>
-                                                                                {item.statusID === 1 ? 'Active' : 'Inactive'}
+                                                                                {item.statusID === 1 ? 'ACTIVE' : 'INACTIVE'}
                                                                             </td>
                                                                         ) : col.id === 'moduleOwnerName' ? (
                                                                             <td>

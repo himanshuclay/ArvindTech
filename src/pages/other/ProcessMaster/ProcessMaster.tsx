@@ -324,7 +324,7 @@ const ModuleMaster = () => {
                                                         getOptionLabel={(item) => item.moduleName}
                                                         getOptionValue={(item) => item.moduleName}
                                                         isSearchable={true}
-                                                        placeholder="Search..."
+                                                        placeholder="Select Module Name"
                                                         className="h45"
                                                     />
                                                 </Form.Group>
@@ -341,7 +341,7 @@ const ModuleMaster = () => {
                                                         getOptionLabel={(item) => item.processName}
                                                         getOptionValue={(item) => item.processName}
                                                         isSearchable={true}
-                                                        placeholder="Search..."
+                                                        placeholder="Select Process Name"
                                                         className="h45"
                                                         isDisabled={!ModuleName}
                                                     />
@@ -359,7 +359,7 @@ const ModuleMaster = () => {
                                                         getOptionLabel={(item) => item.employeeName.split('_')[0]}
                                                         getOptionValue={(item) => item.empId}
                                                         isSearchable={true}
-                                                        placeholder="Search..."
+                                                        placeholder="Process Owner Name"
                                                         className="h45"
                                                     />
                                                 </Form.Group>
@@ -444,8 +444,8 @@ const ModuleMaster = () => {
                                                                     className={
                                                                         col.id === 'processOwnerName' ? 'fw-bold fs-13 text-dark text-nowrap' :
                                                                             col.id === 'moduleName' ? 'fw-bold fs-13   text-nowrap' :
-                                                                                (col.id === 'status' && item[col.id] === "NO") ? 'task4' :
-                                                                                    (col.id === 'status' && item[col.id] === "YES") ? 'task1' :
+                                                                                (col.id === 'status' && item[col.id] === "ACTIVE") ? 'task1' :
+                                                                                    (col.id === 'status' && item[col.id] === "INACTIVE") ? 'task4' :
                                                                                         ''
                                                                     }
                                                                 >
@@ -456,14 +456,11 @@ const ModuleMaster = () => {
                                                                                 {item.processOwnerName.split('_')[0]}
                                                                             </div>
                                                                         </td>
-                                                                    ) : col.id === 'status' ? (
-                                                                        <td>
-                                                                            <div className='d-flex align-items-center'>
-                                                                                {item.status === "YES" ? "Active" : "Inactive"}
-                                                                            </div>
-                                                                        </td>
-                                                                    ) : (
+                                                                    ) :  (
+                                                                        <div>
+
                                                                         <td>{item[col.id as keyof Process]}</td>
+                                                                        </div>
                                                                     )}
 
 

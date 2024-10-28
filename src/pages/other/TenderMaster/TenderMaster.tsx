@@ -8,16 +8,55 @@ import Select from 'react-select';
 
 
 
-interface Designation {
+interface Tender {
     id: number;
-    department: string;
-    coreDesignation: string;
-    specializedDesignation: string;
-    processType: string;
-    uploadJD: string;
+    tenderStatus: string;
+    executorCompany: string;
+    country: string;
+    state: string;
+    workName: string;
+    notificationDate: string;
+    tenderLink: string;
+    deptPrincipleEmployerID: string;
+    deptPrincipleEmployerName: string;
+    contractType: string;
+    estimatedCost: string;
+    docPurchaseDeadline: string;
+    initialBidSubmitDate: string;
+    latestBidSubmissionDate: string;
+    completionPeriod: string;
+    notificationFilePath: string;
+    notificationFileURL: string;
+    referredBy: string;
+    enteredByEmpID: string;
+    enteredByEmpName: string;
+    entryDate: string;
+    handlingType: string;
+    boqDeliveryDate: string;
+    executionModel: string;
+    client_JVID: string;
+    client_JVName: string;
+    ddcVendorCode: string;
+    ddcVendorName: string;
+    technicalBidResultDate: string;
+    financialBidOpeningDate: string;
+    statusLastUpdatedDate: string;
+    atBid: string;
+    l1BidderCode: string;
+    l1BidderName: string;
+    l1Bid: string;
+    loiDate: string;
+    loiStatus: string;
+    agreementSigned: string;
+    pbgSubmissionRequired: string;
+    pbgSubmissionDate: string;
+    lostTenderReviewRequired: string;
+    tenderComparisionReportPath: string;
+    tenderComparisionReportURL: string;
     createdBy: string;
     updatedBy: string;
 }
+
 
 interface Column {
     id: string;
@@ -31,25 +70,63 @@ interface DepartmentList {
     departmentName: string;
 }
 
-const DesignationMaster = () => {
-    const [designations, setDesignations] = useState<Designation[]>([]);
+const TenderMaster = () => {
+    const [tenders, setTenders] = useState<Tender[]>([]);
     const [loading, setLoading] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
     const [searchQuery, setSearchQuery] = useState('');
 
 
- 
+
     const [departmentList, setDepartmentList] = useState<DepartmentList[]>([]);
 
 
     // both are required to make dragable column of table 
     const [columns, setColumns] = useState<Column[]>([
-        { id: 'department', label: 'Department', visible: true },
-        { id: 'coreDesignation', label: 'Core Designation', visible: true },
-        { id: 'specializedDesignation', label: 'Specialized Designation', visible: true },
-        { id: 'processType', label: 'Process Type', visible: true },
-        { id: 'uploadJD', label: 'Upload JD', visible: true },
+        { id: 'tenderStatus', label: 'Tender Status', visible: true },
+        { id: 'executorCompany', label: 'Executor Company', visible: true },
+        { id: 'country', label: 'Country', visible: true },
+        { id: 'state', label: 'State', visible: true },
+        { id: 'workName', label: 'Work Name', visible: true },
+        { id: 'notificationDate', label: 'Notification Date', visible: true },
+        { id: 'tenderLink', label: 'Tender Link', visible: true },
+        { id: 'deptPrincipleEmployerID', label: 'Dept Principle Employer ID', visible: true },
+        { id: 'deptPrincipleEmployerName', label: 'Dept Principle Employer Name', visible: true },
+        { id: 'contractType', label: 'Contract Type', visible: true },
+        { id: 'estimatedCost', label: 'Estimated Cost', visible: true },
+        { id: 'docPurchaseDeadline', label: 'Document Purchase Deadline', visible: true },
+        { id: 'initialBidSubmitDate', label: 'Initial Bid Submit Date', visible: true },
+        { id: 'latestBidSubmissionDate', label: 'Latest Bid Submission Date', visible: true },
+        { id: 'completionPeriod', label: 'Completion Period', visible: true },
+        { id: 'notificationFilePath', label: 'Notification File Path', visible: true },
+        { id: 'notificationFileURL', label: 'Notification File URL', visible: true },
+        { id: 'referredBy', label: 'Referred By', visible: true },
+        { id: 'enteredByEmpID', label: 'Entered By Emp ID', visible: true },
+        { id: 'enteredByEmpName', label: 'Entered By Emp Name', visible: true },
+        { id: 'entryDate', label: 'Entry Date', visible: true },
+        { id: 'handlingType', label: 'Handling Type', visible: true },
+        { id: 'boqDeliveryDate', label: 'BOQ Delivery Date', visible: true },
+        { id: 'executionModel', label: 'Execution Model', visible: true },
+        { id: 'client_JVID', label: 'Client JV ID', visible: true },
+        { id: 'client_JVName', label: 'Client JV Name', visible: true },
+        { id: 'ddcVendorCode', label: 'DDC Vendor Code', visible: true },
+        { id: 'ddcVendorName', label: 'DDC Vendor Name', visible: true },
+        { id: 'technicalBidResultDate', label: 'Technical Bid Result Date', visible: true },
+        { id: 'financialBidOpeningDate', label: 'Financial Bid Opening Date', visible: true },
+        { id: 'statusLastUpdatedDate', label: 'Status Last Updated Date', visible: true },
+        { id: 'atBid', label: 'AT Bid', visible: true },
+        { id: 'l1BidderCode', label: 'L1 Bidder Code', visible: true },
+        { id: 'l1BidderName', label: 'L1 Bidder Name', visible: true },
+        { id: 'l1Bid', label: 'L1 Bid', visible: true },
+        { id: 'loiDate', label: 'LOI Date', visible: true },
+        { id: 'loiStatus', label: 'LOI Status', visible: true },
+        { id: 'agreementSigned', label: 'Agreement Signed', visible: true },
+        { id: 'pbgSubmissionRequired', label: 'PBG Submission Required', visible: true },
+        { id: 'pbgSubmissionDate', label: 'PBG Submission Date', visible: true },
+        { id: 'lostTenderReviewRequired', label: 'Lost Tender Review Required', visible: true },
+        { id: 'tenderComparisionReportPath', label: 'Tender Comparison Report Path', visible: true },
+        { id: 'tenderComparisionReportURL', label: 'Tender Comparison Report URL', visible: true },
     ]);
 
 
@@ -89,7 +166,7 @@ const DesignationMaster = () => {
         })
             .then((response) => {
                 console.log("search response ", response.data.doerMasterListResponses);
-                setDesignations(response.data.doerMasterListResponses)
+                setTenders(response.data.doerMasterListResponses)
             })
             .catch((error) => {
                 console.error('Error fetching data:', error);
@@ -99,11 +176,11 @@ const DesignationMaster = () => {
     const fetchStaffRequirements = async () => {
         setLoading(true);
         try {
-            const response = await axios.get(`${config.API_URL_APPLICATION}/DesignationMaster/GetDesignation`, {
+            const response = await axios.get(`${config.API_URL_APPLICATION}/TenderMaster/GetTender`, {
                 params: { PageIndex: currentPage }
             });
             if (response.data.isSuccess) {
-                setDesignations(response.data.designations);
+                setTenders(response.data.tenders);
                 setTotalPages(Math.ceil(response.data.totalCount / 10));
             } else {
                 console.error(response.data.message);
@@ -142,31 +219,84 @@ const DesignationMaster = () => {
     };
 
 
-    const convertToCSV = (data: Designation[]) => {
+    const convertToCSV = (data: Tender[]) => {
         const csvRows = [
-            ['ID', 
-                'Department',
-                'Core Designation',
-                'Specialized Designation',
-                'Process Type', 
-                'Recruiter', 'Upload JD',  'Created By', 'Updated By'],
-            ...data.map(doer => [
-                doer.id,
-                doer.department,
-                doer.coreDesignation,
-                doer.specializedDesignation,
-                doer.processType,
-                doer.uploadJD,
-                doer.createdBy,
-                doer.updatedBy
+            [
+                'ID',
+                'Tender Status', 'Executor Company', 'Country',
+                'State', 'Work Name', 'Notification Date',
+                'Tender Link', 'Dept Principle Employer ID',
+                'Dept Principle Employer Name', 'Contract Type',
+                'Estimated Cost', 'Document Purchase Deadline',
+                'Initial Bid Submit Date', 'Latest Bid Submission Date',
+                'Completion Period', 'Notification File Path',
+                'Notification File URL', 'Referred By', 'Entered By Emp ID',
+                'Entered By Emp Name', 'Entry Date', 'Handling Type',
+                'BOQ Delivery Date', 'Execution Model',
+                'Client JV ID', 'Client JV Name', 'DDC Vendor Code',
+                'DDC Vendor Name', 'Technical Bid Result Date', 'Financial Bid Opening Date',
+                'Status Last Updated Date', 'AT Bid', 'L1 Bidder Code',
+                'L1 Bidder Name', 'L1 Bid', 'LOI Date', 'LOI Status',
+                'Agreement Signed', 'PBG Submission Required', 'PBG Submission Date',
+                'Lost Tender Review Required', 'Tender Comparison Report Path',
+                'Tender Comparison Report URL', 'Created By', 'Updated By'
+            ],
+            ...data.map(tender => [
+                tender.id,
+                tender.tenderStatus,
+                tender.executorCompany,
+                tender.country,
+                tender.state,
+                tender.workName,
+                tender.notificationDate,
+                tender.tenderLink,
+                tender.deptPrincipleEmployerID,
+                tender.deptPrincipleEmployerName,
+                tender.contractType,
+                tender.estimatedCost,
+                tender.docPurchaseDeadline,
+                tender.initialBidSubmitDate,
+                tender.latestBidSubmissionDate,
+                tender.completionPeriod,
+                tender.notificationFilePath,
+                tender.notificationFileURL,
+                tender.referredBy,
+                tender.enteredByEmpID,
+                tender.enteredByEmpName,
+                tender.entryDate,
+                tender.handlingType,
+                tender.boqDeliveryDate,
+                tender.executionModel,
+                tender.client_JVID,
+                tender.client_JVName,
+                tender.ddcVendorCode,
+                tender.ddcVendorName,
+                tender.technicalBidResultDate,
+                tender.financialBidOpeningDate,
+                tender.statusLastUpdatedDate,
+                tender.atBid,
+                tender.l1BidderCode,
+                tender.l1BidderName,
+                tender.l1Bid,
+                tender.loiDate,
+                tender.loiStatus,
+                tender.agreementSigned,
+                tender.pbgSubmissionRequired,
+                tender.pbgSubmissionDate,
+                tender.lostTenderReviewRequired,
+                tender.tenderComparisionReportPath,
+                tender.tenderComparisionReportURL,
+                tender.createdBy,
+                tender.updatedBy
             ])
         ];
         return csvRows.map(row => row.join(',')).join('\n');
     };
 
 
+
     const downloadCSV = () => {
-        const csvData = convertToCSV(designations);
+        const csvData = convertToCSV(tenders);
         const blob = new Blob([csvData], { type: 'text/csv;charset=utf-8;' });
         const link = document.createElement('a');
         if (link.download !== undefined) {
@@ -194,12 +324,12 @@ const DesignationMaster = () => {
         <>
             <div className="container">
                 <div className="d-flex bg-white p-2 my-2 justify-content-between align-items-center">
-                    <span><i className="ri-file-list-line me-2 text-dark fs-16"></i><span className='fw-bold text-dark fs-15'>Designation List</span></span>
+                    <span><i className="ri-file-list-line me-2 text-dark fs-16"></i><span className='fw-bold text-dark fs-15'>Tender List</span></span>
                     <div className="d-flex justify-content-end  ">
 
-                        <Link to='/pages/DesignationMasterinsert'>
+                        <Link to='/pages/TenderMasterinsert'>
                             <Button variant="primary" className="me-2">
-                                Add Designation
+                                Add Tender
                             </Button>
                         </Link>
 
@@ -224,7 +354,7 @@ const DesignationMaster = () => {
                                             <Select
                                                 name="searchDepartmentName"
                                                 value={departmentList.find(emp => emp.departmentName === searchDepartmentValue) || null}
-                                                onChange={(selectedOption) => setSearchDepartmentValue(selectedOption ? selectedOption.departmentName : "")} 
+                                                onChange={(selectedOption) => setSearchDepartmentValue(selectedOption ? selectedOption.departmentName : "")}
                                                 options={departmentList}
                                                 getOptionLabel={(emp) => emp.departmentName}
                                                 getOptionValue={(emp) => emp.departmentName}
@@ -269,7 +399,7 @@ const DesignationMaster = () => {
                                         </Form.Group>
                                     </Col>
 
-                                  
+
                                     <Col lg={4} className="mt-2"></Col>
                                     <Col lg={4} className="mt-2"></Col>
 
@@ -314,7 +444,7 @@ const DesignationMaster = () => {
                         </div>
 
                         <div className="overflow-auto text-nowrap">
-                            {!designations ? (
+                            {!tenders ? (
                                 <Container className="mt-5">
                                     <Row className="justify-content-center">
                                         <Col xs={12} md={8} lg={6}>
@@ -340,12 +470,51 @@ const DesignationMaster = () => {
                                                                         <div ref={provided.innerRef}
                                                                             {...provided.draggableProps}
                                                                             {...provided.dragHandleProps}>
-                                                                         
-                                                                            {column.id === 'department' && (<i className="ri-group-fill"></i>)}
-                                                                            {column.id === 'coreDesignation' && (<i className="ri-briefcase-fill"></i>)}
-                                                                            {column.id === 'specializedDesignation' && (<i className="ri-award-fill"></i>)}
-                                                                            {column.id === 'uploadJD' && (<i className="ri-file-upload-line"></i>)}
-                                                                            {column.id === 'processType' && (<i className="ri-lock-fill"></i>)}
+
+                                                                            {column.id === 'id' && (<i className="ri-id-card-fill"></i>)}
+                                                                            {column.id === 'tenderStatus' && (<i className="ri-information-line"></i>)}
+                                                                            {column.id === 'executorCompany' && (<i className="ri-building-line"></i>)}
+                                                                            {column.id === 'country' && (<i className="ri-earth-fill"></i>)}
+                                                                            {column.id === 'state' && (<i className="ri-map-pin-fill"></i>)}
+                                                                            {column.id === 'workName' && (<i className="ri-file-text-fill"></i>)}
+                                                                            {column.id === 'notificationDate' && (<i className="ri-calendar-line"></i>)}
+                                                                            {column.id === 'tenderLink' && (<i className="ri-links-line"></i>)}
+                                                                            {column.id === 'deptPrincipleEmployerID' && (<i className="ri-user-settings-line"></i>)}
+                                                                            {column.id === 'deptPrincipleEmployerName' && (<i className="ri-user-fill"></i>)}
+                                                                            {column.id === 'contractType' && (<i className="ri-briefcase-line"></i>)}
+                                                                            {column.id === 'estimatedCost' && (<i className="ri-money-dollar-circle-line"></i>)}
+                                                                            {column.id === 'docPurchaseDeadline' && (<i className="ri-timer-line"></i>)}
+                                                                            {column.id === 'initialBidSubmitDate' && (<i className="ri-file-list-3-line"></i>)}
+                                                                            {column.id === 'latestBidSubmissionDate' && (<i className="ri-calendar-check-line"></i>)}
+                                                                            {column.id === 'completionPeriod' && (<i className="ri-timer-flash-line"></i>)}
+                                                                            {column.id === 'notificationFilePath' && (<i className="ri-file-list-line"></i>)}
+                                                                            {column.id === 'notificationFileURL' && (<i className="ri-link"></i>)}
+                                                                            {column.id === 'referredBy' && (<i className="ri-user-heart-line"></i>)}
+                                                                            {column.id === 'enteredByEmpID' && (<i className="ri-user-line"></i>)}
+                                                                            {column.id === 'enteredByEmpName' && (<i className="ri-user-3-line"></i>)}
+                                                                            {column.id === 'entryDate' && (<i className="ri-calendar-event-line"></i>)}
+                                                                            {column.id === 'handlingType' && (<i className="ri-hand-coin-line"></i>)}
+                                                                            {column.id === 'boqDeliveryDate' && (<i className="ri-calendar-todo-line"></i>)}
+                                                                            {column.id === 'executionModel' && (<i className="ri-bar-chart-box-line"></i>)}
+                                                                            {column.id === 'client_JVID' && (<i className="ri-user-line"></i>)}
+                                                                            {column.id === 'client_JVName' && (<i className="ri-user-line"></i>)}
+                                                                            {column.id === 'ddcVendorCode' && (<i className="ri-building-2-line"></i>)}
+                                                                            {column.id === 'ddcVendorName' && (<i className="ri-user-2-line"></i>)}
+                                                                            {column.id === 'technicalBidResultDate' && (<i className="ri-calendar-line"></i>)}
+                                                                            {column.id === 'financialBidOpeningDate' && (<i className="ri-calendar-check-line"></i>)}
+                                                                            {column.id === 'statusLastUpdatedDate' && (<i className="ri-calendar-event-line"></i>)}
+                                                                            {column.id === 'atBid' && (<i className="ri-money-dollar-circle-line"></i>)}
+                                                                            {column.id === 'l1BidderCode' && (<i className="ri-barcode-box-line"></i>)}
+                                                                            {column.id === 'l1BidderName' && (<i className="ri-user-star-line"></i>)}
+                                                                            {column.id === 'l1Bid' && (<i className="ri-money-dollar-circle-fill"></i>)}
+                                                                            {column.id === 'loiDate' && (<i className="ri-calendar-star-line"></i>)}
+                                                                            {column.id === 'loiStatus' && (<i className="ri-file-shield-2-line"></i>)}
+                                                                            {column.id === 'agreementSigned' && (<i className="ri-handshake-line"></i>)}
+                                                                            {column.id === 'pbgSubmissionRequired' && (<i className="ri-secure-payment-line"></i>)}
+                                                                            {column.id === 'pbgSubmissionDate' && (<i className="ri-calendar-check-fill"></i>)}
+                                                                            {column.id === 'lostTenderReviewRequired' && (<i className="ri-eye-line"></i>)}
+                                                                            {column.id === 'tenderComparisionReportPath' && (<i className="ri-file-search-line"></i>)}
+                                                                            {column.id === 'tenderComparisionReportURL' && (<i className="ri-links-line"></i>)}
                                                                             &nbsp; {column.label}
                                                                         </div>
                                                                     </th>
@@ -359,8 +528,8 @@ const DesignationMaster = () => {
                                             </Droppable>
                                         </thead>
                                         <tbody>
-                                            {designations.length > 0 ? (
-                                                designations.slice(0, 10).map((item, index) => (
+                                            {tenders.length > 0 ? (
+                                                tenders.slice(0, 10).map((item, index) => (
                                                     <tr key={item.id}>
                                                         <td>{(currentPage - 1) * 10 + index + 1}</td>
                                                         {columns.filter(col => col.visible).map((col) => (
@@ -370,11 +539,11 @@ const DesignationMaster = () => {
                                                                     col.id === 'department' ? 'fw-bold fs-13 text-dark task1' : ''
                                                                 }
                                                             >
-                                                                <div>{item[col.id as keyof Designation]}</div>
+                                                                <div>{item[col.id as keyof Tender]}</div>
                                                             </td>
                                                         ))}
 
-                                                        <td><Link to={`/pages/DesignationMasterinsert/${item.id}`}>
+                                                        <td><Link to={`/pages/TenderMasterinsert/${item.id}`}>
                                                             <Button variant='primary' className='p-0 text-white'>
                                                                 <i className='btn ri-edit-line text-white' ></i>
                                                             </Button>
@@ -412,4 +581,4 @@ const DesignationMaster = () => {
     );
 };
 
-export default DesignationMaster;
+export default TenderMaster;

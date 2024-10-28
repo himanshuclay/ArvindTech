@@ -317,14 +317,14 @@ const RequirementMaster = () => {
                                 <Row>
                                     <Col lg={4}>
                                         <Form.Group controlId="searchEmployeeName">
-                                            <Form.Label>Doer Name:</Form.Label>
+                                            <Form.Label>Project Name</Form.Label>
                                             <Select
                                                 name="searchEmployeeName"
-                                                value={employeeList.find(emp => emp.empId === searchEmployeeName) || null} // handle null
-                                                onChange={(selectedOption) => setSearchEmployeeName(selectedOption ? selectedOption.empId : "")} // null check
-                                                options={employeeList}
-                                                getOptionLabel={(emp) => emp.employeeName}
-                                                getOptionValue={(emp) => emp.empId}
+                                                // value={employeeList.find(emp => emp.empId === searchEmployeeName) || null} // handle null
+                                                // onChange={(selectedOption) => setSearchEmployeeName(selectedOption ? selectedOption.empId : "")} // null check
+                                                // options={employeeList}
+                                                // getOptionLabel={(emp) => emp.employeeName}
+                                                // getOptionValue={(emp) => emp.empId}
                                                 isSearchable={true}
                                                 placeholder="Search..."
                                                 className="h45"
@@ -334,14 +334,14 @@ const RequirementMaster = () => {
 
                                     <Col lg={4}>
                                         <Form.Group controlId="searchDoerRole">
-                                            <Form.Label>Doer Role:</Form.Label>
+                                            <Form.Label>Recruiter Name</Form.Label>
                                             <Select
                                                 name="searchDoerRole"
-                                                value={roleList.find(role => role.roleName === searchDoerRole) || null} // handle null
-                                                onChange={(selectedOption) => setSearchDoerRole(selectedOption ? selectedOption.roleName : "")} // null check
-                                                options={roleList}
-                                                getOptionLabel={(role) => role.roleName}
-                                                getOptionValue={(role) => role.roleName}
+                                                // value={roleList.find(role => role.roleName === searchDoerRole) || null} // handle null
+                                                // onChange={(selectedOption) => setSearchDoerRole(selectedOption ? selectedOption.roleName : "")} // null check
+                                                // options={roleList}
+                                                // getOptionLabel={(role) => role.roleName}
+                                                // getOptionValue={(role) => role.roleName}
                                                 isSearchable={true}
                                                 placeholder="Search..."
                                                 className="h45"
@@ -351,14 +351,14 @@ const RequirementMaster = () => {
 
                                     <Col lg={4}>
                                         <Form.Group controlId="searchTaskId">
-                                            <Form.Label>Task ID:</Form.Label>
+                                            <Form.Label>Entered By</Form.Label>
                                             <Select
                                                 name="searchTaskId"
-                                                value={taskList.find(task => task.taskID === searchTaskId) || null} // handle null
-                                                onChange={(selectedOption) => setSearchTaskId(selectedOption ? selectedOption.taskID : "")} // null check
-                                                options={taskList}
-                                                getOptionLabel={(task) => task.taskID}
-                                                getOptionValue={(task) => task.taskID}
+                                                // value={taskList.find(task => task.taskID === searchTaskId) || null} // handle null
+                                                // onChange={(selectedOption) => setSearchTaskId(selectedOption ? selectedOption.taskID : "")} // null check
+                                                // options={taskList}
+                                                // getOptionLabel={(task) => task.taskID}
+                                                // getOptionValue={(task) => task.taskID}
                                                 isSearchable={true}
                                                 placeholder="Search..."
                                                 className="h45"
@@ -366,7 +366,7 @@ const RequirementMaster = () => {
                                         </Form.Group>
                                     </Col>
 
-                                    <Col lg={4} className="mt-2">
+                                    {/* <Col lg={4} className="mt-2">
                                         <Form.Group controlId="searchIdentifier">
                                             <Form.Label>Identifier:</Form.Label>
                                             <Select
@@ -381,26 +381,26 @@ const RequirementMaster = () => {
                                                 className="h45"
                                             />
                                         </Form.Group>
-                                    </Col>
+                                    </Col> */}
 
-                                    <Col lg={4} className="mt-2">
+                                    {/* <Col lg={4} className="mt-2">
                                         <Form.Group controlId="searchInput">
                                             <Form.Label>Input:</Form.Label>
                                             <Select
                                                 name="searchInput"
-                                                value={inputList.find(item => item.input === searchInput) || null} // handle null
-                                                onChange={(selectedOption) => setSearchInput(selectedOption ? selectedOption.input : "")} // null check
-                                                options={inputList}
-                                                getOptionLabel={(item) => item.input}
-                                                getOptionValue={(item) => item.input}
+                                                // value={inputList.find(item => item.input === searchInput) || null} // handle null
+                                                // onChange={(selectedOption) => setSearchInput(selectedOption ? selectedOption.input : "")} // null check
+                                                // options={inputList}
+                                                // getOptionLabel={(item) => item.input}
+                                                // getOptionValue={(item) => item.input}
                                                 isSearchable={true}
                                                 placeholder="Search..."
                                                 className="h45"
                                             />
                                         </Form.Group>
-                                    </Col>
+                                    </Col> */}
 
-                                    <Col lg={4} className="mt-2">
+                                    {/* <Col lg={4} className="mt-2">
                                         <Form.Group controlId="searchInputValue">
                                             <Form.Label>Input Value:</Form.Label>
                                             <Select
@@ -415,7 +415,7 @@ const RequirementMaster = () => {
                                                 className="h45"
                                             />
                                         </Form.Group>
-                                    </Col>
+                                    </Col> */}
                                     <Col lg={4} className="mt-2"></Col>
                                     <Col lg={4} className="mt-2"></Col>
 

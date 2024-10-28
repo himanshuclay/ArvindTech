@@ -258,7 +258,7 @@ const EmployeeInsert = () => {
           
 
         } catch (error) {
-            setToastMessage("Error deleting project assignment");
+            setToastMessage("Error Adding/Updating");
             setToastVariant("rgb(213 18 18)");
             setShowToast(true);
             console.error('Error submitting module:', error);
@@ -367,7 +367,7 @@ const EmployeeInsert = () => {
                                                 status: selectedOption?.name || '',
                                             });
                                         }}
-                                        getOptionLabel={(item) => item.id == 1 ? "Active " : " Inactive"}
+                                        getOptionLabel={(item) => item.name}
                                         getOptionValue={(item) => item.name}
                                         options={misExempt}
                                         isSearchable={true}
@@ -376,47 +376,52 @@ const EmployeeInsert = () => {
                                     />
                                 </Form.Group>
                             </Col>
+                        
+
+
                             <Col lg={6}>
                                 <Form.Group controlId="periodFrom" className="mb-3">
-                                    <Form.Label>Period From :</Form.Label>
-                                    <Flatpickr
-                                        value={process.periodFrom}
-                                        onChange={([date]) => setProcess({
-                                            ...process,
-                                            periodFrom: date.toISOString() // Convert to ISO string
-                                        })}
-                                        options={{
-                                            enableTime: true,
-                                            dateFormat: "Y-m-d H:i",
-                                            time_24hr: true,
+                                    <Form.Label>Period From</Form.Label>
+                                    <Select
+                                        name="periodFrom"
+                                        value={dropdownValuesFlag4.find((exempt) => exempt.name === process.periodFrom)}
+                                        onChange={(selectedOption) => {
+                                            setProcess({
+                                                ...process,
+                                                periodFrom: selectedOption?.name || '',
+                                            });
                                         }}
-                                        placeholder="Select Period From"
-                                        className="form-control"
+                                        getOptionLabel={(item) => item.name}
+                                        getOptionValue={(item) => item.name}
+                                        options={dropdownValuesFlag4}
+                                        isSearchable={true}
+                                        placeholder="Select Date"
                                         required
                                     />
                                 </Form.Group>
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="periodTo" className="mb-3">
-                                    <Form.Label>Period To :</Form.Label>
-
-                                    <Flatpickr
-                                        value={process.periodTo}
-                                        onChange={([date]) => setProcess({
-                                            ...process,
-                                            periodTo: date.toISOString() // Convert to ISO string
-                                        })}
-                                        options={{
-                                            enableTime: true,
-                                            dateFormat: "Y-m-d H:i",
-                                            time_24hr: true,
+                                    <Form.Label>Period To</Form.Label>
+                                    <Select
+                                        name="periodTo"
+                                        value={dropdownValuesFlag4.find((exempt) => exempt.name === process.periodTo)}
+                                        onChange={(selectedOption) => {
+                                            setProcess({
+                                                ...process,
+                                                periodTo: selectedOption?.name || '',
+                                            });
                                         }}
-                                        placeholder="Select Period To"
-                                        className="form-control"
+                                        getOptionLabel={(item) => item.name}
+                                        getOptionValue={(item) => item.name}
+                                        options={dropdownValuesFlag4}
+                                        isSearchable={true}
+                                        placeholder="Select Date"
                                         required
                                     />
                                 </Form.Group>
                             </Col>
+                        
 
                             <Col lg={6}>
                                 <Form.Group controlId="intervalType" className="mb-3">
@@ -481,7 +486,7 @@ const EmployeeInsert = () => {
                                             getOptionValue={(item) => item.name}
                                             options={dropdownValuesFlag4}
                                             isSearchable={true}
-                                            placeholder="Select Day"
+                                            placeholder="Select Date"
                                             required
                                         />
                                     </Form.Group>

@@ -67,7 +67,12 @@ const MessMaster = React.lazy(() => import('../pages/other/MessMaster/MessMaster
 const MessMasterinsert = React.lazy(() => import('../pages/other/MessMaster/MessMasterinsert.tsx'))
 const Requirementmaster = React.lazy(() => import('../pages/other/HrMaster/RequirementMaster/Requirementmaster.tsx'))
 const Requirementmasterinsert = React.lazy(() => import('../pages/other/HrMaster/RequirementMaster/RequirementMasterinsert.tsx'))
-
+const DesignationMaster = React.lazy(() => import('../pages/other/HrMaster/DesignationMaster/DesignationMaster.tsx'))
+const DesignationMasterinsert = React.lazy(() => import('../pages/other/HrMaster/DesignationMaster/DesignationMasterinsert.tsx'))
+const DepartmentMaster = React.lazy(() => import('../pages/other/DepartmentMaster/DepartmentMaster.tsx'))
+const DepartmentMasterinsert = React.lazy(() => import('../pages/other/DepartmentMaster/DepartmentMasterinsert.tsx'))
+const TenderMaster = React.lazy(() => import('../pages/other/TenderMaster/TenderMaster.tsx'))
+const TenderMasterinsert = React.lazy(() => import('../pages/other/TenderMaster/TenderMasterinsert.tsx'))
 
 
 
@@ -563,6 +568,61 @@ const customPagesRoutes = {
 			path: '/pages/Requirementmasterinsert',
 			name: 'Requirementmasterinsert ',
 			element: <Requirementmasterinsert />,
+			route: PrivateRoute,
+		},
+
+		{
+			path: '/pages/DesignationMaster',
+			name: 'DesignationMaster ',
+			element: <DesignationMaster />,
+			route: PrivateRoute,
+		},
+		{
+			path: '/pages/DesignationMasterinsert/:id',
+			name: 'DesignationMasterinsert ',
+			element: <DesignationMasterinsert />,
+			route: PrivateRoute,
+		},
+		{
+			path: '/pages/DesignationMasterinsert',
+			name: 'DesignationMasterinsert ',
+			element: <DesignationMasterinsert />,
+			route: PrivateRoute,
+		},
+		{
+			path: '/pages/DepartmentMaster',
+			name: 'DepartmentMaster ',
+			element: <DepartmentMaster />,
+			route: PrivateRoute,
+		},
+		{
+			path: '/pages/DepartmentMasterinsert/:id',
+			name: 'DepartmentMasterinsert ',
+			element: <DepartmentMasterinsert />,
+			route: PrivateRoute,
+		},
+		{
+			path: '/pages/DepartmentMasterinsert',
+			name: 'DepartmentMasterinsert ',
+			element: <DepartmentMasterinsert />,
+			route: PrivateRoute,
+		},
+		{
+			path: '/pages/TenderMaster',
+			name: 'TenderMaster ',
+			element: <TenderMaster />,
+			route: PrivateRoute,
+		},
+		{
+			path: '/pages/TenderMasterinsert/:id',
+			name: 'TenderMasterinsert ',
+			element: <TenderMasterinsert />,
+			route: PrivateRoute,
+		},
+		{
+			path: '/pages/TenderMasterinsert',
+			name: 'TenderMasterinsert ',
+			element: <TenderMasterinsert />,
 			route: PrivateRoute,
 		},
 
