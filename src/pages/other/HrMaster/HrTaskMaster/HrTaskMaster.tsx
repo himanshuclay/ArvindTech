@@ -109,11 +109,12 @@ const HrTaskMaster = () => {
 
     // both are required to make dragable column of table 
     const [columns, setColumns] = useState<Column[]>([
+        { id: 'moduleID', label: 'Module ID', visible: true },
+        { id: 'processID', label: 'Process ID', visible: true },
         { id: 'taskDisplayName', label: 'Task Display Name', visible: true },
         { id: 'taskDescription', label: 'Task Description', visible: true },
         { id: 'role', label: 'Role', visible: true },
-        { id: 'moduleID', label: 'Module ID', visible: true },
-        { id: 'processID', label: 'Process ID', visible: true },
+        { id: 'howPlannedDateIsCalculated', label: 'How Planned Date Is Calculated', visible: true },
         { id: 'predecessor', label: 'Predecessor', visible: true },
         { id: 'successor', label: 'Successor', visible: true },
         { id: 'generationType', label: 'Generation Type', visible: true },
