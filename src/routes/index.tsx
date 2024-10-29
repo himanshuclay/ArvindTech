@@ -25,8 +25,6 @@ const MaintenancePages = React.lazy(() => import('../pages/other/Maintenance'))
 const TemplateMaster = React.lazy(() => import('../pages/other/Modules-Master.tsx'))
 const ActiveTasks = React.lazy(() => import('../pages/other/ActiveTasks.tsx'))
 const ActiveProject = React.lazy(() => import('../pages/other/ActiveProject.tsx'))
-// const FilterTasks = React.lazy(() => import('../pages/other/FilterTasks.tsx'))
-// const Filtertask = React.lazy(() => import('../pages/other/Filtertask.tsx'))
 const Notification = React.lazy(() => import('../pages/other/Notification.tsx'))
 const ModuleList = React.lazy(() => import('../pages/other/Module-list.tsx'))
 const EmployeeMaster = React.lazy(() => import('../pages/other/Employee-Master.tsx'))
@@ -77,6 +75,16 @@ const HrInputMaster = React.lazy(() => import('../pages/other/HrMaster/HrInputMa
 const HrInputMasterinsert = React.lazy(() => import('../pages/other/HrMaster/HrInputMaster/HrInputMasterinsert.tsx'))
 const HrTaskMaster = React.lazy(() => import('../pages/other/HrMaster/HrTaskMaster/HrTaskMaster.tsx'))
 const HrTaskMasterinsert = React.lazy(() => import('../pages/other/HrMaster/HrTaskMaster/HrTaskMasterinsert.tsx'))
+const HrDoerMaster = React.lazy(() => import('../pages/other/HrMaster/HrDoerMaster/HrDoerMaster.tsx'))
+const HrDoerMasterinsert = React.lazy(() => import('../pages/other/HrMaster/HrDoerMaster/HrDoerMasterinsert.tsx'))
+const HrResumeMaster = React.lazy(() => import('../pages/other/HrMaster/HrResumeMaster/HrResumeMaster.tsx'))
+const HrResumeMasterinsert = React.lazy(() => import('../pages/other/HrMaster/HrResumeMaster/HrResumeMasterinsert.tsx'))
+const BdInputMaster = React.lazy(() => import('../pages/other/BdMaster/BdInputMaster/BdInputMaster.tsx'))
+const BdInputMasterinsert = React.lazy(() => import('../pages/other/BdMaster/BdInputMaster/BdInputMasterinsert.tsx'))
+const BdTaskMaster = React.lazy(() => import('../pages/other/BdMaster/BdTaskMaster/BdTaskMaster.tsx'))
+const BdTaskMasterinsert = React.lazy(() => import('../pages/other/BdMaster/BdTaskMaster/BdTaskMasterinsert.tsx'))
+const BdDoerMaster = React.lazy(() => import('../pages/other/BdMaster/BdDoermaster/BdDoerMaster.tsx'))
+const BdDoerMasterinsert = React.lazy(() => import('../pages/other/BdMaster/BdDoermaster/BdDoerMasterinsert.tsx'))
 
 
 
@@ -595,6 +603,96 @@ const customPagesRoutes = {
 			path: '/pages/HrTaskMasterinsert',
 			name: 'HrTaskMasterinsert ',
 			element: <HrTaskMasterinsert />,
+			route: PrivateRoute,
+		},
+		{
+			path: '/pages/HrDoerMaster',
+			name: 'HrDoerMaster ',
+			element: <HrDoerMaster />,
+			route: PrivateRoute,
+		},
+		{
+			path: '/pages/HrDoerMasterinsert/:id',
+			name: 'HrDoerMasterinsert ',
+			element: <HrDoerMasterinsert />,
+			route: PrivateRoute,
+		},
+		{
+			path: '/pages/HrDoerMasterinsert',
+			name: 'HrDoerMasterinsert ',
+			element: <HrDoerMasterinsert />,
+			route: PrivateRoute,
+		},
+		{
+			path: '/pages/HrResumeMaster',
+			name: 'HrResumeMaster ',
+			element: <HrResumeMaster />,
+			route: PrivateRoute,
+		},
+		{
+			path: '/pages/HrResumeMasterinsert/:id',
+			name: 'HrResumeMasterinsert ',
+			element: <HrResumeMasterinsert />,
+			route: PrivateRoute,
+		},
+		{
+			path: '/pages/HrResumeMasterinsert',
+			name: 'HrResumeMasterinsert ',
+			element: <HrResumeMasterinsert />,
+			route: PrivateRoute,
+		},
+		{
+			path: '/pages/BdTaskMaster',
+			name: 'BdTaskMaster ',
+			element: <BdTaskMaster />,
+			route: PrivateRoute,
+		},
+		{
+			path: '/pages/BdTaskMasterinsert/:id',
+			name: 'BdTaskMasterinsert ',
+			element: <BdTaskMasterinsert />,
+			route: PrivateRoute,
+		},
+		{
+			path: '/pages/BdTaskMasterinsert',
+			name: 'BdTaskMasterinsert ',
+			element: <BdTaskMasterinsert />,
+			route: PrivateRoute,
+		},
+		{
+			path: '/pages/BdInputMaster',
+			name: 'BdInputMaster ',
+			element: <BdInputMaster />,
+			route: PrivateRoute,
+		},
+		{
+			path: '/pages/BdInputMasterinsert/:id',
+			name: 'BdInputMasterinsert ',
+			element: <BdInputMasterinsert />,
+			route: PrivateRoute,
+		},
+		{
+			path: '/pages/BdInputMasterinsert',
+			name: 'BdInputMasterinsert ',
+			element: <BdInputMasterinsert />,
+			route: PrivateRoute,
+		},
+		{
+			path: '/pages/BdDoerMaster',
+			name: 'BdDoerMaster ',
+			element: <BdDoerMaster />,
+			route: PrivateRoute,
+		},
+		{
+			path: '/pages/BdDoerMasterinsert/:id',
+			name: 'BdDoerMasterinsert ',
+			element: <BdDoerMasterinsert />,
+			route: PrivateRoute,
+		},
+		{
+			path: '/pages/BdDoerMasterinsert',
+			name: 'BdDoerMasterinsert ',
+			element: <BdDoerMasterinsert />,
 			route: PrivateRoute,
 		},
 

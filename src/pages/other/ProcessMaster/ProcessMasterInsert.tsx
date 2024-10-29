@@ -229,6 +229,15 @@ const EmployeeInsert = () => {
         }
     };
 
+    useEffect(() => {
+        if (["Daily"].includes(process.intervalType)) {
+            setProcess(process => ({
+                ...process,
+                day: '',
+            }));
+        }
+    }, [process.intervalType]);
+    
     // Handle form submission
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
 
@@ -255,7 +264,7 @@ const EmployeeInsert = () => {
                     toastVariant:"rgb(28 175 85)"
                    } });
             }
-          
+
 
         } catch (error) {
             setToastMessage("Error Adding/Updating");
@@ -376,7 +385,7 @@ const EmployeeInsert = () => {
                                     />
                                 </Form.Group>
                             </Col>
-                        
+
 
 
                             <Col lg={6}>
@@ -421,7 +430,7 @@ const EmployeeInsert = () => {
                                     />
                                 </Form.Group>
                             </Col>
-                        
+
 
                             <Col lg={6}>
                                 <Form.Group controlId="intervalType" className="mb-3">
@@ -445,123 +454,124 @@ const EmployeeInsert = () => {
                                 </Form.Group>
                             </Col>
 
+                         
                             {["Weekly"].includes(process.intervalType) &&
-                                <Col lg={6}>
-                                    <Form.Group controlId="intervalType" className="mb-3">
-                                        <Form.Label>Day:</Form.Label>
-                                        <Select
-                                            name="day"
-                                            value={dropdownValuesFlag2.find((item) => item.name === process.day)}
-                                            onChange={(selectedOption) => {
-                                                setProcess({
-                                                    ...process,
-                                                    day: selectedOption?.name || '',
-                                                });
-                                            }}
-                                            getOptionLabel={(item) => item.name}
-                                            getOptionValue={(item) => item.name}
-                                            options={dropdownValuesFlag2}
-                                            isSearchable={true}
-                                            placeholder="Select Day"
-                                            required
-                                        />
-                                    </Form.Group>
-                                </Col>
-                            }
+                                        <Col lg={6}>
+                                            <Form.Group controlId="intervalType" className="mb-3">
+                                                <Form.Label>Day:</Form.Label>
+                                                <Select
+                                                    name="day"
+                                                    value={dropdownValuesFlag2.find((item) => item.name === process.day)}
+                                                    onChange={(selectedOption) => {
+                                                        setProcess({
+                                                            ...process,
+                                                            day: selectedOption?.name || '',
+                                                        });
+                                                    }}
+                                                    getOptionLabel={(item) => item.name}
+                                                    getOptionValue={(item) => item.name}
+                                                    options={dropdownValuesFlag2}
+                                                    isSearchable={true}
+                                                    placeholder="Select Day"
+                                                    required
+                                                />
+                                            </Form.Group>
+                                        </Col>
+                                    }
 
-                            {["Monthly"].includes(process.intervalType) &&
-                                <Col lg={6}>
-                                    <Form.Group controlId="date" className="mb-3">
-                                        <Form.Label>Date:</Form.Label>
-                                        <Select
-                                            name="date"
-                                            value={dropdownValuesFlag4.find((item) => item.name === process.day)}
-                                            onChange={(selectedOption) => {
-                                                setProcess({
-                                                    ...process,
-                                                    date: selectedOption?.name || '',
-                                                });
-                                            }}
-                                            getOptionLabel={(item) => item.name}
-                                            getOptionValue={(item) => item.name}
-                                            options={dropdownValuesFlag4}
-                                            isSearchable={true}
-                                            placeholder="Select Date"
-                                            required
-                                        />
-                                    </Form.Group>
-                                </Col>
-                            }
+                                    {["Monthly"].includes(process.intervalType) &&
+                                        <Col lg={6}>
+                                            <Form.Group controlId="date" className="mb-3">
+                                                <Form.Label>Date:</Form.Label>
+                                                <Select
+                                                    name="date"
+                                                    value={dropdownValuesFlag4.find((item) => item.name === process.day)}
+                                                    onChange={(selectedOption) => {
+                                                        setProcess({
+                                                            ...process,
+                                                            date: selectedOption?.name || '',
+                                                        });
+                                                    }}
+                                                    getOptionLabel={(item) => item.name}
+                                                    getOptionValue={(item) => item.name}
+                                                    options={dropdownValuesFlag4}
+                                                    isSearchable={true}
+                                                    placeholder="Select Date"
+                                                    required
+                                                />
+                                            </Form.Group>
+                                        </Col>
+                                    }
 
-                            < Col lg={6}>
-                                <Form.Group controlId="time" className="mb-3">
-                                    <Form.Label>Time:</Form.Label>
-                                    <Select
-                                        name="time"
-                                        value={dropdownValuesFlag3.find((item) => item.name === process.time)}
-                                        onChange={(selectedOption) => {
-                                            setProcess({
-                                                ...process,
-                                                time: selectedOption?.name || '',
-                                            });
-                                        }}
-                                        getOptionLabel={(item) => item.name}
-                                        getOptionValue={(item) => item.name}
-                                        options={dropdownValuesFlag3}
-                                        isSearchable={true}
-                                        placeholder="Select Time"
-                                        required
-                                    />
-                                </Form.Group>
-                            </Col>
-                            <Col lg={6}>
-                                <Form.Group controlId="processOwnerName" className="mb-3">
-                                    <Form.Label>Process Owner Name</Form.Label>
-                                    <Select
-                                        name="processOwnerName"
-                                        value={processOwnerName.find(
-                                            (mod) => mod.employeeName === process.processOwnerName
-                                        )}
-                                        onChange={(selectedOption) => {
-                                            setProcess({
-                                                ...process,
-                                                processOwnerName: selectedOption?.employeeName || '',
-                                                processOwnerID: selectedOption?.empId || '',
-                                            });
-                                        }}
-                                        getOptionLabel={(mod) => mod.employeeName}
-                                        getOptionValue={(mod) => mod.employeeName}
-                                        options={processOwnerName}
-                                        isSearchable={true}
-                                        placeholder="Select Process Owner Name"
-                                        required
-                                    />
-                                </Form.Group>
-                            </Col>
+                                    < Col lg={6}>
+                                        <Form.Group controlId="time" className="mb-3">
+                                            <Form.Label>Time:</Form.Label>
+                                            <Select
+                                                name="time"
+                                                value={dropdownValuesFlag3.find((item) => item.name === process.time)}
+                                                onChange={(selectedOption) => {
+                                                    setProcess({
+                                                        ...process,
+                                                        time: selectedOption?.name || '',
+                                                    });
+                                                }}
+                                                getOptionLabel={(item) => item.name}
+                                                getOptionValue={(item) => item.name}
+                                                options={dropdownValuesFlag3}
+                                                isSearchable={true}
+                                                placeholder="Select Time"
+                                                required
+                                            />
+                                        </Form.Group>
+                                    </Col>
+                                    <Col lg={6}>
+                                        <Form.Group controlId="processOwnerName" className="mb-3">
+                                            <Form.Label>Process Owner Name</Form.Label>
+                                            <Select
+                                                name="processOwnerName"
+                                                value={processOwnerName.find(
+                                                    (mod) => mod.employeeName === process.processOwnerName
+                                                )}
+                                                onChange={(selectedOption) => {
+                                                    setProcess({
+                                                        ...process,
+                                                        processOwnerName: selectedOption?.employeeName || '',
+                                                        processOwnerID: selectedOption?.empId || '',
+                                                    });
+                                                }}
+                                                getOptionLabel={(mod) => mod.employeeName}
+                                                getOptionValue={(mod) => mod.employeeName}
+                                                options={processOwnerName}
+                                                isSearchable={true}
+                                                placeholder="Select Process Owner Name"
+                                                required
+                                            />
+                                        </Form.Group>
+                                    </Col>
 
 
-                            <Col></Col>
-                            <Col lg={2} className='align-items-end d-flex justify-content-end mb-3'>
-                                <ButtonGroup aria-label="Basic example" className='w-100'>
-                                    <Link to={'/pages/ProcessMaster'} className="btn btn-primary">
-                                        Back
-                                    </Link>
-                                    &nbsp;
-                                    <Button variant="primary" type="submit">
-                                        {editMode ? 'Update Process' : 'Add Process'}
-                                    </Button>
-                                </ButtonGroup>
-                            </Col>
+                                    <Col></Col>
+                                    <Col lg={2} className='align-items-end d-flex justify-content-end mb-3'>
+                                        <ButtonGroup aria-label="Basic example" className='w-100'>
+                                            <Link to={'/pages/ProcessMaster'} className="btn btn-primary">
+                                                Back
+                                            </Link>
+                                            &nbsp;
+                                            <Button variant="primary" type="submit">
+                                                {editMode ? 'Update Process' : 'Add Process'}
+                                            </Button>
+                                        </ButtonGroup>
+                                    </Col>
 
-                        </Row>
+                                </Row>
 
-                    </Form>
+                            </Form>
+                        </div>
                 </div>
-            </div>
-            <CustomSuccessToast show={showToast} toastMessage={toastMessage} toastVariant={toastVariant} onClose={() => setShowToast(false)} />
+                <CustomSuccessToast show={showToast} toastMessage={toastMessage} toastVariant={toastVariant} onClose={() => setShowToast(false)} />
 
-        </div >
-    );
+            </div >
+            );
 };
 
-export default EmployeeInsert;
+            export default EmployeeInsert;
