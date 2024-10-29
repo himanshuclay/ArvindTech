@@ -73,6 +73,10 @@ const DepartmentMaster = React.lazy(() => import('../pages/other/DepartmentMaste
 const DepartmentMasterinsert = React.lazy(() => import('../pages/other/DepartmentMaster/DepartmentMasterinsert.tsx'))
 const TenderMaster = React.lazy(() => import('../pages/other/TenderMaster/TenderMaster.tsx'))
 const TenderMasterinsert = React.lazy(() => import('../pages/other/TenderMaster/TenderMasterinsert.tsx'))
+const HrInputMaster = React.lazy(() => import('../pages/other/HrMaster/HrInputMaster/HrInputmaster.tsx'))
+const HrInputMasterinsert = React.lazy(() => import('../pages/other/HrMaster/HrInputMaster/HrInputMasterinsert.tsx'))
+const HrTaskMaster = React.lazy(() => import('../pages/other/HrMaster/HrTaskMaster/HrTaskMaster.tsx'))
+const HrTaskMasterinsert = React.lazy(() => import('../pages/other/HrMaster/HrTaskMaster/HrTaskMasterinsert.tsx'))
 
 
 
@@ -623,6 +627,42 @@ const customPagesRoutes = {
 			path: '/pages/TenderMasterinsert',
 			name: 'TenderMasterinsert ',
 			element: <TenderMasterinsert />,
+			route: PrivateRoute,
+		},
+		{
+			path: '/pages/HrInputMaster',
+			name: 'HrInputMaster ',
+			element: <HrInputMaster />,
+			route: PrivateRoute,
+		},
+		{
+			path: '/pages/HrInputMasterinsert/:id',
+			name: 'HrInputMasterinsert ',
+			element: <HrInputMasterinsert />,
+			route: PrivateRoute,
+		},
+		{
+			path: '/pages/HrInputMasterinsert',
+			name: 'HrInputMasterinsert ',
+			element: <HrInputMasterinsert />,
+			route: PrivateRoute,
+		},
+		{
+			path: '/pages/HrTaskMaster',
+			name: 'HrTaskMaster ',
+			element: <HrTaskMaster />,
+			route: PrivateRoute,
+		},
+		{
+			path: '/pages/HrTaskMasterinsert/:id',
+			name: 'HrTaskMasterinsert ',
+			element: <HrTaskMasterinsert />,
+			route: PrivateRoute,
+		},
+		{
+			path: '/pages/HrTaskMasterinsert',
+			name: 'HrTaskMasterinsert ',
+			element: <HrTaskMasterinsert />,
 			route: PrivateRoute,
 		},
 

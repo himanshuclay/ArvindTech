@@ -3,14 +3,15 @@
 import axios from 'axios';
 import { useEffect, useState, ChangeEvent } from 'react';
 import { Button, Col, Form, Row } from 'react-bootstrap';
-import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import config from '@/config';
-// import Select from 'react-select';
-
+import Select from 'react-select';
+import Flatpickr from 'react-flatpickr';
+import 'flatpickr/dist/themes/material_green.css';
 
 
 interface Tender {
-    id: number;
+    tenderID: number;
     tenderStatus: string;
     executorCompany: string;
     country: string;
@@ -59,21 +60,34 @@ interface Tender {
 }
 
 
-interface DepartmentList {
-    id: string;
-    departmentName: string;
+// interface DepartmentList {
+//     id: string;
+//     departmentName: string;
+// }
+
+interface StateList {
+    id: number;
+    stateName: string;
+}
+
+
+interface EmployeeList {
+    empId: string;
+    employeeName: string;
 }
 
 
 
 const DepartmentMasterinsert = () => {
     const { id } = useParams<{ id: string }>();
-    const navigate = useNavigate();
+    // const navigate = useNavigate();
     const [editMode, setEditMode] = useState<boolean>(false);
-    const [departmentList, setDepartmentList] = useState<DepartmentList[]>([]);
+    // const [departmentList, setDepartmentList] = useState<DepartmentList[]>([]);
+    const [stateList, setStateList] = useState<StateList[]>([]);
+    const [employeeList, setEmployeeList] = useState<EmployeeList[]>([]);
     const [empName, setEmpName] = useState<string | null>()
     const [tenders, setTenders] = useState<Tender>({
-        id: 0,
+        tenderID: 0,
         tenderStatus: '',
         executorCompany: '',
         country: '',
@@ -169,7 +183,9 @@ const DepartmentMasterinsert = () => {
             }
         };
 
-        fetchData('CommonDropdown/GetDepartment', setDepartmentList, 'getDepartments');
+        // fetchData('CommonDropdown/GetDepartment', setDepartmentList, 'getDepartments');
+        fetchData('CommonDropdown/GetStateList', setStateList, 'stateListResponses');
+        fetchData('CommonDropdown/GetEmployeeListWithId', setEmployeeList, 'employeeLists');
     }, []);
 
 
@@ -203,16 +219,16 @@ const DepartmentMasterinsert = () => {
             updatedBy: editMode ? empName : '',
         };
         console.log(payload)
-        try {
-            if (editMode) {
-                await axios.post(`${config.API_URL_APPLICATION}/DesignationMaster/InsertorUpdateDesignation`, payload);
-            } else {
-                await axios.post(`${config.API_URL_APPLICATION}/DesignationMaster/InsertorUpdateDesignation`, payload);
-            }
-            navigate('/pages/DesignationMaster');
-        } catch (error) {
-            console.error('Error submitting module:', error);
-        }
+        // try {
+        //     if (editMode) {
+        //         await axios.post(`${config.API_URL_APPLICATION}/DesignationMaster/InsertorUpdateDesignation`, payload);
+        //     } else {
+        //         await axios.post(`${config.API_URL_APPLICATION}/DesignationMaster/InsertorUpdateDesignation`, payload);
+        //     }
+        //     navigate('/pages/DesignationMaster');
+        // } catch (error) {
+        //     console.error('Error submitting module:', error);
+        // }
     };
 
 
@@ -293,13 +309,21 @@ const DepartmentMasterinsert = () => {
                             <Col lg={6}>
                                 <Form.Group controlId="state" className="mb-3">
                                     <Form.Label>State</Form.Label>
-                                    <Form.Control
-                                        type="text"
-                                        name="state"
-                                        value={tenders.state}
-                                        onChange={handleChange}
+                                    <Select
+                                        name="department"
+                                        value={stateList.find((mod) => mod.stateName === tenders.state)}
+                                        onChange={(selectedOption) => {
+                                            setTenders({
+                                                ...tenders,
+                                                state: selectedOption?.stateName || '',
+                                            });
+                                        }}
+                                        getOptionLabel={(mod) => mod.stateName}
+                                        getOptionValue={(mod) => mod.stateName}
+                                        options={stateList}
+                                        isSearchable={true}
+                                        placeholder="Select State Name"
                                         required
-                                        placeholder="State"
                                     />
                                 </Form.Group>
                             </Col>
@@ -319,13 +343,21 @@ const DepartmentMasterinsert = () => {
                             <Col lg={6}>
                                 <Form.Group controlId="notificationDate" className="mb-3">
                                     <Form.Label>Notification Date</Form.Label>
-                                    <Form.Control
-                                        type="date"
-                                        name="notificationDate"
+
+                                    <Flatpickr
                                         value={tenders.notificationDate}
-                                        onChange={handleChange}
+                                        onChange={([date]) => setTenders({
+                                            ...tenders,
+                                            notificationDate: date.toISOString()
+                                        })}
+                                        options={{
+                                            enableTime: false,
+                                            dateFormat: "Y-m-d",
+                                            time_24hr: false,
+                                        }}
+                                        placeholder="Enter Notification Date"
+                                        className="form-control"
                                         required
-                                        placeholder="Notification Date"
                                     />
                                 </Form.Group>
                             </Col>
@@ -333,7 +365,7 @@ const DepartmentMasterinsert = () => {
                                 <Form.Group controlId="tenderLink" className="mb-3">
                                     <Form.Label>Tender Link</Form.Label>
                                     <Form.Control
-                                        type="url"
+                                        type="text"
                                         name="tenderLink"
                                         value={tenders.tenderLink}
                                         onChange={handleChange}
@@ -342,29 +374,34 @@ const DepartmentMasterinsert = () => {
                                     />
                                 </Form.Group>
                             </Col>
-                            <Col lg={6}>
-                                <Form.Group controlId="deptPrincipleEmployerID" className="mb-3">
-                                    <Form.Label>Department Principal Employer ID</Form.Label>
-                                    <Form.Control
-                                        type="text"
-                                        name="deptPrincipleEmployerID"
-                                        value={tenders.deptPrincipleEmployerID}
-                                        onChange={handleChange}
-                                        required
-                                        placeholder="Department Principal Employer ID"
-                                    />
-                                </Form.Group>
-                            </Col>
+
                             <Col lg={6}>
                                 <Form.Group controlId="deptPrincipleEmployerName" className="mb-3">
                                     <Form.Label>Department Principal Employer Name</Form.Label>
-                                    <Form.Control
+                                    {/* <Form.Control
                                         type="text"
                                         name="deptPrincipleEmployerName"
                                         value={tenders.deptPrincipleEmployerName}
                                         onChange={handleChange}
                                         required
                                         placeholder="Department Principal Employer Name"
+                                    /> */}
+                                    <Select
+                                        name="deptPrincipleEmployerName"
+                                        value={employeeList.find((mod) => mod.employeeName === tenders.deptPrincipleEmployerName)}
+                                        onChange={(selectedOption) => {
+                                            setTenders({
+                                                ...tenders,
+                                                deptPrincipleEmployerName: selectedOption?.employeeName || '',
+                                                deptPrincipleEmployerID: selectedOption?.empId || '',
+                                            });
+                                        }}
+                                        getOptionLabel={(mod) => mod.employeeName}
+                                        getOptionValue={(mod) => mod.employeeName}
+                                        options={employeeList}
+                                        isSearchable={true}
+                                        placeholder="Select Entered By Employee Name"
+                                        required
                                     />
                                 </Form.Group>
                             </Col>
@@ -397,52 +434,84 @@ const DepartmentMasterinsert = () => {
                             <Col lg={6}>
                                 <Form.Group controlId="docPurchaseDeadline" className="mb-3">
                                     <Form.Label>Document Purchase Deadline</Form.Label>
-                                    <Form.Control
-                                        type="date"
-                                        name="docPurchaseDeadline"
+                                    <Flatpickr
                                         value={tenders.docPurchaseDeadline}
-                                        onChange={handleChange}
+                                        onChange={([date]) => setTenders({
+                                            ...tenders,
+                                            docPurchaseDeadline: date.toISOString()
+                                        })}
+                                        options={{
+                                            enableTime: false,
+                                            dateFormat: "Y-m-d",
+                                            time_24hr: false,
+                                        }}
+                                        placeholder="Enter Document Purchase Deadline"
+                                        className="form-control"
                                         required
-                                        placeholder="Document Purchase Deadline"
                                     />
                                 </Form.Group>
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="initialBidSubmitDate" className="mb-3">
                                     <Form.Label>Initial Bid Submit Date</Form.Label>
-                                    <Form.Control
-                                        type="date"
-                                        name="initialBidSubmitDate"
+
+                                    <Flatpickr
                                         value={tenders.initialBidSubmitDate}
-                                        onChange={handleChange}
+                                        onChange={([date]) => setTenders({
+                                            ...tenders,
+                                            initialBidSubmitDate: date.toISOString()
+                                        })}
+                                        options={{
+                                            enableTime: false,
+                                            dateFormat: "Y-m-d",
+                                            time_24hr: false,
+                                        }}
+                                        placeholder="Enter Initial Bid Submit Date"
+                                        className="form-control"
                                         required
-                                        placeholder="Initial Bid Submit Date"
                                     />
+
                                 </Form.Group>
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="latestBidSubmissionDate" className="mb-3">
                                     <Form.Label>Latest Bid Submission Date</Form.Label>
-                                    <Form.Control
-                                        type="date"
-                                        name="latestBidSubmissionDate"
+
+                                    <Flatpickr
                                         value={tenders.latestBidSubmissionDate}
-                                        onChange={handleChange}
+                                        onChange={([date]) => setTenders({
+                                            ...tenders,
+                                            latestBidSubmissionDate: date.toISOString()
+                                        })}
+                                        options={{
+                                            enableTime: false,
+                                            dateFormat: "Y-m-d",
+                                            time_24hr: false,
+                                        }}
+                                        placeholder="Enter Latest Bid Submission Date"
+                                        className="form-control"
                                         required
-                                        placeholder="Latest Bid Submission Date"
                                     />
                                 </Form.Group>
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="completionPeriod" className="mb-3">
                                     <Form.Label>Completion Period</Form.Label>
-                                    <Form.Control
-                                        type="text"
-                                        name="completionPeriod"
+
+                                    <Flatpickr
                                         value={tenders.completionPeriod}
-                                        onChange={handleChange}
+                                        onChange={([date]) => setTenders({
+                                            ...tenders,
+                                            completionPeriod: date.toISOString()
+                                        })}
+                                        options={{
+                                            enableTime: false,
+                                            dateFormat: "Y-m-d",
+                                            time_24hr: false,
+                                        }}
+                                        placeholder="Enter Completion Period"
+                                        className="form-control"
                                         required
-                                        placeholder="Completion Period"
                                     />
                                 </Form.Group>
                             </Col>
@@ -463,7 +532,7 @@ const DepartmentMasterinsert = () => {
                                 <Form.Group controlId="notificationFileURL" className="mb-3">
                                     <Form.Label>Notification File URL</Form.Label>
                                     <Form.Control
-                                        type="url"
+                                        type="text"
                                         name="notificationFileURL"
                                         value={tenders.notificationFileURL}
                                         onChange={handleChange}
@@ -485,42 +554,49 @@ const DepartmentMasterinsert = () => {
                                     />
                                 </Form.Group>
                             </Col>
-                            <Col lg={6}>
-                                <Form.Group controlId="enteredByEmpID" className="mb-3">
-                                    <Form.Label>Entered By Employee ID</Form.Label>
-                                    <Form.Control
-                                        type="text"
-                                        name="enteredByEmpID"
-                                        value={tenders.enteredByEmpID}
-                                        onChange={handleChange}
-                                        required
-                                        placeholder="Entered By Employee ID"
-                                    />
-                                </Form.Group>
-                            </Col>
+
                             <Col lg={6}>
                                 <Form.Group controlId="enteredByEmpName" className="mb-3">
                                     <Form.Label>Entered By Employee Name</Form.Label>
-                                    <Form.Control
-                                        type="text"
+                                    <Select
                                         name="enteredByEmpName"
-                                        value={tenders.enteredByEmpName}
-                                        onChange={handleChange}
+                                        value={employeeList.find((mod) => mod.employeeName === tenders.enteredByEmpName)}
+                                        onChange={(selectedOption) => {
+                                            setTenders({
+                                                ...tenders,
+                                                enteredByEmpName: selectedOption?.employeeName || '',
+                                                enteredByEmpID: selectedOption?.empId || '',
+                                            });
+                                        }}
+                                        getOptionLabel={(mod) => mod.employeeName}
+                                        getOptionValue={(mod) => mod.employeeName}
+                                        options={employeeList}
+                                        isSearchable={true}
+                                        placeholder="Select Entered By Employee Name"
                                         required
-                                        placeholder="Entered By Employee Name"
                                     />
                                 </Form.Group>
                             </Col>
+
+
                             <Col lg={6}>
                                 <Form.Group controlId="entryDate" className="mb-3">
                                     <Form.Label>Entry Date</Form.Label>
-                                    <Form.Control
-                                        type="date"
-                                        name="entryDate"
+
+                                    <Flatpickr
                                         value={tenders.entryDate}
-                                        onChange={handleChange}
+                                        onChange={([date]) => setTenders({
+                                            ...tenders,
+                                            entryDate: date.toISOString()
+                                        })}
+                                        options={{
+                                            enableTime: false,
+                                            dateFormat: "Y-m-d",
+                                            time_24hr: false,
+                                        }}
+                                        placeholder="Enter Entry Date"
+                                        className="form-control"
                                         required
-                                        placeholder="Entry Date"
                                     />
                                 </Form.Group>
                             </Col>
@@ -540,13 +616,21 @@ const DepartmentMasterinsert = () => {
                             <Col lg={6}>
                                 <Form.Group controlId="boqDeliveryDate" className="mb-3">
                                     <Form.Label>BOQ Delivery Date</Form.Label>
-                                    <Form.Control
-                                        type="date"
-                                        name="boqDeliveryDate"
+
+                                    <Flatpickr
                                         value={tenders.boqDeliveryDate}
-                                        onChange={handleChange}
+                                        onChange={([date]) => setTenders({
+                                            ...tenders,
+                                            boqDeliveryDate: date.toISOString()
+                                        })}
+                                        options={{
+                                            enableTime: false,
+                                            dateFormat: "Y-m-d",
+                                            time_24hr: false,
+                                        }}
+                                        placeholder="Enter BOQ Delivery Date"
+                                        className="form-control"
                                         required
-                                        placeholder="BOQ Delivery Date"
                                     />
                                 </Form.Group>
                             </Col>
@@ -618,39 +702,62 @@ const DepartmentMasterinsert = () => {
                             <Col lg={6}>
                                 <Form.Group controlId="technicalBidResultDate" className="mb-3">
                                     <Form.Label>Technical Bid Result Date</Form.Label>
-                                    <Form.Control
-                                        type="date"
-                                        name="technicalBidResultDate"
+
+                                    <Flatpickr
                                         value={tenders.technicalBidResultDate}
-                                        onChange={handleChange}
+                                        onChange={([date]) => setTenders({
+                                            ...tenders,
+                                            technicalBidResultDate: date.toISOString()
+                                        })}
+                                        options={{
+                                            enableTime: false,
+                                            dateFormat: "Y-m-d",
+                                            time_24hr: false,
+                                        }}
+                                        placeholder="Enter Technical Bid Result Date"
+                                        className="form-control"
                                         required
-                                        placeholder="Technical Bid Result Date"
                                     />
                                 </Form.Group>
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="financialBidOpeningDate" className="mb-3">
                                     <Form.Label>Financial Bid Opening Date</Form.Label>
-                                    <Form.Control
-                                        type="date"
-                                        name="financialBidOpeningDate"
+
+                                    <Flatpickr
                                         value={tenders.financialBidOpeningDate}
-                                        onChange={handleChange}
+                                        onChange={([date]) => setTenders({
+                                            ...tenders,
+                                            financialBidOpeningDate: date.toISOString()
+                                        })}
+                                        options={{
+                                            enableTime: false,
+                                            dateFormat: "Y-m-d",
+                                            time_24hr: false,
+                                        }}
+                                        placeholder="Enter Financial Bid Opening Date"
+                                        className="form-control"
                                         required
-                                        placeholder="Financial Bid Opening Date"
                                     />
                                 </Form.Group>
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="statusLastUpdatedDate" className="mb-3">
                                     <Form.Label>Status Last Updated Date</Form.Label>
-                                    <Form.Control
-                                        type="date"
-                                        name="statusLastUpdatedDate"
+                                    <Flatpickr
                                         value={tenders.statusLastUpdatedDate}
-                                        onChange={handleChange}
+                                        onChange={([date]) => setTenders({
+                                            ...tenders,
+                                            statusLastUpdatedDate: date.toISOString()
+                                        })}
+                                        options={{
+                                            enableTime: false,
+                                            dateFormat: "Y-m-d",
+                                            time_24hr: false,
+                                        }}
+                                        placeholder="Enter EStatus Last Updated Date"
+                                        className="form-control"
                                         required
-                                        placeholder="Status Last Updated Date"
                                     />
                                 </Form.Group>
                             </Col>
@@ -709,13 +816,21 @@ const DepartmentMasterinsert = () => {
                             <Col lg={6}>
                                 <Form.Group controlId="loiDate" className="mb-3">
                                     <Form.Label>LOI Date</Form.Label>
-                                    <Form.Control
-                                        type="date"
-                                        name="loiDate"
+
+                                    <Flatpickr
                                         value={tenders.loiDate}
-                                        onChange={handleChange}
+                                        onChange={([date]) => setTenders({
+                                            ...tenders,
+                                            loiDate: date.toISOString()
+                                        })}
+                                        options={{
+                                            enableTime: false,
+                                            dateFormat: "Y-m-d",
+                                            time_24hr: false,
+                                        }}
+                                        placeholder="Enter LOI Date"
+                                        className="form-control"
                                         required
-                                        placeholder="LOI Date"
                                     />
                                 </Form.Group>
                             </Col>
@@ -761,13 +876,21 @@ const DepartmentMasterinsert = () => {
                             <Col lg={6}>
                                 <Form.Group controlId="pbgSubmissionDate" className="mb-3">
                                     <Form.Label>PBG Submission Date</Form.Label>
-                                    <Form.Control
-                                        type="date"
-                                        name="pbgSubmissionDate"
+
+                                    <Flatpickr
                                         value={tenders.pbgSubmissionDate}
-                                        onChange={handleChange}
+                                        onChange={([date]) => setTenders({
+                                            ...tenders,
+                                            pbgSubmissionDate: date.toISOString()
+                                        })}
+                                        options={{
+                                            enableTime: false,
+                                            dateFormat: "Y-m-d",
+                                            time_24hr: false,
+                                        }}
+                                        placeholder="Enter PBG Submission Date"
+                                        className="form-control"
                                         required
-                                        placeholder="PBG Submission Date"
                                     />
                                 </Form.Group>
                             </Col>
@@ -784,7 +907,7 @@ const DepartmentMasterinsert = () => {
                                     />
                                 </Form.Group>
                             </Col>
-                      
+
 
                             <Col className='align-items-end d-flex justify-content-between mb-3'>
                                 <div>

@@ -41,30 +41,30 @@ interface Column {
     label: string;
     visible: boolean;
 }
-interface EmployeeList {
-    empId: string;
-    employeeName: string;
-}
-interface RoleList {
-    id: string;
-    roleName: string;
-}
-interface TaskList {
-    id: string;
-    taskID: string;
-}
-interface Identifier {
-    id: string;
-    identifier: string;
-}
-interface Input {
-    id: string;
-    input: string;
-}
-interface InputValue {
-    id: string;
-    inputValue: string;
-}
+// interface EmployeeList {
+//     empId: string;
+//     employeeName: string;
+// }
+// interface RoleList {
+//     id: string;
+//     roleName: string;
+// }
+// interface TaskList {
+//     id: string;
+//     taskID: string;
+// }
+// interface Identifier {
+//     id: string;
+//     identifier: string;
+// }
+// interface Input {
+//     id: string;
+//     input: string;
+// }
+// interface InputValue {
+//     id: string;
+//     inputValue: string;
+// }
 
 const RequirementMaster = () => {
     const [requirements, setRequirements] = useState<Requirement[]>([]);
@@ -74,12 +74,12 @@ const RequirementMaster = () => {
     const [searchQuery, setSearchQuery] = useState('');
 
 
-    const [employeeList, setEmployeeList] = useState<EmployeeList[]>([]);
-    const [roleList, setRoleList] = useState<RoleList[]>([]);
-    const [taskList, setTaskList] = useState<TaskList[]>([]);
-    const [identifierList, setIdentifierList] = useState<Identifier[]>([]);
-    const [inputList, setInputList] = useState<Input[]>([]);
-    const [inputValueList, setInputValueList] = useState<InputValue[]>([]);
+    // const [employeeList, setEmployeeList] = useState<EmployeeList[]>([]);
+    // const [roleList, setRoleList] = useState<RoleList[]>([]);
+    // const [taskList, setTaskList] = useState<TaskList[]>([]);
+    // const [identifierList, setIdentifierList] = useState<Identifier[]>([]);
+    // const [inputList, setInputList] = useState<Input[]>([]);
+    // const [inputValueList, setInputValueList] = useState<InputValue[]>([]);
 
 
     // both are required to make dragable column of table 
@@ -124,10 +124,10 @@ const RequirementMaster = () => {
 
     const [searchEmployeeName, setSearchEmployeeName] = useState('');
     const [searchDoerRole, setSearchDoerRole] = useState('');
-    const [searchTaskId, setSearchTaskId] = useState('');
-    const [searchIdentifier, setSearchIdentifier] = useState('');
-    const [searchInput, setSearchInput] = useState('');
-    const [searchInputValue, setSearchInputValue] = useState('');
+    // const [searchTaskId, setSearchTaskId] = useState('');
+    // const [searchIdentifier, setSearchIdentifier] = useState('');
+    // const [searchInput, setSearchInput] = useState('');
+    // const [searchInputValue, setSearchInputValue] = useState('');
 
     const handleSearch = (e: any) => {
         e.preventDefault();
@@ -135,10 +135,10 @@ const RequirementMaster = () => {
         let query = `?`;
         if (searchEmployeeName) query += `DoerName=${searchEmployeeName}&`;
         if (searchDoerRole) query += `DoerRole=${searchDoerRole}&`;
-        if (searchTaskId) query += `TaskID=${searchTaskId}&`;
-        if (searchIdentifier) query += `Identifier=${searchIdentifier}&`;
-        if (searchInput) query += `Input=${searchInput}&`;
-        if (searchInputValue) query += `InputValue=${searchInputValue}&`;
+        // if (searchTaskId) query += `TaskID=${searchTaskId}&`;
+        // if (searchIdentifier) query += `Identifier=${searchIdentifier}&`;
+        // if (searchInput) query += `Input=${searchInput}&`;
+        // if (searchInputValue) query += `InputValue=${searchInputValue}&`;
 
         query = query.endsWith('&') ? query.slice(0, -1) : query;
 
@@ -182,25 +182,25 @@ const RequirementMaster = () => {
 
 
     useEffect(() => {
-        const fetchData = async (endpoint: string, setter: Function, listName: string) => {
-            try {
-                const response = await axios.get(`${config.API_URL_APPLICATION}/${endpoint}`);
-                if (response.data.isSuccess) {
-                    setter(response.data[listName]);
-                } else {
-                    console.error(response.data.message);
-                }
-            } catch (error) {
-                console.error(`Error fetching data from ${endpoint}:`, error);
-            }
-        };
+        // const fetchData = async (endpoint: string, setter: Function, listName: string) => {
+        //     try {
+        //         const response = await axios.get(`${config.API_URL_APPLICATION}/${endpoint}`);
+        //         if (response.data.isSuccess) {
+        //             setter(response.data[listName]);
+        //         } else {
+        //             console.error(response.data.message);
+        //         }
+        //     } catch (error) {
+        //         console.error(`Error fetching data from ${endpoint}:`, error);
+        //     }
+        // };
 
-        fetchData('CommonDropdown/GetEmployeeListWithId', setEmployeeList, 'employeeLists');
-        fetchData('CommonDropdown/GetRoleMasterList', setRoleList, 'roleMasterLists');
-        fetchData('CommonDropdown/GetTaskList', setTaskList, 'taskList');
-        fetchData('CommonDropdown/GetIdentifier', setIdentifierList, 'identifierList');
-        fetchData('CommonDropdown/GetInputList', setInputList, 'inputList');
-        fetchData('CommonDropdown/GetInputValue', setInputValueList, 'getInputValue');
+        // fetchData('CommonDropdown/GetEmployeeListWithId', setEmployeeList, 'employeeLists');
+        // fetchData('CommonDropdown/GetRoleMasterList', setRoleList, 'roleMasterLists');
+        // fetchData('CommonDropdown/GetTaskList', setTaskList, 'taskList');
+        // fetchData('CommonDropdown/GetIdentifier', setIdentifierList, 'identifierList');
+        // fetchData('CommonDropdown/GetInputList', setInputList, 'inputList');
+        // fetchData('CommonDropdown/GetInputValue', setInputValueList, 'getInputValue');
     }, []);
 
 

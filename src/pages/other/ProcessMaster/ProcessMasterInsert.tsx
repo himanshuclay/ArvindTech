@@ -4,8 +4,8 @@ import { Button, Col, Form, Row, ButtonGroup } from 'react-bootstrap';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import config from '@/config';
 import Select from 'react-select';
-import Flatpickr from 'react-flatpickr';
-import 'flatpickr/dist/themes/material_green.css';
+// import Flatpickr from 'react-flatpickr';
+// import 'flatpickr/dist/themes/material_green.css';
 import CustomSuccessToast from '../Component/CustomSuccessToast';
 
 interface Process {

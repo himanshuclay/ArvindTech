@@ -82,28 +82,28 @@ const MessMaster = () => {
     const handleSearch = (e: any) => {
         e.preventDefault();
 
-        let query = `?`;
-        if (ProcessName) query += `ProcessName=${ProcessName}&`;
-        if (ModuleName) query += `ModuleName=${ModuleName}&`;
-        if (ProcessOwnerName) query += `ProcessOwnerName=${ProcessOwnerName}&`;
+        // let query = `?`;
+        // if (ProcessName) query += `ProcessName=${ProcessName}&`;
+        // if (ModuleName) query += `ModuleName=${ModuleName}&`;
+        // if (ProcessOwnerName) query += `ProcessOwnerName=${ProcessOwnerName}&`;
 
         // Remove trailing '&' or '?' from the query string
-        query = query.endsWith('&') ? query.slice(0, -1) : query;
+        // query = query.endsWith('&') ? query.slice(0, -1) : query;
 
-        const apiUrl = `https://arvindo-api2.clay.in/api/ProcessMaster/SearchProcessList${query}`;
+        // const apiUrl = `https://arvindo-api2.clay.in/api/ProcessMaster/SearchProcessList${query}`;
 
-        console.log(apiUrl)
-        axios.get(apiUrl, {
-            headers: {
-                'accept': '*/*'
-            }
-        })
-            .then((response) => {
-                setProcesses(response.data.processMasterListResponses)
-            })
-            .catch((error) => {
-                console.error('Error fetching data:', error);
-            });
+        // console.log(apiUrl)
+        // axios.get(apiUrl, {
+        //     headers: {
+        //         'accept': '*/*'
+        //     }
+        // })
+        //     .then((response) => {
+        //         setProcesses(response.data.processMasterListResponses)
+        //     })
+        //     .catch((error) => {
+        //         console.error('Error fetching data:', error);
+        //     });
     };
 
 
