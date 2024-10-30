@@ -255,10 +255,15 @@ const App: React.FC = () => {
   interface HeaderItem {
     headerName: string;
   }
-
+  
   const [mastersList, setMastersList] = useState<MasterItem[]>([]); // State to store the fetched options
   const [selectedMaster, setSelectedMaster] = useState(''); // State to track selected option
   const [headersList, setHeadersList] = useState<HeaderItem[]>([]);
+  const [selectedHeader, setSelectedHeader] = useState('');
+
+
+  const storedEmpName = localStorage.getItem('EmpName');
+
 
   useEffect(() => {
     // Fetch the master list data from the API when the component loads
@@ -277,6 +282,13 @@ const App: React.FC = () => {
 
     fetchMastersList();
   }, []);
+
+  // Handle header selection
+  const handleHeaderChange = (header: string) => {
+    setSelectedHeader(header);
+    // Save the selected header here, or perform an action such as updating a form or API call
+    console.log('Selected Header:', header); // Debug or pass this value to where it needs to be stored
+  };
 
   const handleMasterChange = async (masterId: string) => {
     setSelectedMaster(masterId);
@@ -541,6 +553,18 @@ const App: React.FC = () => {
           fileSize: fileSize || "", // Add fileSize if available
         };
       }
+      if (field.type === 'CustomSelect') {
+        return {
+          inputId,
+          type: field.type,
+          label: field.labeltext || "Default Label",
+          required: field.required || false,
+          conditionalFieldId: field.conditionalFieldId || "", // Use existing conditionalFieldId if any
+          value: field.value || "",
+          selectedMaster: selectedMaster,
+          selectedHeader: selectedHeader
+        };
+      }
 
       // Default return for other input types
       return {
@@ -573,7 +597,7 @@ const App: React.FC = () => {
       roleId: selectedRole ? String(selectedRole.id) : '', // Ensure roleId is a string
       roleName: selectedRole?.roleName || '', // Ensure roleName is present or empty string
       processName,
-      // startDate,
+      condition_Template_Json: "",
       doerID: "",
       doerName: "",
       task_Number: "",
@@ -583,12 +607,12 @@ const App: React.FC = () => {
       template_Json: selectedTemplateJson,
       problem_Solver: selectedEmployeeObj?.employeeName,
       task_Json: JSON.stringify(formJSON),
-      createdBy: "HimanshuPant", // Replace with actual username or dynamic value
+      createdBy: storedEmpName, // Replace with actual username or dynamic value
       finishPoint: parseFloat(finishID), // Convert finishID to float before sending
       approval_Console: isApprovalConsoleActive ? "Select Approval_Console" : "",
       approvalConsoleDoerID: approvalSelectedEmployee,
       approvalConsoleDoerName: selectedapprovalEmployee ? selectedapprovalEmployee.employeeName : "", // Use employee name from selectedapprovalEmployee
-      approvalConsoleInputID: formData.approvalConsoleId
+      approvalConsoleInputID:  formData.approvalConsoleId,
     };
 
 
@@ -598,7 +622,7 @@ const App: React.FC = () => {
     setLoading(true);
 
     try {
-      const response = await fetch(`${config.API_URL_ACCOUNT}/ProcessTaskMaster/InsertUpdateProcessTaskandDoers`, {
+      const response = await fetch(`${config.API_URL_ACCOUNT}/ProcessTaskMaster/InsertUpdateProcessTaskandDoer`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -992,7 +1016,7 @@ const App: React.FC = () => {
           );
         case 'CustomSelect':
           return (
-            <div className='col-6'>
+            <div className='col-8'>
               <Form.Group className='mt-2'>
                 <Form.Label>Select Master</Form.Label>
                 <Form.Select
@@ -1005,12 +1029,6 @@ const App: React.FC = () => {
                       {master.mastersName}
                     </option>
                   ))}
-                </Form.Select>
-              </Form.Group>
-              <Form.Group className='mt-2'>
-                <Form.Label>Select header</Form.Label>
-                <Form.Select
-                >
                 </Form.Select>
               </Form.Group>
             </div>
@@ -1479,18 +1497,57 @@ const App: React.FC = () => {
                         {/* Add more options as needed */}
                       </Form.Select>
                     </Form.Group>
+                                          {/* Conditional Checkbox */}
+                                          <div className='form-group mt-2'>
+                        <label className="form-label">
+                          <input
+                            className='me-1'
+                            type="checkbox"
+                            checked={conditionalField}
+                            onChange={handleCheckboxChange}
+                          />
+                          Is Conditionally bound?
+                        </label>
+                      </div>
+
+                      {/* Conditional Select Dropdown */}
+                      {conditionalField && (
+                        <Form.Control
+                          as="select"
+                          className="mt-2"
+                          value={editField.conditionalFieldId || ''}
+                          onChange={handleSelectChange}
+                        >
+                          <option value="">Select an option</option>
+                          {taskFields.map((field) => (
+                            <React.Fragment key={field.inputId}>
+                              <option value={field.inputId}>{field.labeltext}</option>
+                              {field.options?.map((option) => (
+                                <option
+                                  key={option.id}
+                                  value={option.id}
+                                  data-color={option.color || ""}
+                                  style={{ color: option.color || "inherit" }}
+                                >
+                                  {option.label}
+                                </option>
+                              ))}
+                            </React.Fragment>
+                          ))}
+                        </Form.Control>
+                      )}
                   </Form.Group>
                 )}
 
 
                 {editField.type === 'CustomSelect' && (
                   <Form.Group key={editField.inputId}>
-                    <Form.Label>{editField.labeltext}</Form.Label>
+                    {/* Select Master */}
                     <Form.Group className='mt-2'>
                       <Form.Label>Select Master</Form.Label>
                       <Form.Select
                         value={selectedMaster}
-                        onChange={(e) => handleMasterChange(e.target.value)} // Handle selection change
+                        onChange={(e) => handleMasterChange(e.target.value)} // Handle master selection
                       >
                         <option value="">Select a Master</option>
                         {mastersList.map((master) => (
@@ -1500,9 +1557,14 @@ const App: React.FC = () => {
                         ))}
                       </Form.Select>
                     </Form.Group>
+
+                    {/* Select Header */}
                     <Form.Group className='mt-2'>
                       <Form.Label>Select Header</Form.Label>
-                      <Form.Select>
+                      <Form.Select
+                        value={selectedHeader} // Bind selected header state
+                        onChange={(e) => handleHeaderChange(e.target.value)} // Handle header selection
+                      >
                         <option value="">Select a Header</option>
                         {headersList.map((header) => (
                           <option key={header.headerName} value={header.headerName}>
@@ -1511,6 +1573,45 @@ const App: React.FC = () => {
                         ))}
                       </Form.Select>
                     </Form.Group>
+                                          {/* Conditional Checkbox */}
+                                          <div className='form-group mt-2'>
+                        <label className="form-label">
+                          <input
+                            className='me-1'
+                            type="checkbox"
+                            checked={conditionalField}
+                            onChange={handleCheckboxChange}
+                          />
+                          Is Conditionally bound?
+                        </label>
+                      </div>
+
+                      {/* Conditional Select Dropdown */}
+                      {conditionalField && (
+                        <Form.Control
+                          as="select"
+                          className="mt-2"
+                          value={editField.conditionalFieldId || ''}
+                          onChange={handleSelectChange}
+                        >
+                          <option value="">Select an option</option>
+                          {taskFields.map((field) => (
+                            <React.Fragment key={field.inputId}>
+                              <option value={field.inputId}>{field.labeltext}</option>
+                              {field.options?.map((option) => (
+                                <option
+                                  key={option.id}
+                                  value={option.id}
+                                  data-color={option.color || ""}
+                                  style={{ color: option.color || "inherit" }}
+                                >
+                                  {option.label}
+                                </option>
+                              ))}
+                            </React.Fragment>
+                          ))}
+                        </Form.Control>
+                      )}
                   </Form.Group>
                 )}
                 {editField.type === 'paragraph' && (

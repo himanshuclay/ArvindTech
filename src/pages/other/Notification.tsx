@@ -37,7 +37,8 @@ interface ProjectAssignListWithDoer {
   taskNumber: string
   inputs: Input[]
   data: string;
-
+  approval_Console: string;
+  approvalConsoleInputID: number;
 
 }
 interface Input {
@@ -175,6 +176,8 @@ const ProjectAssignTable: React.FC = () => {
 
     fetchData();
   }, []);
+
+  console.log(data)
 
 
 
@@ -481,6 +484,8 @@ const ProjectAssignTable: React.FC = () => {
                               processId={item.processID}
                               moduleId= {item.moduleID}
                               ProcessInitiationID= {item.id}
+                              approval_Console= {item.approval_Console}
+                              approvalConsoleInputID = {item.approvalConsoleInputID}
                               
                             />
                           </div>

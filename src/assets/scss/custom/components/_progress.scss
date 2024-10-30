@@ -505,19 +505,30 @@ td {
   cursor: pointer !important;
 }
 
-.side-nav  .menuitem-active .menuitem-active .active {
+.side-nav .menuitem-active .menuitem-active .active {
   color: #ffffff;
   font-weight: bold;
-  background-color: rgb(32 29 86);
+  background-color: rgba(189, 189, 189, 0.37);
+  border-top-right-radius: 5px;
+  border-bottom-right-radius: 5px;
+  margin: 0 5px 0 0;
 }
 
 .side-nav .menuitem-active > a {
-  color: #ffffff !important;
+  color: #000000 !important;
   font-weight: bold;
-  background-color: rgb(32 29 86);
+  background-color: rgb(189 189 189 / 37%);
 }
 
 
 .side-nav-second-level .side-nav-item a.side-nav-link  {
   padding:  5px !important;
+}
+
+ul.side-nav-second-level:first-child {
+  margin-top: 10px;
+}
+
+.side-nav-second-level .side-nav-item {
+  border-left: 5px solid #201d56;
 }

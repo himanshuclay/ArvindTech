@@ -39,6 +39,14 @@ const getFilteredMenuItems = () => {
     },
 
     {
+      key: 'Approval-Console',
+      label: 'Approval Console',
+      isTitle: false,
+      url: '/pages/ApprovalConsole',
+      icon: 'ri-dashboard-3-line',
+    },
+
+    {
       key: 'Action',
       label: 'Action',
       icon: 'ri-file-settings-line',

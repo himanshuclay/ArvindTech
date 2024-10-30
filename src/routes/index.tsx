@@ -26,7 +26,7 @@ const TemplateMaster = React.lazy(() => import('../pages/other/Modules-Master.ts
 const ActiveTasks = React.lazy(() => import('../pages/other/ActiveTasks.tsx'))
 const ActiveProject = React.lazy(() => import('../pages/other/ActiveProject.tsx'))
 // const FilterTasks = React.lazy(() => import('../pages/other/FilterTasks.tsx'))
-// const Filtertask = React.lazy(() => import('../pages/other/Filtertask.tsx'))
+const ApprovalConsole = React.lazy(() => import('../pages/other/ApprovalConsole.tsx'))
 const Notification = React.lazy(() => import('../pages/other/Notification.tsx'))
 const ModuleList = React.lazy(() => import('../pages/other/Module-list.tsx'))
 const EmployeeMaster = React.lazy(() => import('../pages/other/Employee-Master.tsx'))
@@ -275,6 +275,12 @@ const customPagesRoutes = {
 			path: '/pages/Notification',
 			name: 'Notification',
 			element: <Notification />,
+			route: PrivateRoute,
+		},
+		{
+			path: '/pages/ApprovalConsole',
+			name: 'Approval Console',
+			element: <ApprovalConsole />,
 			route: PrivateRoute,
 		},
 		{
