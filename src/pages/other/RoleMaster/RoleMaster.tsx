@@ -229,7 +229,7 @@ const ModuleMaster = () => {
                                             getOptionLabel={(item) => item.roleName} 
                                             getOptionValue={(item) => item.roleName}
                                             isSearchable={true} 
-                                            placeholder="Search..."
+                                            placeholder="Select Role"
                                             className="h45"
                                         />
                                     </Form.Group>

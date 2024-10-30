@@ -105,11 +105,11 @@ const RequirementMasterinsert = () => {
 
     const fetchStaffRequirementsId = async (id: string) => {
         try {
-            const response = await axios.get(`${config.API_URL_APPLICATION}/DoerMaster/GetDoer`, {
+            const response = await axios.get(`${config.API_URL_APPLICATION}/StaffRequirementMaster/GetStaffRequirement`, {
                 params: { id: id }
             });
             if (response.data.isSuccess) {
-                const fetchedModule = response.data.doerMasterList[0];
+                const fetchedModule = response.data.staffRequirements[0];
                 setRequirements(fetchedModule);
             } else {
                 console.error(response.data.message);
@@ -175,7 +175,7 @@ const RequirementMasterinsert = () => {
             } else {
                 await axios.post(`${config.API_URL_APPLICATION}/StaffRequirementMaster/InsertorUpdateStaffRequirement`, payload);
             }
-            navigate('/pages/DoerMaster');
+            navigate('/pages/RequirementMaster');
         } catch (error) {
             console.error('Error submitting module:', error);
         }

@@ -246,8 +246,8 @@ const EmployeeInsert = () => {
                                                 statusID: selectedOption?.id || 0,
                                             });
                                         }}
-                                        getOptionLabel={(mod) => mod.id === 1 ? 'Active' : "Inactive"}
-                                        getOptionValue={(mod) => mod.id === 1 ? 'Active' : "Inactive"}
+                                        getOptionLabel={(mod) => mod.id === 1 ? 'ACTIVE' : "INACTIVE"}
+                                        getOptionValue={(mod) => mod.id === 1 ? 'ACTIVE' : "INACTIVE"}
                                         options={statusID}
                                         isSearchable={true}
                                         placeholder="Select Status"
