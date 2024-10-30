@@ -189,7 +189,7 @@ const EmployeeInsert = () => {
                         <Row>
                             <Col lg={6}>
                                 <Form.Group controlId="taskID" className="mb-3">
-                                    <Form.Label>Module Name</Form.Label>
+                                    <Form.Label>Task Number</Form.Label>
                                     <Select
                                         name="taskID"
                                         value={taskList.find((mod) => mod.taskID === doers.taskID)}
@@ -203,7 +203,7 @@ const EmployeeInsert = () => {
                                         getOptionValue={(mod) => mod.taskID}
                                         options={taskList}
                                         isSearchable={true}
-                                        placeholder="Select Module Name"
+                                        placeholder="Select Task Number"
                                         required
                                     />
                                 </Form.Group>
@@ -219,6 +219,7 @@ const EmployeeInsert = () => {
                                         value={doers.identifier}
                                         onChange={handleChange}
                                         required
+                                        placeholder='Enter Identifier'
                                     />
                                 </Form.Group>
                             </Col>
@@ -231,6 +232,7 @@ const EmployeeInsert = () => {
                                         value={doers.input}
                                         onChange={handleChange}
                                         required
+                                        placeholder='Enter Input'
                                     />
                                 </Form.Group>
                             </Col>
@@ -243,6 +245,7 @@ const EmployeeInsert = () => {
                                         value={doers.inputValue}
                                         onChange={handleChange}
                                         required
+                                        placeholder='Enter InputValue'
                                     />
                                 </Form.Group>
                             </Col>

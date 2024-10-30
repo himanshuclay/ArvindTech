@@ -1,28 +1,29 @@
 import axios from 'axios';
 import { useState, useEffect, ChangeEvent } from 'react';
-import { Button, Pagination, Table, Container, Row, Col, Alert, Form, ButtonGroup } from 'react-bootstrap';
+import { Button, Pagination, Table, Container, Row, Col, Alert } from 'react-bootstrap';
+// import { Button, Pagination, Table, Container, Row, Col, Alert, Form, ButtonGroup } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
-import IconWithLetter from '@/pages/ui/IconWithLetter';
 import config from '@/config';
-import Select from 'react-select';
+import CustomSuccessToast from '../../Component/CustomSuccessToast';
+// import Select from 'react-select';
+import { useLocation, useNavigate } from 'react-router-dom';
 
-interface Module {
+interface BdInput {
     id: number;
-    moduleName: string;
-    moduleDisplayName: string;
-    fmsType: string;
     moduleID: string;
-    misExemptID: number;
-    statusID: number;
-    userUpdatedMobileNumber: number;
-    moduleOwnerID: string;
-    moduleOwnerName: string;
-    empId: string;
-    employeeName: string;
+    processID: string;
+    taskID: string;
+    inputID: string;
+    inputType: string;
+    inputDisplayName: string;
+    inputVariables: string;
+    predecessorOrLogic: string;
+    status: string;
     createdBy: string;
     updatedBy: string;
 }
+
 
 interface Column {
     id: string;
@@ -31,64 +32,87 @@ interface Column {
 }
 
 
-const ModuleMaster = () => {
-
-
-    const [modules, setModules] = useState<Module[]>([]);
+const BdInputMaster = () => {
+    const [hrResumes, setHrResumes] = useState<BdInput[]>([]);
     const [loading, setLoading] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
-    const [moduleList, setModuleList] = useState<Module[]>([]);
-    const [employeeList, setEmployeeList] = useState<Module[]>([]);
     const [searchQuery, setSearchQuery] = useState('');
-    const [downloadCsv, setDownloadCsv] = useState<Module[]>([]);
+    const [downloadCsv, setDownloadCsv] = useState<BdInput[]>([]);
 
 
 
+    const location = useLocation();
+    const navigate = useNavigate();
+    const [showToast, setShowToast] = useState(false);
+    const [toastMessage, setToastMessage] = useState('');
+    const [toastVariant, setToastVariant] = useState('');
 
 
-    const [moduleDisplayName, setModuleDisplayName] = useState('');
-    const [moduleOwnerName, setModuleOwnerName] = useState('');
+
+    useEffect(() => {
+        if (location.state && location.state.showToast) {
+            setShowToast(true);
+            setToastMessage(location.state.toastMessage);
+            setToastVariant(location.state.toastVariant);
+
+            setTimeout(() => {
+                setShowToast(false);
+                navigate(location.pathname, { replace: true });
+            }, 5000);
+        }
+        return () => {
+            setShowToast(false);
+            setToastMessage('');
+            setToastVariant('');
+        };
+    }, [location.state, navigate]);
 
 
-    const handleSearch = (e: any) => {
-        e.preventDefault();
+    // const [moduleDisplayName, setModuleDisplayName] = useState('');
+    // const [moduleOwnerName, setModuleOwnerName] = useState('');
 
-        let query = `?`;
-        if (moduleDisplayName) query += `ModuleDisplayName=${moduleDisplayName}&`;
-        if (moduleOwnerName) query += `ModuleOwnerName=${moduleOwnerName}&`;
 
-        query = query.endsWith('&') ? query.slice(0, -1) : query;
+    // const handleSearch = (e: any) => {
+    //     e.preventDefault();
 
-        const apiUrl = `https://arvindo-api2.clay.in/api/ModuleMaster/SearchModuleList${query}`;
+    //     let query = `?`;
+    //     if (moduleDisplayName) query += `ModuleDisplayName=${moduleDisplayName}&`;
+    //     if (moduleOwnerName) query += `ModuleOwnerName=${moduleOwnerName}&`;
 
-        axios.get(apiUrl, {
-            headers: {
-                'accept': '*/*'
-            }
-        })
-            .then((response) => {
-                console.log(response.data.moduleMasterListResponses);
-                setModules(response.data.moduleMasterListResponses)
-            })
-            .catch((error) => {
-                console.error('Error fetching data:', error);
-            });
-    };
+    //     query = query.endsWith('&') ? query.slice(0, -1) : query;
+
+    //     const apiUrl = `https://arvindo-api2.clay.in/api/ModuleMaster/SearchModuleList${query}`;
+
+    //     axios.get(apiUrl, {
+    //         headers: {
+    //             'accept': '*/*'
+    //         }
+    //     })
+    //         .then((response) => {
+    //             console.log(response.data.moduleMasterListResponses);
+    //             setHrResumes(response.data.moduleMasterListResponses)
+    //         })
+    //         .catch((error) => {
+    //             console.error('Error fetching data:', error);
+    //         });
+    // };
 
 
 
     // both are required to make dragable column of table 
     const [columns, setColumns] = useState<Column[]>([
-        { id: 'moduleOwnerID', label: 'Module Owner ID', visible: true },
-        { id: 'moduleOwnerName', label: 'Module Owner Name', visible: true },
         { id: 'moduleID', label: 'Module ID', visible: true },
-        { id: 'moduleDisplayName', label: 'Module Display Name', visible: true },
-        { id: 'fmsType', label: 'Fms Types', visible: true },
-        { id: 'misExempt', label: 'Mis Exempt ID', visible: true },
-        { id: 'statusID', label: 'Status', visible: true },
-
+        { id: 'processID', label: 'Process ID', visible: true },
+        { id: 'taskID', label: 'Task ID', visible: true },
+        { id: 'inputID', label: 'Input ID', visible: true },
+        { id: 'inputType', label: 'Input Type', visible: true },
+        { id: 'inputDisplayName', label: 'Input Display Name', visible: true },
+        { id: 'inputVariables', label: 'Input Variables', visible: true },
+        { id: 'predecessorOrLogic', label: 'Predecessor or Logic', visible: true },
+        { id: 'status', label: 'Status', visible: true },
     ]);
+
 
     const handleOnDragEnd = (result: any) => {
         if (!result.destination) return;
@@ -113,19 +137,19 @@ const ModuleMaster = () => {
     const fetchModules = async () => {
         setLoading(true);
         try {
-            const response = await axios.get(`${config.API_URL_APPLICATION}/ModuleMaster/GetModule`, {
+            const response = await axios.get(`${config.API_URL_APPLICATION}/BDInputMaster/GetBDInput`, {
                 params: {
                     PageIndex: currentPage
                 }
             });
             if (response.data.isSuccess) {
-                setModules(response.data.moduleMasterList);
+                setHrResumes(response.data.bDInputs);
                 setTotalPages(Math.ceil(response.data.totalCount / 10));
             } else {
                 console.error(response.data.message);
             }
         } catch (error) {
-            console.error('Error fetching modules:', error);
+            console.error('Error fetching hrResumes:', error);
         }
         finally {
             setLoading(false);
@@ -134,77 +158,92 @@ const ModuleMaster = () => {
 
     const fetchModulesCsv = async () => {
         try {
-            const response = await axios.get(`${config.API_URL_APPLICATION}/ModuleMaster/GetModule`);
+            const response = await axios.get(`${config.API_URL_APPLICATION}/BDInputMaster/GetBDInput`);
             if (response.data.isSuccess) {
-                setDownloadCsv(response.data.moduleMasterList);
+                setDownloadCsv(response.data.bDInputs);
             } else {
                 console.error(response.data.message);
             }
         } catch (error) {
-            console.error('Error fetching modules:', error);
+            console.error('Error fetching hrResumes:', error);
         }
-      
+
     };
 
 
 
-    useEffect(() => {
-        const fetchData = async (endpoint: string, setter: Function, listName: string) => {
-            try {
-                const response = await axios.get(`${config.API_URL_APPLICATION}/${endpoint}`);
-                if (response.data.isSuccess) {
-                    setter(response.data[listName]);
-                } else {
-                    console.error(response.data.message);
-                }
-            } catch (error) {
-                console.error(`Error fetching data from ${endpoint}:`, error);
-            }
-        };
+    // useEffect(() => {
+    //     const fetchData = async (endpoint: string, setter: Function, listName: string) => {
+    //         try {
+    //             const response = await axios.get(`${config.API_URL_APPLICATION}/${endpoint}`);
+    //             if (response.data.isSuccess) {
+    //                 setter(response.data[listName]);
+    //             } else {
+    //                 console.error(response.data.message);
+    //             }
+    //         } catch (error) {
+    //             console.error(`Error fetching data from ${endpoint}:`, error);
+    //         }
+    //     };
 
-        fetchData('CommonDropdown/GetModuleList', setModuleList, 'moduleNameListResponses');
-        fetchData('CommonDropdown/GetEmployeeListWithId', setEmployeeList, 'employeeLists');
-    }, []);
-
-
+    //     fetchData('CommonDropdown/GetModuleList', setModuleList, 'moduleNameListResponses');
+    //     fetchData('CommonDropdown/GetEmployeeListWithId', setEmployeeList, 'employeeLists');
+    // }, []);
 
 
 
 
-    const handleClear = () => {
-        setModuleDisplayName('');
-        setModuleOwnerName('');
-        fetchModules();
-    };
 
 
-    const filteredModules = modules.filter(module =>
-        module.moduleDisplayName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        module.moduleID.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        module.fmsType.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        module.moduleOwnerID.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        module.moduleOwnerName.toLowerCase().includes(searchQuery.toLowerCase())
+    // const handleClear = () => {
+    //     setModuleDisplayName('');
+    //     setModuleOwnerName('');
+    //     fetchModules();
+    // };
+
+
+    const filteredDoers = hrResumes.filter(input =>
+        input.taskID.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        input.moduleID.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        input.processID.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        input.inputID.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        input.inputType.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        input.inputDisplayName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        input.inputVariables.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        input.predecessorOrLogic.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        input.status.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        input.createdBy.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        input.updatedBy.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
 
-    const convertToCSV = (data: Module[]) => {
+
+    const convertToCSV = (data: BdInput[]) => {
         const csvRows = [
-            ['ID', 'Module Display Name', 'FMS Type', 'Module ID', 'MIS Exempt ID', 'Status ID', 'Module Owner Name ID', 'Created By', 'Updated By'],
-            ...data.map(mod => [
-                mod.id,
-                mod.moduleDisplayName,
-                mod.fmsType,
-                mod.moduleID,
-                mod.misExemptID,
-                mod.statusID,
-                mod.moduleOwnerName,
-                mod.createdBy,
-                mod.updatedBy
+            ['ID', 'Module ID', 'Process ID',
+                'Task ID', 'Input ID', 'Input Type',
+                'Input Display Name', 'Input Variables',
+                'Predecessor or Logic', 'Status',
+                'Created By', 'Updated By'],
+            ...data.map(input => [
+                input.id,
+                input.moduleID,
+                input.processID,
+                input.taskID,
+                input.inputID,
+                input.inputType,
+                input.inputDisplayName,
+                input.inputVariables,
+                input.predecessorOrLogic,
+                input.status,
+                input.createdBy,
+                input.updatedBy
             ])
         ];
 
         return csvRows.map(row => row.join(',')).join('\n');
     };
+
 
     const downloadCSV = () => {
 
@@ -214,7 +253,7 @@ const ModuleMaster = () => {
         if (link.download !== undefined) {
             const url = URL.createObjectURL(blob);
             link.setAttribute('href', url);
-            link.setAttribute('download', 'Modules.csv');
+            link.setAttribute('download', 'BdInput.csv');
             link.style.visibility = 'hidden';
             document.body.appendChild(link);
             link.click();
@@ -231,23 +270,23 @@ const ModuleMaster = () => {
     return (
         <>
             <div className="d-flex bg-white p-2 my-2 justify-content-between align-items-center fs-20">
-                <span><i className="ri-file-list-line me-2"></i><span className='fw-bold test-nowrap'>Modules List</span></span>
+                <span><i className="ri-file-list-line me-2"></i><span className='fw-bold test-nowrap'>Bd Input</span></span>
                 <div className="d-flex">
-                    <Link to='/pages/ModuleMasterinsert'>
+                    <Link to='/pages/BdInputMasterinsert'>
                         <Button variant="primary">
-                            Add Modules
+                            Add Bd Input
                         </Button>
                     </Link>
 
                 </div>
             </div>
 
-            {!modules ? (
+            {!hrResumes ? (
                 <Container className="mt-5">
                     <Row className="justify-content-center">
                         <Col xs={12} md={8} lg={6}>
                             <Alert variant="info" className="text-center">
-                                <h4>No Task Found</h4>
+                                <h4>No Bd Input Found</h4>
                                 <p>You currently don't have Completed tasks</p>
                             </Alert>
                         </Col>
@@ -264,11 +303,11 @@ const ModuleMaster = () => {
                         ) : (
                             <>
                                 <div className='bg-white p-2 pb-2'>
-                                    <Form onSubmit={handleSearch}>
+                                    {/* <Form onSubmit={handleSearch}>
                                         <Row>
                                             <Col lg={5}>
                                                 <Form.Group controlId="ModuleDisplayName">
-                                                    <Form.Label>Module Display Name:</Form.Label>
+                                                    <Form.Label>HrInput Display Name:</Form.Label>
 
                                                     <Select
                                                         name="searchProjectName"
@@ -278,7 +317,7 @@ const ModuleMaster = () => {
                                                         getOptionLabel={(item) => item.moduleName}
                                                         getOptionValue={(item) => item.moduleName}
                                                         isSearchable={true}
-                                                        placeholder="Select Module Display Name"
+                                                        placeholder="Select HrInput Display Name"
                                                         className="h45"
                                                     />
                                                 </Form.Group>
@@ -286,7 +325,7 @@ const ModuleMaster = () => {
 
                                             <Col lg={5}>
                                                 <Form.Group controlId="ModuleOwnerName">
-                                                    <Form.Label>Module Owner Name:</Form.Label>
+                                                    <Form.Label>HrInput Owner Name:</Form.Label>
                                                     <Select
                                                         name="ModuleOwnerName"
                                                         value={employeeList.find(emp => emp.empId === moduleOwnerName) || null} // handle null
@@ -295,7 +334,7 @@ const ModuleMaster = () => {
                                                         getOptionLabel={(emp) => emp.employeeName}
                                                         getOptionValue={(emp) => emp.empId}
                                                         isSearchable={true}
-                                                        placeholder="Select Module Owner Name."
+                                                        placeholder="Select HrInput Owner Name."
                                                         className="h45"
                                                     />
                                                 </Form.Group>
@@ -315,7 +354,9 @@ const ModuleMaster = () => {
                                             </Col>
                                         </Row>
 
-                                    </Form>
+                                    </Form> */}
+
+                                    <div>Select filter will be apply</div>
                                     <Row className='mt-3'>
                                         <div className="d-flex justify-content-end bg-light p-1">
                                             <div className="app-search d-none d-lg-block me-4">
@@ -332,18 +373,14 @@ const ModuleMaster = () => {
                                                     </div>
                                                 </form>
                                             </div>
-
                                             <Button variant="primary" onClick={downloadCSV} className="">
                                                 Download CSV
                                             </Button>
                                         </div>
                                     </Row>
                                 </div>
-
                                 <div className="overflow-auto text-nowrap">
-
                                     <DragDropContext onDragEnd={handleOnDragEnd}>
-
                                         <Table hover className='bg-white '>
                                             <thead>
                                                 <Droppable droppableId="columns" direction="horizontal">
@@ -359,16 +396,15 @@ const ModuleMaster = () => {
                                                                                 <div ref={provided.innerRef as React.Ref<HTMLTableHeaderCellElement>}
                                                                                     {...provided.draggableProps}
                                                                                     {...provided.dragHandleProps}>
-
-                                                                                    {column.id === 'moduleOwnerID' && (<i className="ri-settings-2-fill"></i>)}
-                                                                                    {column.id === 'moduleID' && (<i className="ri-settings-2-fill"></i>)}
-                                                                                    {column.id === 'moduleDisplayName' && (<i className="ri-user-settings-fill"></i>)}
-                                                                                    {/* {column.id === 'userUpdatedMobileNumber' && (<i className="ri-phone-fill"></i>)} */}
-                                                                                    {column.id === 'moduleOwnerName' && (<i className="ri-user-fill"></i>)}
-                                                                                    {column.id === 'identifier' && (<i className="ri-price-tag-3-fill"></i>)}
-                                                                                    {column.id === 'input' && (<i className="ri-pencil-fill"></i>)}
-                                                                                    {column.id === 'fmsType' && (<i className="ri-user-follow-fill"></i>)}
-                                                                                    {column.id === 'statusID' && (<i className="ri-information-fill"></i>)}
+                                                                                    {column.id === 'moduleID' && (<i className="ri-folder-3-fill"></i>)}
+                                                                                    {column.id === 'processID' && (<i className="ri-projector-2-fill"></i>)}
+                                                                                    {column.id === 'taskID' && (<i className="ri-settings-2-fill"></i>)}
+                                                                                    {column.id === 'inputID' && (<i className="ri-pencil-fill"></i>)}
+                                                                                    {column.id === 'inputType' && (<i className="ri-price-tag-3-fill"></i>)}
+                                                                                    {column.id === 'inputDisplayName' && (<i className="ri-user-settings-fill"></i>)}
+                                                                                    {column.id === 'inputVariables' && (<i className="ri-variable-fill"></i>)}
+                                                                                    {column.id === 'predecessorOrLogic' && (<i className="ri-flow-chart-fill"></i>)}
+                                                                                    {column.id === 'status' && (<i className="ri-information-fill"></i>)}
                                                                                     &nbsp; {column.label}
 
                                                                                 </div>
@@ -381,58 +417,27 @@ const ModuleMaster = () => {
                                                         </tr>
                                                     )}
                                                 </Droppable>
-
                                             </thead>
                                             <tbody>
-                                                {filteredModules.length > 0 ? (
-                                                    filteredModules.slice(0, 10).map((item, index) => (
+                                                {filteredDoers.length > 0 ? (
+                                                    filteredDoers.slice(0, 10).map((item, index) => (
                                                         <tr key={item.id}>
                                                             <td>{(currentPage - 1) * 10 + index + 1}</td>
                                                             {columns.filter(col => col.visible).map((col) => (
                                                                 <td key={col.id}
                                                                     className={
-                                                                        // Add class based on column id
-                                                                        col.id === 'moduleOwnerName' ? 'fw-bold fs-14 text-dark' :
-                                                                            col.id === 'moduleOwnerID' ? 'fw-bold fs-13  ' :
-                                                                                // Add class based on value (e.g., expired tasks)
-                                                                                (col.id === 'statusID' && item[col.id] === 2) ? 'task4' :
-                                                                                    (col.id === 'statusID' && item[col.id] === 1) ? 'task1' :
-                                                                                        ''
+                                                                        (col.id === 'status' && item[col.id] === 'INACTIVE') ? 'task4' :
+                                                                            (col.id === 'status' && item[col.id] === 'ACTIVE') ? 'task1' :
+                                                                                ''
                                                                     }
                                                                 >
                                                                     <div>
 
-
-                                                                        {col.id === 'statusID' ? (
-                                                                            <td>
-                                                                                {item.statusID === 1 ? 'ACTIVE' : 'INACTIVE'}
-                                                                            </td>
-                                                                        ) : col.id === 'moduleOwnerName' ? (
-                                                                            <td>
-                                                                                <div >
-                                                                                    <div className='d-flex align-items-center'>
-                                                                                        <IconWithLetter letter={item.moduleOwnerName.charAt(0)} />
-                                                                                        {item.moduleOwnerName.split('_')[0]}
-                                                                                    </div>
-                                                                                    {item.userUpdatedMobileNumber ?
-                                                                                        <p className='phone_user fw-normal m-0'>
-                                                                                            <a href={`tel:${item.userUpdatedMobileNumber}`}> <i className="ri-phone-fill"></i> {item.userUpdatedMobileNumber}</a>
-
-                                                                                        </p> : ""
-                                                                                    }
-
-
-                                                                                </div>
-                                                                            </td>
-                                                                        ) : (
-                                                                            <td>{item[col.id as keyof Module]}</td>
-                                                                        )}
-
-
+                                                                        {item[col.id as keyof BdInput]}
                                                                     </div>
                                                                 </td>
                                                             ))}
-                                                            <td><Link to={`/pages/ModuleMasterinsert/${item.id}`}>
+                                                            <td><Link to={`/pages/BdInputMasterinsert/${item.id}`}>
                                                                 <i className='btn ri-edit-line' ></i>
                                                             </Link>
                                                             </td>
@@ -445,7 +450,7 @@ const ModuleMaster = () => {
                                                                 <Row className="justify-content-center">
                                                                     <Col xs={12} md={8} lg={6}>
                                                                         <Alert variant="info" className="text-center">
-                                                                            <h4>No Task Found</h4>
+                                                                            <h4>No Resume Found</h4>
                                                                             <p>You currently don't have Completed tasks</p>
                                                                         </Alert>
                                                                     </Col>
@@ -454,19 +459,14 @@ const ModuleMaster = () => {
                                                         </td>
                                                     </tr>
                                                 )}
-
-
                                             </tbody>
                                         </Table>
                                     </DragDropContext>
                                 </div>
                             </>
-
                         )}
-
                     </div>
                     <div className="d-flex justify-content-center align-items-center bg-white w-20 rounded-5 m-auto py-1 pb-1 my-2 pagination-rounded">
-
                         <Pagination >
                             <Pagination.First onClick={() => setCurrentPage(1)} disabled={currentPage === 1} />
                             <Pagination.Prev onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))} disabled={currentPage === 1} />
@@ -475,10 +475,17 @@ const ModuleMaster = () => {
                             <Pagination.Last onClick={() => setCurrentPage(totalPages)} disabled={currentPage === totalPages} />
                         </Pagination>
                     </div>
+
                 </div>
             )}
+            <CustomSuccessToast
+                show={showToast}
+                toastMessage={toastMessage}
+                toastVariant={toastVariant}
+                onClose={() => setShowToast(false)}
+            />
         </>
     );
 };
 
-export default ModuleMaster;
+export default BdInputMaster;

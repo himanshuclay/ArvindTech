@@ -41,30 +41,30 @@ interface Column {
     label: string;
     visible: boolean;
 }
-interface EmployeeList {
-    empId: string;
-    employeeName: string;
-}
-interface RoleList {
-    id: string;
-    roleName: string;
-}
-interface TaskList {
-    id: string;
-    taskID: string;
-}
-interface Identifier {
-    id: string;
-    identifier: string;
-}
-interface Input {
-    id: string;
-    input: string;
-}
-interface InputValue {
-    id: string;
-    inputValue: string;
-}
+// interface EmployeeList {
+//     empId: string;
+//     employeeName: string;
+// }
+// interface RoleList {
+//     id: string;
+//     roleName: string;
+// }
+// interface TaskList {
+//     id: string;
+//     taskID: string;
+// }
+// interface Identifier {
+//     id: string;
+//     identifier: string;
+// }
+// interface Input {
+//     id: string;
+//     input: string;
+// }
+// interface InputValue {
+//     id: string;
+//     inputValue: string;
+// }
 
 const RequirementMaster = () => {
     const [requirements, setRequirements] = useState<Requirement[]>([]);
@@ -74,12 +74,12 @@ const RequirementMaster = () => {
     const [searchQuery, setSearchQuery] = useState('');
 
 
-    const [employeeList, setEmployeeList] = useState<EmployeeList[]>([]);
-    const [roleList, setRoleList] = useState<RoleList[]>([]);
-    const [taskList, setTaskList] = useState<TaskList[]>([]);
-    const [identifierList, setIdentifierList] = useState<Identifier[]>([]);
-    const [inputList, setInputList] = useState<Input[]>([]);
-    const [inputValueList, setInputValueList] = useState<InputValue[]>([]);
+    // const [employeeList, setEmployeeList] = useState<EmployeeList[]>([]);
+    // const [roleList, setRoleList] = useState<RoleList[]>([]);
+    // const [taskList, setTaskList] = useState<TaskList[]>([]);
+    // const [identifierList, setIdentifierList] = useState<Identifier[]>([]);
+    // const [inputList, setInputList] = useState<Input[]>([]);
+    // const [inputValueList, setInputValueList] = useState<InputValue[]>([]);
 
 
     // both are required to make dragable column of table 
@@ -124,10 +124,10 @@ const RequirementMaster = () => {
 
     const [searchEmployeeName, setSearchEmployeeName] = useState('');
     const [searchDoerRole, setSearchDoerRole] = useState('');
-    const [searchTaskId, setSearchTaskId] = useState('');
-    const [searchIdentifier, setSearchIdentifier] = useState('');
-    const [searchInput, setSearchInput] = useState('');
-    const [searchInputValue, setSearchInputValue] = useState('');
+    // const [searchTaskId, setSearchTaskId] = useState('');
+    // const [searchIdentifier, setSearchIdentifier] = useState('');
+    // const [searchInput, setSearchInput] = useState('');
+    // const [searchInputValue, setSearchInputValue] = useState('');
 
     const handleSearch = (e: any) => {
         e.preventDefault();
@@ -135,10 +135,10 @@ const RequirementMaster = () => {
         let query = `?`;
         if (searchEmployeeName) query += `DoerName=${searchEmployeeName}&`;
         if (searchDoerRole) query += `DoerRole=${searchDoerRole}&`;
-        if (searchTaskId) query += `TaskID=${searchTaskId}&`;
-        if (searchIdentifier) query += `Identifier=${searchIdentifier}&`;
-        if (searchInput) query += `Input=${searchInput}&`;
-        if (searchInputValue) query += `InputValue=${searchInputValue}&`;
+        // if (searchTaskId) query += `TaskID=${searchTaskId}&`;
+        // if (searchIdentifier) query += `Identifier=${searchIdentifier}&`;
+        // if (searchInput) query += `Input=${searchInput}&`;
+        // if (searchInputValue) query += `InputValue=${searchInputValue}&`;
 
         query = query.endsWith('&') ? query.slice(0, -1) : query;
 
@@ -182,25 +182,25 @@ const RequirementMaster = () => {
 
 
     useEffect(() => {
-        const fetchData = async (endpoint: string, setter: Function, listName: string) => {
-            try {
-                const response = await axios.get(`${config.API_URL_APPLICATION}/${endpoint}`);
-                if (response.data.isSuccess) {
-                    setter(response.data[listName]);
-                } else {
-                    console.error(response.data.message);
-                }
-            } catch (error) {
-                console.error(`Error fetching data from ${endpoint}:`, error);
-            }
-        };
+        // const fetchData = async (endpoint: string, setter: Function, listName: string) => {
+        //     try {
+        //         const response = await axios.get(`${config.API_URL_APPLICATION}/${endpoint}`);
+        //         if (response.data.isSuccess) {
+        //             setter(response.data[listName]);
+        //         } else {
+        //             console.error(response.data.message);
+        //         }
+        //     } catch (error) {
+        //         console.error(`Error fetching data from ${endpoint}:`, error);
+        //     }
+        // };
 
-        fetchData('CommonDropdown/GetEmployeeListWithId', setEmployeeList, 'employeeLists');
-        fetchData('CommonDropdown/GetRoleMasterList', setRoleList, 'roleMasterLists');
-        fetchData('CommonDropdown/GetTaskList', setTaskList, 'taskList');
-        fetchData('CommonDropdown/GetIdentifier', setIdentifierList, 'identifierList');
-        fetchData('CommonDropdown/GetInputList', setInputList, 'inputList');
-        fetchData('CommonDropdown/GetInputValue', setInputValueList, 'getInputValue');
+        // fetchData('CommonDropdown/GetEmployeeListWithId', setEmployeeList, 'employeeLists');
+        // fetchData('CommonDropdown/GetRoleMasterList', setRoleList, 'roleMasterLists');
+        // fetchData('CommonDropdown/GetTaskList', setTaskList, 'taskList');
+        // fetchData('CommonDropdown/GetIdentifier', setIdentifierList, 'identifierList');
+        // fetchData('CommonDropdown/GetInputList', setInputList, 'inputList');
+        // fetchData('CommonDropdown/GetInputValue', setInputValueList, 'getInputValue');
     }, []);
 
 
@@ -317,14 +317,14 @@ const RequirementMaster = () => {
                                 <Row>
                                     <Col lg={4}>
                                         <Form.Group controlId="searchEmployeeName">
-                                            <Form.Label>Doer Name:</Form.Label>
+                                            <Form.Label>Project Name</Form.Label>
                                             <Select
                                                 name="searchEmployeeName"
-                                                value={employeeList.find(emp => emp.empId === searchEmployeeName) || null} // handle null
-                                                onChange={(selectedOption) => setSearchEmployeeName(selectedOption ? selectedOption.empId : "")} // null check
-                                                options={employeeList}
-                                                getOptionLabel={(emp) => emp.employeeName}
-                                                getOptionValue={(emp) => emp.empId}
+                                                // value={employeeList.find(emp => emp.empId === searchEmployeeName) || null} // handle null
+                                                // onChange={(selectedOption) => setSearchEmployeeName(selectedOption ? selectedOption.empId : "")} // null check
+                                                // options={employeeList}
+                                                // getOptionLabel={(emp) => emp.employeeName}
+                                                // getOptionValue={(emp) => emp.empId}
                                                 isSearchable={true}
                                                 placeholder="Search..."
                                                 className="h45"
@@ -334,14 +334,14 @@ const RequirementMaster = () => {
 
                                     <Col lg={4}>
                                         <Form.Group controlId="searchDoerRole">
-                                            <Form.Label>Doer Role:</Form.Label>
+                                            <Form.Label>Recruiter Name</Form.Label>
                                             <Select
                                                 name="searchDoerRole"
-                                                value={roleList.find(role => role.roleName === searchDoerRole) || null} // handle null
-                                                onChange={(selectedOption) => setSearchDoerRole(selectedOption ? selectedOption.roleName : "")} // null check
-                                                options={roleList}
-                                                getOptionLabel={(role) => role.roleName}
-                                                getOptionValue={(role) => role.roleName}
+                                                // value={roleList.find(role => role.roleName === searchDoerRole) || null} // handle null
+                                                // onChange={(selectedOption) => setSearchDoerRole(selectedOption ? selectedOption.roleName : "")} // null check
+                                                // options={roleList}
+                                                // getOptionLabel={(role) => role.roleName}
+                                                // getOptionValue={(role) => role.roleName}
                                                 isSearchable={true}
                                                 placeholder="Search..."
                                                 className="h45"
@@ -351,14 +351,14 @@ const RequirementMaster = () => {
 
                                     <Col lg={4}>
                                         <Form.Group controlId="searchTaskId">
-                                            <Form.Label>Task ID:</Form.Label>
+                                            <Form.Label>Entered By</Form.Label>
                                             <Select
                                                 name="searchTaskId"
-                                                value={taskList.find(task => task.taskID === searchTaskId) || null} // handle null
-                                                onChange={(selectedOption) => setSearchTaskId(selectedOption ? selectedOption.taskID : "")} // null check
-                                                options={taskList}
-                                                getOptionLabel={(task) => task.taskID}
-                                                getOptionValue={(task) => task.taskID}
+                                                // value={taskList.find(task => task.taskID === searchTaskId) || null} // handle null
+                                                // onChange={(selectedOption) => setSearchTaskId(selectedOption ? selectedOption.taskID : "")} // null check
+                                                // options={taskList}
+                                                // getOptionLabel={(task) => task.taskID}
+                                                // getOptionValue={(task) => task.taskID}
                                                 isSearchable={true}
                                                 placeholder="Search..."
                                                 className="h45"
@@ -366,7 +366,7 @@ const RequirementMaster = () => {
                                         </Form.Group>
                                     </Col>
 
-                                    <Col lg={4} className="mt-2">
+                                    {/* <Col lg={4} className="mt-2">
                                         <Form.Group controlId="searchIdentifier">
                                             <Form.Label>Identifier:</Form.Label>
                                             <Select
@@ -381,26 +381,26 @@ const RequirementMaster = () => {
                                                 className="h45"
                                             />
                                         </Form.Group>
-                                    </Col>
+                                    </Col> */}
 
-                                    <Col lg={4} className="mt-2">
+                                    {/* <Col lg={4} className="mt-2">
                                         <Form.Group controlId="searchInput">
                                             <Form.Label>Input:</Form.Label>
                                             <Select
                                                 name="searchInput"
-                                                value={inputList.find(item => item.input === searchInput) || null} // handle null
-                                                onChange={(selectedOption) => setSearchInput(selectedOption ? selectedOption.input : "")} // null check
-                                                options={inputList}
-                                                getOptionLabel={(item) => item.input}
-                                                getOptionValue={(item) => item.input}
+                                                // value={inputList.find(item => item.input === searchInput) || null} // handle null
+                                                // onChange={(selectedOption) => setSearchInput(selectedOption ? selectedOption.input : "")} // null check
+                                                // options={inputList}
+                                                // getOptionLabel={(item) => item.input}
+                                                // getOptionValue={(item) => item.input}
                                                 isSearchable={true}
                                                 placeholder="Search..."
                                                 className="h45"
                                             />
                                         </Form.Group>
-                                    </Col>
+                                    </Col> */}
 
-                                    <Col lg={4} className="mt-2">
+                                    {/* <Col lg={4} className="mt-2">
                                         <Form.Group controlId="searchInputValue">
                                             <Form.Label>Input Value:</Form.Label>
                                             <Select
@@ -415,7 +415,7 @@ const RequirementMaster = () => {
                                                 className="h45"
                                             />
                                         </Form.Group>
-                                    </Col>
+                                    </Col> */}
                                     <Col lg={4} className="mt-2"></Col>
                                     <Col lg={4} className="mt-2"></Col>
 

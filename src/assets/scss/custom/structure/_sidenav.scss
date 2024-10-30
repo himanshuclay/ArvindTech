@@ -106,7 +106,8 @@ html[data-bs-theme="dark"] {
         transition: $transition-base;
         font-size: $menu-item-font-size;
         padding: $menu-item-padding-y $menu-item-padding-x;
-        margin: 5px 0;
+        margin: 5px;
+        border-radius: 5px;
 
         &:hover,
         &:focus,
