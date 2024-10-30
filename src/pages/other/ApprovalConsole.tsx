@@ -92,13 +92,13 @@ const ApprovalPage: React.FC = () => {
       ...prevComments,
       [messId]: event.target.value,
     }));
-  };
+  };;
 
   const handleSubmit = async () => {
     try {
       const requests = tasks.map(async (task) => {
         const isApproved = approvalStatuses[task.id]?.value === 'approved';
-        
+
         // Parse task_Json to an array of mess details
         let parsedTaskJson;
         try {
@@ -107,13 +107,13 @@ const ApprovalPage: React.FC = () => {
           console.error('Error parsing task_Json:', error);
           return null;
         }
-  
+
         // Update each mess entry's comment field based on the `comments` state
         const updatedTaskJson = parsedTaskJson.map((mess: { messID: string; comments: string }) => {
           const messComment = comments[mess.messID] || '';
           return { ...mess, comments: messComment };
         });
-  
+
         // Prepare the payload with the updated task_Json and isCompleted field
         const payload = {
           id: task.id,
@@ -128,12 +128,12 @@ const ApprovalPage: React.FC = () => {
           taskExpired: task.isExpired,
           updatedBy: task.createdBy,
         };
-  
+
         // Submit the task with the updated payload
         const response = await axios.post(`${config.API_URL_ACCOUNT}/ProcessInitiation/UpdateDoerTask`, payload);
         return response.data;
       });
-  
+
       // Await all requests
       const responses = await Promise.all(requests);
       console.log('Tasks submitted successfully:', responses);
@@ -141,7 +141,7 @@ const ApprovalPage: React.FC = () => {
       console.error('Error submitting tasks:', error);
     }
   };
-  
+
 
   return (
     <Container>
@@ -196,7 +196,7 @@ const ApprovalPage: React.FC = () => {
                                 type="text"
                                 placeholder="Enter comment"
                                 value={comments[mess.messID] || ''}
-                                onChange={(e) => handleCommentChange(mess.messID, e)}
+                                onChange={(e) => handleCommentChange(mess.messID, e as React.ChangeEvent<HTMLInputElement>)}
                               />
                             </Form.Group>
                           </Card.Body>
