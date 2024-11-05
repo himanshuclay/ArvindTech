@@ -433,7 +433,9 @@ const HrInputMaster = () => {
                                                                 </td>
                                                             ))}
                                                             <td><Link to={`/pages/HrInputMasterinsert/${item.id}`}>
-                                                                <i className='btn ri-edit-line' ></i>
+                                                                <Button variant='primary' className='p-0 text-white'>
+                                                                    <i className='btn ri-edit-line text-white' ></i>
+                                                                </Button>
                                                             </Link>
                                                             </td>
                                                         </tr>

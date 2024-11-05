@@ -3,11 +3,12 @@
 import axios from 'axios';
 import { useEffect, useState, ChangeEvent } from 'react';
 import { Button, Col, Form, Row } from 'react-bootstrap';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import config from '@/config';
 import Select from 'react-select';
 import Flatpickr from 'react-flatpickr';
 import 'flatpickr/dist/themes/material_green.css';
+import CustomSuccessToast from '../Component/CustomSuccessToast';
 
 
 interface Tender {
@@ -55,6 +56,7 @@ interface Tender {
     lostTenderReviewRequired: string;
     tenderComparisionReportPath: string;
     tenderComparisionReportURL: string;
+    typeofTender: string;
     createdBy: string;
     updatedBy: string;
 }
@@ -75,16 +77,24 @@ interface EmployeeList {
     empId: string;
     employeeName: string;
 }
+interface StatusList {
+    id: number;
+    name: string;
+}
 
 
 
 const DepartmentMasterinsert = () => {
     const { id } = useParams<{ id: string }>();
-    // const navigate = useNavigate();
+    const navigate = useNavigate();
     const [editMode, setEditMode] = useState<boolean>(false);
     // const [departmentList, setDepartmentList] = useState<DepartmentList[]>([]);
+    const [showToast, setShowToast] = useState(false);
+    const [toastMessage, setToastMessage] = useState("");
+    const [toastVariant, setToastVariant] = useState('');
     const [stateList, setStateList] = useState<StateList[]>([]);
     const [employeeList, setEmployeeList] = useState<EmployeeList[]>([]);
+    const [statusList, setStatusList] = useState<StatusList[]>([]);
     const [empName, setEmpName] = useState<string | null>()
     const [tenders, setTenders] = useState<Tender>({
         tenderID: 0,
@@ -131,6 +141,7 @@ const DepartmentMasterinsert = () => {
         lostTenderReviewRequired: '',
         tenderComparisionReportPath: '',
         tenderComparisionReportURL: '',
+        typeofTender: '',
         createdBy: '',
         updatedBy: '',
     });
@@ -152,13 +163,16 @@ const DepartmentMasterinsert = () => {
         }
     }, [id]);
 
+    console.log(id)
+
+
     const fetchStaffRequirementsId = async (id: string) => {
         try {
-            const response = await axios.get(`${config.API_URL_APPLICATION}/DesignationMaster/GetDesignation`, {
+            const response = await axios.get(`${config.API_URL_APPLICATION}/TenderMaster/GetTender`, {
                 params: { id: id }
             });
             if (response.data.isSuccess) {
-                const fetchedModule = response.data.designations[0];
+                const fetchedModule = response.data.tenders[0];
                 setTenders(fetchedModule);
             } else {
                 console.error(response.data.message);
@@ -186,6 +200,7 @@ const DepartmentMasterinsert = () => {
         // fetchData('CommonDropdown/GetDepartment', setDepartmentList, 'getDepartments');
         fetchData('CommonDropdown/GetStateList', setStateList, 'stateListResponses');
         fetchData('CommonDropdown/GetEmployeeListWithId', setEmployeeList, 'employeeLists');
+        fetchData('CommonDropdown/GetStatus', setStatusList, 'statusListResponses');
     }, []);
 
 
@@ -193,23 +208,31 @@ const DepartmentMasterinsert = () => {
 
 
 
-    const handleChange = (e: ChangeEvent<any>) => {
-        const { name, type } = e.target;
-        if (type === 'checkbox') {
-            const checked = (e.target as HTMLInputElement).checked;
-            setTenders({
-                ...tenders,
-                [name]: checked
-            });
-        } else {
-            const value = (e.target as HTMLInputElement | HTMLSelectElement).value;
+    const handleChange = (e: ChangeEvent<any> | null, name?: string, value?: any) => {
+        if (e) {
+            const { name: eventName, type } = e.target;
+            
+            if (type === 'checkbox') {
+                const checked = (e.target as HTMLInputElement).checked;
+                setTenders({
+                    ...tenders,
+                    [eventName]: checked
+                });
+            } else {
+                const inputValue = (e.target as HTMLInputElement | HTMLSelectElement).value;
+                setTenders({
+                    ...tenders,
+                    [eventName]: inputValue
+                });
+            }
+        } else if (name) {
+            // For react-select, where we directly pass the name and value
             setTenders({
                 ...tenders,
                 [name]: value
             });
         }
     };
-
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
 
@@ -219,18 +242,40 @@ const DepartmentMasterinsert = () => {
             updatedBy: editMode ? empName : '',
         };
         console.log(payload)
-        // try {
-        //     if (editMode) {
-        //         await axios.post(`${config.API_URL_APPLICATION}/DesignationMaster/InsertorUpdateDesignation`, payload);
-        //     } else {
-        //         await axios.post(`${config.API_URL_APPLICATION}/DesignationMaster/InsertorUpdateDesignation`, payload);
-        //     }
-        //     navigate('/pages/DesignationMaster');
-        // } catch (error) {
-        //     console.error('Error submitting module:', error);
-        // }
+        try {
+            if (editMode) {
+                await axios.post(`${config.API_URL_APPLICATION}/TenderMaster/InsertorUpdateTender`, payload);
+                navigate('/pages/TenderMaster', {
+                    state: {
+                        showToast: true,
+                        toastMessage: "Tender Updated successfully!",
+                        toastVariant: "rgb(28 175 85)"
+                    }
+                });
+            } else {
+                await axios.post(`${config.API_URL_APPLICATION}/TenderMaster/InsertorUpdateTender`, payload);
+                navigate('/pages/TenderMaster', {
+                    state: {
+                        showToast: true,
+                        toastMessage: "Tender Added successfully!",
+                        toastVariant: "rgb(28 175 85)"
+                    }
+                });
+            }
+
+
+        } catch (error) {
+            setToastMessage("Error Adding/Updating");
+            setToastVariant("rgb(213 18 18)");
+            setShowToast(true);
+            console.error('Error submitting module:', error);
+        }
     };
 
+    const options = [
+        { value: 'LLP', label: 'LLP' },
+        { value: 'INFRA', label: 'INFRA' }
+    ];
 
     return (
         <div>
@@ -244,8 +289,8 @@ const DepartmentMasterinsert = () => {
 
 
 
-
-                            {/* <Col lg={6}>
+                            {/* 
+                            <Col lg={6}>
                                 <Form.Group controlId="department" className="mb-3">
                                     <Form.Label>Department Name</Form.Label>
                                     <Select
@@ -270,16 +315,26 @@ const DepartmentMasterinsert = () => {
                             <Col lg={6}>
                                 <Form.Group controlId="tenderStatus" className="mb-3">
                                     <Form.Label>Tender Status</Form.Label>
-                                    <Form.Control
-                                        type="text"
+                                    <Select
                                         name="tenderStatus"
-                                        value={tenders.tenderStatus}
-                                        onChange={handleChange}
+                                        value={statusList.find((mod) => mod.name === tenders.tenderStatus)}
+                                        onChange={(selectedOption) => {
+                                            setTenders({
+                                                ...tenders,
+                                                tenderStatus: selectedOption?.name || '',
+                                            });
+                                        }}
+                                        getOptionLabel={(mod) => mod.name}
+                                        getOptionValue={(mod) => mod.name}
+                                        options={statusList}
+                                        isSearchable={true}
+                                        placeholder="Select Tender Status"
                                         required
-                                        placeholder="Tender Status"
                                     />
                                 </Form.Group>
                             </Col>
+
+
                             <Col lg={6}>
                                 <Form.Group controlId="executorCompany" className="mb-3">
                                     <Form.Label>Executor Company</Form.Label>
@@ -907,6 +962,45 @@ const DepartmentMasterinsert = () => {
                                     />
                                 </Form.Group>
                             </Col>
+                            <Col lg={6}>
+                                <Form.Group controlId="tenderComparisionReportURL" className="mb-3">
+                                    <Form.Label>Tender Comparision Report URL</Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        name="tenderComparisionReportURL"
+                                        value={tenders.tenderComparisionReportURL}
+                                        onChange={handleChange}
+                                        required
+                                        placeholder=" Tender Comparision Report URL"
+                                    />
+                                </Form.Group>
+                            </Col>
+                            <Col lg={6}>
+                                <Form.Group controlId="tenderComparisionReportPath" className="mb-3">
+                                    <Form.Label>Tender Comparision Report Path</Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        name="tenderComparisionReportPath"
+                                        value={tenders.tenderComparisionReportPath}
+                                        onChange={handleChange}
+                                        required
+                                        placeholder=" Tender Comparision Report Path"
+                                    />
+                                </Form.Group>
+                            </Col>
+                            <Col lg={6}>
+                                <Form.Group controlId="typeofTender" className="mb-3">
+                                    <Form.Label>Type of Tender</Form.Label>
+                                    <Select
+                                        name="typeofTender"
+                                        options={options}
+                                        value={options.find(option => option.value === tenders.typeofTender)}
+                                        onChange={selectedOption => handleChange({ target: { name: 'typeofTender', value: selectedOption?.value } })}
+                                        placeholder="Type of Tender"
+                                        required
+                                    />
+                                </Form.Group>
+                            </Col>
 
 
                             <Col className='align-items-end d-flex justify-content-between mb-3'>
@@ -933,6 +1027,7 @@ const DepartmentMasterinsert = () => {
                 </div>
 
             </div>
+            <CustomSuccessToast show={showToast} toastMessage={toastMessage} toastVariant={toastVariant} onClose={() => setShowToast(false)} />
         </div>
     );
 };

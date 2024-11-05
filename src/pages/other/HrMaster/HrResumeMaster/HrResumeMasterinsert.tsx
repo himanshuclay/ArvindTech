@@ -3,33 +3,18 @@ import { useEffect, useState, ChangeEvent } from 'react';
 import { Button, Col, Form, Row, ButtonGroup } from 'react-bootstrap';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import config from '@/config';
-import Select from 'react-select';
 import CustomSuccessToast from '../../Component/CustomSuccessToast';
 
-interface HrDoer {
+interface HrResume {
     id: number;
-    taskID: string;
-    identifier: string;
-    input: string;
-    inputValue: string;
-    empID: string;
-    employeeName: string;
+    candidateName: string;
+    mobileNumber: string;
+    emailID: string;
+    uploadResume: string;
     createdBy: string;
     updatedBy: string;
 }
 
-interface TaskList {
-    id: number;
-    taskID: string;
-}
-interface IdentifierList {
-    id: number;
-    identifier: string;
-}
-interface EmployeeList {
-    empId: string;
-    employeeName: string;
-}
 
 const HrInputMasterinsert = () => {
     const { id } = useParams<{ id: string }>();
@@ -39,18 +24,13 @@ const HrInputMasterinsert = () => {
     const [toastMessage, setToastMessage] = useState("");
     const [toastVariant, setToastVariant] = useState('');
     const [editMode, setEditMode] = useState<boolean>(false);
-    const [identifierList, setIdentifierList] = useState<IdentifierList[]>([]);
-    const [employeeList, setEmployeeList] = useState<EmployeeList[]>([]);
-    const [taskList, setTaskList] = useState<TaskList[]>([]);
     const [empName, setEmpName] = useState<string | null>('')
-    const [hrDoers, setHrDoers] = useState<HrDoer>({
+    const [hrResumes, setHrResumes] = useState<HrResume>({
         id: 0,
-        taskID: '',
-        identifier: '',
-        input: '',
-        inputValue: '',
-        empID: '',
-        employeeName: '',
+        candidateName: '',
+        mobileNumber: '',
+        emailID: '',
+        uploadResume: '',
         createdBy: '',
         updatedBy: ''
     });
@@ -76,12 +56,12 @@ const HrInputMasterinsert = () => {
 
     const fetchModuleById = async (id: string) => {
         try {
-            const response = await axios.get(`${config.API_URL_APPLICATION}/HRDoerMaster/GetHRDoer`, {
+            const response = await axios.get(`${config.API_URL_APPLICATION}/Resume/GetResume`, {
                 params: { id: id }
             });
             if (response.data.isSuccess) {
-                const fetchedModule = response.data.hRDoers[0];
-                setHrDoers(fetchedModule);
+                const fetchedModule = response.data.resumes[0];
+                setHrResumes(fetchedModule);
             } else {
                 console.error(response.data.message);
             }
@@ -91,23 +71,6 @@ const HrInputMasterinsert = () => {
     };
 
 
-    useEffect(() => {
-        const fetchData = async (endpoint: string, setter: Function, listName: string) => {
-            try {
-                const response = await axios.get(`${config.API_URL_APPLICATION}/${endpoint}`);
-                if (response.data.isSuccess) {
-                    setter(response.data[listName]);
-                } else {
-                    console.error(response.data.message);
-                }
-            } catch (error) {
-                console.error(`Error fetching data from ${endpoint}:`, error);
-            }
-        };
-        fetchData('CommonDropdown/GetEmployeeListWithId', setEmployeeList, 'employeeLists');
-        fetchData('CommonDropdown/GetIdentifier', setIdentifierList, 'identifierList');
-        fetchData('CommonDropdown/GetTaskList', setTaskList, 'taskList');
-    }, []);
 
 
     // Handle form field changes
@@ -115,14 +78,14 @@ const HrInputMasterinsert = () => {
         const { name, type } = e.target;
         if (type === 'checkbox') {
             const checked = (e.target as HTMLInputElement).checked;
-            setHrDoers({
-                ...hrDoers,
+            setHrResumes({
+                ...hrResumes,
                 [name]: checked
             });
         } else {
             const value = (e.target as HTMLInputElement | HTMLSelectElement).value;
-            setHrDoers({
-                ...hrDoers,
+            setHrResumes({
+                ...hrResumes,
                 [name]: value
             });
         }
@@ -132,22 +95,22 @@ const HrInputMasterinsert = () => {
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
 
         const payload = {
-            ...hrDoers,
-            createdBy: editMode ? hrDoers.createdBy : empName,
+            ...hrResumes,
+            createdBy: editMode ? hrResumes.createdBy : empName,
             updatedBy: editMode ? empName : '',
         };
         console.log(payload)
         e.preventDefault();
         try {
             if (editMode) {
-                await axios.post(`${config.API_URL_APPLICATION}/HRDoerMaster/InsertorUpdateHRDoer`, payload);
+                await axios.post(`${config.API_URL_APPLICATION}/Resume/InsertorUpdateResume`, payload);
                 navigate('/pages/HrResumeMaster', { state: { 
                     showToast: true,
-                    toastMessage:"HrResumeUpdated successfully!",
+                    toastMessage:"HrResume Updated successfully!",
                     toastVariant:"rgb(28 175 85)"
                    } });
             } else {
-                await axios.post(`${config.API_URL_APPLICATION}/HRDoerMaster/InsertorUpdateHRDoer`, payload);
+                await axios.post(`${config.API_URL_APPLICATION}/Resume/InsertorUpdateResume`, payload);
                 navigate('/pages/HrResumeMaster', { state: { 
                     showToast: true,
                     toastMessage:"HrResume Added successfully!",
@@ -175,108 +138,70 @@ const HrInputMasterinsert = () => {
                     <Form onSubmit={handleSubmit}>
                         <Row>
                             
-                          
-                            <Col lg={6}>
-                                <Form.Group controlId="taskID" className="mb-3">
-                                    <Form.Label>Task Number</Form.Label>
-                                    <Select
-                                        name="taskID"
-                                        value={taskList.find((mod) => mod.taskID === hrDoers.taskID)}
-                                        onChange={(selectedOption) => {
-                                            setHrDoers({
-                                                ...hrDoers,
-                                                taskID: selectedOption?.taskID || '',
-                                            });
-                                        }}
-                                        getOptionLabel={(mod) => mod.taskID}
-                                        getOptionValue={(mod) => mod.taskID}
-                                        options={taskList}
-                                        isSearchable={true}
-                                        placeholder="Select Task Number"
-                                        required
-                                    />
-                                </Form.Group>
-                            </Col>
+                        
 
-                            <Col lg={6}>
-                                <Form.Group controlId="identifier" className="mb-3">
-                                    <Form.Label>Identifier</Form.Label>
-                                    <Select
-                                        name="identifier"
-                                        value={identifierList.find((mod) => mod.identifier === hrDoers.identifier)}
-                                        onChange={(selectedOption) => {
-                                            setHrDoers({
-                                                ...hrDoers,
-                                                identifier: selectedOption?.identifier || '',
-                                            });
-                                        }}
-                                        getOptionLabel={(mod) => mod.identifier}
-                                        getOptionValue={(mod) => mod.identifier}
-                                        options={identifierList}
-                                        isSearchable={true}
-                                        placeholder="Select Identifier"
-                                        required
-                                    />
-                                </Form.Group>
-                            </Col>
                           
                             <Col lg={6}>
-                                <Form.Group controlId="input" className="mb-3">
-                                    <Form.Label>Input ID:</Form.Label>
+                                <Form.Group controlId="candidateName" className="mb-3">
+                                    <Form.Label>Candidate Name</Form.Label>
                                     <Form.Control
                                         type="text"
-                                        name="input"
-                                        value={hrDoers.input}
+                                        name="candidateName"
+                                        value={hrResumes.candidateName}
                                         onChange={handleChange}
                                         required
-                                        placeholder='Enter Input '
+                                        placeholder='Enter Candidate Name '
                                     />
                                 </Form.Group>
                             </Col>
                             
                             <Col lg={6}>
-                                <Form.Group controlId="inputValue" className="mb-3">
-                                    <Form.Label>Input Type:</Form.Label>
+                                <Form.Group controlId="mobileNumber" className="mb-3">
+                                    <Form.Label>Mobile Number</Form.Label>
                                     <Form.Control
-                                        type="text"
-                                        name="inputValue"
-                                        value={hrDoers.inputValue}
+                                        type="number"
+                                        name="mobileNumber"
+                                        value={hrResumes.mobileNumber}
                                         onChange={handleChange}
                                         required
-                                        placeholder='Enter Input Value'
+                                        placeholder='Enter Mobile Number'
+
+                                    />
+                                </Form.Group>
+                            </Col>
+                            <Col lg={6}>
+                                <Form.Group controlId="emailID" className="mb-3">
+                                    <Form.Label>Email ID</Form.Label>
+                                    <Form.Control
+                                        type="email"
+                                        name="emailID"
+                                        value={hrResumes.emailID}
+                                        onChange={handleChange}
+                                        required
+                                        placeholder='Enter Email ID'
 
                                     />
                                 </Form.Group>
                             </Col>
                            
                             <Col lg={6}>
-                                <Form.Group controlId="employeeName" className="mb-3">
-                                    <Form.Label>Employee Name</Form.Label>
-                                    <Select
-                                        name="empName"
-                                        value={employeeList.find(
-                                            (mod) => mod.employeeName === hrDoers.employeeName
-                                        )}
-                                        onChange={(selectedOption) => {
-                                            setHrDoers({
-                                                ...hrDoers,
-                                                employeeName: selectedOption?.employeeName || '',
-                                                empID: selectedOption?.empId || '',
-                                            });
-                                        }}
-                                        getOptionLabel={(mod) => mod.employeeName}
-                                        getOptionValue={(mod) => mod.employeeName}
-                                        options={employeeList}
-                                        isSearchable={true}
-                                        placeholder="Select Employee Name"
-                                        required
+                                <Form.Group controlId="uploadResume" className="mb-3">
+                                    <Form.Label>Upload Resume</Form.Label>
+                                    <Form.Control
+                                        type="file"
+                                        name="uploadResume"
+                                        value={hrResumes.uploadResume}
+                                        onChange={handleChange}
+                                        placeholder='Enter upload Resume'
                                     />
                                 </Form.Group>
                             </Col>
+                           
+                         
                           
 
                             <Col></Col>
-                            <Col lg={2} className='align-items-end d-flex justify-content-end mb-3'>
+                            <Col lg={3} className='align-items-end d-flex justify-content-end mb-3'>
                                 <ButtonGroup aria-label="Basic example" className='w-100'>
                                     <Link to={'/pages/HrResumeMaster'} className="btn btn-primary">
                                         Back

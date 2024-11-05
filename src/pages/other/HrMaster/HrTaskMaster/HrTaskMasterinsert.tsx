@@ -33,6 +33,7 @@ interface MISExempt {
 
 interface PrrocessList {
     processID: string;
+    moduleId: string;
     processName: string;
 }
 
@@ -159,14 +160,14 @@ const HrTaskMasterinsert = () => {
         try {
             if (editMode) {
                 await axios.post(`${config.API_URL_APPLICATION}/HRTaskMaster/InsertorUpdateHRTask`, payload);
-                navigate('/pages/HrInputMaster', { state: { 
+                navigate('/pages/HrTaskMaster', { state: { 
                     showToast: true,
                     toastMessage:"HrTask Updated successfully!",
                     toastVariant:"rgb(28 175 85)"
                    } });
             } else {
                 await axios.post(`${config.API_URL_APPLICATION}/HRTaskMaster/InsertorUpdateHRTask`, payload);
-                navigate('/pages/HrInputMaster', { state: { 
+                navigate('/pages/HrTaskMaster', { state: { 
                     showToast: true,
                     toastMessage:"HrTask Added successfully!",
                     toastVariant:"rgb(28 175 85)"
@@ -200,7 +201,7 @@ const HrTaskMasterinsert = () => {
                                             setHrTasks({
                                                 ...hrTasks,
                                                 processID: selectedOption?.processID || '',
-                                                moduleID: selectedOption?.processID || '',
+                                                moduleID: selectedOption?.moduleId || '',
                                             });
                                         }}
                                         getOptionLabel={(mod) => mod.processName}
@@ -392,7 +393,7 @@ const HrTaskMasterinsert = () => {
                             <Col></Col>
                             <Col lg={2} className='align-items-end d-flex justify-content-end mb-3'>
                                 <ButtonGroup aria-label="Basic example" className='w-100'>
-                                    <Link to={'/pages/HrInputMaster'} className="btn btn-primary">
+                                    <Link to={'/pages/HrTaskMaster'} className="btn btn-primary">
                                         Back
                                     </Link>
                                     &nbsp;

@@ -39,7 +39,7 @@ const DesignationMaster = () => {
     const [searchQuery, setSearchQuery] = useState('');
 
 
- 
+
     const [departmentList, setDepartmentList] = useState<DepartmentList[]>([]);
 
 
@@ -144,12 +144,12 @@ const DesignationMaster = () => {
 
     const convertToCSV = (data: Designation[]) => {
         const csvRows = [
-            ['ID', 
+            ['ID',
                 'Department',
                 'Core Designation',
                 'Specialized Designation',
-                'Process Type', 
-                'Recruiter', 'Upload JD',  'Created By', 'Updated By'],
+                'Process Type',
+                'Recruiter', 'Upload JD', 'Created By', 'Updated By'],
             ...data.map(doer => [
                 doer.id,
                 doer.department,
@@ -224,7 +224,7 @@ const DesignationMaster = () => {
                                             <Select
                                                 name="searchDepartmentName"
                                                 value={departmentList.find(emp => emp.departmentName === searchDepartmentValue) || null}
-                                                onChange={(selectedOption) => setSearchDepartmentValue(selectedOption ? selectedOption.departmentName : "")} 
+                                                onChange={(selectedOption) => setSearchDepartmentValue(selectedOption ? selectedOption.departmentName : "")}
                                                 options={departmentList}
                                                 getOptionLabel={(emp) => emp.departmentName}
                                                 getOptionValue={(emp) => emp.departmentName}
@@ -269,7 +269,7 @@ const DesignationMaster = () => {
                                         </Form.Group>
                                     </Col>
 
-                                  
+
                                     <Col lg={4} className="mt-2"></Col>
                                     <Col lg={4} className="mt-2"></Col>
 
@@ -340,7 +340,7 @@ const DesignationMaster = () => {
                                                                         <div ref={provided.innerRef}
                                                                             {...provided.draggableProps}
                                                                             {...provided.dragHandleProps}>
-                                                                         
+
                                                                             {column.id === 'department' && (<i className="ri-group-fill"></i>)}
                                                                             {column.id === 'coreDesignation' && (<i className="ri-briefcase-fill"></i>)}
                                                                             {column.id === 'specializedDesignation' && (<i className="ri-award-fill"></i>)}
@@ -384,7 +384,18 @@ const DesignationMaster = () => {
                                                 ))
                                             ) : (
                                                 <tr>
-                                                    <td colSpan={columns.length + 1}>No data available</td>
+                                                    <td colSpan={12}>
+                                                        <Container className="mt-5">
+                                                            <Row className="justify-content-center">
+                                                                <Col xs={12} md={8} lg={6}>
+                                                                    <Alert variant="info" className="text-center">
+                                                                        <h4>No Designation Found</h4>
+                                                                        <p>You currently don't have Designation Data</p>
+                                                                    </Alert>
+                                                                </Col>
+                                                            </Row>
+                                                        </Container>
+                                                    </td>
                                                 </tr>
                                             )}
                                         </tbody>

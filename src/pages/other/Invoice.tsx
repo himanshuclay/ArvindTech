@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Table, Button, Collapse } from 'react-bootstrap';
 import axios from 'axios';
 import { FileUploader } from '@/components/FileUploader'
+import config from '@/config';
+
 
 // Define interface for form options
 interface Option {
@@ -60,7 +62,7 @@ const TemplateTable: React.FC = () => {
   useEffect(() => {
     const fetchTemplates = async () => {
       try {
-        const response = await axios.get<ApiResponse>('https://arvindo-api.clay.in/api/ProcessTaskMaster/GetTemplateJson');
+        const response = await axios.get<ApiResponse>(`${config.API_URL_ACCOUNT}/ProcessTaskMaster/GetTemplateJson`);
         if (response.data.isSuccess) {
           setData(response.data.getTemplateJsons);
         } else {

@@ -10,12 +10,15 @@ import CustomSuccessToast from '../../Component/CustomSuccessToast';
 import { useLocation, useNavigate } from 'react-router-dom';
 import IconWithLetter from '@/pages/ui/IconWithLetter';
 
-interface HrResume {
+interface HrCandidate {
     id: number;
-    candidateName: string;
+    candidateID: string;
+    name: string;
     mobileNumber: string;
-    emailID: string;
-    uploadResume: string;
+    resume: string;
+    timesInterviewed: number;
+    timesFinalized: number;
+    status: string;
     createdBy: string;
     updatedBy: string;
 }
@@ -31,12 +34,12 @@ interface Column {
 const HrResumeMaster = () => {
 
 
-    const [hrResumes, setHrResumes] = useState<HrResume[]>([]);
+    const [hrCandidates, setHrCandidates] = useState<HrCandidate[]>([]);
     const [loading, setLoading] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
     const [searchQuery, setSearchQuery] = useState('');
-    const [downloadCsv, setDownloadCsv] = useState<HrResume[]>([]);
+    const [downloadCsv, setDownloadCsv] = useState<HrCandidate[]>([]);
 
 
 
@@ -89,7 +92,7 @@ const HrResumeMaster = () => {
     //     })
     //         .then((response) => {
     //             console.log(response.data.moduleMasterListResponses);
-    //             setHrResumes(response.data.moduleMasterListResponses)
+    //             setHrCandidates(response.data.moduleMasterListResponses)
     //         })
     //         .catch((error) => {
     //             console.error('Error fetching data:', error);
@@ -100,12 +103,14 @@ const HrResumeMaster = () => {
 
     // both are required to make dragable column of table 
     const [columns, setColumns] = useState<Column[]>([
-        { id: 'candidateName', label: 'Candidate Name', visible: true },
+        { id: 'name', label: 'Candidate Name', visible: true },
         { id: 'mobileNumber', label: 'Mobile Number', visible: true },
-        { id: 'emailID', label: 'Email ID', visible: true },
-        { id: 'uploadResume', label: 'Upload Resume', visible: true },
+        { id: 'resume', label: 'Resume', visible: true },
+        { id: 'timesInterviewed', label: 'Times Interviewed', visible: true },
+        { id: 'timesFinalized', label: 'Times Finalized', visible: true },
+        { id: 'status', label: 'Status', visible: true },
     ]);
-
+    
 
 
     const handleOnDragEnd = (result: any) => {
@@ -131,19 +136,19 @@ const HrResumeMaster = () => {
     const fetchModules = async () => {
         setLoading(true);
         try {
-            const response = await axios.get(`${config.API_URL_APPLICATION}/Resume/GetResume`, {
+            const response = await axios.get(`${config.API_URL_APPLICATION}/CandidateMaster/GetCandidate`, {
                 params: {
                     PageIndex: currentPage
                 }
             });
             if (response.data.isSuccess) {
-                setHrResumes(response.data.resumes);
+                setHrCandidates(response.data.candidates);
                 setTotalPages(Math.ceil(response.data.totalCount / 10));
             } else {
                 console.error(response.data.message);
             }
         } catch (error) {
-            console.error('Error fetching hrResumes:', error);
+            console.error('Error fetching hrCandidates:', error);
         }
         finally {
             setLoading(false);
@@ -152,14 +157,14 @@ const HrResumeMaster = () => {
 
     const fetchModulesCsv = async () => {
         try {
-            const response = await axios.get(`${config.API_URL_APPLICATION}/Resume/GetResume`);
+            const response = await axios.get(`${config.API_URL_APPLICATION}/CandidateMaster/GetCandidate`);
             if (response.data.isSuccess) {
-                setDownloadCsv(response.data.resumes);
+                setDownloadCsv(response.data.candidates);
             } else {
                 console.error(response.data.message);
             }
         } catch (error) {
-            console.error('Error fetching hrResumes:', error);
+            console.error('Error fetching hrCandidates:', error);
         }
 
     };
@@ -196,35 +201,30 @@ const HrResumeMaster = () => {
     // };
 
 
-    const filteredDoers = hrResumes.filter(input =>
-        input.candidateName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        input.mobileNumber.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        input.emailID.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        input.uploadResume.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        input.createdBy.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        input.updatedBy.toLowerCase().includes(searchQuery.toLowerCase())
+    const filteredmaster = hrCandidates.filter(input =>
+        input.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        input.mobileNumber.toLowerCase().includes(searchQuery.toLowerCase()) 
     );
 
 
-    const convertToCSV = (data: HrResume[]) => {
+    const convertToCSV = (data: HrCandidate[]) => {
         const csvRows = [
-            ['ID', 'Candidate Name', 'Mobile Number',
-                'Email ID', 'Upload Resume',
-                'Created By', 'Updated By'],
+            ['ID', 'Candidate Name', 'Mobile Number', 'Resume', 'Times Interviewed', 'Times Finalized', 'Status', 'Created By', 'Updated By'],
             ...data.map(input => [
                 input.id,
-                input.candidateName,
+                input.name,
                 input.mobileNumber,
-                input.emailID,
-                input.uploadResume,
+                input.resume,
+                input.timesInterviewed,
+                input.timesFinalized,
+                input.status,
                 input.createdBy,
                 input.updatedBy
             ])
         ];
-
         return csvRows.map(row => row.join(',')).join('\n');
     };
-
+    
 
 
     const downloadCSV = () => {
@@ -235,7 +235,7 @@ const HrResumeMaster = () => {
         if (link.download !== undefined) {
             const url = URL.createObjectURL(blob);
             link.setAttribute('href', url);
-            link.setAttribute('download', 'HRResume.csv');
+            link.setAttribute('download', 'HrCandidate.csv');
             link.style.visibility = 'hidden';
             document.body.appendChild(link);
             link.click();
@@ -252,23 +252,23 @@ const HrResumeMaster = () => {
     return (
         <>
             <div className="d-flex bg-white p-2 my-2 justify-content-between align-items-center fs-20">
-                <span><i className="ri-file-list-line me-2"></i><span className='fw-bold test-nowrap'>Hr Resume</span></span>
+                <span><i className="ri-file-list-line me-2"></i><span className='fw-bold test-nowrap'>Hr Candidate</span></span>
                 <div className="d-flex">
-                    <Link to='/pages/HrResumeMasterinsert'>
+                    <Link to='/pages/HrCandidateMasterinsert'>
                         <Button variant="primary">
-                            Add Hr Resume
+                            Add Hr Candidate
                         </Button>
                     </Link>
 
                 </div>
             </div>
 
-            {!hrResumes ? (
+            {!hrCandidates ? (
                 <Container className="mt-5">
                     <Row className="justify-content-center">
                         <Col xs={12} md={8} lg={6}>
                             <Alert variant="info" className="text-center">
-                                <h4>No Hr Resume Found</h4>
+                                <h4>No Hr Candidate Found</h4>
                                 <p>You currently don't have Completed tasks</p>
                             </Alert>
                         </Col>
@@ -399,8 +399,8 @@ const HrResumeMaster = () => {
                                                 </Droppable>
                                             </thead>
                                             <tbody>
-                                                {filteredDoers.length > 0 ? (
-                                                    filteredDoers.slice(0, 10).map((item, index) => (
+                                                {filteredmaster.length > 0 ? (
+                                                    filteredmaster.slice(0, 10).map((item, index) => (
                                                         <tr key={item.id}>
                                                             <td>{(currentPage - 1) * 10 + index + 1}</td>
                                                             {columns.filter(col => col.visible).map((col) => (
@@ -414,39 +414,21 @@ const HrResumeMaster = () => {
                                                                     }
                                                                 >
                                                                     <>
-                                                                        {col.id === 'candidateName' ? (
+                                                                        {col.id === 'name' ? (
                                                                             <div style={{ display: 'flex', alignItems: 'center' }}>
-                                                                                <IconWithLetter letter={item.candidateName.charAt(0)} />
-                                                                                {item.candidateName.split('_')[0]}
-                                                                            </div>
-                                                                        ) : col.id === 'uploadResume' ? (
-                                                                            <div style={{ display: 'flex', alignItems: 'center' }}>
-                                                                                {item.uploadResume && (
-                                                                                    <Button
-                                                                                        onClick={() => {
-                                                                                            const link = document.createElement('a');
-                                                                                            link.href = item.uploadResume; // Assuming `uploadResume` contains the URL to the PDF
-                                                                                            link.download = item.candidateName + '_Resume.pdf';
-                                                                                            link.click();
-                                                                                        }}
-                                                                                        style={{ marginRight: '8px', padding: '4px 10px', fontSize: '16px' }}
-                                                                                    >
-                                                                                        <i className="ri-arrow-down-circle-line"></i>
-                                                                                    </Button>
-                                                                                )}
-                                                                                {item.uploadResume}
-
+                                                                                <IconWithLetter letter={item.name.charAt(0)} />
+                                                                                {item.name.split('_')[0]}
                                                                             </div>
                                                                         ) : (
                                                                             <>
-                                                                                {item[col.id as keyof HrResume]}
+                                                                                {item[col.id as keyof HrCandidate]}
                                                                             </>
                                                                         )}
                                                                     </>
 
                                                                 </td>
                                                             ))}
-                                                            <td><Link to={`/pages/HrResumeMasterinsert/${item.id}`}>
+                                                            <td><Link to={`/pages/HrCandidateMasterinsert/${item.id}`}>
                                                                 <Button variant='primary' className='p-0 text-white'>
                                                                     <i className='btn ri-edit-line text-white' ></i>
                                                                 </Button>
@@ -461,7 +443,7 @@ const HrResumeMaster = () => {
                                                                 <Row className="justify-content-center">
                                                                     <Col xs={12} md={8} lg={6}>
                                                                         <Alert variant="info" className="text-center">
-                                                                            <h4>No Resume Found</h4>
+                                                                            <h4>No Candidate Found</h4>
                                                                             <p>You currently don't have Completed tasks</p>
                                                                         </Alert>
                                                                     </Col>

@@ -1,6 +1,8 @@
 import React, { useState, useEffect, ChangeEvent } from 'react';
 import { Button, Form, Offcanvas, Table, Pagination } from 'react-bootstrap';
 import axios from 'axios';
+import config from '@/config';
+
 
 interface Bank {
     id: number;
@@ -40,7 +42,7 @@ const BankMaster: React.FC = () => {
         setLoading(true);
 
         try {
-            const response = await axios.get('https://arvindo-api2.clay.in/api/BankMaster/GetBankList', {
+            const response = await axios.get(`${config.API_URL_ACCOUNT}BankMaster/GetBankList`, {
                 params: {
                     PageIndex: currentPage
                 }
@@ -73,9 +75,9 @@ const BankMaster: React.FC = () => {
         e.preventDefault();
         try {
             if (editingIndex !== null) {
-                await axios.post('https://arvindo-api2.clay.in/api/BankMaster/UpdateBank', bank);
+                await axios.post(`${config.API_URL_APPLICATION}/BankMaster/UpdateBank`, bank);
             } else {
-                await axios.post('https://arvindo-api2.clay.in/api/BankMaster/InsertBank', bank);
+                await axios.post(`${config.API_URL_APPLICATION}/BankMaster/InsertBank`, bank);
             }
             fetchBanks();
             handleClose();

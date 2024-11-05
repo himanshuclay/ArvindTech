@@ -236,13 +236,13 @@ const ModuleMaster = () => {
                 <div className="d-flex bg-white p-2 my-2 justify-content-between align-items-center">
                     <span><i className="ri-file-list-line me-2 text-dark fs-16"></i><span className='fw-bold text-dark fs-15'>Doers List</span></span>
                     <div className="d-flex justify-content-end  ">
-                      
+
                         <Link to='/pages/DoerMasterinsert'>
                             <Button variant="primary" className="me-2">
                                 Add Doer
                             </Button>
                         </Link>
-                     
+
                     </div>
                 </div>
 
@@ -256,7 +256,7 @@ const ModuleMaster = () => {
 
                     <>
                         <div className='bg-white p-2 pb-2'>
-                           <Form onSubmit={handleSearch}>
+                            <Form onSubmit={handleSearch}>
                                 <Row>
                                     <Col lg={4}>
                                         <Form.Group controlId="searchEmployeeName">
@@ -491,7 +491,18 @@ const ModuleMaster = () => {
                                                 ))
                                             ) : (
                                                 <tr>
-                                                    <td colSpan={columns.length + 1}>No data available</td>
+                                                    <td colSpan={12}>
+                                                        <Container className="mt-5">
+                                                        <Row className="justify-content-center">
+                                                            <Col xs={12} md={8} lg={6}>
+                                                                <Alert variant="info" className="text-center">
+                                                                    <h4>No Data Found</h4>
+                                                                    <p>You currently don't have Data</p>
+                                                                </Alert>
+                                                            </Col>
+                                                        </Row>
+                                                    </Container>
+                                                    </td>
                                                 </tr>
                                             )}
                                         </tbody>

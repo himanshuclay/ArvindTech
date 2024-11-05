@@ -30,6 +30,7 @@ interface MISExempt {
 
 interface PrrocessList {
     processID: string;
+    moduleId: string;
     processName: string;
 }
 
@@ -117,7 +118,7 @@ const HrInputMasterinsert = () => {
         };
 
         fetchData('CommonDropdown/GetMISExempt', setMisExempt, 'mISExemptListResponses');
-        fetchData('CommonDropdown/GetProcessNameByModuleName?ModuleName=Human Resources', setProcessList, 'processListResponses');
+        fetchData('CommonDropdown/GetProcessNameByModuleName?ModuleName=Business%20Development', setProcessList, 'processListResponses');
         fetchData('CommonDropdown/GetTaskList', setTaskList, 'taskList');
     }, []);
 
@@ -197,7 +198,7 @@ const HrInputMasterinsert = () => {
                                             setHrInputs({
                                                 ...hrInputs,
                                                 processID: selectedOption?.processID || '',
-                                                moduleID: selectedOption?.processID || '',
+                                                moduleID: selectedOption?.moduleId || '',
                                             });
                                         }}
                                         getOptionLabel={(mod) => mod.processName}

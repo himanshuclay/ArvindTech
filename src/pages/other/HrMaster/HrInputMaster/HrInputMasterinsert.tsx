@@ -30,6 +30,7 @@ interface MISExempt {
 
 interface PrrocessList {
     processID: string;
+    moduleId: string;
     processName: string;
 }
 
@@ -197,7 +198,7 @@ const HrInputMasterinsert = () => {
                                             setHrInputs({
                                                 ...hrInputs,
                                                 processID: selectedOption?.processID || '',
-                                                moduleID: selectedOption?.processID || '',
+                                                moduleID: selectedOption?.moduleId || '',
                                             });
                                         }}
                                         getOptionLabel={(mod) => mod.processName}

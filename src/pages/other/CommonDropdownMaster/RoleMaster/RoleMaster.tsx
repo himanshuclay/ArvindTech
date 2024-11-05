@@ -72,7 +72,7 @@ const ModuleMaster = () => {
             fetchsinglerole(searchRole);
         }
     };
-    
+
 
 
     const fetchRoles = async () => {
@@ -110,7 +110,7 @@ const ModuleMaster = () => {
         } catch (error) {
             console.error('Error fetching doers:', error);
         }
-      
+
     };
 
     const fetchRolesCsv = async () => {
@@ -155,7 +155,7 @@ const ModuleMaster = () => {
 
     const convertToCSV = (data: Role[]) => {
         const csvRows = [
-            ['ID', 'Role Name', 'Created By', 'Updated By','Created Date','Updated Date'],
+            ['ID', 'Role Name', 'Created By', 'Updated By', 'Created Date', 'Updated Date'],
             ...data.map(role => [
                 role.id.toString(),
                 role.roleName,
@@ -217,37 +217,37 @@ const ModuleMaster = () => {
                     </div>
                 ) : (<>
                     <div className='bg-white p-2 pb-2'>
-                            <Row>
-                                <Col lg={6} className="mt-2">
-                                    <Form.Group controlId="searchRole">
-                                        <Form.Label>Roles:</Form.Label>
-                                        <Select
-                                            name="searchRole"
-                                            value={roleList.find(item => item.id === searchRole) || null}  
-                                            onChange={(selectedOption) => setSearchRole(selectedOption ? selectedOption.id : 0)} 
-                                            options={roleList} 
-                                            getOptionLabel={(item) => item.roleName} 
-                                            getOptionValue={(item) => item.roleName}
-                                            isSearchable={true} 
-                                            placeholder="Select Role"
-                                            className="h45"
-                                        />
-                                    </Form.Group>
-                                </Col>
+                        <Row>
+                            <Col lg={6} className="mt-2">
+                                <Form.Group controlId="searchRole">
+                                    <Form.Label>Roles:</Form.Label>
+                                    <Select
+                                        name="searchRole"
+                                        value={roleList.find(item => item.id === searchRole) || null}
+                                        onChange={(selectedOption) => setSearchRole(selectedOption ? selectedOption.id : 0)}
+                                        options={roleList}
+                                        getOptionLabel={(item) => item.roleName}
+                                        getOptionValue={(item) => item.roleName}
+                                        isSearchable={true}
+                                        placeholder="Select Role"
+                                        className="h45"
+                                    />
+                                </Form.Group>
+                            </Col>
 
-                                <Col></Col>
-                                <Col lg={3} className="align-items-end d-flex justify-content-end mt-2">
-                                    <ButtonGroup aria-label="Basic example" className="w-100">
-                                        <Button type="button" variant="primary" onClick={handleClear}>
-                                            <i className="ri-loop-left-line"></i>
-                                        </Button>
-                                        &nbsp;
-                                        <Button type="submit" variant="primary" onClick={handleSearch}>
-                                            Search
-                                        </Button>
-                                    </ButtonGroup>
-                                </Col>
-                            </Row>
+                            <Col></Col>
+                            <Col lg={3} className="align-items-end d-flex justify-content-end mt-2">
+                                <ButtonGroup aria-label="Basic example" className="w-100">
+                                    <Button type="button" variant="primary" onClick={handleClear}>
+                                        <i className="ri-loop-left-line"></i>
+                                    </Button>
+                                    &nbsp;
+                                    <Button type="submit" variant="primary" onClick={handleSearch}>
+                                        Search
+                                    </Button>
+                                </ButtonGroup>
+                            </Col>
+                        </Row>
 
 
 
@@ -326,9 +326,9 @@ const ModuleMaster = () => {
                                                     <td>{(currentPage - 1) * 10 + index + 1}</td>
                                                     {columns.filter(col => col.visible).map((col) => (
                                                         <td key={col.id}
-                                                        className={
-                                                            col.id === 'roleName' ? 'fw-bold fs-13 text-dark text-nowrap' : ''
-                                                        }>
+                                                            className={
+                                                                col.id === 'roleName' ? 'fw-bold fs-13 text-dark text-nowrap' : ''
+                                                            }>
                                                             <div>{item[col.id as keyof Role]}</div>
                                                         </td>
                                                     ))}
@@ -342,7 +342,16 @@ const ModuleMaster = () => {
                                             ))
                                         ) : (
                                             <tr>
-                                                <td colSpan={columns.length + 1}>No data available</td>
+                                                <td colSpan={12}><Container className="mt-5">
+                                                    <Row className="justify-content-center">
+                                                        <Col xs={12} md={8} lg={6}>
+                                                            <Alert variant="info" className="text-center">
+                                                                <h4>No Data Found</h4>
+                                                                <p>You currently don't have Data </p>
+                                                            </Alert>
+                                                        </Col>
+                                                    </Row>
+                                                </Container></td>
                                             </tr>
                                         )}
                                     </tbody>

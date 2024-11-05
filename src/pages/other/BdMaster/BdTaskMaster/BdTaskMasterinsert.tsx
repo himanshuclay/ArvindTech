@@ -33,6 +33,7 @@ interface MISExempt {
 
 interface PrrocessList {
     processID: string;
+    moduleId: string;
     processName: string;
 }
 
@@ -124,7 +125,7 @@ const BdTaskMasterinsert = () => {
         };
 
         fetchData('CommonDropdown/GetMISExempt', setMisExempt, 'mISExemptListResponses');
-        fetchData('CommonDropdown/GetProcessNameByModuleName?ModuleName=Human Resources', setProcessList, 'processListResponses');
+        fetchData('CommonDropdown/GetProcessNameByModuleName?ModuleName=Business%20Development', setProcessList, 'processListResponses');
         // fetchData('CommonDropdown/GetTaskList', setTaskList, 'taskList');
     }, []);
 
@@ -200,7 +201,7 @@ const BdTaskMasterinsert = () => {
                                             setBdTasks({
                                                 ...bdTasks,
                                                 processID: selectedOption?.processID || '',
-                                                moduleID: selectedOption?.processID || '',
+                                                moduleID: selectedOption?.moduleId || '',
                                             });
                                         }}
                                         getOptionLabel={(mod) => mod.processName}

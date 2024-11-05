@@ -5,16 +5,14 @@ import { Link } from 'react-router-dom';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import config from '@/config';
 import Select from 'react-select';
+import { useLocation, useNavigate } from 'react-router-dom';
+import CustomSuccessToast from '../../Component/CustomSuccessToast';
 
 
 
 interface Designation {
     id: number;
-    department: string;
-    coreDesignation: string;
-    specializedDesignation: string;
-    processType: string;
-    uploadJD: string;
+    departmentName: string;
     createdBy: string;
     updatedBy: string;
 }
@@ -37,19 +35,43 @@ const DesignationMaster = () => {
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
     const [searchQuery, setSearchQuery] = useState('');
-
-
- 
     const [departmentList, setDepartmentList] = useState<DepartmentList[]>([]);
+    const [searchDept, setSearchDept] = useState<number>();
+
+
+
+    const location = useLocation();
+    const navigate = useNavigate();
+    const [showToast, setShowToast] = useState(false);
+    const [toastMessage, setToastMessage] = useState('');
+    const [toastVariant, setToastVariant] = useState('');
+    useEffect(() => {
+        if (location.state && location.state.showToast) {
+            setShowToast(true);
+            setToastMessage(location.state.toastMessage);
+            setToastVariant(location.state.toastVariant);
+
+            setTimeout(() => {
+                setShowToast(false);
+                navigate(location.pathname, { replace: true });
+            }, 5000);
+        }
+        return () => {
+            setShowToast(false);
+            setToastMessage('');
+            setToastVariant('');
+        };
+    }, [location.state, navigate]);
+
 
 
     // both are required to make dragable column of table 
     const [columns, setColumns] = useState<Column[]>([
-        { id: 'department', label: 'Department', visible: true },
-        { id: 'coreDesignation', label: 'Core Designation', visible: true },
-        { id: 'specializedDesignation', label: 'Specialized Designation', visible: true },
-        { id: 'processType', label: 'Process Type', visible: true },
-        { id: 'uploadJD', label: 'Upload JD', visible: true },
+        { id: 'departmentName', label: 'Department Name', visible: true },
+        { id: 'createdBy', label: 'Created By ', visible: true },
+        { id: 'updatedBy', label: 'Updated By ', visible: true },
+        { id: 'createdDate', label: 'Created Date ', visible: true },
+        { id: 'updatedDate', label: 'Updated Date ', visible: true },
     ]);
 
 
@@ -68,42 +90,16 @@ const DesignationMaster = () => {
 
 
 
-    const [searchDepartmentValue, setSearchDepartmentValue] = useState('');
 
-    const handleSearch = (e: any) => {
-        e.preventDefault();
-
-        let query = `?`;
-
-        if (searchDepartmentValue) query += `InputValue=${searchDepartmentValue}&`;
-
-        query = query.endsWith('&') ? query.slice(0, -1) : query;
-
-        const apiUrl = `${config.API_URL_APPLICATION}/DoerMaster/SearchDoer${query}`;
-
-        console.log(apiUrl)
-        axios.get(apiUrl, {
-            headers: {
-                'accept': '*/*'
-            }
-        })
-            .then((response) => {
-                console.log("search response ", response.data.doerMasterListResponses);
-                setDesignations(response.data.doerMasterListResponses)
-            })
-            .catch((error) => {
-                console.error('Error fetching data:', error);
-            });
-    };
 
     const fetchStaffRequirements = async () => {
         setLoading(true);
         try {
-            const response = await axios.get(`${config.API_URL_APPLICATION}/DesignationMaster/GetDesignation`, {
+            const response = await axios.get(`${config.API_URL_APPLICATION}/DepartmentMaster/GetDepartment`, {
                 params: { PageIndex: currentPage }
             });
             if (response.data.isSuccess) {
-                setDesignations(response.data.designations);
+                setDesignations(response.data.departments);
                 setTotalPages(Math.ceil(response.data.totalCount / 10));
             } else {
                 console.error(response.data.message);
@@ -118,6 +114,30 @@ const DesignationMaster = () => {
 
 
 
+
+    const fetchsingleDept = async (searchDept: number) => {
+        try {
+            const response = await axios.get(`${config.API_URL_APPLICATION}/DepartmentMaster/GetDepartment`, {
+                params: { id: searchDept }
+            });
+            if (response.data.isSuccess) {
+                setDesignations(response.data.departments);
+            } else {
+                console.error(response.data.message);
+            }
+        } catch (error) {
+            console.error('Error fetching doers:', error);
+        }
+
+    };
+
+
+    const handleSearch = () => {
+        if (searchDept) {
+            fetchsingleDept(searchDept);
+        }
+    };
+
     useEffect(() => {
         const fetchData = async (endpoint: string, setter: Function, listName: string) => {
             try {
@@ -131,32 +151,27 @@ const DesignationMaster = () => {
                 console.error(`Error fetching data from ${endpoint}:`, error);
             }
         };
-
         fetchData('CommonDropdown/GetDepartment', setDepartmentList, 'getDepartments');
     }, []);
 
 
 
+
+
     const handleClear = () => {
         fetchStaffRequirements();
+        setSearchDept(undefined);
     };
 
 
     const convertToCSV = (data: Designation[]) => {
         const csvRows = [
-            ['ID', 
-                'Department',
-                'Core Designation',
-                'Specialized Designation',
-                'Process Type', 
-                'Recruiter', 'Upload JD',  'Created By', 'Updated By'],
+            ['ID',
+                'Department Nsme',
+                'Created By', 'Updated By'],
             ...data.map(doer => [
                 doer.id,
-                doer.department,
-                doer.coreDesignation,
-                doer.specializedDesignation,
-                doer.processType,
-                doer.uploadJD,
+                doer.departmentName,
                 doer.createdBy,
                 doer.updatedBy
             ])
@@ -185,21 +200,17 @@ const DesignationMaster = () => {
         setCurrentPage(1);
     };
 
-    // const filteredDoers = doers.filter(doer =>
-    //     doer.entryDate.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    //     // doer.identifier.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    //     // doer.empName.toLowerCase().includes(searchQuery.toLowerCase())
-    // );
+
     return (
         <>
             <div className="container">
                 <div className="d-flex bg-white p-2 my-2 justify-content-between align-items-center">
-                    <span><i className="ri-file-list-line me-2 text-dark fs-16"></i><span className='fw-bold text-dark fs-15'>Designation List</span></span>
+                    <span><i className="ri-file-list-line me-2 text-dark fs-16"></i><span className='fw-bold text-dark fs-15'>Department List</span></span>
                     <div className="d-flex justify-content-end  ">
 
-                        <Link to='/pages/DesignationMasterinsert'>
+                        <Link to='/pages/DepartmentMasterinsert'>
                             <Button variant="primary" className="me-2">
-                                Add Designation
+                                Add Department
                             </Button>
                         </Link>
 
@@ -216,76 +227,37 @@ const DesignationMaster = () => {
 
                     <>
                         <div className='bg-white p-2 pb-2'>
-                            <Form onSubmit={handleSearch}>
-                                <Row>
-                                    <Col lg={4}>
-                                        <Form.Group controlId="searchDepartmentName">
-                                            <Form.Label>Department Name</Form.Label>
-                                            <Select
-                                                name="searchDepartmentName"
-                                                value={departmentList.find(emp => emp.departmentName === searchDepartmentValue) || null}
-                                                onChange={(selectedOption) => setSearchDepartmentValue(selectedOption ? selectedOption.departmentName : "")} 
-                                                options={departmentList}
-                                                getOptionLabel={(emp) => emp.departmentName}
-                                                getOptionValue={(emp) => emp.departmentName}
-                                                isSearchable={true}
-                                                placeholder="Search..."
-                                                className="h45"
-                                            />
-                                        </Form.Group>
-                                    </Col>
+                            <Row>
+                                <Col lg={6}>
+                                    <Form.Group controlId="searchDept">
+                                        <Form.Label>Department Name</Form.Label>
+                                        <Select
+                                            name="searchDept"
+                                            value={departmentList.find(item => item.id === searchDept) || null}
+                                            onChange={(selectedOption) => setSearchDept(selectedOption ? selectedOption.id : 0)}
+                                            options={departmentList}
+                                            getOptionLabel={(item) => item.departmentName}
+                                            getOptionValue={(item) => item.departmentName}
+                                            isSearchable={true}
+                                            placeholder="Select Role"
+                                            className="h45"
+                                        />
+                                    </Form.Group>
+                                </Col>
 
-                                    <Col lg={4}>
-                                        <Form.Group controlId="searchCoreDesignation">
-                                            <Form.Label>Core Designation</Form.Label>
-                                            <Select
-                                                name="searchCoreDesignation"
-                                                // value={roleList.find(role => role.roleName === searchDoerRole) || null} // handle null
-                                                // onChange={(selectedOption) => setSearchDoerRole(selectedOption ? selectedOption.roleName : "")} // null check
-                                                // options={roleList}
-                                                // getOptionLabel={(role) => role.roleName}
-                                                // getOptionValue={(role) => role.roleName}
-                                                isSearchable={true}
-                                                placeholder="Search..."
-                                                className="h45"
-                                            />
-                                        </Form.Group>
-                                    </Col>
-
-                                    <Col lg={4}>
-                                        <Form.Group controlId="searchSpecialisedDesignation">
-                                            <Form.Label>Specialised Designation</Form.Label>
-                                            <Select
-                                                name="searchSpecialisedDesignation"
-                                                // value={taskList.find(task => task.taskID === searchTaskId) || null} // handle null
-                                                // onChange={(selectedOption) => setSearchTaskId(selectedOption ? selectedOption.taskID : "")} // null check
-                                                // options={taskList}
-                                                // getOptionLabel={(task) => task.taskID}
-                                                // getOptionValue={(task) => task.taskID}
-                                                isSearchable={true}
-                                                placeholder="Search..."
-                                                className="h45"
-                                            />
-                                        </Form.Group>
-                                    </Col>
-
-                                  
-                                    <Col lg={4} className="mt-2"></Col>
-                                    <Col lg={4} className="mt-2"></Col>
-
-                                    <Col lg={4} className="align-items-end d-flex justify-content-end mt-2">
-                                        <ButtonGroup aria-label="Basic example" className="w-100">
-                                            <Button type="button" variant="primary" onClick={handleClear}>
-                                                <i className="ri-loop-left-line"></i>
-                                            </Button>
-                                            &nbsp;
-                                            <Button type="submit" variant="primary">
-                                                Search
-                                            </Button>
-                                        </ButtonGroup>
-                                    </Col>
-                                </Row>
-                            </Form>
+                                <Col ></Col>
+                                <Col lg={3} className="align-items-end d-flex justify-content-end mt-2">
+                                    <ButtonGroup aria-label="Basic example" className="w-100">
+                                        <Button type="button" variant="primary" onClick={handleClear}>
+                                            <i className="ri-loop-left-line"></i>
+                                        </Button>
+                                        &nbsp;
+                                        <Button type="submit" variant="primary" onClick={handleSearch}>
+                                            Search
+                                        </Button>
+                                    </ButtonGroup>
+                                </Col>
+                            </Row>
 
 
 
@@ -340,12 +312,7 @@ const DesignationMaster = () => {
                                                                         <div ref={provided.innerRef}
                                                                             {...provided.draggableProps}
                                                                             {...provided.dragHandleProps}>
-                                                                         
-                                                                            {column.id === 'department' && (<i className="ri-group-fill"></i>)}
-                                                                            {column.id === 'coreDesignation' && (<i className="ri-briefcase-fill"></i>)}
-                                                                            {column.id === 'specializedDesignation' && (<i className="ri-award-fill"></i>)}
-                                                                            {column.id === 'uploadJD' && (<i className="ri-file-upload-line"></i>)}
-                                                                            {column.id === 'processType' && (<i className="ri-lock-fill"></i>)}
+                                                                            {column.id === 'departmentName' && (<i className="ri-group-fill"></i>)}
                                                                             &nbsp; {column.label}
                                                                         </div>
                                                                     </th>
@@ -374,7 +341,7 @@ const DesignationMaster = () => {
                                                             </td>
                                                         ))}
 
-                                                        <td><Link to={`/pages/DesignationMasterinsert/${item.id}`}>
+                                                        <td><Link to={`/pages/DepartmentMasterinsert/${item.id}`}>
                                                             <Button variant='primary' className='p-0 text-white'>
                                                                 <i className='btn ri-edit-line text-white' ></i>
                                                             </Button>
@@ -384,7 +351,18 @@ const DesignationMaster = () => {
                                                 ))
                                             ) : (
                                                 <tr>
-                                                    <td colSpan={columns.length + 1}>No data available</td>
+                                                    <td colSpan={12}>
+                                                        <Container className="mt-5">
+                                                            <Row className="justify-content-center">
+                                                                <Col xs={12} md={8} lg={6}>
+                                                                    <Alert variant="info" className="text-center">
+                                                                        <h4>No Data Found</h4>
+                                                                        <p>You currently don't have Data</p>
+                                                                    </Alert>
+                                                                </Col>
+                                                            </Row>
+                                                        </Container>
+                                                    </td>
                                                 </tr>
                                             )}
                                         </tbody>
@@ -407,7 +385,12 @@ const DesignationMaster = () => {
 
 
             </div >
-
+            <CustomSuccessToast
+                show={showToast}
+                toastMessage={toastMessage}
+                toastVariant={toastVariant}
+                onClose={() => setShowToast(false)}
+            />
         </>
     );
 };

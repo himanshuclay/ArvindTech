@@ -189,17 +189,10 @@ const getFilteredMenuItems = () => {
           parentKey: 'systemmaster',
         },
         {
-          key: 'Roles',
+          key: 'RoleMaster',
           label: 'Role Master',
-          url: '/pages/RoleMaster',
-          icon: 'ri-user-settings-line',
-          parentKey: 'systemmaster',
-        },
-        {
-          key: 'Identifier',
-          label: 'Identifier Master',
-          url: '/pages/IdentifierMaster',
-          icon: 'ri-user-settings-line',
+          url: '/pages/roleMaster',
+          icon: 'ri-brain-line',
           parentKey: 'systemmaster',
         },
         {
@@ -258,12 +251,33 @@ const getFilteredMenuItems = () => {
           icon: 'ri-list-check-3',
           parentKey: 'systemmaster',
         },
+    
         {
-          key: 'DepartmentMaster',
-          label: 'Department Master',
-          url: '/pages/DepartmentMaster',
-          icon: 'ri-list-check-3',
+          key: 'CommonDropdown',
+          label: 'Common Master ',
           parentKey: 'systemmaster',
+          icon: 'ri-list-check-3',
+          children: [
+            {
+              key: 'Identifier',
+              label: 'Identifier Master',
+              url: '/pages/IdentifierMaster',
+              parentKey: 'CommonDropdown',
+            },
+         
+            {
+              key: 'DepartmentMaster',
+              label: 'Department Master',
+              url: '/pages/DepartmentMaster',
+              parentKey: 'CommonDropdown',
+            },
+            {
+              key: 'HrInputMaster',
+              label: 'Filling Frequency',
+              url: '/pages/HrInputMaster',
+              parentKey: 'CommonDropdown',
+            },
+          ],
         },
         {
           key: 'HR Masters',
@@ -288,7 +302,7 @@ const getFilteredMenuItems = () => {
             {
               key: 'CandidateMaster',
               label: 'Candidate Master',
-              url: '/pages/CandidateMaster',
+              url: '/pages/HrCandidateMaster',
               parentKey: 'HR Masters',
               // icon: 'ri-list-check-3',
             },
@@ -333,21 +347,21 @@ const getFilteredMenuItems = () => {
               label: 'BD Input Master',
               url: '/pages/BdInputMaster',
               parentKey: 'second-level-2',
-              icon: 'ri-list-check-3',
+              // icon: 'ri-list-check-3',
             },
             {
               key: 'BD Task Master',
               label: 'BD Task Master',
               url: '/pages/BdTaskMaster',
               parentKey: 'second-level-2',
-              icon: 'ri-list-check-3',
+              // icon: 'ri-list-check-3',
             },
             {
               key: 'BD Doer Master',
               label: 'BD Doer Master',
               url: '/pages/BDDoerMaster',
               parentKey: 'second-level-2',
-              icon: 'ri-list-check-3',
+              // icon: 'ri-list-check-3',
             },
           ],
         },

@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Button, Table, Toast } from 'react-bootstrap';
 import { useLocation, useNavigate } from 'react-router-dom';
+import config from '@/config';
+
 
 interface ProjectAssignListWithDoer {
   id: number;
@@ -101,7 +103,7 @@ const RunningTask: React.FC = () => {
       try {
         // const role = localStorage.getItem('EmpId') || '';
         const response = await axios.get<ApiResponse>(
-          `https://arvindo-api.clay.in/api/ProcessInitiation/GetFilterTask?Flag=6`
+          `${config.API_URL_ACCOUNT}/ProcessInitiation/GetFilterTask?Flag=6`
         );
 
         if (response.data && response.data.isSuccess) {

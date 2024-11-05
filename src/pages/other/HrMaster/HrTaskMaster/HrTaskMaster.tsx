@@ -20,8 +20,8 @@ interface HrTask {
     predecessor: string;
     successor: string;
     generationType: string;
-    misExempt: number;
-    status: number;
+    misExempt: string;
+    status: string;
     problemSolver: string;
     sundayLogic: string;
     createdBy: string;
@@ -439,8 +439,10 @@ const HrTaskMaster = () => {
                                                                     className={
                                                                         col.id === 'moduleOwnerName' ? 'fw-bold fs-14 text-dark' :
                                                                             col.id === 'moduleOwnerID' ? 'fw-bold fs-13  ' :
-                                                                                // (col.id === 'status' && item[col.id] === 'INACTIVE') ? 'task4' :
-                                                                                //     (col.id === 'status' && item[col.id] === 'ACTIVE') ? 'task1' :
+                                                                                (col.id === 'status' && item[col.id] === 'INACTIVE') ? 'task4' :
+                                                                                    (col.id === 'status' && item[col.id] === 'ACTIVE') ? 'task1' :
+                                                                                (col.id === 'misExempt' && item[col.id] === 'INACTIVE') ? 'task4' :
+                                                                                    (col.id === 'misExempt' && item[col.id] === 'ACTIVE') ? 'task1' :
                                                                                 ''
                                                                     }
                                                                 >

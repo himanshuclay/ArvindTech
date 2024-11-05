@@ -5,11 +5,12 @@ import { Link } from 'react-router-dom';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import config from '@/config';
 import Select from 'react-select';
-
+import { useLocation, useNavigate } from 'react-router-dom';
+import CustomSuccessToast from '../Component/CustomSuccessToast';
 
 
 interface Tender {
-    id: number;
+    tenderID: number;
     tenderStatus: string;
     executorCompany: string;
     country: string;
@@ -65,9 +66,9 @@ interface Column {
 }
 
 
-interface DepartmentList {
+interface StatusList {
     id: number;
-    departmentName: string;
+    name: string;
 }
 
 const TenderMaster = () => {
@@ -76,11 +77,35 @@ const TenderMaster = () => {
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
     const [searchQuery, setSearchQuery] = useState('');
+    const [downloadCsv, setDownloadCsv] = useState<Tender[]>([]);
+    const [statusList, setStatusList] = useState<StatusList[]>([]);
+
+
+    const location = useLocation();
+    const navigate = useNavigate();
+    const [showToast, setShowToast] = useState(false);
+    const [toastMessage, setToastMessage] = useState('');
+    const [toastVariant, setToastVariant] = useState('');
 
 
 
-    const [departmentList, setDepartmentList] = useState<DepartmentList[]>([]);
+    useEffect(() => {
+        if (location.state && location.state.showToast) {
+            setShowToast(true);
+            setToastMessage(location.state.toastMessage);
+            setToastVariant(location.state.toastVariant);
 
+            setTimeout(() => {
+                setShowToast(false);
+                navigate(location.pathname, { replace: true });
+            }, 5000);
+        }
+        return () => {
+            setShowToast(false);
+            setToastMessage('');
+            setToastVariant('');
+        };
+    }, [location.state, navigate]);
 
     // both are required to make dragable column of table 
     const [columns, setColumns] = useState<Column[]>([
@@ -127,6 +152,7 @@ const TenderMaster = () => {
         { id: 'lostTenderReviewRequired', label: 'Lost Tender Review Required', visible: true },
         { id: 'tenderComparisionReportPath', label: 'Tender Comparison Report Path', visible: true },
         { id: 'tenderComparisionReportURL', label: 'Tender Comparison Report URL', visible: true },
+        { id: 'typeofTender', label: 'Type of Tender', visible: true },
     ]);
 
 
@@ -140,23 +166,25 @@ const TenderMaster = () => {
     // ==============================================================
 
     useEffect(() => {
-        fetchStaffRequirements();
+        fetchMaster();
+        fetchModulesCsv()
     }, [currentPage]);
 
 
 
-    const [searchDepartmentValue, setSearchDepartmentValue] = useState('');
+    const [searchStatusValue, setSearchStatusValue] = useState('');
 
     const handleSearch = (e: any) => {
         e.preventDefault();
 
         let query = `?`;
 
-        if (searchDepartmentValue) query += `InputValue=${searchDepartmentValue}&`;
+        if (searchStatusValue) query += `TenderStatus=${searchStatusValue}&`;
+        if (searchStatusValue) query += `TypeofTender=${searchStatusValue}&`;
 
         query = query.endsWith('&') ? query.slice(0, -1) : query;
 
-        const apiUrl = `${config.API_URL_APPLICATION}/DoerMaster/SearchDoer${query}`;
+        const apiUrl = `${config.API_URL_APPLICATION}/TenderMaster/SearchTender${query}`;
 
         console.log(apiUrl)
         axios.get(apiUrl, {
@@ -165,15 +193,17 @@ const TenderMaster = () => {
             }
         })
             .then((response) => {
-                console.log("search response ", response.data.doerMasterListResponses);
-                setTenders(response.data.doerMasterListResponses)
+                // console.log("search response ", response.data.tenders);
+                setTenders(response.data.tenders)
             })
             .catch((error) => {
                 console.error('Error fetching data:', error);
             });
     };
 
-    const fetchStaffRequirements = async () => {
+
+
+    const fetchMaster = async () => {
         setLoading(true);
         try {
             const response = await axios.get(`${config.API_URL_APPLICATION}/TenderMaster/GetTender`, {
@@ -194,6 +224,19 @@ const TenderMaster = () => {
     };
 
 
+    const fetchModulesCsv = async () => {
+        try {
+            const response = await axios.get(`${config.API_URL_APPLICATION}/TenderMaster/GetTender`);
+            if (response.data.isSuccess) {
+                setDownloadCsv(response.data.tenders);
+            } else {
+                console.error(response.data.message);
+            }
+        } catch (error) {
+            console.error('Error fetching hrDoers:', error);
+        }
+
+    };
 
     useEffect(() => {
         const fetchData = async (endpoint: string, setter: Function, listName: string) => {
@@ -209,13 +252,14 @@ const TenderMaster = () => {
             }
         };
 
-        fetchData('CommonDropdown/GetDepartment', setDepartmentList, 'getDepartments');
+        fetchData('CommonDropdown/GetStatus', setStatusList, 'statusListResponses');
     }, []);
 
 
 
     const handleClear = () => {
-        fetchStaffRequirements();
+        setSearchStatusValue('')
+        fetchMaster();
     };
 
 
@@ -242,7 +286,7 @@ const TenderMaster = () => {
                 'Tender Comparison Report URL', 'Created By', 'Updated By'
             ],
             ...data.map(tender => [
-                tender.id,
+                tender.tenderID,
                 tender.tenderStatus,
                 tender.executorCompany,
                 tender.country,
@@ -296,13 +340,14 @@ const TenderMaster = () => {
 
 
     const downloadCSV = () => {
-        const csvData = convertToCSV(tenders);
+
+        const csvData = convertToCSV(downloadCsv);
         const blob = new Blob([csvData], { type: 'text/csv;charset=utf-8;' });
         const link = document.createElement('a');
         if (link.download !== undefined) {
             const url = URL.createObjectURL(blob);
             link.setAttribute('href', url);
-            link.setAttribute('download', 'Doers.csv');
+            link.setAttribute('download', 'Tenders.csv');
             link.style.visibility = 'hidden';
             document.body.appendChild(link);
             link.click();
@@ -348,24 +393,24 @@ const TenderMaster = () => {
                         <div className='bg-white p-2 pb-2'>
                             <Form onSubmit={handleSearch}>
                                 <Row>
-                                    <Col lg={4}>
-                                        <Form.Group controlId="searchDepartmentName">
-                                            <Form.Label>Department Name</Form.Label>
+                                    <Col lg={6}>
+                                        <Form.Group controlId="searchStatusValue">
+                                            <Form.Label>Status </Form.Label>
                                             <Select
-                                                name="searchDepartmentName"
-                                                value={departmentList.find(emp => emp.departmentName === searchDepartmentValue) || null}
-                                                onChange={(selectedOption) => setSearchDepartmentValue(selectedOption ? selectedOption.departmentName : "")}
-                                                options={departmentList}
-                                                getOptionLabel={(emp) => emp.departmentName}
-                                                getOptionValue={(emp) => emp.departmentName}
+                                                name="searchStatusValue"
+                                                value={statusList.find(emp => emp.name === searchStatusValue) || null}
+                                                onChange={(selectedOption) => setSearchStatusValue(selectedOption ? selectedOption.name : "")}
+                                                options={statusList}
+                                                getOptionLabel={(emp) => emp.name}
+                                                getOptionValue={(emp) => emp.name}
                                                 isSearchable={true}
-                                                placeholder="Search..."
+                                                placeholder="Select Status"
                                                 className="h45"
                                             />
                                         </Form.Group>
                                     </Col>
 
-                                    <Col lg={4}>
+                                    <Col lg={6}>
                                         <Form.Group controlId="searchCoreDesignation">
                                             <Form.Label>Core Designation</Form.Label>
                                             <Select
@@ -382,22 +427,7 @@ const TenderMaster = () => {
                                         </Form.Group>
                                     </Col>
 
-                                    <Col lg={4}>
-                                        <Form.Group controlId="searchSpecialisedDesignation">
-                                            <Form.Label>Specialised Designation</Form.Label>
-                                            <Select
-                                                name="searchSpecialisedDesignation"
-                                                // value={taskList.find(task => task.taskID === searchTaskId) || null} // handle null
-                                                // onChange={(selectedOption) => setSearchTaskId(selectedOption ? selectedOption.taskID : "")} // null check
-                                                // options={taskList}
-                                                // getOptionLabel={(task) => task.taskID}
-                                                // getOptionValue={(task) => task.taskID}
-                                                isSearchable={true}
-                                                placeholder="Search..."
-                                                className="h45"
-                                            />
-                                        </Form.Group>
-                                    </Col>
+                                   
 
 
                                     <Col lg={4} className="mt-2"></Col>
@@ -530,20 +560,21 @@ const TenderMaster = () => {
                                         <tbody>
                                             {tenders.length > 0 ? (
                                                 tenders.slice(0, 10).map((item, index) => (
-                                                    <tr key={item.id}>
+                                                    <tr key={item.tenderID}>
                                                         <td>{(currentPage - 1) * 10 + index + 1}</td>
                                                         {columns.filter(col => col.visible).map((col) => (
                                                             <td key={col.id}
                                                                 className={
-                                                                    // Add class based on column id
-                                                                    col.id === 'department' ? 'fw-bold fs-13 text-dark task1' : ''
+                                                                    (col.id === 'tenderStatus' && item[col.id] === 'INACTIVE') ? 'task4' :
+                                                                        (col.id === 'tenderStatus' && item[col.id] === 'ACTIVE') ? 'task1' :
+                                                                            ''
                                                                 }
                                                             >
                                                                 <div>{item[col.id as keyof Tender]}</div>
                                                             </td>
                                                         ))}
 
-                                                        <td><Link to={`/pages/TenderMasterinsert/${item.id}`}>
+                                                        <td><Link to={`/pages/TenderMasterinsert/${item.tenderID}`}>
                                                             <Button variant='primary' className='p-0 text-white'>
                                                                 <i className='btn ri-edit-line text-white' ></i>
                                                             </Button>
@@ -576,7 +607,12 @@ const TenderMaster = () => {
 
 
             </div >
-
+            <CustomSuccessToast
+                show={showToast}
+                toastMessage={toastMessage}
+                toastVariant={toastVariant}
+                onClose={() => setShowToast(false)}
+            />
         </>
     );
 };

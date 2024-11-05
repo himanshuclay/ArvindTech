@@ -388,27 +388,7 @@ const EmployeeMasterInsert = () => {
                                 </Form.Group>
                             </Col>
 
-                            <Col lg={6}>
-                                <Form.Group controlId="estimateCompletionDate" className="mb-3">
-                                    <Form.Label>Estimate Completion Date:</Form.Label>
-                                    <Flatpickr
-                                        value={employee.dateOfBirth}
-                                        onChange={([date]) => setEmployee({
-                                            ...employee,
-                                            dateOfBirth: date.toISOString()
-                                        })}
-                                        options={{
-                                            enableTime: false,
-                                            dateFormat: "Y-m-d",
-                                            time_24hr: false,
-                                        }}
-                                        placeholder="Estimate Completion Date"
-                                        className="form-control"
-                                        required
-                                    />
-                                </Form.Group>
-                            </Col>
-
+                       
 
 
                             <Col lg={6}>
