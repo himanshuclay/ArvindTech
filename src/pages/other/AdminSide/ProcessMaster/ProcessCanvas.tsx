@@ -3,7 +3,7 @@ import axios from "axios";
 import config from "@/config";
 import { useEffect, useState } from "react";
 import Select from 'react-select';
-import CustomSuccessToast from "../Component/CustomSuccessToast";
+import CustomSuccessToast from "../../Component/CustomSuccessToast";
 
 
 interface ProcessCanvasProps {

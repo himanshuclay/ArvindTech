@@ -9,7 +9,7 @@ import ProcessCanvas from './ProcessCanvas';
 import ProcessViewPopup from './ProcessViewPopup';
 import Select from 'react-select';
 import { useLocation, useNavigate } from 'react-router-dom';
-import CustomSuccessToast from '../Component/CustomSuccessToast';
+import CustomSuccessToast from '../../Component/CustomSuccessToast';
 
 
 

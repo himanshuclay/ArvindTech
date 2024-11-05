@@ -8,7 +8,7 @@ import config from '@/config';
 import Select from 'react-select';
 import Flatpickr from 'react-flatpickr';
 import 'flatpickr/dist/themes/material_green.css';
-import CustomSuccessToast from '../Component/CustomSuccessToast';
+import CustomSuccessToast from '../../Component/CustomSuccessToast';
 
 
 interface Tender {

@@ -6,7 +6,8 @@ import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import config from '@/config';
 import Select from 'react-select';
 import { useLocation, useNavigate } from 'react-router-dom';
-import CustomSuccessToast from '../../Component/CustomSuccessToast';
+import CustomSuccessToast from '@/pages/other/Component/CustomSuccessToast';
+
 
 
 

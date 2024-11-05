@@ -315,27 +315,6 @@ const getFilteredMenuItems = () => {
               // icon: 'ri-list-check-3',
             },
             {
-              key: 'HrInputMaster',
-              label: 'Hr Input Master',
-              url: '/pages/HrInputMaster',
-              parentKey: 'HR Masters',
-              // icon: 'ri-list-check-3',
-            },
-            {
-              key: 'HrTaskMaster',
-              label: 'Hr Task Master',
-              url: '/pages/HrTaskMaster',
-              parentKey: 'HR Masters',
-              // icon: 'ri-list-check-3',
-            },
-            {
-              key: 'HrDoerMaster',
-              label: 'Hr Doer Master',
-              url: '/pages/HrDoerMaster',
-              parentKey: 'HR Masters',
-              // icon: 'ri-list-check-3',
-            },
-            {
               key: 'HrResumeMaster',
               label: 'Hr Resume Master',
               url: '/pages/HrResumeMaster',
@@ -344,36 +323,6 @@ const getFilteredMenuItems = () => {
             },
           ],
         },
-        {
-          key: 'second-level-2',
-          label: 'BD Masters',
-          parentKey: 'systemmaster',
-          icon: 'ri-list-check-3',
-          children: [
-            {
-              key: 'BD Input Master',
-              label: 'BD Input Master',
-              url: '/pages/BdInputMaster',
-              parentKey: 'second-level-2',
-              // icon: 'ri-list-check-3',
-            },
-            {
-              key: 'BD Task Master',
-              label: 'BD Task Master',
-              url: '/pages/BdTaskMaster',
-              parentKey: 'second-level-2',
-              // icon: 'ri-list-check-3',
-            },
-            {
-              key: 'BD Doer Master',
-              label: 'BD Doer Master',
-              url: '/pages/BDDoerMaster',
-              parentKey: 'second-level-2',
-              // icon: 'ri-list-check-3',
-            },
-          ],
-        },
-       
       ],
     },
 
