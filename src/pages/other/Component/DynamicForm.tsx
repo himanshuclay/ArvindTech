@@ -4,6 +4,7 @@ import { Modal } from 'react-bootstrap';
 import { FileUploader } from '@/components/FileUploader'
 import { useNavigate } from 'react-router-dom';
 import config from '@/config';
+import Select, { SingleValue } from 'react-select';
 
 interface Option {
     id: string;
@@ -28,6 +29,7 @@ interface DynamicFormProps {
     formData: {
         formId: string; // Add formId
         formName: string; // Add formName
+        approval_Console: string;
         inputs: Input[];
     };
     taskNumber: string;
@@ -45,6 +47,8 @@ interface DynamicFormProps {
     processId: any
     moduleId: any
     ProcessInitiationID: any
+    approval_Console: any
+    approvalConsoleInputID: any
 }
 
 interface Condition {
@@ -82,6 +86,8 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
     selectedTasknumber,
     formData,
     taskCommonIDRow,
+    approval_Console,
+    approvalConsoleInputID,
     taskStatus,
     setLoading }) => {
 
@@ -150,7 +156,8 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
         // Assuming formData is already an object, there's no need to parse it.
         const taskJson = {
             formId: formData?.formId || 'defaultFormId',  // Fetch formId from formData or fallback
-            formName: formData?.formName || 'defaultFormName',  // Fetch formName from formData or fallback
+            formName: formData?.formName || 'defaultFormName',
+            approvalStatus: approval_Console,  // Fetch formName from formData or fallback
             inputs: Object.keys(formState)  // Iterate through formState keys to construct inputs
                 .filter(inputId => inputId !== 'formId' && inputId !== 'formName')
                 .map(inputId => {
@@ -358,7 +365,18 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
 
     const projectNames = 'PNC_GWALIOR';
 
-    // console.log(projectNames)
+    type OptionType = { value: string; label: string };
+
+    const options: OptionType[] = [
+        { value: 'approved', label: 'Approved' },
+        { value: 'rejected', label: 'Rejected' },
+    ];
+
+    const handleSelectChange = (selectedOption: SingleValue<OptionType>) => {
+        setApprovalStatus(selectedOption);
+    };
+
+    console.log(projectNames)
 
 
     useEffect(() => {
@@ -388,7 +406,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
 
 
 
-
+    const [approvalStatus, setApprovalStatus] = useState<OptionType | null>(null);
 
 
 
@@ -501,6 +519,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
             return newState;
         });
     };
+    
 
 
 
@@ -558,6 +577,8 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
             setLoading(false);  // Hide loader when the request completes (success or error)
         }
     };
+
+    console.log("approval console status: ", approval_Console)
 
 
     // Function to re-evaluate conditions for showing/hiding fields
@@ -845,6 +866,33 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                                                         onChange={e => handleChange(input.inputId, e.target.value)}
                                                     />
                                                 )}
+                                                {input.type === 'number' && (
+                                                    <input
+                                                        type="number"
+                                                        className='form-control'
+                                                        placeholder={input.placeholder}
+                                                        value={formState[input.inputId]}
+                                                        onChange={e => handleChange(input.inputId, e.target.value)}
+                                                    />
+                                                )}
+                                                {input.type === 'email' && (
+                                                    <input
+                                                        type="email"
+                                                        className='form-control'
+                                                        placeholder={input.placeholder}
+                                                        value={formState[input.inputId]}
+                                                        onChange={e => handleChange(input.inputId, e.target.value)}
+                                                    />
+                                                )}
+                                                {input.type === 'tel' && (
+                                                    <input
+                                                        type="tel"
+                                                        className='form-control'
+                                                        placeholder={input.placeholder}
+                                                        value={formState[input.inputId]}
+                                                        onChange={e => handleChange(input.inputId, e.target.value)}
+                                                    />
+                                                )}
                                                 {input.type === 'custom' && (
                                                     <input
                                                         type="text"
@@ -980,6 +1028,17 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                                                 ))}
                                             </select>
                                             <i style={{ position: 'absolute', right: '10px', bottom: '6px' }} className="ri-pencil-fill fs-4" onClick={handleShow2}></i> {/* This shows the modal */}
+                                        </div>
+                                    )}
+                                    {approval_Console === "Select Approval_Console" && (
+                                        <div>
+                                            <label>Is Approved</label>
+                                            <Select
+                                                options={options}                         // Set options for the dropdown
+                                                value={approvalStatus}                    // Bind the selected option
+                                                onChange={handleSelectChange}             // Update state on selection
+                                                placeholder="Select Approval Status"      // Placeholder text
+                                            />
                                         </div>
                                     )}
                                 </div>
