@@ -3,6 +3,7 @@ import axios from 'axios';
 import Select, { SingleValue } from 'react-select';
 import { Container, Row, Col, Card, Form, Button } from 'react-bootstrap';
 import config from '@/config';
+import DynamicForm from './Component/DynamicForm';
 
 interface Input {
   inputId: string;
@@ -57,7 +58,12 @@ const options: OptionType[] = [
 const ApprovalPage: React.FC = () => {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [approvalStatuses, setApprovalStatuses] = useState<Record<number, OptionType | null>>({});
-  const [comments, setComments] = useState<Record<string, string>>({});
+  const [selectedTask, setSelectedTask] = useState<Task | any>('');
+  const [preData, setPreData] = useState<FilteredTask[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [parsedCondition, setParsedCondition] = useState<any[]>([]);
+  const [taskCommonIDRow, setTaskCommonIdRow] = useState<number | null>(null);
+  const [show, setShow] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -69,6 +75,7 @@ const ApprovalPage: React.FC = () => {
 
         if (response.data.isSuccess) {
           setTasks(response.data.getFilterTasks);
+          console.log(response.data.getFilterTasks);
         } else {
           console.error('Failed to fetch tasks');
         }
@@ -87,20 +94,17 @@ const ApprovalPage: React.FC = () => {
     }));
   };
 
-  const handleCommentChange = (messId: string, event: React.ChangeEvent<HTMLInputElement>) => {
-    setComments((prevComments) => ({
-      ...prevComments,
-      [messId]: event.target.value,
-    }));
-  };;
+  const handleShowDetails = (task: Task) => {
+    setSelectedTask(task);
+    setShow(true);
+  };
 
   const handleSubmit = async () => {
     try {
       const requests = tasks.map(async (task) => {
         const isApproved = approvalStatuses[task.id]?.value === 'approved';
-
-        // Parse task_Json to an array of mess details
         let parsedTaskJson;
+
         try {
           parsedTaskJson = JSON.parse(task.task_Json);
         } catch (error) {
@@ -108,17 +112,14 @@ const ApprovalPage: React.FC = () => {
           return null;
         }
 
-        // Update each mess entry's comment field based on the `comments` state
         const updatedTaskJson = parsedTaskJson.map((mess: { messID: string; comments: string }) => {
-          const messComment = comments[mess.messID] || '';
-          return { ...mess, comments: messComment };
+          return { ...mess };
         });
 
-        // Prepare the payload with the updated task_Json and isCompleted field
         const payload = {
           id: task.id,
           doerID: task.doerId,
-          task_Json: JSON.stringify(updatedTaskJson), // Convert updated task_Json back to a string
+          task_Json: JSON.stringify(updatedTaskJson),
           isExpired: task.isExpired,
           isCompleted: isApproved ? 'Completed' : 'Pending',
           task_Number: task.task_Number,
@@ -129,19 +130,17 @@ const ApprovalPage: React.FC = () => {
           updatedBy: task.createdBy,
         };
 
-        // Submit the task with the updated payload
         const response = await axios.post(`${config.API_URL_ACCOUNT}/ProcessInitiation/UpdateDoerTask`, payload);
         return response.data;
       });
 
-      // Await all requests
       const responses = await Promise.all(requests);
       console.log('Tasks submitted successfully:', responses);
     } catch (error) {
       console.error('Error submitting tasks:', error);
     }
   };
-
+  // console.log(selectedTask.task_Json)
 
   return (
     <Container>
@@ -155,6 +154,7 @@ const ApprovalPage: React.FC = () => {
                 <Card.Text>Project Name: {task.projectName}</Card.Text>
                 <Card.Text>Process Name: {task.processName}</Card.Text>
                 <Card.Text>Status: {task.isCompleted}</Card.Text>
+                <Card.Text>Task Start Date: {task.createdDate}</Card.Text>
               </Col>
               <Col md={6}>
                 {task.approval_Console === 'Select Approval_Console' && (
@@ -169,55 +169,41 @@ const ApprovalPage: React.FC = () => {
                   </Form.Group>
                 )}
               </Col>
-            </Row>
-            {task.task_Json && (
-              <div>
-                <h5>Mess Details</h5>
-                {(() => {
-                  try {
-                    const parsedJson = JSON.parse(task.task_Json);
-
-                    if (Array.isArray(parsedJson)) {
-                      return parsedJson.map((mess: { messID: string; taskJson: { inputs: Input[] } }) => (
-                        <Card key={mess.messID} className="mt-3">
-                          <Card.Body>
-                            <h6>Mess ID: {mess.messID}</h6>
-                            <div className="row">
-                              {mess.taskJson.inputs.map((input) => (
-                                <Form.Group key={input.inputId} className="mb-2 col-4">
-                                  <Form.Label>{input.label}</Form.Label>
-                                  <Form.Text className="ms-2 text-primary fw-bold">: {input.value}</Form.Text>
-                                </Form.Group>
-                              ))}
-                            </div>
-                            <Form.Group className="col-4 mt-3">
-                              <Form.Label>Comment</Form.Label>
-                              <Form.Control
-                                type="text"
-                                placeholder="Enter comment"
-                                value={comments[mess.messID] || ''}
-                                onChange={(e) => handleCommentChange(mess.messID, e as React.ChangeEvent<HTMLInputElement>)}
-                              />
-                            </Form.Group>
-                          </Card.Body>
-                        </Card>
-                      ));
-                    } else {
-                      return <p>No valid array found in task_Json</p>;
-                    }
-                  } catch (error) {
-                    console.error('Error parsing JSON:', error);
-                    return <p>Error parsing task details.</p>;
-                  }
-                })()}
+              <div className='d-flex justify-content-end'>
+                <Button onClick={() => handleShowDetails(task)}>
+                  Show Details
+                </Button>
               </div>
-            )}
+            </Row>
           </Card.Body>
         </Card>
       ))}
       <Button variant="primary" onClick={handleSubmit} className="mt-4">
         Submit Approvals
       </Button>
+
+      {selectedTask && show && (
+        <DynamicForm
+          formData={JSON.parse(selectedTask.task_Json)}
+          taskNumber={selectedTask.task_Number}
+          onDoerChange={() => {}}
+          data={tasks}
+          show={show}
+          
+          setShow={setShow}
+          parsedCondition={parsedCondition}
+          preData={preData}
+          selectedTasknumber={selectedTask.task_Number}
+          setLoading={setLoading}
+          taskCommonIDRow={taskCommonIDRow}
+          taskStatus
+          processId={selectedTask.processID}
+          moduleId={selectedTask.moduleID}
+          ProcessInitiationID={selectedTask.id}
+          approval_Console={selectedTask.approval_Console}
+          approvalConsoleInputID={selectedTask.approvalConsoleInputID}
+        />
+      )}
     </Container>
   );
 };

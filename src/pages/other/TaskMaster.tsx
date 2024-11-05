@@ -3,6 +3,7 @@ import axios from 'axios';
 import { Button, Modal, Form, Table } from 'react-bootstrap';
 import Select from 'react-select'; // Make sure you have this or the appropriate select component imported
 import CustomFlatpickr from '@/components/CustomFlatpickr';
+import config from '@/config';
 
 // Define interfaces for the data
 interface AccountProcessTask {
@@ -18,6 +19,11 @@ interface AccountProcessTask {
     roleId: string;
     roleName: string;
     doerName: string;
+    approval_Console: string;
+    approvalConsoleDoerID: string,
+    approvalConsoleDoerName: string;
+    approvalConsoleInputID: number;
+
 }
 
 interface Module {
@@ -100,7 +106,7 @@ const AccountProcessTable: React.FC = () => {
     useEffect(() => {
         const fetchModules = async () => {
             try {
-                const response = await axios.get('https://arvindo-api2.clay.in/api/CommonDropdown/GetModuleList');
+                const response = await axios.get(`${config.API_URL_APPLICATION}/CommonDropdown/GetModuleList`);
                 if (response.data.isSuccess) {
                     setModules(response.data.moduleNameListResponses);
                 }
@@ -421,12 +427,16 @@ const AccountProcessTable: React.FC = () => {
                         updatedBy: "Himanshu Pant",
                         condition_Json: conditionJsonString, // Send the stringified conditionJson
                         isExpired: isExpirable === 'yes' ? 1 : 0,
+                        approval_Console: selectedTask.approval_Console,
+                        approvalConsoleDoerID: selectedTask.approvalConsoleDoerID,
+                        approvalConsoleDoerName: selectedTask.approvalConsoleDoerName, // Use employee name from selectedapprovalEmployee
+                        approvalConsoleInputID: selectedTask.approvalConsoleInputID,
                     };
 
                     console.log("Payload being sent:", payload);
 
                     try {
-                        const response = await axios.post('https://arvindo-api.clay.in/api/ProcessTaskMaster/InsertUpdateProcessTaskandDoer', payload);
+                        const response = await axios.post(`${config.API_URL_ACCOUNT}/ProcessTaskMaster/InsertUpdateProcessTaskandDoer`, payload);
                         console.log("Data successfully posted.");
                         setSelectedConditionTask("");
                         handleClose();
@@ -885,7 +895,7 @@ const AccountProcessTable: React.FC = () => {
         if (selectedModule) {
             const fetchProcesses = async () => {
                 try {
-                    const response = await axios.get(`https://arvindo-api2.clay.in/api/CommonDropdown/GetProcessNameByModuleName?ModuleName=${selectedModule}`);
+                    const response = await axios.get(`${config.API_URL_APPLICATION}/CommonDropdown/GetProcessNameByModuleName?ModuleName=${selectedModule}`);
                     if (response.data.isSuccess) {
                         setProcesses(response.data.processListResponses);
                     }
@@ -904,11 +914,11 @@ const AccountProcessTable: React.FC = () => {
 
                 if (selectedModule != "" && selectedProcess != "") {
                     // API call when both `selectedModule` and `selectedProcess` are selected
-                    response = await axios.get(`https://arvindo-api.clay.in/api/ProcessTaskMaster/GetProcessTaskByIds?Flag=2&ModuleId=${selectedModuleId}&ProcessId=${selectedProcess}`);
+                    response = await axios.get(`${config.API_URL_ACCOUNT}/ProcessTaskMaster/GetProcessTaskByIds?Flag=2&ModuleId=${selectedModuleId}&ProcessId=${selectedProcess}`);
                     console.log(selectedModuleId, selectedProcess)
                 } else {
                     // Default API call when neither `selectedModule` nor `selectedProcess` is selected
-                    response = await axios.get(`https://arvindo-api.clay.in/api/ProcessTaskMaster/GetProcessTaskByIds?Flag=1`);
+                    response = await axios.get(`${config.API_URL_ACCOUNT}/ProcessTaskMaster/GetProcessTaskByIds?Flag=1`);
                     console.log(selectedModule, selectedProcess)
                 }
 
@@ -936,7 +946,7 @@ const AccountProcessTable: React.FC = () => {
     //     if (selectedModule && selectedProcess) {
     //         const fetchTasks = async () => {
     //             try {
-    //                 const response = await axios.get(`https://arvindo-api.clay.in/api/ProcessTaskMaster/GetProcessTaskByIds?Flag=1&ModuleID=${selectedModule}&ProcessId=${selectedProcess}`);
+    //                 const response = await axios.get(`${config.API_URL_ACCOUNT}/ProcessTaskMaster/GetProcessTaskByIds?Flag=1&ModuleID=${selectedModule}&ProcessId=${selectedProcess}`);
     //                 if (response.data.isSuccess) {
     //                     setTasks(response.data.getProcessTaskByIds);
 
@@ -955,7 +965,7 @@ const AccountProcessTable: React.FC = () => {
     useEffect(() => {
         const fetchEmployees = async () => {
             try {
-                const response = await axios.get(`https://arvindo-api2.clay.in/api/CommonDropdown/GetEmployeeListWithId`);
+                const response = await axios.get(`${config.API_URL_APPLICATION}/CommonDropdown/GetEmployeeListWithId`);
                 if (response.data.isSuccess) {
                     setEmployees(response.data.employeeLists);
                 } else {
@@ -1021,7 +1031,7 @@ const AccountProcessTable: React.FC = () => {
 
             const assignTask = async () => {
                 try {
-                    const response = await axios.post('https://arvindo-api.clay.in/api/ProcessTaskMaster/InsertUpdateProcessTaskandDoer', payload);
+                    const response = await axios.post(`${config.API_URL_ACCOUNT}/ProcessTaskMaster/InsertUpdateProcessTaskandDoer`, payload);
 
                     if (response.data.isSuccess) {
                         console.log('Task assigned successfully');
@@ -1067,7 +1077,7 @@ const AccountProcessTable: React.FC = () => {
             console.log(payload)
 
             try {
-                const response = await axios.post('https://arvindo-api.clay.in/api/ProcessTaskMaster/ProcessAssignWithProject', payload);
+                const response = await axios.post(`${config.API_URL_ACCOUNT}/ProcessTaskMaster/ProcessAssignWithProject`, payload);
                 if (response.data.isSuccess) {
                     console.log('Process assigned to project successfully');
                 } else {
@@ -1087,7 +1097,7 @@ const AccountProcessTable: React.FC = () => {
     useEffect(() => {
         const fetchProjects = async () => {
             try {
-                const response = await axios.get('https://arvindo-api2.clay.in/api/CommonDropdown/GetProjectList');
+                const response = await axios.get(`${config.API_URL_APPLICATION}/CommonDropdown/GetProjectList`);
                 if (response.data.isSuccess) {
                     setProjects(response.data.projectListResponses);
                 }

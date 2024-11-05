@@ -470,7 +470,6 @@ const ProjectAssignTable: React.FC = () => {
                             <DynamicForm
                               formData={JSON.parse(item.task_Json)}
                               taskNumber={item.task_Number}
-                              doer={null}
                               onDoerChange={handleDoerChange}
                               data={data}
                               show={show}

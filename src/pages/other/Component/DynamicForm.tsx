@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Modal } from 'react-bootstrap';
 import { FileUploader } from '@/components/FileUploader'
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import config from '@/config';
 import Select, { SingleValue } from 'react-select';
 
@@ -33,7 +33,6 @@ interface DynamicFormProps {
         inputs: Input[];
     };
     taskNumber: string;
-    doer: string | null;
     onDoerChange: (taskNumber: string, selectedOption: Option | null) => void;
     data: any;
     show: boolean;
@@ -103,6 +102,8 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
 
     const [currentStep, setCurrentStep] = useState(0); // Track the current step
 
+    const location = useLocation();
+
 
     console.log("clicked process", processId)
 
@@ -155,8 +156,6 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
         // Transform formState into the taskJson structure
         // Assuming formData is already an object, there's no need to parse it.
         const taskJson = {
-            formId: formData?.formId || 'defaultFormId',  // Fetch formId from formData or fallback
-            formName: formData?.formName || 'defaultFormName',
             approvalStatus: approval_Console,  // Fetch formName from formData or fallback
             inputs: Object.keys(formState)  // Iterate through formState keys to construct inputs
                 .filter(inputId => inputId !== 'formId' && inputId !== 'formName')
@@ -184,6 +183,8 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
         if (existingIndex >= 0) {
             updatedData[existingIndex] = {
                 messID: currentmessID,
+                formId: formData.formId,
+                formName: formData.formName,
                 taskJson,  // Replace with the newly transformed taskJson
                 comments: summary,   // Replace with current comments
             };
@@ -191,6 +192,8 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
             // If messID doesn't exist, add a new entry with current messID, taskJson, and comments
             updatedData.push({
                 messID: currentmessID,
+                formId: formData.formId,
+                formName: formData.formName,
                 taskJson,  // Use the transformed taskJson
                 comments: summary,
             });
@@ -519,7 +522,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
             return newState;
         });
     };
-    
+
 
 
 
@@ -623,7 +626,8 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
         return false;
     };
 
-    // console.log(formData)
+    console.log(formData)
+
 
     const [showBankModal, setShowBankModal] = useState(false);
 
@@ -784,6 +788,57 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
 
 
                 </div>
+
+
+
+                {location.pathname === '/pages/ApprovalConsole' &&
+                    (
+                        <div>
+                            {formData.map((mess) => (
+                                <form className='side-scroll' onSubmit={(event) => handleSubmit(event, taskNumber)}>
+                                    <div key={mess.messID} style={{ border: '1px solid #ccc', padding: '10px', margin: '10px 0' }}>
+                                        <h2>{mess.taskJson.formName}</h2>
+                                        <h3>Mess ID: {mess.messID}</h3>
+                                        {mess.taskJson.inputs.map((input) => (
+                                            <div key={input.inputId} style={{ marginBottom: '15px' }}>
+                                                <label style={{ display: 'block', fontWeight: 'bold' }}>
+                                                    {input.label} {input.required && '*'}
+                                                </label>
+                                                {input.type === 'select' && (
+                                                    <select defaultValue={input.value} style={{ padding: '5px', width: '100%' }}>
+                                                        {input.options?.map((option) => (
+                                                            <option key={option.id} value={option.id} style={{ color: option.color }}>
+                                                                {option.label}
+                                                            </option>
+                                                        ))}
+                                                    </select>
+                                                )}
+                                                {input.type === 'text' && (
+                                                    <input
+                                                        type="text"
+                                                        defaultValue={input.value}
+                                                        placeholder={input.placeholder}
+                                                        style={{ padding: '5px', width: '100%' }}
+                                                    />
+                                                )}
+                                            </div>
+                                        ))}
+                                    </div>
+                                    <button
+                                        type="submit"
+                                        className="btn btn-success"
+                                    >
+                                        Submit
+                                    </button>
+                                </form>
+
+                            ))}
+                        </div>
+                    )
+                }
+
+
+
 
 
                 {formData.inputs &&
@@ -1180,7 +1235,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                     </form>
                 }
 
-            </Modal>
+            </Modal >
 
 
         </>
