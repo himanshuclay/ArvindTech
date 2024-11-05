@@ -4,6 +4,7 @@ import { Button, Col, Form, Row, ButtonGroup } from 'react-bootstrap';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import config from '@/config';
 import Select from 'react-select';
+import CustomSuccessToast from '@/pages/other/Component/CustomSuccessToast';
 
 interface Module {
     id: number;
@@ -35,7 +36,9 @@ interface ModuleOwnerName {
 const EmployeeInsert = () => {
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
-
+    const [showToast, setShowToast] = useState(false);
+    const [toastMessage, setToastMessage] = useState<string>('');
+    const [toastVariant, setToastVariant] = useState('');
     const [editMode, setEditMode] = useState<boolean>(false);
     const [misExempt, setMisExempt] = useState<MISExempt[]>([]);
     const [statusID, setStatusID] = useState<Status[]>([]);
@@ -129,29 +132,51 @@ const EmployeeInsert = () => {
 
     // Handle form submission
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-
-
-
+        e.preventDefault();
 
         const payload = {
             ...module,
             createdBy: editMode ? module.createdBy : empName,
             updatedBy: editMode ? empName : '',
         };
-        console.log(payload)
 
-        e.preventDefault();
         try {
             if (editMode) {
-                await axios.post(`${config.API_URL_APPLICATION}/ModuleMaster/UpdateModule`, payload);
+                const response = await axios.post(`${config.API_URL_APPLICATION}/ModuleMaster/UpdateModule`, payload);
+                if (response.data.isSuccess) {
+                    navigate('/pages/ModuleMaster', {
+                        state: {
+                            showToast: true,
+                            toastMessage: "Module Updated successfully!",
+                            toastVariant: "rgb(28 175 85)"
+                        }
+                    });
+                } else {
+                    setToastMessage(response.data.message || "Failed to update module");
+                }
             } else {
-                await axios.post(`${config.API_URL_APPLICATION}/ModuleMaster/InsertModule`, payload);
+                const response = await axios.post(`${config.API_URL_APPLICATION}/ModuleMaster/InsertModule`, payload);
+                if (response.data.isSuccess) {
+                    navigate('/pages/ModuleMaster', {
+                        state: {
+                            showToast: true,
+                            toastMessage: "Module added successfully!",
+                            toastVariant: "rgb(28 175 85)"
+                        }
+                    });
+                } else {
+                    setToastMessage(response.data.message || "Failed to add module");
+                }
             }
-            navigate('/pages/ModuleMaster');
         } catch (error) {
+            setToastMessage("Error Adding/Updating");
+            setToastVariant("rgb(213 18 18)");
+            setShowToast(true);
             console.error('Error submitting module:', error);
         }
     };
+
+
 
     return (
         <div>
@@ -176,9 +201,7 @@ const EmployeeInsert = () => {
                                         required
                                         placeholder='Enter Module Name'
                                     />
-
                                 </Form.Group>
-
                             </Col>
 
                             <Col lg={6}>
@@ -297,10 +320,12 @@ const EmployeeInsert = () => {
                             </Col>
 
                         </Row>
-
                     </Form>
                 </div>
             </div>
+
+            <CustomSuccessToast show={showToast} toastMessage={toastMessage} toastVariant={toastVariant} onClose={() => setShowToast(false)} />
+
         </div>
     );
 };

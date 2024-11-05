@@ -6,6 +6,8 @@ import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import IconWithLetter from '@/pages/ui/IconWithLetter';
 import config from '@/config';
 import Select from 'react-select';
+import CustomSuccessToast from '@/pages/other/Component/CustomSuccessToast';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 interface Module {
     id: number;
@@ -42,13 +44,33 @@ const ModuleMaster = () => {
     const [employeeList, setEmployeeList] = useState<Module[]>([]);
     const [searchQuery, setSearchQuery] = useState('');
     const [downloadCsv, setDownloadCsv] = useState<Module[]>([]);
-
-
-
-
-
+   
     const [moduleDisplayName, setModuleDisplayName] = useState('');
     const [moduleOwnerName, setModuleOwnerName] = useState('');
+
+    const location = useLocation();
+    const navigate = useNavigate();
+    const [showToast, setShowToast] = useState(false);
+    const [toastMessage, setToastMessage] = useState('');
+    const [toastVariant, setToastVariant] = useState('');
+    useEffect(() => {
+        if (location.state && location.state.showToast) {
+            setShowToast(true);
+            setToastMessage(location.state.toastMessage);
+            setToastVariant(location.state.toastVariant);
+
+            setTimeout(() => {
+                setShowToast(false);
+                navigate(location.pathname, { replace: true });
+            }, 5000);
+        }
+        return () => {
+            setShowToast(false);
+            setToastMessage('');
+            setToastVariant('');
+        };
+    }, [location.state, navigate]);
+
 
 
     const handleSearch = (e: any) => {
@@ -339,11 +361,8 @@ const ModuleMaster = () => {
                                         </div>
                                     </Row>
                                 </div>
-
                                 <div className="overflow-auto text-nowrap">
-
                                     <DragDropContext onDragEnd={handleOnDragEnd}>
-
                                         <Table hover className='bg-white '>
                                             <thead>
                                                 <Droppable droppableId="columns" direction="horizontal">
@@ -479,6 +498,8 @@ const ModuleMaster = () => {
                     </div>
                 </div>
             )}
+            <CustomSuccessToast show={showToast} toastMessage={toastMessage} toastVariant={toastVariant} onClose={() => setShowToast(false)} />
+
         </>
     );
 };
