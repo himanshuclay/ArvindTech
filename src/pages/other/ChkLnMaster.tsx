@@ -3,7 +3,6 @@ import axios from 'axios';
 import { Button, Modal, Form, Table } from 'react-bootstrap';
 import Select from 'react-select'; // Make sure you have this or the appropriate select component imported
 import CustomFlatpickr from '@/components/CustomFlatpickr';
-import { Console } from 'console';
 
 // Define interfaces for the data
 interface AccountProcessTask {
@@ -18,14 +17,8 @@ interface AccountProcessTask {
     finishPoint: string;
     roleId: string;
     roleName: string;
-}
-
-interface Employee {
-    empID: string;
-    empName: string;
-    employeeName: string;
-    empId: string;
-
+    doerName: string;
+    condition_Json: string
 }
 
 interface Module {
@@ -41,10 +34,45 @@ interface Process {
     moduleName: string;
 }
 
-interface Role {
-    id: number;
-    roleName: string;
-    module: string;
+// interface Role {
+//     id: number;
+//     roleName: string;
+//     module: string;
+// }
+
+interface Option {
+    id: string;
+    label: string;
+    color: string;
+}
+
+interface FilteredJsonInputType {
+    inputId: string;
+    type: string;
+    label: string;
+    placeholder: string;
+    options?: Option[];  // Optional if some inputs don't have options
+    required: boolean;
+    conditionalFieldId: string;
+    value: string;
+}
+
+interface FilteredJsonType {
+    inputId: string;
+    type: string;
+    label: string;
+    placeholder: string;
+    options: Option[];
+    required: boolean;
+    conditionalFieldId: string;
+    value: string;
+    inputs: FilteredJsonInputType[];
+}
+
+interface ModalFormProps {
+    showModalone: boolean;
+    handleClose: () => void;
+    filteredJson: FilteredJsonType | null;
 }
 
 const AccountProcessTable: React.FC = () => {
@@ -52,18 +80,19 @@ const AccountProcessTable: React.FC = () => {
     const [modules, setModules] = useState<Module[]>([]);
     const [processes, setProcesses] = useState<Process[]>([]);
     const [selectedModule, setSelectedModule] = useState<string>('');
+    const [selectedModuleId, setSelectedModuleId] = useState<string>('');
     const [selectedProcess, setSelectedProcess] = useState<string>('');
     const [showModal, setShowModal] = useState(false);
     const [employees, setEmployees] = useState<Employee[]>([]);
-    const [roles, setRoles] = useState<Role[]>([]);
+    // const [roles, setRoles] = useState<Role[]>([]);
     const [selectedTask, setSelectedTask] = useState<AccountProcessTask | null>(null);
     const [selectedEmployee, setSelectedEmployee] = useState<string>('');
-    const [selectedRole, setSelectedRole] = useState<number | null>(null);
+    // const [selectedRole, setSelectedRole] = useState<number | null>(null);
     // const [Status, setStatus] = useState<number | null>(1);
     const [projects, setProjects] = useState<{ id: string; projectName: string }[]>([]);
     const [selectedProject, setSelectedProject] = useState<string>('');
     const [showApplyModal, setShowApplyModal] = useState(false);
-    const [assignedTasks, setAssignedTasks] = useState<Map<number, { employeeId: string, roleId: number }>>(new Map());
+    // const [assignedTasks, setAssignedTasks] = useState<Map<number, { employeeId: string, roleId: number }>>(new Map());
     const [filteredJson, setFilteredJson] = useState<FilteredJsonType | null>(null);
     const [selectedConditionTask, setSelectedConditionTask] = useState<string>('');
 
@@ -82,66 +111,6 @@ const AccountProcessTable: React.FC = () => {
         };
         fetchModules();
     }, []);
-
-    interface Option {
-        id: string;
-        label: string;
-        color: string;
-    }
-
-    interface FilteredJsonInputType {
-        inputId: string;
-        type: string;
-        label: string;
-        placeholder: string;
-        options?: Option[];  // Optional if some inputs don't have options
-        required: boolean;
-        conditionalFieldId: string;
-        value: string;
-    }
-
-    interface FilteredJsonType {
-        inputId: string;
-        type: string;
-        label: string;
-        placeholder: string;
-        options: Option[];
-        required: boolean;
-        conditionalFieldId: string;
-        value: string;
-        inputs: FilteredJsonInputType[];
-    }
-
-    interface ModalFormProps {
-        showModalone: boolean;
-        handleClose: () => void;
-        filteredJson: FilteredJsonType | null;
-    }
-
-    interface Option {
-        id: string;
-        label: string;
-        color: string;
-    }
-
-    interface FilteredJsonType {
-        inputId: string;
-        type: string;
-        label: string;
-        placeholder: string;
-        options: Option[];
-        required: boolean;
-        conditionalFieldId: string;
-        value: string;
-    }
-
-    interface ModalFormProps {
-        showModalone: boolean;
-        handleClose: () => void;
-        filteredJson: FilteredJsonType | null;
-    }
-
-
 
     const ModalForm = ({ showModalone, handleClose, filteredJson }: ModalFormProps) => {
         // State to store task numbers for each option
@@ -168,12 +137,12 @@ const AccountProcessTable: React.FC = () => {
                 }));
             }
         };
-        const handleNextTask = (inputId: string, selectedTaskNumber: string) => {
-            setSelectedTaskNumbers(prevState => ({
-                ...prevState,
-                [inputId]: selectedTaskNumber // Update the task number for the corresponding input ID
-            }));
-        }
+        // const handleNextTask = (inputId: string, selectedTaskNumber: string) => {
+        //     setSelectedTaskNumbers(prevState => ({
+        //         ...prevState,
+        //         [inputId]: selectedTaskNumber // Update the task number for the corresponding input ID
+        //     }));
+        // }
 
 
         const [taskTiming, setTaskTiming] = useState<{ [key: string]: string }>({});
@@ -210,7 +179,7 @@ const AccountProcessTable: React.FC = () => {
                 return newState; // Return the new state
             });
         };
-        
+
 
         const handleTimeChange = (inputId: string, optionId: string | null, selectedTime: Date | string | undefined) => {
             const key = optionId || inputId; // Use optionId if present, otherwise fall back to inputId
@@ -267,15 +236,22 @@ const AccountProcessTable: React.FC = () => {
                 // Log final converted hours and minutes in 24-hour format
                 console.log('Converted Hours (24-hour format):', hours, 'Minutes:', minutes);
 
+                interface TimeSelection {
+                    [key: string]: {
+                        time: string;
+                        hours: number;
+                        minutes: number;
+                    };
+                }
+
                 // Update the state with parsed hours and minutes
-                setTimeSelection((prev) => ({
+                setTimeSelection((prev: TimeSelection) => ({
                     ...prev,
                     [key]: {
                         time: timeString,
                         hours,
                         minutes: parseInt(minutes) || 0, // Ensure minutes is a number
                     },
-                    
                 }));
                 console.log(time)
             } else {
@@ -283,16 +259,9 @@ const AccountProcessTable: React.FC = () => {
             }
         };
 
-
-
-
-
-
         const handleToggleExpirable = () => {
             setIsExpirable(prev => (prev === 'yes' ? 'no' : 'yes'));
         };
-
-
 
         // Handle form submission
         const convertToHoursString = (value: string | null): string | null => {
@@ -303,39 +272,39 @@ const AccountProcessTable: React.FC = () => {
         };
 
         // Function to process each option and return it in the desired structure
-        const processOption = (inputId: string, option: any): any => {
-            const optionId = option.id;
+        // const processOption = (inputId: string, option: any): any => {
+        //     const optionId = option.id;
 
-            return {
-                inputId: inputId, // Use inputId from filteredJson
-                optionId: optionId, // Use optionId from option
+        //     return {
+        //         inputId: inputId, // Use inputId from filteredJson
+        //         optionId: optionId, // Use optionId from option
 
-                // Fetch values from the state based on optionId
-                taskNumber: selectedTaskNumbers[optionId] || null,
-                taskTiming: taskTiming[optionId] || null,
-                taskType: selectedTaskTypes[optionId] || null,
+        //         // Fetch values from the state based on optionId
+        //         taskNumber: selectedTaskNumbers[optionId] || null,
+        //         taskTiming: taskTiming[optionId] || null,
+        //         taskType: selectedTaskTypes[optionId] || null,
 
-                // Check for taskTiming based on optionId and convert day selection accordingly
-                daySelection: taskTiming[optionId] === 'day' ? convertToHoursString(daySelection[optionId]) : null,
-            };
-        };
+        //         // Check for taskTiming based on optionId and convert day selection accordingly
+        //         daySelection: taskTiming[optionId] === 'day' ? convertToHoursString(daySelection[optionId]) : null,
+        //     };
+        // };
 
         // Function to flatten nested arrays and process options into a single array
-        const flattenAndProcessOptions = (inputId: string, options: any): any[] => {
-            const flatOptions: any[] = [];
+        // const flattenAndProcessOptions = (inputId: string, options: any): any[] => {
+        //     const flatOptions: any[] = [];
 
-            // Function to recursively flatten options
-            const flatten = (opt: any) => {
-                if (Array.isArray(opt)) {
-                    opt.forEach(item => flatten(item));
-                } else {
-                    flatOptions.push(processOption(inputId, opt)); // Process and add each option to the flat array
-                }
-            };
+        //     // Function to recursively flatten options
+        //     const flatten = (opt: any) => {
+        //         if (Array.isArray(opt)) {
+        //             opt.forEach(item => flatten(item));
+        //         } else {
+        //             flatOptions.push(processOption(inputId, opt)); // Process and add each option to the flat array
+        //         }
+        //     };
 
-            flatten(options); // Start flattening
-            return flatOptions; // Return the final flat array
-        };
+        //     flatten(options); // Start flattening
+        //     return flatOptions; // Return the final flat array
+        // };
 
         const handleSaveChanges = async () => {
             if (selectedTask && selectedEmployee) {
@@ -343,7 +312,7 @@ const AccountProcessTable: React.FC = () => {
                     console.error("No valid data found in filteredJson.");
                     return;
                 }
-        
+
                 // Initialize the conditionJson array
                 const conditionJson: Array<{
                     inputId: string;
@@ -353,7 +322,7 @@ const AccountProcessTable: React.FC = () => {
                     taskType: string | null;
                     daySelection: string | null;
                 }> = [];
-        
+
                 // Function to process condition entries
                 const processConditionEntry = (
                     key: string,
@@ -363,13 +332,13 @@ const AccountProcessTable: React.FC = () => {
                     optionId?: string
                 ) => {
                     const selectedTime = timeSelection[key]?.time || ''; // Get the time value from timeSelection
-        
+
                     // Log values to debug
                     console.log('Timing Type:', timingType);
                     console.log('Selected Days:', selectedDays);
                     console.log('Hours String:', hoursString);
                     console.log('Selected Time:', selectedTime);
-        
+
                     // Initialize hours and minutes
                     let formattedTime = '';
                     if (selectedTime) {
@@ -377,26 +346,26 @@ const AccountProcessTable: React.FC = () => {
                         const [time, period] = selectedTime.split(' ');
                         const [hoursStr, minutes] = time.split(':');
                         let hours = parseInt(hoursStr);
-        
+
                         // Convert to 24-hour format
                         if (period?.toLowerCase() === 'pm' && hours !== 12) {
                             hours += 12; // Convert PM times to 24-hour format
                         } else if (period?.toLowerCase() === 'am' && hours === 12) {
                             hours = 0; // Midnight case
                         }
-        
+
                         // Format the time string for output
                         formattedTime = `${hours}:${minutes}`; // e.g., "14:30" for 2:30 PM
                     }
-        
+
                     // Combine weekdays and formatted time for the 'weekday' timing
                     const daySelectionValue = timingType === 'weekday'
                         ? `${selectedDays.join(', ')}-${formattedTime}`
                         : hoursString;
-        
+
                     // Log the final daySelectionValue before pushing to conditionJson
                     console.log('Day Selection Value:', daySelectionValue);
-        
+
                     conditionJson.push({
                         inputId: key,  // Use inputId from filteredJson
                         optionId: optionId || "", // Use optionId or default to an empty string
@@ -406,7 +375,7 @@ const AccountProcessTable: React.FC = () => {
                         daySelection: daySelectionValue // Set to either selected weekdays and time, or converted hours
                     });
                 };
-        
+
                 // Process the options if they exist
                 if (filteredJson.options && filteredJson.options.length > 0) {
                     filteredJson.options.forEach(option => {
@@ -414,7 +383,7 @@ const AccountProcessTable: React.FC = () => {
                         const timingType = taskTiming[key]; // Get the timing type
                         const selectedDays = weekdaySelection[key] || []; // Get the selected weekdays
                         const hoursString = timingType === 'day' ? convertToHoursString(daySelection[key]) : null;
-        
+
                         // Call the function to process the condition entry
                         processConditionEntry(key, timingType, selectedDays, hoursString, option.id);
                     });
@@ -424,16 +393,16 @@ const AccountProcessTable: React.FC = () => {
                     const timingType = taskTiming[key]; // Get the timing type
                     const selectedDays = weekdaySelection[key] || []; // Get the selected weekdays
                     const hoursString = timingType === 'day' ? convertToHoursString(daySelection[key]) : null;
-        
+
                     // Call the function to process the condition entry with no optionId
                     processConditionEntry(key, timingType, selectedDays, hoursString);
                 }
-        
+
                 // Prepare and send the payload if task and employee are selected
                 if (selectedTask && selectedEmployee) {
                     const selectedEmployeeObj = employees.find(emp => emp.empId === selectedEmployee);
                     const conditionJsonString = JSON.stringify(conditionJson); // Convert conditionJson to string as expected by the API
-        
+
                     const payload = {
                         id: selectedTask.id,
                         moduleID: selectedTask.moduleID,
@@ -442,7 +411,7 @@ const AccountProcessTable: React.FC = () => {
                         processName: selectedTask.processName,
                         roleId: selectedTask.roleId,
                         roleName: selectedTask.roleName,
-                        doerId: selectedEmployee, // The employee ID assigned to this task
+                        doerId: selectedEmployeeObj?.empId, // The employee ID assigned to this task
                         doerName: selectedEmployeeObj?.employeeName || "", // Use employeeName from the selected object
                         task_Json: selectedTask.task_Json,
                         task_Number: selectedTask.task_Number,
@@ -453,11 +422,11 @@ const AccountProcessTable: React.FC = () => {
                         condition_Json: conditionJsonString, // Send the stringified conditionJson
                         isExpired: isExpirable === 'yes' ? 1 : 0,
                     };
-        
+
                     console.log("Payload being sent:", payload);
-        
+
                     try {
-                        const response = await axios.post('https://localhost:44382/api/ProcessTaskMaster/InsertUpdateProcessTaskandDoer', payload);
+                        const response = await axios.post('https://arvindo-api.clay.in/api/ProcessTaskMaster/InsertUpdateProcessTaskandDoer', payload);
                         console.log("Data successfully posted.");
                         setSelectedConditionTask("");
                         handleClose();
@@ -468,19 +437,10 @@ const AccountProcessTable: React.FC = () => {
                 }
             }
         };
-        
-        
-        
-        
-        
-        
-        
-
 
         const [isExpirable, setIsExpirable] = useState('no'); // Global state for task expirable (Yes/No)
 
         // Handler for toggling global expirable state
-
 
         return (
             <Modal size="lg" show={showModalone} onHide={handleClose}>
@@ -780,20 +740,20 @@ const AccountProcessTable: React.FC = () => {
                                                     <div className='form-group col-6'>
                                                         <label>Select time</label>
                                                         <CustomFlatpickr
-                                                                value={timeSelection[filteredJson.inputId]?.time || ''} // Ensure there's a valid value
-                                                                onChange={(value) => {
-                                                                    if (value && value.length > 0) {
-                                                                        handleTimeChange(filteredJson.inputId, null, value[0]); // Pass the first value from the array
-                                                                    } else {
-                                                                        console.warn('No time selected or invalid value');
-                                                                    }
-                                                                }}
-                                                                options={{
-                                                                    enableTime: true,
-                                                                    noCalendar: true,
-                                                                    dateFormat: 'h:i K',
-                                                                }}
-                                                            />
+                                                            value={timeSelection[filteredJson.inputId]?.time || ''} // Ensure there's a valid value
+                                                            onChange={(value) => {
+                                                                if (value && value.length > 0) {
+                                                                    handleTimeChange(filteredJson.inputId, null, value[0]); // Pass the first value from the array
+                                                                } else {
+                                                                    console.warn('No time selected or invalid value');
+                                                                }
+                                                            }}
+                                                            options={{
+                                                                enableTime: true,
+                                                                noCalendar: true,
+                                                                dateFormat: 'h:i K',
+                                                            }}
+                                                        />
                                                         {timeSelection[filteredJson.inputId] && (
                                                             <div>
                                                                 <strong>Selected Time:</strong>{' '}
@@ -928,47 +888,53 @@ const AccountProcessTable: React.FC = () => {
         const fetchTasks = async () => {
             try {
                 let response;
-                if (selectedModule && selectedProcess) {
-                    // API call when `selectedProcess` is present
-                    response = await axios.get(`https://localhost:44382/api/ProcessTaskMaster/GetProcessTaskByIds?Flag=2&ModuleId=ACC&ProcessId=${selectedProcess}`);
-                } else (selectedModule == "")
-                {
-                    // API call when `selectedProcess` is not present
-                    response = await axios.get(`https://localhost:44382/api/ProcessTaskMaster/GetProcessTaskByIds?Flag=1`);
+
+                if (selectedModule != "" && selectedProcess != "") {
+                    // API call when both `selectedModule` and `selectedProcess` are selected
+                    response = await axios.get(`https://arvindo-api.clay.in/api/ProcessTaskMaster/GetProcessTaskByIds?Flag=2&ModuleId=${selectedModuleId}&ProcessId=${selectedProcess}`);
+                    console.log(selectedModuleId, selectedProcess)
+                } else {
+                    // Default API call when neither `selectedModule` nor `selectedProcess` is selected
+                    response = await axios.get(`https://arvindo-api.clay.in/api/ProcessTaskMaster/GetProcessTaskByIds?Flag=1`);
+                    console.log(selectedModule, selectedProcess)
                 }
 
+                // Check if API response is successful
                 if (response.data.isSuccess) {
                     setTasks(response.data.getProcessTaskByIds);
-                    console.log(tasks)
+                    console.log("Fetched tasks:", response.data.getProcessTaskByIds);
+                } else {
+                    console.error('Failed to fetch tasks:', response.data.message);
                 }
             } catch (error) {
-                console.error('Error fetching tasks', error);
+                console.error('Error fetching tasks:', error);
             }
         };
 
-        if (selectedModule) {
-            fetchTasks();
-        }
+        // Fetch tasks whenever the component mounts and when `selectedModule` or `selectedProcess` changes
+        fetchTasks();
+
     }, [selectedModule, selectedProcess]);
 
 
-    // Fetch Tasks based on selected module and process
-    useEffect(() => {
-        if (selectedModule && selectedProcess) {
-            const fetchTasks = async () => {
-                try {
-                    const response = await axios.get(`https://localhost:44382/api/ProcessTaskMaster/GetProcessTaskByIds?Flag=1&ModuleID=ACC&ProcessId=${selectedProcess}`);
-                    if (response.data.isSuccess) {
-                        setTasks(response.data.getProcessTaskByIds);
 
-                    }
-                } catch (error) {
-                    console.error('Error fetching tasks', error);
-                }
-            };
-            fetchTasks();
-        }
-    }, [selectedModule, selectedProcess]);
+
+    // useEffect(() => {
+    //     if (selectedModule && selectedProcess) {
+    //         const fetchTasks = async () => {
+    //             try {
+    //                 const response = await axios.get(`https://arvindo-api.clay.in/api/ProcessTaskMaster/GetProcessTaskByIds?Flag=1&ModuleID=${selectedModule}&ProcessId=${selectedProcess}`);
+    //                 if (response.data.isSuccess) {
+    //                     setTasks(response.data.getProcessTaskByIds);
+
+    //                 }
+    //             } catch (error) {
+    //                 console.error('Error fetching tasks', error);
+    //             }
+    //         };
+    //         fetchTasks();
+    //     }
+    // }, [selectedModule, selectedProcess]);
 
     // Fetch Employees and Roles when assigning task
 
@@ -976,7 +942,7 @@ const AccountProcessTable: React.FC = () => {
     useEffect(() => {
         const fetchEmployees = async () => {
             try {
-                const response = await axios.get(`https://localhost:44307/api/CommonDropdown/GetEmployeeListWithId`);
+                const response = await axios.get(`https://arvindo-api2.clay.in/api/CommonDropdown/GetEmployeeListWithId`);
                 if (response.data.isSuccess) {
                     setEmployees(response.data.employeeLists);
                 } else {
@@ -1011,16 +977,15 @@ const AccountProcessTable: React.FC = () => {
             }
 
             // Update assignedTasks for each task uniquely
-            if (selectedRole !== null) {
-                setAssignedTasks(
-                    new Map(assignedTasks).set(selectedTask.id, {
-                        employeeId: selectedEmployee,
-                        roleId: selectedRole,
-                    })
-                );
-            }
+            // if (selectedRole !== null) {
+            //     setAssignedTasks(
+            //         new Map(assignedTasks).set(selectedTask.id, {
+            //             employeeId: selectedEmployee,
+            //             roleId: selectedRole,
+            //         })
+            //     );
+            // }
 
-            // Prepare the payload to be submitted
             const payload = {
                 id: selectedTask.id ? selectedTask.id : 0, // Ensure this ID matches the task
                 moduleID: selectedTask.moduleID,
@@ -1033,20 +998,17 @@ const AccountProcessTable: React.FC = () => {
                 doerName: selectedEmployeeObj.employeeName, // Use employeeName from the selected object
                 task_Number: selectedTask.task_Number,
                 task_Json: selectedTask.task_Json,
-                condition_Json: "string",
                 isExpired: 0,
+                Condition_json: selectedTask.condition_Json,
                 finishPoint: selectedTask.finishPoint,
                 task_Status: 1, // Set task status as true (active or assigned)
                 createdBy: 'sameer hussain',
                 updatedBy: 'sameer hussain',
             };
 
-            // Log the payload to the console before submission
-
-            // Now proceed with the API request
             const assignTask = async () => {
                 try {
-                    const response = await axios.post('https://localhost:44382/api/ProcessTaskMaster/InsertUpdateProcessTaskandDoer', payload);
+                    const response = await axios.post('https://arvindo-api.clay.in/api/ProcessTaskMaster/InsertUpdateProcessTaskandDoer', payload);
 
                     if (response.data.isSuccess) {
                         console.log('Task assigned successfully');
@@ -1064,10 +1026,8 @@ const AccountProcessTable: React.FC = () => {
             console.error('Please select a task and an employee before assigning.');
         }
 
-        setShowModal(false); // Close the modal after assignment
+        setShowModal(false);
     };
-
-
 
     const handleApplyProcessToProject = async () => {
         if (selectedProject && selectedTask) {
@@ -1083,7 +1043,7 @@ const AccountProcessTable: React.FC = () => {
             console.log(payload)
 
             try {
-                const response = await axios.post('https://localhost:44382/api/ProcessTaskMaster/ProcessAssignWithProject', payload);
+                const response = await axios.post('https://arvindo-api.clay.in/api/ProcessTaskMaster/ProcessAssignWithProject', payload);
                 if (response.data.isSuccess) {
                     console.log('Process assigned to project successfully');
                 } else {
@@ -1118,23 +1078,31 @@ const AccountProcessTable: React.FC = () => {
         <div>
             <div className="d-flex p-2 bg-white mt-2 mb-2 rounded shadow">Apply Process on Project</div>
             <div className="row m-0 align-items-end bg-white p-3 rounded shadow">
-                <Form.Group className="col-md-3 my-1" controlId="moduleSelect">
+                <Form.Group className="col-md-4 my-1" controlId="moduleSelect">
                     <Form.Label>Select Module</Form.Label>
                     <Form.Control
                         as="select"
-                        value={selectedModule}
-                        onChange={(e) => setSelectedModule(e.target.value)}
+                        value={selectedModule}  // This holds the selected moduleName
+                        onChange={(e) => {
+                            const selectedModuleName = e.target.value;
+                            const selectedModuleData = modules.find(module => module.moduleName === selectedModuleName);
+
+                            setSelectedModule(selectedModuleName);  // Store moduleName
+                            if (selectedModuleData) {
+                                setSelectedModuleId(selectedModuleData.moduleID);  // Store moduleID
+                            }
+                        }}
                     >
                         <option value="">Select a module</option>
                         {modules.map((module) => (
-                            <option key={module.moduleID} value={module.moduleName}>
-                                {module.moduleName}
+                            <option key={module.moduleID} value={module.moduleName}>  {/* Use moduleName as value */}
+                                {module.moduleName}  {/* Display moduleName */}
                             </option>
                         ))}
                     </Form.Control>
                 </Form.Group>
 
-                <Form.Group controlId="processSelect" className="col-md-3 my-1">
+                <Form.Group controlId="processSelect" className="col-md-4 my-1">
                     <Form.Label>Select Process</Form.Label>
                     <Form.Control
                         as="select"
@@ -1150,6 +1118,41 @@ const AccountProcessTable: React.FC = () => {
                         ))}
                     </Form.Control>
                 </Form.Group>
+                <div className="bg-white rounded d-flex justify-content-end col-md-4 my-1">
+                    <Button variant="primary" onClick={() => setShowApplyModal(true)}>
+                        Apply Process to Project
+                    </Button>
+                    <Modal show={showApplyModal} onHide={() => setShowApplyModal(false)}>
+                        <Modal.Header closeButton>
+                            <Modal.Title>Apply Process to Project</Modal.Title>
+                        </Modal.Header>
+                        <Modal.Body>
+                            <Form.Group controlId="projectSelect">
+                                <Form.Label>Select Project</Form.Label>
+                                <Form.Control
+                                    as="select"
+                                    value={selectedProject}
+                                    onChange={(e) => setSelectedProject(e.target.value)}
+                                >
+                                    <option value="">Select a project</option>
+                                    {projects.map((project) => (
+                                        <option key={project.id} value={project.id}>
+                                            {project.projectName}
+                                        </option>
+                                    ))}
+                                </Form.Control>
+                            </Form.Group>
+                        </Modal.Body>
+                        <Modal.Footer>
+                            <Button variant="secondary" onClick={() => setShowApplyModal(false)}>
+                                Close
+                            </Button>
+                            <Button variant="primary" onClick={handleApplyProcessToProject}>
+                                Apply
+                            </Button>
+                        </Modal.Footer>
+                    </Modal>
+                </div>
             </div>
 
             <div className="d-flex p-2 bg-white mt-3 rounded shadow">Task List</div>
@@ -1157,15 +1160,15 @@ const AccountProcessTable: React.FC = () => {
                 <Table striped bordered hover responsive>
                     <thead>
                         <tr>
-                            <th>#</th>
+                            <th>Sr. No</th>
                             <th>Module</th>
                             <th>Process</th>
                             <th>Task Number</th>
                             <th>Role Name</th>
-                            <th>Doer name</th>
-                            {/* <th>Select Doer</th> */}
+                            <th>Doer Name</th>
                             {/* <th>Action</th> */}
-                            <th>conditions</th>
+                            <th>Conditions</th>
+                            <th>Action</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -1182,17 +1185,18 @@ const AccountProcessTable: React.FC = () => {
                                     <td>{task.roleName}</td>
                                     {/* <td>{selectedEmployeeObj.employeeName}</td> */}
                                     {/* <td>{doerName}</td> */}
+                                    <td>{task.doerName}</td>
+                                    <td>
+                                        <Button variant='primary' onClick={() => handleShow(task)}>
+                                            Conditions
+                                        </Button>
+                                    </td>
                                     <td>
                                         <Button
                                             variant="primary"
                                             onClick={() => handleAssigndoer(task)} // Open the modal for assigning doer
                                         >
-                                            Select Doer
-                                        </Button>
-                                    </td>
-                                    <td>
-                                        <Button variant='primary' onClick={() => handleShow(task)}>
-                                            Conditions
+                                            {task.doerName === "" ? "Select Doer" : "Update Doer"}
                                         </Button>
                                     </td>
                                 </tr>
@@ -1263,44 +1267,6 @@ const AccountProcessTable: React.FC = () => {
                 </Modal.Footer>
             </Modal>
 
-
-
-            {/* Apply Process to Project */}
-            <div className="bg-white p-3 rounded shadow">
-                <Button variant="primary" onClick={() => setShowApplyModal(true)}>
-                    Apply Process to Project
-                </Button>
-                <Modal show={showApplyModal} onHide={() => setShowApplyModal(false)}>
-                    <Modal.Header closeButton>
-                        <Modal.Title>Apply Process to Project</Modal.Title>
-                    </Modal.Header>
-                    <Modal.Body>
-                        <Form.Group controlId="projectSelect">
-                            <Form.Label>Select Project</Form.Label>
-                            <Form.Control
-                                as="select"
-                                value={selectedProject}
-                                onChange={(e) => setSelectedProject(e.target.value)}
-                            >
-                                <option value="">Select a project</option>
-                                {projects.map((project) => (
-                                    <option key={project.id} value={project.id}>
-                                        {project.projectName}
-                                    </option>
-                                ))}
-                            </Form.Control>
-                        </Form.Group>
-                    </Modal.Body>
-                    <Modal.Footer>
-                        <Button variant="secondary" onClick={() => setShowApplyModal(false)}>
-                            Close
-                        </Button>
-                        <Button variant="primary" onClick={handleApplyProcessToProject}>
-                            Apply
-                        </Button>
-                    </Modal.Footer>
-                </Modal>
-            </div>
         </div>
     );
 };

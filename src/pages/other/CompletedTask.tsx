@@ -38,6 +38,7 @@ interface ProjectAssignListWithDoer {
   taskTime: string;
   taskType: string;
   roleName: string;
+  inputs: string;
 }
 
 interface ApiResponse {
@@ -57,14 +58,13 @@ interface Column {
 const ProjectAssignTable: React.FC = () => {
   const [data, setData] = useState<ProjectAssignListWithDoer[]>([]);
   const [preData, setPreData] = useState<ProjectAssignListWithDoer[]>([]);
-  const [preDataLevelOne, setPreDataLevelOne] = useState<ProjectAssignListWithDoer[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [show, setShow] = useState(false);
-  const [taskCommonId, setTaskCommonId] = useState<number | null>();
+  const [taskCommonId, setTaskCommonId] = useState<number | null>(null);
   const [showToast, setShowToast] = useState(false);
   const [taskName, setTaskName] = useState<string | undefined>(undefined);
 
-  const [popoverIndex, setPopoverIndex] = useState(null);
+  const [popoverIndex, setPopoverIndex] = useState<number | null>(null);
   // =======================================================================
   // both are required to make dragable column of table 
   const [columns, setColumns] = useState<Column[]>([
@@ -89,7 +89,7 @@ const ProjectAssignTable: React.FC = () => {
   };
   // ==============================================================
 
-  const targetRefs = useRef([]);
+  const targetRefs = useRef<(HTMLSpanElement | null)[]>([]);
 
 
   const location = useLocation();
@@ -143,7 +143,7 @@ const ProjectAssignTable: React.FC = () => {
 
 
   console.log(taskCommonId)
-  console.log(data)
+  // console.log(data[0].taskCommonId)
   // Fetch task data when taskCommonId is set
   useEffect(() => {
     if (taskCommonId !== null) {
@@ -160,9 +160,8 @@ const ProjectAssignTable: React.FC = () => {
 
       if (response.data && response.data.isSuccess) {
         const fetchedData = response.data.getFilterTasks || [];
+        console.log(fetchedData);
 
-        // console.log(fetchedData);
-        setPreDataLevelOne(fetchedData)
         // Filter out tasks with isCompleted as "Pending"
         const filteredTasks = fetchedData
           .filter((task) => task.isCompleted !== "Pending") // Filter step
@@ -199,7 +198,7 @@ const ProjectAssignTable: React.FC = () => {
                 console.error('taskJson does not have valid inputs:', taskJson);
                 return null; // Handle invalid inputs array gracefully
               }
-            }).filter((item) => item !== null); // Filter out any null tasks resulting from invalid inputs
+            }).filter((item: number) => item !== null); // Filter out any null tasks resulting from invalid inputs
           }).flat(); // Flatten the array if needed
 
         setPreData(filteredTasks);
@@ -221,8 +220,12 @@ const ProjectAssignTable: React.FC = () => {
 
 
   const handleEdit = (id: number) => {
-    const taskCommonId = id
+    const taskCommonId = data[0].taskCommonId
+    // const taskCommonId = data
+
     setTaskCommonId(taskCommonId);
+
+    // Set the taskCommonId to fetch the specific task data
     setShow(true); // Show the Offcanvas
   };
 
@@ -233,23 +236,36 @@ const ProjectAssignTable: React.FC = () => {
   }
 
   const formatAndUpdateDate = (createdDate: string, taskTime: string) => {
-    const createdDateObj = parse(createdDate, 'MM/dd/yyyy HH:mm:ss', new Date());
+    // Parse the created date with the correct format 'MM/dd/yyyy HH:mm:ss'
+    const createdDateObj = parse(createdDate, 'dd/MM/yyyy HH:mm:ss', new Date());
+
+    // Check if the createdDateObj is valid
     if (!isValid(createdDateObj)) {
       console.error('Invalid createdDate:', createdDate);
       return 'Invalid created date';
     }
-    const taskTimeValue = parseInt(taskTime, 10);
 
+    const taskTimeValue = parseInt(taskTime, 10); // Assuming taskTime is in hours
+
+    // Check if taskTime is a valid number
     if (isNaN(taskTimeValue)) {
       console.error('Invalid taskTime:', taskTime);
       return 'Invalid task time';
     }
+
+    // Calculate the number of days to add
     const daysToAdd = Math.floor(taskTimeValue / 24);
+
+    // Add days to the created date
     const updatedDate = addDays(createdDateObj, daysToAdd);
+
+    // Format the updated date to the desired format 'MM/dd/yyyy HH:mm:ss'
     return format(updatedDate, 'MM/dd/yyyy HH:mm:ss');
   };
 
-
+  // Example Usage
+  // const updatedDate = formatAndUpdateDate('21-09-2023 15:30:00', '48');
+  // console.log(updatedDate);
 
 
 
@@ -278,9 +294,6 @@ const ProjectAssignTable: React.FC = () => {
     );
   };
 
-
-
-
   return (
     <>
       <Offcanvas show={show} onHide={handleClose} placement="end">
@@ -288,75 +301,66 @@ const ProjectAssignTable: React.FC = () => {
           <Offcanvas.Title>Task Details</Offcanvas.Title>
         </Offcanvas.Header>
         <Offcanvas.Body>
-          {/* Loop through the first level of data */}
-          {preDataLevelOne.map((preDataLevelOne, levelOneIndex) => (
-            <div key={levelOneIndex}>
+          {preData.map((task, index) => (
+            <div key={index}>
               <h5 className="mt-2">
-                Updated data from <span className="text-primary">{preDataLevelOne.task_Number}</span> &nbsp;&nbsp;&nbsp;
-                <span
-                  className="fs-15 information-btn"
-                  ref={(el) => (targetRefs.current[levelOneIndex] = el)} // Store the ref for each task
-                  onClick={() => setPopoverIndex(popoverIndex === levelOneIndex ? null : levelOneIndex)} // Toggle popover visibility for the clicked task
+                Updated data from <span className="text-primary">{task.task_Number}</span> &nbsp;&nbsp;&nbsp;
+                <span className='fs-15 information-btn '
+                  ref={(el) => (targetRefs.current[index] = el)} // Store the ref for each task
+                  onClick={() => setPopoverIndex(popoverIndex === index ? null : index)} // Toggle popover visibility for the clicked task
                 >
                   <i className="ri-error-warning-fill fs-20"></i>
                 </span>
+
               </h5>
-
-              {/* Loop through the second level of data */}
-
-              
-              {preData.map((task, index) => (
-                <div key={index}>
-                  <div>
-                    {/* Popover for displaying the second-level data */}
-                    <Overlay
-                      target={targetRefs.current[levelOneIndex]} // Use the ref for the current task
-                      show={popoverIndex === levelOneIndex} // Only show popover for the clicked task
-                      placement="left"
-                    >
-                      {(props) => (
-                        <Tooltip id="overlay-example" {...props} className="tooltip-position">
-                          {/* Render each input array inside a card */}
-                          <div className="d-flex">
-                            {Array.isArray(task.inputs[0]) ? (
-                              task.inputs.map((inputArray, arrIndex) => (
-                                <Card key={arrIndex} className="m-2 pop-card">
-                                  <Card.Body>
-                                    {inputArray.map((input, i) => (
-                                      <Col key={i}>
-                                        <strong>{input.label}:</strong> <span className="text-primary">{input.value}</span>
-                                      </Col>
-                                    ))}
-                                  </Card.Body>
-                                </Card>
-                              ))
-                            ) : (
-                              <Card className="m-2 pop-card">
-                                <Row>
-                                  <Card.Body>
-                                    {task.inputs.map((input, i) => (
-                                      <Col key={i}>
-                                        <strong>{input.label}:</strong> <span className="text-primary">{input.value}</span>
-                                      </Col>
-                                    ))}
-                                  </Card.Body>
-                                </Row>
+              <div>
+                <Overlay
+                  target={targetRefs.current[index]} // Use the ref for the current task
+                  show={popoverIndex === index} // Only show popover for the clicked task
+                  placement="left"
+                >
+                  {(props) => (
+                    <Tooltip id="overlay-example" {...props} className='tooltip-position'>
+                      <div className='d-flex'>
+                        {Array.isArray(task.inputs) && task.inputs.length > 0 ? (
+                          Array.isArray(task.inputs[0]) ? ( // Check if the first element is an array
+                            task.inputs.map((inputArray: any, arrIndex: number) => (
+                              <Card key={arrIndex} className="m-2 pop-card">
+                                <Card.Body>
+                                  {inputArray.map((input: any, i: number) => (
+                                    <Col key={i}>
+                                      <strong>{input.label}:</strong> <span className="text-primary">{input.value}</span>
+                                    </Col>
+                                  ))}
+                                </Card.Body>
                               </Card>
-                            )}
-                          </div>
-                        </Tooltip>
-                      )}
-                    </Overlay>
-                  </div>
-                  <hr />
-                </div>
-              ))}
+                            ))
+                          ) : ( // If not, assume it's a single array of inputs
+                            <Card className="m-2 pop-card">
+                              <Row>
+                                <Card.Body>
+                                  {task.inputs.map((input: any, i: number) => (
+                                    <Col key={i}>
+                                      <strong>{input.label}:</strong> <span className="text-primary">{input.value}</span>
+                                    </Col>
+                                  ))}
+                                </Card.Body>
+                              </Row>
+                            </Card>
+                          )
+                        ) : (
+                          <p>No inputs available</p> // Handle case where inputs are not available
+                        )}
+                      </div>
+                    </Tooltip>
+                  )}
+                </Overlay>
 
-
+              </div>
+              <hr />
             </div>
           ))}
         </Offcanvas.Body>
-
       </Offcanvas>
 
       <div className="d-flex p-2 bg-white mt-2 mb-2 rounded shadow"><h5 className="mb-0">Completed Tasks</h5></div>
@@ -373,128 +377,97 @@ const ProjectAssignTable: React.FC = () => {
             </Row>
           </Container>
         ) : (
-          // <Table className="bg-white" striped bordered hover>
-          //   <thead>
-          //     <tr>
-          //       <th>Sr.no</th>
-          //       <th>Module</th>
-          //       <th>Process</th>
-          //       <th>Project</th>
-          //       <th>Assigned Role</th>
-          //       <th>Task Id</th>
-          //       <th>Task Type</th>
-          //       <th>Planned Date</th>
-          //       <th>Initiation Date</th>
-          //       <th>Completed Date</th>
-          //       <th>Actions</th>
-          //     </tr>
-          //   </thead>
-          //   <tbody>
-          //     {data.map((item, index) => (
-          //       <tr
-          //         key={item.id}
-          //         style={{
-          //           backgroundColor: item.status === 'Done' ? 'lightgreen' : 'white',
-          //         }}
-          //       >
-          //         <td>{index + 1}</td>
-          //         <td>{item.moduleName}</td>
-          //         <td>{item.processName}</td>
-          //         <td>{item.projectName}</td>
-          //         <td>{item.roleName}</td>
-          //         <td>{item.task_Number}</td>
-          //         <td>{item.taskType}</td>
-          //         <td>{formatAndUpdateDate(item.createdDate, item.taskTime)}</td>
-          //         <td>{item.createdDate}</td>
-          //         <td>{item.completedDate}</td>
-          //         <td>
-          //           <Button onClick={() => handleEdit(item.id)}>Show</Button>
-          //         </td>
-          //       </tr>
-          //     ))}
-          //   </tbody>
-          // </Table>
+
           <DragDropContext onDragEnd={handleOnDragEnd}>
-            <Table hover className='bg-white '>
+            <Table hover className="bg-white">
               <thead>
                 <Droppable droppableId="columns" direction="horizontal">
                   {(provided) => (
-                    <tr {...provided.droppableProps} ref={provided.innerRef} className='text-nowrap'>
-                      <th><i className="ri-list-ordered-2"></i>  Sr. No</th>
-                      {columns.filter(col => col.visible).map((column, index) => (
-                        <Draggable key={column.id} draggableId={column.id} index={index}>
-                          {(provided) => (
-                            <th ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps}>
-                              {column.id === 'processName' && (<i className="ri-map-2-line"></i>)}
-                              {column.id === 'projectName' && (<i class="ri-building-line"></i>)}
-                              {column.id === 'task_Number' && (<i class="ri-health-book-line"></i>)}
-                              {column.id === 'roleName' && (<i class="ri-shield-user-line"></i>)}
-                              {column.id === 'taskType' && (<i class="ri-bookmark-line"></i>)}
-                              {column.id === 'taskTime' && (<i class="ri-calendar-line"></i>)}
-                              {column.id === 'createdDate' && (<i class="ri-hourglass-line"></i>)}
-                              {column.id === 'completedDate' && (<i class="ri-focus-3-line"></i>)}
-                              {column.id === 'moduleName' && (<i className="ri-box-3-line"></i>)}
-
-
-                              &nbsp; {column.label}
-                            </th>
-                          )}
-                        </Draggable>
-                      ))}
-                      {provided.placeholder}
-                      <th>Action</th>
-                    </tr>
+                      <tr 
+                      {...provided.droppableProps}  ref={provided.innerRef as React.Ref<HTMLTableRowElement>}
+                       className="text-nowrap">
+                        <th><i className="ri-list-ordered-2"></i> Sr. No</th>
+                        {columns
+                          .filter((col) => col.visible)
+                          .map((column, index) => (
+                            <Draggable key={column.id} draggableId={column.id} index={index}>
+                              {(provided) => (
+                                <th>
+                                  <div
+                                    ref={provided.innerRef}
+                                    {...provided.draggableProps}
+                                    {...provided.dragHandleProps}
+                                  >
+                                    {column.id === 'processName' && <i className="ri-map-2-line"></i>}
+                                    {column.id === 'projectName' && <i className="ri-building-line"></i>}
+                                    {column.id === 'task_Number' && <i className="ri-health-book-line"></i>}
+                                    {column.id === 'roleName' && <i className="ri-shield-user-line"></i>}
+                                    {column.id === 'taskType' && <i className="ri-bookmark-line"></i>}
+                                    {column.id === 'taskTime' && <i className="ri-calendar-line"></i>}
+                                    {column.id === 'createdDate' && <i className="ri-hourglass-line"></i>}
+                                    {column.id === 'completedDate' && <i className="ri-focus-3-line"></i>}
+                                    {column.id === 'moduleName' && <i className="ri-box-3-line"></i>}
+                                    &nbsp; {column.label}
+                                  </div>
+                                </th>
+                              )}
+                            </Draggable>
+                          ))}
+                        {provided.placeholder}
+                        <th>Action</th>
+                      </tr>
                   )}
                 </Droppable>
               </thead>
               <tbody>
-
                 {data.length > 0 ? (
                   data.slice(0, 10).map((item, index) => (
                     <tr key={item.id}>
-                      {/* Render the index for pagination (currentPage - 1) * pageSize + index + 1 */}
                       <td>{index + 1}</td>
-                      {/* Dynamically render visible columns */}
-                      {columns.filter(col => col.visible).map((col) => (
-                        <td key={col.id}
-
-                          className={
-                            // Add class based on column id
-                            col.id === 'processName' ? 'fw-bold fs-14 text-dark text-nowrap' :
-                              col.id === 'task_Number' ? 'fw-bold fs-13 text-dark text-nowrap task1' :
-                                col.id === 'processOwnerName' ? 'fw-bold fs-13 text-dark text-nowrap' :
-                                  col.id === 'plannedDate' ? ' text-nowrap ' :
-                                    col.id === 'createdDate' ? ' text-nowrap ' :
-                                      col.id === 'completedDate' ? ' text-nowrap ' :
-                                        // Add class based on value (e.g., expired tasks)
-                                        (col.id === 'moduleName' && item[col.id] === 'Accounts') ? 'text-nowrap task4' :
-                                          (col.id === 'moduleName' && item[col.id] === 'Accounts Checklist') ? 'text-nowrap task3' :
-                                            ''
-                          }
-                        >
-                          <div>
-                            {/* {col.id === 'inputValue' && (<i className="ri-edit-2-fill edit-icon"></i>)} */}
-
-                            {col.id === 'plannedDate' ? (
-                              <td>{formatAndUpdateDate(item.createdDate, item.taskTime)}</td>
-                            ) : (<>{item[col.id as keyof ProjectAssignListWithDoer]}</>
-                            )}
-
-                          </div>
-                        </td>
-                      ))}
-                      {/* Action Button */}
+                      {columns
+                        .filter((col) => col.visible)
+                        .map((col) => (
+                          <td
+                            key={col.id}
+                            className={
+                              col.id === 'processName'
+                                ? 'fw-bold fs-14 text-dark text-nowrap'
+                                : col.id === 'task_Number'
+                                  ? 'fw-bold fs-13 text-dark text-nowrap task1'
+                                  : col.id === 'processOwnerName'
+                                    ? 'fw-bold fs-13 text-dark text-nowrap'
+                                    : col.id === 'plannedDate'
+                                      ? ' text-nowrap '
+                                      : col.id === 'completedDate'
+                                        ? ' text-nowrap '
+                                        : col.id === 'moduleName' && item[col.id] === 'Accounts'
+                                          ? 'text-nowrap task4'
+                                          : col.id === 'moduleName' && item[col.id] === 'Accounts Checklist'
+                                            ? 'text-nowrap task3'
+                                            : ''
+                            }
+                          >
+                            <div>
+                              {col.id === 'plannedDate' ? (
+                                <td>{formatAndUpdateDate(item.createdDate, item.taskTime)}</td>
+                              ) : (
+                                <>{item[col.id as keyof typeof item]}</>
+                              )}
+                            </div>
+                          </td>
+                        ))}
                       <td>
-                        <Button onClick={() => handleEdit(item.id)}> <i className="ri-edit-2-fill"></i></Button>
-
+                        <Button onClick={() => handleEdit(item.id)}>
+                          <i className="ri-edit-2-fill"></i>
+                        </Button>
                       </td>
                     </tr>
                   ))
                 ) : (
-                  <tr><td colSpan={columns.length + 1}>No data available</td></tr>
+                  <tr>
+                    <td colSpan={columns.length + 1}>No data available</td>
+                  </tr>
                 )}
-
-
               </tbody>
             </Table>
           </DragDropContext>

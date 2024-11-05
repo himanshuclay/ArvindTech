@@ -435,12 +435,16 @@ const ProcessMaster: React.FC = () => {
                             <thead>
                                 <Droppable droppableId="columns" direction="horizontal">
                                     {(provided) => (
-                                        <tr {...provided.droppableProps} ref={provided.innerRef} className='text-nowrap'>
+                                        <tr
+                                            // {...provided.droppableProps} ref={provided.innerRef} 
+                                            className='text-nowrap'>
                                             <th><i className="ri-list-ordered-2"></i>  Sr. No</th>
                                             {columns.filter(col => col.visible).map((column, index) => (
                                                 <Draggable key={column.id} draggableId={column.id} index={index}>
                                                     {(provided) => (
-                                                        <th ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps}>
+                                                        <th
+                                                        // ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps}
+                                                        >
                                                             {column.id === 'processFlowchart' && (<i className="ri-map-2-line"></i>)}
                                                             {column.id === 'processID' && (<i className="ri-user-settings-fill"></i>)}
                                                             {column.id === 'processOwnerName' && (<i className="ri-user-fill"></i>)}
@@ -487,18 +491,14 @@ const ProcessMaster: React.FC = () => {
                                                                                             ''
                                                     }
                                                 >
-                                                    <div>
-                                                        {/* {col.id === 'inputValue' && (<i className="ri-edit-2-fill edit-icon"></i>)} */}
-
-                                                        {col.id === 'processOwnerName' ? (
-                                                            <div style={{ display: 'flex', alignItems: 'center' }}>
-                                                                <IconWithLetter letter={item.processOwnerName.charAt(0)} />
-                                                                {item.processOwnerName}
-                                                            </div>
-                                                        ) : (<>{item[col.id as keyof Doer]}</>
-                                                        )}
-
-                                                    </div>
+                                                    {col.id === 'processOwnerName' ? (
+                                                        <div style={{ display: 'flex', alignItems: 'center' }}>
+                                                            <IconWithLetter letter={item.processOwnerName.charAt(0)} />
+                                                            {item.processOwnerName}
+                                                        </div>
+                                                    ) : (
+                                                        <>{item[col.id as keyof Process]}</>
+                                                    )}
                                                 </td>
                                             ))}
                                             {/* Action Button */}

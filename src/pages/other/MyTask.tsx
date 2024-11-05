@@ -229,6 +229,19 @@ const TaskFormPage = () => {
                                                     <FileUploader
                                                         icon="ri-upload-cloud-2-line"
                                                         text="Drop files here or click to upload."
+                                                        additionalData={{
+                                                            ModuleID: 'yourModuleID',
+                                                            CreatedBy: 'yourUserID',
+                                                            TaskCommonID: 3463,
+                                                            Task_Number: 'yourTaskNumber',
+                                                            ProcessInitiationID: 35635,
+                                                            ProcessID: 'yourProcessID',
+                                                            UpdatedBy: 'yourUpdatedBy',
+                                                        }}
+                                                        onFileUpload={(files) => {
+                                                            // Handle file upload logic here
+                                                            console.log('Files uploaded:', files);
+                                                        }}
                                                     />
                                                 )}
                                                 {input.type === 'checkbox' && (
@@ -316,7 +329,7 @@ const TaskFormPage = () => {
         const fetchRoleNames = async (): Promise<{ roleName: string }[]> => {
             try {
                 const response = await axios.get(
-                    'https://localhost:44307/api/CommonDropdown/GetRoleMasterList',
+                    'https://arvindo-api2.clay.in/api/CommonDropdown/GetRoleMasterList',
                     {
                         headers: {
                             accept: '*/*',
@@ -363,7 +376,7 @@ const TaskFormPage = () => {
 
     const fetchTasks = async (moduleId: string, processId: string) => {
         try {
-            const response = await axios.get('https://localhost:44382/api/AccountModule/GetAccountProcessTaskByIds', {
+            const response = await axios.get('https://arvindo-api.clay.in/api/AccountModule/GetAccountProcessTaskByIds', {
                 params: { ModuleId: moduleId, ProcessId: processId },
             });
 
@@ -393,7 +406,7 @@ const TaskFormPage = () => {
     useEffect(() => {
         const fetchProjects = async () => {
             try {
-                const response = await axios.get('https://localhost:44307/api/CommonDropdown/GetProjectList', {
+                const response = await axios.get('https://arvindo-api2.clay.in/api/CommonDropdown/GetProjectList', {
                     headers: {
                         'accept': '*/*',
                     },
@@ -421,7 +434,7 @@ const TaskFormPage = () => {
 
     const fetchModules = async () => {
         try {
-            const response = await axios.get('https://localhost:44307/api/CommonDropdown/GetModuleList');
+            const response = await axios.get('https://arvindo-api2.clay.in/api/CommonDropdown/GetModuleList');
             if (response.data.isSuccess) {
                 setModules(response.data.moduleNameListResponses);
             } else {
@@ -459,7 +472,7 @@ const TaskFormPage = () => {
 
                 if (selectedModule) {
                     try {
-                        const response = await axios.get('https://localhost:44307/api/CommonDropdown/GetProcessNameByModuleName', {
+                        const response = await axios.get('https://arvindo-api2.clay.in/api/CommonDropdown/GetProcessNameByModuleName', {
                             params: { ModuleName: value },
                         });
                         if (response.data.isSuccess) {

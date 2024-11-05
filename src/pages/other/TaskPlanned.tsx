@@ -1,12 +1,7 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { Button, Table, Offcanvas, Toast, Container, Row, Col, Alert, Card } from 'react-bootstrap';
+import { Button, Table, Offcanvas, Toast, Container, Row, Col, Alert } from 'react-bootstrap';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
-import Overlay from 'react-bootstrap/Overlay';
-import Tooltip from 'react-bootstrap/Tooltip';
-import config from '../../config';
-
 
 interface ProjectAssignListWithDoer {
   id: number;
@@ -34,6 +29,7 @@ interface ProjectAssignListWithDoer {
   taskTime: string;
   taskType: string;
   roleName: string;
+  inputs: any;
 }
 
 interface ApiResponse {
@@ -41,11 +37,7 @@ interface ApiResponse {
   message: string;
   getFilterTasks: ProjectAssignListWithDoer[];
 }
-interface Column {
-  id: string;
-  label: string;
-  visible: boolean;
-}
+
 
 
 
@@ -57,32 +49,9 @@ const ProjectAssignTable: React.FC = () => {
   const [taskCommonId, setTaskCommonId] = useState<number | null>(null);
   const [showToast, setShowToast] = useState(false);
   const [taskName, setTaskName] = useState<string | undefined>(undefined);
-  const [popoverIndex, setPopoverIndex] = useState(null);
 
 
-  const [columns, setColumns] = useState<Column[]>([
-    { id: 'moduleName', label: 'Module ', visible: true },
-    { id: 'processName', label: 'Process ', visible: true },
-    { id: 'projectName', label: 'Project ', visible: true },
-    { id: 'roleName', label: 'Assigned Role ', visible: true },
-    { id: 'task_Number', label: 'Task ID', visible: true },
-    { id: 'taskType', label: 'Task Type', visible: true },
-    { id: 'taskTime', label: 'Planned Date', visible: true },
-    { id: 'createdDate', label: 'Initiation Date', visible: true },
-    { id: 'completedDate', label: 'Completed Date', visible: true },
 
-  ]);
-
-  const handleOnDragEnd = (result: any) => {
-    if (!result.destination) return;
-    const reorderedColumns = Array.from(columns);
-    const [movedColumn] = reorderedColumns.splice(result.source.index, 1);
-    reorderedColumns.splice(result.destination.index, 0, movedColumn);
-    setColumns(reorderedColumns);
-  };
-  // ==============================================================
-
-  const targetRefs = useRef([]);
 
 
 
@@ -146,50 +115,51 @@ const ProjectAssignTable: React.FC = () => {
 
   const fetchPreData = async (taskCommonId: number) => {
     try {
-      const role = localStorage.getItem('EmpId') || '';
-      const response = await axios.get<ApiResponse>(
-        `https://arvindo-api.clay.in/api/ProcessInitiation/GetFilterTask?Flag=4&DoerId=${role}`
-      );
+        const role = localStorage.getItem('EmpId') || '';
+        const response = await axios.get<ApiResponse>(
+            `https://arvindo-api.clay.in/api/ProcessInitiation/GetFilterTask?Flag=4&DoerId=${role}`
+        );
 
-      if (response.data && response.data.isSuccess) {
-        const fetchedData = response.data.getFilterTasks || [];
-        const filteredTasks = fetchedData.map((task: ProjectAssignListWithDoer) => {
-          const parsedTaskJson = JSON.parse(task.task_Json);
-          const optionsMap = parsedTaskJson.inputs.reduce((map: Record<string, string>, input: any) => {
-            if (input.options) {
-              input.options.forEach((option: any) => {
-                map[option.id] = option.label;
-              });
-            }
-            return map;
-          }, {});
+        if (response.data && response.data.isSuccess) {
+            const fetchedData = response.data.getFilterTasks || [];
+            const filteredTasks: ProjectAssignListWithDoer[] = fetchedData.map((task: ProjectAssignListWithDoer) => {
+                const parsedTaskJson = JSON.parse(task.task_Json);
+                const optionsMap = parsedTaskJson.inputs.reduce((map: Record<string, string>, input: any) => {
+                    if (input.options) {
+                        input.options.forEach((option: any) => {
+                            map[option.id] = option.label;
+                        });
+                    }
+                    return map;
+                }, {});
 
-          const filteredInputs = parsedTaskJson.inputs
-            .filter((input: any) => !['99', '100', '102', '103'].includes(input.inputId)) // Exclude unwanted inputIds
-            .map((input: any) => ({
-              label: input.label,
-              value: optionsMap[input.value] || input.value // Replace value with label if it exists in optionsMap
-            }));
+                const filteredInputs = parsedTaskJson.inputs
+                    .filter((input: any) => !['99', '100', '102', '103'].includes(input.inputId)) // Exclude unwanted inputIds
+                    .map((input: any) => ({
+                        label: input.label,
+                        value: optionsMap[input.value] || input.value // Replace value with label if it exists in optionsMap
+                    }));
 
-          return {
-            taskNumber: task.task_Number,
-            inputs: filteredInputs
-          };
-        });
-        setPreData(filteredTasks);
-      } else {
-        console.error('API Response Error:', response.data?.message || 'Unknown error');
-      }
+                return {
+                    ...task, // Spread the existing task properties to include all required fields
+                    inputs: filteredInputs
+                };
+            });
+            setPreData(filteredTasks);
+        } else {
+            console.error('API Response Error:', response.data?.message || 'Unknown error');
+        }
     } catch (error) {
-      if (axios.isAxiosError(error)) {
-        console.error('Axios Error:', error.message);
-      } else {
-        console.error('Unexpected Error:', error);
-      }
+        if (axios.isAxiosError(error)) {
+            console.error('Axios Error:', error.message);
+        } else {
+            console.error('Unexpected Error:', error);
+        }
     } finally {
-      setLoading(false);
+        setLoading(false);
     }
-  };
+};
+
 
   const handleEdit = (id: number) => {
     const taskCommonId = id
@@ -231,129 +201,24 @@ const ProjectAssignTable: React.FC = () => {
   };
 
 
-  const preDatas = [
-    {
-      taskNumber: 'T-001',
-      inputs: [
-        [
-          { label: 'Input 1', value: 'Value One' },
-          { label: 'Input 2', value: 'Value Two' }
-        ],
-        [
-          { label: 'Input 3', value: 'Value Three' },
-          { label: 'Input 4', value: 'Value Four' }
-        ],
-        [
-          { label: 'Input 5', value: 'Value Three' },
-          { label: 'Input 6', value: 'Value Four' }
-        ]
-      ]
-    },
-
-    {
-      taskNumber: 'T-002',
-      inputs: [
-        { label: 'Input 1', value: 'Value X' },
-        { label: 'Input 2', value: 'Value Y' },
-        { label: 'Input 3', value: 'Value Z' },
-      ]
-    },
-    {
-      taskNumber: 'T-003',
-      inputs: [
-        { label: 'Input 1', value: 'Value Alpha' },
-        { label: 'Input 2', value: 'Value Beta' },
-        { label: 'Input 3', value: 'Value Gamma' },
-      ]
-    },
-    {
-      taskNumber: 'T-004',
-      inputs: [
-        { label: 'Input 1', value: 'Value One' },
-        { label: 'Input 2', value: 'Value Two' },
-        { label: 'Input 3', value: 'Value Three' },
-      ]
-    },
-    {
-      taskNumber: 'T-005',
-      inputs: [
-        [
-          { label: 'Input 1', value: 'Value One' },
-          { label: 'Input 2', value: 'Value Two' }
-        ],
-        [
-          { label: 'Input 3', value: 'Value Three' },
-          { label: 'Input 4', value: 'Value Four' }
-        ]
-      ]
-    },
-  ];
-
-
   return (
     <>
       <Offcanvas show={show} onHide={handleClose} placement="end">
-        <Offcanvas.Header closeButton>
-          <Offcanvas.Title className='text-dark'>Task Details</Offcanvas.Title>
+        <Offcanvas.Header closeButton className='p-0 mb-2'>
+          <Offcanvas.Title>Task Details</Offcanvas.Title>
         </Offcanvas.Header>
         <Offcanvas.Body>
-          {preDatas.map((task, index) => (
+          {preData.map((task, index) => (
             <div key={index}>
               <h5 className="mt-2">
-                Updated data from <span className="text-primary">{task.taskNumber}</span> &nbsp;&nbsp;&nbsp;
-                <span className='fs-15 information-btn ' 
-                  ref={(el) => (targetRefs.current[index] = el)} // Store the ref for each task
-                  onClick={() => setPopoverIndex(popoverIndex === index ? null : index)} // Toggle popover visibility for the clicked task
-                >
-                  <i className="ri-error-warning-fill fs-20"></i>
-                </span>
-
+                Updated data from <span className="text-primary">{task.task_Number}</span>
               </h5>
               <div>
-                <Overlay
-                  target={targetRefs.current[index]} // Use the ref for the current task
-                  show={popoverIndex === index} // Only show popover for the clicked task
-                  placement="left"
-                >
-                  {(props) => (
-                    <Tooltip id="overlay-example" {...props} className='tooltip-position'>
-                      {/* Render each input array inside a card */}
-                      <div className='d-flex'>
-
-                        {Array.isArray(task.inputs[0])
-                          ? task.inputs.map((inputArray, arrIndex) => (
-
-                            <Card key={arrIndex} className="m-2 pop-card">
-                              <Card.Body>
-
-                                {inputArray.map((input, i) => (
-                                  <Col key={i}>
-                                    <strong>{input.label}:</strong> <span className="text-primary">{input.value}</span>
-                                  </Col>
-                                ))}
-                              </Card.Body>
-                            </Card>
-
-
-                          ))
-                          : (
-                            <Card className="m-2 pop-card">
-                              <Row>
-                                <Card.Body>
-                                  {task.inputs.map((input, i) => (
-                                    <Col key={i} >
-                                      <strong>{input.label}:</strong> <span className="text-primary">{input.value}</span>
-                                    </Col>
-                                  ))}
-                                </Card.Body>
-                              </Row>
-                            </Card>
-                          )}
-                      </div>
-
-                    </Tooltip>
-                  )}
-                </Overlay>
+                {task.inputs.map((input:any, i:any) => (
+                  <div key={i}>
+                    <strong>{input.label}:</strong> <span className="text-primary">{input.value}</span>
+                  </div>
+                ))}
               </div>
               <hr />
             </div>
@@ -361,10 +226,10 @@ const ProjectAssignTable: React.FC = () => {
         </Offcanvas.Body>
       </Offcanvas>
 
-      <div className="d-flex p-2 bg-white mt-2 mb-2 rounded shadow">
-        <h5 className="mb-0">Planned Tasks</h5>
-      </div>
-      <div className='overflow-auto'>
+      <div>
+        <div className="d-flex p-2 bg-white mt-2 mb-2 rounded shadow">
+          <h5 className="mb-0">Planned Tasks</h5>
+        </div>
         {data.length === 0 ? (
           <Container className="mt-5">
             <Row className="justify-content-center">
@@ -377,11 +242,7 @@ const ProjectAssignTable: React.FC = () => {
             </Row>
           </Container>
         ) : (
-
-          <>
-
-
-            {/* <Table className="bg-white" striped bordered hover>
+          <Table className="bg-white" striped bordered hover>
             <thead>
               <tr>
                 <th>Sr.no</th>
@@ -421,96 +282,7 @@ const ProjectAssignTable: React.FC = () => {
                 </tr>
               ))}
             </tbody>
-          </Table> */}
-            <DragDropContext onDragEnd={handleOnDragEnd}>
-              <Table hover className='bg-white '>
-                <thead>
-                  <Droppable droppableId="columns" direction="horizontal">
-                    {(provided) => (
-                      <tr {...provided.droppableProps} ref={provided.innerRef} className='text-nowrap'>
-                        <th><i className="ri-list-ordered-2"></i>  Sr. No</th>
-                        {columns.filter(col => col.visible).map((column, index) => (
-                          <Draggable key={column.id} draggableId={column.id} index={index}>
-                            {(provided) => (
-                              <th ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps}>
-                                {column.id === 'processName' && (<i className="ri-map-2-line"></i>)}
-                                {column.id === 'projectName' && (<i class="ri-building-line"></i>)}
-                                {column.id === 'task_Number' && (<i class="ri-health-book-line"></i>)}
-                                {column.id === 'roleName' && (<i class="ri-shield-user-line"></i>)}
-                                {column.id === 'taskType' && (<i class="ri-bookmark-line"></i>)}
-                                {column.id === 'taskTime' && (<i class="ri-calendar-line"></i>)}
-                                {column.id === 'createdDate' && (<i class="ri-hourglass-line"></i>)}
-                                {column.id === 'completedDate' && (<i class="ri-focus-3-line"></i>)}
-                                {column.id === 'moduleName' && (<i className="ri-box-3-line"></i>)}
-
-                                &nbsp; {column.label}
-                              </th>
-                            )}
-                          </Draggable>
-                        ))}
-                        {provided.placeholder}
-                        <th>Action</th>
-                      </tr>
-                    )}
-                  </Droppable>
-                </thead>
-                <tbody>
-
-                  {data.length > 0 ? (
-                    data.slice(0, 10).map((item, index) => (
-                      <tr key={item.id}>
-                        {/* Render the index for pagination (currentPage - 1) * pageSize + index + 1 */}
-                        <td>{index + 1}</td>
-                        {/* Dynamically render visible columns */}
-                        {columns.filter(col => col.visible).map((col) => (
-                          <td key={col.id}
-
-                            className={
-                              // Add class based on column id
-                              col.id === 'processName' ? 'fw-bold fs-14 text-dark text-nowrap' :
-                                col.id === 'task_Number' ? 'fw-bold fs-13 text-dark text-nowrap task1' :
-                                  col.id === 'processOwnerName' ? 'fw-bold fs-13 text-dark text-nowrap' :
-                                    col.id === 'plannedDate' ? ' text-nowrap ' :
-                                      col.id === 'createdDate' ? ' text-nowrap ' :
-                                        col.id === 'completedDate' ? ' text-nowrap ' :
-                                          // Add class based on value (e.g., expired tasks)
-                                          (col.id === 'moduleName' && item[col.id] === 'Accounts') ? 'text-nowrap task4' :
-                                            (col.id === 'moduleName' && item[col.id] === 'Accounts Checklist') ? 'text-nowrap task3' :
-                                              ''
-                            }
-                          >
-                            <div>
-                              {/* {col.id === 'inputValue' && (<i className="ri-edit-2-fill edit-icon"></i>)} */}
-
-                              {/* {col.id === 'plannedDate' ? (
-                            <td>
-                              {formatAndUpdateDate(item.createdDate, item.taskTime)}
-                            </td>
-                          ) : (<></>
-                          )} */}
-
-                              {item[col.id as keyof ProjectAssignListWithDoer]}
-
-                            </div>
-                          </td>
-                        ))}
-                        {/* Action Button */}
-                        <td>
-                          <Button onClick={() => handleEdit(item.id)}> <i className="ri-edit-2-fill"></i></Button>
-
-                        </td>
-                      </tr>
-                    ))
-                  ) : (
-                    <tr><td colSpan={columns.length + 1}>No data available</td></tr>
-                  )}
-
-
-                </tbody>
-              </Table>
-            </DragDropContext>
-          </>
-
+          </Table>
         )}
       </div>
 

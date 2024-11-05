@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { Button, Row, Col, Modal, Offcanvas } from 'react-bootstrap'; // Assuming DynamicForm is in the same directory
+import { Modal } from 'react-bootstrap';
 import { FileUploader } from '@/components/FileUploader'
 import { useNavigate } from 'react-router-dom';
 import config from '@/config';
@@ -12,7 +12,7 @@ interface Option {
 }
 
 interface Input {
-    inputId: string;
+    inputId: any;
     type: string;
     label: string;
     formName: string;
@@ -21,24 +21,30 @@ interface Input {
     options?: Option[];
     required: boolean;
     conditionalFieldId?: string;
-    value?: string | boolean;
+    value?: any;
 }
 
 interface DynamicFormProps {
-    // formData: { inputs: Input[] };
-    formData: { inputs: Input[] };
+    formData: {
+        formId: string; // Add formId
+        formName: string; // Add formName
+        inputs: Input[];
+    };
     taskNumber: string;
     doer: string | null;
     onDoerChange: (taskNumber: string, selectedOption: Option | null) => void;
-    data: string;
+    data: any;
     show: boolean;
-    parsedCondition: string;
+    parsedCondition: any;
     setShow: any;
-    preData: string;
+    preData: any;
     selectedTasknumber: string
-    setLoading: string
-    taskCommonIDRow: string
-    taskStatus: string
+    setLoading: any
+    taskCommonIDRow: any
+    taskStatus: any
+    processId: any
+    moduleId: any
+    ProcessInitiationID: any
 }
 
 interface Condition {
@@ -55,10 +61,19 @@ interface MessData {
     taskJson: any;
     comments: string;
 }
+interface FormState {
+    [key: string]: any; // or more specific types
+}
+interface Task {
+    task_Number: any;
+}
 
 const DynamicForm: React.FC<DynamicFormProps> = ({
     // formData,
-    taskNumber, doer, onDoerChange,
+    taskNumber,
+    processId,
+    ProcessInitiationID,
+    moduleId,
     data,
     show,
     setShow,
@@ -69,7 +84,8 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
     taskCommonIDRow,
     taskStatus,
     setLoading }) => {
-    const [formState, setFormState] = useState<{ [key: string]: any }>({});
+
+    const [formState, setFormState] = useState<FormState>({});
     const [summary, setSummary] = useState('');
     const [taskJson, setTaskJson] = useState<{ [key: string]: any }>({});
     const [messManagers, setMessManagers] = useState<{ value: string, label: string }[]>([]);
@@ -78,10 +94,11 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
     const [messList, setMessList] = useState<{ messID: string; messName: string; managerEmpID: string; managerName: string }[]>([]);
 
     const [selectedCondition, setSelectedCondition] = useState<any[]>([]);
+
     const [currentStep, setCurrentStep] = useState(0); // Track the current step
 
 
-    console.log("clicked id", taskCommonIDRow)
+    console.log("clicked process", processId)
 
     const navigate = useNavigate()
     console.log("value form", formState)
@@ -107,12 +124,20 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
 
 
 
-
-
+    type InputConfig = {
+        inputId: string;
+        type?: string;
+        label?: string;
+        placeholder?: string;
+        options?: any[];
+        required?: boolean;
+        conditionalFieldId?: string;
+    };
 
     const saveDataToLocalStorage = () => {
         // Retrieve saved data from localStorage or initialize with an empty array if none
-        const savedData = JSON.parse(localStorage.getItem(localStorageKey)) || [];
+        const savedData = JSON.parse(localStorage.getItem(localStorageKey) || '[]');
+
 
         // Create a copy of saved data
         const updatedData = [...savedData];
@@ -129,7 +154,8 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
             inputs: Object.keys(formState)  // Iterate through formState keys to construct inputs
                 .filter(inputId => inputId !== 'formId' && inputId !== 'formName')
                 .map(inputId => {
-                    const inputConfig = formData?.inputs?.find(config => config.inputId === inputId) || {}; // Get metadata for the input
+                    const inputConfig = formData?.inputs?.find(config => config.inputId === inputId) || {} as InputConfig; // Get metadata for the input
+
                     return {
                         inputId,  // From formState
                         value: formState[inputId],  // Value from formState
@@ -186,10 +212,21 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
         };
     }, []);
 
+    type TaskJson = {
+        inputs: Input[];
+    };
+
+    type SavedData = {
+        messID: string;
+        taskJson: TaskJson;
+        comments?: string;
+    };
+
 
     const handleNextStep = () => {
         // Save current form data before moving to next step
         saveDataToLocalStorage();
+
 
         // Move to the next step if it's within the bounds of the messList
         if (currentStep < messList.length - 1) {
@@ -197,88 +234,98 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
             setCurrentStep(nextStep);
 
             // Load the saved data for the next step from localStorage
-            const savedDataString: string | null = localStorage.getItem(localStorageKey);
-            const savedData: any[] = savedDataString ? JSON.parse(savedDataString) : [];
+            const savedData: SavedData[] = JSON.parse(localStorage.getItem(localStorageKey) || '[]');
             const nextMessID = messList[nextStep].messID;
-            const nextData = savedData.find((data) => data.messID === nextMessID);
+
+            // Find saved data for the next step
+            const nextData = savedData.find((data: SavedData) => data.messID === nextMessID);
 
             if (nextData && nextData.taskJson) {
-                // Update formState with the saved taskJson
-                const newFormState = nextData.taskJson.inputs.reduce((acc, input) => {
-                    acc[input.inputId] = input.value;
-                    return acc;
-                }, {});
+                // Safely check if taskJson and inputs exist before processing
+                const { taskJson } = nextData;
 
-                setFormState(newFormState); // Set the formState with loaded values
+                if (taskJson.inputs && Array.isArray(taskJson.inputs)) {
+                    // Update formState with the saved taskJson
+                    const newFormState = taskJson.inputs.reduce((acc: { [key: string]: string }, input: Input) => {
+                        acc[input.inputId] = input.value || '';  // Safely handle missing values
+                        return acc;
+                    }, {});
+
+                    setFormState(newFormState); // Set the formState with loaded values
+                } else {
+                    console.error('Invalid taskJson inputs structure:', taskJson.inputs);
+                }
+            } else {
+                console.warn('No saved data found for messID:', nextMessID);
             }
 
             // Optionally load the comments for the next step
             if (nextData && nextData.comments) {
                 setSummary(nextData.comments);
-            }
-        }
-    };
-
-    const handlePrevStep = () => {
-        // Save current form data before moving to previous step
-        saveDataToLocalStorage();
-
-        // Move to the previous step if it's within bounds
-        if (currentStep > 0) {
-            const prevStep = currentStep - 1;
-            setCurrentStep(prevStep);
-
-            // Load the saved data for the previous step from localStorage
-            const savedDataString: string | null = localStorage.getItem(localStorageKey);
-            const savedData: any[] = savedDataString ? JSON.parse(savedDataString) : [];
-            const prevMessID = messList[prevStep].messID;
-            const prevData = savedData.find((data) => data.messID === prevMessID);
-
-            if (prevData && prevData.taskJson) {
-                // Update formState with the saved taskJson
-                const newFormState = prevData.taskJson.inputs.reduce((acc, input) => {
-                    acc[input.inputId] = input.value;
-                    return acc;
-                }, {});
-
-                setFormState(newFormState); // Set the formState with loaded values
-            }
-
-            // Optionally load the comments for the previous step
-            if (prevData && prevData.comments) {
-                setSummary(prevData.comments);
+            } else {
+                setSummary(''); // Clear the summary if no comments exist
             }
         }
     };
 
 
+    // const handlePrevStep = () => {
+
+    //     saveDataToLocalStorage();
+
+    //     if (currentStep > 0) {
+    //         const prevStep = currentStep - 1;
+    //         setCurrentStep(prevStep);
+
+    //         const savedData =  JSON.parse(localStorage.getItem(localStorageKey) || '[]');
+    //         const prevMessID = messList[prevStep].messID;
+    //         const prevData = savedData.find((data) => data.messID === prevMessID);
+
+    //         if (prevData && prevData.taskJson) {
+
+    //             const newFormState = prevData.taskJson.inputs.reduce((acc, input) => {
+    //                 acc[input.inputId] = input.value;
+    //                 return acc;
+    //             }, {});
+
+    //             setFormState(newFormState); 
+    //         }
+
+    //         if (prevData && prevData.comments) {
+    //             setSummary(prevData.comments);
+    //         }
+    //     }
+    // };
 
 
-    useEffect(() => {
-        const fetchMessManagers = async () => {
-            try {
-                const response = await axios.get(`${config.API_URL_APPLICATION}/CommonDropdown/GetMessManagerNameListWithId`);
-                const data = response.data.messManagerNameLists;
 
-                // Map the response data to the format required for the Select component
-                const formattedData = data.map((manager: { messManagerEmpId: string, messManagerName: string }) => ({
-                    value: manager.messManagerEmpId,
-                    label: manager.messManagerName
-                }));
 
-                setMessManagers(formattedData);
-            } catch (error) {
-                console.error('Error fetching mess managers:', error);
-            }
-        };
+    // useEffect(() => {
+    //     const fetchMessManagers = async () => {
+    //         try {
+    //             const response = await axios.get(`${config.API_URL_APPLICATION}/CommonDropdown/GetMessManagerNameListWithId`);
+    //             const data = response.data.messManagerNameLists;
 
-        fetchMessManagers();
-    }, []);
+    //             // Map the response data to the format required for the <select> component
+    //             const formattedData = data.map((manager: { messManagerEmpId: string, messManagerName: string }) => ({
+    //                 value: manager.messManagerEmpId,
+    //                 label: manager.messManagerName
+    //             }));
 
-    const handleSelectMessImpChange = (selectedOption: any) => {
-        setSelectedManager(selectedOption ? selectedOption.value : null);
-        console.log('Selected manager ID:', selectedOption ? selectedOption.value : null);
-    };
+    //             setMessManagers(formattedData);
+    //         } catch (error) {
+    //             console.error('Error fetching mess managers:', error);
+    //         }
+    //     };
+
+    //     fetchMessManagers();
+    // }, []);
+
+    // const handleSelectMessImpChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    //     const selectedValue = event.target.value;
+    //     setSelectedManager(selectedValue);
+    //     console.log('Selected manager ID:', selectedValue);
+    // };
 
 
     const handleClose = () => {
@@ -341,18 +388,21 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
 
 
 
-    console.log(preData)
+
 
 
 
     // Handle change in input values
     const handleChange = (inputId: string, value: string | boolean | string[]) => {
-        event.preventDefault();
+        // Prevent default behavior (if needed)
+        // event.preventDefault(); 
+
         const excludedInputIds = ['99', '100', '102', '103'];
         const input = formData.inputs.find(input => input.inputId === inputId);
 
         let updatedValue = value;
-        let selectedLabel: string | undefined;
+        let selectedLabel: any;
+        console.log(selectedLabel);
 
         if (input) {
             selectedLabel = input.label;
@@ -365,17 +415,23 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                 updatedValue = selectedOption.id;
                 selectedLabel = selectedOption.label;
 
-                const selectedConditionFromParsed = parsedCondition[0].find((condition: Condition) => condition.optionId === updatedValue);
-                if (selectedConditionFromParsed) {
-                    setSelectedCondition([selectedConditionFromParsed]);
+                // Ensure parsedCondition is an array of arrays and has at least one array
+                if (Array.isArray(parsedCondition) && parsedCondition.length > 0) {
+                    const selectedConditionFromParsed = parsedCondition[0].find((condition: Condition) => condition.optionId === updatedValue);
+
+                    if (selectedConditionFromParsed) {
+                        setSelectedCondition([selectedConditionFromParsed]);
+                    }
                 }
-            }
-            if (selectedOption?.id === '11-1') {
-                setShowMessManagerSelect(true);
+
+                // Update visibility based on the selected option ID
+                setShowMessManagerSelect(selectedOption.id === '11-1');
             } else {
-                setShowMessManagerSelect(false);
+                // Handle case where no option is selected
+                console.warn(`No option found for the value: ${value}`);
             }
         }
+
 
         // Handle multiselect input type
         if (input && input.type === 'multiselect') {
@@ -417,9 +473,8 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
         setFormState(prevState => {
             const newState = {
                 ...prevState,
-                ...(excludedInputIds.includes(inputId) ? {} : { [inputId]: updatedValue, })
+                ...(excludedInputIds.includes(inputId) ? {} : { [inputId]: updatedValue }),
             };
-
 
             // Update taskJson only when inputId is not excluded
             if (!excludedInputIds.includes(inputId)) {
@@ -431,16 +486,17 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                     })),
                 };
 
-                // Set taskJson in JSON format, but matching formData structure
-                setTaskJson(JSON.stringify(updatedTaskJson, null, 2)); // Pretty print for better readability
+                // Set taskJson in JSON format, matching formData structure
+                // setTaskJson(JSON.stringify(updatedTaskJson, null, 2)); 
+                setTaskJson(updatedTaskJson);
             }
 
-            console.log(taskJson)
+            console.log(taskJson);
 
             // Re-evaluate conditions after state update
             reEvaluateConditions(newState);
 
-            console.log(newState)
+            console.log(newState);
 
             return newState;
         });
@@ -451,11 +507,11 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
     const handleSubmit = async (event: React.FormEvent, taskNumber: string) => {
         event.preventDefault();
         saveDataToLocalStorage();
-        const finalData = JSON.parse(localStorage.getItem(localStorageKey)) || [];
+        const finalData = JSON.parse(localStorage.getItem(localStorageKey) ?? '[]');
         localStorage.removeItem(localStorageKey);
         console.log('Final Submitted Data:', finalData);
         const role = localStorage.getItem('EmpId') || '';
-        const taskData = data.find(task => task.task_Number === taskNumber);
+        const taskData = data.find((task: Task) => task.task_Number === taskNumber);
 
         // Prepare the data to be posted
         // const taskCommonId = localStorage.getItem('taskCommonId') || 0;  // Retrieve from localStorage or set to 0 if not found
@@ -548,60 +604,171 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
 
     // console.log(formData)
 
+    const [showBankModal, setShowBankModal] = useState(false);
+
+
+    const [bankDetails, setBankDetails] = useState({
+        reimbursementBankAccountNumber: '',
+        reimbursementBankName: '',
+        reimbursementBranchName: '',
+        reimbursementBankIfsc: '',
+        managerName: '',
+        userUpdateMobileNumber: ''
+    });
 
     useEffect(() => {
-        const savedData: MessData[] = JSON.parse(localStorage.getItem(localStorageKey)) || [];
+        if (selectedManager) {
+            const fetchBankDetails = async () => {
+                try {
+                    const response = await axios.get(`https://arvindo-api.clay.in/api/ProcessInitiation/GetMessData?EmpID=${selectedManager}`);
+                    const data = response.data.getMessDataByMessManagerEmpID[0]; // Assuming one result
 
-        const currentData = savedData.find((data) => data.messID === messList[currentStep].messID) || {};
-        setFormState(currentData.taskJson || {});
-        setSummary(currentData.comments || '');
+                    // Update bank details state with the fetched data
+                    setBankDetails({
+                        reimbursementBankAccountNumber: data.reimbursementBankAccountNumber,
+                        reimbursementBankName: data.reimbursementBankName,
+                        reimbursementBranchName: data.reimbursementBranchName,
+                        reimbursementBankIfsc: data.reimbursementBankIfsc,
+                        managerName: data.managerName,
+                        userUpdateMobileNumber: data.userUpdateMobileNumber
+                    });
+
+                } catch (error) {
+                    console.error('Error fetching bank details:', error);
+                }
+            };
+
+            fetchBankDetails();
+        }
+    }, [selectedManager]);
+
+    // Handlers to show/hide the modal
+    const handleShow2 = () => {
+        setShowBankModal(true); // Show the modal
+    };
+
+
+    const handleClose2 = () => setShowBankModal(false);
+
+    const handleSelectMessImpChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+        const selectedValue = event.target.value;
+        setSelectedManager(selectedValue);
+        console.log('Selected manager ID:', selectedValue);
+    };
+
+
+    useEffect(() => {
+        const fetchMessManagers = async () => {
+            try {
+                const response = await axios.get(`${config.API_URL_APPLICATION}/CommonDropdown/GetMessManagerNameListWithId`);
+                const data = response.data.messManagerNameLists;
+
+                // Map the response data to the format required for the <select> component
+                const formattedData = data.map((manager: { messManagerEmpId: string, messManagerName: string }) => ({
+                    value: manager.messManagerEmpId,
+                    label: manager.messManagerName
+                }));
+
+                setMessManagers(formattedData);
+            } catch (error) {
+                console.error('Error fetching mess managers:', error);
+            }
+        };
+
+        fetchMessManagers();
+    }, []);
+
+
+
+    // useEffect(() => {
+    //     if (showBankModal && selectedManager) {
+    //         // Fetch details when modal is shown and selectedManager is set
+    //         fetchBankDetails(selectedManager);
+    //     }
+    // }, [showBankModal, selectedManager]);
+
+    // const fetchBankDetails = async (empID: string) => {
+    //     try {
+    //         const response = await axios.get(`https://arvindo-api.clay.in/api/ProcessInitiation/GetMessData?EmpID=${selectedManager}`);
+    //         if (response.data.isSuccess) {
+    //             const data = response.data.getMessDataByMessManagerEmpID[0];
+    //             setBankDetails({
+    //                 managerName: data.managerName,
+    //                 reimbursementBankAccountNumber: data.reimbursementBankAccountNumber,
+    //                 reimbursementBankName: data.reimbursementBankName,
+    //                 reimbursementBankIfsc: data.reimbursementBankIfsc,
+    //                 reimbursementBranchName: data.reimbursementBranchName,
+    //                 userUpdateMobileNumber: data.userUpdateMobileNumber,
+    //             });
+
+    //             console.log(data)
+    //         } else {
+    //             console.error('Failed to fetch bank details');
+    //         }
+    //     } catch (error) {
+    //         console.error('Error fetching bank details:', error);
+    //     }
+    // };
+
+    const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const { name, value } = event.target;
+        setBankDetails((prevDetails) => ({
+            ...prevDetails,
+            [name]: value
+        }));
+    };
+
+
+    useEffect(() => {
+        const savedDataString = localStorage.getItem(localStorageKey);
+        const savedData: MessData[] = JSON.parse(savedDataString || '[]');
+
+        const currentData = savedData.find((data) => data.messID === messList[currentStep].messID);
+        if (currentData) {
+            setFormState(currentData.taskJson || []);
+            setSummary(currentData.comments || '');
+        } else {
+            setFormState([]);
+            setSummary('');
+        }
     }, [currentStep, messList]);
 
     return (
         <>
-            <Modal className="p-3" show={show} placement="end" onHide={handleClose} >
+            <Modal size='lg' className="p-3" show={show} placement="end" onHide={handleClose} >
                 <Modal.Header closeButton className=' '>
                     <Modal.Title className='text-dark'>Task Details</Modal.Title>
                 </Modal.Header>
 
-                {preData.length>0 &&
-                    <div className='p-3'>
 
-                        {preData.map((task, index) => (
-                            <div key={index}>
-                                {selectedTasknumber != task.taskNumber && (
-                                    <>
-                                        <h5 className='mt-2'>Updated data from <span className='text-primary'>{task.taskNumber}</span></h5>
-                                        <div>
-                                            {task.inputs.map((input, idx) => (
-                                                <div key={idx}>
-                                                    <strong>{input.label}:</strong> <span className='text-primary'>{input.value}</span>
-                                                </div>
-                                            ))}
-                                        </div>
-                                        <hr />
-                                    </>
-                                )}
-                            </div>
-                        ))}
+                <div className='px-3'>
+
+                    {preData.map((task: any, index: any) => (
+                        <div key={index}>
+                            {selectedTasknumber != task.taskNumber && (
+                                <>
+                                    <h5 className='mt-2'>Updated data from <span className='text-primary'>{task.taskNumber}</span></h5>
+                                    <div>
+                                        {task.inputs.map((input: any, idx: any) => (
+                                            <div key={idx}>
+                                                <strong>{input.label}:</strong> <span className='text-primary'>{input.value}</span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                    <hr />
+                                </>
+                            )}
+                        </div>
+                    ))}
 
 
-                    </div>
-
-                }
-
+                </div>
 
 
                 {formData.inputs &&
                     <form className='side-scroll' onSubmit={(event) => handleSubmit(event, taskNumber)}>
-                        {/* <div className='d-flex flex-column mt-2 py-1 px-3'>
-                            <div className='fs-6 mb-1 fw-bolder col-12'>Task Name</div>
-                            <div className='col-12 fs-5 text-primary'>{formData.inputs.find((input: { inputId: string; label: string }) => input.inputId === "99")?.label}</div>
-                        </div> */}
-
 
                         <Modal.Body className=" p-4">
-                            {/* Stepper on the Left */}
                             <div className="stepper-vertical" style={{
                                 width: 'max-content',
                                 paddingRight: '10px',
@@ -611,62 +778,59 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                                 marginBottom: '20px'
 
                             }}>
-                                {messList.map((mess, index) => {
-                                    let stepClass = 'step';
+                                {processId === "ACC.01" && (
+                                    <>
+                                        {messList.map((mess, index) => {
+                                            let stepClass = 'step';
 
-                                    if (index < currentStep) {
-                                        stepClass += ' completed'; // Add class for completed steps
-                                    } else if (index === currentStep) {
-                                        stepClass += ' active'; // Add class for the current active step
-                                    }
+                                            if (index < currentStep) {
+                                                stepClass += ' completed';
+                                            } else if (index === currentStep) {
+                                                stepClass += ' active';
+                                            }
 
-                                    return (
-                                        <>
-
-                                            <div
-                                                key={mess.messID}
-                                                className={stepClass}
-                                                onClick={() => setCurrentStep(index)}
-                                                style={{
-                                                    cursor: 'pointer',
-                                                    padding: '10px 0',
-                                                    margin: '0 20px 5px 0',
-                                                    background: index < currentStep ? 'green' : index === currentStep ? 'green' : '#e1e1e1', // Change color based on step status
-                                                    color: "#fff", // Change text color for readability
-                                                    borderRadius: '50%', // Optional: Add rounded corners
-                                                    position: 'relative',
-                                                }}
-                                            >
-
-                                                {index + 1}
-
-                                                {index < messList.length - 1 && (
+                                            return (
+                                                <div key={mess.messID}>
                                                     <div
-                                                        className={`step-line ${index < currentStep ? 'completed' : ''}`}
+                                                        className={stepClass}
+                                                        onClick={() => setCurrentStep(index)}
                                                         style={{
-                                                            backgroundColor: index < currentStep ? 'green' : '#e1e1e1',
+                                                            cursor: 'pointer',
+                                                            padding: '10px 0',
+                                                            margin: '0 20px 5px 0',
+                                                            background: index < currentStep ? 'green' : index === currentStep ? 'green' : '#e1e1e1', // Change color based on step status
+                                                            color: "#fff",
+                                                            borderRadius: '50%',
+                                                            position: 'relative',
                                                         }}
-                                                    />
-                                                )}
-                                                {/* Render the connecting line only if it's not the last step */}
-                                            </div>
+                                                    >
+                                                        {index + 1}
 
-                                        </>
+                                                        {index < messList.length - 1 && (
+                                                            <div
+                                                                className={`step-line ${index < currentStep ? 'completed' : ''}`}
+                                                                style={{
+                                                                    backgroundColor: index < currentStep ? 'green' : '#e1e1e1',
+                                                                }}
+                                                            />
+                                                        )}
+                                                    </div>
 
-                                    );
-                                })}
+                                                    <div className='me-2'>
+                                                        {mess.messName}
+                                                    </div>
+                                                </div>
+                                            );
+                                        })}
+                                    </>
+                                )
+                                }
+
                             </div>
 
 
 
-                            {/* Form on the Right */}
                             <div className="form-section" style={{ width: '90%', paddingLeft: '20px' }}>
-                                {/* {messList.map((mess, index) => (
-             currentStep === index && (
-                 <div key={mess.messID}> */}
-                                <h5>
-                                    {/* Please Update data for <span className="text-primary">{messList[currentStep].messName}</span> */}
-                                </h5>
                                 <div className="my-task">
                                     {formData.inputs.map((input: Input) => (
                                         shouldDisplayInput(input) && (
@@ -743,20 +907,20 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                                                         icon="ri-upload-cloud-2-line"
                                                         text="Drop files here or click to upload."
                                                         additionalData={{
-                                                            ModuleID: 'yourModuleID',
+                                                            ModuleID: moduleId,
                                                             CreatedBy: 'yourUserID',
-                                                            TaskCommonID: 3463,
-                                                            Task_Number: 'yourTaskNumber',
-                                                            ProcessInitiationID: 35635,
-                                                            ProcessID: 'yourProcessID',
+                                                            TaskCommonID: taskCommonIDRow,
+                                                            Task_Number: taskNumber,
+                                                            ProcessInitiationID: ProcessInitiationID,
+                                                            ProcessID: processId,
                                                             UpdatedBy: 'yourUpdatedBy',
                                                         }}
                                                         onFileUpload={(files) => {
-                                                            // Handle file upload logic here
                                                             console.log('Files uploaded:', files);
                                                         }}
                                                     />
                                                 )}
+
 
                                                 {input.type === 'checkbox' && (
 
@@ -801,27 +965,110 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
 
                                     ))}
                                     {showMessManagerSelect && (
-                                        <div className='form-group my-2'>
+                                        <div className='form-group my-2 position-relative'>
                                             <label>Select Mess Manager</label>
                                             <select
                                                 className='form-control'
                                                 value={selectedManager} // Bound to selectedManager state
                                                 onChange={handleSelectMessImpChange} // Updates state on change
                                             >
-                                                {/* Set default value */}
-                                                <option value="Avisineni Pavan Kumar_LLP05337">Avisineni Pavan Kumar_LLP05337</option>
-                                                {/* Map the rest of the options */}
+                                                <option value="">Select a Manager</option> {/* Default placeholder option */}
                                                 {messManagers.map((manager) => (
                                                     <option key={manager.value} value={manager.value}>
                                                         {manager.label}
                                                     </option>
                                                 ))}
                                             </select>
+                                            <i style={{ position: 'absolute', right: '10px', bottom: '6px' }} className="ri-pencil-fill fs-4" onClick={handleShow2}></i> {/* This shows the modal */}
                                         </div>
                                     )}
-
                                 </div>
-                                <div className="form-group mb-2">
+
+                                {showBankModal && (
+                                    <div className="modal-overlay">
+                                        <div className="modal-content">
+                                            <h4>Bank Details</h4>
+                                            <form className='form-group row'>
+                                                <div className="mt-3 col-6">
+                                                    <label>Reimbursement Account</label>
+                                                    <input
+                                                        className='form-control'
+                                                        type="text"
+                                                        name="reimbursementBankAccountNumber" // Name for state update
+                                                        value={bankDetails.reimbursementBankAccountNumber}
+                                                        placeholder="Enter account number"
+                                                        onChange={handleInputChange} // Handle changes in input
+                                                    />
+                                                </div>
+
+                                                <div className="mt-3 col-6">
+                                                    <label>Reimbursement Bank</label>
+                                                    <input
+                                                        className='form-control'
+                                                        type="text"
+                                                        name="reimbursementBankName" // Name for state update
+                                                        value={bankDetails.reimbursementBankName}
+                                                        placeholder="Enter bank name"
+                                                        onChange={handleInputChange} // Handle changes in input
+                                                    />
+                                                </div>
+
+                                                <div className="mt-3 col-6">
+                                                    <label>Reimbursement Bank Branch</label>
+                                                    <input
+                                                        className='form-control'
+                                                        type="text"
+                                                        name="reimbursementBranchName" // Name for state update
+                                                        value={bankDetails.reimbursementBranchName}
+                                                        placeholder="Enter branch name"
+                                                        onChange={handleInputChange} // Handle changes in input
+                                                    />
+                                                </div>
+
+                                                <div className="mt-3 col-6">
+                                                    <label>Reimbursement IFSC Code</label>
+                                                    <input
+                                                        className='form-control'
+                                                        type="text"
+                                                        name="reimbursementBankIfsc" // Name for state update
+                                                        value={bankDetails.reimbursementBankIfsc}
+                                                        placeholder="Enter IFSC code"
+                                                        onChange={handleInputChange} // Handle changes in input
+                                                    />
+                                                </div>
+
+                                                <div className="mt-3 col-6">
+                                                    <label>Mess Manager</label>
+                                                    <input
+                                                        className='form-control'
+                                                        type="text"
+                                                        name="managerName" // Name for state update
+                                                        value={bankDetails.managerName}
+                                                        placeholder="Enter manager name"
+                                                        onChange={handleInputChange} // Handle changes in input
+                                                    />
+                                                </div>
+
+                                                <div className="mt-3 col-6">
+                                                    <label>Mess Manager Mobile Number</label>
+                                                    <input
+                                                        className='form-control'
+                                                        type="text"
+                                                        name="userUpdateMobileNumber" // Name for state update
+                                                        value={bankDetails.userUpdateMobileNumber}
+                                                        placeholder="Enter mobile number"
+                                                        onChange={handleInputChange} // Handle changes in input
+                                                    />
+                                                </div>
+
+                                                <div className="modal-buttons mt-3 d-flex justify-content-end">
+                                                    <button className='btn btn-primary' type="button" onClick={handleClose2}>Close</button>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                )}
+                                {/* <div className="form-group mb-2">
                                     <label htmlFor="taskSummary">Comments</label>
                                     <input
                                         type="text"
@@ -831,44 +1078,41 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                                         onChange={(e) => setSummary(e.target.value)}  // Update the state on input change
                                         style={{ display: 'block', width: '100%', padding: '0.5rem' }}
                                     />
-                                </div>
+                                </div> */}
                                 {/* </div>
              )
          ))} */}
-
-                                {/* Navigation Buttons */}
-                                <div className="d-flex justify-content-between">
-                                    {/* {currentStep <= messList.length - 1 && (
-                                        <button
-                                            type="button"  
-                                            className="btn btn-secondary"
-                                            onClick={handlePrevStep}
-                                            disabled={currentStep === 0}>
-                                            Previous
-                                        </button>
-                                    )}  */}
-                                    {/* Conditional rendering of Next or Submit button */}
-                                    {currentStep < messList.length - 1 && (
-                                        <button
-                                            type="button"  // Add this to prevent form submission
-                                            className="btn btn-primary"
-                                            onClick={handleNextStep}
-                                        // disabled={currentStep === messList.length - 1}
-                                        >
-                                            Next
-                                        </button>
-                                    )}
-
-                                    {currentStep === messList.length - 1 && (
-                                        <button
-                                            type="submit"  // This button will submit the form
-                                            className="btn btn-success"
-                                        >
-                                            Submit
-                                        </button>
-                                    )}
-
+                                <div>
+                                    {processId === "ACC.01" ? (
+                                        <div className="d-flex justify-content-between">
+                                            {/* Next Button */}
+                                            {currentStep < messList.length - 1 && (
+                                                <button
+                                                    type="button" // Add this to prevent form submission
+                                                    className="btn btn-primary"
+                                                    onClick={handleNextStep}
+                                                >
+                                                    Next
+                                                </button>
+                                            )}
+                                            {currentStep === messList.length - 1 && (
+                                                <button
+                                                    type="submit" // This button will submit the form
+                                                    className="btn btn-success"
+                                                >
+                                                    Submit
+                                                </button>
+                                            )}
+                                        </div>
+                                    ) : <button
+                                        type="submit" // This button will submit the form
+                                        className="btn btn-success"
+                                    >
+                                        Submit
+                                    </button>}
                                 </div>
+
+
                             </div>
                         </Modal.Body>
 

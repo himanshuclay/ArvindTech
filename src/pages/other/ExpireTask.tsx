@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { Button, Table ,Container, Row, Col, Alert } from 'react-bootstrap'; // Assuming DynamicForm is in the same directory
+import { Button, Table } from 'react-bootstrap'; // Assuming DynamicForm is in the same directory
 
 interface GetFilterTask {
   id: number;
@@ -78,16 +78,7 @@ const ExpireTask: React.FC = () => {
     <div>
       <div className="d-flex p-2 bg-white mt-2 mb-2 rounded shadow"><h5 className='mb-0'>Expired Task</h5></div>
       {data.length === 0 ? (
-         <Container className="mt-5">
-         <Row className="justify-content-center">
-           <Col xs={12} md={8} lg={6}>
-             <Alert variant="info" className="text-center">
-               <h4>No Task Found</h4>
-               <p>You currently don't have any tasks assigned.</p>
-             </Alert>
-           </Col>
-         </Row>
-       </Container>
+        <p>No data available.</p>
       ) : (
         <Table className='bg-white' striped bordered hover>
           <thead>

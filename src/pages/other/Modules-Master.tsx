@@ -6,9 +6,11 @@ import {
   DraggableProvided,
   DroppableProvided,
 } from 'react-beautiful-dnd';
+import Select from 'react-select';
 import { Button, Form, Modal, ListGroup, Toast } from 'react-bootstrap';
 import axios from 'axios';
-
+import { useLocation } from 'react-router-dom';
+import config from '@/config';
 
 type FormField = {
   inputId: string;
@@ -33,7 +35,9 @@ type FormField = {
   placeholder?: string;   // Placeholder for inputs
   options?: FormFieldOption[];     // Options for select, multiselect, or radio inputs
   conditions?: TransformedField[]; // Conditions or subtasks linked to this field
-  value?: string;         // The value of the input
+  value?: string;
+  fileType?: string;        // The value of the input
+  fileSize?: string;
 };
 
 interface FormFieldOption {
@@ -79,6 +83,11 @@ type TransformedField = {
 interface ProcessOption {
   processName: string;
   processID: string;
+}
+
+interface Employee {
+  empId: string;
+  employeeName: string;
 }
 
 type Option = {
@@ -165,6 +174,8 @@ const App: React.FC = () => {
     options: [], // Initialize options as an empty array
   });
   const [selectedTaskIdx, setSelectedTaskIdx] = useState<number | null>(null);
+  const [employees, setEmployees] = useState<Employee[]>([]);
+  const [selectedEmployee, setSelectedEmployee] = useState<string>('');
   const [selectedFieldIdx, setSelectedFieldIdx] = useState<number | null>(null);
   const [showToast, setShowToast] = useState(false);
   const [roles, setRoles] = useState<Role[]>([]);
@@ -182,9 +193,30 @@ const App: React.FC = () => {
   });
   const [conditionalField, setConditionalField] = useState(false);
 
+  const location = useLocation();
+
+
   const handleCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setConditionalField(event.target.checked);
   };
+
+  useEffect(() => {
+    const fetchEmployees = async () => {
+      try {
+        const response = await axios.get(`${config.API_URL_APPLICATION}/CommonDropdown/GetEmployeeListWithId`);
+        if (response.data.isSuccess) {
+          setEmployees(response.data.employeeLists);
+        } else {
+          console.error("Failed to fetch employees");
+        }
+      } catch (error) {
+        console.error("Error fetching employees:", error);
+      }
+    };
+
+    fetchEmployees();
+  }, []);
+
 
   const handleSelectChange = (e: ChangeEvent<any>) => {
     const selectedIndex = e.target.selectedIndex;
@@ -203,6 +235,32 @@ const App: React.FC = () => {
 
     console.log(`Selected Label: ${label}, ID: ${value}, Color: ${color}`);
   };
+
+  interface MasterItem {
+    id: number;
+    mastersName: string;
+  }
+
+  const [mastersList, setMastersList] = useState<MasterItem[]>([]); // State to store the fetched options
+  const [selectedMaster, setSelectedMaster] = useState(''); // State to track selected option
+
+  useEffect(() => {
+    // Fetch the master list data from the API when the component loads
+    const fetchMastersList = async () => {
+      try {
+        const response = await axios.get(`${config.API_URL_APPLICATION}/CommonDropdown/GetMastersList`);
+        if (response.data.isSuccess) {
+          setMastersList(response.data.mastersLists);
+        } else {
+          console.error('Failed to fetch master list');
+        }
+      } catch (error) {
+        console.error('Error fetching masters list:', error);
+      }
+    };
+
+    fetchMastersList();
+  }, []);
 
 
   const handleFormSubmit = (e: React.FormEvent<HTMLFormElement>) => {
@@ -270,7 +328,7 @@ const App: React.FC = () => {
   useEffect(() => {
     const fetchModules = async () => {
       try {
-        const response = await axios.get('https://localhost:44307/api/CommonDropdown/GetModuleList');
+        const response = await axios.get(`${config.API_URL_APPLICATION}/CommonDropdown/GetModuleList`);
         if (response.data.isSuccess) {
           setModules(response.data.moduleNameListResponses);
         } else {
@@ -287,7 +345,7 @@ const App: React.FC = () => {
   useEffect(() => {
     const fetchRoles = async () => {
       try {
-        const response = await axios.get('https://localhost:44307/api/CommonDropdown/GetRoleMasterList');
+        const response = await axios.get(`${config.API_URL_APPLICATION}/CommonDropdown/GetRoleMasterList`);
         if (response.data.isSuccess) {
           setRoles(response.data.roleMasterLists); // roleMasterLists is an array of Role objects
         } else {
@@ -298,30 +356,30 @@ const App: React.FC = () => {
       }
     };
 
-    // Load selectedRole from localStorage if it exists
-    const savedRole = localStorage.getItem('selectedRole');
-    if (savedRole) {
-      setSelectedRole(JSON.parse(savedRole));
-    }
+
 
     fetchRoles();
   }, []);
 
-  // Save selectedRole to localStorage whenever it changes
-  useEffect(() => {
-    if (selectedRole) {
-      localStorage.setItem('selectedRole', JSON.stringify(selectedRole));
-    }
-  }, [selectedRole]);
 
-  const handleRoleSelect = (e: ChangeEvent<any>) => {
-    const { value } = e.target as HTMLSelectElement;
-    const selectedId = parseInt(value, 10); // Parse the value as an integer
-    const selected = roles.find((role) => role.id === selectedId) || null; // Find the role by ID
-    setSelectedRole(selected); // Update the selected role
+  console.log(formData)
+
+
+
+  const handleRoleSelect = (selectedOption: { id: number; roleName: string } | null) => {
+    if (selectedOption) {
+      const selectedId = selectedOption.id; 
+      const selected = roles.find((role) => role.id === selectedId) || null; 
+      setSelectedRole(selected); 
+    } else {
+      setSelectedRole(null); 
+    }
   };
 
-  const handleFormChange = (e: ChangeEvent<any>) => {
+
+
+
+  const handleFormChange = (e: { target: { name: string; value: string; } }) => {
     const { name, value } = e.target as HTMLSelectElement | HTMLInputElement;
 
     // Update form data
@@ -339,7 +397,7 @@ const App: React.FC = () => {
         localStorage.setItem('selectedModuleId', selectedModule.moduleID); // Save selectedModuleId to localStorage
         localStorage.setItem('selectedModuleName', selectedModule.moduleName); // Save selectedModuleName to localStorage
 
-        fetch(`https://localhost:44307/api/CommonDropdown/GetProcessNameByModuleName?ModuleName=${value}`)
+        fetch(`${config.API_URL_APPLICATION}/CommonDropdown/GetProcessNameByModuleName?ModuleName=${value}`)
           .then((response) => response.json())
           .then((data) => {
             if (data.isSuccess) {
@@ -399,15 +457,15 @@ const App: React.FC = () => {
   const handleSaveTask = async () => {
     // Retrieve processID, processName, and finishID from formData
     const { processID, processName, finishID } = formData; // Add finishID
-  
+
     // Ensure selectedModule, processID, processName, and finishID are available
     if (!selectedModule || !processID || !processName || !finishID) {
       console.error('Module, process, or finish point information is missing');
       return;
     }
-  
-    const startDate = new Date().toISOString();
-  
+
+    // const startDate = new Date().toISOString();
+
     // Create the final JSON object for the form
     const transformedFields = taskFields.map((field) => {
       const inputId = field.inputId; // Use the existing inputId from the field
@@ -416,7 +474,23 @@ const App: React.FC = () => {
         label: option.label || "", // Ensure label is used if available
         color: option.color || "" // Include color if available
       })) || [];
-  
+
+      if (field.type === 'file') {
+        return {
+          inputId,
+          type: field.type,
+          label: field.labeltext || "Default Label",
+          placeholder: field.placeholder || "",
+          options,
+          required: field.required || false,
+          conditionalFieldId: field.conditionalFieldId || "", // Use existing conditionalFieldId if any
+          value: field.value || "",
+          fileType: fileType || "", // Add fileType if available
+          fileSize: fileSize || "", // Add fileSize if available
+        };
+      }
+
+      // Default return for other input types
       return {
         inputId,
         type: field.type,
@@ -428,13 +502,15 @@ const App: React.FC = () => {
         value: field.value || "",
       };
     });
-  
+
     const formJSON = {
       formId: processID,
       formName: processName,
       inputs: transformedFields,
     };
-  
+
+    const selectedEmployeeObj = employees.find(emp => emp.empId === selectedEmployee)
+
     // Include finishID (finishPoint) in the payload
     const payload = {
       id: 0, // Adjust as needed
@@ -444,21 +520,28 @@ const App: React.FC = () => {
       roleId: selectedRole ? String(selectedRole.id) : '', // Ensure roleId is a string
       roleName: selectedRole?.roleName || '', // Ensure roleName is present or empty string
       processName,
-      startDate,
-      Task_Status: 1,
+      // startDate,
+      doerID: "",
+      doerName: "",
+      task_Number: "",
+      condition_Json: "",
+      isExpired: 0,
+      task_Status: 1,
+      template_Json: selectedTemplateJson,
+      problem_Solver: selectedEmployeeObj?.employeeName,
       task_Json: JSON.stringify(formJSON),
       createdBy: "HimanshuPant", // Replace with actual username or dynamic value
       finishPoint: parseFloat(finishID), // Convert finishID to float before sending
     };
-    
-  
+
+
     console.log('Payload:', payload);
-  
+
     // Set loading to true before starting the save operation
     setLoading(true);
-  
+
     try {
-      const response = await fetch('https://arvindo-api.clay.in/api/ProcessTaskMaster/InsertUpdateProcessTaskandDoer', {
+      const response = await fetch(`${config.API_URL_ACCOUNT}/ProcessTaskMaster/InsertUpdateProcessTaskandDoers`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -466,15 +549,15 @@ const App: React.FC = () => {
         },
         body: JSON.stringify(payload),
       });
-  
+
       if (response.ok) {
         const data = await response.json();
         console.log('Task saved successfully:', data);
-  
+
         // Update saved tasks and reset form fields except processID, processName, and finishID
         setTaskFields([]); // Clear the task fields
         setIsModalOpen(false); // Close modal
-  
+
         // Optionally reset other form fields, including finishID
         setFormData((prevData) => ({
           ...prevData,
@@ -482,7 +565,7 @@ const App: React.FC = () => {
           Date: new Date(), // Reset Date or other fields if needed
           finishID: '', // Reset finishID after submission
         }));
-  
+
         // Remove finishID from localStorage after submission
         localStorage.removeItem('selectedFinishID');
       } else {
@@ -497,7 +580,135 @@ const App: React.FC = () => {
       setShowToast(true); // Show toast or notification if needed
     }
   };
-  
+
+  const handleSaveTemplate = async () => {
+    const { processID, processName } = formData;
+
+    // Ensure required fields are available
+    if (!selectedModule || !processID || !processName) {
+      console.error('Module or process information is missing');
+      return;
+    }
+
+    const templateField = taskFields.map((field) => {
+      const inputId = field.inputId;
+      const options = field.options?.map((option, optIndex) => ({
+        id: `${inputId}-${optIndex + 1}`,
+        label: option.label || "",
+        color: option.color || "",
+      })) || [];
+
+      return {
+        inputId,
+        type: field.type,
+        label: field.labeltext || "Default Label",
+        placeholder: field.placeholder || "",
+        options,
+        required: field.required || false,
+        conditionalFieldId: field.conditionalFieldId || "",
+        value: field.value || "",
+      };
+    });
+
+    // Find the input with inputId: "99" and extract its label, renamed as FromLabel
+    const adhocFormField = templateField.find((field) => field.inputId === "99");
+    const FromLabel = adhocFormField ? adhocFormField.label : "Adhoc Form";
+
+    // Create the template JSON
+    const templateJSON = {
+      formId: processID,
+      formName: processName,
+      inputs: templateField,
+    };
+
+    // Prepare payload
+    const payload = {
+      formName: FromLabel,
+      templateJson: JSON.stringify(templateJSON),
+      createdBy: "HimanshuPant",
+    };
+
+    console.log('Template Payload:', payload);
+
+    // Set loading to true before starting the save operation
+    setLoading(true);
+
+    try {
+      const response = await fetch(`${config.API_URL_ACCOUNT}/ProcessTaskMaster/InsertTemplateJson`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': '*/*',
+        },
+        body: JSON.stringify(payload),
+      });
+
+      // Check if response has a body to parse
+      const responseText = await response.text();
+
+      // Parse JSON only if responseText is not empty
+      if (responseText) {
+        const data = JSON.parse(responseText);
+        console.log('Template saved successfully:', data);
+
+        // Reset form fields
+        setTaskFields([]);
+        setIsModalOpen(false);
+
+        setFormData((prevData) => ({
+          ...prevData,
+          taskName: '',
+          Date: new Date(),
+        }));
+      } else {
+        console.warn('No content in the response');
+      }
+    } catch (error) {
+      console.error('Error saving template:', error);
+    } finally {
+      setLoading(false);
+      setShowToast(true); // Show notification if needed
+    }
+  };
+
+  const [selectedTemplateJson, setSelectedTemplateJson] = useState(''); // Store the selected templateJson
+
+
+  useEffect(() => {
+    const fetchTemplateData = async () => {
+      try {
+        const response = await axios.get(`${config.API_URL_ACCOUNT}/ProcessTaskMaster/GetTemplateJson`);
+        if (response.data.isSuccess) {
+          const templates = response.data.getTemplateJsons;
+
+          // Set the templates in state (includes formName and templateJson)
+          setTemplates(templates);
+        } else {
+          console.error('Failed to fetch template data:', response.data.message);
+        }
+      } catch (error) {
+        console.error('Error fetching template data:', error);
+      }
+    };
+
+    fetchTemplateData();
+  }, []);
+
+
+
+  const handleSelectTemplateChange = (e: ChangeEvent<any>) => {
+    const selectedFormName = e.target.value;
+
+    // Use type assertion to tell TypeScript that the object has a `formName` property
+    const selectedTemplate = templates.find(
+      template => (template as { formName: string; templateJson: any }).formName === selectedFormName
+    );
+
+    if (selectedTemplate) {
+      setSelectedTemplateJson((selectedTemplate as { formName: string; templateJson: any }).templateJson);
+    }
+  };
+
 
 
   const handleDeleteOption = (index: number) => {
@@ -506,6 +717,9 @@ const App: React.FC = () => {
       setEditField({ ...editField, options: updatedOptions });
     }
   };
+
+  const [fileType, setFileType] = useState('');
+  const [fileSize, setFileSize] = useState('');
 
   const handleDeleteField = (taskIndex: number, fieldIndex: number) => {
     if (taskIndex === -1) {
@@ -548,6 +762,10 @@ const App: React.FC = () => {
 
       return { ...prevField, options: newOptions };
     });
+  };
+
+  const handleEmployeeChange = (selectedOption: any) => {
+    setSelectedEmployee(selectedOption ? selectedOption.value : null);
   };
 
   const handleEditField = (field: FormField, taskIndex: number, fieldIndex: number) => {
@@ -619,6 +837,14 @@ const App: React.FC = () => {
     };
   };
 
+  type Template = {
+    id: number;
+    formName: string;
+    templateJson: any;  // Adjust this based on the actual structure of templateJson
+  };
+
+  const [templates, setTemplates] = useState<Template[]>([]);
+
 
   const renderField = (field: FormField, taskIndex: number, fieldIndex: number) => {
     const renderFieldContent = () => {
@@ -628,6 +854,24 @@ const App: React.FC = () => {
             <div className='col-6 col-new'>
               <div>{field.labeltext}</div>
               {/* <div>Placeholder: {field.placeholder}</div> */}
+            </div>
+          );
+        case 'number':
+          return (
+            <div className='col-6 col-new'>
+              <div>{field.labeltext}</div>
+            </div>
+          );
+        case 'email':
+          return (
+            <div className='col-6 col-new'>
+              <div>{field.labeltext}</div>
+            </div>
+          );
+        case 'tel':
+          return (
+            <div className='col-6 col-new'>
+              <div>{field.labeltext}</div>
             </div>
           );
         case 'checkbox':
@@ -692,11 +936,20 @@ const App: React.FC = () => {
         case 'CustomSelect':
           return (
             <div className='col-6'>
-              <div className='form-group'>
-                <div className='label mb-1'>{field.labeltext}</div>
-                <select className='form-control' id="employee-select" style={{ width: '200px' }}>
-                </select>
-              </div>
+              <Form.Group className='mt-2'>
+                <Form.Label>Select Master</Form.Label>
+                <Form.Select
+                  value={selectedMaster} // Bind state variable to the value of the select
+                  onChange={(e) => setSelectedMaster(e.target.value)} // Update the state on selection
+                >
+                  <option value="">Select a Master</option>
+                  {mastersList.map((master) => (
+                    <option key={master.id} value={master.id}>
+                      {master.mastersName}
+                    </option>
+                  ))}
+                </Form.Select>
+              </Form.Group>
             </div>
           );
 
@@ -725,7 +978,15 @@ const App: React.FC = () => {
   return (
     <div className="App" id="taskTop">
       <div className="container mt-4">
-        <div className="d-flex p-2 bg-white mt-2 mb-2">Create Task</div>
+        <div className="d-flex p-2 bg-white mt-2 mb-2 fw-bold text-dark fs-5">
+          {
+
+            (location.pathname === '/pages/CreateTemplates' ? '  Create Templates' : '  Create Task')
+
+          }
+
+
+        </div>
 
 
         <DragDropContext onDragEnd={handleDragEnd}>
@@ -733,70 +994,68 @@ const App: React.FC = () => {
             <Form className='row col-md-12 p-2 bg-white rounded align-items-end m-0' onSubmit={handleFormSubmit}>
               <Form.Group className="col-md-3 my-1">
                 <Form.Label>Module Name</Form.Label>
-                <Form.Control
-                  as="select"
+
+                <Select
                   name="ModuleName"
-                  value={formData.ModuleName}
-                  onChange={handleFormChange}
+                  value={modules.find((module) => module.moduleName === formData.ModuleName) || null}
+                  onChange={(selectedOption) => {
+                    handleFormChange({
+                      target: {
+                        name: 'ModuleName',
+                        value: selectedOption?.moduleName || '',
+                      },
+                    });
+                  }}
+                  getOptionLabel={(module) => module.moduleName}
+                  getOptionValue={(module) => module.moduleName}
+                  options={modules}
+                  isSearchable={true}
+                  placeholder="Select Module"
+                  className="h45"
                   required
-                >
-                  <option value="">Select Modules</option>
-                  {modules.map((module) => (
-                    <option key={module.moduleID} value={module.moduleName}>
-                      {module.moduleName}
-                    </option>
-                  ))}
-                </Form.Control>
+                />
               </Form.Group>
 
               <Form.Group className="col-md-3 my-1">
                 <Form.Label>Process Name</Form.Label>
-                <Form.Control
-                  as="select"
+                <Select
                   name="processes"
-                  value={formData.processName}
-                  onChange={handleFormChange}
+                  value={formData.processOptions?.find((process) => process.processName === formData.processName) || null}
+                  onChange={(selectedOption) => {
+                    handleFormChange({
+                      target: {
+                        name: 'processes',
+                        value: selectedOption?.processName || '',
+                      },
+                    });
+                  }}
+                  getOptionLabel={(process) => process.processName}
+                  getOptionValue={(process) => process.processName}
+                  options={formData.processOptions || []}
+                  isSearchable={true}
+                  placeholder="Select Process"
+                  className="h45"
                   required
-                >
-                  <option value="">Select Process</option>
-                  {formData.processOptions?.map((process) => (
-                    <option key={process.processID} value={process.processName}>
-                      {process.processName}
-                    </option>
-                  ))}
-                </Form.Control>
+                />
               </Form.Group>
 
-
-              {/* <Form.Group className='col-md-3 my-1'>
-                <Form.Label>Start Date</Form.Label>
-                <CustomFlatpickr
-                  className="form-control"
-                  placeholder="Date & Time"
-                  value={formData.Date}
-                  onChange={handleDateChange} // Use date-specific handler
-                  options={{
-                    enableTime: true,
-                    dateFormat: 'Y-m-d H:i',
-                  }}
-                />
-              </Form.Group> */}
               <Form.Group className="col-md-3 my-1">
                 <Form.Label>Role Name</Form.Label>
-                <Form.Control
-                  as="select"
+                <Select
                   name="RoleName"
-                  value={selectedRole?.id || ''}
-                  onChange={handleRoleSelect}
+                  value={roles.find((role) => role.id === selectedRole?.id) || null}
+                  onChange={(selectedOption) => handleRoleSelect(selectedOption)} 
+                  getOptionLabel={(role) => role.roleName}  
+                  getOptionValue={(role) => String(role.id)}  
+                  options={roles}
+                  isSearchable={true}
+                  placeholder="Select Role"
+                  className="h45"
                   required
-                >
-                  <option value="">Select Role</option>
-                  {roles.map((role) => (
-                    <option key={role.id} value={role.id}>
-                      {role.roleName}
-                    </option>
-                  ))}
-                </Form.Control>
+                />
+
+
+
               </Form.Group>
 
               <Form.Group className='col-md-3 my-1'>
@@ -815,7 +1074,12 @@ const App: React.FC = () => {
                 <Button variant="primary" type="submit" style={{
                   height: 'max-content'
                 }}>
-                  Add Task Details
+
+
+                  {location.pathname === '/pages/CreateTemplates' ? "Create Templates" : "Add Task Details"}
+
+
+
                 </Button>
               </div>
             </Form>
@@ -888,7 +1152,23 @@ const App: React.FC = () => {
               </Droppable>
 
             </div>
-            <Form.Group className="col-6 my-1">
+            <Form.Group className="col-4 my-1">
+              <Form.Label>Problem Solver</Form.Label>
+              <Select
+                value={employees
+                  .map(employee => ({ value: employee.empId, label: employee.employeeName }))
+                  .find(option => option.value === selectedEmployee)
+                }
+                onChange={handleEmployeeChange}
+                options={employees.map(employee => ({
+                  value: employee.empId,
+                  label: employee.employeeName,
+                }))}
+                placeholder="Select an employee"
+                isSearchable
+              />
+            </Form.Group>
+            <Form.Group className="col-4 my-1">
               <Form.Label>Set Finish Point</Form.Label>
               <Form.Control
                 as="select"
@@ -907,12 +1187,51 @@ const App: React.FC = () => {
                   ))}
               </Form.Control>
             </Form.Group>
+            {location.pathname != '/pages/CreateTemplates' &&
+
+              (
+                <Form.Group className="col-4 my-1">
+                  <Form.Label>Select Template</Form.Label>
+                  <Form.Control
+                    as="select"
+                    name="templateName"  // Name for the select input
+                    onChange={handleSelectTemplateChange}  // On change handler
+                    required
+                  >
+                    <option value="">Select Template</option>
+                    {templates.map((template) => (
+                      <option key={template.id} value={template.formName}>
+                        {template.formName}
+                      </option>
+                    ))}
+                  </Form.Control>
+
+                  {/* For debugging, showing selected templateJson */}
+                  <div>
+                    <h5>Selected Template JSON:</h5>
+                    <pre>{selectedTemplateJson}</pre>
+                  </div>
+                </Form.Group>
+              )
+
+            }
+
           </div>
         </DragDropContext>
         <div className="d-flex justify-content-end p-2 col-12">
-          <Button variant="primary" onClick={handleSaveTask}>
+
+
+          {(location.pathname === '/pages/CreateTemplates' ? <Button className='me-2' variant="primary" onClick={handleSaveTemplate}>
+            Save As Template
+          </Button> : <Button variant="primary" onClick={handleSaveTask}>
             Save Task
-          </Button>
+          </Button>)
+          }
+
+
+
+
+
         </div>
 
         <Modal size='lg' show={isModalOpen} onHide={() => setIsModalOpen(false)}>
@@ -930,62 +1249,136 @@ const App: React.FC = () => {
                     onChange={(e) => setEditField({ ...editField, labeltext: e.target.value })}
                   />
                 </Form.Group>
-                {(editField.type === 'text' || editField.type === 'custom') && (
-                  <Form.Group>
-                    <Form.Label>Placeholder</Form.Label>
-                    <Form.Control
-                      type="text"
-                      value={editField.placeholder}
-                      onChange={(e) => setEditField({ ...editField, placeholder: e.target.value })}
-                    />
-                    <div className='form-group mt-2'>
-                      <label className="form-label">
-                        <input className='me-1' type="checkbox"
-                          checked={conditionalField}
-                          onChange={handleCheckboxChange} />
-                        Is Conditionally bound?
-                      </label>
-                    </div>
-                    {conditionalField == true &&
+                {(editField.type === 'text' || editField.type === 'custom' ||
+                  editField.type === 'number' || editField.type === 'email' ||
+                  editField.type === 'tel') && (
+                    <Form.Group>
+                      {/* Dropdown to select input type */}
+                      <Form.Label>Select Input Type</Form.Label>
                       <Form.Control
                         as="select"
-                        className="mt-2"
-                        value={editField.conditionalFieldId || ''}
-                        onChange={handleSelectChange}
+                        value={editField.type} // Select the current type
+                        onChange={(e) => setEditField({ ...editField, type: e.target.value })} // Update the type dynamically
                       >
-                        <option value="">Select an option</option>
-                        {taskFields.map((field) => (
-                          <React.Fragment key={field.inputId}>
-                            <option value={field.inputId}>{field.labeltext}</option>
-                            {field.options?.map((option) => (
-                              <option
-                                key={option.id}
-                                value={option.id}
-                                data-color={option.color || ""}
-                                style={{ color: option.color || "inherit" }}
-                              >
-                                {option.label}
-                              </option>
-                            ))}
-                          </React.Fragment>
-                        ))}
+                        <option value="text">Text</option>
+                        <option value="number">Number</option>
+                        <option value="email">Email</option>
+                        <option value="tel">Telephone</option>
+                        <option value="custom">Custom</option> {/* For custom handling */}
                       </Form.Control>
 
-                    }
-                  </Form.Group>
-                )}
+                      {/* Input field depending on the selected type */}
+                      <Form.Label>Placeholder</Form.Label>
+                      <Form.Control
+                        type={editField.type}  // Use the dynamic type for the input field
+                        placeholder={editField.placeholder}
+                        value={editField.placeholder || ''}
+                        onChange={(e) => setEditField({ ...editField, placeholder: e.target.value })}
+                      />
 
-                {(editField.type === 'file') &&
-                  (<Form.Group className='mt-2'>
+                      {/* Conditional Checkbox */}
+                      <div className='form-group mt-2'>
+                        <label className="form-label">
+                          <input
+                            className='me-1'
+                            type="checkbox"
+                            checked={conditionalField}
+                            onChange={handleCheckboxChange}
+                          />
+                          Is Conditionally bound?
+                        </label>
+                      </div>
+
+                      {/* Conditional Select Dropdown */}
+                      {conditionalField && (
+                        <Form.Control
+                          as="select"
+                          className="mt-2"
+                          value={editField.conditionalFieldId || ''}
+                          onChange={handleSelectChange}
+                        >
+                          <option value="">Select an option</option>
+                          {taskFields.map((field) => (
+                            <React.Fragment key={field.inputId}>
+                              <option value={field.inputId}>{field.labeltext}</option>
+                              {field.options?.map((option) => (
+                                <option
+                                  key={option.id}
+                                  value={option.id}
+                                  data-color={option.color || ""}
+                                  style={{ color: option.color || "inherit" }}
+                                >
+                                  {option.label}
+                                </option>
+                              ))}
+                            </React.Fragment>
+                          ))}
+                        </Form.Control>
+                      )}
+                    </Form.Group>
+                  )}
+
+
+                {(editField.type === 'file') && (
+                  <Form.Group className='mt-2'>
                     <Form.Control
                       type='file'
                     />
-                  </Form.Group>)
-                }
+
+                    {/* Select for File Type */}
+                    <Form.Group className='mt-2'>
+                      <Form.Label>File Type</Form.Label>
+                      <Form.Select
+                        value={fileType} // Replace with your state variable for file type
+                        onChange={(e) => setFileType(e.target.value)} // Update the file type state
+                      >
+                        <option value="">Select File Type</option>
+                        <option value=".jpg">JPG</option>
+                        <option value=".jpeg">JPEG</option>
+                        <option value=".png">PNG</option>
+                        <option value=".pdf">PDF</option>
+                        <option value=".docx">DOCX (Word Document)</option>
+                        <option value=".xlsx">XLSX (Excel Spreadsheet)</option>
+                        {/* Add more options as needed */}
+                      </Form.Select>
+                    </Form.Group>
+
+                    {/* Select for File Size */}
+                    <Form.Group className='mt-2'>
+                      <Form.Label>File Size</Form.Label>
+                      <Form.Select
+                        value={fileSize} // Replace with your state variable for file size
+                        onChange={(e) => setFileSize(e.target.value)} // Update the file size state
+                      >
+                        <option value="">Select maximum file limit</option>
+                        <option value="1">1</option>
+                        <option value="5">5</option>
+                        <option value="10">10</option>
+                        <option value="20">20</option>
+                        {/* Add more options as needed */}
+                      </Form.Select>
+                    </Form.Group>
+                  </Form.Group>
+                )}
+
 
                 {editField.type === 'CustomSelect' && (
                   <Form.Group key={editField.inputId}>
                     <Form.Label>{editField.labeltext}</Form.Label>
+                    <Form.Group className='mt-2'>
+                      <Form.Label>Select Master</Form.Label>
+                      <Form.Select
+                        value={selectedMaster} // Bind state variable to the value of the select
+                        onChange={(e) => setSelectedMaster(e.target.value)} // Update the state on selection
+                      >
+                        <option value="">Select a Master</option>
+                        {mastersList.map((master) => (
+                          <option key={master.id} value={master.id}>
+                            {master.mastersName}
+                          </option>
+                        ))}
+                      </Form.Select>
+                    </Form.Group>
                   </Form.Group>
                 )}
                 {editField.type === 'paragraph' && (
@@ -1054,6 +1447,41 @@ const App: React.FC = () => {
                       Add Option
                     </Button>
 
+                    <div className='form-group mt-2'>
+                      <label className="form-label">
+                        <input className='me-1' type="checkbox"
+                          checked={conditionalField}
+                          onChange={handleCheckboxChange} />
+                        Is Conditionally bound?
+                      </label>
+                    </div>
+                    {conditionalField == true &&
+                      <Form.Control
+                        as="select"
+                        className="mt-2"
+                        value={editField.conditionalFieldId || ''}
+                        onChange={handleSelectChange}
+                      >
+                        <option value="">Select an option</option>
+                        {taskFields.map((field) => (
+                          <React.Fragment key={field.inputId}>
+                            <option value={field.inputId}>{field.labeltext}</option>
+                            {field.options?.map((option) => (
+                              <option
+                                key={option.id}
+                                value={option.id}
+                                data-color={option.color || ""}
+                                style={{ color: option.color || "inherit" }}
+                              >
+                                {option.label}
+                              </option>
+                            ))}
+                          </React.Fragment>
+                        ))}
+                      </Form.Control>
+
+                    }
+
                   </Form.Group>
                 )}
 
@@ -1070,6 +1498,40 @@ const App: React.FC = () => {
                         })
                       }
                     />
+                    <div className='form-group mt-2'>
+                      <label className="form-label">
+                        <input className='me-1' type="checkbox"
+                          checked={conditionalField}
+                          onChange={handleCheckboxChange} />
+                        Is Conditionally bound?
+                      </label>
+                    </div>
+                    {conditionalField == true &&
+                      <Form.Control
+                        as="select"
+                        className="mt-2"
+                        value={editField.conditionalFieldId || ''}
+                        onChange={handleSelectChange}
+                      >
+                        <option value="">Select an option</option>
+                        {taskFields.map((field) => (
+                          <React.Fragment key={field.inputId}>
+                            <option value={field.inputId}>{field.labeltext}</option>
+                            {field.options?.map((option) => (
+                              <option
+                                key={option.id}
+                                value={option.id}
+                                data-color={option.color || ""}
+                                style={{ color: option.color || "inherit" }}
+                              >
+                                {option.label}
+                              </option>
+                            ))}
+                          </React.Fragment>
+                        ))}
+                      </Form.Control>
+
+                    }
                   </Form.Group>
                 )}
                 <Form.Group className='mt-2'>
