@@ -36,7 +36,6 @@ const TicketMaster = React.lazy(() => import('../pages/other/TicketMaster.tsx'))
 const SystemLogs = React.lazy(() => import('../pages/other/SystemLogs.tsx'))
 const ChkTaskMaster = React.lazy(() => import('../pages/other/ChkTaskMaster.tsx'))
 const ChecklistMaster = React.lazy(() => import('../pages/other/ChecklistCollection.tsx'))
-const AddressMaster = React.lazy(() => import('../pages/other/AddressMaster.tsx'))
 const CompletedTask = React.lazy(() => import('../pages/other/DoerSide/CompletedTask.tsx'))
 const TaskPlanned = React.lazy(() => import('../pages/other/TaskPlanned.tsx'))
 const ExpireTask = React.lazy(() => import('../pages/other/DoerSide/ExpireTask.tsx'))
@@ -77,6 +76,8 @@ const HrResumeMaster = React.lazy(() => import('../pages/other/AdminSide/HrMaste
 const HrResumeMasterinsert = React.lazy(() => import('../pages/other/AdminSide/HrMaster/HrResumeMaster/HrResumeMasterinsert.tsx'))
 const HrCandidateMaster = React.lazy(() => import('../pages/other/AdminSide/HrMaster/HrCandidateMaster/HrCandidateMaster.tsx'))
 const HrCandidateMasterinsert = React.lazy(() => import('../pages/other/AdminSide/HrMaster/HrCandidateMaster/HrCandidateMasterinsert.tsx'))
+const AddressMaster = React.lazy(() => import('../pages/other/AdminSide/AddressMaster/AddressMaster.tsx'))
+const AddressMasterinsert = React.lazy(() => import('../pages/other/AdminSide/AddressMaster/AddressMasterinsert.tsx'))
 
 
 
@@ -294,13 +295,7 @@ const customPagesRoutes = {
 			element: <ChecklistMaster />,
 			route: PrivateRoute,
 		},
-		{
-			path: '/pages/AddressMaster',
-			name: 'Address Master',
-			element: <AddressMaster />,
-			route: PrivateRoute,
-		},
-
+	
 
 		{
 			path: '/pages/CompletedTask',
@@ -633,6 +628,26 @@ const customPagesRoutes = {
 			element: <HrCandidateMasterinsert />,
 			route: PrivateRoute,
 		},
+
+		{
+			path: '/pages/AddressMaster',
+			name: 'Address Master',
+			element: <AddressMaster />,
+			route: PrivateRoute,
+		},
+		{
+			path: '/pages/AddressMasterinsert/:id',
+			name: 'AddressMasterinsert ',
+			element: <AddressMasterinsert />,
+			route: PrivateRoute,
+		},
+		{
+			path: '/pages/AddressMasterinsert',
+			name: 'AddressMasterinsert ',
+			element: <AddressMasterinsert />,
+			route: PrivateRoute,
+		},
+
 
 		///////////////////////////////////////////////////////////////////////////////////////////
 		{

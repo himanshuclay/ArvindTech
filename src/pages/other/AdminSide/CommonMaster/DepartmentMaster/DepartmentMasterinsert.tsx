@@ -5,7 +5,8 @@ import { useEffect, useState, ChangeEvent } from 'react';
 import { Button, Col, Form, Row } from 'react-bootstrap';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import config from '@/config';
-import CustomSuccessToast from '../../Component/CustomSuccessToast';
+import CustomSuccessToast from '@/pages/other/Component/CustomSuccessToast';
+
 
 
 interface Department {
