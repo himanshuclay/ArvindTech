@@ -5,10 +5,10 @@ import { Button, Pagination, Table, Container, Row, Col, Alert } from 'react-boo
 import { Link } from 'react-router-dom';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import config from '@/config';
-import CustomSuccessToast from '../../Component/CustomSuccessToast';
 // import Select from 'react-select';
 import { useLocation, useNavigate } from 'react-router-dom';
 import IconWithLetter from '@/pages/ui/IconWithLetter';
+import CustomSuccessToast from '@/pages/other/Component/CustomSuccessToast';
 
 interface HrResume {
     id: number;
@@ -131,7 +131,7 @@ const HrResumeMaster = () => {
     const fetchModules = async () => {
         setLoading(true);
         try {
-            const response = await axios.get(`${config.API_URL_APPLICATION}/Resume/GetResume`, {
+            const response = await axios.get(`${config.API_URL_APPLICATION}/ResumeMaster/GetResume`, {
                 params: {
                     PageIndex: currentPage
                 }
@@ -152,7 +152,7 @@ const HrResumeMaster = () => {
 
     const fetchModulesCsv = async () => {
         try {
-            const response = await axios.get(`${config.API_URL_APPLICATION}/Resume/GetResume`);
+            const response = await axios.get(`${config.API_URL_APPLICATION}/ResumeMaster/GetResume`);
             if (response.data.isSuccess) {
                 setDownloadCsv(response.data.resumes);
             } else {

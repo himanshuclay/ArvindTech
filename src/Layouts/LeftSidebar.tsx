@@ -281,8 +281,20 @@ const getFilteredMenuItems = () => {
             },
             {
               key: 'HrInputMaster',
-              label: 'Filling Frequency',
-              url: '/pages/HrInputMaster',
+              label: 'Filling Frequency Master',
+              url: '/pages/FillingFrequencyMaster',
+              parentKey: 'CommonDropdown',
+            },
+            {
+              key: 'ManagementContract',
+              label: 'Management Contract ',
+              url: '/pages/ManagementContractMaster',
+              parentKey: 'CommonDropdown',
+            },
+            {
+              key: 'ProjectType',
+              label: 'Project Type Master',
+              url: '/pages/ProjectTypeMaster',
               parentKey: 'CommonDropdown',
             },
           ],
@@ -372,7 +384,7 @@ const getFilteredMenuItems = () => {
         {
           key: 'Bank',
           label: 'Bank Master',
-          url: '/pages/Bank',
+          url: '/pages/BankMaster',
           icon: 'ri-bank-line',
           parentKey: 'master',
         },

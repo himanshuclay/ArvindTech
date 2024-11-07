@@ -6,8 +6,7 @@ import { parse, addDays, format, isValid } from 'date-fns';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import Overlay from 'react-bootstrap/Overlay';
 import Tooltip from 'react-bootstrap/Tooltip';
-import config from '../../config';
-
+import config from '@/config';
 
 
 

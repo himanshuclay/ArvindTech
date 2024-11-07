@@ -78,6 +78,15 @@ const HrCandidateMaster = React.lazy(() => import('../pages/other/AdminSide/HrMa
 const HrCandidateMasterinsert = React.lazy(() => import('../pages/other/AdminSide/HrMaster/HrCandidateMaster/HrCandidateMasterinsert.tsx'))
 const AddressMaster = React.lazy(() => import('../pages/other/AdminSide/AddressMaster/AddressMaster.tsx'))
 const AddressMasterinsert = React.lazy(() => import('../pages/other/AdminSide/AddressMaster/AddressMasterinsert.tsx'))
+const BankMaster = React.lazy(() => import('../pages/other/AdminSide/BankMaster/BankMaster.tsx'))
+const BankMasterinsert = React.lazy(() => import('../pages/other/AdminSide/BankMaster/BankMasterinsert.tsx'))
+const FillingFrequencyMaster = React.lazy(() => import('../pages/other/AdminSide/CommonMaster/FillingFrequencyMaster/FillingFrequencyMaster.tsx'))
+const FillingFrequencyMasterinsert = React.lazy(() => import('../pages/other/AdminSide/CommonMaster/FillingFrequencyMaster/FillingFrequencyMasterinsert.tsx'))
+const ManagementContractMaster = React.lazy(() => import('../pages/other/AdminSide/CommonMaster/ManagementContractMaster/ManagementContractMaster.tsx'))
+const ManagementContractMasterinsert = React.lazy(() => import('../pages/other/AdminSide/CommonMaster/ManagementContractMaster/ManagementContractMasterinsert.tsx'))
+
+const ProjectTypeMaster = React.lazy(() => import('../pages/other/AdminSide/CommonMaster/ProjectTypeMaster/ProjectTypeMaster.tsx'))
+const ProjectTypeMasterinsert = React.lazy(() => import('../pages/other/AdminSide/CommonMaster/ProjectTypeMaster/ProjectTypeMasterinsert.tsx'))
 
 
 
@@ -645,6 +654,79 @@ const customPagesRoutes = {
 			path: '/pages/AddressMasterinsert',
 			name: 'AddressMasterinsert ',
 			element: <AddressMasterinsert />,
+			route: PrivateRoute,
+		},
+		{
+			path: '/pages/BankMaster',
+			name: 'BankMaster',
+			element: <BankMaster />,
+			route: PrivateRoute,
+		},
+		{
+			path: '/pages/BankMasterinsert/:id',
+			name: 'BankMasterinsert ',
+			element: <BankMasterinsert />,
+			route: PrivateRoute,
+		},
+		{
+			path: '/pages/BankMasterinsert',
+			name: 'BankMasterinsert ',
+			element: <BankMasterinsert />,
+			route: PrivateRoute,
+		},
+
+		{
+			path: '/pages/FillingFrequencyMaster',
+			name: 'FillingFrequencyMaster',
+			element: <FillingFrequencyMaster />,
+			route: PrivateRoute,
+		},
+		{
+			path: '/pages/FillingFrequencyMasterinsert/:id',
+			name: 'FillingFrequencyMasterinsert ',
+			element: <FillingFrequencyMasterinsert />,
+			route: PrivateRoute,
+		},
+		{
+			path: '/pages/FillingFrequencyMasterinsert',
+			name: 'FillingFrequencyMasterinsert ',
+			element: <FillingFrequencyMasterinsert />,
+			route: PrivateRoute,
+		},
+		{
+			path: '/pages/ManagementContractMaster',
+			name: 'ManagementContractMaster',
+			element: <ManagementContractMaster />,
+			route: PrivateRoute,
+		},
+		{
+			path: '/pages/ManagementContractMasterinsert/:id',
+			name: 'ManagementContractMasterinsert ',
+			element: <ManagementContractMasterinsert />,
+			route: PrivateRoute,
+		},
+		{
+			path: '/pages/ManagementContractMasterinsert',
+			name: 'ManagementContractMasterinsert ',
+			element: <ManagementContractMasterinsert />,
+			route: PrivateRoute,
+		},
+		{
+			path: '/pages/ProjectTypeMaster',
+			name: 'ProjectTypeMaster',
+			element: <ProjectTypeMaster />,
+			route: PrivateRoute,
+		},
+		{
+			path: '/pages/ProjectTypeMasterinsert/:id',
+			name: 'ProjectTypeMasterinsert ',
+			element: <ProjectTypeMasterinsert />,
+			route: PrivateRoute,
+		},
+		{
+			path: '/pages/ProjectTypeMasterinsert',
+			name: 'ProjectTypeMasterinsert ',
+			element: <ProjectTypeMasterinsert />,
 			route: PrivateRoute,
 		},
 

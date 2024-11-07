@@ -1,57 +1,48 @@
 import axios from 'axios';
 import { useEffect, useState, ChangeEvent } from 'react';
-import { Button, Col, Form, Row, ButtonGroup } from 'react-bootstrap';
+import { Button, Col, Form, Row } from 'react-bootstrap';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import config from '@/config';
-import Select from 'react-select';
 import CustomSuccessToast from '@/pages/other/Component/CustomSuccessToast';
+import Select from 'react-select';
 
-
-
-interface HrCandidate {
+interface Bank {
     id: number;
-    candidateID: string;
-    name: string;
-    mobileNumber: string;
-    resume: string;
-    timesInterviewed: number;
-    timesFinalized: number;
-    status: string;
+    bank: string;
+    ifsc: string;
+    branch: string;
+    city1: string;
+    city2: string;
+    state: string;
     createdBy: string;
     updatedBy: string;
 }
 
-interface Status {
+interface StateList {
     id: number;
-    name: string;
+    stateName: any;
 }
-
-
-const HrInputMasterinsert = () => {
+const BankMasterinsert = () => {
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
-
     const [showToast, setShowToast] = useState(false);
     const [toastMessage, setToastMessage] = useState("");
     const [toastVariant, setToastVariant] = useState('');
     const [editMode, setEditMode] = useState<boolean>(false);
-    const [empName, setEmpName] = useState<string | null>('')
-    const [status, setStatus] = useState<Status[]>([]);
-    const [hrCandidates, setHrCandidates] = useState<HrCandidate>({
+    const [empName, setEmpName] = useState<string | null>()
+    const [stateList, setStateList] = useState<StateList[]>([]);
+    const [banks, setBanks] = useState<Bank>({
         id: 0,
-        candidateID: '',
-        name: '',
-        mobileNumber: '',
-        resume: '',
-        timesInterviewed: 0,
-        timesFinalized: 0,
-        status: '',
+        bank: '',
+        ifsc: '',
+        branch: '',
+        city1: '',
+        city2: '',
+        state: '',
         createdBy: '',
         updatedBy: ''
     });
-
-
-
+    
 
     useEffect(() => {
         const storedEmpName = localStorage.getItem('EmpName');
@@ -60,23 +51,24 @@ const HrInputMasterinsert = () => {
         }
     }, []);
 
+
     useEffect(() => {
         if (id) {
             setEditMode(true);
-            fetchModuleById(id);
+            fetchStaffRequirementsId(id);
         } else {
             setEditMode(false);
         }
     }, [id]);
 
-    const fetchModuleById = async (id: string) => {
+    const fetchStaffRequirementsId = async (id: string) => {
         try {
-            const response = await axios.get(`${config.API_URL_APPLICATION}/CandidateMaster/GetCandidate`, {
+            const response = await axios.get(`${config.API_URL_APPLICATION}/BankMaster/GetBankList`, {
                 params: { id: id }
             });
             if (response.data.isSuccess) {
-                const fetchedModule = response.data.candidates[0];
-                setHrCandidates(fetchedModule);
+                const fetchedModule = response.data.bankMasterListResponses[0];
+                setBanks(fetchedModule);
             } else {
                 console.error(response.data.message);
             }
@@ -84,7 +76,6 @@ const HrInputMasterinsert = () => {
             console.error('Error fetching module:', error);
         }
     };
-
 
     useEffect(() => {
         const fetchData = async (endpoint: string, setter: Function, listName: string) => {
@@ -100,60 +91,57 @@ const HrInputMasterinsert = () => {
             }
         };
 
-        fetchData('CommonDropdown/GetStatus', setStatus, 'statusListResponses');
+        fetchData('CommonDropdown/GetStateList', setStateList, 'stateListResponses');
     }, []);
 
 
-    // Handle form field changes
+
     const handleChange = (e: ChangeEvent<any>) => {
         const { name, type } = e.target;
         if (type === 'checkbox') {
             const checked = (e.target as HTMLInputElement).checked;
-            setHrCandidates({
-                ...hrCandidates,
+            setBanks({
+                ...banks,
                 [name]: checked
             });
         } else {
             const value = (e.target as HTMLInputElement | HTMLSelectElement).value;
-            setHrCandidates({
-                ...hrCandidates,
+            setBanks({
+                ...banks,
                 [name]: value
             });
         }
     };
 
-    // Handle form submission
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
 
         const payload = {
-            ...hrCandidates,
-            createdBy: editMode ? hrCandidates.createdBy : empName,
+            ...banks,
+            createdBy: editMode ? banks.createdBy : empName,
             updatedBy: editMode ? empName : '',
         };
-        // console.log(payload)
-        e.preventDefault();
+        console.log(payload)
         try {
             if (editMode) {
-                await axios.post(`${config.API_URL_APPLICATION}/CandidateMaster/InsertorUpdateCandidate`, payload);
-                navigate('/pages/HrCandidateMaster', {
+                await axios.post(`${config.API_URL_APPLICATION}/BankMaster/UpdateBank`, payload);
+                navigate('/pages/BankMaster', {
                     state: {
                         showToast: true,
-                        toastMessage: "HrResume Updated successfully!",
+                        toastMessage: "Bank Updated successfully!",
                         toastVariant: "rgb(28 175 85)"
                     }
                 });
             } else {
-                await axios.post(`${config.API_URL_APPLICATION}/CandidateMaster/InsertorUpdateCandidate`, payload);
-                navigate('/pages/HrCandidateMaster', {
+                await axios.post(`${config.API_URL_APPLICATION}/BankMaster/InsertBank`, payload);
+                navigate('/pages/BankMaster', {
                     state: {
                         showToast: true,
-                        toastMessage: "HrResume Added successfully!",
+                        toastMessage: "Bank Added successfully!",
                         toastVariant: "rgb(28 175 85)"
                     }
                 });
             }
-
-
         } catch (error) {
             setToastMessage("Error Adding/Updating");
             setToastVariant("rgb(213 18 18)");
@@ -167,144 +155,121 @@ const HrInputMasterinsert = () => {
         <div>
             <div className="container">
                 <div className="d-flex bg-white p-2 my-2 justify-content-between align-items-center fs-20 rounded-3 border">
-                    <span><i className="ri-file-list-line me-2"></i><span className='fw-bold'>{editMode ? 'Edit Hr Candidate' : 'Add Hr Candidate'}</span></span>
+                    <span><i className="ri-file-list-line me-2"></i><span className='fw-bold'>{editMode ? 'Edit Bank' : 'Add Bank'}</span></span>
                 </div>
                 <div className='bg-white p-2 rounded-3 border'>
                     <Form onSubmit={handleSubmit}>
                         <Row>
-
-
-
-
                             <Col lg={6}>
-                                <Form.Group controlId="candidateID" className="mb-3">
-                                    <Form.Label>Candidate ID</Form.Label>
+                                <Form.Group controlId="bank" className="mb-3">
+                                    <Form.Label>Bank Name</Form.Label>
                                     <Form.Control
                                         type="text"
-                                        name="candidateID"
-                                        value={hrCandidates.candidateID}
+                                        name="bank"
+                                        value={banks.bank}
                                         onChange={handleChange}
                                         required
-                                        placeholder='Enter Candidate ID '
+                                        placeholder='Enter bank'
                                     />
                                 </Form.Group>
                             </Col>
                             <Col lg={6}>
-                                <Form.Group controlId="name" className="mb-3">
-                                    <Form.Label>Candidate Name</Form.Label>
+                                <Form.Group controlId="ifsc" className="mb-3">
+                                    <Form.Label>IFSC Code</Form.Label>
                                     <Form.Control
                                         type="text"
-                                        name="name"
-                                        value={hrCandidates.name}
+                                        name="ifsc"
+                                        value={banks.ifsc}
                                         onChange={handleChange}
                                         required
-                                        placeholder='Enter  Name '
-                                    />
-                                </Form.Group>
-                            </Col>
-
-                            <Col lg={6}>
-                                <Form.Group controlId="mobileNumber" className="mb-3">
-                                    <Form.Label>Mobile Number</Form.Label>
-                                    <Form.Control
-                                        type="number"
-                                        name="mobileNumber"
-                                        value={hrCandidates.mobileNumber}
-                                        onChange={handleChange}
-                                        required
-                                        placeholder='Enter Mobile Number'
-
+                                        placeholder='Enter IFSC code'
                                     />
                                 </Form.Group>
                             </Col>
                             <Col lg={6}>
-                                <Form.Group controlId="resume" className="mb-3">
-                                    <Form.Label>Resume</Form.Label>
+                                <Form.Group controlId="branch" className="mb-3">
+                                    <Form.Label>Branch Name</Form.Label>
                                     <Form.Control
                                         type="text"
-                                        name="resume"
-                                        value={hrCandidates.resume}
+                                        name="branch"
+                                        value={banks.branch}
                                         onChange={handleChange}
-                                        // required
-                                        placeholder='Enter Resume'
-
+                                        required
+                                        placeholder='Enter branch Name'
                                     />
                                 </Form.Group>
                             </Col>
-
                             <Col lg={6}>
-                                <Form.Group controlId="timesInterviewed" className="mb-3">
-                                    <Form.Label>Times Interviewed</Form.Label>
+                                <Form.Group controlId="city1" className="mb-3">
+                                    <Form.Label>City1</Form.Label>
                                     <Form.Control
-                                        type="number"
-                                        name="timesInterviewed"
-                                        value={hrCandidates.timesInterviewed}
+                                        type="text"
+                                        name="city1"
+                                        value={banks.city1}
                                         onChange={handleChange}
-                                        placeholder='Enter Times Interviewed'
+                                        required
+                                        placeholder='Enter City1 '
                                     />
                                 </Form.Group>
                             </Col>
-
-
                             <Col lg={6}>
-                                <Form.Group controlId="timesFinalized" className="mb-3">
-                                    <Form.Label>Times Interviewed</Form.Label>
+                                <Form.Group controlId="city2" className="mb-3">
+                                    <Form.Label>City2 </Form.Label>
                                     <Form.Control
-                                        type="number"
-                                        name="timesFinalized"
-                                        value={hrCandidates.timesFinalized}
+                                        type="text"
+                                        name="city2"
+                                        value={banks.city2}
                                         onChange={handleChange}
-                                        placeholder='Enter Times Finalized'
+                                        required
+                                        placeholder='Enter City2'
                                     />
                                 </Form.Group>
                             </Col>
-
                             <Col lg={6}>
-                                <Form.Group controlId="taskID" className="mb-3">
-                                    <Form.Label>Task Number</Form.Label>
+                                <Form.Group controlId="stateName" className="mb-3">
+                                    <Form.Label>State Name *:</Form.Label>
                                     <Select
-                                        name="taskID"
-                                        value={status.find((mod) => mod.name === hrCandidates.status)}
+                                        name="stateName"
+                                        value={stateList.find((mod) => mod.stateName === banks.state)}
                                         onChange={(selectedOption) => {
-                                            setHrCandidates({
-                                                ...hrCandidates,
-                                                status: selectedOption?.name || '',
+                                            setBanks({
+                                                ...banks,
+                                                state: selectedOption?.stateName|| '',
                                             });
                                         }}
-                                        getOptionLabel={(mod) => mod.name}
-                                        getOptionValue={(mod) => mod.name}
-                                        options={status}
+                                        getOptionLabel={(mod) => mod.stateName}
+                                        getOptionValue={(mod) => mod.stateName}
+                                        options={stateList}
                                         isSearchable={true}
-                                        placeholder="Select Task Number"
+                                        placeholder="Select State Name"
                                         required
                                     />
                                 </Form.Group>
                             </Col>
-
-
-
                             <Col></Col>
-                            <Col lg={3} className='align-items-end d-flex justify-content-end mb-3'>
-                                <ButtonGroup aria-label="Basic example" className='w-100'>
-                                    <Link to={'/pages/HrCandidateMaster'} className="btn btn-primary">
-                                        Back
+                            <Col className='align-items-end d-flex justify-content-end mb-3'>
+                                <div>
+                                    <Link to={'/pages/BankMaster'}>
+                                        <Button variant="primary" >
+                                            Back
+                                        </Button>
                                     </Link>
                                     &nbsp;
                                     <Button variant="primary" type="submit">
-                                        {editMode ? 'Update Hr Candidate' : 'Add Hr Candidate'}
+                                        {editMode ? 'Update Bank' : 'Add Bank'}
                                     </Button>
-                                </ButtonGroup>
+                                </div>
                             </Col>
-
                         </Row>
-
                     </Form>
                 </div>
             </div>
             <CustomSuccessToast show={showToast} toastMessage={toastMessage} toastVariant={toastVariant} onClose={() => setShowToast(false)} />
 
-        </div >
+        </div>
     );
 };
 
-export default HrInputMasterinsert;
+export default BankMasterinsert;
+
+

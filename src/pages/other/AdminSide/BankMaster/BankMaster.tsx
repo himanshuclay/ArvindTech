@@ -11,11 +11,13 @@ import CustomSuccessToast from '@/pages/other/Component/CustomSuccessToast';
 
 
 
-interface Addresses {
+interface Bank {
     id: number;
-    pinCode: number;
-    areaName: string;
-    district: string;
+    bank: string;
+    ifsc: string;
+    branch: string;
+    city1: string;
+    city2: string;
     state: string;
     createdBy: string;
     updatedBy: string;
@@ -33,8 +35,8 @@ interface DepartmentList {
     departmentName: string;
 }
 
-const AddressMaster = () => {
-    const [addresses, setAddresses] = useState<Addresses[]>([]);
+const BankMaster = () => {
+    const [banks, setBanks] = useState<Bank[]>([]);
     const [loading, setLoading] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
@@ -71,12 +73,14 @@ const AddressMaster = () => {
 
     // both are required to make dragable column of table 
     const [columns, setColumns] = useState<Column[]>([
-        { id: 'pinCode', label: 'Pincode', visible: true },
-        { id: 'areaName', label: 'Area Name', visible: true },
-        { id: 'district', label: 'District', visible: true },
+        { id: 'bank', label: 'Bank', visible: true },
+        { id: 'ifsc', label: 'IFSC', visible: true },
+        { id: 'branch', label: 'Branch', visible: true },
+        { id: 'city1', label: 'City 1', visible: true },
+        { id: 'city2', label: 'City 2', visible: true },
         { id: 'state', label: 'State', visible: true },
-
     ]);
+
 
 
     const handleOnDragEnd = (result: any) => {
@@ -99,11 +103,11 @@ const AddressMaster = () => {
     const fetchStaffRequirements = async () => {
         setLoading(true);
         try {
-            const response = await axios.get(`${config.API_URL_APPLICATION}/AddressMaster/GetAddress`, {
+            const response = await axios.get(`${config.API_URL_APPLICATION}/BankMaster/GetBankList`, {
                 params: { PageIndex: currentPage }
             });
             if (response.data.isSuccess) {
-                setAddresses(response.data.addresses);
+                setBanks(response.data.bankMasterListResponses);
                 setTotalPages(Math.ceil(response.data.totalCount / 10));
             } else {
                 console.error(response.data.message);
@@ -122,7 +126,7 @@ const AddressMaster = () => {
 
 
     const handleSearch = () => {
- 
+
     };
 
     useEffect(() => {
@@ -149,18 +153,19 @@ const AddressMaster = () => {
         fetchStaffRequirements();
         setSearchDept(undefined);
     };
-
-
-    const convertToCSV = (data: Addresses[]) => {
+    const convertToCSV = (data: Bank[]) => {
         const csvRows = [
-            ['Pincode', 'Area Name', 'District', 'State', 'Created By', 'Updated By'],
-            ...data.map(address => [
-                address.pinCode,
-                address.areaName,
-                address.district,
-                address.state,
-                address.createdBy,
-                address.updatedBy
+            ['ID', 'Bank', 'IFSC', 'Branch', 'City 1', 'City 2', 'State', 'Created By', 'Updated By'],
+            ...data.map(bank => [
+                bank.id,
+                bank.bank,
+                bank.ifsc,
+                bank.branch,
+                bank.city1,
+                bank.city2,
+                bank.state,
+                bank.createdBy,
+                bank.updatedBy
             ])
         ];
         return csvRows.map(row => row.join(',')).join('\n');
@@ -168,13 +173,13 @@ const AddressMaster = () => {
 
 
     const downloadCSV = () => {
-        const csvData = convertToCSV(addresses);
+        const csvData = convertToCSV(banks);
         const blob = new Blob([csvData], { type: 'text/csv;charset=utf-8;' });
         const link = document.createElement('a');
         if (link.download !== undefined) {
             const url = URL.createObjectURL(blob);
             link.setAttribute('href', url);
-            link.setAttribute('download', 'Doers.csv');
+            link.setAttribute('download', 'Banks.csv');
             link.style.visibility = 'hidden';
             document.body.appendChild(link);
             link.click();
@@ -188,16 +193,26 @@ const AddressMaster = () => {
     };
 
 
+    const filteredBanks = banks.filter(bank =>
+        bank.bank.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        bank.ifsc.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        bank.branch.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        bank.city1.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        bank.city2.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        bank.state.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+
+
     return (
         <>
             <div className="container">
                 <div className="d-flex bg-white p-2 my-2 justify-content-between align-items-center">
-                    <span><i className="ri-file-list-line me-2 text-dark fs-16"></i><span className='fw-bold text-dark fs-15'>Address List</span></span>
+                    <span><i className="ri-file-list-line me-2 text-dark fs-16"></i><span className='fw-bold text-dark fs-15'>Bank List</span></span>
                     <div className="d-flex justify-content-end  ">
 
-                        <Link to='/pages/AddressMasterinsert'>
+                        <Link to='/pages/BankMasterinsert'>
                             <Button variant="primary" className="me-2">
-                                Add Address
+                                Add Bank
                             </Button>
                         </Link>
 
@@ -280,8 +295,8 @@ const AddressMaster = () => {
                                         />
                                     </Form.Group>
                                 </Col>
-                         
-                                <div className="text-danger">Filter is not working yet</div>
+
+                                <div className="text-danger">Filter is not worling yet</div>
                                 <Col ></Col>
                                 <Col lg={3} className="align-items-end d-flex justify-content-end mt-2">
                                     <ButtonGroup aria-label="Basic example" className="w-100">
@@ -323,7 +338,7 @@ const AddressMaster = () => {
                         </div>
 
                         <div className="overflow-auto text-nowrap">
-                            {!addresses ? (
+                            {!filteredBanks ? (
                                 <Container className="mt-5">
                                     <Row className="justify-content-center">
                                         <Col xs={12} md={8} lg={6}>
@@ -349,7 +364,13 @@ const AddressMaster = () => {
                                                                         <div ref={provided.innerRef}
                                                                             {...provided.draggableProps}
                                                                             {...provided.dragHandleProps}>
-                                                                            {column.id === 'departmentName' && (<i className="ri-group-fill"></i>)}
+                                                                            {column.id === 'bank' && (<i className="ri-bank-fill"></i>)}
+                                                                            {column.id === 'ifsc' && (<i className="ri-barcode-box-line"></i>)}
+                                                                            {column.id === 'branch' && (<i className="ri-building-2-line"></i>)}
+                                                                            {column.id === 'city1' && (<i className="ri-map-pin-line"></i>)}
+                                                                            {column.id === 'city2' && (<i className="ri-map-pin-line"></i>)}
+                                                                            {column.id === 'state' && (<i className="ri-map-line"></i>)}
+
                                                                             &nbsp; {column.label}
                                                                         </div>
                                                                     </th>
@@ -363,22 +384,22 @@ const AddressMaster = () => {
                                             </Droppable>
                                         </thead>
                                         <tbody>
-                                            {addresses.length > 0 ? (
-                                                addresses.slice(0, 10).map((item, index) => (
+                                            {filteredBanks.length > 0 ? (
+                                                filteredBanks.slice(0, 10).map((item, index) => (
                                                     <tr key={item.id}>
                                                         <td>{(currentPage - 1) * 10 + index + 1}</td>
                                                         {columns.filter(col => col.visible).map((col) => (
                                                             <td key={col.id}
                                                                 className={
                                                                     // Add class based on column id
-                                                                    col.id === 'department' ? 'fw-bold fs-13 text-dark task1' : ''
+                                                                    col.id === 'bank' ? 'fw-bold fs-13 text-dark ' : ''
                                                                 }
                                                             >
-                                                                <div>{item[col.id as keyof Addresses]}</div>
+                                                                <div>{item[col.id as keyof Bank]}</div>
                                                             </td>
                                                         ))}
 
-                                                        <td><Link to={`/pages/AddressMasterinsert/${item.id}`}>
+                                                        <td><Link to={`/pages/BankMasterinsert/${item.id}`}>
                                                             <Button variant='primary' className='p-0 text-white'>
                                                                 <i className='btn ri-edit-line text-white' ></i>
                                                             </Button>
@@ -432,4 +453,4 @@ const AddressMaster = () => {
     );
 };
 
-export default AddressMaster;
+export default BankMaster;

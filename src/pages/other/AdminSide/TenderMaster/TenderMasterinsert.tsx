@@ -211,7 +211,7 @@ const DepartmentMasterinsert = () => {
     const handleChange = (e: ChangeEvent<any> | null, name?: string, value?: any) => {
         if (e) {
             const { name: eventName, type } = e.target;
-            
+
             if (type === 'checkbox') {
                 const checked = (e.target as HTMLInputElement).checked;
                 setTenders({
@@ -995,7 +995,7 @@ const DepartmentMasterinsert = () => {
                                         name="typeofTender"
                                         options={options}
                                         value={options.find(option => option.value === tenders.typeofTender)}
-                                        onChange={selectedOption => handleChange({ target: { name: 'typeofTender', value: selectedOption?.value } })}
+                                        onChange={selectedOption => handleChange(null, 'typeofTender', selectedOption?.value)}
                                         placeholder="Type of Tender"
                                         required
                                     />

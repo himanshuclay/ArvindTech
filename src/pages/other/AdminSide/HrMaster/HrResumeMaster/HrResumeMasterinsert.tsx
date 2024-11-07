@@ -3,7 +3,7 @@ import { useEffect, useState, ChangeEvent } from 'react';
 import { Button, Col, Form, Row, ButtonGroup } from 'react-bootstrap';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import config from '@/config';
-import CustomSuccessToast from '../../Component/CustomSuccessToast';
+import CustomSuccessToast from '@/pages/other/Component/CustomSuccessToast';
 
 interface HrResume {
     id: number;
@@ -56,7 +56,7 @@ const HrInputMasterinsert = () => {
 
     const fetchModuleById = async (id: string) => {
         try {
-            const response = await axios.get(`${config.API_URL_APPLICATION}/Resume/GetResume`, {
+            const response = await axios.get(`${config.API_URL_APPLICATION}/ResumeMaster/GetResume`, {
                 params: { id: id }
             });
             if (response.data.isSuccess) {
@@ -103,14 +103,14 @@ const HrInputMasterinsert = () => {
         e.preventDefault();
         try {
             if (editMode) {
-                await axios.post(`${config.API_URL_APPLICATION}/Resume/InsertorUpdateResume`, payload);
+                await axios.post(`${config.API_URL_APPLICATION}/ResumeMaster/InsertorUpdateResume`, payload);
                 navigate('/pages/HrResumeMaster', { state: { 
                     showToast: true,
                     toastMessage:"HrResume Updated successfully!",
                     toastVariant:"rgb(28 175 85)"
                    } });
             } else {
-                await axios.post(`${config.API_URL_APPLICATION}/Resume/InsertorUpdateResume`, payload);
+                await axios.post(`${config.API_URL_APPLICATION}/ResumeMaster/InsertorUpdateResume`, payload);
                 navigate('/pages/HrResumeMaster', { state: { 
                     showToast: true,
                     toastMessage:"HrResume Added successfully!",

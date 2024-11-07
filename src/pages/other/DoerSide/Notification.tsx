@@ -2,10 +2,10 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Button, Table, Container, Row, Col, Alert } from 'react-bootstrap'; // Assuming DynamicForm is in the same directory
 import { parse, format, addDays } from 'date-fns';
-import config from '../../config';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
+import DynamicForm from '../Component/DynamicForm';
+import config from '@/config';
 
-import DynamicForm from './Component/DynamicForm';
 
 
 

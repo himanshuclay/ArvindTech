@@ -8,7 +8,7 @@ import Select from 'react-select';
 
 interface Addresses {
     id:number;
-    pincode: number;
+    pinCode: number;
     areaName: string;
     district: string;
     state: string;
@@ -31,7 +31,7 @@ const AddressMasterinsert = () => {
     const [stateList, setStateList] = useState<StateList[]>([]);
     const [address, setAddress] = useState<Addresses>({
         id:0,
-        pincode: 0,
+        pinCode: 0,
         areaName: '',
         district: '',
         state: '',
@@ -59,11 +59,11 @@ const AddressMasterinsert = () => {
 
     const fetchStaffRequirementsId = async (id: string) => {
         try {
-            const response = await axios.get(`${config.API_URL_APPLICATION}/DepartmentMaster/GetDepartment`, {
+            const response = await axios.get(`${config.API_URL_APPLICATION}/AddressMaster/GetAddress`, {
                 params: { id: id }
             });
             if (response.data.isSuccess) {
-                const fetchedModule = response.data.address[0];
+                const fetchedModule = response.data.addresses[0];
                 setAddress(fetchedModule);
             } else {
                 console.error(response.data.message);
@@ -118,32 +118,32 @@ const AddressMasterinsert = () => {
             updatedBy: editMode ? empName : '',
         };
         console.log(payload)
-        // try {
-        //     if (editMode) {
-        //         await axios.post(`${config.API_URL_APPLICATION}/DepartmentMaster/InsertorUpdateDepartment`, payload);
-        //         navigate('/pages/AddressMaster', {
-        //             state: {
-        //                 showToast: true,
-        //                 toastMessage: "Address Updated successfully!",
-        //                 toastVariant: "rgb(28 175 85)"
-        //             }
-        //         });
-        //     } else {
-        //         await axios.post(`${config.API_URL_APPLICATION}/DepartmentMaster/InsertorUpdateDepartment`, payload);
-        //         navigate('/pages/AddressMaster', {
-        //             state: {
-        //                 showToast: true,
-        //                 toastMessage: "Address Updated successfully!",
-        //                 toastVariant: "rgb(28 175 85)"
-        //             }
-        //         });
-        //     }
-        // } catch (error) {
-        //     setToastMessage("Error Adding/Updating");
-        //     setToastVariant("rgb(213 18 18)");
-        //     setShowToast(true);
-        //     console.error('Error submitting module:', error);
-        // }
+        try {
+            if (editMode) {
+                await axios.post(`${config.API_URL_APPLICATION}/AddressMaster/InsertorUpdateAddress`, payload);
+                navigate('/pages/AddressMaster', {
+                    state: {
+                        showToast: true,
+                        toastMessage: "Address Updated successfully!",
+                        toastVariant: "rgb(28 175 85)"
+                    }
+                });
+            } else {
+                await axios.post(`${config.API_URL_APPLICATION}/AddressMaster/InsertorUpdateAddress`, payload);
+                navigate('/pages/AddressMaster', {
+                    state: {
+                        showToast: true,
+                        toastMessage: "Address Updated successfully!",
+                        toastVariant: "rgb(28 175 85)"
+                    }
+                });
+            }
+        } catch (error) {
+            setToastMessage("Error Adding/Updating");
+            setToastVariant("rgb(213 18 18)");
+            setShowToast(true);
+            console.error('Error submitting module:', error);
+        }
     };
 
 
@@ -157,12 +157,12 @@ const AddressMasterinsert = () => {
                     <Form onSubmit={handleSubmit}>
                         <Row>
                             <Col lg={6}>
-                                <Form.Group controlId="pincode" className="mb-3">
+                                <Form.Group controlId="pinCode" className="mb-3">
                                     <Form.Label>Pincode</Form.Label>
                                     <Form.Control
                                         type="number"
-                                        name="pincode"
-                                        value={address.pincode}
+                                        name="pinCode"
+                                        value={address.pinCode}
                                         onChange={handleChange}
                                         required
                                         placeholder='Enter Pincode'

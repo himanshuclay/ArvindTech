@@ -4,7 +4,7 @@ import { Button, Col, Form, Row, ButtonGroup } from 'react-bootstrap';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import config from '@/config';
 import Select from 'react-select';
-import CustomSuccessToast from '../../Component/CustomSuccessToast';
+import CustomSuccessToast from '@/pages/other/Component/CustomSuccessToast';
 
 interface HrInput {
     id: number;
