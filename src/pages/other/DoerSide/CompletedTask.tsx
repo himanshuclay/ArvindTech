@@ -123,6 +123,7 @@ const ProjectAssignTable: React.FC = () => {
 
         if (response.data && response.data.isSuccess) {
           setData(response.data.getFilterTasks || []);
+          console.log(response.data.getFilterTasks || []);
         } else {
           console.error('API Response Error:', response.data?.message || 'Unknown error');
         }
@@ -159,7 +160,7 @@ const ProjectAssignTable: React.FC = () => {
 
       if (response.data && response.data.isSuccess) {
         const fetchedData = response.data.getFilterTasks || [];
-        console.log(fetchedData);
+        // console.log(fetchedData);
 
         // Filter out tasks with isCompleted as "Pending"
         const filteredTasks = fetchedData
