@@ -141,7 +141,7 @@ const ProjectAssignTable: React.FC = () => {
   }, []);
 
 
-  console.log(taskCommonId)
+  // console.log(taskCommonId)
   // console.log(data[0].taskCommonId)
   // Fetch task data when taskCommonId is set
   useEffect(() => {
@@ -236,7 +236,7 @@ const ProjectAssignTable: React.FC = () => {
 
   const formatAndUpdateDate = (createdDate: string, taskTime: string) => {
     // Parse the created date with the correct format 'MM/dd/yyyy HH:mm:ss'
-    const createdDateObj = parse(createdDate, 'dd/MM/yyyy HH:mm:ss', new Date());
+    const createdDateObj = parse(createdDate, 'MM/dd/yyyy HH:mm:ss', new Date());
 
     // Check if the createdDateObj is valid
     if (!isValid(createdDateObj)) {

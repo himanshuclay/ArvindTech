@@ -232,7 +232,7 @@ const BankMaster = () => {
                             <Row>
                                 <Col lg={6} className=''>
                                     <Form.Group controlId="searchDept">
-                                        <Form.Label>Pincode</Form.Label>
+                                        <Form.Label>IFSC Code</Form.Label>
                                         <Select
                                             name="searchDept"
                                             value={departmentList.find(item => item.id === searchDept) || null}
@@ -265,7 +265,7 @@ const BankMaster = () => {
 
                                 <Col lg={6} className='mt-2'>
                                     <Form.Group controlId="searchDept">
-                                        <Form.Label>District</Form.Label>
+                                        <Form.Label>Bank Name</Form.Label>
                                         <Select
                                             name="searchDept"
                                             value={departmentList.find(item => item.id === searchDept) || null}
@@ -281,7 +281,7 @@ const BankMaster = () => {
                                 </Col>
                                 <Col lg={6} className='mt-2'>
                                     <Form.Group controlId="searchDept">
-                                        <Form.Label>Area Name</Form.Label>
+                                        <Form.Label>Branch Name</Form.Label>
                                         <Select
                                             name="searchDept"
                                             value={departmentList.find(item => item.id === searchDept) || null}
