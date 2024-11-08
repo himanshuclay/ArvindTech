@@ -217,7 +217,7 @@ const ProjectInsert = () => {
 
                             <Col lg={6}>
                                 <Form.Group controlId="projectName" className="mb-3">
-                                    <Form.Label>Project Name *:</Form.Label>
+                                    <Form.Label>Project Name *</Form.Label>
                                     <Select
                                         name="projectName"
                                         value={projectList.find((mod) => mod.projectName === subProject.projectName)}
@@ -238,7 +238,7 @@ const ProjectInsert = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="subProjectName" className="mb-3">
-                                    <Form.Label>Sub Project Name *:</Form.Label>
+                                    <Form.Label>Sub Project Name *</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="subProjectName"
@@ -253,7 +253,7 @@ const ProjectInsert = () => {
 
                             <Col lg={6}>
                                 <Form.Group controlId="incharge" className="mb-3">
-                                    <Form.Label>Project Incharge *:</Form.Label>
+                                    <Form.Label>Project Incharge *</Form.Label>
                                     <Select
                                         name="incharge"
                                         value={employeeList.find((emp) => emp.empId === subProject.projectIncharge)}
@@ -275,7 +275,7 @@ const ProjectInsert = () => {
 
                             <Col lg={6}>
                                 <Form.Group controlId="coordinator" className="mb-3">
-                                    <Form.Label>Project Coordinator *:</Form.Label>
+                                    <Form.Label>Project Coordinator *</Form.Label>
                                     <Select
                                         name="coordinator"
                                         value={employeeList.find((emp) => emp.empId === subProject.projectCoordinator)}

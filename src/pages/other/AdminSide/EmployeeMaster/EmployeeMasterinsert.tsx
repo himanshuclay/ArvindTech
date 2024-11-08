@@ -409,7 +409,7 @@ const EmployeeMasterInsert = () => {
                                         getOptionValue={(emp) => emp.name}
                                         options={genderList}
                                         isSearchable={true}
-                                        placeholder="Select Project Coordinator"
+                                        placeholder="Select Gender"
                                         required
                                     />
                                 </Form.Group>
@@ -456,7 +456,7 @@ const EmployeeMasterInsert = () => {
 
                             <Col lg={6}>
                                 <Form.Group controlId="currentProjectName" className="mb-3">
-                                    <Form.Label>Current Project *:</Form.Label>
+                                    <Form.Label>Current Project</Form.Label>
                                     <Select
                                         name="currentProjectName"
                                         value={projectList.find((emp) => emp.projectName === employee.currentProjectName)}
@@ -471,7 +471,6 @@ const EmployeeMasterInsert = () => {
                                         options={projectList}
                                         isSearchable={true}
                                         placeholder="Select currentProjectName"
-                                        required
                                     />
                                 </Form.Group>
                             </Col>
@@ -520,15 +519,15 @@ const EmployeeMasterInsert = () => {
                             </Col>
 
                             <Col lg={6}>
-                                <Form.Group controlId="currentProjectName" className="mb-3">
+                                <Form.Group controlId="isPerformanceReview" className="mb-3">
                                     <Form.Label>Performance Review Applicapblity *:</Form.Label>
                                     <Select
-                                        name="currentProjectName"
-                                        value={misExempt.find((emp) => emp.name === employee.gender)}
+                                        name="isPerformanceReview"
+                                        value={misExempt.find((emp) => emp.name === employee.isPerformanceReview)}
                                         onChange={(selectedOption) => {
                                             setEmployee({
                                                 ...employee,
-                                                gender: selectedOption?.name || "",
+                                                isPerformanceReview: selectedOption?.name || "",
                                             });
                                         }}
                                         getOptionLabel={(emp) => emp.name}

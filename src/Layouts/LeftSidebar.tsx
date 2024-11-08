@@ -377,7 +377,7 @@ const getFilteredMenuItems = () => {
         {
           key: 'Vender',
           label: 'Vender Master',
-          url: '/pages/Vender',
+          url: '/pages/VenderMaster',
           icon: 'ri-store-line',
           parentKey: 'master',
         },

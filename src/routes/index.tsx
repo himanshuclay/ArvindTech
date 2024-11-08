@@ -88,6 +88,9 @@ const ManagementContractMasterinsert = React.lazy(() => import('../pages/other/A
 const ProjectTypeMaster = React.lazy(() => import('../pages/other/AdminSide/CommonMaster/ProjectTypeMaster/ProjectTypeMaster.tsx'))
 const ProjectTypeMasterinsert = React.lazy(() => import('../pages/other/AdminSide/CommonMaster/ProjectTypeMaster/ProjectTypeMasterinsert.tsx'))
 
+const VenderMaster = React.lazy(() => import('../pages/other/AdminSide/VenderMaster/VenderMaster.tsx'))
+const VenderMasterinsert = React.lazy(() => import('../pages/other/AdminSide/VenderMaster/VenderMasterinsert.tsx'))
+
 
 
 
@@ -727,6 +730,24 @@ const customPagesRoutes = {
 			path: '/pages/ProjectTypeMasterinsert',
 			name: 'ProjectTypeMasterinsert ',
 			element: <ProjectTypeMasterinsert />,
+			route: PrivateRoute,
+		},
+		{
+			path: '/pages/VenderMaster',
+			name: 'VenderMaster',
+			element: <VenderMaster />,
+			route: PrivateRoute,
+		},
+		{
+			path: '/pages/VenderMasterinsert/:id',
+			name: 'VenderMasterinsert ',
+			element: <VenderMasterinsert />,
+			route: PrivateRoute,
+		},
+		{
+			path: '/pages/VenderMasterinsert',
+			name: 'VenderMasterinsert ',
+			element: <VenderMasterinsert />,
 			route: PrivateRoute,
 		},
 
