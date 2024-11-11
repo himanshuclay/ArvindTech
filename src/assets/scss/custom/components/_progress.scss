@@ -533,3 +533,24 @@ ul.side-nav-second-level:first-child {
 .side-nav-second-level .side-nav-item {
   border-left: 5px solid #201d56;
 }
+
+.w-200px div{
+  width: 250px !important;
+  text-wrap: wrap;
+}
+
+.input-file-custom {
+  border: 2px dashed var(--tz-border-color);
+  background: var(--tz-secondary-bg);
+  border-radius: 6px;
+  cursor: pointer;
+  // min-height: 135px;
+  padding: 10px;
+  box-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px;
+  text-align: center;
+ & label{
+  text-align: center;
+  margin: 0;
+  font-weight: 400;
+ }
+}

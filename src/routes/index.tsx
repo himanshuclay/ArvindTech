@@ -18,23 +18,17 @@ const Dashboard = React.lazy(() => import('../pages/Dashboard'))
 
 // // pages
 const ProfilePages = React.lazy(() => import('../pages/other/Profile/'))
-const InvoicePages = React.lazy(() => import('../pages/other/Invoice'))
+const AdhocTempleteList = React.lazy(() => import('../pages/other/AdminSide/AdhocTempleteList.tsx'))
 const FAQPages = React.lazy(() => import('../pages/other/FAQ'))
 const PricingPages = React.lazy(() => import('../pages/other/Pricing'))
 const MaintenancePages = React.lazy(() => import('../pages/other/Maintenance'))
 const TemplateMaster = React.lazy(() => import('../pages/other/Modules-Master.tsx'))
 const ActiveTasks = React.lazy(() => import('../pages/other/ActiveTasks.tsx'))
 const ActiveProject = React.lazy(() => import('../pages/other/ActiveProject.tsx'))
-// const FilterTasks = React.lazy(() => import('../pages/other/FilterTasks.tsx'))
 const ApprovalConsole = React.lazy(() => import('../pages/other/ApprovalConsole.tsx'))
-const Notification = React.lazy(() => import('../pages/other/Notification.tsx'))
-const ModuleList = React.lazy(() => import('../pages/other/Module-list.tsx'))
-const EmployeeMaster = React.lazy(() => import('../pages/other/Employee-Master.tsx'))
-const Tender = React.lazy(() => import('../pages/other/Tender.tsx'))
+const Notification = React.lazy(() => import('../pages/other/DoerSide/Notification.tsx'))
 const Vender = React.lazy(() => import('../pages/other/Vender.tsx'))
-const Bank = React.lazy(() => import('../pages/other/Bank.tsx'))
-const ModuleMaster = React.lazy(() => import('../pages/other/ModuleMaster.tsx'))
-const TaskMaster = React.lazy(() => import('../pages/other/TaskMaster.tsx'))
+const TaskMaster = React.lazy(() => import('../pages/other/AdminSide/TaskMaster.tsx'))
 const FormMaster = React.lazy(() => import('../pages/other/FormMaster.tsx'))
 const MyTask = React.lazy(() => import('../pages/other/MyTask.tsx'))
 const ChkLnMaster = React.lazy(() => import('../pages/other/ChkLnMaster.tsx'))
@@ -42,51 +36,61 @@ const TicketMaster = React.lazy(() => import('../pages/other/TicketMaster.tsx'))
 const SystemLogs = React.lazy(() => import('../pages/other/SystemLogs.tsx'))
 const ChkTaskMaster = React.lazy(() => import('../pages/other/ChkTaskMaster.tsx'))
 const ChecklistMaster = React.lazy(() => import('../pages/other/ChecklistCollection.tsx'))
-const AddressMaster = React.lazy(() => import('../pages/other/AddressMaster.tsx'))
-const CompletedTask = React.lazy(() => import('../pages/other/CompletedTask.tsx'))
+const CompletedTask = React.lazy(() => import('../pages/other/DoerSide/CompletedTask.tsx'))
 const TaskPlanned = React.lazy(() => import('../pages/other/TaskPlanned.tsx'))
-const ExpireTask = React.lazy(() => import('../pages/other/ExpireTask.tsx'))
-const PendingTask = React.lazy(() => import('../pages/other/PendingTask.tsx'))
+const ExpireTask = React.lazy(() => import('../pages/other/DoerSide/ExpireTask.tsx'))
+const PendingTask = React.lazy(() => import('../pages/other/DoerSide/PendingTask.tsx'))
 const RunningTask = React.lazy(() => import('../pages/other/RunningTask.tsx'))
-const ModuleMasterNew = React.lazy(() => import('../pages/other/ModuleMaster/ModuleMaster.tsx'))
-const ModuleMasterinsert = React.lazy(() => import('../pages/other/ModuleMaster/ModuleMasterInsert.tsx'))
-const ProcessMasterNew = React.lazy(() => import('../pages/other/ProcessMaster/ProcessMaster.tsx'))
-const ProcessMasterinsert = React.lazy(() => import('../pages/other/ProcessMaster/ProcessMasterInsert.tsx'))
-const DoerMasterNew = React.lazy(() => import('../pages/other/DoerMaster/DoerMaster.tsx'))
-const DoerMasterinsert = React.lazy(() => import('../pages/other/DoerMaster/DoerMasterinsert.tsx'))
-const ProjectMasterNew = React.lazy(() => import('../pages/other/ProjectMaster/ProjectMaster.tsx'))
-const ProjectMasterinsert = React.lazy(() => import('../pages/other/ProjectMaster/ProjectMasterinsert.tsx'))
-const ProjectSubmasterinsert = React.lazy(() => import('../pages/other/ProjectMaster/ProjectSubmasterinsert.tsx'))
-const EmployeeMasterNew = React.lazy(() => import('../pages/other/EmployeeMaster/EmployeeMaster.tsx'))
-const EmployeeMasterinsert = React.lazy(() => import('../pages/other/EmployeeMaster/EmployeeMasterinsert.tsx'))
-const RoleMasterNew = React.lazy(() => import('../pages/other/RoleMaster/RoleMaster.tsx'))
-const RoleMasterinsert = React.lazy(() => import('../pages/other/RoleMaster/RoleMasterinsert.tsx'))
-const IdentifierMaster = React.lazy(() => import('../pages/other/Identifier/IdentifierMaster.tsx'))
-const IdentifierMasterinsert = React.lazy(() => import('../pages/other/Identifier/Identifiermasterinsert.tsx'))
-const MessMaster = React.lazy(() => import('../pages/other/MessMaster/MessMaster.tsx'))
-const MessMasterinsert = React.lazy(() => import('../pages/other/MessMaster/MessMasterinsert.tsx'))
-const Requirementmaster = React.lazy(() => import('../pages/other/HrMaster/RequirementMaster/Requirementmaster.tsx'))
-const Requirementmasterinsert = React.lazy(() => import('../pages/other/HrMaster/RequirementMaster/RequirementMasterinsert.tsx'))
-const DesignationMaster = React.lazy(() => import('../pages/other/HrMaster/DesignationMaster/DesignationMaster.tsx'))
-const DesignationMasterinsert = React.lazy(() => import('../pages/other/HrMaster/DesignationMaster/DesignationMasterinsert.tsx'))
-const DepartmentMaster = React.lazy(() => import('../pages/other/DepartmentMaster/DepartmentMaster.tsx'))
-const DepartmentMasterinsert = React.lazy(() => import('../pages/other/DepartmentMaster/DepartmentMasterinsert.tsx'))
-const TenderMaster = React.lazy(() => import('../pages/other/TenderMaster/TenderMaster.tsx'))
-const TenderMasterinsert = React.lazy(() => import('../pages/other/TenderMaster/TenderMasterinsert.tsx'))
-const HrInputMaster = React.lazy(() => import('../pages/other/HrMaster/HrInputMaster/HrInputmaster.tsx'))
-const HrInputMasterinsert = React.lazy(() => import('../pages/other/HrMaster/HrInputMaster/HrInputMasterinsert.tsx'))
-const HrTaskMaster = React.lazy(() => import('../pages/other/HrMaster/HrTaskMaster/HrTaskMaster.tsx'))
-const HrTaskMasterinsert = React.lazy(() => import('../pages/other/HrMaster/HrTaskMaster/HrTaskMasterinsert.tsx'))
-const HrDoerMaster = React.lazy(() => import('../pages/other/HrMaster/HrDoerMaster/HrDoerMaster.tsx'))
-const HrDoerMasterinsert = React.lazy(() => import('../pages/other/HrMaster/HrDoerMaster/HrDoerMasterinsert.tsx'))
-const HrResumeMaster = React.lazy(() => import('../pages/other/HrMaster/HrResumeMaster/HrResumeMaster.tsx'))
-const HrResumeMasterinsert = React.lazy(() => import('../pages/other/HrMaster/HrResumeMaster/HrResumeMasterinsert.tsx'))
-const BdInputMaster = React.lazy(() => import('../pages/other/BdMaster/BdInputMaster/BdInputMaster.tsx'))
-const BdInputMasterinsert = React.lazy(() => import('../pages/other/BdMaster/BdInputMaster/BdInputMasterinsert.tsx'))
-const BdTaskMaster = React.lazy(() => import('../pages/other/BdMaster/BdTaskMaster/BdTaskMaster.tsx'))
-const BdTaskMasterinsert = React.lazy(() => import('../pages/other/BdMaster/BdTaskMaster/BdTaskMasterinsert.tsx'))
-const BdDoerMaster = React.lazy(() => import('../pages/other/BdMaster/BdDoermaster/BdDoerMaster.tsx'))
-const BdDoerMasterinsert = React.lazy(() => import('../pages/other/BdMaster/BdDoermaster/BdDoerMasterinsert.tsx'))
+const ModuleMasterNew = React.lazy(() => import('../pages/other/AdminSide/ModuleMaster/ModuleMaster.tsx'))
+const ModuleMasterinsert = React.lazy(() => import('../pages/other/AdminSide/ModuleMaster/ModuleMasterInsert.tsx'))
+const ProcessMasterNew = React.lazy(() => import('../pages/other/AdminSide/ProcessMaster/ProcessMaster.tsx'))
+const ProcessMasterinsert = React.lazy(() => import('../pages/other/AdminSide/ProcessMaster/ProcessMasterInsert.tsx'))
+const DoerMasterNew = React.lazy(() => import('../pages/other/AdminSide/DoerMaster/DoerMaster.tsx'))
+const DoerMasterinsert = React.lazy(() => import('../pages/other/AdminSide/DoerMaster/DoerMasterinsert.tsx'))
+const ProjectMasterNew = React.lazy(() => import('../pages/other/AdminSide/ProjectMaster/ProjectMaster.tsx'))
+const ProjectMasterinsert = React.lazy(() => import('../pages/other/AdminSide/ProjectMaster/ProjectMasterinsert.tsx'))
+const ProjectSubmasterinsert = React.lazy(() => import('../pages/other/AdminSide/ProjectMaster/ProjectSubmasterinsert.tsx'))
+const EmployeeMasterNew = React.lazy(() => import('../pages/other/AdminSide/EmployeeMaster/EmployeeMaster.tsx'))
+const EmployeeMasterinsert = React.lazy(() => import('../pages/other/AdminSide/EmployeeMaster/EmployeeMasterinsert.tsx'))
+const RoleMasterNew = React.lazy(() => import('../pages/other/AdminSide/CommonMaster/RoleMaster/RoleMaster.tsx'))
+const RoleMasterinsert = React.lazy(() => import('../pages/other/AdminSide/CommonMaster/RoleMaster/RoleMasterinsert.tsx'))
+const IdentifierMaster = React.lazy(() => import('../pages/other/AdminSide/CommonMaster/Identifier/IdentifierMaster.tsx'))
+const IdentifierMasterinsert = React.lazy(() => import('../pages/other/AdminSide/CommonMaster/Identifier/Identifiermasterinsert.tsx'))
+const MessMaster = React.lazy(() => import('../pages/other/AdminSide/MessMaster/MessMaster.tsx'))
+const MessMasterinsert = React.lazy(() => import('../pages/other/AdminSide/MessMaster/MessMasterinsert.tsx'))
+const Requirementmaster = React.lazy(() => import('../pages/other/AdminSide/HrMaster/RequirementMaster/Requirementmaster.tsx'))
+const Requirementmasterinsert = React.lazy(() => import('../pages/other/AdminSide/HrMaster/RequirementMaster/RequirementMasterinsert.tsx'))
+const DesignationMaster = React.lazy(() => import('../pages/other/AdminSide/HrMaster/DesignationMaster/DesignationMaster.tsx'))
+const DesignationMasterinsert = React.lazy(() => import('../pages/other/AdminSide/HrMaster/DesignationMaster/DesignationMasterinsert.tsx'))
+const DepartmentMaster = React.lazy(() => import('../pages/other/AdminSide/CommonMaster/DepartmentMaster/DepartmentMaster.tsx'))
+const DepartmentMasterinsert = React.lazy(() => import('../pages/other/AdminSide/CommonMaster/DepartmentMaster/DepartmentMasterinsert.tsx'))
+const TenderMaster = React.lazy(() => import('../pages/other/AdminSide/TenderMaster/TenderMaster.tsx'))
+const TenderMasterinsert = React.lazy(() => import('../pages/other/AdminSide/TenderMaster/TenderMasterinsert.tsx'))
+const HrInputMaster = React.lazy(() => import('../pages/other/AdminSide/HrMaster/HrInputMaster/HrInputmaster.tsx'))
+const HrInputMasterinsert = React.lazy(() => import('../pages/other/AdminSide/HrMaster/HrInputMaster/HrInputMasterinsert.tsx'))
+const HrTaskMaster = React.lazy(() => import('../pages/other/AdminSide/HrMaster/HrTaskMaster/HrTaskMaster.tsx'))
+const HrTaskMasterinsert = React.lazy(() => import('../pages/other/AdminSide/HrMaster/HrTaskMaster/HrTaskMasterinsert.tsx'))
+const HrDoerMaster = React.lazy(() => import('../pages/other/AdminSide/HrMaster/HrDoerMaster/HrDoerMaster.tsx'))
+const HrDoerMasterinsert = React.lazy(() => import('../pages/other/AdminSide/HrMaster/HrDoerMaster/HrDoerMasterinsert.tsx'))
+const HrResumeMaster = React.lazy(() => import('../pages/other/AdminSide/HrMaster/HrResumeMaster/HrResumeMaster.tsx'))
+const HrResumeMasterinsert = React.lazy(() => import('../pages/other/AdminSide/HrMaster/HrResumeMaster/HrResumeMasterinsert.tsx'))
+const HrCandidateMaster = React.lazy(() => import('../pages/other/AdminSide/HrMaster/HrCandidateMaster/HrCandidateMaster.tsx'))
+const HrCandidateMasterinsert = React.lazy(() => import('../pages/other/AdminSide/HrMaster/HrCandidateMaster/HrCandidateMasterinsert.tsx'))
+const AddressMaster = React.lazy(() => import('../pages/other/AdminSide/AddressMaster/AddressMaster.tsx'))
+const AddressMasterinsert = React.lazy(() => import('../pages/other/AdminSide/AddressMaster/AddressMasterinsert.tsx'))
+const BankMaster = React.lazy(() => import('../pages/other/AdminSide/BankMaster/BankMaster.tsx'))
+const BankMasterinsert = React.lazy(() => import('../pages/other/AdminSide/BankMaster/BankMasterinsert.tsx'))
+const FillingFrequencyMaster = React.lazy(() => import('../pages/other/AdminSide/CommonMaster/FillingFrequencyMaster/FillingFrequencyMaster.tsx'))
+const FillingFrequencyMasterinsert = React.lazy(() => import('../pages/other/AdminSide/CommonMaster/FillingFrequencyMaster/FillingFrequencyMasterinsert.tsx'))
+const ManagementContractMaster = React.lazy(() => import('../pages/other/AdminSide/CommonMaster/ManagementContractMaster/ManagementContractMaster.tsx'))
+const ManagementContractMasterinsert = React.lazy(() => import('../pages/other/AdminSide/CommonMaster/ManagementContractMaster/ManagementContractMasterinsert.tsx'))
+
+const ProjectTypeMaster = React.lazy(() => import('../pages/other/AdminSide/CommonMaster/ProjectTypeMaster/ProjectTypeMaster.tsx'))
+const ProjectTypeMasterinsert = React.lazy(() => import('../pages/other/AdminSide/CommonMaster/ProjectTypeMaster/ProjectTypeMasterinsert.tsx'))
+
+const VenderMaster = React.lazy(() => import('../pages/other/AdminSide/VenderMaster/VenderMaster.tsx'))
+const VenderMasterinsert = React.lazy(() => import('../pages/other/AdminSide/VenderMaster/VenderMasterinsert.tsx'))
+
 
 
 
@@ -152,7 +156,7 @@ const customPagesRoutes = {
 		{
 			path: '/pages/invoice',
 			name: 'Invoice',
-			element: <InvoicePages />,
+			element: <AdhocTempleteList />,
 			route: PrivateRoute,
 		},
 		{
@@ -193,7 +197,7 @@ const customPagesRoutes = {
 		},
 		{
 			path: '/pages/ActiveProject',
-			name: 'Active Tasks',
+			name: 'Active Project',
 			element: <ActiveProject />,
 			route: PrivateRoute,
 		},
@@ -234,28 +238,11 @@ const customPagesRoutes = {
 			element: <ApprovalConsole />,
 			route: PrivateRoute,
 		},
-		{
-			path: '/pages/Module-list',
-			name: 'Modules List',
-			element: <ModuleList />,
-			route: PrivateRoute,
-		},
-		{
-			path: '/pages/Employee-Master',
-			name: 'Employee Master',
-			element: <EmployeeMaster />,
-			route: PrivateRoute,
-		},
+	
 		{
 			path: '/pages/MessMaster',
 			name: 'Mess Master',
 			element: <MessMaster />,
-			route: PrivateRoute,
-		},
-		{
-			path: '/pages/Tender',
-			name: 'Tender Master',
-			element: <Tender />,
 			route: PrivateRoute,
 		},
 		{
@@ -264,14 +251,6 @@ const customPagesRoutes = {
 			element: <Vender />,
 			route: PrivateRoute,
 		},
-		{
-			path: '/pages/Bank',
-			name: 'Bank Master',
-			element: <Bank />,
-			route: PrivateRoute,
-		},
-	
-	
 		{
 			path: '/pages/TaskMaster',
 			name: 'Task Master',
@@ -313,7 +292,7 @@ const customPagesRoutes = {
 		{
 			path: '/pages/ChkTaskMaster',
 			name: 'CHK Task Master',
-			element: <ModuleMaster />,
+			element: <ChkTaskMaster />,
 			route: PrivateRoute,
 		},
 		{
@@ -328,13 +307,7 @@ const customPagesRoutes = {
 			element: <ChecklistMaster />,
 			route: PrivateRoute,
 		},
-		{
-			path: '/pages/AddressMaster',
-			name: 'Address Master',
-			element: <AddressMaster />,
-			route: PrivateRoute,
-		},
-
+	
 
 		{
 			path: '/pages/CompletedTask',
@@ -650,59 +623,134 @@ const customPagesRoutes = {
 			route: PrivateRoute,
 		},
 		{
-			path: '/pages/BdTaskMaster',
-			name: 'BdTaskMaster ',
-			element: <BdTaskMaster />,
+			path: '/pages/HrCandidateMaster',
+			name: 'HrCandidateMaster ',
+			element: <HrCandidateMaster />,
 			route: PrivateRoute,
 		},
 		{
-			path: '/pages/BdTaskMasterinsert/:id',
-			name: 'BdTaskMasterinsert ',
-			element: <BdTaskMasterinsert />,
+			path: '/pages/HrCandidateMasterinsert/:id',
+			name: 'HrCandidateMasterinsert ',
+			element: <HrCandidateMasterinsert />,
 			route: PrivateRoute,
 		},
 		{
-			path: '/pages/BdTaskMasterinsert',
-			name: 'BdTaskMasterinsert ',
-			element: <BdTaskMasterinsert />,
+			path: '/pages/HrCandidateMasterinsert',
+			name: 'HrCandidateMasterinsert ',
+			element: <HrCandidateMasterinsert />,
+			route: PrivateRoute,
+		},
+
+		{
+			path: '/pages/AddressMaster',
+			name: 'Address Master',
+			element: <AddressMaster />,
 			route: PrivateRoute,
 		},
 		{
-			path: '/pages/BdInputMaster',
-			name: 'BdInputMaster ',
-			element: <BdInputMaster />,
+			path: '/pages/AddressMasterinsert/:id',
+			name: 'AddressMasterinsert ',
+			element: <AddressMasterinsert />,
 			route: PrivateRoute,
 		},
 		{
-			path: '/pages/BdInputMasterinsert/:id',
-			name: 'BdInputMasterinsert ',
-			element: <BdInputMasterinsert />,
+			path: '/pages/AddressMasterinsert',
+			name: 'AddressMasterinsert ',
+			element: <AddressMasterinsert />,
 			route: PrivateRoute,
 		},
 		{
-			path: '/pages/BdInputMasterinsert',
-			name: 'BdInputMasterinsert ',
-			element: <BdInputMasterinsert />,
+			path: '/pages/BankMaster',
+			name: 'BankMaster',
+			element: <BankMaster />,
 			route: PrivateRoute,
 		},
 		{
-			path: '/pages/BdDoerMaster',
-			name: 'BdDoerMaster ',
-			element: <BdDoerMaster />,
+			path: '/pages/BankMasterinsert/:id',
+			name: 'BankMasterinsert ',
+			element: <BankMasterinsert />,
 			route: PrivateRoute,
 		},
 		{
-			path: '/pages/BdDoerMasterinsert/:id',
-			name: 'BdDoerMasterinsert ',
-			element: <BdDoerMasterinsert />,
+			path: '/pages/BankMasterinsert',
+			name: 'BankMasterinsert ',
+			element: <BankMasterinsert />,
+			route: PrivateRoute,
+		},
+
+		{
+			path: '/pages/FillingFrequencyMaster',
+			name: 'FillingFrequencyMaster',
+			element: <FillingFrequencyMaster />,
 			route: PrivateRoute,
 		},
 		{
-			path: '/pages/BdDoerMasterinsert',
-			name: 'BdDoerMasterinsert ',
-			element: <BdDoerMasterinsert />,
+			path: '/pages/FillingFrequencyMasterinsert/:id',
+			name: 'FillingFrequencyMasterinsert ',
+			element: <FillingFrequencyMasterinsert />,
 			route: PrivateRoute,
 		},
+		{
+			path: '/pages/FillingFrequencyMasterinsert',
+			name: 'FillingFrequencyMasterinsert ',
+			element: <FillingFrequencyMasterinsert />,
+			route: PrivateRoute,
+		},
+		{
+			path: '/pages/ManagementContractMaster',
+			name: 'ManagementContractMaster',
+			element: <ManagementContractMaster />,
+			route: PrivateRoute,
+		},
+		{
+			path: '/pages/ManagementContractMasterinsert/:id',
+			name: 'ManagementContractMasterinsert ',
+			element: <ManagementContractMasterinsert />,
+			route: PrivateRoute,
+		},
+		{
+			path: '/pages/ManagementContractMasterinsert',
+			name: 'ManagementContractMasterinsert ',
+			element: <ManagementContractMasterinsert />,
+			route: PrivateRoute,
+		},
+		{
+			path: '/pages/ProjectTypeMaster',
+			name: 'ProjectTypeMaster',
+			element: <ProjectTypeMaster />,
+			route: PrivateRoute,
+		},
+		{
+			path: '/pages/ProjectTypeMasterinsert/:id',
+			name: 'ProjectTypeMasterinsert ',
+			element: <ProjectTypeMasterinsert />,
+			route: PrivateRoute,
+		},
+		{
+			path: '/pages/ProjectTypeMasterinsert',
+			name: 'ProjectTypeMasterinsert ',
+			element: <ProjectTypeMasterinsert />,
+			route: PrivateRoute,
+		},
+		{
+			path: '/pages/VenderMaster',
+			name: 'VenderMaster',
+			element: <VenderMaster />,
+			route: PrivateRoute,
+		},
+		{
+			path: '/pages/VenderMasterinsert/:id',
+			name: 'VenderMasterinsert ',
+			element: <VenderMasterinsert />,
+			route: PrivateRoute,
+		},
+		{
+			path: '/pages/VenderMasterinsert',
+			name: 'VenderMasterinsert ',
+			element: <VenderMasterinsert />,
+			route: PrivateRoute,
+		},
+
 
 		///////////////////////////////////////////////////////////////////////////////////////////
 		{

@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Table } from 'react-bootstrap'; // Assuming DynamicForm is in the same directory
+import config from '@/config';
+
 
 interface TestData {
   id: number;
@@ -32,9 +34,10 @@ const GetTestData: React.FC = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get('https://arvindo-api.clay.in/api/AccountModule/GetTestData');
+        const response = await axios.get(`${config.API_URL_ACCOUNT}/AccountModule/GetTestData`);
         if (response.data.isSuccess) {
           setData(response.data.getTestData);
+          console.log(response.data.getTestData)
         } else {
           setError('Failed to fetch data');
         }

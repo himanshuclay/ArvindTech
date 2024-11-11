@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from 'react-bootstrap';
 import Table from 'react-bootstrap/Table';  // Import Table from react-bootstrap
+import config from '@/config';
 
 // Define types based on your API response
 interface ProjectAssign {
@@ -32,7 +33,7 @@ const App: React.FC = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch('https://arvindo-api.clay.in/api/AccountModule/GetTaskAssignListWithDoer?Flag=1');
+        const response = await fetch(`${config.API_URL_ACCOUNT}/AccountModule/GetTaskAssignListWithDoer?Flag=1`);
         if (!response.ok) {
           throw new Error('Network response was not ok');
         }
