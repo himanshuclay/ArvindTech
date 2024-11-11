@@ -6,7 +6,7 @@ import { Button, Col, Form, Row } from 'react-bootstrap';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import config from '@/config';
 import Select from 'react-select';
-import Flatpickr from 'react-flatpickr';
+// import Flatpickr from 'react-flatpickr';
 import 'flatpickr/dist/themes/material_green.css';
 import CustomSuccessToast from '../../Component/CustomSuccessToast';
 
@@ -66,7 +66,7 @@ const DepartmentMasterinsert = () => {
     const [stateList, setStateList] = useState<StateList[]>([]);
     const [fillingFrequencyList, setFillingFrequencyList] = useState<FillingFrequencyList[]>([]);
    
-    const [empName, setEmpName] = useState<string | null>()
+    // const [empName, setEmpName] = useState<string | null>()
     const [venders, setVenders] = useState<Vender>({
         id:0,
         vendorCode: '',
@@ -91,12 +91,12 @@ const DepartmentMasterinsert = () => {
         creatorEmail: ''
     });
 
-    useEffect(() => {
-        const storedEmpName = localStorage.getItem('EmpName');
-        if (storedEmpName) {
-            setEmpName(storedEmpName);
-        }
-    }, []);
+    // useEffect(() => {
+    //     const storedEmpName = localStorage.getItem('EmpName');
+    //     if (storedEmpName) {
+    //         setEmpName(storedEmpName);
+    //     }
+    // }, []);
 
 
     useEffect(() => {
@@ -516,8 +516,8 @@ const DepartmentMasterinsert = () => {
                                                 creatorEmpId: selectedOption?.empId || "",
                                             });
                                         }}
-                                        getOptionLabel={(emp) => emp.employeeName.split('_')[0]}
-                                        getOptionValue={(emp) => emp.employeeName.split('_')[0]}
+                                        getOptionLabel={(emp) => emp.employeeName}
+                                        getOptionValue={(emp) => emp.employeeName}
                                         options={employeeList}
                                         isSearchable={true}
                                         placeholder="Select Project Incharge"

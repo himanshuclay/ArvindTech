@@ -123,10 +123,35 @@ const BankMaster = () => {
 
 
 
+    // const [searchBank, setSearchBank] = useState('');
+    // const [searchIfsc, setSearchIfsc] = useState('');
+    // const [searchBranch, setSearchBranch] = useState('');
 
 
-    const handleSearch = () => {
+    const handleSearch = (e: any) => {
+        e.preventDefault();
 
+        // let query = `?`;
+        // if (searchBank) query += `bank=${searchBank}&`;
+        // if (searchIfsc) query += `ifsc=${searchIfsc}&`;
+        // if (searchBranch) query += `branch=${searchBranch}&`;
+
+        // query = query.endsWith('&') ? query.slice(0, -1) : query;
+        // const apiUrl = `${config.API_URL_APPLICATION}/BankMaster/SearchBank${query}`;
+
+        // console.log(apiUrl)
+        // axios.get(apiUrl, {
+        //     headers: {
+        //         'accept': '*/*'
+        //     }
+        // })
+        //     .then((response) => {
+        //         console.log("search response ", response.data.bankMasterListResponses);
+        //         setBanks(response.data.bankMasterListResponses)
+        //     })
+        //     .catch((error) => {
+        //         console.error('Error fetching data:', error);
+        //     });
     };
 
     useEffect(() => {

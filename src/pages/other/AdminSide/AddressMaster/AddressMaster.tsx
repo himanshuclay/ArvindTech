@@ -28,9 +28,18 @@ interface Column {
 }
 
 
-interface DepartmentList {
+interface StateList {
     id: number;
-    departmentName: string;
+    stateName: string;
+}
+
+
+interface District {
+    district: string;
+}
+
+interface AreaData {
+    areaName: string;
 }
 
 const AddressMaster = () => {
@@ -39,8 +48,7 @@ const AddressMaster = () => {
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
     const [searchQuery, setSearchQuery] = useState('');
-    const [departmentList, setDepartmentList] = useState<DepartmentList[]>([]);
-    const [searchDept, setSearchDept] = useState<number>();
+    const [stateList, setStateList] = useState<StateList[]>([]);
 
 
 
@@ -117,12 +125,43 @@ const AddressMaster = () => {
     };
 
 
+    const [districts, setDistricts] = useState<District[]>([]);
+    const [areaData, setAreaData] = useState<AreaData[]>([]);
 
 
 
+    const [searchPinCode, setSearchPinCode] = useState('');
+    const [searchAreaName, setSearchAreaName] = useState('');
+    const [searchDistrict, setSearchDistrict] = useState('');
+    const [searchState, setSearchState] = useState('');
 
-    const handleSearch = () => {
- 
+
+
+    const handleSearch = (e: any) => {
+        e.preventDefault();
+
+        let query = `?`;
+        if (searchPinCode) query += `PinCode=${searchPinCode}&`;
+        if (searchAreaName) query += `AreaName=${searchAreaName}&`;
+        if (searchDistrict) query += `District=${searchDistrict}&`;
+        if (searchState) query += `State=${searchState}&`;
+
+        query = query.endsWith('&') ? query.slice(0, -1) : query;
+        const apiUrl = `${config.API_URL_APPLICATION}/AddressMaster/SearchAddress${query}`;
+
+        console.log(apiUrl)
+        axios.get(apiUrl, {
+            headers: {
+                'accept': '*/*'
+            }
+        })
+            .then((response) => {
+                console.log("search response ", response.data.addresses);
+                setAddresses(response.data.addresses)
+            })
+            .catch((error) => {
+                console.error('Error fetching data:', error);
+            });
     };
 
     useEffect(() => {
@@ -138,16 +177,53 @@ const AddressMaster = () => {
                 console.error(`Error fetching data from ${endpoint}:`, error);
             }
         };
-        fetchData('CommonDropdown/GetDepartment', setDepartmentList, 'getDepartments');
+        fetchData('CommonDropdown/GetStateList', setStateList, 'stateListResponses');
     }, []);
 
 
+    useEffect(() => {
+        const fetchDistricts = async () => {
+            try {
+                const response = await axios.get(`https://arvindo-api2.clay.in/api/AddressMaster/GetAddressData?PinCode=${searchPinCode}`);
+                setDistricts(response.data.addresses); // Assume the response contains districtList
+            } catch (error) {
+                console.error('Error fetching districts:', error);
+                setDistricts([]);
+            }
+        };
 
+        // Only call the API if searchPinCode has exactly 6 digits
+        if (searchPinCode.length === 6) {
+            fetchDistricts();
+        } else {
+            setDistricts([]);
+            setSearchDistrict(''); // Clear district if pin code is not 6 digits
+            setAreaData([]); // Clear area data if conditions are not met
+        }
+    }, [searchPinCode]);
 
+    useEffect(() => {
+        const fetchAreaData = async () => {
+            try {
+                const response = await axios.get(`https://arvindo-api2.clay.in/api/AddressMaster/GetAddressData?PinCode=${searchPinCode}&District=${searchDistrict}`);
+                setAreaData(response.data.addresses); // Assume the response contains area data
+            } catch (error) {
+                console.error('Error fetching area data:', error);
+                setAreaData([]);
+            }
+        };
+
+        // Only call the second API if both searchPinCode and selectedDistrict are valid
+        if (searchPinCode.length === 6 && searchDistrict) {
+            fetchAreaData();
+        }
+    }, [searchPinCode, searchDistrict]);
 
     const handleClear = () => {
         fetchStaffRequirements();
-        setSearchDept(undefined);
+        setSearchState('');
+        setSearchPinCode('');
+        setSearchAreaName('');
     };
 
 
@@ -216,31 +292,29 @@ const AddressMaster = () => {
                         <div className='bg-white p-2 pb-2'>
                             <Row>
                                 <Col lg={6} className=''>
-                                    <Form.Group controlId="searchDept">
+                                    <Form.Group controlId="searchPinCode">
                                         <Form.Label>Pincode</Form.Label>
-                                        <Select
-                                            name="searchDept"
-                                            value={departmentList.find(item => item.id === searchDept) || null}
-                                            onChange={(selectedOption) => setSearchDept(selectedOption ? selectedOption.id : 0)}
-                                            options={departmentList}
-                                            getOptionLabel={(item) => item.departmentName}
-                                            getOptionValue={(item) => item.departmentName}
-                                            isSearchable={true}
-                                            placeholder="Select Pincode"
-                                            className="h45"
+                                        <Form.Control
+                                            type="text"
+                                            name="searchPinCode"
+                                            value={searchPinCode}
+                                            onChange={(e) => setSearchPinCode(e.target.value)}
+                                            required
+                                            placeholder='Enter Pincode'
                                         />
+
                                     </Form.Group>
                                 </Col>
                                 <Col lg={6} className=''>
-                                    <Form.Group controlId="searchDept">
+                                    <Form.Group controlId="searchState">
                                         <Form.Label>State</Form.Label>
                                         <Select
-                                            name="searchDept"
-                                            value={departmentList.find(item => item.id === searchDept) || null}
-                                            onChange={(selectedOption) => setSearchDept(selectedOption ? selectedOption.id : 0)}
-                                            options={departmentList}
-                                            getOptionLabel={(item) => item.departmentName}
-                                            getOptionValue={(item) => item.departmentName}
+                                            name="searchState"
+                                            value={stateList.find(item => item.stateName === searchState)}
+                                            onChange={(selectedOption) => setSearchState(selectedOption ? selectedOption.stateName : '')}
+                                            options={stateList}
+                                            getOptionLabel={(item) => item.stateName}
+                                            getOptionValue={(item) => item.stateName}
                                             isSearchable={true}
                                             placeholder="Select State"
                                             className="h45"
@@ -249,39 +323,41 @@ const AddressMaster = () => {
                                 </Col>
 
                                 <Col lg={6} className='mt-2'>
-                                    <Form.Group controlId="searchDept">
+                                    <Form.Group controlId="searchDistrict">
                                         <Form.Label>District</Form.Label>
                                         <Select
-                                            name="searchDept"
-                                            value={departmentList.find(item => item.id === searchDept) || null}
-                                            onChange={(selectedOption) => setSearchDept(selectedOption ? selectedOption.id : 0)}
-                                            options={departmentList}
-                                            getOptionLabel={(item) => item.departmentName}
-                                            getOptionValue={(item) => item.departmentName}
+                                            name="searchDistrict"
+                                            value={districts && districts.find(item => item.district === searchDistrict) || null}
+                                            onChange={(selectedOption) => setSearchDistrict(selectedOption ? selectedOption.district : '')}
+                                            options={districts || []}  // Provide empty array if addressData is null
+                                            getOptionLabel={(item) => item.district}
+                                            getOptionValue={(item) => item.district}
                                             isSearchable={true}
                                             placeholder="Select District"
                                             className="h45"
+                                            isDisabled={!searchPinCode} 
+
                                         />
                                     </Form.Group>
                                 </Col>
                                 <Col lg={6} className='mt-2'>
-                                    <Form.Group controlId="searchDept">
+                                    <Form.Group controlId="searchAreaName">
                                         <Form.Label>Area Name</Form.Label>
                                         <Select
-                                            name="searchDept"
-                                            value={departmentList.find(item => item.id === searchDept) || null}
-                                            onChange={(selectedOption) => setSearchDept(selectedOption ? selectedOption.id : 0)}
-                                            options={departmentList}
-                                            getOptionLabel={(item) => item.departmentName}
-                                            getOptionValue={(item) => item.departmentName}
+                                            name="searchAreaName"
+                                            value={areaData && areaData.find(item => item.areaName === searchAreaName) || null}
+                                            onChange={(selectedOption) => setSearchAreaName(selectedOption ? selectedOption.areaName : '')}
+                                            options={areaData || []}
+                                            getOptionLabel={(item) => item?.areaName || ''}  // Use optional chaining
+                                            getOptionValue={(item) => item?.areaName || ''}  // Use optional chaining
                                             isSearchable={true}
                                             placeholder="Select Area"
                                             className="h45"
+                                            isDisabled={!searchDistrict} 
                                         />
                                     </Form.Group>
                                 </Col>
-                         
-                                <div className="text-danger">Filter is not working yet</div>
+
                                 <Col ></Col>
                                 <Col lg={3} className="align-items-end d-flex justify-content-end mt-2">
                                     <ButtonGroup aria-label="Basic example" className="w-100">

@@ -8,6 +8,7 @@ import config from '@/config';
 import Select from 'react-select';
 import Flatpickr from 'react-flatpickr';
 import 'flatpickr/dist/themes/material_green.css';
+import CustomSuccessToast from '@/pages/other/Component/CustomSuccessToast';
 
 
 
@@ -50,13 +51,21 @@ interface ProjectList {
 }
 
 
+interface EmployeeList {
+    empId: string;
+    employeeName: string;
+}
 
 const RequirementMasterinsert = () => {
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
     const [editMode, setEditMode] = useState<boolean>(false);
     const [departmentList, setDepartmentList] = useState<DepartmentList[]>([]);
+    const [employeeList, setEmployeeList] = useState<EmployeeList[]>([]);
     const [empName, setEmpName] = useState<string | null>()
+    const [showToast, setShowToast] = useState(false);
+    const [toastMessage, setToastMessage] = useState("");
+    const [toastVariant, setToastVariant] = useState('');
     const [projectList, setProjectList] = useState<ProjectList[]>([]);
     const [requirements, setRequirements] = useState<Requirement>({
         id: 0,
@@ -84,6 +93,10 @@ const RequirementMasterinsert = () => {
         createdBy: '',
         updatedBy: ''
     });
+
+
+    const [files, setFiles] = useState<File[]>([]);
+    const [error, setError] = useState('');
 
 
     useEffect(() => {
@@ -136,6 +149,7 @@ const RequirementMasterinsert = () => {
 
         fetchData('CommonDropdown/GetDepartment', setDepartmentList, 'getDepartments');
         fetchData('CommonDropdown/GetProjectList', setProjectList, 'projectListResponses');
+        fetchData('CommonDropdown/GetEmployeeListWithId', setEmployeeList, 'employeeLists');
     }, []);
 
 
@@ -169,15 +183,64 @@ const RequirementMasterinsert = () => {
             updatedBy: editMode ? empName : '',
         };
         console.log(payload)
+
         try {
             if (editMode) {
                 await axios.post(`${config.API_URL_APPLICATION}/StaffRequirementMaster/InsertorUpdateStaffRequirement`, payload);
+                navigate('/pages/RequirementMaster', {
+                    state: {
+                        showToast: true,
+                        toastMessage: "Staff Requirement Updated successfully!",
+                        toastVariant: "rgb(28 175 85)"
+                    }
+                });
             } else {
                 await axios.post(`${config.API_URL_APPLICATION}/StaffRequirementMaster/InsertorUpdateStaffRequirement`, payload);
+                navigate('/pages/RequirementMaster', {
+                    state: {
+                        showToast: true,
+                        toastMessage: "Staff Requirement Added successfully!",
+                        toastVariant: "rgb(28 175 85)"
+                    }
+                });
             }
-            navigate('/pages/RequirementMaster');
+
+
         } catch (error) {
+            setToastMessage("Error Adding/Updating");
+            setToastVariant("rgb(213 18 18)");
+            setShowToast(true);
             console.error('Error submitting module:', error);
+        }
+    };
+
+
+    const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const selectedFiles = Array.from(event.target.files || []);
+        let newFiles: File[] = [];
+        let errorMessage = '';
+
+        // Validation for file count
+        if (selectedFiles.length > 5) {
+            errorMessage = 'You can only upload up to 5 files.';
+        } else {
+            // Validation for file size
+            newFiles = selectedFiles.filter(file => {
+                if (file.size > 10 * 1024 * 1024) {
+                    errorMessage = 'Each file must be less than 10MB.';
+                    return false;
+                }
+                return true;
+            });
+        }
+
+        // Set error message or selected files
+        if (errorMessage) {
+            setError(errorMessage);
+            setFiles([]);
+        } else {
+            setError('');
+            setFiles(newFiles);
         }
     };
 
@@ -336,12 +399,13 @@ const RequirementMasterinsert = () => {
                                     <Form.Label>Type Of Appointment</Form.Label>
                                     <Select
                                         name="typeOfAppointment"
+                                        value={{ value: requirements.typeOfAppointment, label: requirements.typeOfAppointment }}
                                         options={[
-                                            { value: 'full-time', label: 'Full Time' },
-                                            { value: 'part-time', label: 'Part Time' }
+                                            { value: 'Full Time', label: 'Full Time' },
+                                            { value: 'Part Time', label: 'Part Time' }
                                         ]}
                                         isSearchable={true}
-                                        placeholder="Select Type Of Appointment "
+                                        placeholder="Select Type Of Appointment"
                                         onChange={(selectedOption) => {
                                             setRequirements({
                                                 ...requirements,
@@ -354,16 +418,25 @@ const RequirementMasterinsert = () => {
                             </Col>
 
 
+
                             <Col lg={6}>
                                 <Form.Group controlId="recruiter" className="mb-3">
                                     <Form.Label>Recruiter</Form.Label>
-                                    <Form.Control
-                                        type="text"
+                                    <Select
                                         name="recruiter"
-                                        value={requirements.recruiter}
-                                        onChange={handleChange}
+                                        value={employeeList.find((emp) => emp.employeeName === requirements.recruiter)}
+                                        onChange={(selectedOption) => {
+                                            setRequirements({
+                                                ...requirements,
+                                                recruiter: selectedOption?.employeeName || "",
+                                            });
+                                        }}
+                                        getOptionLabel={(emp) => emp.employeeName}
+                                        getOptionValue={(emp) => emp.employeeName}
+                                        options={employeeList}
+                                        isSearchable={true}
+                                        placeholder="Select  Recruiter Name"
                                         required
-                                        placeholder='Enter Recruiter Name '
                                     />
                                 </Form.Group>
                             </Col>
@@ -371,16 +444,35 @@ const RequirementMasterinsert = () => {
                             <Col lg={6}>
                                 <Form.Group controlId="uploadJD" className="mb-3">
                                     <Form.Label>UploadJD</Form.Label>
-                                    <Form.Control
-                                        type="text"
-                                        name="uploadJD"
-                                        value={requirements.uploadJD}
-                                        onChange={handleChange}
-                                        required
-                                        placeholder='Upload JD'
-                                    />
+                                    <div className='input-file-custom'>
+                                        <label htmlFor="uploadJD" className="file-upload w-100">
+                                            <div className='d-flex justify-content-between align-items-center'>
+                                                <i className="ri-upload-cloud-2-line h1 text-muted m-0"></i>
+                                                <div>
+                                                    <h4>Drop files here or click to upload.</h4>
+                                                    <span className='fs-13 text-muted'>(.jpeg, .jpg, .png, .pdf Note: You can only select up to 5 files, each up to 10MB.)</span>
+                                                </div>
+                                            </div>
+                                        </label>
+                                        <input
+                                            id="uploadJD    "
+                                            type="file"
+                                            multiple
+                                            onChange={handleFileChange}
+                                            accept=".png,.jpeg,.jpg,.pdf"
+                                            style={{ display: 'none' }}
+                                        />
+                                        {error && <p style={{ color: 'red' }}>{error}</p>}
+                                        <ul>
+                                            {files.map((file, index) => (
+                                                <li key={index}>{file.name}</li>
+                                            ))}
+                                        </ul>
+                                    </div>
                                 </Form.Group>
                             </Col>
+
+
                             <Col lg={6}>
                                 <Form.Group controlId="noOfCandidateIDsInterviewed" className="mb-3">
                                     <Form.Label>No Of Candidate IDs Interviewed</Form.Label>
@@ -535,7 +627,7 @@ const RequirementMasterinsert = () => {
                             </Col>
 
 
-                            
+
 
                             <Col className='align-items-end d-flex justify-content-between mb-3'>
                                 <div>
@@ -561,6 +653,12 @@ const RequirementMasterinsert = () => {
                 </div>
 
             </div>
+            <CustomSuccessToast
+                show={showToast}
+                toastMessage={toastMessage}
+                toastVariant={toastVariant}
+                onClose={() => setShowToast(false)}
+            />
         </div>
     );
 };

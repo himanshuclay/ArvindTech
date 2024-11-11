@@ -1,10 +1,11 @@
 import axios from 'axios';
 import { useState, useEffect, ChangeEvent } from 'react';
-import { Button, Pagination, Table, Container, Row, Col, Alert, Form, ButtonGroup } from 'react-bootstrap';
+import { Button, Pagination, Table, Container, Row, Col, Alert, Form } from 'react-bootstrap';
+// import { Button, Pagination, Table, Container, Row, Col, Alert, Form, ButtonGroup } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import config from '@/config';
-import Select from 'react-select';
+// import Select from 'react-select';
 import { useLocation, useNavigate } from 'react-router-dom';
 import CustomSuccessToast from '../../Component/CustomSuccessToast';
 import IconWithLetter from '@/pages/ui/IconWithLetter';
@@ -42,10 +43,10 @@ interface Column {
 }
 
 
-interface StatusList {
-    id: number;
-    name: string;
-}
+// interface StatusList {
+//     id: number;
+//     name: string;
+// }
 
 const TenderMaster = () => {
     const [venders, setVenders] = useState<Vender[]>([]);
@@ -54,7 +55,7 @@ const TenderMaster = () => {
     const [totalPages, setTotalPages] = useState(1);
     const [searchQuery, setSearchQuery] = useState('');
     const [downloadCsv, setDownloadCsv] = useState<Vender[]>([]);
-    const [statusList, setStatusList] = useState<StatusList[]>([]);
+    // const [statusList, setStatusList] = useState<StatusList[]>([]);
 
 
     const location = useLocation();
@@ -62,9 +63,6 @@ const TenderMaster = () => {
     const [showToast, setShowToast] = useState(false);
     const [toastMessage, setToastMessage] = useState('');
     const [toastVariant, setToastVariant] = useState('');
-
-
-
     useEffect(() => {
         if (location.state && location.state.showToast) {
             setShowToast(true);
@@ -125,33 +123,33 @@ const TenderMaster = () => {
 
 
 
-    const [searchStatusValue, setSearchStatusValue] = useState('');
+    // const [searchStatusValue, setSearchStatusValue] = useState('');
 
     const handleSearch = (e: any) => {
         e.preventDefault();
 
-        let query = `?`;
+        // let query = `?`;
 
-        if (searchStatusValue) query += `TenderStatus=${searchStatusValue}&`;
-        if (searchStatusValue) query += `TypeofTender=${searchStatusValue}&`;
+        // if (searchStatusValue) query += `TenderStatus=${searchStatusValue}&`;
+        // if (searchStatusValue) query += `TypeofTender=${searchStatusValue}&`;
 
-        query = query.endsWith('&') ? query.slice(0, -1) : query;
+        // query = query.endsWith('&') ? query.slice(0, -1) : query;
 
-        const apiUrl = `${config.API_URL_APPLICATION}/TenderMaster/SearchTender${query}`;
+        // const apiUrl = `${config.API_URL_APPLICATION}/TenderMaster/SearchTender${query}`;
 
-        console.log(apiUrl)
-        axios.get(apiUrl, {
-            headers: {
-                'accept': '*/*'
-            }
-        })
-            .then((response) => {
-                // console.log("search response ", response.data.venders);
-                setVenders(response.data.venders)
-            })
-            .catch((error) => {
-                console.error('Error fetching data:', error);
-            });
+        // console.log(apiUrl)
+        // axios.get(apiUrl, {
+        //     headers: {
+        //         'accept': '*/*'
+        //     }
+        // })
+        //     .then((response) => {
+        //         // console.log("search response ", response.data.venders);
+        //         setVenders(response.data.venders)
+        //     })
+        //     .catch((error) => {
+        //         console.error('Error fetching data:', error);
+        //     });
     };
 
 
@@ -191,29 +189,29 @@ const TenderMaster = () => {
 
     };
 
-    useEffect(() => {
-        const fetchData = async (endpoint: string, setter: Function, listName: string) => {
-            try {
-                const response = await axios.get(`${config.API_URL_APPLICATION}/${endpoint}`);
-                if (response.data.isSuccess) {
-                    setter(response.data[listName]);
-                } else {
-                    console.error(response.data.message);
-                }
-            } catch (error) {
-                console.error(`Error fetching data from ${endpoint}:`, error);
-            }
-        };
+    // useEffect(() => {
+    //     const fetchData = async (endpoint: string, setter: Function, listName: string) => {
+    //         try {
+    //             const response = await axios.get(`${config.API_URL_APPLICATION}/${endpoint}`);
+    //             if (response.data.isSuccess) {
+    //                 setter(response.data[listName]);
+    //             } else {
+    //                 console.error(response.data.message);
+    //             }
+    //         } catch (error) {
+    //             console.error(`Error fetching data from ${endpoint}:`, error);
+    //         }
+    //     };
 
-        fetchData('CommonDropdown/GetStatus', setStatusList, 'statusListResponses');
-    }, []);
+    //     fetchData('CommonDropdown/GetStatus', setStatusList, 'statusListResponses');
+    // }, []);
 
 
 
-    const handleClear = () => {
-        setSearchStatusValue('')
-        fetchMaster();
-    };
+    // const handleClear = () => {
+    //     setSearchStatusValue('')
+    //     fetchMaster();
+    // };
 
 
     const convertToCSV = (data: Vender[]) => {
@@ -314,7 +312,7 @@ const TenderMaster = () => {
                         <div className='bg-white p-2 pb-2'>
                             <Form onSubmit={handleSearch}>
                                 <Row>
-                                    <Col lg={6}>
+                                    {/* <Col lg={6}>
                                         <Form.Group controlId="searchStatusValue">
                                             <Form.Label>Status </Form.Label>
                                             <Select
@@ -336,18 +334,17 @@ const TenderMaster = () => {
                                             <Form.Label>Core Designation</Form.Label>
                                             <Select
                                                 name="searchCoreDesignation"
-                                                // value={roleList.find(role => role.roleName === searchDoerRole) || null} // handle null
-                                                // onChange={(selectedOption) => setSearchDoerRole(selectedOption ? selectedOption.roleName : "")} // null check
-                                                // options={roleList}
-                                                // getOptionLabel={(role) => role.roleName}
-                                                // getOptionValue={(role) => role.roleName}
+                                                value={roleList.find(role => role.roleName === searchDoerRole) || null} // handle null
+                                                onChange={(selectedOption) => setSearchDoerRole(selectedOption ? selectedOption.roleName : "")} // null check
+                                                options={roleList}
+                                                getOptionLabel={(role) => role.roleName}
+                                                getOptionValue={(role) => role.roleName}
                                                 isSearchable={true}
                                                 placeholder="Search..."
                                                 className="h45"
                                             />
                                         </Form.Group>
-                                    </Col>
-
+                                    </Col> 
 
 
 
@@ -365,7 +362,11 @@ const TenderMaster = () => {
                                             </Button>
                                         </ButtonGroup>
                                     </Col>
+*/}
+                                    <h4>search filter will be introduce here</h4>
+
                                 </Row>
+
                             </Form>
 
 
@@ -421,7 +422,6 @@ const TenderMaster = () => {
                                                                         <div ref={provided.innerRef}
                                                                             {...provided.draggableProps}
                                                                             {...provided.dragHandleProps}>
-
                                                                             {column.id === 'vendorCode' && (<i className="ri-barcode-line"></i>)}
                                                                             {column.id === 'category' && (<i className="ri-folder-fill"></i>)}
                                                                             {column.id === 'name' && (<i className="ri-user-line"></i>)}
@@ -462,7 +462,7 @@ const TenderMaster = () => {
                                                         {columns.filter(col => col.visible).map((col) => (
                                                             <td key={col.id}
                                                                 className={
-                                                                    col.id === 'addressLine1' ? 'text-nowrap' :
+                                                                    col.id === 'addressLine1' ? 'w-200px' :
 
                                                                         // (col.id === 'tenderStatus' && item[col.id] === 'INACTIVE') ? 'task4' :
                                                                         // (col.id === 'tenderStatus' && item[col.id] === 'ACTIVE') ? 'task1' :
@@ -470,15 +470,15 @@ const TenderMaster = () => {
                                                                 }
                                                             >
                                                                 {col.id === 'creatorName' && item.creatorName ? (
-                                                                        <td>
-                                                                            <div className="d-flex align-items-center">
-                                                                                <IconWithLetter letter={item.creatorName.charAt(0)} />
-                                                                                {item.creatorName.split('_')[0]}
-                                                                            </div>
-                                                                        </td>
-                                                                    ) : (
-                                                                        <td>{item[col.id as keyof Vender]}</td>
-                                                                    )
+                                                                    <div className="d-flex align-items-center">
+                                                                        <IconWithLetter letter={item.creatorName.charAt(0)} />
+                                                                        {item.creatorName.split('_')[0]}
+                                                                    </div>
+                                                                ) : (
+                                                                    <div>
+                                                                        {item[col.id as keyof Vender]}
+                                                                    </div>
+                                                                )
                                                                 }
 
                                                             </td>
