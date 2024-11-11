@@ -2,7 +2,8 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Modal } from 'react-bootstrap';
 import { FileUploader } from '@/components/FileUploader'
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
+// import { useNavigate, useLocation } from 'react-router-dom';
 import config from '@/config';
 import Select, { SingleValue } from 'react-select';
 
@@ -23,6 +24,8 @@ interface Input {
     required: boolean;
     conditionalFieldId?: string;
     value?: any;
+    selectedMaster?: string;
+    selectedHeader?: string;
 }
 
 interface DynamicFormProps {
@@ -72,7 +75,6 @@ interface Task {
 }
 
 const DynamicForm: React.FC<DynamicFormProps> = ({
-    // formData,
     taskNumber,
     processId,
     ProcessInitiationID,
@@ -89,10 +91,11 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
     approvalConsoleInputID,
     taskStatus,
     setLoading }) => {
-
+//  const [formDatas, setFormDatas] = useState<any>({});
     const [formState, setFormState] = useState<FormState>({});
     const [summary, setSummary] = useState('');
-    const [taskJson, setTaskJson] = useState<{ [key: string]: any }>({});
+    // const [taskJson, setTaskJson] = useState<{ [key: string]: any }>({});
+    const [globalTaskJson, setglobalTaskJson] = useState<any>(JSON.stringify(formData));
     const [messManagers, setMessManagers] = useState<{ value: string, label: string }[]>([]);
     const [selectedManager, setSelectedManager] = useState<string>("Avisineni Pavan Kumar_LLP05337"); // Initialize with default value
     const [showMessManagerSelect, setShowMessManagerSelect] = useState(false);
@@ -102,34 +105,77 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
 
     const [currentStep, setCurrentStep] = useState(0); // Track the current step
 
-    const location = useLocation();
-
-
-    console.log("clicked process", processId)
+    // const location = useLocation();
 
     const navigate = useNavigate()
-    console.log("value form", formState)
 
-    useEffect(() => {
-        console.log(formData);
+    // useEffect(() => {
 
-        if (formData) {
-            try {
-                // Check if formData is a string and parse it; otherwise, use it as-is
-                const parsedData = typeof formData === 'string'
-                    ? JSON.parse(formData)  // Parse the string if it's in JSON format
-                    : formData;  // Use as-is if it's already an object
+    //     if (formData) {
+    //         try {
+    //             // Check if formData is a string and parse it; otherwise, use it as-is
+    //             const parsedData = typeof formData === 'string'
+    //                 ? JSON.parse(formData)  // Parse the string if it's in JSON format
+    //                 : formData;  // Use as-is if it's already an object
 
-                setTaskJson(parsedData); // Set the parsed or direct object
-            } catch (e) {
-                console.error("Error parsing formData:", e);
-            }
-        } else {
-            console.warn("formData is undefined or empty");
-        }
-    }, [formData]);
+    //             setTaskJson(parsedData); // Set the parsed or direct object
+    //         } catch (e) {
+    //             console.error("Error parsing formData:", e);
+    //         }
+    //     } else {
+    //         console.warn("formData is undefined or empty");
+    //     }
+    // }, [formData]);
 
 
+
+    // useEffect(()=>{
+    //     if(taskCommonIDRow){
+
+    //         fetchSingleDataById(taskCommonIDRow);
+    //     }
+    // },[taskCommonIDRow])
+    // const fetchSingleDataById = async (taskCommonId: number) => {
+    //     try {
+    //       const flag = 5;
+    //       const response = await axios.get<ApiResponse>(
+    //         `${config.API_URL_ACCOUNT}/ProcessInitiation/GetFilterTask?TaskCommonId=${taskCommonId}&Flag=${flag}`
+    //       );
+    
+    //       if (response.data && response.data.isSuccess) {
+    //         // Safely access task_Json and ensure it's a string
+    //         const singledatabyID = response.data.getFilterTasks[0]?.task_Json;
+    
+    //         if (typeof singledatabyID === 'string') {
+    //           console.log('fetch single Data:', JSON.parse(singledatabyID));
+    //         //   setSingleDataById(JSON.parse(singledatabyID));
+    //         setFormDatas(JSON.parse(singledatabyID));
+    //         // setFormDatas(singledatabyID);
+              
+    //         } else {
+    //           console.error('task_Json is not a valid string:', singledatabyID);
+    //         }
+    //       } else {
+    //         console.error('API Response Error:', response.data?.message || 'Unknown error');
+    //       }
+    //     } catch (error) {
+    //       if (axios.isAxiosError(error)) {
+    //         console.error('Axios Error Response:', error.response?.data || 'No response data');
+    //         console.error('Axios Error Message:', error.message);
+    //       } else {
+    //         console.error('Unexpected Error:', error);
+    //       }
+    //     } finally {
+    //       setLoading(false);
+    //     }
+    //   };
+    
+
+console.log(taskCommonIDRow)
+console.log(formData)
+// console.log(formDatas)
+
+    
 
     type InputConfig = {
         inputId: string;
@@ -202,6 +248,54 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
         // Save the updated data back to localStorage
         localStorage.setItem(localStorageKey, JSON.stringify(updatedData));
     };
+
+    interface DropdownItem {
+        name: string;
+    }
+
+    const [vendors, setVendors] = useState<DropdownItem[]>([]);
+
+    useEffect(() => {
+        // Log formData to verify it's correctly passed to the component
+
+        const customSelectInput = formData.inputs.find(
+            (input) => input.type === "CustomSelect"
+        );
+
+        if (customSelectInput && customSelectInput.selectedMaster && customSelectInput.selectedHeader) {
+
+            const fetchVendors = async () => {
+                try {
+                    const response = await axios.get(
+                        "https://arvindo-api2.clay.in/api/CommonDropdown/GetData",
+                        {
+                            params: {
+                                MasterName: customSelectInput.selectedMaster,
+                                HeaderName: customSelectInput.selectedHeader,
+                            },
+                        }
+                    );
+
+                    if (response.data.isSuccess) {
+                        setVendors(response.data.dropDownLists);
+                    } else {
+                        console.error("Failed to fetch vendors:", response.data.message);
+                    }
+                } catch (error) {
+                    console.error("Error fetching vendor data:", error);
+                }
+            };
+
+            fetchVendors();
+        } else {
+            console.warn("No CustomSelect input with MasterName and HeaderName found.");
+        }
+    }, [formData]);
+
+
+
+
+ 
 
 
 
@@ -379,8 +473,6 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
         setApprovalStatus(selectedOption);
     };
 
-    console.log(projectNames)
-
 
     useEffect(() => {
         const fetchMessData = async () => {
@@ -422,8 +514,9 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
         const input = formData.inputs.find(input => input.inputId === inputId);
 
         let updatedValue = value;
-        let selectedLabel: any;
-        console.log(selectedLabel);
+        var selectedLabel: any;
+        console.log(`Selected label: ${selectedLabel}`);
+
 
         if (input) {
             selectedLabel = input.label;
@@ -509,10 +602,8 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
 
                 // Set taskJson in JSON format, matching formData structure
                 // setTaskJson(JSON.stringify(updatedTaskJson, null, 2)); 
-                setTaskJson(updatedTaskJson);
+                setglobalTaskJson(updatedTaskJson);
             }
-
-            console.log(taskJson);
 
             // Re-evaluate conditions after state update
             reEvaluateConditions(newState);
@@ -540,26 +631,42 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
 
         const conditionToSend = selectedCondition.length > 0 ? selectedCondition : parsedCondition[0];
 
-        const requestData = {
-            id: taskData?.id || 0,
-            doerID: role || '',
-            task_Json: JSON.stringify(finalData),   // Use the updated taskJson state
-            isExpired: 0,
-            isCompleted: formState['Pending'] || 'Completed',
-            task_Number: taskNumber,
-            summary: formState['summary'] || 'Task Summary',  // Ensure summary is from formState
-            condition_Json: JSON.stringify(conditionToSend),  // Assuming parsedCondition is defined
-            taskCommonId: taskCommonIDRow,
-            taskStatus: taskStatus, // Use the taskCommonId fetched from localStorage or state
-            updatedBy: role
-        };
+        let requestData;
 
-        console.log(requestData);
+        if (processId === "ACC.01") {
+            requestData = {
+                id: taskData?.id || 0,
+                doerID: role || '',
+                task_Json: JSON.stringify(finalData),   // Use the updated taskJson state
+                isExpired: 0,
+                isCompleted: formState['Pending'] || 'Completed',
+                task_Number: taskNumber,
+                summary: formState['summary'] || 'Task Summary',  // Ensure summary is from formState
+                condition_Json: JSON.stringify(conditionToSend),  // Assuming parsedCondition is defined
+                taskCommonId: taskCommonIDRow,
+                taskStatus: taskStatus, // Use the taskCommonId fetched from localStorage or state
+                updatedBy: role
+            };
+        } else {
+            requestData = {
+                id: taskData?.id || 0,
+                doerID: role || '',
+                task_Json: JSON.stringify(globalTaskJson),
+                isExpired: 0,
+                isCompleted: formState['Pending'] || 'Completed',
+                task_Number: taskNumber,
+                summary: formState['summary'] || 'Task Summary',  // Ensure summary is from formState
+                condition_Json: JSON.stringify(conditionToSend),  // Assuming parsedCondition is defined
+                taskCommonId: taskCommonIDRow,
+                taskStatus: taskStatus, // Use the taskCommonId fetched from localStorage or state
+                updatedBy: role
+            };
+        }
 
         setLoading(true);  // Show loader when the request is initiated
 
         try {
-            const response = await fetch(`${config.API_URL_ACCOUNT}/ProcessInitiation/UpdateDoerTask`, {
+            const response = await fetch(`${config.API_URL_ACCOUNT}/ProcessInitiation/UpdateDoerTasks`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -581,7 +688,72 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
         }
     };
 
-    console.log("approval console status: ", approval_Console)
+    // const handleApprovalSubmit = async (event: React.FormEvent, taskNumber: string) => {
+    //     event.preventDefault();
+    //     saveDataToLocalStorage();
+    //     localStorage.removeItem(localStorageKey);
+
+    //     const role = localStorage.getItem('EmpId') || '';
+    //     const taskData = data.find((task: Task) => task.task_Number === taskNumber);
+    //     const conditionToSend = selectedCondition.length > 0 ? selectedCondition : parsedCondition[0];
+
+    //     const taskJson = {
+    //         formId: formData?.formId || '',
+    //         formName: formData?.formName || '',
+    //         inputs: Object.keys(formState)
+    //             .filter(inputId => inputId !== 'formId' && inputId !== 'formName')
+    //             .map(inputId => {
+    //                 const { type = 'text', label = '', placeholder = '', options = [], required = false, conditionalFieldId = '' } = formData?.inputs?.find(config => config.inputId === inputId) || {};
+    //                 return { inputId, value: formState[inputId], type, label, placeholder, options, required, conditionalFieldId };
+    //             }),
+    //     };
+
+
+    //     const fullJson = {
+    //         messID: 'MESS-1717998452037',  // Placeholder value; replace with actual messID
+    //         taskJson,
+    //         comments: formState['comments'] || '',  // Optional comments field
+    //     };
+
+    //     const requestData = {
+    //         id: taskData?.id || 0,
+    //         doerID: role || '',
+    //         task_Json: JSON.stringify(fullJson),  // Use fullJson for approval submission
+    //         isExpired: 0,
+    //         isCompleted: formState['Pending'] || 'Completed',
+    //         task_Number: taskNumber,
+    //         summary: formState['summary'] || 'Task Summary',
+    //         condition_Json: JSON.stringify(conditionToSend),
+    //         taskCommonId: taskCommonIDRow,
+    //         taskStatus: taskStatus,
+    //         updatedBy: role,
+    //     };
+
+    //     console.log(requestData)
+
+    //     setLoading(true);
+
+    //     try {
+    //         const response = await fetch(`${config.API_URL_ACCOUNT}/ProcessInitiation/UpdateApprovalTask`, {
+    //             method: 'POST',
+    //             headers: { 'Content-Type': 'application/json' },
+    //             body: JSON.stringify(requestData),
+    //         });
+
+    //         if (response.ok) {
+    //             const responseData = await response.json();
+    //             navigate('/pages/approvedTasks', { state: { showToast: true, taskName: taskNumber } });
+    //             console.log('Task approved successfully:', responseData);
+    //         } else {
+    //             console.error('Failed to approve the task:', response.statusText);
+    //         }
+    //     } catch (error) {
+    //         console.error('Error occurred while approving task:', error);
+    //     } finally {
+    //         setLoading(false);
+    //     }
+    // };
+
 
 
     // Function to re-evaluate conditions for showing/hiding fields
@@ -625,8 +797,6 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
 
         return false;
     };
-
-    console.log(formData)
 
 
     const [showBankModal, setShowBankModal] = useState(false);
@@ -678,7 +848,6 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
     const handleSelectMessImpChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
         const selectedValue = event.target.value;
         setSelectedManager(selectedValue);
-        console.log('Selected manager ID:', selectedValue);
     };
 
 
@@ -791,12 +960,16 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
 
 
 
-                {location.pathname === '/pages/ApprovalConsole' &&
-                    (
+                {/* {location.pathname === '/pages/ApprovalConsole' && 
+                    ( */}
                         <div>
-                            {formData.map((mess) => (
-                                <form className='side-scroll' onSubmit={(event) => handleSubmit(event, taskNumber)}>
-                                    <div key={mess.messID} style={{ border: '1px solid #ccc', padding: '10px', margin: '10px 0' }}>
+                            {/* {formData.map((mess) => (
+                                <form
+                                    key={mess.messID}
+                                    className='side-scroll'
+                                    onSubmit={(event) => handleApprovalSubmit(event, taskNumber)}  // Use handleApprovalSubmit here
+                                >
+                                    <div style={{ border: '1px solid #ccc', padding: '10px', margin: '10px 0' }}>
                                         <h2>{mess.taskJson.formName}</h2>
                                         <h3>Mess ID: {mess.messID}</h3>
                                         {mess.taskJson.inputs.map((input) => (
@@ -805,7 +978,14 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                                                     {input.label} {input.required && '*'}
                                                 </label>
                                                 {input.type === 'select' && (
-                                                    <select defaultValue={input.value} style={{ padding: '5px', width: '100%' }}>
+                                                    <select
+                                                        value={formState[input.inputId] || input.value}  // Bind to formState
+                                                        onChange={(e) => setFormState({
+                                                            ...formState,
+                                                            [input.inputId]: e.target.value
+                                                        })}
+                                                        style={{ padding: '5px', width: '100%' }}
+                                                    >
                                                         {input.options?.map((option) => (
                                                             <option key={option.id} value={option.id} style={{ color: option.color }}>
                                                                 {option.label}
@@ -816,7 +996,11 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                                                 {input.type === 'text' && (
                                                     <input
                                                         type="text"
-                                                        defaultValue={input.value}
+                                                        value={formState[input.inputId] || input.value}  // Bind to formState
+                                                        onChange={(e) => setFormState({
+                                                            ...formState,
+                                                            [input.inputId]: e.target.value
+                                                        })}
                                                         placeholder={input.placeholder}
                                                         style={{ padding: '5px', width: '100%' }}
                                                     />
@@ -824,24 +1008,17 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                                             </div>
                                         ))}
                                     </div>
-                                    <button
-                                        type="submit"
-                                        className="btn btn-success"
-                                    >
+                                    <button type="submit" className="btn btn-success">
                                         Submit
                                     </button>
                                 </form>
-
-                            ))}
-                        </div>
-                    )
-                }
+                            ))} */}
 
 
 
 
 
-                {formData.inputs &&
+                {formData && formData.inputs &&
                     <form className='side-scroll' onSubmit={(event) => handleSubmit(event, taskNumber)}>
 
                         <Modal.Body className=" p-4">
@@ -991,16 +1168,16 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                                                     </select>
                                                 )}
                                                 {input.type === 'CustomSelect' && (
-                                                    <select
+                                                    <select className='form-control'
                                                         value={formState[input.inputId]}
                                                         onChange={e => handleChange(input.inputId, e.target.value)}
                                                         style={{ display: 'block', width: '100%', padding: '0.5rem' }}
 
                                                     >
                                                         <option value="" disabled>Select an option</option>
-                                                        {input.options?.map(option => (
-                                                            <option key={option.id} value={option.label}>
-                                                                {option.label}
+                                                        {vendors.map((vendor, index) => (
+                                                            <option key={index} value={vendor.name}>
+                                                                {vendor.name}
                                                             </option>
                                                         ))}
                                                     </select>
@@ -1225,19 +1402,17 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                                         Submit
                                     </button>}
                                 </div>
-
-
                             </div>
                         </Modal.Body>
-
-
-
                     </form>
                 }
+                                        </div>
+                    {/* )
+
+
+                } */}
 
             </Modal >
-
-
         </>
     );
 };

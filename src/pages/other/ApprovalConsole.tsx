@@ -59,10 +59,10 @@ const ApprovalPage: React.FC = () => {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [approvalStatuses, setApprovalStatuses] = useState<Record<number, OptionType | null>>({});
   const [selectedTask, setSelectedTask] = useState<Task | any>('');
-  const [preData, setPreData] = useState<FilteredTask[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [parsedCondition, setParsedCondition] = useState<any[]>([]);
-  const [taskCommonIDRow, setTaskCommonIdRow] = useState<number | null>(null);
+  // const [preData, setPreData] = useState<FilteredTask[]>([]);
+  // const [loading, setLoading] = useState<boolean>(true);
+  // const [parsedCondition, setParsedCondition] = useState<any[]>([]);
+  // const [taskCommonIDRow, setTaskCommonIdRow] = useState<number | null>(null);
   const [show, setShow] = useState(false);
 
   useEffect(() => {
@@ -191,11 +191,11 @@ const ApprovalPage: React.FC = () => {
           show={show}
           
           setShow={setShow}
-          parsedCondition={parsedCondition}
-          preData={preData}
+          parsedCondition
+          preData
           selectedTasknumber={selectedTask.task_Number}
-          setLoading={setLoading}
-          taskCommonIDRow={taskCommonIDRow}
+          setLoading
+          taskCommonIDRow
           taskStatus
           processId={selectedTask.processID}
           moduleId={selectedTask.moduleID}

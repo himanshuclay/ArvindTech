@@ -177,7 +177,7 @@ const ProjectAssignTable: React.FC = () => {
     fetchData();
   }, []);
 
-  console.log(data)
+  // console.log(data)
 
 
 
@@ -313,6 +313,7 @@ const ProjectAssignTable: React.FC = () => {
 
 
 
+
   if (loading) {
     return <div className="loader-fixed">
       <div className="loader"></div>
@@ -322,8 +323,6 @@ const ProjectAssignTable: React.FC = () => {
 
   const formatAndUpdateDate = (createdDate: string, taskTime: string) => {
     // Log the input values for debugging
-    console.log('Created Date:', createdDate);
-    console.log('Task Time:', taskTime);
   
     // Parse the created date in MM/dd/yyyy HH:mm:ss format
     const createdDateObj = parse(createdDate, 'MM/dd/yyyy HH:mm:ss', new Date());

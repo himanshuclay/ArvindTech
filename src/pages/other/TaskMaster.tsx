@@ -313,6 +313,7 @@ const AccountProcessTable: React.FC = () => {
 
 
         const handleSaveChanges = async () => {
+            console.log("funtion is executing")
             if (selectedTask && selectedEmployee) {
                 if (!filteredJson) {
                     console.error("No valid data found in filteredJson.");
@@ -488,19 +489,6 @@ const AccountProcessTable: React.FC = () => {
                             <form className='form-group'>
                                 {filteredJson.type !== "select" && (
                                     <div className='col-12'>
-                                        {/* <div className="form-group">
-                                            <label htmlFor="">Select Successor Task For Input Labeled with <label>{filteredJson.label}</label></label>
-                                            <select className='form-control' onChange={(e) => handleNextTask(filteredJson.inputId, e.target.value)}>
-                                                {tasks
-                                                    .filter(task => task.task_Number !== selectedConditionTask) // Exclude selectedConditionTask
-                                                    .map(task => (
-                                                        <option key={task.id} value={task.task_Number}>
-                                                            {task.task_Number}
-                                                        </option>
-                                                    ))
-                                                }
-                                            </select>
-                                        </div> */}
 
                                         {filteredJson ? (
                                             <div className="form-group row" key={filteredJson.inputId} style={{ marginTop: '10px' }}>
@@ -635,9 +623,6 @@ const AccountProcessTable: React.FC = () => {
                                         ) : (
                                             <p>No input data available</p>
                                         )}
-
-
-
                                     </div>
                                 )}
 
@@ -649,7 +634,7 @@ const AccountProcessTable: React.FC = () => {
                                     ))}
                                 </select> */}
 
-                                {filteredJson.options.map(option => (
+                                {filteredJson.options?.map(option => (
                                     <div className='form-group row' key={option.id} style={{ marginTop: '10px' }}>
                                         <div className="col-4">
                                             <label>
