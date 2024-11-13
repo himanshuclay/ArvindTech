@@ -1,5 +1,3 @@
-
-
 import axios from 'axios';
 import { useEffect, useState, ChangeEvent } from 'react';
 import { Button, Col, Form, Row } from 'react-bootstrap';
@@ -61,12 +59,6 @@ interface Tender {
     updatedBy: string;
 }
 
-
-// interface DepartmentList {
-//     id: string;
-//     departmentName: string;
-// }
-
 interface StateList {
     id: number;
     stateName: string;
@@ -88,7 +80,6 @@ const DepartmentMasterinsert = () => {
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
     const [editMode, setEditMode] = useState<boolean>(false);
-    // const [departmentList, setDepartmentList] = useState<DepartmentList[]>([]);
     const [showToast, setShowToast] = useState(false);
     const [toastMessage, setToastMessage] = useState("");
     const [toastVariant, setToastVariant] = useState('');
@@ -163,7 +154,6 @@ const DepartmentMasterinsert = () => {
         }
     }, [id]);
 
-    console.log(id)
 
 
     const fetchStaffRequirementsId = async (id: string) => {
@@ -197,7 +187,6 @@ const DepartmentMasterinsert = () => {
             }
         };
 
-        // fetchData('CommonDropdown/GetDepartment', setDepartmentList, 'getDepartments');
         fetchData('CommonDropdown/GetStateList', setStateList, 'stateListResponses');
         fetchData('CommonDropdown/GetEmployeeListWithId', setEmployeeList, 'employeeLists');
         fetchData('CommonDropdown/GetStatus', setStatusList, 'statusListResponses');
@@ -226,7 +215,6 @@ const DepartmentMasterinsert = () => {
                 });
             }
         } else if (name) {
-            // For react-select, where we directly pass the name and value
             setTenders({
                 ...tenders,
                 [name]: value
@@ -241,7 +229,6 @@ const DepartmentMasterinsert = () => {
             createdBy: editMode ? tenders.createdBy : empName,
             updatedBy: editMode ? empName : '',
         };
-        console.log(payload)
         try {
             if (editMode) {
                 await axios.post(`${config.API_URL_APPLICATION}/TenderMaster/InsertorUpdateTender`, payload);
@@ -287,30 +274,6 @@ const DepartmentMasterinsert = () => {
                     <Form onSubmit={handleSubmit}>
                         <Row>
 
-
-
-                            {/* 
-                            <Col lg={6}>
-                                <Form.Group controlId="department" className="mb-3">
-                                    <Form.Label>Department Name</Form.Label>
-                                    <Select
-                                        name="department"
-                                        value={departmentList.find((mod) => mod.departmentName === tenders.department)}
-                                        onChange={(selectedOption) => {
-                                            setDesignations({
-                                                ...tenders,
-                                                department: selectedOption?.departmentName || '',
-                                            });
-                                        }}
-                                        getOptionLabel={(mod) => mod.departmentName}
-                                        getOptionValue={(mod) => mod.departmentName}
-                                        options={departmentList}
-                                        isSearchable={true}
-                                        placeholder="Select Department Name"
-                                        required
-                                    />
-                                </Form.Group>
-                            </Col> */}
 
                             <Col lg={6}>
                                 <Form.Group controlId="tenderStatus" className="mb-3">
@@ -433,14 +396,6 @@ const DepartmentMasterinsert = () => {
                             <Col lg={6}>
                                 <Form.Group controlId="deptPrincipleEmployerName" className="mb-3">
                                     <Form.Label>Department Principal Employer Name</Form.Label>
-                                    {/* <Form.Control
-                                        type="text"
-                                        name="deptPrincipleEmployerName"
-                                        value={tenders.deptPrincipleEmployerName}
-                                        onChange={handleChange}
-                                        required
-                                        placeholder="Department Principal Employer Name"
-                                    /> */}
                                     <Select
                                         name="deptPrincipleEmployerName"
                                         value={employeeList.find((mod) => mod.employeeName === tenders.deptPrincipleEmployerName)}

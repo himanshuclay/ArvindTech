@@ -1,11 +1,10 @@
 import axios from 'axios';
 import { useState, useEffect, ChangeEvent } from 'react';
-import { Button, Pagination, Table, Container, Row, Col, Alert, Form } from 'react-bootstrap';
-// import { Button, Pagination, Table, Container, Row, Col, Alert, Form, ButtonGroup } from 'react-bootstrap';
+import { Button, Pagination, Table, Container, Row, Col, Alert, Form, ButtonGroup } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import config from '@/config';
-// import Select from 'react-select';
+import Select from 'react-select';
 import { useLocation, useNavigate } from 'react-router-dom';
 import CustomSuccessToast from '../../Component/CustomSuccessToast';
 import IconWithLetter from '@/pages/ui/IconWithLetter';
@@ -43,10 +42,10 @@ interface Column {
 }
 
 
-// interface StatusList {
-//     id: number;
-//     name: string;
-// }
+interface EmployeeList {
+    empId: string;
+    employeeName: string;
+}
 
 const TenderMaster = () => {
     const [venders, setVenders] = useState<Vender[]>([]);
@@ -55,7 +54,8 @@ const TenderMaster = () => {
     const [totalPages, setTotalPages] = useState(1);
     const [searchQuery, setSearchQuery] = useState('');
     const [downloadCsv, setDownloadCsv] = useState<Vender[]>([]);
-    // const [statusList, setStatusList] = useState<StatusList[]>([]);
+    const [employeeList, setEmployeeList] = useState<EmployeeList[]>([]);
+
 
 
     const location = useLocation();
@@ -116,40 +116,46 @@ const TenderMaster = () => {
     };
     // ==============================================================
 
+
+    const [searchVenderCode, setSearchVenderCode] = useState('');
+    const [searchVendorContactPerson, setSearchVendorContactPerson] = useState('');
+    const [searchCreatorName, setSearchCreatorName] = useState('');
+
+
     useEffect(() => {
-        fetchMaster();
-        fetchModulesCsv()
-    }, [currentPage]);
+        // If any search criteria is filled, run handleSearch; otherwise, fetch master data
+        if (searchVenderCode || searchVendorContactPerson || searchCreatorName) {
+            handleSearch();
+        } else {
+            fetchMaster();
+            fetchModulesCsv
+        }
+    }, [currentPage]); // Run this effect when currentPage changes
 
 
+    const handleSearch = (e?: React.FormEvent) => {
+        if (e) e.preventDefault();
+        let query = `?`;
 
-    // const [searchStatusValue, setSearchStatusValue] = useState('');
-
-    const handleSearch = (e: any) => {
-        e.preventDefault();
-
-        // let query = `?`;
-
-        // if (searchStatusValue) query += `TenderStatus=${searchStatusValue}&`;
-        // if (searchStatusValue) query += `TypeofTender=${searchStatusValue}&`;
-
-        // query = query.endsWith('&') ? query.slice(0, -1) : query;
-
-        // const apiUrl = `${config.API_URL_APPLICATION}/TenderMaster/SearchTender${query}`;
-
-        // console.log(apiUrl)
-        // axios.get(apiUrl, {
-        //     headers: {
-        //         'accept': '*/*'
-        //     }
-        // })
-        //     .then((response) => {
-        //         // console.log("search response ", response.data.venders);
-        //         setVenders(response.data.venders)
-        //     })
-        //     .catch((error) => {
-        //         console.error('Error fetching data:', error);
-        //     });
+        if (searchVenderCode) query += `VendorCode=${searchVenderCode}&`;
+        if (searchVendorContactPerson) query += `VendorContactPerson=${searchVendorContactPerson}&`;
+        if (searchCreatorName) query += `CreatorName=${searchCreatorName}&`;
+        query += `PageIndex=${currentPage}`;
+        query = query.endsWith('&') ? query.slice(0, -1) : query;
+        const apiUrl = `${config.API_URL_APPLICATION}/VendorMaster/SearchVendor${query}`;
+        console.log(apiUrl)
+        axios.get(apiUrl, {
+            headers: {
+                'accept': '*/*'
+            }
+        })
+            .then((response) => {
+                setVenders(response.data.vendorMasterList)
+                setTotalPages(Math.ceil(response.data.totalCount / 10));
+            })
+            .catch((error) => {
+                console.error('Error fetching data:', error);
+            });
     };
 
 
@@ -189,29 +195,32 @@ const TenderMaster = () => {
 
     };
 
-    // useEffect(() => {
-    //     const fetchData = async (endpoint: string, setter: Function, listName: string) => {
-    //         try {
-    //             const response = await axios.get(`${config.API_URL_APPLICATION}/${endpoint}`);
-    //             if (response.data.isSuccess) {
-    //                 setter(response.data[listName]);
-    //             } else {
-    //                 console.error(response.data.message);
-    //             }
-    //         } catch (error) {
-    //             console.error(`Error fetching data from ${endpoint}:`, error);
-    //         }
-    //     };
+    useEffect(() => {
+        const fetchData = async (endpoint: string, setter: Function, listName: string) => {
+            try {
+                const response = await axios.get(`${config.API_URL_APPLICATION}/${endpoint}`);
+                if (response.data.isSuccess) {
+                    setter(response.data[listName]);
+                } else {
+                    console.error(response.data.message);
+                }
+            } catch (error) {
+                console.error(`Error fetching data from ${endpoint}:`, error);
+            }
+        };
 
-    //     fetchData('CommonDropdown/GetStatus', setStatusList, 'statusListResponses');
-    // }, []);
+        fetchData('CommonDropdown/GetEmployeeListWithId', setEmployeeList, 'employeeLists');
+
+    }, []);
 
 
 
-    // const handleClear = () => {
-    //     setSearchStatusValue('')
-    //     fetchMaster();
-    // };
+    const handleClear = () => {
+        setSearchCreatorName('')
+        setSearchVendorContactPerson('')
+        setSearchVenderCode('')
+        fetchMaster();
+    };
 
 
     const convertToCSV = (data: Vender[]) => {
@@ -266,7 +275,7 @@ const TenderMaster = () => {
         if (link.download !== undefined) {
             const url = URL.createObjectURL(blob);
             link.setAttribute('href', url);
-            link.setAttribute('download', 'Tenders.csv');
+            link.setAttribute('download', 'Venders.csv');
             link.style.visibility = 'hidden';
             document.body.appendChild(link);
             link.click();
@@ -279,11 +288,29 @@ const TenderMaster = () => {
         setCurrentPage(1);
     };
 
-    // const filteredDoers = doers.filter(doer =>
-    //     doer.entryDate.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    //     // doer.identifier.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    //     // doer.empName.toLowerCase().includes(searchQuery.toLowerCase())
-    // );
+    const filteredVenders = venders.filter(vender =>
+        vender.vendorCode.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        vender.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        vender.category.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        vender.addressLine1.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        vender.district.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        vender.state.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        vender.area.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        vender.pin.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        vender.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        vender.contactNo.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        vender.bankAccountNumber.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        vender.bankName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        vender.ifsc.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        vender.branch.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        vender.gstin.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        vender.fillingFrequency.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        vender.vendorContactPerson.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        vender.creatorEmpId.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        vender.creatorName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        vender.creatorEmail.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+    
     return (
         <>
             <div className="container">
@@ -312,39 +339,47 @@ const TenderMaster = () => {
                         <div className='bg-white p-2 pb-2'>
                             <Form onSubmit={handleSearch}>
                                 <Row>
-                                    {/* <Col lg={6}>
-                                        <Form.Group controlId="searchStatusValue">
-                                            <Form.Label>Status </Form.Label>
-                                            <Select
-                                                name="searchStatusValue"
-                                                value={statusList.find(emp => emp.name === searchStatusValue) || null}
-                                                onChange={(selectedOption) => setSearchStatusValue(selectedOption ? selectedOption.name : "")}
-                                                options={statusList}
-                                                getOptionLabel={(emp) => emp.name}
-                                                getOptionValue={(emp) => emp.name}
-                                                isSearchable={true}
-                                                placeholder="Select Status"
-                                                className="h45"
+                                    <Col lg={4}>
+                                        <Form.Group controlId="searchVenderCode">
+                                            <Form.Label>Vender Code </Form.Label>
+                                            <Form.Control
+                                                type="text"
+                                                name="searchVenderCode"
+                                                value={searchVenderCode}
+                                                onChange={(e) => setSearchVenderCode(e.target.value)}
+                                                placeholder='Enter VenderCode'
+                                            />
+                                        </Form.Group>
+                                    </Col>
+                                    <Col lg={4}>
+                                        <Form.Group controlId="searchVendorContactPerson">
+                                            <Form.Label>Vender Contact Person </Form.Label>
+                                            <Form.Control
+                                                type="text"
+                                                name="searchVendorContactPerson"
+                                                value={searchVendorContactPerson}
+                                                onChange={(e) => setSearchVendorContactPerson(e.target.value)}
+                                                placeholder='Enter Vendor Contact Person'
                                             />
                                         </Form.Group>
                                     </Col>
 
-                                    <Col lg={6}>
-                                        <Form.Group controlId="searchCoreDesignation">
-                                            <Form.Label>Core Designation</Form.Label>
+                                    <Col lg={4}>
+                                        <Form.Group controlId="searchCreatorName">
+                                            <Form.Label>Creator Name</Form.Label>
                                             <Select
-                                                name="searchCoreDesignation"
-                                                value={roleList.find(role => role.roleName === searchDoerRole) || null} // handle null
-                                                onChange={(selectedOption) => setSearchDoerRole(selectedOption ? selectedOption.roleName : "")} // null check
-                                                options={roleList}
-                                                getOptionLabel={(role) => role.roleName}
-                                                getOptionValue={(role) => role.roleName}
+                                                name="searchCreatorName"
+                                                value={employeeList.find(emp => emp.employeeName === searchCreatorName) || null} // handle null
+                                                onChange={(selectedOption) => setSearchCreatorName(selectedOption ? selectedOption.employeeName : "")} // null check
+                                                options={employeeList}
+                                                getOptionLabel={(emp) => emp.employeeName}
+                                                getOptionValue={(emp) => emp.employeeName}
                                                 isSearchable={true}
-                                                placeholder="Search..."
+                                                placeholder="Select Creator Name"
                                                 className="h45"
                                             />
                                         </Form.Group>
-                                    </Col> 
+                                    </Col>
 
 
 
@@ -362,8 +397,8 @@ const TenderMaster = () => {
                                             </Button>
                                         </ButtonGroup>
                                     </Col>
-*/}
-                                    <h4>search filter will be introduce here</h4>
+
+                                    {/* <h4>search filter will be introduce here</h4> */}
 
                                 </Row>
 
@@ -396,13 +431,13 @@ const TenderMaster = () => {
                         </div>
 
                         <div className="overflow-auto text-nowrap">
-                            {!venders ? (
+                            {!filteredVenders ? (
                                 <Container className="mt-5">
                                     <Row className="justify-content-center">
                                         <Col xs={12} md={8} lg={6}>
                                             <Alert variant="info" className="text-center">
-                                                <h4>No Task Found</h4>
-                                                <p>You currently don't have Completed tasks</p>
+                                                <h4>No Data Found</h4>
+                                                <p>You currently don't have any Data</p>
                                             </Alert>
                                         </Col>
                                     </Row>
@@ -455,18 +490,14 @@ const TenderMaster = () => {
                                             </Droppable>
                                         </thead>
                                         <tbody>
-                                            {venders.length > 0 ? (
-                                                venders.slice(0, 10).map((item, index) => (
+                                            {filteredVenders.length > 0 ? (
+                                                filteredVenders.slice(0, 10).map((item, index) => (
                                                     <tr key={item.id}>
                                                         <td>{(currentPage - 1) * 10 + index + 1}</td>
                                                         {columns.filter(col => col.visible).map((col) => (
                                                             <td key={col.id}
                                                                 className={
-                                                                    col.id === 'addressLine1' ? 'w-200px' :
-
-                                                                        // (col.id === 'tenderStatus' && item[col.id] === 'INACTIVE') ? 'task4' :
-                                                                        // (col.id === 'tenderStatus' && item[col.id] === 'ACTIVE') ? 'task1' :
-                                                                        ''
+                                                                    col.id === 'addressLine1' ? 'w-200px' :''
                                                                 }
                                                             >
                                                                 {col.id === 'creatorName' && item.creatorName ? (
@@ -494,7 +525,18 @@ const TenderMaster = () => {
                                                 ))
                                             ) : (
                                                 <tr>
-                                                    <td colSpan={columns.length + 1}>No data available</td>
+                                                    <td colSpan={12}>
+                                                        <Container className="mt-5">
+                                                            <Row className="justify-content-center">
+                                                                <Col xs={12} md={8} lg={6}>
+                                                                    <Alert variant="info" className="text-center">
+                                                                        <h4>No Data  Found</h4>
+                                                                        <p>You currently don't have any Data</p>
+                                                                    </Alert>
+                                                                </Col>
+                                                            </Row>
+                                                        </Container>
+                                                    </td>
                                                 </tr>
                                             )}
                                         </tbody>

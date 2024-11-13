@@ -30,9 +30,13 @@ interface Column {
 }
 
 
-interface DepartmentList {
+interface StateList {
     id: number;
-    departmentName: string;
+    stateName: string;
+}
+interface BankList {
+    bank: string;
+    branch: string;
 }
 
 const BankMaster = () => {
@@ -41,8 +45,9 @@ const BankMaster = () => {
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
     const [searchQuery, setSearchQuery] = useState('');
-    const [departmentList, setDepartmentList] = useState<DepartmentList[]>([]);
-    const [searchDept, setSearchDept] = useState<number>();
+    const [stateList, setStateList] = useState<StateList[]>([]);
+    const [bankList, setBankList] = useState<BankList[]>([]);
+    const [branchName, setBranchName] = useState<BankList[]>([]);
 
 
 
@@ -92,10 +97,7 @@ const BankMaster = () => {
     };
     // ==============================================================
 
-    useEffect(() => {
-        fetchStaffRequirements();
-    }, [currentPage]);
-
+  
 
 
 
@@ -122,36 +124,48 @@ const BankMaster = () => {
 
 
 
+    const [searchBank, setSearchBank] = useState('');
+    const [searchIfsc, setSearchIfsc] = useState('');
+    const [searchBranch, setSearchBranch] = useState('');
+    const [searchState, setSearchState] = useState('');
 
-    // const [searchBank, setSearchBank] = useState('');
-    // const [searchIfsc, setSearchIfsc] = useState('');
-    // const [searchBranch, setSearchBranch] = useState('');
+    useEffect(() => {
+        // If any search criteria is filled, run handleSearch; otherwise, fetch master data
+        if (searchBank || searchIfsc || searchBranch ||searchState ) {
+            handleSearch();
+        } else {
+            fetchStaffRequirements();
+            // fetchModulesCsv
+        }
+    }, [currentPage]); // Run this effect when currentPage changes
+
+    const handleSearch = (e?: React.FormEvent) => {
+        if (e) e.preventDefault();
+        let query = `?`;
 
 
-    const handleSearch = (e: any) => {
-        e.preventDefault();
+        if (searchBank) query += `Bank=${searchBank}&`;
+        if (searchIfsc) query += `Ifsc=${searchIfsc}&`;
+        if (searchBranch) query += `Branch=${searchBranch}&`;
+        if (searchState) query += `State=${searchState}&`;
+        query += `PageIndex=${currentPage}`;
 
-        // let query = `?`;
-        // if (searchBank) query += `bank=${searchBank}&`;
-        // if (searchIfsc) query += `ifsc=${searchIfsc}&`;
-        // if (searchBranch) query += `branch=${searchBranch}&`;
+        query = query.endsWith('&') ? query.slice(0, -1) : query;
+        const apiUrl = `${config.API_URL_APPLICATION}/BankMaster/SearchBank${query}`;
 
-        // query = query.endsWith('&') ? query.slice(0, -1) : query;
-        // const apiUrl = `${config.API_URL_APPLICATION}/BankMaster/SearchBank${query}`;
-
-        // console.log(apiUrl)
-        // axios.get(apiUrl, {
-        //     headers: {
-        //         'accept': '*/*'
-        //     }
-        // })
-        //     .then((response) => {
-        //         console.log("search response ", response.data.bankMasterListResponses);
-        //         setBanks(response.data.bankMasterListResponses)
-        //     })
-        //     .catch((error) => {
-        //         console.error('Error fetching data:', error);
-        //     });
+        console.log(apiUrl)
+        axios.get(apiUrl, {
+            headers: {
+                'accept': '*/*'
+            }
+        })
+            .then((response) => {
+                console.log("search response ", response.data.bankMasterListResponses);
+                setBanks(response.data.bankMasterListResponses)
+            })
+            .catch((error) => {
+                console.error('Error fetching data:', error);
+            });
     };
 
     useEffect(() => {
@@ -167,17 +181,39 @@ const BankMaster = () => {
                 console.error(`Error fetching data from ${endpoint}:`, error);
             }
         };
-        fetchData('CommonDropdown/GetDepartment', setDepartmentList, 'getDepartments');
+        fetchData('CommonDropdown/GetStateList', setStateList, 'stateListResponses');
+        fetchData('CommonDropdown/GetBankName', setBankList, 'bankNames');
     }, []);
 
 
+
+    useEffect(() => {
+        const fetchAreaData = async () => {
+            try {
+                const response = await axios.get(`${config.API_URL_APPLICATION}/BankMaster/GetBranchName?Bank=${searchBank}&State=${searchState}`);
+                setBranchName(response.data.branchNames); // Assume the response contains area data
+            } catch (error) {
+                console.error('Error fetching area data:', error);
+                setBranchName([]);
+            }
+        };
+
+        // Only call the second API if both searchPinCode and selectedDistrict are valid
+        if (searchBank && searchState) {
+            fetchAreaData();
+        }
+    }, [searchBank, searchState]);
 
 
 
     const handleClear = () => {
         fetchStaffRequirements();
-        setSearchDept(undefined);
+        setSearchState('');
+        setSearchBranch('');
+        setSearchIfsc('');
+        setSearchBank('');
     };
+
     const convertToCSV = (data: Bank[]) => {
         const csvRows = [
             ['ID', 'Bank', 'IFSC', 'Branch', 'City 1', 'City 2', 'State', 'Created By', 'Updated By'],
@@ -256,31 +292,28 @@ const BankMaster = () => {
                         <div className='bg-white p-2 pb-2'>
                             <Row>
                                 <Col lg={6} className=''>
-                                    <Form.Group controlId="searchDept">
+                                    <Form.Group controlId="searchIfsc">
                                         <Form.Label>IFSC Code</Form.Label>
-                                        <Select
-                                            name="searchDept"
-                                            value={departmentList.find(item => item.id === searchDept) || null}
-                                            onChange={(selectedOption) => setSearchDept(selectedOption ? selectedOption.id : 0)}
-                                            options={departmentList}
-                                            getOptionLabel={(item) => item.departmentName}
-                                            getOptionValue={(item) => item.departmentName}
-                                            isSearchable={true}
-                                            placeholder="Select Pincode"
-                                            className="h45"
+                                        <Form.Control
+                                            type="text"
+                                            name="searchIfsc"
+                                            value={searchIfsc}
+                                            onChange={(e) => setSearchIfsc(e.target.value)}
+                                            required
+                                            placeholder='Enter ISFC Code'
                                         />
                                     </Form.Group>
                                 </Col>
                                 <Col lg={6} className=''>
-                                    <Form.Group controlId="searchDept">
+                                    <Form.Group controlId="searchState">
                                         <Form.Label>State</Form.Label>
                                         <Select
-                                            name="searchDept"
-                                            value={departmentList.find(item => item.id === searchDept) || null}
-                                            onChange={(selectedOption) => setSearchDept(selectedOption ? selectedOption.id : 0)}
-                                            options={departmentList}
-                                            getOptionLabel={(item) => item.departmentName}
-                                            getOptionValue={(item) => item.departmentName}
+                                            name="searchState"
+                                            value={stateList.find(item => item.stateName === searchState) || null}
+                                            onChange={(selectedOption) => setSearchState(selectedOption ? selectedOption.stateName : '')}
+                                            options={stateList}
+                                            getOptionLabel={(item) => item.stateName}
+                                            getOptionValue={(item) => item.stateName}
                                             isSearchable={true}
                                             placeholder="Select State"
                                             className="h45"
@@ -289,31 +322,31 @@ const BankMaster = () => {
                                 </Col>
 
                                 <Col lg={6} className='mt-2'>
-                                    <Form.Group controlId="searchDept">
+                                    <Form.Group controlId="searchBank">
                                         <Form.Label>Bank Name</Form.Label>
                                         <Select
-                                            name="searchDept"
-                                            value={departmentList.find(item => item.id === searchDept) || null}
-                                            onChange={(selectedOption) => setSearchDept(selectedOption ? selectedOption.id : 0)}
-                                            options={departmentList}
-                                            getOptionLabel={(item) => item.departmentName}
-                                            getOptionValue={(item) => item.departmentName}
+                                            name="searchBank"
+                                            value={bankList.find(item => item.bank === searchBank) || null}
+                                            onChange={(selectedOption) => setSearchBank(selectedOption ? selectedOption.bank : '')}
+                                            options={bankList}
+                                            getOptionLabel={(item) => item.bank}
+                                            getOptionValue={(item) => item.bank}
                                             isSearchable={true}
-                                            placeholder="Select District"
+                                            placeholder="Select Bank"
                                             className="h45"
                                         />
                                     </Form.Group>
                                 </Col>
                                 <Col lg={6} className='mt-2'>
-                                    <Form.Group controlId="searchDept">
+                                    <Form.Group controlId="searchBranch">
                                         <Form.Label>Branch Name</Form.Label>
                                         <Select
-                                            name="searchDept"
-                                            value={departmentList.find(item => item.id === searchDept) || null}
-                                            onChange={(selectedOption) => setSearchDept(selectedOption ? selectedOption.id : 0)}
-                                            options={departmentList}
-                                            getOptionLabel={(item) => item.departmentName}
-                                            getOptionValue={(item) => item.departmentName}
+                                            name="searchBranch"
+                                            value={branchName.find(item => item.branch === searchBranch) || null}
+                                            onChange={(selectedOption) => setSearchBranch(selectedOption ? selectedOption.branch : '')}
+                                            options={branchName}
+                                            getOptionLabel={(item) => item.branch}
+                                            getOptionValue={(item) => item.branch.split(',')[0]}
                                             isSearchable={true}
                                             placeholder="Select Area"
                                             className="h45"
@@ -321,7 +354,6 @@ const BankMaster = () => {
                                     </Form.Group>
                                 </Col>
 
-                                <div className="text-danger">Filter is not worling yet</div>
                                 <Col ></Col>
                                 <Col lg={3} className="align-items-end d-flex justify-content-end mt-2">
                                     <ButtonGroup aria-label="Basic example" className="w-100">

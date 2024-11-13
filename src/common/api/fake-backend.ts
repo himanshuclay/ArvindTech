@@ -36,7 +36,7 @@ const TOKEN =
           password,
         });
   
-        const { isSuccess, message, loginData, getEmployeeDetailsbyEmpId } = response.data;
+        const { isSuccess, message, loginData, getEmployeeDetailsbyEmpId ,token} = response.data;
   
         console.log(response.data);
   
@@ -54,6 +54,7 @@ const TOKEN =
           localStorage.setItem('EmpId', user.email || user.empID);
           localStorage.setItem('role', user.role);
           localStorage.setItem('EmpName', user.employeeName);
+          localStorage.setItem('token', token);
   
           // Assuming token is still a static value for dev purposes
           const userWithToken = {

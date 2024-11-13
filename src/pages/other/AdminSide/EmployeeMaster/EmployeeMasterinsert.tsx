@@ -82,7 +82,14 @@ interface Department {
     id: number;
     departmentName: string;
 }
+interface District {
+    district: string;
+    state: string;
+}
 
+interface AreaData {
+    areaName: string;
+}
 
 
 const EmployeeMasterInsert = () => {
@@ -149,7 +156,10 @@ const EmployeeMasterInsert = () => {
         updatedBy: '',
     });
 
-
+    const [districts, setDistricts] = useState<District[]>([]);
+    const [areaData, setAreaData] = useState<AreaData[]>([]);
+    const [searchPin, setSearchPin] = useState('');
+    const [searchDistrict, setSearchDistrict] = useState('');
 
     useEffect(() => {
         const storedEmpName = localStorage.getItem('EmpName');
@@ -188,7 +198,7 @@ const EmployeeMasterInsert = () => {
 
 
 
-   
+
     const fetchBankByIFSC = async (ifsc: string, accountType: string) => {
         try {
             const response = await axios.get(`${config.API_URL_APPLICATION}/BankMaster/GetBank`, {
@@ -237,6 +247,60 @@ const EmployeeMasterInsert = () => {
 
     }, []);
 
+    useEffect(() => {
+        const fetchDistricts = async () => {
+            try {
+                const response = await axios.get(`${config.API_URL_APPLICATION}/AddressMaster/GetAddressData?PinCode=${searchPin}`);
+                const fetchedDistricts = response.data.addresses;
+                setDistricts(fetchedDistricts);
+                if (fetchedDistricts.length > 0) {
+                    const firstDistrict = fetchedDistricts[0].district; // Assuming the first district in the list
+                    setSearchDistrict(firstDistrict);
+                    setEmployee(prev => ({ ...prev, district: firstDistrict })); // Automatically set district in employee
+                }
+            } catch (error) {
+                console.error('Error fetching districts:', error);
+                setDistricts([]);
+            }
+        };
+
+        if (searchPin.length === 6) {
+            fetchDistricts();
+        } else {
+            setDistricts([]);
+            setSearchDistrict('');
+            setAreaData([]);
+        }
+    }, [searchPin]);
+
+
+    useEffect(() => {
+        const fetchAreaData = async () => {
+            try {
+                const response = await axios.get(`${config.API_URL_APPLICATION}/AddressMaster/GetAddressData?PinCode=${searchPin}&District=${searchDistrict}`);
+                const fetchedAreas = response.data.addresses;
+                setAreaData(fetchedAreas);
+                if (fetchedAreas.length > 0) {
+                    const firstArea = fetchedAreas[0].areaName; 
+                    setEmployee(prev => ({ 
+                        ...prev,
+                         area: firstArea ,
+                         state: fetchedAreas[0].state
+                        
+                    })); 
+                }
+            } catch (error) {
+                console.error('Error fetching area data:', error);
+                setAreaData([]);
+            }
+        };
+
+        if (searchPin.length === 6 && searchDistrict) {
+            fetchAreaData();
+        }
+    }, [searchPin, searchDistrict]);
+
+
 
 
     const handleChange = (e: ChangeEvent<any>) => {
@@ -260,18 +324,18 @@ const EmployeeMasterInsert = () => {
     const handleIfscChange = (e: ChangeEvent<any>, accountType: string) => {
         const { value } = e.target;
         const fieldIfsc = `${accountType.toLowerCase()}BankIfsc`;
-    
+
         setEmployee((prevState) => ({
             ...prevState,
             [fieldIfsc]: value
         }));
-    
+
         // Only fetch if the value is of a specific length
         if (value.length === 11) {
             fetchBankByIFSC(value, accountType);
         }
     };
-    
+
 
 
 
@@ -312,6 +376,9 @@ const EmployeeMasterInsert = () => {
             console.error('Error submitting module:', error);
         }
     };
+
+
+
 
 
     return (
@@ -437,7 +504,7 @@ const EmployeeMasterInsert = () => {
                                         value={employee.dateOfBirth}
                                         onChange={([date]) => setEmployee({
                                             ...employee,
-                                            dateOfBirth: date.toISOString()
+                                            dateOfBirth: date.toISOString().split('T')[0]
                                         })}
                                         options={{
                                             enableTime: false,
@@ -550,9 +617,12 @@ const EmployeeMasterInsert = () => {
                                         type="text"
                                         name="pin"
                                         value={employee.pin}
-                                        onChange={handleChange}
+                                        onChange={(e) => {
+                                            setSearchPin(e.target.value);
+                                            setEmployee(prev => ({ ...prev, pin: e.target.value })); // Update pin in employee
+                                        }}
                                         required
-                                        placeholder='Enter Pincode'
+                                        placeholder="Enter Pincode"
                                     />
                                 </Form.Group>
                             </Col>
@@ -565,30 +635,50 @@ const EmployeeMasterInsert = () => {
                                         value={employee.state}
                                         onChange={handleChange}
                                         placeholder='Enter State Name'
+                                        readOnly
+                                        disabled={!searchPin}
                                     />
                                 </Form.Group>
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="district" className="mb-3">
                                     <Form.Label>District:</Form.Label>
-                                    <Form.Control
-                                        type="text"
+                                    <Select
                                         name="district"
-                                        value={employee.district}
-                                        onChange={handleChange}
-                                        placeholder='Enter District Name'
+                                        value={districts.find(item => item.district === employee.district) || null}
+                                        onChange={(selectedOption) => {
+                                            const district = selectedOption ? selectedOption.district : '';
+                                            setSearchDistrict(district);
+                                            setEmployee(prev => ({ ...prev, district })); // Update district in employee
+                                        }}
+                                        options={districts || []}
+                                        getOptionLabel={(item) => item.district}
+                                        getOptionValue={(item) => item.district}
+                                        isSearchable={true}
+                                        placeholder="Select District"
+                                        className="h45"
+                                        isDisabled={!searchPin}
                                     />
                                 </Form.Group>
                             </Col>
+
                             <Col lg={6}>
                                 <Form.Group controlId="area" className="mb-3">
                                     <Form.Label>Area:</Form.Label>
-                                    <Form.Control
-                                        type="text"
+                                    <Select
                                         name="area"
-                                        value={employee.area}
-                                        onChange={handleChange}
-                                        placeholder='Enter Area Name'
+                                        value={areaData.find(item => item.areaName === employee.area) || null}
+                                        onChange={(selectedOption) => {
+                                            const areaName = selectedOption ? selectedOption.areaName : '';
+                                            setEmployee(prev => ({ ...prev, area: areaName })); // Update area in employee
+                                        }}
+                                        options={areaData || []}
+                                        getOptionLabel={(item) => item?.areaName || ''}
+                                        getOptionValue={(item) => item?.areaName || ''}
+                                        isSearchable={true}
+                                        placeholder="Select Area"
+                                        className="h45"
+                                        isDisabled={!searchDistrict}
                                     />
                                 </Form.Group>
                             </Col>

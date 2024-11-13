@@ -419,8 +419,19 @@ const MessMaster = () => {
                                             ))
                                         ) : (
                                             <tr>
-                                                <td colSpan={columns.length + 1}>No data available</td>
-                                            </tr>
+                                                    <td colSpan={12}>
+                                                        <Container className="mt-5">
+                                                            <Row className="justify-content-center">
+                                                                <Col xs={12} md={8} lg={6}>
+                                                                    <Alert variant="info" className="text-center">
+                                                                        <h4>No Data Found</h4>
+                                                                        <p>You currently don't have any Data</p>
+                                                                    </Alert>
+                                                                </Col>
+                                                            </Row>
+                                                        </Container>
+                                                    </td>
+                                                </tr>
                                         )}
                                     </tbody>
                                 </Table>

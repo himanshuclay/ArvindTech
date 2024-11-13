@@ -6,6 +6,8 @@ import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import IconWithLetter from '@/pages/ui/IconWithLetter';
 import config from '@/config';
 import Select from 'react-select';
+import CustomSuccessToast from '../../Component/CustomSuccessToast';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 
 
@@ -32,10 +34,7 @@ interface EmployeeList {
     empId: string;
     employeeName: string;
 }
-interface RoleList {
-    id: string;
-    roleName: string;
-}
+
 interface TaskList {
     id: string;
     taskID: string;
@@ -44,14 +43,6 @@ interface Identifier {
     id: string;
     identifier: string;
 }
-interface Input {
-    id: string;
-    input: string;
-}
-interface InputValue {
-    id: string;
-    inputValue: string;
-}
 
 const ModuleMaster = () => {
     const [doers, setDoers] = useState<Doer[]>([]);
@@ -59,15 +50,36 @@ const ModuleMaster = () => {
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
     const [searchQuery, setSearchQuery] = useState('');
-
+    const [downloadCsv, setDownloadCsv] = useState<Doer[]>([]);
 
     const [employeeList, setEmployeeList] = useState<EmployeeList[]>([]);
-    const [roleList, setRoleList] = useState<RoleList[]>([]);
     const [taskList, setTaskList] = useState<TaskList[]>([]);
     const [identifierList, setIdentifierList] = useState<Identifier[]>([]);
-    const [inputList, setInputList] = useState<Input[]>([]);
-    const [inputValueList, setInputValueList] = useState<InputValue[]>([]);
 
+
+    
+    const location = useLocation();
+    const navigate = useNavigate();
+    const [showToast, setShowToast] = useState(false);
+    const [toastMessage, setToastMessage] = useState('');
+    const [toastVariant, setToastVariant] = useState('');
+    useEffect(() => {
+        if (location.state && location.state.showToast) {
+            setShowToast(true);
+            setToastMessage(location.state.toastMessage);
+            setToastVariant(location.state.toastVariant);
+
+            setTimeout(() => {
+                setShowToast(false);
+                navigate(location.pathname, { replace: true });
+            }, 5000);
+        }
+        return () => {
+            setShowToast(false);
+            setToastMessage('');
+            setToastVariant('');
+        };
+    }, [location.state, navigate]);
 
     // both are required to make dragable column of table 
     const [columns, setColumns] = useState<Column[]>([
@@ -75,9 +87,8 @@ const ModuleMaster = () => {
         { id: 'identifier', label: 'Identifier', visible: true },
         { id: 'input', label: 'Input', visible: true },
         { id: 'inputValue', label: 'Input Value', visible: true },
-        { id: 'doerRole', label: 'Doer Role', visible: true },
-        { id: 'empID', label: 'Emp ID', visible: true },
-        { id: 'empName', label: 'Emp Name', visible: true },
+        { id: 'empID', label: 'Employee ID', visible: true },
+        { id: 'empName', label: 'Employee Name', visible: true },
 
     ]);
 
@@ -92,26 +103,21 @@ const ModuleMaster = () => {
 
     useEffect(() => {
         fetchDoers();
+        fetchRolesCsv();
     }, [currentPage]);
 
 
     const [searchEmployeeName, setSearchEmployeeName] = useState('');
-    const [searchDoerRole, setSearchDoerRole] = useState('');
     const [searchTaskId, setSearchTaskId] = useState('');
     const [searchIdentifier, setSearchIdentifier] = useState('');
-    const [searchInput, setSearchInput] = useState('');
-    const [searchInputValue, setSearchInputValue] = useState('');
 
     const handleSearch = (e: any) => {
         e.preventDefault();
 
         let query = `?`;
         if (searchEmployeeName) query += `DoerName=${searchEmployeeName}&`;
-        if (searchDoerRole) query += `DoerRole=${searchDoerRole}&`;
         if (searchTaskId) query += `TaskID=${searchTaskId}&`;
         if (searchIdentifier) query += `Identifier=${searchIdentifier}&`;
-        if (searchInput) query += `Input=${searchInput}&`;
-        if (searchInputValue) query += `InputValue=${searchInputValue}&`;
 
         query = query.endsWith('&') ? query.slice(0, -1) : query;
 
@@ -152,7 +158,19 @@ const ModuleMaster = () => {
         }
     };
 
+    const fetchRolesCsv = async () => {
+        try {
+            const response = await axios.get(`${config.API_URL_APPLICATION}/IdentifierMaster/GetIdentifier`);
+            if (response.data.isSuccess) {
+                setDownloadCsv(response.data.identifierLists);
+            } else {
+                console.error(response.data.message);
+            }
+        } catch (error) {
+            console.error('Error fetching doers:', error);
+        }
 
+    };
 
     useEffect(() => {
         const fetchData = async (endpoint: string, setter: Function, listName: string) => {
@@ -169,11 +187,8 @@ const ModuleMaster = () => {
         };
 
         fetchData('CommonDropdown/GetEmployeeListWithId', setEmployeeList, 'employeeLists');
-        fetchData('CommonDropdown/GetRoleMasterList', setRoleList, 'roleMasterLists');
         fetchData('CommonDropdown/GetTaskList', setTaskList, 'taskList');
         fetchData('CommonDropdown/GetIdentifier', setIdentifierList, 'identifierList');
-        fetchData('CommonDropdown/GetInputList', setInputList, 'inputList');
-        fetchData('CommonDropdown/GetInputValue', setInputValueList, 'getInputValue');
     }, []);
 
 
@@ -184,7 +199,7 @@ const ModuleMaster = () => {
 
     const handleClear = () => {
         setSearchEmployeeName('');
-        setSearchDoerRole('');
+        // setSearchDoerRole('');
         fetchDoers();
     };
 
@@ -206,7 +221,7 @@ const ModuleMaster = () => {
     };
 
     const downloadCSV = () => {
-        const csvData = convertToCSV(doers);
+        const csvData = convertToCSV(downloadCsv);
         const blob = new Blob([csvData], { type: 'text/csv;charset=utf-8;' });
         const link = document.createElement('a');
         if (link.download !== undefined) {
@@ -275,22 +290,6 @@ const ModuleMaster = () => {
                                         </Form.Group>
                                     </Col>
 
-                                    <Col lg={4}>
-                                        <Form.Group controlId="searchDoerRole">
-                                            <Form.Label>Doer Role:</Form.Label>
-                                            <Select
-                                                name="searchDoerRole"
-                                                value={roleList.find(role => role.roleName === searchDoerRole) || null} // handle null
-                                                onChange={(selectedOption) => setSearchDoerRole(selectedOption ? selectedOption.roleName : "")} // null check
-                                                options={roleList}
-                                                getOptionLabel={(role) => role.roleName}
-                                                getOptionValue={(role) => role.roleName}
-                                                isSearchable={true}
-                                                placeholder="Search..."
-                                                className="h45"
-                                            />
-                                        </Form.Group>
-                                    </Col>
 
                                     <Col lg={4}>
                                         <Form.Group controlId="searchTaskId">
@@ -309,7 +308,7 @@ const ModuleMaster = () => {
                                         </Form.Group>
                                     </Col>
 
-                                    <Col lg={4} className="mt-2">
+                                    <Col lg={4} className="">
                                         <Form.Group controlId="searchIdentifier">
                                             <Form.Label>Identifier:</Form.Label>
                                             <Select
@@ -326,41 +325,11 @@ const ModuleMaster = () => {
                                         </Form.Group>
                                     </Col>
 
-                                    <Col lg={4} className="mt-2">
-                                        <Form.Group controlId="searchInput">
-                                            <Form.Label>Input:</Form.Label>
-                                            <Select
-                                                name="searchInput"
-                                                value={inputList.find(item => item.input === searchInput) || null} // handle null
-                                                onChange={(selectedOption) => setSearchInput(selectedOption ? selectedOption.input : "")} // null check
-                                                options={inputList}
-                                                getOptionLabel={(item) => item.input}
-                                                getOptionValue={(item) => item.input}
-                                                isSearchable={true}
-                                                placeholder="Search..."
-                                                className="h45"
-                                            />
-                                        </Form.Group>
-                                    </Col>
+                                  
 
-                                    <Col lg={4} className="mt-2">
-                                        <Form.Group controlId="searchInputValue">
-                                            <Form.Label>Input Value:</Form.Label>
-                                            <Select
-                                                name="searchInputValue"
-                                                value={inputValueList.find(item => item.inputValue === searchInputValue) || null} // handle null
-                                                onChange={(selectedOption) => setSearchInputValue(selectedOption ? selectedOption.inputValue : "")} // null check
-                                                options={inputValueList}
-                                                getOptionLabel={(item) => item.inputValue}
-                                                getOptionValue={(item) => item.inputValue}
-                                                isSearchable={true}
-                                                placeholder="Search..."
-                                                className="h45"
-                                            />
-                                        </Form.Group>
-                                    </Col>
-                                    <Col lg={4} className="mt-2"></Col>
-                                    <Col lg={4} className="mt-2"></Col>
+                                
+
+                                    <Col></Col>
 
                                     <Col lg={4} className="align-items-end d-flex justify-content-end mt-2">
                                         <ButtonGroup aria-label="Basic example" className="w-100">
@@ -525,7 +494,12 @@ const ModuleMaster = () => {
 
 
             </div >
-
+            <CustomSuccessToast
+                show={showToast}
+                toastMessage={toastMessage}
+                toastVariant={toastVariant}
+                onClose={() => setShowToast(false)}
+            />
         </>
     );
 };

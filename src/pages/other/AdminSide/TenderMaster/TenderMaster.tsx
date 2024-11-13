@@ -173,6 +173,7 @@ const TenderMaster = () => {
 
 
     const [searchStatusValue, setSearchStatusValue] = useState('');
+    const [searchTypeofTender, setSearchTypeofTender] = useState('');
 
     const handleSearch = (e: any) => {
         e.preventDefault();
@@ -180,7 +181,7 @@ const TenderMaster = () => {
         let query = `?`;
 
         if (searchStatusValue) query += `TenderStatus=${searchStatusValue}&`;
-        if (searchStatusValue) query += `TypeofTender=${searchStatusValue}&`;
+        if (searchTypeofTender) query += `TypeofTender=${searchTypeofTender}&`;
 
         query = query.endsWith('&') ? query.slice(0, -1) : query;
 
@@ -259,6 +260,7 @@ const TenderMaster = () => {
 
     const handleClear = () => {
         setSearchStatusValue('')
+        setSearchTypeofTender('')
         fetchMaster();
     };
 
@@ -365,6 +367,13 @@ const TenderMaster = () => {
     //     // doer.identifier.toLowerCase().includes(searchQuery.toLowerCase()) ||
     //     // doer.empName.toLowerCase().includes(searchQuery.toLowerCase())
     // );
+
+
+
+    const options = [
+        { value: 'LLP', label: 'LLP' },
+        { value: 'INFRA', label: 'INFRA' }
+    ];
     return (
         <>
             <div className="container">
@@ -409,25 +418,20 @@ const TenderMaster = () => {
                                             />
                                         </Form.Group>
                                     </Col>
-
                                     <Col lg={6}>
                                         <Form.Group controlId="searchCoreDesignation">
-                                            <Form.Label>Core Designation</Form.Label>
+                                            <Form.Label>Type of Tender</Form.Label>
                                             <Select
-                                                name="searchCoreDesignation"
-                                                // value={roleList.find(role => role.roleName === searchDoerRole) || null} // handle null
-                                                // onChange={(selectedOption) => setSearchDoerRole(selectedOption ? selectedOption.roleName : "")} // null check
-                                                // options={roleList}
-                                                // getOptionLabel={(role) => role.roleName}
-                                                // getOptionValue={(role) => role.roleName}
-                                                isSearchable={true}
-                                                placeholder="Search..."
-                                                className="h45"
+                                                name="searchTypeofTender"
+                                                options={options}
+                                                value={options.find(option => option.value === searchTypeofTender)}
+                                                onChange={selectedOption => setSearchTypeofTender(selectedOption?.value || '')}
+                                                placeholder="Type of Tender"
                                             />
                                         </Form.Group>
                                     </Col>
 
-                                   
+
 
 
                                     <Col lg={4} className="mt-2"></Col>
@@ -584,7 +588,18 @@ const TenderMaster = () => {
                                                 ))
                                             ) : (
                                                 <tr>
-                                                    <td colSpan={columns.length + 1}>No data available</td>
+                                                    <td colSpan={12}>
+                                                        <Container className="mt-5">
+                                                            <Row className="justify-content-center">
+                                                                <Col xs={12} md={8} lg={6}>
+                                                                    <Alert variant="info" className="text-center">
+                                                                        <h4>No Data  Found</h4>
+                                                                        <p>You currently don't have any Data</p>
+                                                                    </Alert>
+                                                                </Col>
+                                                            </Row>
+                                                        </Container>
+                                                    </td>
                                                 </tr>
                                             )}
                                         </tbody>

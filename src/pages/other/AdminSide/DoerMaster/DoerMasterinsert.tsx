@@ -4,6 +4,7 @@ import { Button, Col, Form, Row } from 'react-bootstrap';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import config from '@/config';
 import Select from 'react-select';
+import CustomSuccessToast from '../../Component/CustomSuccessToast';
 
 
 interface Doer {
@@ -12,7 +13,6 @@ interface Doer {
     identifier: string;
     input: string;
     inputValue: string;
-    doerRole: string;
     empID: string;
     empName: string;
     createdBy: string;
@@ -28,10 +28,7 @@ interface EmployeeList {
     empId: string;
     employeeName: string;
 }
-interface RoleList {
-    id: number;
-    roleName: string;
-}
+
 
 
 
@@ -42,20 +39,24 @@ const EmployeeInsert = () => {
     const [employeeList, setEmployeeList] = useState<EmployeeList[]>([]);
     const [empName, setEmpName] = useState<string | null>()
     const [taskList, setTaskList] = useState<TaskList[]>([]);
-    const [roleList, setRoleList] = useState<RoleList[]>([]);
+    const [showToast, setShowToast] = useState(false);
+    const [toastMessage, setToastMessage] = useState("");
+    const [toastVariant, setToastVariant] = useState('');
     const [doers, setDoers] = useState<Doer>({
         id: 0,
         taskID: '',
         identifier: '',
         input: '',
         inputValue: '',
-        doerRole: '',
         empID: '',
         empName: '',
         createdBy: '',
         updatedBy: '',
 
     });
+
+    const [searchTaskID, setSearchTaskID] = useState('');
+    // const [identifierData, setIdentifierData] = useState('');
 
     useEffect(() => {
         const storedEmpName = localStorage.getItem('EmpName');
@@ -73,12 +74,6 @@ const EmployeeInsert = () => {
             setEditMode(false);
         }
     }, [id]);
-
-    useEffect(() => {
-        fetchEmployeeList();
-        fetchTaskLists();
-        fetchRoleLists();
-    }, []);
 
 
     const fetchDoerById = async (id: string) => {
@@ -99,44 +94,49 @@ const EmployeeInsert = () => {
 
 
 
-    const fetchEmployeeList = async () => {
-        try {
-            const response = await axios.get(`${config.API_URL_APPLICATION}/CommonDropdown/GetEmployeeListWithId`);
-            if (response.data.isSuccess) {
-                setEmployeeList(response.data.employeeLists);
-            } else {
-                console.error(response.data.message);
+    useEffect(() => {
+        const fetchData = async (endpoint: string, setter: Function, listName: string) => {
+            try {
+                const response = await axios.get(`${config.API_URL_APPLICATION}/${endpoint}`);
+                if (response.data.isSuccess) {
+                    setter(response.data[listName]);
+                } else {
+                    console.error(response.data.message);
+                }
+            } catch (error) {
+                console.error(`Error fetching data from ${endpoint}:`, error);
             }
-        } catch (error) {
-            console.error('Error fetching MIS Exempt list:', error);
-        }
-    };
+        };
+        fetchData('CommonDropdown/GetEmployeeListWithId', setEmployeeList, 'employeeLists');
+        fetchData('CommonDropdown/GetTaskList', setTaskList, 'taskList');
+    }, []);
 
-    const fetchTaskLists = async () => {
-        try {
-            const response = await axios.get(`${config.API_URL_APPLICATION}/CommonDropdown/GetTaskList`);
-            if (response.data.isSuccess) {
-                setTaskList(response.data.taskList);
-            } else {
-                console.error(response.data.message);
-            }
-        } catch (error) {
-            console.error('Error fetching MIS Exempt list:', error);
-        }
-    };
 
-    const fetchRoleLists = async () => {
-        try {
-            const response = await axios.get(`${config.API_URL_APPLICATION}/CommonDropdown/GetRoleMasterList`);
-            if (response.data.isSuccess) {
-                setRoleList(response.data.roleMasterLists);
-            } else {
-                console.error(response.data.message);
+
+    useEffect(() => {
+        const fetchDistricts = async () => {
+            try {
+                const response = await axios.get(`${config.API_URL_APPLICATION}/IdentifierMaster/GetIdentifierByTaskID?TaskID=${searchTaskID}`);
+                const fetchedTasks = response.data.identifierLists;
+                if (fetchedTasks.length > 0) {
+                    setDoers(prev => ({
+                        ...prev,
+                        taskID: fetchedTasks[0].taskID,
+                        identifier: fetchedTasks[0].identifier,
+                        input: fetchedTasks[0].input,
+                        inputValue: fetchedTasks[0].inputValue,
+                    }));
+                }
+            } catch (error) {
+                console.error('Error fetching districts:', error);
             }
-        } catch (error) {
-            console.error('Error fetching MIS Exempt list:', error);
-        }
-    };
+        };
+        fetchDistricts();
+    }, [searchTaskID]);
+
+
+
+
 
 
     const handleChange = (e: ChangeEvent<any>) => {
@@ -158,23 +158,40 @@ const EmployeeInsert = () => {
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-
         const payload = {
             ...doers,
             createdBy: editMode ? doers.createdBy : empName,
             updatedBy: editMode ? empName : '',
         };
-
+        console.log(payload)
         try {
             if (editMode) {
                 await axios.post(`${config.API_URL_APPLICATION}/DoerMaster/UpdateDoer`, payload);
+                navigate('/pages/DoerMaster', {
+                    state: {
+                        showToast: true,
+                        toastMessage: "Doer Updated successfully!",
+                        toastVariant: "rgb(28 175 85)"
+                    }
+                });
             } else {
                 await axios.post(`${config.API_URL_APPLICATION}/DoerMaster/InsertDoer`, payload);
+                navigate('/pages/DoerMaster', {
+                    state: {
+                        showToast: true,
+                        toastMessage: "Doer Added successfully!",
+                        toastVariant: "rgb(28 175 85)"
+                    }
+                });
             }
-            navigate('/pages/DoerMaster');
         } catch (error) {
+            const errorMessage = error instanceof Error ? error.message : 'Error Adding/Updating';
+            setToastMessage(errorMessage);
+            setToastVariant("rgb(213 18 18)"); 
+            setShowToast(true);
             console.error('Error submitting module:', error);
         }
+
     };
 
 
@@ -192,19 +209,18 @@ const EmployeeInsert = () => {
                                     <Form.Label>Task Number</Form.Label>
                                     <Select
                                         name="taskID"
-                                        value={taskList.find((mod) => mod.taskID === doers.taskID)}
+                                        value={taskList.find(item => item.taskID === doers.taskID) || null}
                                         onChange={(selectedOption) => {
-                                            setDoers({
-                                                ...doers,
-                                                taskID: selectedOption?.taskID || '',
-                                            });
+                                            const taskID = selectedOption ? selectedOption.taskID : '';
+                                            setSearchTaskID(taskID);
+                                            setDoers(prev => ({ ...prev, taskID })); // Update district in employee
                                         }}
-                                        getOptionLabel={(mod) => mod.taskID}
-                                        getOptionValue={(mod) => mod.taskID}
-                                        options={taskList}
+                                        options={taskList || []}
+                                        getOptionLabel={(item) => item.taskID}
+                                        getOptionValue={(item) => item.taskID}
                                         isSearchable={true}
                                         placeholder="Select Task Number"
-                                        required
+                                        className="h45"
                                     />
                                 </Form.Group>
                             </Col>
@@ -251,33 +267,8 @@ const EmployeeInsert = () => {
                             </Col>
 
                             <Col lg={6}>
-                                <Form.Group controlId="doerRole" className="mb-3">
-                                    <Form.Label>Role  Name</Form.Label>
-                                    <Select
-                                        name="doerRole"
-                                        value={roleList.find(
-                                            (mod) => mod.roleName === doers.doerRole
-                                        )}
-                                        onChange={(selectedOption) => {
-                                            setDoers({
-                                                ...doers,
-                                                doerRole: selectedOption?.roleName || ''
-                                            });
-                                        }}
-                                        getOptionLabel={(mod) => mod.roleName}
-                                        getOptionValue={(mod) => mod.roleName}
-                                        options={roleList}
-                                        isSearchable={true}
-                                        placeholder="Select Process Owner Name"
-                                        required
-                                    />
-                                </Form.Group>
-                            </Col>
-
-
-                            <Col lg={6}>
                                 <Form.Group controlId="empName" className="mb-3">
-                                    <Form.Label>Process Owner Name / Doer Name</Form.Label>
+                                    <Form.Label> Doer Name</Form.Label>
                                     <Select
                                         name="empName"
                                         value={employeeList.find(
@@ -294,7 +285,7 @@ const EmployeeInsert = () => {
                                         getOptionValue={(mod) => mod.employeeName}
                                         options={employeeList}
                                         isSearchable={true}
-                                        placeholder="Select Process Owner Name"
+                                        placeholder="Select Doer Name"
                                         required
                                     />
                                 </Form.Group>
@@ -324,6 +315,8 @@ const EmployeeInsert = () => {
                 </div>
 
             </div>
+            <CustomSuccessToast show={showToast} toastMessage={toastMessage} toastVariant={toastVariant} onClose={() => setShowToast(false)} />
+
         </div>
     );
 };

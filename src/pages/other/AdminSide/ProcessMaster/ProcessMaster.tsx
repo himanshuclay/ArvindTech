@@ -10,6 +10,7 @@ import ProcessViewPopup from './ProcessViewPopup';
 import Select from 'react-select';
 import { useLocation, useNavigate } from 'react-router-dom';
 import CustomSuccessToast from '../../Component/CustomSuccessToast';
+// import axiosInstance from '@/utils/axiosInstance';
 
 
 
@@ -59,8 +60,6 @@ const ModuleMaster = () => {
     const [showToast, setShowToast] = useState(false);
     const [toastMessage, setToastMessage] = useState('');
     const [toastVariant, setToastVariant] = useState('');
-
-
 
     useEffect(() => {
         if (location.state && location.state.showToast) {
@@ -480,7 +479,7 @@ const ModuleMaster = () => {
                                                     ))
                                                 ) : (
                                                     <tr>
-                                                        <td colSpan={columns.length + 1}>
+                                                        <td colSpan={12}>
                                                             <Container className="mt-5">
                                                                 <Row className="justify-content-center">
                                                                     <Col xs={12} md={8} lg={6}>

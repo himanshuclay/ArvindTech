@@ -27,7 +27,6 @@ const ActiveTasks = React.lazy(() => import('../pages/other/ActiveTasks.tsx'))
 const ActiveProject = React.lazy(() => import('../pages/other/ActiveProject.tsx'))
 const ApprovalConsole = React.lazy(() => import('../pages/other/ApprovalConsole.tsx'))
 const Notification = React.lazy(() => import('../pages/other/DoerSide/Notification.tsx'))
-const Vender = React.lazy(() => import('../pages/other/Vender.tsx'))
 const TaskMaster = React.lazy(() => import('../pages/other/AdminSide/TaskMaster.tsx'))
 const FormMaster = React.lazy(() => import('../pages/other/FormMaster.tsx'))
 const MyTask = React.lazy(() => import('../pages/other/MyTask.tsx'))
@@ -90,6 +89,7 @@ const ProjectTypeMasterinsert = React.lazy(() => import('../pages/other/AdminSid
 
 const VenderMaster = React.lazy(() => import('../pages/other/AdminSide/VenderMaster/VenderMaster.tsx'))
 const VenderMasterinsert = React.lazy(() => import('../pages/other/AdminSide/VenderMaster/VenderMasterinsert.tsx'))
+const MyPendingTask = React.lazy(() => import('../pages/other/DoerSide/PendingDoerTask.tsx'))
 
 
 
@@ -245,12 +245,7 @@ const customPagesRoutes = {
 			element: <MessMaster />,
 			route: PrivateRoute,
 		},
-		{
-			path: '/pages/Vender',
-			name: 'Vender Master',
-			element: <Vender />,
-			route: PrivateRoute,
-		},
+	
 		{
 			path: '/pages/TaskMaster',
 			name: 'Task Master',
@@ -738,6 +733,7 @@ const customPagesRoutes = {
 			element: <VenderMaster />,
 			route: PrivateRoute,
 		},
+
 		{
 			path: '/pages/VenderMasterinsert/:id',
 			name: 'VenderMasterinsert ',
@@ -750,7 +746,12 @@ const customPagesRoutes = {
 			element: <VenderMasterinsert />,
 			route: PrivateRoute,
 		},
-
+		{
+			path: '/pages/MyPendingTask',
+			name: 'MyPendingTask',
+			element: <MyPendingTask />,
+			route: PrivateRoute,
+		},
 
 		///////////////////////////////////////////////////////////////////////////////////////////
 		{
