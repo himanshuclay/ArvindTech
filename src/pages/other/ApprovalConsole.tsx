@@ -16,6 +16,14 @@ interface Input {
   conditionalFieldId: string;
 }
 
+interface FilteredTask {
+  taskNumber: string;
+  inputs: {
+    label: string;
+    value: string;
+  }[];
+}
+
 interface Task {
   id: number;
   projectId: string;
@@ -59,11 +67,13 @@ const ApprovalPage: React.FC = () => {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [approvalStatuses, setApprovalStatuses] = useState<Record<number, OptionType | null>>({});
   const [selectedTask, setSelectedTask] = useState<Task | any>('');
-  // const [preData, setPreData] = useState<FilteredTask[]>([]);
+  const [preData, setPreData] = useState<FilteredTask[]>([]);
   // const [loading, setLoading] = useState<boolean>(true);
-  // const [parsedCondition, setParsedCondition] = useState<any[]>([]);
+  const [parsedCondition, setParsedCondition] = useState<any[]>([]);
   // const [taskCommonIDRow, setTaskCommonIdRow] = useState<number | null>(null);
   const [show, setShow] = useState(false);
+
+
 
   useEffect(() => {
     const fetchData = async () => {
@@ -144,7 +154,7 @@ const ApprovalPage: React.FC = () => {
 
   return (
     <Container>
-      <h2 className="my-4">Approval Page</h2>
+        <h4 className="ps-2 my-4 py-2 bg-white">Approval Page</h4>
       {tasks.map((task) => (
         <Card key={task.id} className="mb-4">
           <Card.Header as="h5">Task Number: {task.task_Number}</Card.Header>
@@ -186,13 +196,13 @@ const ApprovalPage: React.FC = () => {
         <DynamicForm
           formData={JSON.parse(selectedTask.task_Json)}
           taskNumber={selectedTask.task_Number}
-          onDoerChange={() => {}}
+          onDoerChange={() => { }}
           data={tasks}
           show={show}
-          
+
           setShow={setShow}
-          parsedCondition
-          preData
+          parsedCondition={parsedCondition}
+          preData={preData}
           selectedTasknumber={selectedTask.task_Number}
           setLoading
           taskCommonIDRow

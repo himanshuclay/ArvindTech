@@ -304,7 +304,7 @@ const ProjectAssignTable: React.FC = () => {
           {preData.map((task, index) => (
             <div key={index}>
               <h5 className="mt-2">
-                Updated data from <span className="text-primary">{task.task_Number}</span> &nbsp;&nbsp;&nbsp;
+                Updated data from <span className="text-primary">{task.projectName}</span> &nbsp;&nbsp;&nbsp;
                 <span className='fs-15 information-btn '
                   ref={(el) => (targetRefs.current[index] = el)} // Store the ref for each task
                   onClick={() => setPopoverIndex(popoverIndex === index ? null : index)} // Toggle popover visibility for the clicked task

@@ -252,7 +252,7 @@ const EmployeeInsert = () => {
 
                             <Col lg={6}>
                                 <Form.Group controlId="doerRole" className="mb-3">
-                                    <Form.Label>Process  Name</Form.Label>
+                                    <Form.Label>Role  Name</Form.Label>
                                     <Select
                                         name="doerRole"
                                         value={roleList.find(

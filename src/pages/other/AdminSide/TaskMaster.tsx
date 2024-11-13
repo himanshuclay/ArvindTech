@@ -314,7 +314,7 @@ const AccountProcessTable: React.FC = () => {
 
         const handleSaveChanges = async () => {
             console.log("funtion is executing")
-            if (selectedTask && selectedEmployee) {
+            if (selectedTask) {
                 if (!filteredJson) {
                     console.error("No valid data found in filteredJson.");
                     return;
@@ -406,7 +406,7 @@ const AccountProcessTable: React.FC = () => {
                 }
 
                 // Prepare and send the payload if task and employee are selected
-                if (selectedTask && selectedEmployee) {
+                if (selectedTask) {
                     const selectedEmployeeObj = employees.find(emp => emp.empId === selectedEmployee);
                     const conditionJsonString = JSON.stringify(conditionJson); // Convert conditionJson to string as expected by the API
 
@@ -506,6 +506,7 @@ const AccountProcessTable: React.FC = () => {
                                                     >
                                                         <option value="" disabled>Select Task Number</option>
                                                         <option value="updateMaster">Update Master</option>
+                                                        <option value="endProcess">End Process</option>
 
                                                         {/* Filter tasks based on task_Number */}
                                                         {tasks
@@ -648,6 +649,7 @@ const AccountProcessTable: React.FC = () => {
                                             >
                                                 <option value="" disabled>Select Task Number</option>
                                                 <option value="updateMaster">Update Master</option>
+                                                
 
                                                 {/* Filter tasks to exclude the selectedConditionTask value */}
                                                 {tasks

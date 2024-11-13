@@ -2,8 +2,8 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Modal } from 'react-bootstrap';
 import { FileUploader } from '@/components/FileUploader'
-import { useNavigate } from 'react-router-dom';
-// import { useNavigate, useLocation } from 'react-router-dom';
+// import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import config from '@/config';
 import Select, { SingleValue } from 'react-select';
 
@@ -91,7 +91,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
     approvalConsoleInputID,
     taskStatus,
     setLoading }) => {
-//  const [formDatas, setFormDatas] = useState<any>({});
+    //  const [formDatas, setFormDatas] = useState<any>({});
     const [formState, setFormState] = useState<FormState>({});
     const [summary, setSummary] = useState('');
     // const [taskJson, setTaskJson] = useState<{ [key: string]: any }>({});
@@ -105,7 +105,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
 
     const [currentStep, setCurrentStep] = useState(0); // Track the current step
 
-    // const location = useLocation();
+    const location = useLocation();
 
     const navigate = useNavigate()
 
@@ -141,17 +141,17 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
     //       const response = await axios.get<ApiResponse>(
     //         `${config.API_URL_ACCOUNT}/ProcessInitiation/GetFilterTask?TaskCommonId=${taskCommonId}&Flag=${flag}`
     //       );
-    
+
     //       if (response.data && response.data.isSuccess) {
     //         // Safely access task_Json and ensure it's a string
     //         const singledatabyID = response.data.getFilterTasks[0]?.task_Json;
-    
+
     //         if (typeof singledatabyID === 'string') {
     //           console.log('fetch single Data:', JSON.parse(singledatabyID));
     //         //   setSingleDataById(JSON.parse(singledatabyID));
     //         setFormDatas(JSON.parse(singledatabyID));
     //         // setFormDatas(singledatabyID);
-              
+
     //         } else {
     //           console.error('task_Json is not a valid string:', singledatabyID);
     //         }
@@ -169,13 +169,13 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
     //       setLoading(false);
     //     }
     //   };
-    
 
-console.log(taskCommonIDRow)
-console.log(formData)
-// console.log(formDatas)
 
-    
+    console.log(taskCommonIDRow)
+    console.log(formData)
+    // console.log(formDatas)
+
+
 
     type InputConfig = {
         inputId: string;
@@ -258,6 +258,8 @@ console.log(formData)
     useEffect(() => {
         // Log formData to verify it's correctly passed to the component
 
+        console.log(selectedCondition)
+
         const customSelectInput = formData.inputs.find(
             (input) => input.type === "CustomSelect"
         );
@@ -295,7 +297,7 @@ console.log(formData)
 
 
 
- 
+
 
 
 
@@ -631,42 +633,61 @@ console.log(formData)
 
         const conditionToSend = selectedCondition.length > 0 ? selectedCondition : parsedCondition[0];
 
-        let requestData;
+        const requestData = {
+            id: taskData?.id || 0,
+            doerID: role || '',
+            task_Json: processId === "ACC.01" ? JSON.stringify(finalData) : JSON.stringify(globalTaskJson), // Conditional task_Json
+            isExpired: 0,
+            isCompleted: formState['Pending'] || 'Completed',
+            task_Number: taskNumber,
+            summary: formState['summary'] || 'Task Summary',
+            condition_Json: JSON.stringify(conditionToSend),  // Assuming conditionToSend is defined
+            taskCommonId: taskCommonIDRow,
+            taskStatus: taskStatus, // Use the taskCommonId fetched from localStorage or state
+            updatedBy: role
+        };
+        
 
-        if (processId === "ACC.01") {
-            requestData = {
-                id: taskData?.id || 0,
-                doerID: role || '',
-                task_Json: JSON.stringify(finalData),   // Use the updated taskJson state
-                isExpired: 0,
-                isCompleted: formState['Pending'] || 'Completed',
-                task_Number: taskNumber,
-                summary: formState['summary'] || 'Task Summary',  // Ensure summary is from formState
-                condition_Json: JSON.stringify(conditionToSend),  // Assuming parsedCondition is defined
-                taskCommonId: taskCommonIDRow,
-                taskStatus: taskStatus, // Use the taskCommonId fetched from localStorage or state
-                updatedBy: role
-            };
-        } else {
-            requestData = {
-                id: taskData?.id || 0,
-                doerID: role || '',
-                task_Json: JSON.stringify(globalTaskJson),
-                isExpired: 0,
-                isCompleted: formState['Pending'] || 'Completed',
-                task_Number: taskNumber,
-                summary: formState['summary'] || 'Task Summary',  // Ensure summary is from formState
-                condition_Json: JSON.stringify(conditionToSend),  // Assuming parsedCondition is defined
-                taskCommonId: taskCommonIDRow,
-                taskStatus: taskStatus, // Use the taskCommonId fetched from localStorage or state
-                updatedBy: role
-            };
-        }
+        // let requestData;
 
-        setLoading(true);  // Show loader when the request is initiated
+        // if (processId === "ACC.01") {
+        //     requestData = {
+        //         id: taskData?.id || 0,
+        //         doerID: role || '',
+        //         task_Json: JSON.stringify(finalData),   // Use the updated taskJson state
+        //         isExpired: 0,
+        //         isCompleted: formState['Pending'] || 'Completed',
+        //         task_Number: taskNumber,
+        //         summary: formState['summary'] || 'Task Summary',  // Ensure summary is from formState
+        //         condition_Json: JSON.stringify(conditionToSend),  // Assuming parsedCondition is defined
+        //         taskCommonId: taskCommonIDRow,
+        //         taskStatus: taskStatus, // Use the taskCommonId fetched from localStorage or state
+        //         updatedBy: role
+        //     };
+        // } 
+        // else {
+        //     requestData = {
+        //         id: taskData?.id || 0,
+        //         doerID: role || '',
+        //         task_Json: JSON.stringify(globalTaskJson),
+        //         isExpired: 0,
+        //         isCompleted: formState['Pending'] || 'Completed',
+        //         task_Number: taskNumber,
+        //         summary: formState['summary'] || 'Task Summary',  // Ensure summary is from formState
+        //         condition_Json: JSON.stringify(conditionToSend),  // Assuming parsedCondition is defined
+        //         taskCommonId: taskCommonIDRow,
+        //         taskStatus: taskStatus, // Use the taskCommonId fetched from localStorage or state
+        //         updatedBy: role
+        //     };
+        // }
+
+        console.log(processId)
+        console.log(requestData)
+
+        // setLoading(true);  // Show loader when the request is initiated
 
         try {
-            const response = await fetch(`${config.API_URL_ACCOUNT}/ProcessInitiation/UpdateDoerTasks`, {
+            const response = await fetch(`${config.API_URL_ACCOUNT}/ProcessInitiation/UpdateDoerTask`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -684,7 +705,7 @@ console.log(formData)
         } catch (error) {
             console.error('Error occurred while updating task:', error);
         } finally {
-            setLoading(false);  // Hide loader when the request completes (success or error)
+            // setLoading(false);  // Hide loader when the request completes (success or error)
         }
     };
 
@@ -934,36 +955,38 @@ console.log(formData)
                     <Modal.Title className='text-dark'>Task Details</Modal.Title>
                 </Modal.Header>
 
+                {location.pathname != '/pages/ApprovalConsole' && (
+                    <div className='px-3'>
 
-                <div className='px-3'>
-
-                    {preData.map((task: any, index: any) => (
-                        <div key={index}>
-                            {selectedTasknumber != task.taskNumber && (
-                                <>
-                                    <h5 className='mt-2'>Updated data from <span className='text-primary'>{task.taskNumber}</span></h5>
-                                    <div>
-                                        {task.inputs.map((input: any, idx: any) => (
-                                            <div key={idx}>
-                                                <strong>{input.label}:</strong> <span className='text-primary'>{input.value}</span>
-                                            </div>
-                                        ))}
-                                    </div>
-                                    <hr />
-                                </>
-                            )}
-                        </div>
-                    ))}
+                        {preData.map((task: any, index: any) => (
+                            <div key={index}>
+                                {selectedTasknumber != task.taskNumber && (
+                                    <>
+                                        <h5 className='mt-2'>Updated data from <span className='text-primary'>{task.taskNumber}</span></h5>
+                                        <div>
+                                            {task.inputs.map((input: any, idx: any) => (
+                                                <div key={idx}>
+                                                    <strong>{input.label}:</strong> <span className='text-primary'>{input.value}</span>
+                                                </div>
+                                            ))}
+                                        </div>
+                                        <hr />
+                                    </>
+                                )}
+                            </div>
+                        ))}
 
 
-                </div>
+                    </div>
+                )
+                }
 
 
 
                 {/* {location.pathname === '/pages/ApprovalConsole' && 
                     ( */}
-                        <div>
-                            {/* {formData.map((mess) => (
+                <div>
+                    {/* {formData.map((mess) => (
                                 <form
                                     key={mess.messID}
                                     className='side-scroll'
@@ -1018,348 +1041,348 @@ console.log(formData)
 
 
 
-                {formData && formData.inputs &&
-                    <form className='side-scroll' onSubmit={(event) => handleSubmit(event, taskNumber)}>
+                    {formData && formData.inputs &&
+                        <form className='side-scroll' onSubmit={(event) => handleSubmit(event, taskNumber)}>
 
-                        <Modal.Body className=" p-4">
-                            <div className="stepper-vertical" style={{
-                                width: 'max-content',
-                                paddingRight: '10px',
-                                position: 'relative',
-                                display: 'flex',
-                                justifyContent: 'space-between',
-                                marginBottom: '20px'
+                            <Modal.Body className=" p-4">
+                                <div className="stepper-vertical" style={{
+                                    width: 'max-content',
+                                    paddingRight: '10px',
+                                    position: 'relative',
+                                    display: 'flex',
+                                    justifyContent: 'space-between',
+                                    marginBottom: '20px'
 
-                            }}>
-                                {processId === "ACC.01" && (
-                                    <>
-                                        {messList.map((mess, index) => {
-                                            let stepClass = 'step';
+                                }}>
+                                    {processId === "ACC.01" && (
+                                        <>
+                                            {messList.map((mess, index) => {
+                                                let stepClass = 'step';
 
-                                            if (index < currentStep) {
-                                                stepClass += ' completed';
-                                            } else if (index === currentStep) {
-                                                stepClass += ' active';
-                                            }
+                                                if (index < currentStep) {
+                                                    stepClass += ' completed';
+                                                } else if (index === currentStep) {
+                                                    stepClass += ' active';
+                                                }
 
-                                            return (
-                                                <div key={mess.messID}>
-                                                    <div
-                                                        className={stepClass}
-                                                        onClick={() => setCurrentStep(index)}
-                                                        style={{
-                                                            cursor: 'pointer',
-                                                            padding: '10px 0',
-                                                            margin: '0 20px 5px 0',
-                                                            background: index < currentStep ? 'green' : index === currentStep ? 'green' : '#e1e1e1', // Change color based on step status
-                                                            color: "#fff",
-                                                            borderRadius: '50%',
-                                                            position: 'relative',
-                                                        }}
-                                                    >
-                                                        {index + 1}
+                                                return (
+                                                    <div key={mess.messID}>
+                                                        <div
+                                                            className={stepClass}
+                                                            onClick={() => setCurrentStep(index)}
+                                                            style={{
+                                                                cursor: 'pointer',
+                                                                padding: '10px 0',
+                                                                margin: '0 20px 5px 0',
+                                                                background: index < currentStep ? 'green' : index === currentStep ? 'green' : '#e1e1e1', // Change color based on step status
+                                                                color: "#fff",
+                                                                borderRadius: '50%',
+                                                                position: 'relative',
+                                                            }}
+                                                        >
+                                                            {index + 1}
 
-                                                        {index < messList.length - 1 && (
-                                                            <div
-                                                                className={`step-line ${index < currentStep ? 'completed' : ''}`}
-                                                                style={{
-                                                                    backgroundColor: index < currentStep ? 'green' : '#e1e1e1',
-                                                                }}
-                                                            />
-                                                        )}
+                                                            {index < messList.length - 1 && (
+                                                                <div
+                                                                    className={`step-line ${index < currentStep ? 'completed' : ''}`}
+                                                                    style={{
+                                                                        backgroundColor: index < currentStep ? 'green' : '#e1e1e1',
+                                                                    }}
+                                                                />
+                                                            )}
+                                                        </div>
+
+                                                        <div className='me-2'>
+                                                            {mess.messName}
+                                                        </div>
                                                     </div>
+                                                );
+                                            })}
+                                        </>
+                                    )
+                                    }
 
-                                                    <div className='me-2'>
-                                                        {mess.messName}
-                                                    </div>
-                                                </div>
-                                            );
-                                        })}
-                                    </>
-                                )
-                                }
-
-                            </div>
-
-
-
-                            <div className="form-section" style={{ width: '90%', paddingLeft: '20px' }}>
-                                <div className="my-task">
-                                    {formData.inputs.map((input: Input) => (
-                                        shouldDisplayInput(input) && (
-                                            <div className='form-group' key={input.inputId} style={{ marginBottom: '1rem' }}>
-                                                <label className='label'>{input.label}</label>
-                                                {input.type === 'text' && (
-                                                    <input
-                                                        type="text"
-                                                        className='form-control'
-                                                        placeholder={input.placeholder}
-                                                        value={formState[input.inputId]}
-                                                        onChange={e => handleChange(input.inputId, e.target.value)}
-                                                    />
-                                                )}
-                                                {input.type === 'number' && (
-                                                    <input
-                                                        type="number"
-                                                        className='form-control'
-                                                        placeholder={input.placeholder}
-                                                        value={formState[input.inputId]}
-                                                        onChange={e => handleChange(input.inputId, e.target.value)}
-                                                    />
-                                                )}
-                                                {input.type === 'email' && (
-                                                    <input
-                                                        type="email"
-                                                        className='form-control'
-                                                        placeholder={input.placeholder}
-                                                        value={formState[input.inputId]}
-                                                        onChange={e => handleChange(input.inputId, e.target.value)}
-                                                    />
-                                                )}
-                                                {input.type === 'tel' && (
-                                                    <input
-                                                        type="tel"
-                                                        className='form-control'
-                                                        placeholder={input.placeholder}
-                                                        value={formState[input.inputId]}
-                                                        onChange={e => handleChange(input.inputId, e.target.value)}
-                                                    />
-                                                )}
-                                                {input.type === 'custom' && (
-                                                    <input
-                                                        type="text"
-                                                        placeholder={input.placeholder}
-                                                        value={formState[input.inputId]}
-                                                        onChange={e => handleChange(input.inputId, e.target.value)}
-                                                        style={{ display: 'block', width: '100%', padding: '0.5rem' }}
-                                                    />
-                                                )}
-                                                {input.type === 'select' && (
-                                                    <select
-                                                        id={input.inputId}
-                                                        className='form-select form-control'
-                                                        value={formState[input.inputId] || ''}
-                                                        onChange={e => handleChange(input.inputId, e.target.value)}
-                                                        style={{ display: 'block', width: '100%', padding: '0.5rem' }}
-                                                    >
-                                                        <option value="" disabled>Select an option</option>
-                                                        {input.options?.map(option => (
-                                                            <option key={option.id} value={option.label}>
-                                                                {option.label}
-                                                            </option>
-                                                        ))}
-                                                    </select>
-                                                )}
-
-                                                {input.type === 'multiselect' && (
-                                                    <select
-                                                        className='form-select form-control'
-                                                        value={formState[input.inputId]}
-                                                        onChange={e => handleChange(input.inputId, e.target.value)}
-                                                        style={{ display: 'block', width: '100%', padding: '0.5rem' }}
-
-                                                    >
-                                                        <option value="" disabled>Select an option</option>
-                                                        {input.options?.map(option => (
-                                                            <option key={option.id} value={option.label}>
-                                                                {option.label}
-                                                            </option>
-                                                        ))}
-                                                    </select>
-                                                )}
-                                                {input.type === 'CustomSelect' && (
-                                                    <select className='form-control'
-                                                        value={formState[input.inputId]}
-                                                        onChange={e => handleChange(input.inputId, e.target.value)}
-                                                        style={{ display: 'block', width: '100%', padding: '0.5rem' }}
-
-                                                    >
-                                                        <option value="" disabled>Select an option</option>
-                                                        {vendors.map((vendor, index) => (
-                                                            <option key={index} value={vendor.name}>
-                                                                {vendor.name}
-                                                            </option>
-                                                        ))}
-                                                    </select>
-                                                )}
-                                                {input.type === 'file' && (
-                                                    <FileUploader
-                                                        icon="ri-upload-cloud-2-line"
-                                                        text="Drop files here or click to upload."
-                                                        additionalData={{
-                                                            ModuleID: moduleId,
-                                                            CreatedBy: 'yourUserID',
-                                                            TaskCommonID: taskCommonIDRow,
-                                                            Task_Number: taskNumber,
-                                                            ProcessInitiationID: ProcessInitiationID,
-                                                            ProcessID: processId,
-                                                            UpdatedBy: 'yourUpdatedBy',
-                                                        }}
-                                                        onFileUpload={(files) => {
-                                                            console.log('Files uploaded:', files);
-                                                        }}
-                                                    />
-                                                )}
-
-
-                                                {input.type === 'checkbox' && (
-
-                                                    <span className="form-check">
-                                                        <input className="form-check-input" type="checkbox"
-                                                            checked={formState[input.inputId]}
-                                                            onChange={e => handleChange(input.inputId, e.target.checked)} />
-                                                    </span>
-                                                )}
-                                                {input.type === 'radio' && (
-                                                    <input
-                                                        type="radio"
-                                                        checked={formState[input.inputId]}
-                                                        onChange={e => handleChange(input.inputId, e.target.checked)}
-                                                    />
-                                                )}
-                                                {input.type === 'status' && (
-                                                    <input
-                                                        type="text"
-                                                        checked={formState[input.inputId]}
-                                                        onChange={e => handleChange(input.inputId, e.target.checked)}
-                                                    />
-                                                )}
-                                                {input.type === 'successorTask' && (
-                                                    <input
-                                                        type="text"
-                                                        checked={formState[input.inputId]}
-                                                        onChange={e => handleChange(input.inputId, e.target.checked)}
-                                                    />
-                                                )}
-                                                {input.type === 'date' && (
-                                                    <input
-                                                        type="date"
-                                                        value={formState[input.inputId]}
-                                                        onChange={e => handleChange(input.inputId, e.target.value)}
-                                                        style={{ display: 'block', width: '100%', padding: '0.5rem' }}
-
-                                                    />
-                                                )}
-                                            </div>
-                                        )
-
-                                    ))}
-                                    {showMessManagerSelect && (
-                                        <div className='form-group my-2 position-relative'>
-                                            <label>Select Mess Manager</label>
-                                            <select
-                                                className='form-control'
-                                                value={selectedManager} // Bound to selectedManager state
-                                                onChange={handleSelectMessImpChange} // Updates state on change
-                                            >
-                                                <option value="">Select a Manager</option> {/* Default placeholder option */}
-                                                {messManagers.map((manager) => (
-                                                    <option key={manager.value} value={manager.value}>
-                                                        {manager.label}
-                                                    </option>
-                                                ))}
-                                            </select>
-                                            <i style={{ position: 'absolute', right: '10px', bottom: '6px' }} className="ri-pencil-fill fs-4" onClick={handleShow2}></i> {/* This shows the modal */}
-                                        </div>
-                                    )}
-                                    {approval_Console === "Select Approval_Console" && (
-                                        <div>
-                                            <label>Is Approved</label>
-                                            <Select
-                                                options={options}                         // Set options for the dropdown
-                                                value={approvalStatus}                    // Bind the selected option
-                                                onChange={handleSelectChange}             // Update state on selection
-                                                placeholder="Select Approval Status"      // Placeholder text
-                                            />
-                                        </div>
-                                    )}
                                 </div>
 
-                                {showBankModal && (
-                                    <div className="modal-overlay">
-                                        <div className="modal-content">
-                                            <h4>Bank Details</h4>
-                                            <form className='form-group row'>
-                                                <div className="mt-3 col-6">
-                                                    <label>Reimbursement Account</label>
-                                                    <input
-                                                        className='form-control'
-                                                        type="text"
-                                                        name="reimbursementBankAccountNumber" // Name for state update
-                                                        value={bankDetails.reimbursementBankAccountNumber}
-                                                        placeholder="Enter account number"
-                                                        onChange={handleInputChange} // Handle changes in input
-                                                    />
-                                                </div>
 
-                                                <div className="mt-3 col-6">
-                                                    <label>Reimbursement Bank</label>
-                                                    <input
-                                                        className='form-control'
-                                                        type="text"
-                                                        name="reimbursementBankName" // Name for state update
-                                                        value={bankDetails.reimbursementBankName}
-                                                        placeholder="Enter bank name"
-                                                        onChange={handleInputChange} // Handle changes in input
-                                                    />
-                                                </div>
 
-                                                <div className="mt-3 col-6">
-                                                    <label>Reimbursement Bank Branch</label>
-                                                    <input
-                                                        className='form-control'
-                                                        type="text"
-                                                        name="reimbursementBranchName" // Name for state update
-                                                        value={bankDetails.reimbursementBranchName}
-                                                        placeholder="Enter branch name"
-                                                        onChange={handleInputChange} // Handle changes in input
-                                                    />
-                                                </div>
+                                <div className="form-section" style={{ width: '90%', paddingLeft: '20px' }}>
+                                    <div className="my-task">
+                                        {formData.inputs.map((input: Input) => (
+                                            shouldDisplayInput(input) && (
+                                                <div className='form-group' key={input.inputId} style={{ marginBottom: '1rem' }}>
+                                                    <label className='label'>{input.label}</label>
+                                                    {input.type === 'text' && (
+                                                        <input
+                                                            type="text"
+                                                            className='form-control'
+                                                            placeholder={input.placeholder}
+                                                            value={formState[input.inputId]}
+                                                            onChange={e => handleChange(input.inputId, e.target.value)}
+                                                        />
+                                                    )}
+                                                    {input.type === 'number' && (
+                                                        <input
+                                                            type="number"
+                                                            className='form-control'
+                                                            placeholder={input.placeholder}
+                                                            value={formState[input.inputId]}
+                                                            onChange={e => handleChange(input.inputId, e.target.value)}
+                                                        />
+                                                    )}
+                                                    {input.type === 'email' && (
+                                                        <input
+                                                            type="email"
+                                                            className='form-control'
+                                                            placeholder={input.placeholder}
+                                                            value={formState[input.inputId]}
+                                                            onChange={e => handleChange(input.inputId, e.target.value)}
+                                                        />
+                                                    )}
+                                                    {input.type === 'tel' && (
+                                                        <input
+                                                            type="tel"
+                                                            className='form-control'
+                                                            placeholder={input.placeholder}
+                                                            value={formState[input.inputId]}
+                                                            onChange={e => handleChange(input.inputId, e.target.value)}
+                                                        />
+                                                    )}
+                                                    {input.type === 'custom' && (
+                                                        <input
+                                                            type="text"
+                                                            placeholder={input.placeholder}
+                                                            value={formState[input.inputId]}
+                                                            onChange={e => handleChange(input.inputId, e.target.value)}
+                                                            style={{ display: 'block', width: '100%', padding: '0.5rem' }}
+                                                        />
+                                                    )}
+                                                    {input.type === 'select' && (
+                                                        <select
+                                                            id={input.inputId}
+                                                            className='form-select form-control'
+                                                            value={formState[input.inputId] || ''}
+                                                            onChange={e => handleChange(input.inputId, e.target.value)}
+                                                            style={{ display: 'block', width: '100%', padding: '0.5rem' }}
+                                                        >
+                                                            <option value="" disabled>Select an option</option>
+                                                            {input.options?.map(option => (
+                                                                <option key={option.id} value={option.label}>
+                                                                    {option.label}
+                                                                </option>
+                                                            ))}
+                                                        </select>
+                                                    )}
 
-                                                <div className="mt-3 col-6">
-                                                    <label>Reimbursement IFSC Code</label>
-                                                    <input
-                                                        className='form-control'
-                                                        type="text"
-                                                        name="reimbursementBankIfsc" // Name for state update
-                                                        value={bankDetails.reimbursementBankIfsc}
-                                                        placeholder="Enter IFSC code"
-                                                        onChange={handleInputChange} // Handle changes in input
-                                                    />
-                                                </div>
+                                                    {input.type === 'multiselect' && (
+                                                        <select
+                                                            className='form-select form-control'
+                                                            value={formState[input.inputId]}
+                                                            onChange={e => handleChange(input.inputId, e.target.value)}
+                                                            style={{ display: 'block', width: '100%', padding: '0.5rem' }}
 
-                                                <div className="mt-3 col-6">
-                                                    <label>Mess Manager</label>
-                                                    <input
-                                                        className='form-control'
-                                                        type="text"
-                                                        name="managerName" // Name for state update
-                                                        value={bankDetails.managerName}
-                                                        placeholder="Enter manager name"
-                                                        onChange={handleInputChange} // Handle changes in input
-                                                    />
-                                                </div>
+                                                        >
+                                                            <option value="" disabled>Select an option</option>
+                                                            {input.options?.map(option => (
+                                                                <option key={option.id} value={option.label}>
+                                                                    {option.label}
+                                                                </option>
+                                                            ))}
+                                                        </select>
+                                                    )}
+                                                    {input.type === 'CustomSelect' && (
+                                                        <select className='form-control'
+                                                            value={formState[input.inputId]}
+                                                            onChange={e => handleChange(input.inputId, e.target.value)}
+                                                            style={{ display: 'block', width: '100%', padding: '0.5rem' }}
 
-                                                <div className="mt-3 col-6">
-                                                    <label>Mess Manager Mobile Number</label>
-                                                    <input
-                                                        className='form-control'
-                                                        type="text"
-                                                        name="userUpdateMobileNumber" // Name for state update
-                                                        value={bankDetails.userUpdateMobileNumber}
-                                                        placeholder="Enter mobile number"
-                                                        onChange={handleInputChange} // Handle changes in input
-                                                    />
-                                                </div>
+                                                        >
+                                                            <option value="" disabled>Select an option</option>
+                                                            {vendors.map((vendor, index) => (
+                                                                <option key={index} value={vendor.name}>
+                                                                    {vendor.name}
+                                                                </option>
+                                                            ))}
+                                                        </select>
+                                                    )}
+                                                    {input.type === 'file' && (
+                                                        <FileUploader
+                                                            icon="ri-upload-cloud-2-line"
+                                                            text="Drop files here or click to upload."
+                                                            additionalData={{
+                                                                ModuleID: moduleId,
+                                                                CreatedBy: 'yourUserID',
+                                                                TaskCommonID: taskCommonIDRow,
+                                                                Task_Number: taskNumber,
+                                                                ProcessInitiationID: ProcessInitiationID,
+                                                                ProcessID: processId,
+                                                                UpdatedBy: 'yourUpdatedBy',
+                                                            }}
+                                                            onFileUpload={(files) => {
+                                                                console.log('Files uploaded:', files);
+                                                            }}
+                                                        />
+                                                    )}
 
-                                                <div className="modal-buttons mt-3 d-flex justify-content-end">
-                                                    <button className='btn btn-primary' type="button" onClick={handleClose2}>Close</button>
+
+                                                    {input.type === 'checkbox' && (
+
+                                                        <span className="form-check">
+                                                            <input className="form-check-input" type="checkbox"
+                                                                checked={formState[input.inputId]}
+                                                                onChange={e => handleChange(input.inputId, e.target.checked)} />
+                                                        </span>
+                                                    )}
+                                                    {input.type === 'radio' && (
+                                                        <input
+                                                            type="radio"
+                                                            checked={formState[input.inputId]}
+                                                            onChange={e => handleChange(input.inputId, e.target.checked)}
+                                                        />
+                                                    )}
+                                                    {input.type === 'status' && (
+                                                        <input
+                                                            type="text"
+                                                            checked={formState[input.inputId]}
+                                                            onChange={e => handleChange(input.inputId, e.target.checked)}
+                                                        />
+                                                    )}
+                                                    {input.type === 'successorTask' && (
+                                                        <input
+                                                            type="text"
+                                                            checked={formState[input.inputId]}
+                                                            onChange={e => handleChange(input.inputId, e.target.checked)}
+                                                        />
+                                                    )}
+                                                    {input.type === 'date' && (
+                                                        <input
+                                                            type="date"
+                                                            value={formState[input.inputId]}
+                                                            onChange={e => handleChange(input.inputId, e.target.value)}
+                                                            style={{ display: 'block', width: '100%', padding: '0.5rem' }}
+
+                                                        />
+                                                    )}
                                                 </div>
-                                            </form>
-                                        </div>
+                                            )
+
+                                        ))}
+                                        {showMessManagerSelect && (
+                                            <div className='form-group my-2 position-relative'>
+                                                <label>Select Mess Manager</label>
+                                                <select
+                                                    className='form-control'
+                                                    value={selectedManager} // Bound to selectedManager state
+                                                    onChange={handleSelectMessImpChange} // Updates state on change
+                                                >
+                                                    <option value="">Select a Manager</option> {/* Default placeholder option */}
+                                                    {messManagers.map((manager) => (
+                                                        <option key={manager.value} value={manager.value}>
+                                                            {manager.label}
+                                                        </option>
+                                                    ))}
+                                                </select>
+                                                <i style={{ position: 'absolute', right: '10px', bottom: '6px' }} className="ri-pencil-fill fs-4" onClick={handleShow2}></i> {/* This shows the modal */}
+                                            </div>
+                                        )}
+                                        {approval_Console === "Select Approval_Console" && (
+                                            <div>
+                                                <label>Is Approved</label>
+                                                <Select
+                                                    options={options}                         // Set options for the dropdown
+                                                    value={approvalStatus}                    // Bind the selected option
+                                                    onChange={handleSelectChange}             // Update state on selection
+                                                    placeholder="Select Approval Status"      // Placeholder text
+                                                />
+                                            </div>
+                                        )}
                                     </div>
-                                )}
-                                {/* <div className="form-group mb-2">
+
+                                    {showBankModal && (
+                                        <div className="modal-overlay">
+                                            <div className="modal-content">
+                                                <h4>Bank Details</h4>
+                                                <form className='form-group row'>
+                                                    <div className="mt-3 col-6">
+                                                        <label>Reimbursement Account</label>
+                                                        <input
+                                                            className='form-control'
+                                                            type="text"
+                                                            name="reimbursementBankAccountNumber" // Name for state update
+                                                            value={bankDetails.reimbursementBankAccountNumber}
+                                                            placeholder="Enter account number"
+                                                            onChange={handleInputChange} // Handle changes in input
+                                                        />
+                                                    </div>
+
+                                                    <div className="mt-3 col-6">
+                                                        <label>Reimbursement Bank</label>
+                                                        <input
+                                                            className='form-control'
+                                                            type="text"
+                                                            name="reimbursementBankName" // Name for state update
+                                                            value={bankDetails.reimbursementBankName}
+                                                            placeholder="Enter bank name"
+                                                            onChange={handleInputChange} // Handle changes in input
+                                                        />
+                                                    </div>
+
+                                                    <div className="mt-3 col-6">
+                                                        <label>Reimbursement Bank Branch</label>
+                                                        <input
+                                                            className='form-control'
+                                                            type="text"
+                                                            name="reimbursementBranchName" // Name for state update
+                                                            value={bankDetails.reimbursementBranchName}
+                                                            placeholder="Enter branch name"
+                                                            onChange={handleInputChange} // Handle changes in input
+                                                        />
+                                                    </div>
+
+                                                    <div className="mt-3 col-6">
+                                                        <label>Reimbursement IFSC Code</label>
+                                                        <input
+                                                            className='form-control'
+                                                            type="text"
+                                                            name="reimbursementBankIfsc" // Name for state update
+                                                            value={bankDetails.reimbursementBankIfsc}
+                                                            placeholder="Enter IFSC code"
+                                                            onChange={handleInputChange} // Handle changes in input
+                                                        />
+                                                    </div>
+
+                                                    <div className="mt-3 col-6">
+                                                        <label>Mess Manager</label>
+                                                        <input
+                                                            className='form-control'
+                                                            type="text"
+                                                            name="managerName" // Name for state update
+                                                            value={bankDetails.managerName}
+                                                            placeholder="Enter manager name"
+                                                            onChange={handleInputChange} // Handle changes in input
+                                                        />
+                                                    </div>
+
+                                                    <div className="mt-3 col-6">
+                                                        <label>Mess Manager Mobile Number</label>
+                                                        <input
+                                                            className='form-control'
+                                                            type="text"
+                                                            name="userUpdateMobileNumber" // Name for state update
+                                                            value={bankDetails.userUpdateMobileNumber}
+                                                            placeholder="Enter mobile number"
+                                                            onChange={handleInputChange} // Handle changes in input
+                                                        />
+                                                    </div>
+
+                                                    <div className="modal-buttons mt-3 d-flex justify-content-end">
+                                                        <button className='btn btn-primary' type="button" onClick={handleClose2}>Close</button>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    )}
+                                    {/* <div className="form-group mb-2">
                                     <label htmlFor="taskSummary">Comments</label>
                                     <input
                                         type="text"
@@ -1370,44 +1393,44 @@ console.log(formData)
                                         style={{ display: 'block', width: '100%', padding: '0.5rem' }}
                                     />
                                 </div> */}
-                                {/* </div>
+                                    {/* </div>
              )
          ))} */}
-                                <div>
-                                    {processId === "ACC.01" ? (
-                                        <div className="d-flex justify-content-between">
-                                            {/* Next Button */}
-                                            {currentStep < messList.length - 1 && (
-                                                <button
-                                                    type="button" // Add this to prevent form submission
-                                                    className="btn btn-primary"
-                                                    onClick={handleNextStep}
-                                                >
-                                                    Next
-                                                </button>
-                                            )}
-                                            {currentStep === messList.length - 1 && (
-                                                <button
-                                                    type="submit" // This button will submit the form
-                                                    className="btn btn-success"
-                                                >
-                                                    Submit
-                                                </button>
-                                            )}
-                                        </div>
-                                    ) : <button
-                                        type="submit" // This button will submit the form
-                                        className="btn btn-success"
-                                    >
-                                        Submit
-                                    </button>}
+                                    <div>
+                                        {processId === "ACC.01" ? (
+                                            <div className="d-flex justify-content-between mt-2">
+                                                {/* Next Button */}
+                                                {currentStep < messList.length - 1 && (
+                                                    <button
+                                                        type="button" // Add this to prevent form submission
+                                                        className="btn btn-primary"
+                                                        onClick={handleNextStep}
+                                                    >
+                                                        Next
+                                                    </button>
+                                                )}
+                                                {currentStep === messList.length - 1 && (
+                                                    <button
+                                                        type="submit" // This button will submit the form
+                                                        className="btn btn-success"
+                                                    >
+                                                        Submit
+                                                    </button>
+                                                )}
+                                            </div>
+                                        ) : <button
+                                            type="submit" // This button will submit the form
+                                            className="btn btn-success mt-2"
+                                        >
+                                            Submit
+                                        </button>}
+                                    </div>
                                 </div>
-                            </div>
-                        </Modal.Body>
-                    </form>
-                }
-                                        </div>
-                    {/* )
+                            </Modal.Body>
+                        </form>
+                    }
+                </div>
+                {/* )
 
 
                 } */}
