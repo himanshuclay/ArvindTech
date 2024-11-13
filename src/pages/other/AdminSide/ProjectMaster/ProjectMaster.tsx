@@ -102,7 +102,7 @@ const ProjectMaster = () => {
         if (searchProjectCoordinator) query += `ProjectCoordinator=${searchProjectCoordinator}&`;
         if (searchProjectName) query += `ProjectName=${searchProjectName}&`;
         if (searchCompletionStatus) query += `CompletionStatus=${searchCompletionStatus}&`;
-     
+
 
         query = query.endsWith('&') ? query.slice(0, -1) : query;
 
@@ -231,7 +231,7 @@ const ProjectMaster = () => {
                 <div className="d-flex bg-white p-2 my-2 justify-content-between align-items-center">
                     <span><i className="ri-file-list-line me-2 text-dark fs-16"></i><span className='fw-bold text-dark fs-15'>Project List</span></span>
                     <div className="d-flex justify-content-end  ">
-                       
+
                         <Link to='/pages/ProjectMasterinsert'>
                             <Button variant="primary" className="me-2">
                                 Add Project
@@ -315,8 +315,8 @@ const ProjectMaster = () => {
                                             <Form.Label>Completion Status:</Form.Label>
                                             <Select
                                                 name="searchCompletionStatus"
-                                                value={completionStatus.find(task => task.id === searchCompletionStatus) } 
-                                                onChange={(selectedOption) => setSearchCompletionStatus(selectedOption ? selectedOption.id : 0)} 
+                                                value={completionStatus.find(task => task.id === searchCompletionStatus)}
+                                                onChange={(selectedOption) => setSearchCompletionStatus(selectedOption ? selectedOption.id : 0)}
                                                 options={completionStatus}
                                                 getOptionLabel={(task) => task.id == 1 ? "Ongoing" : 'Completed'}
                                                 getOptionValue={(task) => task.id == 1 ? "Ongoing" : 'Completed'}
@@ -329,9 +329,9 @@ const ProjectMaster = () => {
 
 
 
-                                 
 
-                                 
+
+
                                     <Col lg={8} className="mt-2"></Col>
 
                                     <Col lg={4} className="align-items-end d-flex justify-content-end mt-3">
@@ -377,8 +377,8 @@ const ProjectMaster = () => {
                                     <Row className="justify-content-center">
                                         <Col xs={12} md={8} lg={6}>
                                             <Alert variant="info" className="text-center">
-                                                <h4>No Task Found</h4>
-                                                <p>You currently don't have Completed tasks</p>
+                                                <h4>No Data Found</h4>
+                                                <p>You currently don't have any Data</p>
                                             </Alert>
                                         </Col>
                                     </Row>
@@ -451,7 +451,18 @@ const ProjectMaster = () => {
                                                 ))
                                             ) : (
                                                 <tr>
-                                                    <td colSpan={columns.length + 1}>No data available</td>
+                                                    <td colSpan={12}>
+                                                        <Container className="mt-5">
+                                                            <Row className="justify-content-center">
+                                                                <Col xs={12} md={8} lg={6}>
+                                                                    <Alert variant="info" className="text-center">
+                                                                        <h4>No Data Found</h4>
+                                                                        <p>You currently don't have any Data</p>
+                                                                    </Alert>
+                                                                </Col>
+                                                            </Row>
+                                                        </Container>
+                                                    </td>
                                                 </tr>
                                             )}
                                         </tbody>

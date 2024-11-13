@@ -3,7 +3,7 @@ import { useState, useEffect, ChangeEvent } from 'react';
 import { Button, Pagination, Table, Container, Row, Col, Alert, Form, ButtonGroup } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
-import IconWithLetter from '@/pages/ui/IconWithLetter';
+// import IconWithLetter from '@/pages/ui/IconWithLetter';
 import config from '@/config';
 import Select from 'react-select';
 import CustomSuccessToast from '@/pages/other/Component/CustomSuccessToast';
@@ -41,12 +41,12 @@ const ModuleMaster = () => {
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
     const [moduleList, setModuleList] = useState<Module[]>([]);
-    const [employeeList, setEmployeeList] = useState<Module[]>([]);
+    // const [employeeList, setEmployeeList] = useState<Module[]>([]);
     const [searchQuery, setSearchQuery] = useState('');
     const [downloadCsv, setDownloadCsv] = useState<Module[]>([]);
-   
+
     const [moduleDisplayName, setModuleDisplayName] = useState('');
-    const [moduleOwnerName, setModuleOwnerName] = useState('');
+    // const [moduleOwnerName, setModuleOwnerName] = useState('');
 
     const location = useLocation();
     const navigate = useNavigate();
@@ -78,7 +78,7 @@ const ModuleMaster = () => {
 
         let query = `?`;
         if (moduleDisplayName) query += `ModuleDisplayName=${moduleDisplayName}&`;
-        if (moduleOwnerName) query += `ModuleOwnerName=${moduleOwnerName}&`;
+        // if (moduleOwnerName) query += `ModuleOwnerName=${moduleOwnerName}&`;
 
         query = query.endsWith('&') ? query.slice(0, -1) : query;
 
@@ -103,7 +103,7 @@ const ModuleMaster = () => {
     // both are required to make dragable column of table 
     const [columns, setColumns] = useState<Column[]>([
         { id: 'moduleOwnerID', label: 'Module Owner ID', visible: true },
-        { id: 'moduleOwnerName', label: 'Module Owner Name', visible: true },
+        // { id: 'moduleOwnerName', label: 'Module Owner Name', visible: true },
         { id: 'moduleID', label: 'Module ID', visible: true },
         { id: 'moduleDisplayName', label: 'Module Display Name', visible: true },
         { id: 'fmsType', label: 'Fms Types', visible: true },
@@ -185,7 +185,7 @@ const ModuleMaster = () => {
         };
 
         fetchData('CommonDropdown/GetModuleList', setModuleList, 'moduleNameListResponses');
-        fetchData('CommonDropdown/GetEmployeeListWithId', setEmployeeList, 'employeeLists');
+        // fetchData('CommonDropdown/GetEmployeeListWithId', setEmployeeList, 'employeeLists');
     }, []);
 
 
@@ -195,7 +195,7 @@ const ModuleMaster = () => {
 
     const handleClear = () => {
         setModuleDisplayName('');
-        setModuleOwnerName('');
+        // setModuleOwnerName('');
         fetchModules();
     };
 
@@ -306,7 +306,7 @@ const ModuleMaster = () => {
                                                 </Form.Group>
                                             </Col>
 
-                                            <Col lg={5}>
+                                            {/* <Col lg={5}>
                                                 <Form.Group controlId="ModuleOwnerName">
                                                     <Form.Label>Module Owner Name:</Form.Label>
                                                     <Select
@@ -321,9 +321,11 @@ const ModuleMaster = () => {
                                                         className="h45"
                                                     />
                                                 </Form.Group>
-                                            </Col>
+                                            </Col> */}
 
-                                            <Col className='align-items-end d-flex justify-content-end'>
+
+                                            <Col ></Col>
+                                            <Col lg={3} className='align-items-end d-flex justify-content-end'>
 
                                                 <ButtonGroup aria-label="Basic example" className='w-100'>
                                                     <Button type="button" variant="primary" onClick={handleClear}>
@@ -428,26 +430,30 @@ const ModuleMaster = () => {
                                                                             <td>
                                                                                 {item.statusID === 1 ? 'ACTIVE' : 'INACTIVE'}
                                                                             </td>
-                                                                        ) : col.id === 'moduleOwnerName' ? (
-                                                                            <td>
-                                                                                <div >
-                                                                                    <div className='d-flex align-items-center'>
-                                                                                        <IconWithLetter letter={item.moduleOwnerName.charAt(0)} />
-                                                                                        {item.moduleOwnerName.split('_')[0]}
-                                                                                    </div>
-                                                                                    {item.userUpdatedMobileNumber ?
-                                                                                        <p className='phone_user fw-normal m-0'>
-                                                                                            <a href={`tel:${item.userUpdatedMobileNumber}`}> <i className="ri-phone-fill"></i> {item.userUpdatedMobileNumber}</a>
+                                                                        ) :
 
-                                                                                        </p> : ""
-                                                                                    }
+                                                                            // col.id === 'moduleOwnerName' ? (
+                                                                            //     <td>
+                                                                            //         <div >
+                                                                            //             <div className='d-flex align-items-center'>
+                                                                            //                 <IconWithLetter letter={item.moduleOwnerName.charAt(0)} />
+                                                                            //                 {item.moduleOwnerName.split('_')[0]}
+                                                                            //             </div>
+                                                                            //             {item.userUpdatedMobileNumber ?
+                                                                            //                 <p className='phone_user fw-normal m-0'>
+                                                                            //                     <a href={`tel:${item.userUpdatedMobileNumber}`}> <i className="ri-phone-fill"></i> {item.userUpdatedMobileNumber}</a>
+
+                                                                            //                 </p> : ""
+                                                                            //             }
 
 
-                                                                                </div>
-                                                                            </td>
-                                                                        ) : (
-                                                                            <td>{item[col.id as keyof Module]}</td>
-                                                                        )}
+                                                                            //         </div>
+                                                                            //     </td>
+                                                                            // ) :
+
+                                                                            (
+                                                                                <td>{item[col.id as keyof Module]}</td>
+                                                                            )}
 
 
                                                                     </div>

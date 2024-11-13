@@ -5,16 +5,20 @@ import { Link } from 'react-router-dom';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import config from '@/config';
 import Select from 'react-select';
+import CustomSuccessToast from '@/pages/other/Component/CustomSuccessToast';
+import { useLocation, useNavigate } from 'react-router-dom';
+import IconWithLetter from '@/pages/ui/IconWithLetter';
 
 
 
 interface Identifier {
     id: number;
     identifier: string;
-    createdBy: string;
-    updatedBy: string;
-    updatedDate: string;
-    createdDate: string;
+    taskID: string;
+    input: string;
+    inputValue: string;
+    empID: string;
+    employeeName: string;
 }
 interface Column {
     id: string;
@@ -32,14 +36,37 @@ const ModuleMaster = () => {
     const [roleList, setRoleList] = useState<Identifier[]>([]);
     const [searchRole, setSearchRole] = useState<number>();
 
+    const location = useLocation();
+    const navigate = useNavigate();
+    const [showToast, setShowToast] = useState(false);
+    const [toastMessage, setToastMessage] = useState('');
+    const [toastVariant, setToastVariant] = useState('');
+    useEffect(() => {
+        if (location.state && location.state.showToast) {
+            setShowToast(true);
+            setToastMessage(location.state.toastMessage);
+            setToastVariant(location.state.toastVariant);
+
+            setTimeout(() => {
+                setShowToast(false);
+                navigate(location.pathname, { replace: true });
+            }, 5000);
+        }
+        return () => {
+            setShowToast(false);
+            setToastMessage('');
+            setToastVariant('');
+        };
+    }, [location.state, navigate]);
 
     // both are required to make dragable column of table 
     const [columns, setColumns] = useState<Column[]>([
+        { id: 'taskID', label: 'Task Number', visible: true },
         { id: 'identifier', label: 'Identifier', visible: true },
-        { id: 'createdBy', label: 'Created By', visible: true },
-        { id: 'updatedBy', label: 'Updated By', visible: true },
-        { id: 'createdDate', label: 'Created Date ', visible: true },
-        { id: 'updatedDate', label: 'Updated Date', visible: true },
+        { id: 'input', label: 'Input', visible: true },
+        { id: 'inputValue', label: 'Input Value', visible: true },
+        { id: 'empID', label: 'Employee ID ', visible: true },
+        { id: 'employeeName', label: 'Employee Name', visible: true },
 
 
     ]);
@@ -148,19 +175,21 @@ const ModuleMaster = () => {
 
     const convertToCSV = (data: Identifier[]) => {
         const csvRows = [
-            ['ID', 'Role Name', 'Created By', 'Updated By', 'Created Date', 'Updated Date'],
+            ['ID', 'Identifier', 'Task ID', 'Input', 'Input Value', 'Employee ID', 'Employee Name'],
             ...data.map(identifier => [
                 identifier.id.toString(),
                 identifier.identifier,
-                identifier.createdBy,
-                identifier.updatedBy,
-                identifier.createdDate,
-                identifier.updatedDate,
+                identifier.taskID,
+                identifier.input,
+                identifier.inputValue,
+                identifier.empID,
+                identifier.employeeName,
             ])
         ];
 
         return csvRows.map(row => row.join(',')).join('\n');
     };
+
 
     const downloadCSV = () => {
         const csvData = convertToCSV(downloadCsv);
@@ -169,7 +198,7 @@ const ModuleMaster = () => {
         if (link.download !== undefined) {
             const url = URL.createObjectURL(blob);
             link.setAttribute('href', url);
-            link.setAttribute('download', 'Roles.csv');
+            link.setAttribute('download', 'Identifier.csv');
             link.style.visibility = 'hidden';
             document.body.appendChild(link);
             link.click();
@@ -183,9 +212,15 @@ const ModuleMaster = () => {
     };
 
 
-    // const filteredDoers = identifiers.filter(identifier =>
-    //     identifier.roleName.toLowerCase().includes(searchQuery.toLowerCase())
-    // );
+    const filteredIdentifiers = identifiers.filter(identifier =>
+        identifier.identifier.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        identifier.taskID.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        identifier.input.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        identifier.inputValue.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        identifier.empID.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        identifier.employeeName.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+
     return (
         <>
             <div className="container">
@@ -269,7 +304,7 @@ const ModuleMaster = () => {
                     </div>
 
                     <div className="overflow-auto text-nowrap">
-                        {!identifiers ? (
+                        {!filteredIdentifiers ? (
                             <Container className="mt-5">
                                 <Row className="justify-content-center">
                                     <Col xs={12} md={8} lg={6}>
@@ -295,11 +330,13 @@ const ModuleMaster = () => {
                                                                     <div ref={provided.innerRef}
                                                                         {...provided.draggableProps}
                                                                         {...provided.dragHandleProps}>
-                                                                        {column.id === 'createdBy' && (<i className="ri-user-add-line"></i>)}
-                                                                        {column.id === 'updatedBy' && (<i className="ri-user-edit-line"></i>)}
                                                                         {column.id === 'identifier' && (<i className="ri-user-3-line"></i>)}
-                                                                        {column.id === 'createdDate' && (<i className="ri-calendar-line"></i>)}
-                                                                        {column.id === 'updatedDate' && (<i className="ri-time-line"></i>)}
+                                                                        {column.id === 'taskID' && (<i className="ri-task-line"></i>)}
+                                                                        {column.id === 'input' && (<i className="ri-input-cursor-move"></i>)}
+                                                                        {column.id === 'inputValue' && (<i className="ri-input-method-line"></i>)}
+                                                                        {column.id === 'empID' && (<i className="ri-id-card-line"></i>)}
+                                                                        {column.id === 'employeeName' && (<i className="ri-user-line"></i>)}
+
                                                                         &nbsp; {column.label}
                                                                     </div>
                                                                 </th>
@@ -313,8 +350,8 @@ const ModuleMaster = () => {
                                         </Droppable>
                                     </thead>
                                     <tbody>
-                                        {identifiers.length > 0 ? (
-                                            identifiers.slice(0, 10).map((item, index) => (
+                                        {filteredIdentifiers.length > 0 ? (
+                                            filteredIdentifiers.slice(0, 10).map((item, index) => (
                                                 <tr key={item.id}>
                                                     <td>{(currentPage - 1) * 10 + index + 1}</td>
                                                     {columns.filter(col => col.visible).map((col) => (
@@ -322,7 +359,16 @@ const ModuleMaster = () => {
                                                             className={
                                                                 col.id === 'identifier' ? 'fw-bold fs-13 text-dark text-nowrap' : ''
                                                             }>
-                                                            <div>{item[col.id as keyof Identifier]}</div>
+                                                            {col.id === 'employeeName' && item.employeeName ? (
+                                                                <div className="d-flex align-items-center">
+                                                                    <IconWithLetter letter={item.employeeName.charAt(0)} />
+                                                                    {item.employeeName.split('_')[0]}
+                                                                </div>
+                                                            ) : (
+                                                                <div>
+                                                                    {item[col.id as keyof Identifier]}
+                                                                </div>
+                                                            )}
                                                         </td>
                                                     ))}
                                                     <td><Link to={`/pages/identifiermasterinsert/${item.id}`}>
@@ -367,7 +413,12 @@ const ModuleMaster = () => {
 
 
             </div >
-
+            <CustomSuccessToast
+                show={showToast}
+                toastMessage={toastMessage}
+                toastVariant={toastVariant}
+                onClose={() => setShowToast(false)}
+            />
         </>
     );
 };

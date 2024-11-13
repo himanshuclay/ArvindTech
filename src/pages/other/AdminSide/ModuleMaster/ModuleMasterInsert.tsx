@@ -13,8 +13,8 @@ interface Module {
     misExempt: string;
     moduleID: string;
     statusID: number;
-    moduleOwnerID: string;
-    moduleOwnerName: string;
+    // moduleOwnerID: string;
+    // moduleOwnerName: string;
     createdBy: string;
     updatedBy: string;
 }
@@ -28,10 +28,10 @@ interface Status {
     name: boolean;
 }
 
-interface ModuleOwnerName {
-    empId: string;
-    employeeName: string;
-}
+// interface ModuleOwnerName {
+//     empId: string;
+//     employeeName: string;
+// }
 
 const EmployeeInsert = () => {
     const { id } = useParams<{ id: string }>();
@@ -42,7 +42,7 @@ const EmployeeInsert = () => {
     const [editMode, setEditMode] = useState<boolean>(false);
     const [misExempt, setMisExempt] = useState<MISExempt[]>([]);
     const [statusID, setStatusID] = useState<Status[]>([]);
-    const [moduleOwnerName, setModuleOwnerName] = useState<ModuleOwnerName[]>([]);
+    // const [moduleOwnerName, setModuleOwnerName] = useState<ModuleOwnerName[]>([]);
     const [empName, setEmpName] = useState<string | null>('')
     const [module, setModule] = useState<Module>({
         id: 0,
@@ -51,8 +51,8 @@ const EmployeeInsert = () => {
         misExempt: '',
         moduleID: '',
         statusID: 0,
-        moduleOwnerID: '',
-        moduleOwnerName: '',
+        // moduleOwnerID: '',
+        // moduleOwnerName: '',
         createdBy: '',
         updatedBy: ''
     });
@@ -105,7 +105,7 @@ const EmployeeInsert = () => {
 
         fetchData('CommonDropdown/GetStatus', setStatusID, 'statusListResponses');
         fetchData('CommonDropdown/GetMISExempt', setMisExempt, 'mISExemptListResponses');
-        fetchData('CommonDropdown/GetEmployeeListWithId', setModuleOwnerName, 'employeeLists');
+        // fetchData('CommonDropdown/GetEmployeeListWithId', setModuleOwnerName, 'employeeLists');
     }, []);
 
 
@@ -279,7 +279,7 @@ const EmployeeInsert = () => {
                                 </Form.Group>
                             </Col>
 
-                            <Col lg={6}>
+                            {/* <Col lg={6}>
 
                                 <Form.Group controlId="moduleOwnerName" className="mb-3">
                                     <Form.Label>Module Owner Name</Form.Label>
@@ -302,7 +302,7 @@ const EmployeeInsert = () => {
                                         required
                                     />
                                 </Form.Group>
-                            </Col>
+                            </Col> */}
 
 
 

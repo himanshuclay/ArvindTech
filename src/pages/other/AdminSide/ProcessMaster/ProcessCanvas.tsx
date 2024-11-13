@@ -4,6 +4,7 @@ import config from "@/config";
 import { useEffect, useState } from "react";
 import Select from 'react-select';
 import CustomSuccessToast from "../../Component/CustomSuccessToast";
+// import axiosInstance from '@/utils/axiosInstance';
 
 
 interface ProcessCanvasProps {
@@ -91,6 +92,24 @@ const ProcessCanvas: React.FC<ProcessCanvasProps> = ({ show, setShow, manageId }
         };
         fetchProjectList();
     }, []);
+
+
+    // useEffect(() => {
+    //     const fetchProjectList = async () => {
+    //         try {
+    //             const response = await axiosInstance.get(`/CommonDropdown/GetProjectList`);
+    //             if (response.data.isSuccess) {
+    //                 const projects = response.data.projectListResponses;
+    //                 setProjectList(projects);
+    //             } else {
+    //                 console.error(response.data.message);
+    //             }
+    //         } catch (error) {
+    //             console.error('Error fetching project list:', error);
+    //         }
+    //     };
+    //     fetchProjectList();
+    // }, []);
 
     const fetchModuleById = async (id: string) => {
         try {
