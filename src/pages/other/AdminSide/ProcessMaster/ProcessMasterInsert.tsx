@@ -16,13 +16,7 @@ interface Process {
     processFlowchart: string;
     processOwnerID: string;
     processOwnerName: string;
-    intervalType: string;
     status: string;
-    day: string;
-    time: string;
-    date: string;
-    periodFrom: string;
-    periodTo: string;
     createdBy: string;
     updatedBy: string;
 }
@@ -68,12 +62,6 @@ const EmployeeInsert = () => {
         processOwnerID: '',
         processOwnerName: '',
         status: '',
-        intervalType: '',
-        day: '',
-        time: '',
-        date: '',
-        periodFrom: '',
-        periodTo: '',
         createdBy: '',
         updatedBy: ''
     });
@@ -203,15 +191,7 @@ const EmployeeInsert = () => {
         }
     };
 
-    useEffect(() => {
-        if (["Daily"].includes(process.intervalType)) {
-            setProcess(process => ({
-                ...process,
-                day: '',
-            }));
-        }
-    }, [process.intervalType]);
-
+ 
     // Handle form submission
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
 
