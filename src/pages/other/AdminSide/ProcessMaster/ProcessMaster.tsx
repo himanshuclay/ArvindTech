@@ -93,7 +93,7 @@ const ModuleMaster = () => {
         // Remove trailing '&' or '?' from the query string
         query = query.endsWith('&') ? query.slice(0, -1) : query;
 
-        const apiUrl = `https://arvindo-api2.clay.in/api/ProcessMaster/SearchProcessList${query}`;
+        const apiUrl = `${config.API_URL_APPLICATION}/ProcessMaster/SearchProcessList${query}`;
 
         console.log(apiUrl)
         axios.get(apiUrl, {
