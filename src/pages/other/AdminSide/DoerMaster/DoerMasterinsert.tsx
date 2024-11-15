@@ -125,6 +125,8 @@ const EmployeeInsert = () => {
                         identifier: fetchedTasks[0].identifier,
                         input: fetchedTasks[0].input,
                         inputValue: fetchedTasks[0].inputValue,
+                        empID: fetchedTasks[0].empID,
+                        empName: fetchedTasks[0].employeeName,
                     }));
                 }
             } catch (error) {
@@ -133,6 +135,7 @@ const EmployeeInsert = () => {
         };
         fetchDistricts();
     }, [searchTaskID]);
+
 
 
 
