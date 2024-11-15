@@ -9,6 +9,7 @@ import CustomSuccessToast from '../../Component/CustomSuccessToast';
 interface Process {
     id: number;
     moduleName: string;
+    moduleID: string;
     processID: string;
     processDisplayName: string;
     misExempt: string;
@@ -55,6 +56,7 @@ const EmployeeInsert = () => {
         id: 0,
         moduleName: '',
         processID: '',
+        moduleID: '',
         processDisplayName: '',
         misExempt: '',
         processObjective: '',
@@ -199,6 +201,7 @@ const EmployeeInsert = () => {
             ...process,
             createdBy: editMode ? process.createdBy : empName,
             updatedBy: editMode ? empName : '',
+            processID: 'check',
         };
         console.log(payload)
         e.preventDefault();
@@ -252,6 +255,7 @@ const EmployeeInsert = () => {
                                             setProcess({
                                                 ...process,
                                                 moduleName: selectedOption?.moduleName || '',
+                                                moduleID: selectedOption?.moduleID || '',
                                             });
                                         }}
                                         getOptionLabel={(mod) => mod.moduleName}
