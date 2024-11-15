@@ -9,6 +9,7 @@ import CustomSuccessToast from '../../Component/CustomSuccessToast';
 interface Process {
     id: number;
     moduleName: string;
+    moduleID: string;
     processID: string;
     processDisplayName: string;
     misExempt: string;
@@ -16,13 +17,7 @@ interface Process {
     processFlowchart: string;
     processOwnerID: string;
     processOwnerName: string;
-    intervalType: string;
     status: string;
-    day: string;
-    time: string;
-    date: string;
-    periodFrom: string;
-    periodTo: string;
     createdBy: string;
     updatedBy: string;
 }
@@ -61,6 +56,7 @@ const EmployeeInsert = () => {
         id: 0,
         moduleName: '',
         processID: '',
+        moduleID: '',
         processDisplayName: '',
         misExempt: '',
         processObjective: '',
@@ -68,12 +64,6 @@ const EmployeeInsert = () => {
         processOwnerID: '',
         processOwnerName: '',
         status: '',
-        intervalType: '',
-        day: '',
-        time: '',
-        date: '',
-        periodFrom: '',
-        periodTo: '',
         createdBy: '',
         updatedBy: ''
     });
@@ -203,15 +193,7 @@ const EmployeeInsert = () => {
         }
     };
 
-    useEffect(() => {
-        if (["Daily"].includes(process.intervalType)) {
-            setProcess(process => ({
-                ...process,
-                day: '',
-            }));
-        }
-    }, [process.intervalType]);
-
+ 
     // Handle form submission
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
 
@@ -219,6 +201,7 @@ const EmployeeInsert = () => {
             ...process,
             createdBy: editMode ? process.createdBy : empName,
             updatedBy: editMode ? empName : '',
+            processID: 'check',
         };
         console.log(payload)
         e.preventDefault();
@@ -272,6 +255,7 @@ const EmployeeInsert = () => {
                                             setProcess({
                                                 ...process,
                                                 moduleName: selectedOption?.moduleName || '',
+                                                moduleID: selectedOption?.moduleID || '',
                                             });
                                         }}
                                         getOptionLabel={(mod) => mod.moduleName}
