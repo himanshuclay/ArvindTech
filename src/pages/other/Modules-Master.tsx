@@ -629,7 +629,7 @@ const App: React.FC = () => {
     setLoading(true);
 
     try {
-      const response = await fetch(`${config.API_URL_ACCOUNT}/ProcessTaskMaster/InsertUpdateProcessTaskandDoers`, {
+      const response = await fetch(`${config.API_URL_ACCOUNT}/ProcessTaskMaster/InsertUpdateProcessTaskandDoer`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -638,7 +638,7 @@ const App: React.FC = () => {
         body: JSON.stringify(payload),
       });
 
-      
+
 
       if (response.ok) {
         const data = await response.json();
@@ -675,10 +675,10 @@ const App: React.FC = () => {
     const { processID, processName } = formData;
 
     // Ensure required fields are available
-    if (!selectedModule || !processID || !processName) {
-      console.error('Module or process information is missing');
-      return;
-    }
+    // if (!selectedModule || !processID || !processName) {
+    //   console.error('Module or process information is missing');
+    //   return;
+    // }
 
     const templateField = taskFields.map((field) => {
       const inputId = field.inputId;
@@ -850,7 +850,7 @@ const App: React.FC = () => {
       const newOptions = prevField.options?.map((option, i) =>
         i === index ? { ...option, color: value } : option
       );
-
+    
       return { ...prevField, options: newOptions };
     });
   };

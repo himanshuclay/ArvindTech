@@ -141,6 +141,7 @@ const EmployeeInsert = () => {
 
 
 
+
     const handleChange = (e: ChangeEvent<any>) => {
         const { name, type } = e.target;
         if (type === 'checkbox') {
