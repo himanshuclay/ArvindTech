@@ -204,6 +204,13 @@ const getFilteredMenuItems = () => {
           parentKey: 'systemmaster',
         },
         {
+          key: 'Identifier',
+          label: 'Identifier Master',
+          url: '/pages/IdentifierMaster',
+          icon: 'ri-brain-line',
+          parentKey: 'systemmaster',
+        },
+        {
           key: 'DoerMaster',
           label: 'Doer Master',
           url: '/pages/DoerMaster',
@@ -266,12 +273,12 @@ const getFilteredMenuItems = () => {
           parentKey: 'systemmaster',
           icon: 'ri-list-check-3',
           children: [
-            {
-              key: 'Identifier',
-              label: 'Identifier Master',
-              url: '/pages/IdentifierMaster',
-              parentKey: 'CommonDropdown',
-            },
+            // {
+            //   key: 'Identifier',
+            //   label: 'Identifier Master',
+            //   url: '/pages/IdentifierMaster',
+            //   parentKey: 'CommonDropdown',
+            // },
          
             {
               key: 'DepartmentMaster',

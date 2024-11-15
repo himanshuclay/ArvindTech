@@ -82,7 +82,7 @@ const ModuleMaster = () => {
 
         query = query.endsWith('&') ? query.slice(0, -1) : query;
 
-        const apiUrl = `https://arvindo-api2.clay.in/api/ModuleMaster/SearchModuleList${query}`;
+        const apiUrl = `${config.API_URL_APPLICATION}/ModuleMaster/SearchModuleList${query}`;
 
         axios.get(apiUrl, {
             headers: {
@@ -102,7 +102,7 @@ const ModuleMaster = () => {
 
     // both are required to make dragable column of table 
     const [columns, setColumns] = useState<Column[]>([
-        { id: 'moduleOwnerID', label: 'Module Owner ID', visible: true },
+        // { id: 'moduleOwnerID', label: 'Module Owner ID', visible: true },
         // { id: 'moduleOwnerName', label: 'Module Owner Name', visible: true },
         { id: 'moduleID', label: 'Module ID', visible: true },
         { id: 'moduleDisplayName', label: 'Module Display Name', visible: true },

@@ -4,6 +4,7 @@ import { Button, Col, Form, Row } from 'react-bootstrap';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import config from '@/config';
 import Select from 'react-select';
+import CustomSuccessToast from '../../Component/CustomSuccessToast';
 
 
 
@@ -15,6 +16,7 @@ interface Mess {
     managerEmpID: string;
     managerName: string;
     projectName: string;
+    mobileNumber: string;
     status: string;
     createdBy: string;
     updatedBy: string;
@@ -41,6 +43,9 @@ const EmployeeInsert = () => {
     const [projectList, setProjectList] = useState<ProjectList[]>([])
     const [statusList, setStatusList] = useState<Status[]>([])
     const [employeeList, setEmployeeList] = useState<EmployeeList[]>([])
+    const [showToast, setShowToast] = useState(false);
+    const [toastMessage, setToastMessage] = useState("");
+    const [toastVariant, setToastVariant] = useState('');
     const [messes, setMesses] = useState<Mess>({
             id: 0,
             messID: '',
@@ -48,6 +53,7 @@ const EmployeeInsert = () => {
             managerEmpID: '',
             managerName: '',
             projectName: '',
+            mobileNumber: '',
             status: '',
             createdBy: '',
             updatedBy: ''
@@ -143,22 +149,36 @@ const EmployeeInsert = () => {
             createdBy: editMode ? messes.createdBy : empName,
             updatedBy: editMode ? empName : '',
         };
-
         console.log(payload)
-
         try {
             if (editMode) {
                 await axios.post(`${config.API_URL_APPLICATION}/MessMaster/UpdateMess`, payload);
+                navigate('/pages/MessMaster', {
+                    state: {
+                        showToast: true,
+                        toastMessage: "Doer Updated successfully!",
+                        toastVariant: "rgb(28 175 85)"
+                    }
+                });
             } else {
                 await axios.post(`${config.API_URL_APPLICATION}/MessMaster/InsertMess`, payload);
+                navigate('/pages/MessMaster', {
+                    state: {
+                        showToast: true,
+                        toastMessage: "Doer Added successfully!",
+                        toastVariant: "rgb(28 175 85)"
+                    }
+                });
             }
-            navigate('/pages/MessMaster');
         } catch (error) {
+            const errorMessage = error instanceof Error ? error.message : 'Error Adding/Updating';
+            setToastMessage(errorMessage);
+            setToastVariant("rgb(213 18 18)"); 
+            setShowToast(true);
             console.error('Error submitting module:', error);
         }
+
     };
-
-
     return (
         <div>
             <div className="container">
@@ -241,7 +261,19 @@ const EmployeeInsert = () => {
                                 </Form.Group>
                             </Col>
 
-
+                            <Col lg={6}>
+                                <Form.Group controlId="mobileNumber" className="mb-3">
+                                    <Form.Label>Mess Manager Contact</Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        name="mobileNumber"
+                                        value={messes.mobileNumber}
+                                        onChange={handleChange}
+                                        required
+                                        placeholder='Enter Mess Manager Contact'
+                                    />
+                                </Form.Group>
+                            </Col>
 
                             <Col lg={6}>
                                 <Form.Group controlId="projectName" className="mb-3">
@@ -290,6 +322,8 @@ const EmployeeInsert = () => {
                     </Form>
                 </div>
             </div>
+            <CustomSuccessToast show={showToast} toastMessage={toastMessage} toastVariant={toastVariant} onClose={() => setShowToast(false)} />
+
         </div>
     );
 };

@@ -17,6 +17,7 @@ import CustomSuccessToast from '../../Component/CustomSuccessToast';
 interface Process {
     id: number;
     moduleName: string;
+    moduleID: string;
     processID: string;
     processDisplayName: string;
     processObjective: string;
@@ -214,12 +215,15 @@ const ModuleMaster = () => {
         fetchProcess();
     };
 
-    const filteredModules = processes.filter(process =>
+    const filteredProcess = processes.filter(process =>
         process.moduleName.toLowerCase().includes(searchQuery.toLowerCase()) ||
         process.processDisplayName.toLowerCase().includes(searchQuery.toLowerCase()) ||
         process.processOwnerName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        process.processObjective.toLowerCase().includes(searchQuery.toLowerCase())
+        process.processObjective.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        process.userUpdatedMobileNumber.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        process.status.toLowerCase().includes(searchQuery.toLowerCase()) 
     );
+    
 
     const convertToCSV = (data: Process[]) => {
         const csvRows = [
@@ -287,7 +291,7 @@ const ModuleMaster = () => {
 
                 </div>
             </div>
-            {!processes ? (
+            {!filteredProcess ? (
                 <Container className="mt-5">
                     <Row className="justify-content-center">
                         <Col xs={12} md={8} lg={6}>
@@ -429,13 +433,14 @@ const ModuleMaster = () => {
                                                             <th>Included Subprojects</th>
                                                             <th>Tasks</th>
                                                             <th>Action</th>
+                                                            <th> <i className="ri-play-circle-fill"></i> Initiation</th>
                                                         </tr>
                                                     )}
                                                 </Droppable>
                                             </thead>
                                             <tbody>
-                                                {filteredModules.length > 0 ? (
-                                                    filteredModules.slice(0, 10).map((item, index) => (
+                                                {filteredProcess.length > 0 ? (
+                                                    filteredProcess.slice(0, 10).map((item, index) => (
                                                         <tr key={item.id}>
                                                             <td>{(currentPage - 1) * 10 + index + 1}</td>
                                                             {columns.filter(col => col.visible).map((col) => (
@@ -467,13 +472,9 @@ const ModuleMaster = () => {
                                                                 </td>
                                                             ))}
                                                             <td><Button variant='primary' className=' text-white' onClick={() => handleEdit(item.id)}>Manage</Button></td>
-                                                            <td><Button variant='primary' className='px-3 text-white' onClick={() => handleViewEdit(item.id)}>  <i className="ri-eye-line fs-4"></i></Button></td>
-                                                            <td><Link to={`/pages/ProcessMasterinsert/${item.id}`}>
-                                                                <Button variant='primary' className='p-0 text-white'>
-                                                                    <i className='btn ri-edit-line text-white' ></i>
-                                                                </Button>
-                                                            </Link>
-                                                            </td>
+                                                            <td><Button variant='primary' className='px-3 text-white' onClick={() => handleViewEdit(item.id)}>  <i className="ri-eye-line "></i></Button></td>
+                                                            <td><Link to={`/pages/ProcessMasterinsert/${item.id}`}><Button variant='primary' className='p-0 text-white'><i className='btn ri-edit-line text-white' ></i></Button></Link></td>
+                                                            <td><Link to={`/pages/ProcessInitiation/${item.moduleID}-Module/${item.processID}/Process/${item.id}`}><Button variant='primary' className='p-0  text-white'><i className="btn ri-list-settings-line text-white"></i></Button></Link></td>
 
                                                         </tr>
                                                     ))

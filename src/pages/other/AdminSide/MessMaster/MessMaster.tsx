@@ -6,6 +6,8 @@ import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import config from '@/config';
 import Select from 'react-select';
 import IconWithLetter from '@/pages/ui/IconWithLetter';
+import { useLocation, useNavigate } from 'react-router-dom';
+import CustomSuccessToast from '../../Component/CustomSuccessToast';
 
 
 
@@ -15,6 +17,7 @@ interface Mess {
     messName: string;
     managerEmpID: string;
     managerName: string;
+    mobileNumber: string;
     projectName: string;
     status: string;
     createdBy: string;
@@ -47,7 +50,28 @@ const MessMaster = () => {
 
 
 
+    const location = useLocation();
+    const navigate = useNavigate();
+    const [showToast, setShowToast] = useState(false);
+    const [toastMessage, setToastMessage] = useState('');
+    const [toastVariant, setToastVariant] = useState('');
+    useEffect(() => {
+        if (location.state && location.state.showToast) {
+            setShowToast(true);
+            setToastMessage(location.state.toastMessage);
+            setToastVariant(location.state.toastVariant);
 
+            setTimeout(() => {
+                setShowToast(false);
+                navigate(location.pathname, { replace: true });
+            }, 5000);
+        }
+        return () => {
+            setShowToast(false);
+            setToastMessage('');
+            setToastVariant('');
+        };
+    }, [location.state, navigate]);
 
 
 
@@ -58,6 +82,7 @@ const MessMaster = () => {
         { id: 'managerEmpID', label: 'Manager EmpID', visible: true },
         { id: 'managerName', label: 'Manager Name', visible: true },
         { id: 'projectName', label: 'Project Name', visible: true },
+        { id: 'mobileNumber', label: 'Mess Contact No', visible: true },
         { id: 'status', label: 'Status', visible: true },
 
 
@@ -172,12 +197,13 @@ const MessMaster = () => {
 
     const convertToCSV = (data: Mess[]) => {
         const csvRows = [
-            ['Mess ID', 'Mess Name', 'Manager Emp ID', 'Manager Name', 'Project Name', 'Status', 'Created By', 'Updated By'],
+            ['Mess ID', 'Mess Name', 'Manager Emp ID', 'Manager Name', 'Mess Contact No','Project Name', 'Status', 'Created By', 'Updated By'],
             ...data.map(mess => [
                 mess.messID.toString(),
                 mess.messName,
                 mess.managerEmpID,
                 mess.managerName,
+                mess.mobileNumber,
                 mess.projectName,
                 mess.status,
                 mess.createdBy,
@@ -197,7 +223,7 @@ const MessMaster = () => {
         if (link.download !== undefined) {
             const url = URL.createObjectURL(blob);
             link.setAttribute('href', url);
-            link.setAttribute('download', 'Roles.csv');
+            link.setAttribute('download', 'Messes.csv');
             link.style.visibility = 'hidden';
             document.body.appendChild(link);
             link.click();
@@ -453,7 +479,12 @@ const MessMaster = () => {
 
 
             </div >
-
+            <CustomSuccessToast
+                show={showToast}
+                toastMessage={toastMessage}
+                toastVariant={toastVariant}
+                onClose={() => setShowToast(false)}
+            />
         </>
     );
 };

@@ -162,6 +162,7 @@ const BankMaster = () => {
             .then((response) => {
                 console.log("search response ", response.data.bankMasterListResponses);
                 setBanks(response.data.bankMasterListResponses)
+                setTotalPages(Math.ceil(response.data.totalCount / 10));
             })
             .catch((error) => {
                 console.error('Error fetching data:', error);

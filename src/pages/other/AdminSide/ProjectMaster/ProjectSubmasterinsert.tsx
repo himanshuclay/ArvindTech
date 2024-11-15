@@ -11,8 +11,9 @@ import 'flatpickr/dist/themes/material_green.css'; // You can choose other theme
 interface SubProject {
     id: number;
     projectName: string;
+    subProjectID: string;
     subProjectName: string;
-    projectIncharge: string;
+    projectIncharge: {};
     projectCoordinator: string;
     completionStatus: number;
     nameOfWork: string;
@@ -66,8 +67,9 @@ const ProjectInsert = () => {
     const [subProject, setSubProject] = useState<SubProject>({
         id: 0,
         projectName: '',
+        subProjectID: '',
         subProjectName: '',
-        projectIncharge: '',
+        projectIncharge:{},
         projectCoordinator: '',
         completionStatus: 0,
         nameOfWork: '',
@@ -214,7 +216,19 @@ const ProjectInsert = () => {
                     <Form onSubmit={handleSubmit}>
                         <Row>
 
-
+                            <Col lg={6}>
+                                <Form.Group controlId="subProjectID" className="mb-3">
+                                    <Form.Label>Sub Project ID *</Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        name="subProjectID"
+                                        value={subProject.subProjectID}
+                                        onChange={handleChange}
+                                        required
+                                        placeholder='Enter Sub Project Name'
+                                    />
+                                </Form.Group>
+                            </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="projectName" className="mb-3">
                                     <Form.Label>Project Name *</Form.Label>
@@ -249,33 +263,40 @@ const ProjectInsert = () => {
                                     />
                                 </Form.Group>
                             </Col>
-                         
 
                             <Col lg={6}>
                                 <Form.Group controlId="incharge" className="mb-3">
-                                    <Form.Label>Project Incharge *</Form.Label>
+                                    <Form.Label>Project Incharge</Form.Label>
                                     <Select
                                         name="incharge"
-                                        value={employeeList.find((emp) => emp.empId === subProject.projectIncharge)}
-                                        onChange={(selectedOption) => {
-                                            setSubProject({
+                                        // Convert the selected employee IDs back to the Select's value format for display
+                                        value={employeeList.filter(emp =>
+                                            Object.keys(subProject.projectIncharge).includes(emp.empId)
+                                        )}
+                                        onChange={(selectedOptions) => {
+                                            // Convert selected options to an object where keys are empIds
+                                            const inchargeObject = selectedOptions
+                                                ? selectedOptions.reduce((obj, emp) => ({ ...obj, [emp.empId]: emp.empId }), {})
+                                                : {};
+
+                                                setSubProject({
                                                 ...subProject,
-                                                projectIncharge: selectedOption?.empId || "",
+                                                projectIncharge: inchargeObject,
                                             });
                                         }}
                                         getOptionLabel={(emp) => emp.employeeName}
-                                        getOptionValue={(emp) => emp.employeeName}
+                                        getOptionValue={(emp) => emp.empId}
                                         options={employeeList}
                                         isSearchable={true}
                                         placeholder="Select Project Incharge"
-                                        required
+                                        isMulti={true}
                                     />
                                 </Form.Group>
                             </Col>
 
                             <Col lg={6}>
                                 <Form.Group controlId="coordinator" className="mb-3">
-                                    <Form.Label>Project Coordinator *</Form.Label>
+                                    <Form.Label>Project Coordinator </Form.Label>
                                     <Select
                                         name="coordinator"
                                         value={employeeList.find((emp) => emp.empId === subProject.projectCoordinator)}
@@ -290,7 +311,6 @@ const ProjectInsert = () => {
                                         options={employeeList}
                                         isSearchable={true}
                                         placeholder="Select Project Coordinator"
-                                        required
                                     />
                                 </Form.Group>
                             </Col>

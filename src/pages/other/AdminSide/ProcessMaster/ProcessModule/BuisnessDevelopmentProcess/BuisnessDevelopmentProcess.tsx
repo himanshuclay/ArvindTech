@@ -4,7 +4,9 @@ import { Button, Col, Form, Row, ButtonGroup } from 'react-bootstrap';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import config from '@/config';
 import Select from 'react-select';
-import CustomSuccessToast from '../../Component/CustomSuccessToast';
+import CustomSuccessToast from '@/pages/other/Component/CustomSuccessToast';
+// import Flatpickr from 'react-flatpickr';
+// import 'flatpickr/dist/themes/material_green.css';
 
 interface Process {
     id: number;
@@ -43,9 +45,12 @@ interface ModuleOwnerName {
     empId: string;
     employeeName: string;
 }
+interface GetTypeDayTimeList {
+    id: number;
+    name: string;
+}
 
-
-const EmployeeInsert = () => {
+const BuisnessDevelopmentProcess = () => {
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
 
@@ -77,6 +82,10 @@ const EmployeeInsert = () => {
         createdBy: '',
         updatedBy: ''
     });
+    const [dropdownValuesFlag1, setDropdownValuesFlag1] = useState<GetTypeDayTimeList[]>([]);
+    const [dropdownValuesFlag2, setDropdownValuesFlag2] = useState<GetTypeDayTimeList[]>([]);
+    const [dropdownValuesFlag3, setDropdownValuesFlag3] = useState<GetTypeDayTimeList[]>([]);
+    const [dropdownValuesFlag4, setDropdownValuesFlag4] = useState<GetTypeDayTimeList[]>([]);
 
 
     useEffect(() => {
@@ -107,7 +116,12 @@ const EmployeeInsert = () => {
         }
     }, [id]);
 
-
+    useEffect(() => {
+        GetTypeDayTimeList(1, setDropdownValuesFlag1);
+        GetTypeDayTimeList(2, setDropdownValuesFlag2);
+        GetTypeDayTimeList(3, setDropdownValuesFlag3);
+        GetTypeDayTimeList(4, setDropdownValuesFlag4);
+    }, []);
 
     const fetchModuleById = async (id: string) => {
         try {
@@ -180,7 +194,19 @@ const EmployeeInsert = () => {
 
 
 
+    const GetTypeDayTimeList = async (flag: any, setStateCallback: any) => {
+        try {
+            const response = await axios.get(`${config.API_URL_APPLICATION}/CommonDropdown/GetTypeDayTimeList?flag=${flag}`);
+            if (response.data.isSuccess) {
+                setStateCallback(response.data.typeListResponses);
+            } else {
+                console.error(response.data.message);
+            }
+        } catch (error) {
+            console.error('Error fetching modules:', error);
+        }
 
+    };
 
 
 
@@ -256,9 +282,13 @@ const EmployeeInsert = () => {
     return (
         <div>
             <div className="container">
+
+               
                 <div className="d-flex bg-white p-2 my-2 justify-content-between align-items-center fs-20 rounded-3 border">
                     <span><i className="ri-file-list-line me-2"></i><span className='fw-bold'>{editMode ? 'Edit Process' : 'Add Process'}</span></span>
                 </div>
+<h3>Business Development</h3>
+
                 <div className='bg-white p-2 rounded-3 border'>
                     <Form onSubmit={handleSubmit}>
                         <Row>
@@ -364,6 +394,144 @@ const EmployeeInsert = () => {
                                 </Form.Group>
                             </Col>
 
+
+
+                            <Col lg={6}>
+                                <Form.Group controlId="periodFrom" className="mb-3">
+                                    <Form.Label>Period From</Form.Label>
+                                    <Select
+                                        name="periodFrom"
+                                        value={dropdownValuesFlag4.find((exempt) => exempt.name === process.periodFrom)}
+                                        onChange={(selectedOption) => {
+                                            setProcess({
+                                                ...process,
+                                                periodFrom: selectedOption?.name || '',
+                                            });
+                                        }}
+                                        getOptionLabel={(item) => item.name}
+                                        getOptionValue={(item) => item.name}
+                                        options={dropdownValuesFlag4}
+                                        isSearchable={true}
+                                        placeholder="Select Date"
+                                        required
+                                    />
+                                </Form.Group>
+                            </Col>
+                            <Col lg={6}>
+                                <Form.Group controlId="periodTo" className="mb-3">
+                                    <Form.Label>Period To</Form.Label>
+                                    <Select
+                                        name="periodTo"
+                                        value={dropdownValuesFlag4.find((exempt) => exempt.name === process.periodTo)}
+                                        onChange={(selectedOption) => {
+                                            setProcess({
+                                                ...process,
+                                                periodTo: selectedOption?.name || '',
+                                            });
+                                        }}
+                                        getOptionLabel={(item) => item.name}
+                                        getOptionValue={(item) => item.name}
+                                        options={dropdownValuesFlag4}
+                                        isSearchable={true}
+                                        placeholder="Select Date"
+                                        required
+                                    />
+                                </Form.Group>
+                            </Col>
+
+
+                            <Col lg={6}>
+                                <Form.Group controlId="intervalType" className="mb-3">
+                                    <Form.Label>Interval Type:</Form.Label>
+                                    <Select
+                                        name="intervalType"
+                                        value={dropdownValuesFlag1.find((item) => item.name === process.intervalType)}
+                                        onChange={(selectedOption) => {
+                                            setProcess({
+                                                ...process,
+                                                intervalType: selectedOption?.name || '',
+                                            });
+                                        }}
+                                        getOptionLabel={(item) => item.name}
+                                        getOptionValue={(item) => item.name}
+                                        options={dropdownValuesFlag1}
+                                        isSearchable={true}
+                                        placeholder="Select Interval Type"
+                                        required
+                                    />
+                                </Form.Group>
+                            </Col>
+
+
+                            {["Weekly"].includes(process.intervalType) &&
+                                <Col lg={6}>
+                                    <Form.Group controlId="intervalType" className="mb-3">
+                                        <Form.Label>Day:</Form.Label>
+                                        <Select
+                                            name="day"
+                                            value={dropdownValuesFlag2.find((item) => item.name === process.day)}
+                                            onChange={(selectedOption) => {
+                                                setProcess({
+                                                    ...process,
+                                                    day: selectedOption?.name || '',
+                                                });
+                                            }}
+                                            getOptionLabel={(item) => item.name}
+                                            getOptionValue={(item) => item.name}
+                                            options={dropdownValuesFlag2}
+                                            isSearchable={true}
+                                            placeholder="Select Day"
+                                            required
+                                        />
+                                    </Form.Group>
+                                </Col>
+                            }
+
+                            {["Monthly"].includes(process.intervalType) &&
+                                <Col lg={6}>
+                                    <Form.Group controlId="date" className="mb-3">
+                                        <Form.Label>Date:</Form.Label>
+                                        <Select
+                                            name="date"
+                                            value={dropdownValuesFlag4.find((item) => item.name === process.day)}
+                                            onChange={(selectedOption) => {
+                                                setProcess({
+                                                    ...process,
+                                                    date: selectedOption?.name || '',
+                                                });
+                                            }}
+                                            getOptionLabel={(item) => item.name}
+                                            getOptionValue={(item) => item.name}
+                                            options={dropdownValuesFlag4}
+                                            isSearchable={true}
+                                            placeholder="Select Date"
+                                            required
+                                        />
+                                    </Form.Group>
+                                </Col>
+                            }
+
+                            < Col lg={6}>
+                                <Form.Group controlId="time" className="mb-3">
+                                    <Form.Label>Time:</Form.Label>
+                                    <Select
+                                        name="time"
+                                        value={dropdownValuesFlag3.find((item) => item.name === process.time)}
+                                        onChange={(selectedOption) => {
+                                            setProcess({
+                                                ...process,
+                                                time: selectedOption?.name || '',
+                                            });
+                                        }}
+                                        getOptionLabel={(item) => item.name}
+                                        getOptionValue={(item) => item.name}
+                                        options={dropdownValuesFlag3}
+                                        isSearchable={true}
+                                        placeholder="Select Time"
+                                        required
+                                    />
+                                </Form.Group>
+                            </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="processOwnerName" className="mb-3">
                                     <Form.Label>Process Owner Name</Form.Label>
@@ -414,4 +582,4 @@ const EmployeeInsert = () => {
     );
 };
 
-export default EmployeeInsert;
+export default BuisnessDevelopmentProcess;
