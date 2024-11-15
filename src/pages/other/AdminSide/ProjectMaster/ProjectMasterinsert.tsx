@@ -5,16 +5,20 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import config from '@/config';
 import Select from 'react-select';
 import Flatpickr from 'react-flatpickr';
-import 'flatpickr/dist/themes/material_green.css'; // You can choose other themes as well
+import 'flatpickr/dist/themes/material_green.css';
 
 
 interface Project {
     id: number;
     projectName: string;
+    projectID: string;
     stateId: number;
     projectType: number;
     managementContract: number;
-    projectIncharge: string;
+    // projectIncharge: Array<{
+    //     projectIncharge: string;
+    // }>;
+    projectIncharge: {},
     projectCoordinator: string;
     completionStatus: number;
     nameOfWork: string;
@@ -74,11 +78,12 @@ const ProjectInsert = () => {
 
     const [project, setProject] = useState<Project>({
         id: 0,
+        projectID: '',
         projectName: '',
         stateId: 0,
         projectType: 0,
         managementContract: 0,
-        projectIncharge: '',
+        projectIncharge: {},
         projectCoordinator: '',
         completionStatus: 0,
         nameOfWork: '',
@@ -217,8 +222,22 @@ const ProjectInsert = () => {
 
 
                             <Col lg={6}>
+                                <Form.Group controlId="projectID" className="mb-3">
+                                    <Form.Label>Project ID *</Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        name="projectID"
+                                        value={project.projectID}
+                                        onChange={handleChange}
+                                        required
+                                        placeholder='Enter Project ID'
+
+                                    />
+                                </Form.Group>
+                            </Col>
+                            <Col lg={6}>
                                 <Form.Group controlId="projectName" className="mb-3">
-                                    <Form.Label>Project Name *:</Form.Label>
+                                    <Form.Label>Project Name *</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="projectName"
@@ -232,7 +251,7 @@ const ProjectInsert = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="stateName" className="mb-3">
-                                    <Form.Label>State Name *:</Form.Label>
+                                    <Form.Label>State Name *</Form.Label>
                                     <Select
                                         name="stateName"
                                         value={stateList.find((mod) => mod.id === project.stateId)}
@@ -254,7 +273,7 @@ const ProjectInsert = () => {
 
                             <Col lg={6}>
                                 <Form.Group controlId="projectTypeList" className="mb-3">
-                                    <Form.Label>Project Type *:</Form.Label>
+                                    <Form.Label>Project Type *</Form.Label>
                                     <Select
                                         name="projectTypeList"
                                         value={projectTypeList.find((mod) => mod.id === project.projectType)}
@@ -277,7 +296,7 @@ const ProjectInsert = () => {
 
                             <Col lg={6}>
                                 <Form.Group controlId="managementContractList" className="mb-3">
-                                    <Form.Label>Management Contract *:</Form.Label>
+                                    <Form.Label>Management Contract *</Form.Label>
                                     <Select
                                         name="managementContractList"
                                         value={managementContractList.find((mod) => mod.id === project.managementContract)}
@@ -302,29 +321,35 @@ const ProjectInsert = () => {
 
                             <Col lg={6}>
                                 <Form.Group controlId="incharge" className="mb-3">
-                                    <Form.Label>Project Incharge *:</Form.Label>
+                                    <Form.Label>Project Incharge</Form.Label>
                                     <Select
                                         name="incharge"
-                                        value={employeeList.find((emp) => emp.empId === project.projectIncharge)}
-                                        onChange={(selectedOption) => {
+                                        // Convert the selected employee IDs back to the Select's value format for display
+                                        value={employeeList.filter(emp =>
+                                            Object.keys(project.projectIncharge).includes(emp.empId)
+                                        )}
+                                        onChange={(selectedOptions) => {
+                                            const inchargeObject = selectedOptions
+                                                ? selectedOptions.reduce((obj, emp) => ({ ...obj, [emp.empId]: emp.empId }), {})
+                                                : {};
+
                                             setProject({
                                                 ...project,
-                                                projectIncharge: selectedOption?.empId || "",
+                                                projectIncharge: inchargeObject,
                                             });
                                         }}
                                         getOptionLabel={(emp) => emp.employeeName}
-                                        getOptionValue={(emp) => emp.employeeName}
+                                        getOptionValue={(emp) => emp.empId}
                                         options={employeeList}
                                         isSearchable={true}
                                         placeholder="Select Project Incharge"
-                                        required
+                                        isMulti={true}
                                     />
                                 </Form.Group>
                             </Col>
-
                             <Col lg={6}>
                                 <Form.Group controlId="coordinator" className="mb-3">
-                                    <Form.Label>Project Coordinator *:</Form.Label>
+                                    <Form.Label>Project Coordinator </Form.Label>
                                     <Select
                                         name="coordinator"
                                         value={employeeList.find((emp) => emp.empId === project.projectCoordinator)}
@@ -339,7 +364,6 @@ const ProjectInsert = () => {
                                         options={employeeList}
                                         isSearchable={true}
                                         placeholder="Select Project Coordinator"
-                                        required
                                     />
                                 </Form.Group>
                             </Col>
@@ -373,7 +397,7 @@ const ProjectInsert = () => {
 
                                 <Col lg={6}>
                                     <Form.Group controlId="contractualWorkValue" className="mb-3">
-                                        <Form.Label>Contractual Work Value :</Form.Label>
+                                        <Form.Label>Contractual Work Value </Form.Label>
                                         <Form.Control
                                             type="text"
                                             name="contractualWorkValue"
@@ -385,7 +409,7 @@ const ProjectInsert = () => {
 
                                 <Col lg={6}>
                                     <Form.Group controlId="executorCompany" className="mb-3">
-                                        <Form.Label>Executor Company :</Form.Label>
+                                        <Form.Label>Executor Company </Form.Label>
                                         <Form.Control
                                             type="text"
                                             name="executorCompany"
@@ -397,7 +421,7 @@ const ProjectInsert = () => {
 
                                 <Col lg={6}>
                                     <Form.Group controlId="nextValueofWorkItemForTeam" className="mb-3">
-                                        <Form.Label>Next Value Of Work Item For Team :</Form.Label>
+                                        <Form.Label>Next Value Of Work Item For Team </Form.Label>
                                         <Form.Control
                                             type="text"
                                             name="nextValueofWorkItemForTeam"
@@ -409,7 +433,7 @@ const ProjectInsert = () => {
 
                                 <Col lg={6}>
                                     <Form.Group controlId="percentageofWorkDone" className="mb-3">
-                                        <Form.Label>Percentage Of Work Done :</Form.Label>
+                                        <Form.Label>Percentage Of Work Done </Form.Label>
                                         <Form.Control
                                             type="text"
                                             name="percentageofWorkDone"
@@ -421,7 +445,7 @@ const ProjectInsert = () => {
 
                                 <Col lg={6}>
                                     <Form.Group controlId="revisedContractualWorkValue" className="mb-3">
-                                        <Form.Label>Revised Contractual Work Value:</Form.Label>
+                                        <Form.Label>Revised Contractual Work Value</Form.Label>
                                         <Form.Control
                                             type="text"
                                             name="revisedContractualWorkValue"
@@ -434,7 +458,7 @@ const ProjectInsert = () => {
 
                                 <Col lg={6}>
                                     <Form.Group controlId="totalWorkDoneValueuptoPreviousMonth" className="mb-3">
-                                        <Form.Label>Total Work Done Value Upto Previous Month:</Form.Label>
+                                        <Form.Label>Total Work Done Value Upto Previous Month</Form.Label>
                                         <Form.Control
                                             type="text"
                                             name="totalWorkDoneValueuptoPreviousMonth"
@@ -446,7 +470,7 @@ const ProjectInsert = () => {
 
                                 <Col lg={6}>
                                     <Form.Group controlId="valueofWorkDoneinthisMonth" className="mb-3">
-                                        <Form.Label>Value Of Work Done In This Month:</Form.Label>
+                                        <Form.Label>Value Of Work Done In This Month</Form.Label>
                                         <Form.Control
                                             type="text"
                                             name="valueofWorkDoneinthisMonth"
@@ -458,7 +482,7 @@ const ProjectInsert = () => {
 
                                 <Col lg={6}>
                                     <Form.Group controlId="valueofWorkDoneinthisFY" className="mb-3">
-                                        <Form.Label>Value Of Work Done In This FY:</Form.Label>
+                                        <Form.Label>Value Of Work Done In This FY</Form.Label>
                                         <Form.Control
                                             type="text"
                                             name="valueofWorkDoneinthisFY"
@@ -470,7 +494,7 @@ const ProjectInsert = () => {
 
                                 <Col lg={6}>
                                     <Form.Group controlId="contractualStartDate" className="mb-3">
-                                        <Form.Label>Contractual Start Date:</Form.Label>
+                                        <Form.Label>Contractual Start Date</Form.Label>
                                         <Flatpickr
                                             value={project.contractualStartDate}
                                             onChange={([date]) => setProject({
@@ -492,7 +516,7 @@ const ProjectInsert = () => {
 
                                 <Col lg={6}>
                                     <Form.Group controlId="contractualCompletionDate" className="mb-3">
-                                        <Form.Label>Contractual Completion Date:</Form.Label>
+                                        <Form.Label>Contractual Completion Date</Form.Label>
                                         <Flatpickr
                                             value={project.contractualCompletionDate}
                                             onChange={([date]) => setProject({
@@ -513,8 +537,8 @@ const ProjectInsert = () => {
 
                                 <Col lg={6}>
                                     <Form.Group controlId="expectedDateofEarliestProjectCompletion" className="mb-3">
-                                        <Form.Label>Expected Date Of Earliest Project Completion:</Form.Label>
-                                           <Flatpickr
+                                        <Form.Label>Expected Date Of Earliest Project Completion</Form.Label>
+                                        <Flatpickr
                                             value={project.expectedDateofEarliestProjectCompletion}
                                             onChange={([date]) => setProject({
                                                 ...project,
@@ -534,9 +558,9 @@ const ProjectInsert = () => {
 
                                 <Col lg={6}>
                                     <Form.Group controlId="expectedDateofLatestProjectCompletion" className="mb-3">
-                                        <Form.Label>Expected Date Of Latest Project Completion:</Form.Label>
-                                      
-                                           <Flatpickr
+                                        <Form.Label>Expected Date Of Latest Project Completion</Form.Label>
+
+                                        <Flatpickr
                                             value={project.expectedDateofLatestProjectCompletion}
                                             onChange={([date]) => setProject({
                                                 ...project,
@@ -556,8 +580,8 @@ const ProjectInsert = () => {
 
                                 <Col lg={6}>
                                     <Form.Group controlId="refreshWorkDate" className="mb-3">
-                                        <Form.Label>Refresh Work Date:</Form.Label>
-                                           <Flatpickr
+                                        <Form.Label>Refresh Work Date</Form.Label>
+                                        <Flatpickr
                                             value={project.refreshWorkDate}
                                             onChange={([date]) => setProject({
                                                 ...project,
@@ -577,8 +601,8 @@ const ProjectInsert = () => {
 
                                 <Col lg={6}>
                                     <Form.Group controlId="estimateCompletionDate" className="mb-3">
-                                        <Form.Label>Estimate Completion Date:</Form.Label>
-                                           <Flatpickr
+                                        <Form.Label>Estimate Completion Date</Form.Label>
+                                        <Flatpickr
                                             value={project.estimateCompletionDate}
                                             onChange={([date]) => setProject({
                                                 ...project,
@@ -598,7 +622,7 @@ const ProjectInsert = () => {
 
                                 <Col lg={6}>
                                     <Form.Group controlId="recordedMonth" className="mb-3">
-                                        <Form.Label>Recorded Month:</Form.Label>
+                                        <Form.Label>Recorded Month</Form.Label>
                                         <Form.Control
                                             type="text"
                                             name="recordedMonth"
@@ -610,7 +634,7 @@ const ProjectInsert = () => {
 
                                 <Col lg={6}>
                                     <Form.Group controlId="recordedYear" className="mb-3">
-                                        <Form.Label>Recorded Year:</Form.Label>
+                                        <Form.Label>Recorded Year</Form.Label>
                                         <Form.Control
                                             type="text"
                                             name="recordedYear"
@@ -624,7 +648,7 @@ const ProjectInsert = () => {
 
                             <Col lg={6}>
                                 <Form.Group controlId="nameOfWork" className="mb-3">
-                                    <Form.Label>Name Of Work:</Form.Label>
+                                    <Form.Label>Name Of Work</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="nameOfWork"

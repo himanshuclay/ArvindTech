@@ -90,6 +90,7 @@ const ProjectTypeMasterinsert = React.lazy(() => import('../pages/other/AdminSid
 const VenderMaster = React.lazy(() => import('../pages/other/AdminSide/VenderMaster/VenderMaster.tsx'))
 const VenderMasterinsert = React.lazy(() => import('../pages/other/AdminSide/VenderMaster/VenderMasterinsert.tsx'))
 const MyPendingTask = React.lazy(() => import('../pages/other/DoerSide/PendingDoerTask.tsx'))
+const ProcessInitiation = React.lazy(() => import('../pages/other/AdminSide/ProcessMaster/ProcessInitiation.tsx'))
 
 
 
@@ -750,6 +751,12 @@ const customPagesRoutes = {
 			path: '/pages/MyPendingTask',
 			name: 'MyPendingTask',
 			element: <MyPendingTask />,
+			route: PrivateRoute,
+		},
+		{
+			path: '/pages/ProcessInitiation/:moduleID-Module/:processID/Process/:id',
+			name: 'MyPendingTask',
+			element: <ProcessInitiation />,
 			route: PrivateRoute,
 		},
 
