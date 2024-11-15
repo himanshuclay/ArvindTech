@@ -15,7 +15,8 @@ import config from '@/config';
 type FormField = {
   inputId: string;
   // id: string;             // Unique identifier for each field
-  labeltext?: string;     // Label for the field
+  labeltext?: string;
+  fieldId?: string;     // Label for the field
   textbox?: string;       // Textbox input
   number?: number;        // Number input
   type?: string;
@@ -61,6 +62,7 @@ type TransformedField = {
   inputId: string;
   id: number;             // Unique identifier for each field
   labeltext?: string;     // Label for the field
+  fieldId?: string;
   textbox?: string;       // Textbox input
   number?: number;        // Number input
   email?: string;         // Email input
@@ -170,8 +172,8 @@ const App: React.FC = () => {
   const [selectedModule, setSelectedModule] = useState<Module | null>(null);
   const [selectedRole, setSelectedRole] = useState<Role | null>(null);
   const [editField, setEditField] = useState<FormField>({
-    inputId: 'example', // or an appropriate default value
-    options: [], // Initialize options as an empty array
+    inputId: 'example',
+    options: [],
   });
   const [selectedTaskIdx, setSelectedTaskIdx] = useState<number | null>(null);
   const [employees, setEmployees] = useState<Employee[]>([]);
@@ -546,6 +548,7 @@ const App: React.FC = () => {
           inputId,
           type: field.type,
           label: field.labeltext || "Default Label",
+          fieldId: field.fieldId,
           placeholder: field.placeholder || "",
           options,
           required: field.required || false,
@@ -560,6 +563,7 @@ const App: React.FC = () => {
           inputId,
           type: field.type,
           label: field.labeltext || "Default Label",
+          fieldId: field.fieldId,
           required: field.required || false,
           conditionalFieldId: field.conditionalFieldId || "", // Use existing conditionalFieldId if any
           value: field.value || "",
@@ -573,6 +577,7 @@ const App: React.FC = () => {
         inputId,
         type: field.type,
         label: field.labeltext || "Default Label",
+        fieldId: field.fieldId,
         placeholder: field.placeholder || "",
         options,
         required: field.required || false,
@@ -624,7 +629,7 @@ const App: React.FC = () => {
     setLoading(true);
 
     try {
-      const response = await fetch(`${config.API_URL_ACCOUNT}/ProcessTaskMaster/InsertUpdateProcessTaskandDoer`, {
+      const response = await fetch(`${config.API_URL_ACCOUNT}/ProcessTaskMaster/InsertUpdateProcessTaskandDoers`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -632,6 +637,8 @@ const App: React.FC = () => {
         },
         body: JSON.stringify(payload),
       });
+
+      
 
       if (response.ok) {
         const data = await response.json();
@@ -685,6 +692,7 @@ const App: React.FC = () => {
         inputId,
         type: field.type,
         label: field.labeltext || "Default Label",
+        fieldId: field.fieldId,
         placeholder: field.placeholder || "",
         options,
         required: field.required || false,
@@ -837,7 +845,7 @@ const App: React.FC = () => {
     console.log(`Changing color of option at index ${index} to ${value}`);
 
     setEditField((prevField) => {
-      if (!prevField) return prevField; // If prevField is null, return it unchanged
+      if (!prevField) return prevField; 
 
       const newOptions = prevField.options?.map((option, i) =>
         i === index ? { ...option, color: value } : option
@@ -1388,6 +1396,12 @@ const App: React.FC = () => {
                     type="text"
                     value={editField.labeltext}
                     onChange={(e) => setEditField({ ...editField, labeltext: e.target.value })}
+                  />
+                  <Form.Label>Field Id</Form.Label>
+                  <Form.Control
+                    type="text"
+                    value={editField.fieldId}
+                    onChange={(e) => setEditField({ ...editField, fieldId: e.target.value })}
                   />
                 </Form.Group>
                 {(editField.type === 'text' || editField.type === 'custom' ||
