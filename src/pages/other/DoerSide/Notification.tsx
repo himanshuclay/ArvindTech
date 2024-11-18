@@ -90,8 +90,12 @@ const ProjectAssignTable: React.FC = () => {
     { id: 'taskType', label: 'Task Type', visible: true },
     { id: 'plannedDate', label: 'Planned Date', visible: true },
     { id: 'createdDate', label: 'Created Date', visible: true },
+    { id: 'sourceId', label: 'Sourse Id', visible: true },
+    { id: 'taskCommonId', label: 'Request Id', visible: true },
+    { id: 'plannedDate', label: 'Task Period', visible: true },
 
   ]);
+
 
   const handleOnDragEnd = (result: any) => {
     if (!result.destination) return;
@@ -101,6 +105,7 @@ const ProjectAssignTable: React.FC = () => {
     setColumns(reorderedColumns);
   };
   // ==============================================================
+
 
 
 
@@ -323,23 +328,23 @@ const ProjectAssignTable: React.FC = () => {
 
   const formatAndUpdateDate = (createdDate: string, taskTime: string) => {
     // Log the input values for debugging
-  
+
     // Parse the created date in MM/dd/yyyy HH:mm:ss format
     const createdDateObj = parse(createdDate, 'MM/dd/yyyy HH:mm:ss', new Date());
-  
+
     // Check if the createdDateObj is valid
     if (isNaN(createdDateObj.getTime())) {
       throw new Error('Invalid created date format');
     }
-  
+
     const taskTimeValue = parseInt(taskTime, 10); // Assuming taskTime is in hours
-  
+
     // Calculate the number of days to add
     const daysToAdd = Math.floor(taskTimeValue / 24);
-  
+
     // Add days to the created date
     const updatedDate = addDays(createdDateObj, daysToAdd);
-  
+
     // Format the updated date to the desired format
     return format(updatedDate, 'MM/dd/yyyy HH:mm:ss');
   };
@@ -359,7 +364,7 @@ const ProjectAssignTable: React.FC = () => {
 
   // console.log(data)
 
- 
+
 
   return (
 
@@ -390,32 +395,35 @@ const ProjectAssignTable: React.FC = () => {
 
                     {(provided) => (
                       <tr
-                       {...provided.droppableProps} ref={provided.innerRef as React.Ref<HTMLTableRowElement>}
-                       className='text-nowrap'>
+                        {...provided.droppableProps} ref={provided.innerRef as React.Ref<HTMLTableRowElement>}
+                        className='text-nowrap'>
                         <th><i className="ri-list-ordered-2"></i>  Sr. No</th>
                         {columns.filter(col => col.visible).map((column, index) => (
-                            <Draggable key={column.id} draggableId={column.id} index={index}>
-                              {(provided) => (
-                                <th >
-                                  <div ref={provided.innerRef}
-                                    {...provided.draggableProps}
-                                    {...provided.dragHandleProps}>
-                                    {column.id === 'processName' && (<i className="ri-map-2-line"></i>)}
-                                    {column.id === 'projectName' && (<i className="ri-building-line"></i>)}
-                                    {column.id === 'task_Number' && (<i className="ri-health-book-line"></i>)}
-                                    {column.id === 'roleName' && (<i className="ri-shield-user-line"></i>)}
-                                    {column.id === 'taskType' && (<i className="ri-bookmark-line"></i>)}
-                                    {column.id === 'taskTime' && (<i className="ri-calendar-line"></i>)}
-                                    {column.id === 'createdDate' && (<i className="ri-hourglass-line"></i>)}
-                                    {column.id === 'completedDate' && (<i className="ri-focus-3-line"></i>)}
-                                    {column.id === 'moduleName' && (<i className="ri-box-3-line"></i>)}
+                          <Draggable key={column.id} draggableId={column.id} index={index}>
+                            {(provided) => (
+                              <th >
+                                <div ref={provided.innerRef}
+                                  {...provided.draggableProps}
+                                  {...provided.dragHandleProps}>
+                                  {column.id === 'processName' && (<i className="ri-map-2-line"></i>)}
+                                  {column.id === 'projectName' && (<i className="ri-building-line"></i>)}
+                                  {column.id === 'task_Number' && (<i className="ri-health-book-line"></i>)}
+                                  {column.id === 'roleName' && (<i className="ri-shield-user-line"></i>)}
+                                  {column.id === 'taskType' && (<i className="ri-bookmark-line"></i>)}
+                                  {column.id === 'taskTime' && (<i className="ri-calendar-line"></i>)}
+                                  {column.id === 'createdDate' && (<i className="ri-hourglass-line"></i>)}
+                                  {column.id === 'completedDate' && (<i className="ri-focus-3-line"></i>)}
+                                  {column.id === 'moduleName' && (<i className="ri-box-3-line"></i>)}
+                                  {column.id === 'sourceId' && (<i className="ri-box-3-line"></i>)}
+                                  {column.id === 'requestId' && (<i className="ri-box-3-line"></i>)}
+                                  {column.id === 'taskPeriod' && (<i className="ri-box-3-line"></i>)}
 
 
-                                    &nbsp; {column.label}
-                                  </div>
-                                </th>
-                              )}
-                            </Draggable>
+                                  &nbsp; {column.label}
+                                </div>
+                              </th>
+                            )}
+                          </Draggable>
                         ))}
                         {provided.placeholder}
                         <th>Action</th>
@@ -451,7 +459,7 @@ const ProjectAssignTable: React.FC = () => {
                               {col.id === 'plannedDate' ? (
                                 <td>
                                   {formatAndUpdateDate(item.createdDate, item.taskTime)}
-                                  </td>
+                                </td>
                               ) : (<>{item[col.id as keyof ProjectAssignListWithDoer]}</>
                               )}
 
@@ -480,11 +488,11 @@ const ProjectAssignTable: React.FC = () => {
                               taskCommonIDRow={taskCommonIDRow}
                               taskStatus
                               processId={item.processID}
-                              moduleId= {item.moduleID}
-                              ProcessInitiationID= {item.id}
-                              approval_Console= {item.approval_Console}
-                              approvalConsoleInputID = {item.approvalConsoleInputID}
-                              
+                              moduleId={item.moduleID}
+                              ProcessInitiationID={item.id}
+                              approval_Console={item.approval_Console}
+                              approvalConsoleInputID={item.approvalConsoleInputID}
+
                             />
                           </div>
                         </td>
