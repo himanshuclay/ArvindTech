@@ -5,8 +5,8 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import config from '@/config';
 import Select from 'react-select';
 import CustomSuccessToast from '@/pages/other/Component/CustomSuccessToast';
-import Flatpickr from 'react-flatpickr';
-import 'flatpickr/dist/themes/material_green.css';
+// import Flatpickr from 'react-flatpickr';
+// import 'flatpickr/dist/themes/material_green.css';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import { Table, Container, Alert } from 'react-bootstrap';
 import IconWithLetter from '@/pages/ui/IconWithLetter';
@@ -284,15 +284,9 @@ const AccountProcess = () => {
     const intervalTypeValidIDs = ['ACC.01', 'ACC.02', 'ACC.03', 'ACC.04', 'ACC.05'];
     const timeValidIDs = ['ACC.01', 'ACC.02', 'ACC.03', 'ACC.04', 'ACC.05'];
     const OwnerNameValidIDs = ['ACC.01', 'ACC.02', 'ACC.03', 'ACC.04', 'ACC.05'];
-<<<<<<< HEAD
     // const weekToValidIDs = ['ACC.01', 'ACC.02', 'ACC.03', 'ACC.04', 'ACC.05'];
     // const weekFromValidIDs = ['ACC.01', 'ACC.02', 'ACC.03', 'ACC.04', 'ACC.05'];
     // const typeValidIDs = ['ACC.01', 'ACC.02', 'ACC.03', 'ACC.04', 'ACC.05'];
-=======
-    const weekToValidIDs = ['ACC.01', 'ACC.02', 'ACC.04', 'ACC.05'];
-    const weekFromValidIDs = ['ACC.01', 'ACC.02','ACC.04', 'ACC.05'];
-    const typeValidIDs = ['ACC.01', 'ACC.02', 'ACC.03', 'ACC.04', 'ACC.05'];
->>>>>>> c628c243546639f137e48214a6cfd09b2adb2481
     const shopIDValidIDs = ['ACC.02'];
     const shopNameValidIDs = ['ACC.02'];
 
@@ -437,152 +431,159 @@ const AccountProcess = () => {
                                     </Form.Group>
                                 </Col>
                             )}
+                            <Col lg={12}>
 
-                            {periodFromValidIDs.includes(process.processID) && (
-                                <Col lg={6}>
-                                    <Form.Group controlId="periodFrom" className="mb-3">
-                                        <Form.Label>Period From</Form.Label>
-                                        <Select
-                                            name="periodFrom"
-                                            value={dropdownValuesFlag4.find((exempt) => exempt.name === process.periodFrom)}
-                                            onChange={(selectedOption) => {
-                                                setProcess({
-                                                    ...process,
-                                                    periodFrom: selectedOption?.name || '',
-                                                });
-                                            }}
-                                            getOptionLabel={(item) => item.name}
-                                            getOptionValue={(item) => item.name}
-                                            options={dropdownValuesFlag4}
-                                            isSearchable={true}
-                                            placeholder="Select Date"
-                                            required
-                                        />
-                                    </Form.Group>
-                                </Col>
-                            )}
+                                <Row>
+                                    <h4>Specific Time</h4>
+                                    {periodFromValidIDs.includes(process.processID) && (
+                                        <Col lg={6}>
+                                            <Form.Group controlId="periodFrom" className="mb-3">
+                                                <Form.Label>Period From</Form.Label>
+                                                <Select
+                                                    name="periodFrom"
+                                                    value={dropdownValuesFlag4.find((exempt) => exempt.name === process.periodFrom)}
+                                                    onChange={(selectedOption) => {
+                                                        setProcess({
+                                                            ...process,
+                                                            periodFrom: selectedOption?.name || '',
+                                                        });
+                                                    }}
+                                                    getOptionLabel={(item) => item.name}
+                                                    getOptionValue={(item) => item.name}
+                                                    options={dropdownValuesFlag4}
+                                                    isSearchable={true}
+                                                    placeholder="Select Date"
+                                                    required
+                                                />
+                                            </Form.Group>
+                                        </Col>
+                                    )}
 
-                            {periodToValidIDs.includes(process.processID) && (
-                                <Col lg={6}>
-                                    <Form.Group controlId="periodTo" className="mb-3">
-                                        <Form.Label>Period To</Form.Label>
-                                        <Select
-                                            name="periodTo"
-                                            value={dropdownValuesFlag4.find((exempt) => exempt.name === process.periodTo)}
-                                            onChange={(selectedOption) => {
-                                                setProcess({
-                                                    ...process,
-                                                    periodTo: selectedOption?.name || '',
-                                                });
-                                            }}
-                                            getOptionLabel={(item) => item.name}
-                                            getOptionValue={(item) => item.name}
-                                            options={dropdownValuesFlag4}
-                                            isSearchable={true}
-                                            placeholder="Select Date"
-                                            required
-                                        />
-                                    </Form.Group>
-                                </Col>
-                            )}
-
-                            {intervalTypeValidIDs.includes(process.processID) && (
-                                <Col lg={6}>
-                                    <Form.Group controlId="intervalType" className="mb-3">
-                                        <Form.Label>Interval Type:</Form.Label>
-                                        <Select
-                                            name="intervalType"
-                                            value={dropdownValuesFlag1.find((item) => item.name === process.intervalType)}
-                                            onChange={(selectedOption) => {
-                                                setProcess({
-                                                    ...process,
-                                                    intervalType: selectedOption?.name || '',
-                                                });
-                                            }}
-                                            getOptionLabel={(item) => item.name}
-                                            getOptionValue={(item) => item.name}
-                                            options={dropdownValuesFlag1}
-                                            isSearchable={true}
-                                            placeholder="Select Interval Type"
-                                            required
-                                        />
-                                    </Form.Group>
-                                </Col>
-                            )}
+                                    {periodToValidIDs.includes(process.processID) && (
+                                        <Col lg={6}>
+                                            <Form.Group controlId="periodTo" className="mb-3">
+                                                <Form.Label>Period To</Form.Label>
+                                                <Select
+                                                    name="periodTo"
+                                                    value={dropdownValuesFlag4.find((exempt) => exempt.name === process.periodTo)}
+                                                    onChange={(selectedOption) => {
+                                                        setProcess({
+                                                            ...process,
+                                                            periodTo: selectedOption?.name || '',
+                                                        });
+                                                    }}
+                                                    getOptionLabel={(item) => item.name}
+                                                    getOptionValue={(item) => item.name}
+                                                    options={dropdownValuesFlag4}
+                                                    isSearchable={true}
+                                                    placeholder="Select Date"
+                                                    required
+                                                />
+                                            </Form.Group>
+                                        </Col>
+                                    )}
 
 
-                            {["Weekly"].includes(process.intervalType) && (['ACC.01', 'ACC.02', 'ACC.03', 'ACC.04', 'ACC.05'].includes(process.processID)) && (
-                                <Col lg={6}>
-                                    <Form.Group controlId="intervalType" className="mb-3">
-                                        <Form.Label>Day:</Form.Label>
-                                        <Select
-                                            name="day"
-                                            value={dropdownValuesFlag2.find((item) => item.name === process.day)}
-                                            onChange={(selectedOption) => {
-                                                setProcess({
-                                                    ...process,
-                                                    day: selectedOption?.name || '',
-                                                });
-                                            }}
-                                            getOptionLabel={(item) => item.name}
-                                            getOptionValue={(item) => item.name}
-                                            options={dropdownValuesFlag2}
-                                            isSearchable={true}
-                                            placeholder="Select Day"
-                                            required
-                                        />
-                                    </Form.Group>
-                                </Col>
-                            )}
-
-                            {["Monthly"].includes(process.intervalType) && (['ACC.01', 'ACC.02', 'ACC.03', 'ACC.04', 'ACC.05'].includes(process.processID)) && (
-                                <Col lg={6}>
-                                    <Form.Group controlId="date" className="mb-3">
-                                        <Form.Label>Date:</Form.Label>
-                                        <Select
-                                            name="date"
-                                            value={dropdownValuesFlag4.find((item) => item.name === process.day)}
-                                            onChange={(selectedOption) => {
-                                                setProcess({
-                                                    ...process,
-                                                    date: selectedOption?.name || '',
-                                                });
-                                            }}
-                                            getOptionLabel={(item) => item.name}
-                                            getOptionValue={(item) => item.name}
-                                            options={dropdownValuesFlag4}
-                                            isSearchable={true}
-                                            placeholder="Select Date"
-                                            required
-                                        />
-                                    </Form.Group>
-                                </Col>
-                            )}
+                                    {intervalTypeValidIDs.includes(process.processID) && (
+                                        <Col lg={6}>
+                                            <Form.Group controlId="intervalType" className="mb-3">
+                                                <Form.Label>Interval Type:</Form.Label>
+                                                <Select
+                                                    name="intervalType"
+                                                    value={dropdownValuesFlag1.find((item) => item.name === process.intervalType)}
+                                                    onChange={(selectedOption) => {
+                                                        setProcess({
+                                                            ...process,
+                                                            intervalType: selectedOption?.name || '',
+                                                        });
+                                                    }}
+                                                    getOptionLabel={(item) => item.name}
+                                                    getOptionValue={(item) => item.name}
+                                                    options={dropdownValuesFlag1}
+                                                    isSearchable={true}
+                                                    placeholder="Select Interval Type"
+                                                    required
+                                                />
+                                            </Form.Group>
+                                        </Col>
+                                    )}
 
 
-                            {timeValidIDs.includes(process.processID) && (
-                                < Col lg={6}>
-                                    <Form.Group controlId="time" className="mb-3">
-                                        <Form.Label>Time:</Form.Label>
-                                        <Select
-                                            name="time"
-                                            value={dropdownValuesFlag3.find((item) => item.name === process.time)}
-                                            onChange={(selectedOption) => {
-                                                setProcess({
-                                                    ...process,
-                                                    time: selectedOption?.name || '',
-                                                });
-                                            }}
-                                            getOptionLabel={(item) => item.name}
-                                            getOptionValue={(item) => item.name}
-                                            options={dropdownValuesFlag3}
-                                            isSearchable={true}
-                                            placeholder="Select Time"
-                                            required
-                                        />
-                                    </Form.Group>
-                                </Col>
-                            )}
+                                    {["Weekly"].includes(process.intervalType) && (['ACC.01', 'ACC.02', 'ACC.03', 'ACC.04', 'ACC.05'].includes(process.processID)) && (
+                                        <Col lg={6}>
+                                            <Form.Group controlId="intervalType" className="mb-3">
+                                                <Form.Label>Day:</Form.Label>
+                                                <Select
+                                                    name="day"
+                                                    value={dropdownValuesFlag2.find((item) => item.name === process.day)}
+                                                    onChange={(selectedOption) => {
+                                                        setProcess({
+                                                            ...process,
+                                                            day: selectedOption?.name || '',
+                                                        });
+                                                    }}
+                                                    getOptionLabel={(item) => item.name}
+                                                    getOptionValue={(item) => item.name}
+                                                    options={dropdownValuesFlag2}
+                                                    isSearchable={true}
+                                                    placeholder="Select Day"
+                                                    required
+                                                />
+                                            </Form.Group>
+                                        </Col>
+                                    )}
+
+                                    {["Monthly"].includes(process.intervalType) && (['ACC.01', 'ACC.02', 'ACC.03', 'ACC.04', 'ACC.05'].includes(process.processID)) && (
+                                        <Col lg={6}>
+                                            <Form.Group controlId="date" className="mb-3">
+                                                <Form.Label>Date:</Form.Label>
+                                                <Select
+                                                    name="date"
+                                                    value={dropdownValuesFlag4.find((item) => item.name === process.day)}
+                                                    onChange={(selectedOption) => {
+                                                        setProcess({
+                                                            ...process,
+                                                            date: selectedOption?.name || '',
+                                                        });
+                                                    }}
+                                                    getOptionLabel={(item) => item.name}
+                                                    getOptionValue={(item) => item.name}
+                                                    options={dropdownValuesFlag4}
+                                                    isSearchable={true}
+                                                    placeholder="Select Date"
+                                                    required
+                                                />
+                                            </Form.Group>
+                                        </Col>
+                                    )}
+
+                                    {timeValidIDs.includes(process.processID) && (
+                                        < Col lg={6}>
+                                            <Form.Group controlId="time" className="mb-3">
+                                                <Form.Label>Time:</Form.Label>
+                                                <Select
+                                                    name="time"
+                                                    value={dropdownValuesFlag3.find((item) => item.name === process.time)}
+                                                    onChange={(selectedOption) => {
+                                                        setProcess({
+                                                            ...process,
+                                                            time: selectedOption?.name || '',
+                                                        });
+                                                    }}
+                                                    getOptionLabel={(item) => item.name}
+                                                    getOptionValue={(item) => item.name}
+                                                    options={dropdownValuesFlag3}
+                                                    isSearchable={true}
+                                                    placeholder="Select Time"
+                                                    required
+                                                />
+                                            </Form.Group>
+                                        </Col>
+                                    )}
+                                </Row>
+
+                            </Col>
+
                             {/* 
                             {weekFromValidIDs.includes(process.processID) && (
                                 <Col lg={6}>
