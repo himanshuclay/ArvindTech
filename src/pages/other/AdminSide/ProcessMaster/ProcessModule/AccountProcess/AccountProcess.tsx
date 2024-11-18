@@ -284,15 +284,9 @@ const AccountProcess = () => {
     const intervalTypeValidIDs = ['ACC.01', 'ACC.02', 'ACC.03', 'ACC.04', 'ACC.05'];
     const timeValidIDs = ['ACC.01', 'ACC.02', 'ACC.03', 'ACC.04', 'ACC.05'];
     const OwnerNameValidIDs = ['ACC.01', 'ACC.02', 'ACC.03', 'ACC.04', 'ACC.05'];
-<<<<<<< HEAD
-    // const weekToValidIDs = ['ACC.01', 'ACC.02', 'ACC.03', 'ACC.04', 'ACC.05'];
-    // const weekFromValidIDs = ['ACC.01', 'ACC.02', 'ACC.03', 'ACC.04', 'ACC.05'];
+    // const weekToValidIDs = ['ACC.01', 'ACC.02', 'ACC.04', 'ACC.05'];
+    // const weekFromValidIDs = ['ACC.01', 'ACC.02','ACC.04', 'ACC.05'];
     // const typeValidIDs = ['ACC.01', 'ACC.02', 'ACC.03', 'ACC.04', 'ACC.05'];
-=======
-    const weekToValidIDs = ['ACC.01', 'ACC.02', 'ACC.04', 'ACC.05'];
-    const weekFromValidIDs = ['ACC.01', 'ACC.02','ACC.04', 'ACC.05'];
-    const typeValidIDs = ['ACC.01', 'ACC.02', 'ACC.03', 'ACC.04', 'ACC.05'];
->>>>>>> c628c243546639f137e48214a6cfd09b2adb2481
     const shopIDValidIDs = ['ACC.02'];
     const shopNameValidIDs = ['ACC.02'];
 
