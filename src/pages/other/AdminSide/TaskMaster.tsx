@@ -4,6 +4,9 @@ import { Button, Modal, Form, Table } from 'react-bootstrap';
 import Select from 'react-select'; // Make sure you have this or the appropriate select component imported
 import CustomFlatpickr from '@/components/CustomFlatpickr';
 import config from '@/config';
+import { Link } from 'react-router-dom';
+import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
+import { Container, Row, Col, Alert, } from 'react-bootstrap';
 
 // Define interfaces for the data
 interface AccountProcessTask {
@@ -80,6 +83,14 @@ interface ModalFormProps {
     filteredJson: FilteredJsonType | null;
 }
 
+interface Column {
+    id: string;
+    label: string;
+    visible: boolean;
+}
+
+
+
 const AccountProcessTable: React.FC = () => {
     const [tasks, setTasks] = useState<AccountProcessTask[]>([]);
     const [modules, setModules] = useState<Module[]>([]);
@@ -94,12 +105,30 @@ const AccountProcessTable: React.FC = () => {
     const [selectedEmployee, setSelectedEmployee] = useState<string>('');
     // const [selectedRole, setSelectedRole] = useState<number | null>(null);
     // const [Status, setStatus] = useState<number | null>(1);
-    const [projects, setProjects] = useState<{ id: string; projectName: string }[]>([]);
-    const [selectedProject, setSelectedProject] = useState<string>('');
-    const [showApplyModal, setShowApplyModal] = useState(false);
-    // const [assignedTasks, setAssignedTasks] = useState<Map<number, { employeeId: string, roleId: number }>>(new Map());
     const [filteredJson, setFilteredJson] = useState<FilteredJsonType | null>(null);
     const [selectedConditionTask, setSelectedConditionTask] = useState<string>('');
+
+
+
+    const [columns, setColumns] = useState<Column[]>([
+        { id: 'moduleName', label: 'Module', visible: true },
+        { id: 'processName', label: 'Process', visible: true },
+        { id: 'task_Number', label: 'Task Number', visible: true },
+        { id: 'roleName', label: 'Role Name', visible: true },
+        // { id: 'doerName', label: 'Doer Name', visible: true },
+
+    ]);
+
+    const handleOnDragEnd = (result: any) => {
+        if (!result.destination) return;
+        const reorderedColumns = Array.from(columns);
+        const [movedColumn] = reorderedColumns.splice(result.source.index, 1);
+        reorderedColumns.splice(result.destination.index, 0, movedColumn);
+        setColumns(reorderedColumns);
+    };
+    // ==============================================================
+
+
 
 
     // Fetch Modules
@@ -142,12 +171,6 @@ const AccountProcessTable: React.FC = () => {
                 }));
             }
         };
-        // const handleNextTask = (inputId: string, selectedTaskNumber: string) => {
-        //     setSelectedTaskNumbers(prevState => ({
-        //         ...prevState,
-        //         [inputId]: selectedTaskNumber // Update the task number for the corresponding input ID
-        //     }));
-        // }
 
 
         const [taskTiming, setTaskTiming] = useState<{ [key: string]: string }>({});
@@ -276,40 +299,7 @@ const AccountProcessTable: React.FC = () => {
             return (Number(value) * 24).toString(); // Multiply by 24 and convert back to string
         };
 
-        // Function to process each option and return it in the desired structure
-        // const processOption = (inputId: string, option: any): any => {
-        //     const optionId = option.id;
 
-        //     return {
-        //         inputId: inputId, // Use inputId from filteredJson
-        //         optionId: optionId, // Use optionId from option
-
-        //         // Fetch values from the state based on optionId
-        //         taskNumber: selectedTaskNumbers[optionId] || null,
-        //         taskTiming: taskTiming[optionId] || null,
-        //         taskType: selectedTaskTypes[optionId] || null,
-
-        //         // Check for taskTiming based on optionId and convert day selection accordingly
-        //         daySelection: taskTiming[optionId] === 'day' ? convertToHoursString(daySelection[optionId]) : null,
-        //     };
-        // };
-
-        // Function to flatten nested arrays and process options into a single array
-        // const flattenAndProcessOptions = (inputId: string, options: any): any[] => {
-        //     const flatOptions: any[] = [];
-
-        //     // Function to recursively flatten options
-        //     const flatten = (opt: any) => {
-        //         if (Array.isArray(opt)) {
-        //             opt.forEach(item => flatten(item));
-        //         } else {
-        //             flatOptions.push(processOption(inputId, opt)); // Process and add each option to the flat array
-        //         }
-        //     };
-
-        //     flatten(options); // Start flattening
-        //     return flatOptions; // Return the final flat array
-        // };
 
 
         const handleSaveChanges = async () => {
@@ -454,7 +444,7 @@ const AccountProcessTable: React.FC = () => {
         // Handler for toggling global expirable state
 
         return (
-            <Modal size="lg" show={showModalone} onHide={handleClose}>
+            <Modal size="xl" show={showModalone} onHide={handleClose}>
                 <Modal.Header closeButton>
                     <Modal.Title>Conditions Form</Modal.Title>
                 </Modal.Header>
@@ -649,7 +639,7 @@ const AccountProcessTable: React.FC = () => {
                                             >
                                                 <option value="" disabled>Select Task Number</option>
                                                 <option value="updateMaster">Update Master</option>
-                                                
+
 
                                                 {/* Filter tasks to exclude the selectedConditionTask value */}
                                                 {tasks
@@ -842,7 +832,6 @@ const AccountProcessTable: React.FC = () => {
         }
     };
 
-    // const [selectedEmployeeName, setSelectedEmployeeName] = useState<string | null>(null);
 
     useEffect(() => {
         // Retrieve employee name and ID from localStorage when the component mounts
@@ -855,19 +844,7 @@ const AccountProcessTable: React.FC = () => {
     }, []);
 
 
-    // const handleEmployeeChange = (selectedOption: any) => {
-    //     if (selectedOption) {
-    //         const selectedEmployeeObj = employees.find(emp => emp.empId === selectedOption.value);
-    //         if (selectedEmployeeObj) {
-    //             setSelectedEmployee(selectedEmployeeObj.empId);
-    //             setSelectedEmployeeName(selectedEmployeeObj.employeeName);
 
-    //             // Store selected employee details in localStorage
-    //             localStorage.setItem('selectedEmpId', selectedEmployeeObj.empId);
-    //             localStorage.setItem('selectedEmpName', selectedEmployeeObj.employeeName);
-    //         }
-    //     }
-    // };
 
 
     // Fetch the related JSON when the modal is opened
@@ -929,26 +906,7 @@ const AccountProcessTable: React.FC = () => {
 
 
 
-    // useEffect(() => {
-    //     if (selectedModule && selectedProcess) {
-    //         const fetchTasks = async () => {
-    //             try {
-    //                 const response = await axios.get(`${config.API_URL_ACCOUNT}/ProcessTaskMaster/GetProcessTaskByIds?Flag=1&ModuleID=${selectedModule}&ProcessId=${selectedProcess}`);
-    //                 if (response.data.isSuccess) {
-    //                     setTasks(response.data.getProcessTaskByIds);
 
-    //                 }
-    //             } catch (error) {
-    //                 console.error('Error fetching tasks', error);
-    //             }
-    //         };
-    //         fetchTasks();
-    //     }
-    // }, [selectedModule, selectedProcess]);
-
-    // Fetch Employees and Roles when assigning task
-
-    // Fetch Doers based on the selected role
     useEffect(() => {
         const fetchEmployees = async () => {
             try {
@@ -966,10 +924,10 @@ const AccountProcessTable: React.FC = () => {
         fetchEmployees();
     }, []);
 
-    const handleAssigndoer = (task: AccountProcessTask) => {
-        setSelectedTask(task);
-        setShowModal(true); // Show modal
-    };
+    // const handleAssigndoer = (task: AccountProcessTask) => {
+    //     setSelectedTask(task);
+    //     setShowModal(true); // Show modal
+    // };
 
     // Handle employee change in the Select dropdown
     const handleEmployeeChange = (selectedOption: any) => {
@@ -986,15 +944,7 @@ const AccountProcessTable: React.FC = () => {
                 return;
             }
 
-            // Update assignedTasks for each task uniquely
-            // if (selectedRole !== null) {
-            //     setAssignedTasks(
-            //         new Map(assignedTasks).set(selectedTask.id, {
-            //             employeeId: selectedEmployee,
-            //             roleId: selectedRole,
-            //         })
-            //     );
-            // }
+
 
             const payload = {
                 id: selectedTask.id ? selectedTask.id : 0, // Ensure this ID matches the task
@@ -1050,50 +1000,7 @@ const AccountProcessTable: React.FC = () => {
         }
     };
 
-    const handleApplyProcessToProject = async () => {
-        if (selectedProject && selectedTask) {
-            const payload = {
-                projectId: selectedProject,
-                projectName: projects.find((project) => project.id === selectedProject)?.projectName || '',
-                moduleId: selectedTask.moduleID,
-                processId: selectedTask.processID,
-                createdBy: 'sameer',
-                taskStatus: 1,
-            }
 
-            console.log(payload)
-
-            try {
-                const response = await axios.post(`${config.API_URL_ACCOUNT}/ProcessTaskMaster/ProcessAssignWithProject`, payload);
-                if (response.data.isSuccess) {
-                    console.log('Process assigned to project successfully');
-                } else {
-                    console.error('Failed to assign process to project');
-                }
-            } catch (error) {
-                console.error('Error assigning process to project', error);
-            }
-
-            setShowApplyModal(false);
-        } else {
-            alert('Please select a project and task before applying.');
-        }
-    }
-
-    // Fetch Projects
-    useEffect(() => {
-        const fetchProjects = async () => {
-            try {
-                const response = await axios.get(`${config.API_URL_APPLICATION}/CommonDropdown/GetProjectList`);
-                if (response.data.isSuccess) {
-                    setProjects(response.data.projectListResponses);
-                }
-            } catch (error) {
-                console.error('Error fetching projects', error);
-            }
-        };
-        fetchProjects();
-    }, []);
 
     return (
         <div>
@@ -1140,44 +1047,17 @@ const AccountProcessTable: React.FC = () => {
                     </Form.Control>
                 </Form.Group>
                 <div className="bg-white rounded d-flex justify-content-end col-md-4 my-1">
-                    <Button variant="primary" onClick={() => setShowApplyModal(true)}>
-                        Apply Process to Project
-                    </Button>
-                    <Modal show={showApplyModal} onHide={() => setShowApplyModal(false)}>
-                        <Modal.Header closeButton>
-                            <Modal.Title>Apply Process to Project</Modal.Title>
-                        </Modal.Header>
-                        <Modal.Body>
-                            <Form.Group controlId="projectSelect">
-                                <Form.Label>Select Project</Form.Label>
-                                <Form.Control
-                                    as="select"
-                                    value={selectedProject}
-                                    onChange={(e) => setSelectedProject(e.target.value)}
-                                >
-                                    <option value="">Select a project</option>
-                                    {projects.map((project) => (
-                                        <option key={project.id} value={project.id}>
-                                            {project.projectName}
-                                        </option>
-                                    ))}
-                                </Form.Control>
-                            </Form.Group>
-                        </Modal.Body>
-                        <Modal.Footer>
-                            <Button variant="secondary" onClick={() => setShowApplyModal(false)}>
-                                Close
-                            </Button>
-                            <Button variant="primary" onClick={handleApplyProcessToProject}>
-                                Apply
-                            </Button>
-                        </Modal.Footer>
-                    </Modal>
+                    <Link to='/pages/Modules-Master'>
+                        <Button variant="primary">
+                            Create Task
+                        </Button>
+                    </Link>
+
                 </div>
             </div>
 
-            <div className="d-flex p-2 bg-white mt-3 rounded shadow">Task List</div>
-            <div className="bg-white p-3 rounded shadow">
+            <div className="d-flex p-2 bg-white mt-3 mb-2 rounded shadow">Task List</div>
+            {/* <div className="bg-white p-3 rounded shadow">
                 <Table striped bordered hover responsive>
                     <thead>
                         <tr>
@@ -1205,8 +1085,6 @@ const AccountProcessTable: React.FC = () => {
                                     <td>{task.task_Number}</td>
                                     <td>{task.roleName}</td>
                                     <td>{taskName}</td>
-                                    {/* <td>{selectedEmployeeObj.employeeName}</td> */}
-                                    {/* <td>{doerName}</td> */}
                                     <td className='d-none'>{task.doerName}</td>
                                     <td>
                                         <Button variant='primary' onClick={() => handleShow(task)}>
@@ -1216,7 +1094,7 @@ const AccountProcessTable: React.FC = () => {
                                     <td className='d-none'>
                                         <Button
                                             variant="primary"
-                                            onClick={() => handleAssigndoer(task)} // Open the modal for assigning doer
+                                            onClick={() => handleAssigndoer(task)}
                                         >
                                             {task.doerName === "" ? "Select Doer" : "Update Doer"}
                                         </Button>
@@ -1227,6 +1105,103 @@ const AccountProcessTable: React.FC = () => {
                     </tbody>
 
                 </Table>
+            </div> */}
+
+
+
+            <div className="overflow-auto text-nowrap">
+                <DragDropContext onDragEnd={handleOnDragEnd}>
+                    <Table hover className='bg-white '>
+                        <thead>
+                            <Droppable droppableId="columns" direction="horizontal">
+                                {(provided) => (
+                                    <tr {...provided.droppableProps} ref={provided.innerRef as React.Ref<HTMLTableRowElement>}>
+                                        <th><i className="ri-list-ordered-2"></i> Sr. No</th>
+                                        {columns
+                                            .filter((col) => col.visible)
+                                            .map((column, index) => (
+                                                <Draggable key={column.id} draggableId={column.id} index={index}>
+                                                    {(provided) => (
+                                                        <th>
+                                                            <div ref={provided.innerRef as React.Ref<HTMLTableHeaderCellElement>}
+                                                                {...provided.draggableProps}
+                                                                {...provided.dragHandleProps}>
+
+                                                                {column.id === 'moduleName' && (<i className="ri-folder-fill"></i>)}
+                                                                {column.id === 'processName' && (<i className="ri-node-tree"></i>)}
+                                                                {column.id === 'task_Json' && (<i className="ri-file-code"></i>)}
+                                                                {column.id === 'task_Number' && (<i className="ri-hashtag"></i>)}
+                                                                {column.id === 'roleName' && (<i className="ri-team-fill"></i>)}
+
+                                                                &nbsp; {column.label}
+
+                                                            </div>
+                                                        </th>
+                                                    )}
+                                                </Draggable>
+                                            ))}
+                                        {provided.placeholder}
+                                        <th><i className="ri-task-fill"></i> Task Name</th>
+                                        <th>Condition</th>
+                                    </tr>
+                                )}
+                            </Droppable>
+
+                        </thead>
+                        <tbody>
+                            {tasks.length > 0 ? (
+                                tasks.map((task, index) => {
+                                    const taskName = extractInputValue(task.task_Json, '99');
+
+                                    return (
+
+                                        <tr key={task.id}>
+                                            <td>{index + 1}</td>
+                                            {columns.filter(col => col.visible).map((col) => (
+                                                <td key={col.id}
+                                                    className={
+                                                        // Add class based on column id
+                                                        col.id === 'moduleOwnerName' ? 'fw-bold fs-14 text-dark' :
+                                                            col.id === 'moduleOwnerID' ? 'fw-bold fs-13  ' :
+                                                                // Add class based on value (e.g., expired tasks)
+                                                                ''
+                                                    }
+                                                >
+                                                    <div>{task[col.id as keyof Module]}</div>
+                                                </td>
+                                            ))}
+                                            <td>{taskName}</td>
+                                            <td>
+                                                <Button variant='primary' onClick={() => handleShow(task)}>
+                                                    Conditions
+                                                </Button>
+                                            </td>
+                                        </tr>
+                                    )
+
+
+                                })
+                            ) : (
+                                <tr>
+                                    <td colSpan={columns.length + 1}>
+                                        <Container className="mt-5">
+                                            <Row className="justify-content-center">
+                                                <Col xs={12} md={8} lg={6}>
+                                                    <Alert variant="info" className="text-center">
+                                                        <h4>No Task Found</h4>
+                                                        <p>You currently don't have Completed tasks</p>
+                                                    </Alert>
+                                                </Col>
+                                            </Row>
+                                        </Container>
+                                    </td>
+                                </tr>
+                            )}
+
+
+                        </tbody>
+                    </Table>
+                </DragDropContext>
             </div>
 
             <ModalForm
@@ -1234,27 +1209,6 @@ const AccountProcessTable: React.FC = () => {
                 handleClose={handleClose}
                 filteredJson={filteredJson}
             />
-
-            {/* <Modal show={showModalone} onHide={handleClose}>
-                <Modal.Header closeButton>
-                    <Modal.Title>Conditions Form</Modal.Title>
-                </Modal.Header>
-                <Modal.Body>
-                    {filteredJson ? (
-                        <pre>{JSON.stringify(filteredJson, null, 2)}</pre>
-                    ) : (
-                        <p>No data found for the selected inputId.</p>
-                    )}
-                </Modal.Body>
-                <Modal.Footer>
-                    <Button variant="secondary" onClick={handleClose}>
-                        Close
-                    </Button>
-                    <Button variant="primary" onClick={handleClose}>
-                        Save Changes
-                    </Button>
-                </Modal.Footer>
-            </Modal> */}
 
 
             <Modal show={showModal} onHide={() => setShowModal(false)}>
