@@ -13,8 +13,6 @@ interface Module {
     misExempt: string;
     moduleID: string;
     statusID: number;
-    // moduleOwnerID: string;
-    // moduleOwnerName: string;
     createdBy: string;
     updatedBy: string;
 }
@@ -28,11 +26,6 @@ interface Status {
     name: boolean;
 }
 
-// interface ModuleOwnerName {
-//     empId: string;
-//     employeeName: string;
-// }
-
 const EmployeeInsert = () => {
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
@@ -42,7 +35,6 @@ const EmployeeInsert = () => {
     const [editMode, setEditMode] = useState<boolean>(false);
     const [misExempt, setMisExempt] = useState<MISExempt[]>([]);
     const [statusID, setStatusID] = useState<Status[]>([]);
-    // const [moduleOwnerName, setModuleOwnerName] = useState<ModuleOwnerName[]>([]);
     const [empName, setEmpName] = useState<string | null>('')
     const [module, setModule] = useState<Module>({
         id: 0,
@@ -51,8 +43,6 @@ const EmployeeInsert = () => {
         misExempt: '',
         moduleID: '',
         statusID: 0,
-        // moduleOwnerID: '',
-        // moduleOwnerName: '',
         createdBy: '',
         updatedBy: ''
     });
@@ -105,24 +95,28 @@ const EmployeeInsert = () => {
 
         fetchData('CommonDropdown/GetStatus', setStatusID, 'statusListResponses');
         fetchData('CommonDropdown/GetMISExempt', setMisExempt, 'mISExemptListResponses');
-        // fetchData('CommonDropdown/GetEmployeeListWithId', setModuleOwnerName, 'employeeLists');
     }, []);
 
 
 
+    const handleChange = (e: ChangeEvent<any> | null, name?: string, value?: any) => {
+        if (e) {
+            const { name: eventName, type } = e.target;
 
-
-    // Handle form field changes
-    const handleChange = (e: ChangeEvent<any>) => {
-        const { name, type } = e.target;
-        if (type === 'checkbox') {
-            const checked = (e.target as HTMLInputElement).checked;
-            setModule({
-                ...module,
-                [name]: checked
-            });
-        } else {
-            const value = (e.target as HTMLInputElement | HTMLSelectElement).value;
+            if (type === 'checkbox') {
+                const checked = (e.target as HTMLInputElement).checked;
+                setModule({
+                    ...module,
+                    [eventName]: checked
+                });
+            } else {
+                const inputValue = (e.target as HTMLInputElement | HTMLSelectElement).value;
+                setModule({
+                    ...module,
+                    [eventName]: inputValue
+                });
+            }
+        } else if (name) {
             setModule({
                 ...module,
                 [name]: value
@@ -140,44 +134,36 @@ const EmployeeInsert = () => {
             updatedBy: editMode ? empName : '',
         };
 
+        console.log(payload);
+
         try {
-            if (editMode) {
-                const response = await axios.post(`${config.API_URL_APPLICATION}/ModuleMaster/UpdateModule`, payload);
-                if (response.data.isSuccess) {
-                    navigate('/pages/ModuleMaster', {
-                        state: {
-                            showToast: true,
-                            toastMessage: "Module Updated successfully!",
-                            toastVariant: "rgb(28 175 85)"
-                        }
-                    });
-                } else {
-                    setToastMessage(response.data.message || "Failed to update module");
-                }
+            const apiUrl = `${config.API_URL_APPLICATION}/ModuleMaster/${editMode ? 'UpdateModule' : 'InsertModule'}`;
+            const response = await axios.post(apiUrl, payload);
+
+            if (response.status === 200) {
+                navigate('/pages/ModuleMaster', {
+                    state: {
+                        showToast: true,
+                        toastMessage: editMode ? "Module updated successfully!" : "Module added successfully!",
+                        toastVariant: "rgb(28 175 85)",
+                    },
+                });
             } else {
-                const response = await axios.post(`${config.API_URL_APPLICATION}/ModuleMaster/InsertModule`, payload);
-                if (response.data.isSuccess) {
-                    navigate('/pages/ModuleMaster', {
-                        state: {
-                            showToast: true,
-                            toastMessage: "Module added successfully!",
-                            toastVariant: "rgb(28 175 85)"
-                        }
-                    });
-                } else {
-                    setToastMessage(response.data.message || "Failed to add module");
-                }
+                setToastMessage(response.data.message || "Failed to process request");
             }
-        } catch (error) {
-            setToastMessage("Error Adding/Updating");
+        } catch (error: any) {
+            setToastMessage(error);
             setToastVariant("rgb(213 18 18)");
             setShowToast(true);
             console.error('Error submitting module:', error);
         }
     };
+    
 
-
-
+    const options = [
+        { value: 'CHK', label: 'CHK' },
+        { value: 'MOD', label: 'MOD' }
+    ];
     return (
         <div>
             <div className="container">
@@ -197,10 +183,12 @@ const EmployeeInsert = () => {
                                         type="text"
                                         name="moduleDisplayName"
                                         value={module.moduleDisplayName}
-                                        onChange={handleChange}
-                                        required
+                                        onChange={(e) => setModule({ ...module, moduleDisplayName: e.target.value })}
+                                        // required
                                         placeholder='Enter Module Name'
                                     />
+                                  
+
                                 </Form.Group>
                             </Col>
 
@@ -212,13 +200,13 @@ const EmployeeInsert = () => {
                                         name="moduleID"
                                         value={module.moduleID}
                                         onChange={handleChange}
-                                        required
+                                        // required
                                         placeholder='Enter Module ID'
                                     />
                                 </Form.Group>
                             </Col>
 
-                            <Col lg={6}>
+                            {/* <Col lg={6}>
                                 <Form.Group controlId="fmsType" className="mb-3">
                                     <Form.Label>FMS Type:</Form.Label>
                                     <Form.Control
@@ -230,8 +218,20 @@ const EmployeeInsert = () => {
                                         placeholder='Enter FMS Type'
                                     />
                                 </Form.Group>
+                            </Col> */}
+                            <Col lg={6}>
+                                <Form.Group controlId="fmsType" className="mb-3">
+                                    <Form.Label>Type of Tender</Form.Label>
+                                    <Select
+                                        name="fmsType"
+                                        options={options}
+                                        value={options.find(option => option.value === module.fmsType)}
+                                        onChange={selectedOption => handleChange(null, 'fmsType', selectedOption?.value)}
+                                        placeholder="Select Fms Type"
+                                        required
+                                    />
+                                </Form.Group>
                             </Col>
-
                             <Col lg={6}>
 
                                 <Form.Group controlId="misExempt" className="mb-3">

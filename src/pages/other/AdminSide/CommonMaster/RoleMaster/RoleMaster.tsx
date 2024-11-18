@@ -152,17 +152,29 @@ const ModuleMaster = () => {
         setSearchRole(undefined);
     };
 
+    const formatDate = (date: string | Date) => {
+        const formattedDate = new Date(date).toLocaleString('en-GB', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit',
+        });
+
+        return formattedDate.replace(/\s+/g, ' ').trim();
+    };
 
     const convertToCSV = (data: Role[]) => {
         const csvRows = [
-            ['ID', 'Role Name', 'Created By', 'Updated By', 'Created Date', 'Updated Date'],
+            ['Role ID', 'Role Name', 'Created By', 'Updated By', 'Created Date', 'Updated Date'],
             ...data.map(role => [
-                role.id.toString(),
+                role.id,
                 role.roleName,
                 role.createdBy,
                 role.updatedBy,
-                role.createdDate,
-                role.updatedDate,
+                `"${formatDate(role.createdDate)}"`,
+                `"${formatDate(role.updatedDate)}"`,
             ])
         ];
 

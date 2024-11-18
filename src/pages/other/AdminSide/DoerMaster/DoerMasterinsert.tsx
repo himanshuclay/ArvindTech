@@ -167,30 +167,52 @@ const EmployeeInsert = () => {
             updatedBy: editMode ? empName : '',
         };
         console.log(payload)
+        // try {
+        //     if (editMode) {
+        //         await axios.post(`${config.API_URL_APPLICATION}/DoerMaster/UpdateDoer`, payload);
+        //         navigate('/pages/DoerMaster', {
+        //             state: {
+        //                 showToast: true,
+        //                 toastMessage: "Doer Updated successfully!",
+        //                 toastVariant: "rgb(28 175 85)"
+        //             }
+        //         });
+        //     } else {
+        //         await axios.post(`${config.API_URL_APPLICATION}/DoerMaster/InsertDoer`, payload);
+        //         navigate('/pages/DoerMaster', {
+        //             state: {
+        //                 showToast: true,
+        //                 toastMessage: "Doer Added successfully!",
+        //                 toastVariant: "rgb(28 175 85)"
+        //             }
+        //         });
+        //     }
+        // } catch (error) {
+        //     const errorMessage = error instanceof Error ? error.message : 'Error Adding/Updating';
+        //     setToastMessage(errorMessage);
+        //     setToastVariant("rgb(213 18 18)"); 
+        //     setShowToast(true);
+        //     console.error('Error submitting module:', error);
+        // }
+
         try {
-            if (editMode) {
-                await axios.post(`${config.API_URL_APPLICATION}/DoerMaster/UpdateDoer`, payload);
+            const apiUrl = `${config.API_URL_APPLICATION}/DoerMaster/${editMode ? 'UpdateDoer' : 'InsertDoer'}`;
+            const response = await axios.post(apiUrl, payload);
+
+            if (response.status === 200) {
                 navigate('/pages/DoerMaster', {
                     state: {
                         showToast: true,
-                        toastMessage: "Doer Updated successfully!",
-                        toastVariant: "rgb(28 175 85)"
-                    }
+                        toastMessage: editMode ? "Doers updated successfully!" : "Doers added successfully!",
+                        toastVariant: "rgb(28 175 85)",
+                    },
                 });
             } else {
-                await axios.post(`${config.API_URL_APPLICATION}/DoerMaster/InsertDoer`, payload);
-                navigate('/pages/DoerMaster', {
-                    state: {
-                        showToast: true,
-                        toastMessage: "Doer Added successfully!",
-                        toastVariant: "rgb(28 175 85)"
-                    }
-                });
+                setToastMessage(response.data.message || "Failed to process request");
             }
-        } catch (error) {
-            const errorMessage = error instanceof Error ? error.message : 'Error Adding/Updating';
-            setToastMessage(errorMessage);
-            setToastVariant("rgb(213 18 18)"); 
+        } catch (error: any) {
+            setToastMessage(error);
+            setToastVariant("rgb(213 18 18)");
             setShowToast(true);
             console.error('Error submitting module:', error);
         }

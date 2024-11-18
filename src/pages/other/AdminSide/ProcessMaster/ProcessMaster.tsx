@@ -67,7 +67,7 @@ const ModuleMaster = () => {
             setShowToast(true);
             setToastMessage(location.state.toastMessage);
             setToastVariant(location.state.toastVariant);
-            
+
             setTimeout(() => {
                 setShowToast(false);
                 navigate(location.pathname, { replace: true });
@@ -221,9 +221,9 @@ const ModuleMaster = () => {
         process.processOwnerName.toLowerCase().includes(searchQuery.toLowerCase()) ||
         process.processObjective.toLowerCase().includes(searchQuery.toLowerCase()) ||
         process.userUpdatedMobileNumber.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        process.status.toLowerCase().includes(searchQuery.toLowerCase()) 
+        process.status.toLowerCase().includes(searchQuery.toLowerCase())
     );
-    
+
 
     const convertToCSV = (data: Process[]) => {
         const csvRows = [
@@ -430,10 +430,10 @@ const ModuleMaster = () => {
                                                                     </Draggable>
                                                                 ))}
                                                             {provided.placeholder}
-                                                            <th>Included Subprojects</th>
-                                                            <th>Tasks</th>
-                                                            <th>Action</th>
-                                                            <th> <i className="ri-play-circle-fill"></i> Initiation</th>
+                                                            <th><i className="ri-flow-chart "></i> Subprojects</th>
+                                                            <th><i className="ri-task-line"></i> Tasks</th>
+                                                            <th><i className="ri-tools-line"></i> Action</th>
+                                                            <th><i className="ri-play-circle-fill"></i> Initiation</th>
                                                         </tr>
                                                     )}
                                                 </Droppable>
@@ -460,10 +460,10 @@ const ModuleMaster = () => {
                                                                                 {item.processOwnerName.split('_')[0]}
                                                                             </div>
                                                                         </td>
-                                                                    ) :  (
+                                                                    ) : (
                                                                         <div>
 
-                                                                        <td>{item[col.id as keyof Process]}</td>
+                                                                            <td>{item[col.id as keyof Process]}</td>
                                                                         </div>
                                                                     )}
 
@@ -471,10 +471,10 @@ const ModuleMaster = () => {
 
                                                                 </td>
                                                             ))}
-                                                            <td><Button variant='primary' className=' text-white' onClick={() => handleEdit(item.id)}>Manage</Button></td>
-                                                            <td><Button variant='primary' className='px-3 text-white' onClick={() => handleViewEdit(item.id)}>  <i className="ri-eye-line "></i></Button></td>
-                                                            <td><Link to={`/pages/ProcessMasterinsert/${item.id}`}><Button variant='primary' className='p-0 text-white'><i className='btn ri-edit-line text-white' ></i></Button></Link></td>
-                                                            <td><Link to={`/pages/ProcessInitiation/${item.moduleID}-Module/${item.processID}/Process/${item.id}`}><Button variant='primary' className='p-0  text-white'><i className="btn ri-list-settings-line text-white"></i></Button></Link></td>
+                                                            <td><Button variant='primary' className=' text-white icon-padding' title="You can Add and Remove Porject from this Process." onClick={() => handleEdit(item.id)}> <i className="fs-18 ri-folder-add-line "></i> </Button></td>
+                                                            <td><Button variant='primary' className=' text-white icon-padding' title="You can View the running tasks." onClick={() => handleViewEdit(item.id)}>  <i className=" fs-18 ri-eye-line "></i></Button></td>
+                                                            <td><Link to={`/pages/ProcessMasterinsert/${item.id}`}><Button variant='primary' className=' text-white icon-padding' title="You can Edit the Porcess." ><i className='fs-18 ri-edit-line text-white' ></i></Button></Link></td>
+                                                            <td><Link to={`/pages/ProcessInitiation/${item.moduleID}-Module/${item.processID}/Process/${item.id}`}><Button variant='primary' className='icon-padding text-white'><i className=" fs-18 ri-list-settings-line text-white"></i></Button></Link></td>
 
                                                         </tr>
                                                     ))

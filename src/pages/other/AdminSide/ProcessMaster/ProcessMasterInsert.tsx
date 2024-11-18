@@ -201,34 +201,27 @@ const EmployeeInsert = () => {
             ...process,
             createdBy: editMode ? process.createdBy : empName,
             updatedBy: editMode ? empName : '',
-            processID: 'check',
         };
-        console.log(payload)
+        // console.log(payload)
         e.preventDefault();
+    
         try {
-            if (editMode) {
-                await axios.post(`${config.API_URL_APPLICATION}/ProcessMaster/UpdateProcess`, payload);
+            const apiUrl = `${config.API_URL_APPLICATION}/ProcessMaster/${editMode ? 'UpdateProcess' : 'InsertProcess'}`;
+            const response = await axios.post(apiUrl, payload);
+
+            if (response.status === 200) {
                 navigate('/pages/ProcessMaster', {
                     state: {
                         showToast: true,
-                        toastMessage: "Process Updated successfully!",
-                        toastVariant: "rgb(28 175 85)"
-                    }
+                        toastMessage: editMode ? "Process updated successfully!" : "Process added successfully!",
+                        toastVariant: "rgb(28 175 85)",
+                    },
                 });
             } else {
-                await axios.post(`${config.API_URL_APPLICATION}/ProcessMaster/InsertProcess`, payload);
-                navigate('/pages/ProcessMaster', {
-                    state: {
-                        showToast: true,
-                        toastMessage: "Process Added successfully!",
-                        toastVariant: "rgb(28 175 85)"
-                    }
-                });
+                setToastMessage(response.data.message || "Failed to process request");
             }
-
-
-        } catch (error) {
-            setToastMessage("Error Adding/Updating");
+        } catch (error: any) {
+            setToastMessage(error);
             setToastVariant("rgb(213 18 18)");
             setShowToast(true);
             console.error('Error submitting module:', error);
@@ -264,6 +257,19 @@ const EmployeeInsert = () => {
                                         isSearchable={true}
                                         placeholder="Select Module Name"
                                         required
+                                    />
+                                </Form.Group>
+                            </Col>
+                            <Col lg={6}>
+                                <Form.Group controlId="processID" className="mb-3">
+                                    <Form.Label>Process  ID</Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        name="processID"
+                                        value={process.processID.toLocaleUpperCase()}
+                                        onChange={handleChange}
+                                        required
+                                        placeholder='Enter Process ID'
                                     />
                                 </Form.Group>
                             </Col>

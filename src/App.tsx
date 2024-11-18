@@ -7,6 +7,8 @@ import './assets/scss/icons.scss'
 
 configureFakeBackend()
 
+
+
 function App() {
 	return (
 		<ThemeProvider>
