@@ -43,7 +43,7 @@ interface Task {
   expiredSummary: null | string;
   createdBy: string;
   status: 'Pending' | 'Done';
-  isCompleted: 'Pending' | 'Completed';
+  isCompleted: 'Pending' | 'Completed' | 'Pending for Approval';
   condition_Json: string;
   createdDate: string;
   taskTime: string;
@@ -61,6 +61,7 @@ type OptionType = { value: string; label: string };
 const options: OptionType[] = [
   { value: 'approved', label: 'Approved' },
   { value: 'rejected', label: 'Rejected' },
+  { value: 'approved_with_amendment', label: 'Approved with Amendment' },
 ];
 
 const ApprovalPage: React.FC = () => {
@@ -112,26 +113,50 @@ const ApprovalPage: React.FC = () => {
   const handleSubmit = async () => {
     try {
       const requests = tasks.map(async (task) => {
-        const isApproved = approvalStatuses[task.id]?.value === 'approved';
+        const approvalStatus = approvalStatuses[task.id]?.value; // approved, rejected, or amendment
+        const isApprovalConsole = task.approval_Console === "Select Approval_Console";
         let parsedTaskJson;
-
+  
+        // Parse task_Json safely
         try {
           parsedTaskJson = JSON.parse(task.task_Json);
         } catch (error) {
           console.error('Error parsing task_Json:', error);
           return null;
         }
-
-        const updatedTaskJson = parsedTaskJson.map((mess: { messID: string; comments: string }) => {
-          return { ...mess };
-        });
-
+  
+        let updatedTaskJson = [...parsedTaskJson]; // Ensure immutability
+        let updatedIsCompleted = task.isCompleted;
+  
+        if (isApprovalConsole) {
+          // Approval Doer's logic
+          if (approvalStatus === "rejected") {
+            updatedIsCompleted = "Pending"; // Send back to doer
+          } else if (approvalStatus === "approved") {
+            updatedIsCompleted = "Completed"; // Mark as completed
+          } else if (approvalStatus === "amendment") {
+            // For submit with amendment, modify the task_Json (simulating amendment updates)
+            updatedTaskJson = updatedTaskJson.map((field) => {
+              if (field.inputId === "specificFieldId") {
+                return { ...field, value: "Amended Value" }; // Example amendment
+              }
+              return field;
+            });
+            updatedIsCompleted = "Pending for Approval"; // Keep it pending for doer revalidation
+          }
+        } else {
+          // Doer's submission
+          updatedIsCompleted = isApprovalConsole ? "Pending for Approval" : "Completed";
+        }
+  
+        // Save both doer and approval task_Json separately
         const payload = {
           id: task.id,
           doerID: task.doerId,
-          task_Json: JSON.stringify(updatedTaskJson),
-          isExpired: task.isExpired,
-          isCompleted: isApproved ? 'Completed' : 'Pending',
+          task_Json: JSON.stringify(updatedTaskJson), // Updated task JSON
+          doer_task_Json: task.task_Json, // Original doer side JSON
+          approval_task_Json: isApprovalConsole ? JSON.stringify(updatedTaskJson) : null,
+          isCompleted: updatedIsCompleted,
           task_Number: task.task_Number,
           summary: task.expiredSummary || '',
           condition_Json: task.condition_Json,
@@ -139,17 +164,19 @@ const ApprovalPage: React.FC = () => {
           taskExpired: task.isExpired,
           updatedBy: task.createdBy,
         };
-
+  
+        // Make API call to update the task
         const response = await axios.post(`${config.API_URL_ACCOUNT}/ProcessInitiation/UpdateDoerTask`, payload);
         return response.data;
       });
-
+  
       const responses = await Promise.all(requests);
       console.log('Tasks submitted successfully:', responses);
     } catch (error) {
       console.error('Error submitting tasks:', error);
     }
   };
+  
   // console.log(selectedTask.task_Json)
 
   return (
