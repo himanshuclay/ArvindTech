@@ -127,7 +127,6 @@ const EmployeeInsert = () => {
     // Handle form submission
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-
         const payload = {
             ...module,
             createdBy: editMode ? module.createdBy : empName,
@@ -184,7 +183,7 @@ const EmployeeInsert = () => {
                                         name="moduleDisplayName"
                                         value={module.moduleDisplayName}
                                         onChange={(e) => setModule({ ...module, moduleDisplayName: e.target.value })}
-                                        // required
+                                        required
                                         placeholder='Enter Module Name'
                                     />
                                   
@@ -200,25 +199,12 @@ const EmployeeInsert = () => {
                                         name="moduleID"
                                         value={module.moduleID}
                                         onChange={handleChange}
-                                        // required
+                                        required
                                         placeholder='Enter Module ID'
                                     />
                                 </Form.Group>
                             </Col>
 
-                            {/* <Col lg={6}>
-                                <Form.Group controlId="fmsType" className="mb-3">
-                                    <Form.Label>FMS Type:</Form.Label>
-                                    <Form.Control
-                                        type="text"
-                                        name="fmsType"
-                                        value={module.fmsType}
-                                        onChange={handleChange}
-                                        required
-                                        placeholder='Enter FMS Type'
-                                    />
-                                </Form.Group>
-                            </Col> */}
                             <Col lg={6}>
                                 <Form.Group controlId="fmsType" className="mb-3">
                                     <Form.Label>Type of Tender</Form.Label>
@@ -278,32 +264,6 @@ const EmployeeInsert = () => {
                                     />
                                 </Form.Group>
                             </Col>
-
-                            {/* <Col lg={6}>
-
-                                <Form.Group controlId="moduleOwnerName" className="mb-3">
-                                    <Form.Label>Module Owner Name</Form.Label>
-
-                                    <Select
-                                        name="statusID"
-                                        value={moduleOwnerName.find((mod) => mod.employeeName === module.moduleOwnerName)}
-                                        onChange={(selectedOption) => {
-                                            setModule({
-                                                ...module,
-                                                moduleOwnerName: selectedOption?.employeeName || '',
-                                                moduleOwnerID: selectedOption?.empId || '',
-                                            });
-                                        }}
-                                        getOptionLabel={(mod) => mod.employeeName}
-                                        getOptionValue={(mod) => mod.employeeName}
-                                        options={moduleOwnerName}
-                                        isSearchable={true}
-                                        placeholder="Select  Module Owner Name"
-                                        required
-                                    />
-                                </Form.Group>
-                            </Col> */}
-
 
 
                             <Col></Col>

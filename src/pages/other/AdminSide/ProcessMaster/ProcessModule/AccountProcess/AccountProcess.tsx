@@ -209,22 +209,33 @@ const AccountProcess = () => {
 
 
     // Handle form field changes
-    const handleChange = (e: ChangeEvent<any>) => {
-        const { name, type } = e.target;
-        if (type === 'checkbox') {
-            const checked = (e.target as HTMLInputElement).checked;
-            setProcess({
-                ...process,
-                [name]: checked
-            });
-        } else {
-            const value = (e.target as HTMLInputElement | HTMLSelectElement).value;
+    const handleChange = (e: ChangeEvent<any> | null, name?: string, value?: any) => {
+        if (e) {
+            const { name: eventName, type } = e.target;
+
+            if (type === 'checkbox') {
+                const checked = (e.target as HTMLInputElement).checked;
+                setProcess({
+                    ...process,
+                    [eventName]: checked
+                });
+            } else {
+                const inputValue = (e.target as HTMLInputElement | HTMLSelectElement).value;
+                setProcess({
+                    ...process,
+                    [eventName]: inputValue
+                });
+            }
+        } else if (name) {
             setProcess({
                 ...process,
                 [name]: value
             });
         }
     };
+
+
+
 
     useEffect(() => {
         if (["Daily"].includes(process.intervalType)) {
@@ -273,11 +284,18 @@ const AccountProcess = () => {
     const intervalTypeValidIDs = ['ACC.01', 'ACC.02', 'ACC.03', 'ACC.04', 'ACC.05'];
     const timeValidIDs = ['ACC.01', 'ACC.02', 'ACC.03', 'ACC.04', 'ACC.05'];
     const OwnerNameValidIDs = ['ACC.01', 'ACC.02', 'ACC.03', 'ACC.04', 'ACC.05'];
-    const weekToValidIDs = ['ACC.01', 'ACC.02', 'ACC.03', 'ACC.04', 'ACC.05'];
-    const weekFromValidIDs = ['ACC.01', 'ACC.02', 'ACC.03', 'ACC.04', 'ACC.05'];
-    const typeValidIDs = ['ACC.01', 'ACC.02', 'ACC.03', 'ACC.04', 'ACC.05'];
+    // const weekToValidIDs = ['ACC.01', 'ACC.02', 'ACC.03', 'ACC.04', 'ACC.05'];
+    // const weekFromValidIDs = ['ACC.01', 'ACC.02', 'ACC.03', 'ACC.04', 'ACC.05'];
+    // const typeValidIDs = ['ACC.01', 'ACC.02', 'ACC.03', 'ACC.04', 'ACC.05'];
     const shopIDValidIDs = ['ACC.02'];
     const shopNameValidIDs = ['ACC.02'];
+
+
+
+    // const options = [
+    //     { value: 'Adanced', label: 'Adanced' },
+    //     { value: 'Shop Bill', label: 'Shop Bill' }
+    // ];
     return (
         <div>
             <div >
@@ -559,7 +577,7 @@ const AccountProcess = () => {
                                     </Form.Group>
                                 </Col>
                             )}
-
+                            {/* 
                             {weekFromValidIDs.includes(process.processID) && (
                                 <Col lg={6}>
                                     <Form.Group controlId="weekFrom" className="mb-3">
@@ -606,21 +624,26 @@ const AccountProcess = () => {
                                     </Form.Group>
 
                                 </Col>
-                            )}
-                            {typeValidIDs.includes(process.processID) && (
+                            )} */}
+
+
+                            {/* {typeValidIDs.includes(process.processID) && (
                                 <Col lg={6}>
                                     <Form.Group controlId="type" className="mb-3">
                                         <Form.Label>Type</Form.Label>
-                                        <Form.Control
-                                            type="text"
+                                        <Select
                                             name="type"
-                                            value={process.type}
-                                            onChange={handleChange}
+                                            options={options}
+                                            value={options.find(option => option.value === process.type)}
+                                            onChange={selectedOption => handleChange(null, 'type', selectedOption?.value)}
+                                            placeholder="Select Fms Type"
                                             required
                                         />
                                     </Form.Group>
                                 </Col>
-                            )}
+                            )} */}
+
+
                             {shopIDValidIDs.includes(process.processID) && (
                                 <Col lg={6}>
                                     <Form.Group controlId="shopID" className="mb-3">
@@ -712,7 +735,7 @@ const AccountProcess = () => {
                                                     className={
                                                         col.id === 'processOwnerName' ? 'fw-bold fs-13 text-dark text-nowrap' :
                                                             col.id === 'moduleName' ? 'fw-bold fs-13   text-nowrap' :
-                                                                        ''
+                                                                ''
                                                     }
                                                 >
                                                     {col.id === 'managerName' ? (
