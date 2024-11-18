@@ -624,10 +624,10 @@ const EmployeeMaster = () => {
                                                             </td>
                                                         ))}
                                                         {/* Action Button */}
-                                                        <td><Button variant='primary' className='px-3 text-white' onClick={() => handleViewEdit(item.id)}>  <i className="ri-eye-line fs-4"></i></Button></td>
+                                                        <td><Button variant='primary' className='text-white icon-padding' onClick={() => handleViewEdit(item.id)}>  <i className="ri-eye-line fs-18"></i></Button></td>
                                                         <td><Link to={`/pages/EmployeeMasterinsert/${item.id}`}>
-                                                            <Button variant='primary' className='p-0 text-white'>
-                                                                <i className='btn ri-edit-line text-white' ></i>
+                                                            <Button variant='primary' className='icon-padding text-white'>
+                                                                <i className='fs-18 ri-edit-line text-white' ></i>
                                                             </Button>
                                                         </Link>
                                                         </td>
