@@ -273,8 +273,8 @@ const AccountProcess = () => {
     };
 
 
-    const periodFromValidIDs = ['ACC.01'];
-    const periodToValidIDs = ['ACC.01'];
+    // const periodFromValidIDs = ['ACC.01'];
+    // const periodToValidIDs = ['ACC.01'];
     const intervalTypeValidIDs = ['ACC.01', 'ACC.02', 'ACC.03', 'ACC.04', 'ACC.05'];
     const timeValidIDs = ['ACC.01', 'ACC.02', 'ACC.03', 'ACC.04', 'ACC.05'];
     // const weekToValidIDs = ['ACC.01', 'ACC.02', 'ACC.03', 'ACC.04', 'ACC.05'];
@@ -306,31 +306,31 @@ const AccountProcess = () => {
 
 
 
-                            <Col lg={6}>
-                                <Form.Group controlId="moduleDisplayName" className="mb-3">
-                                    <Form.Label>Module Name</Form.Label>
-                                    <Form.Control
-                                        type="text"
-                                        name="moduleDisplayName"
-                                        value={process.moduleName}
-                                        readOnly
-                                        disabled
-                                    />
-                                </Form.Group>
-                            </Col>
+                                <Col lg={6}>
+                                    <Form.Group controlId="moduleDisplayName" className="mb-3">
+                                        <Form.Label>Module Name</Form.Label>
+                                        <Form.Control
+                                            type="text"
+                                            name="moduleDisplayName"
+                                            value={process.moduleName}
+                                            readOnly
+                                            disabled
+                                        />
+                                    </Form.Group>
+                                </Col>
 
-                            <Col lg={6}>
-                                <Form.Group controlId="processDisplayName" className="mb-3">
-                                    <Form.Label>Process Name</Form.Label>
-                                    <Form.Control
-                                        type="text"
-                                        name="processDisplayName"
-                                        value={process.processDisplayName}
-                                        disabled
-                                        readOnly
-                                    />
-                                </Form.Group>
-                            </Col>
+                                <Col lg={6}>
+                                    <Form.Group controlId="processDisplayName" className="mb-3">
+                                        <Form.Label>Process Name</Form.Label>
+                                        <Form.Control
+                                            type="text"
+                                            name="processDisplayName"
+                                            value={process.processDisplayName}
+                                            disabled
+                                            readOnly
+                                        />
+                                    </Form.Group>
+                                </Col>
 
                             <Col lg={6}>
                                 <Form.Group controlId="processObjective" className="mb-3">
@@ -369,50 +369,87 @@ const AccountProcess = () => {
                                 </Form.Group>
                             </Col>
 
-                            <Col lg={6}>
-                                <Form.Group controlId="misExempt" className="mb-3">
-                                    <Form.Label>MIS Exempt:</Form.Label>
-                                    <Form.Control
-                                        type="text"
-                                        name="misExempt"
-                                        value={process.misExempt}
-                                        disabled
-                                        readOnly
-                                    />
-                                </Form.Group>
-                            </Col>
+                                <Col lg={6}>
+                                    <Form.Group controlId="processObjective" className="mb-3">
+                                        <Form.Label>Process Objective:</Form.Label>
+                                        <Form.Control
+                                            type="textarea"
+                                            name="processObjective"
+                                            value={process.processObjective ? process.processObjective : 'No File Avilable'}
+                                            readOnly
+                                            disabled
+                                        />
+                                    </Form.Group>
+                                </Col>
 
-                            <Col lg={6}>
-                                <Form.Group controlId="status1" className="mb-3">
-                                    <Form.Label>Status:</Form.Label>
-                                    <Form.Control
-                                        type="text"
-                                        name="status1"
-                                        value={process.status}
-                                        disabled
-                                        readOnly
-                                    />
-                                </Form.Group>
-                            </Col>
+                                <Col lg={6}>
+                                    <Form.Group controlId="processFlowchart" className="mb-3 position-relative">
+                                        <Form.Label>Process Flowchart:</Form.Label>
+                                        <Form.Control
+                                            type="text"
+                                            name="processFlowchart"
+                                            readOnly
+                                            disabled
+                                        />
 
-                            <Col lg={6}>
-                                <Form.Group controlId="processOwnerName" className="mb-3">
-                                    <Form.Label>Process Owner Name</Form.Label>
-                                    <Form.Control
-                                        type="text"
-                                        name="processOwnerName"
-                                        value={process.processOwnerName}
-                                        disabled
-                                        readOnly
-                                    />
-                                </Form.Group>
-                            </Col>
+                                        {process.processFlowchart && (
+                                            <div className="mt-2 position-absolute download-file">
+                                                <a
+                                                    href={`path_to_your_files/${process.processFlowchart}`}
+                                                    download={process.processFlowchart}
+                                                    className="btn btn-link"
+                                                >
+                                                    <i className="ri-download-fill"></i>
+                                                </a>
+                                            </div>
+                                        )}
+                                    </Form.Group>
+                                </Col>
 
+
+                                <Col lg={6}>
+                                    <Form.Group controlId="misExempt" className="mb-3">
+                                        <Form.Label>MIS Exempt:</Form.Label>
+                                        <Form.Control
+                                            type="text"
+                                            name="misExempt"
+                                            value={process.misExempt}
+                                            disabled
+                                            readOnly
+                                        />
+                                    </Form.Group>
+                                </Col>
+
+                                <Col lg={6}>
+                                    <Form.Group controlId="status1" className="mb-3">
+                                        <Form.Label>Status:</Form.Label>
+                                        <Form.Control
+                                            type="text"
+                                            name="status1"
+                                            value={process.status}
+                                            disabled
+                                            readOnly
+                                        />
+                                    </Form.Group>
+                                </Col>
+
+                                <Col lg={6}>
+                                    <Form.Group controlId="processOwnerName" className="mb-3">
+                                        <Form.Label>Process Owner Name</Form.Label>
+                                        <Form.Control
+                                            type="text"
+                                            name="processOwnerName"
+                                            value={process.processOwnerName}
+                                            disabled
+                                            readOnly
+                                        />
+                                    </Form.Group>
+                                </Col>
                             <Col lg={12}>
 
                                 <Row>
                                     <h4>Specific Time</h4>
-                                    {periodFromValidIDs.includes(process.processID) && (
+                                    {/* {periodFromValidIDs.includes(process.processID) && (
                                         <Col lg={6}>
                                             <Form.Group controlId="periodFrom" className="mb-3">
                                                 <Form.Label>Period From</Form.Label>
@@ -434,9 +471,9 @@ const AccountProcess = () => {
                                                 />
                                             </Form.Group>
                                         </Col>
-                                    )}
+                                    )} */}
 
-                                    {periodToValidIDs.includes(process.processID) && (
+                                    {/* {periodToValidIDs.includes(process.processID) && (
                                         <Col lg={6}>
                                             <Form.Group controlId="periodTo" className="mb-3">
                                                 <Form.Label>Period To</Form.Label>
@@ -458,7 +495,7 @@ const AccountProcess = () => {
                                                 />
                                             </Form.Group>
                                         </Col>
-                                    )}
+                                    )} */}
 
 
                                     {intervalTypeValidIDs.includes(process.processID) && (
