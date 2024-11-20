@@ -3,25 +3,25 @@ import axios from "axios";
 import { useEffect, useState } from "react";
 import { Modal } from "react-bootstrap";
 
-interface Input {
-    inputId: any;
-    type: string;
-    label: string;
-    formName: string;
-    formId: string;
-    placeholder: string;
-    options?: Option[];
-    required: boolean;
-    conditionalFieldId?: string;
-    value?: any;
-    selectedMaster?: string;
-    selectedHeader?: string;
-}
-interface Option {
-    id: string;
-    label: string;
-    color?: string;
-}
+// interface Input {
+//     inputId: any;
+//     type: string;
+//     label: string;
+//     formName: string;
+//     formId: string;
+//     placeholder: string;
+//     options?: Option[];
+//     required: boolean;
+//     conditionalFieldId?: string;
+//     value?: any;
+//     selectedMaster?: string;
+//     selectedHeader?: string;
+// }
+// interface Option {
+//     id: string;
+//     label: string;
+//     color?: string;
+// }
 
 
 interface ProcessCanvasProps {
