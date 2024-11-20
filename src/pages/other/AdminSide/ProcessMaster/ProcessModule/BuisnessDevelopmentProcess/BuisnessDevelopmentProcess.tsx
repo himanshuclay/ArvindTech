@@ -665,9 +665,6 @@ const AccountProcess = () => {
                                                             <td>{item[col.id as keyof MessDetail]}</td>
                                                         </div>
                                                     )}
-
-
-
                                                 </td>
                                             ))}
 
