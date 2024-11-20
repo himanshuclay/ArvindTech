@@ -303,7 +303,7 @@ const EmployeeInsert = () => {
                                 <Form.Group controlId="processFlowchart" className="mb-3">
                                     <Form.Label>Process Flowchart:</Form.Label>
                                     <Form.Control
-                                        type="text"
+                                        type="file"
                                         name="processFlowchart"
                                         value={process.processFlowchart}
                                         onChange={handleChange}

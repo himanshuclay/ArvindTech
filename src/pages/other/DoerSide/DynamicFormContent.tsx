@@ -3,6 +3,27 @@ import axios from "axios";
 import { useEffect, useState } from "react";
 import { Modal } from "react-bootstrap";
 
+interface Input {
+    inputId: any;
+    type: string;
+    label: string;
+    formName: string;
+    formId: string;
+    placeholder: string;
+    options?: Option[];
+    required: boolean;
+    conditionalFieldId?: string;
+    value?: any;
+    selectedMaster?: string;
+    selectedHeader?: string;
+}
+interface Option {
+    id: string;
+    label: string;
+    color?: string;
+}
+
+
 interface ProcessCanvasProps {
     show: boolean;
     setShow: (show: boolean) => void;
@@ -40,7 +61,7 @@ const DynamicFormContent: React.FC<ProcessCanvasProps> = ({ show, setShow, taskC
                 `${config.API_URL_ACCOUNT}/ProcessInitiation/GetFilterTask?TaskCommonId=${taskCommonId}&Flag=5}`
             );
             if (response.data && response.data.isSuccess) {
-                const singledatabyID = response.data.getFilterTasks[0]?.task_Json;
+                const singledatabyID = response.data.getFilterTasks;
 
                 if (typeof singledatabyID === 'string') {
                     console.log('fetch single Data:', JSON.parse(singledatabyID));
@@ -64,7 +85,7 @@ const DynamicFormContent: React.FC<ProcessCanvasProps> = ({ show, setShow, taskC
     };
 
 
-    if (formData) { console.log(formData) }
+    console.log(formData)
 
 
     return (
@@ -84,9 +105,6 @@ const DynamicFormContent: React.FC<ProcessCanvasProps> = ({ show, setShow, taskC
 
 
 
-
-                            hi
-                            {taskCommonId}
 
 
 

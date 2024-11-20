@@ -18,27 +18,37 @@ interface ProjectAssignListWithDoer {
   processID: string;
   processName: string;
   roleId: string;
-  doerId: string,
-  doerName: string,
+  doerId: string;
+  doerName: string;
   task_Json: string;
   task_Number: string;
-  task_Status: 1,
-  isExpired: 0,
-  taskCommonId: number,
-  expiredSummary: null
+  task_Status: number;
+  isExpired: number;
+  taskCommonId: number;
+  expiredSummary: string | null;
   createdBy: string;
-  status: 'Pending' | 'Done';
-  isCompleted: "Pending",
+  status: "Pending" | "Done";
+  isCompleted: string;
   condition_Json: string;
   createdDate: string;
   taskTime: string;
   taskType: string;
   roleName: string;
-  taskNumber: string
-  inputs: Input[]
+  taskNumber: string;
+  inputs: Input[];
   data: string;
-  approval_Console: string;
+  approval_Console: string | null;
   approvalConsoleInputID: number;
+  approvalConsoleDoerID: string | null;
+  approvalConsoleDoerName: string | null;
+  projectCoordinator: string;
+  projectCoordinatorID: string;
+  projectIncharge: string;
+  projectInchargeID: string;
+  taskName: string;
+  completedDate: string | null;
+  finishPoint: number;
+  problemSolver: string;
 
 }
 interface Input {
@@ -82,17 +92,17 @@ const ProjectAssignTable: React.FC = () => {
 
   // both are required to make dragable column of table 
   const [columns, setColumns] = useState<Column[]>([
-    { id: 'moduleName', label: 'Module Name', visible: true },
-    { id: 'processName', label: 'Process Name', visible: true },
+    // { id: 'moduleName', label: 'Module Name', visible: true },
+    // { id: 'processName', label: 'Process Name', visible: true },
     { id: 'projectName', label: 'Project Name', visible: true },
-    { id: 'roleName', label: 'Role Name', visible: true },
+    // { id: 'roleName', label: 'Role Name', visible: true },
     { id: 'task_Number', label: 'Task Number', visible: true },
-    { id: 'taskType', label: 'Task Type', visible: true },
-    { id: 'plannedDate', label: 'Planned Date', visible: true },
-    { id: 'createdDate', label: 'Created Date', visible: true },
-    { id: 'sourceId', label: 'Sourse Id', visible: true },
-    { id: 'taskCommonId', label: 'Request Id', visible: true },
-    { id: 'plannedDate', label: 'Task Period', visible: true },
+    // { id: 'taskType', label: 'Task Type', visible: true },
+    // { id: 'plannedDate', label: 'Planned Date', visible: true },
+    // { id: 'createdDate', label: 'Created Date', visible: true },
+    // { id: 'sourceId', label: 'Sourse Id', visible: true },
+    // { id: 'taskCommonId', label: 'Request Id', visible: true },
+    // { id: 'plannedDate', label: 'Task Period', visible: true },
 
   ]);
 
@@ -183,6 +193,12 @@ const ProjectAssignTable: React.FC = () => {
   }, []);
 
   // console.log(data)
+
+  const [openIndex, setOpenIndex] = useState<number | null>(null);
+
+  const toggleDetails = (index: number) => {
+    setOpenIndex(openIndex === index ? null : index);
+  };
 
 
 
@@ -293,9 +309,6 @@ const ProjectAssignTable: React.FC = () => {
     }
   };
 
-
-
-
   console.log(singleDataById)
 
 
@@ -397,7 +410,7 @@ const ProjectAssignTable: React.FC = () => {
                       <tr
                         {...provided.droppableProps} ref={provided.innerRef as React.Ref<HTMLTableRowElement>}
                         className='text-nowrap'>
-                        <th><i className="ri-list-ordered-2"></i>  Sr. No</th>
+                        <th><i className="ri-list-ordered-2"></i>Task Name</th>
                         {columns.filter(col => col.visible).map((column, index) => (
                           <Draggable key={column.id} draggableId={column.id} index={index}>
                             {(provided) => (
@@ -418,8 +431,8 @@ const ProjectAssignTable: React.FC = () => {
                                   {column.id === 'requestId' && (<i className="ri-box-3-line"></i>)}
                                   {column.id === 'taskPeriod' && (<i className="ri-box-3-line"></i>)}
 
-
                                   &nbsp; {column.label}
+
                                 </div>
                               </th>
                             )}
@@ -428,6 +441,7 @@ const ProjectAssignTable: React.FC = () => {
                         {provided.placeholder}
                         <th>Action</th>
                       </tr>
+
                     )}
 
                   </Droppable>
@@ -437,7 +451,9 @@ const ProjectAssignTable: React.FC = () => {
                   {data.length > 0 ? (
                     data.slice(0, 10).map((item, index) => (
                       <tr key={item.id}>
-                        <td>{index + 1}</td>
+                        <td>{JSON.parse(item.task_Json)?.inputs.find(
+                          (input: any) => input.inputId === "99"
+                        )?.label || "Task name not found"}</td>
                         {columns.filter(col => col.visible).map((col) => (
                           <td key={col.id}
 
@@ -468,9 +484,14 @@ const ProjectAssignTable: React.FC = () => {
 
                         ))}
                         <td>
-                          <Button onClick={() => handleEdit(item.taskCommonId)}>
-                            Show
-                          </Button>
+                          <button
+                            className="btn btn-link text-decoration-none"
+                            onClick={() => toggleDetails(index)}
+                          >
+                            <i
+                              className={`ri-arrow-${openIndex === index ? "up" : "down"}-s-line ri-lg`}
+                            ></i>
+                          </button>
                         </td>
                         <td colSpan={10}>
                           <div>
@@ -501,6 +522,59 @@ const ProjectAssignTable: React.FC = () => {
                   ) : (
                     <tr><td colSpan={columns.length + 1}>No data available</td></tr>
                   )}
+
+                  <tr>
+                    <td colSpan={100}>
+                      {data.map((item, index) => (
+                        <div key={item.id} className="task-item">
+                          <div
+                            className={`card-body task-details ${openIndex === index ? "open" : "closed"
+                              }`}
+                          >
+                            <div className="mb-2">
+                              <span className="fw-bold">Task Name:</span>{" "}
+                              {JSON.parse(item.task_Json)?.inputs.find(
+                                (input: any) => input.inputId === "99"
+                              )?.label || "Task name not found"}
+                            </div>
+                            <span className="fw-bold">Problem Solver:</span>
+                            <div className="d-flex flex-row my-2 align-items-center">
+                              <span className="icon-circle me-1">{item.problemSolver.charAt(0).toUpperCase()}</span>
+                              <span>{item.problemSolver}</span>
+                            </div>
+                            <span className="fw-bold">Project Coordinator</span>
+                            <div className="d-flex flex-row my-2 align-items-center">
+                              <span className="icon-circle me-1">{item.projectCoordinator.charAt(0).toUpperCase()}</span>
+                              <span>{item.projectCoordinator}</span>
+                            </div>
+                            <div className='mt-4 d-flex justify-content-start'>
+                              <div className='col-4'>
+                                <span className="fw-bold">Role: </span> {item.roleName}
+                              </div>
+                              <div className="mb-2 col-4">
+                                <span className="fw-bold">Project Name: </span> <span className='text-primary fw-bold'>{item.projectName}</span>
+                              </div>
+                            </div>
+
+                            <div className='mt-2 d-flex justify-content-between'>
+                              <div className="mb-2 col-4">
+                                <span className="fw-bold">Period: </span> {item.createdDate}
+                              </div>
+                              <div className="mb-2 col-4">
+                                <span className="fw-bold">Created at: </span> {item.createdDate}
+                              </div>
+                              <div className='col-4 d-flex justify-content-end'>
+                                <Button className='ms-auto' onClick={() => handleEdit(item.taskCommonId)}>
+                                  Show
+                                </Button>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </td>
+                  </tr>
+
 
 
                 </tbody>
