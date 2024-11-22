@@ -89,6 +89,15 @@ interface Column {
     visible: boolean;
 }
 
+interface Condition {
+    inputId: string;
+    optionId: string;
+    taskNumber: string;
+    taskTiming: string;
+    taskType: string;
+    daySelection: string;
+}
+
 
 
 const AccountProcessTable: React.FC = () => {
@@ -107,6 +116,7 @@ const AccountProcessTable: React.FC = () => {
     // const [Status, setStatus] = useState<number | null>(1);
     const [filteredJson, setFilteredJson] = useState<FilteredJsonType | null>(null);
     const [selectedConditionTask, setSelectedConditionTask] = useState<string>('');
+    const [formState, setFormState] = useState<Condition[]>([]);
 
 
 
@@ -617,14 +627,6 @@ const AccountProcessTable: React.FC = () => {
                                     </div>
                                 )}
 
-                                {/* <select className='form-control'>
-                                    {filteredJson.options.map(option => (
-                                        <option key={option.id} value={option.id} style={{ color: option.color }}>
-                                            {option.label}
-                                        </option>
-                                    ))}
-                                </select> */}
-
                                 {filteredJson.options?.map(option => (
                                     <div className='form-group row' key={option.id} style={{ marginTop: '10px' }}>
                                         <div className="col-4">
@@ -639,6 +641,7 @@ const AccountProcessTable: React.FC = () => {
                                             >
                                                 <option value="" disabled>Select Task Number</option>
                                                 <option value="updateMaster">Update Master</option>
+                                                <option value="endProcess">End Process</option>
 
 
                                                 {/* Filter tasks to exclude the selectedConditionTask value */}
@@ -889,6 +892,12 @@ const AccountProcessTable: React.FC = () => {
                 // Check if API response is successful
                 if (response.data.isSuccess) {
                     setTasks(response.data.getProcessTaskByIds);
+
+                    const conditionJson =
+                        response.data.getProcessTaskByIds[0]?.condition_Json || "[]";
+                    const parsedConditionJson = JSON.parse(conditionJson);
+                    setFormState(parsedConditionJson);
+                    console.log(formState)
                     console.log("Fetched tasks:", response.data.getProcessTaskByIds);
                 } else {
                     console.error('Failed to fetch tasks:', response.data.message);

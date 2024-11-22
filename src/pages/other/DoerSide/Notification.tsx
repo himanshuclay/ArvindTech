@@ -42,13 +42,16 @@ interface ProjectAssignListWithDoer {
   approvalConsoleDoerID: string | null;
   approvalConsoleDoerName: string | null;
   projectCoordinator: string;
+  projectCoordinatorMobileNumber: number;
   projectCoordinatorID: string;
   projectIncharge: string;
   projectInchargeID: string;
+  projectInchargeMobileNumber: number;
   taskName: string;
   completedDate: string | null;
   finishPoint: number;
   problemSolver: string;
+  problemSolverMobileNumber: number;
 
 }
 interface Input {
@@ -275,6 +278,19 @@ const ProjectAssignTable: React.FC = () => {
   }, [taskCommonId]);
 
   // console.log(preData)
+
+  const formatPeriod = (createdDate: string): string => {
+    const startDate = new Date(createdDate);
+    const endDate = new Date(startDate);
+    endDate.setDate(startDate.getDate() + 6); // Add 7 days to the start date
+  
+    return `${format(startDate, "dd MMM yyyy")} to ${format(endDate, "dd MMM yyyy")}`;
+  };
+
+  const formatDate = (dateString: string): string => {
+    const date = new Date(dateString);
+    return format(date, "dd MMM yyyy");
+  };
 
 
   const fetchSingleDataById = async (taskCommonId: number) => {
@@ -531,52 +547,105 @@ const ProjectAssignTable: React.FC = () => {
                             className={`card-body task-details ${openIndex === index ? "open" : "closed"
                               }`}
                           >
-                            <div className="mb-2">
-                              <span className="fw-bold">Task Name:</span>{" "}
-                              {JSON.parse(item.task_Json)?.inputs.find(
-                                (input: any) => input.inputId === "99"
-                              )?.label || "Task name not found"}
-                            </div>
-                            <span className="fw-bold">Problem Solver:</span>
-                            <div className="d-flex flex-row my-2 align-items-center">
-                              <span className="icon-circle me-1">{item.problemSolver.charAt(0).toUpperCase()}</span>
-                              <span>{item.problemSolver}</span>
-                            </div>
-                            <span className="fw-bold">Project Coordinator</span>
-                            <div className="d-flex flex-row my-2 align-items-center">
-                              <span className="icon-circle me-1">{item.projectCoordinator.charAt(0).toUpperCase()}</span>
-                              <span>{item.projectCoordinator}</span>
-                            </div>
-                            <div className='mt-4 d-flex justify-content-start'>
-                              <div className='col-4'>
-                                <span className="fw-bold">Role: </span> {item.roleName}
+                            <div className='mt-1 d-flex justify-content-start'>
+                              <div className="col-4 mb-2 d-flex flex-column">
+                                <span className="fs-5">Task Name:</span>{" "}
+                                <span className='text-primary fw-bold'>
+                                  {JSON.parse(item.task_Json)?.inputs.find(
+                                    (input: any) => input.inputId === "99"
+                                  )?.label || "Task name not found"}
+                                </span>
                               </div>
-                              <div className="mb-2 col-4">
-                                <span className="fw-bold">Project Name: </span> <span className='text-primary fw-bold'>{item.projectName}</span>
+                              <div className='col-4 d-flex flex-column'>
+                                <span className="fs-5">Role: </span><span className='text-primary fw-bold'>{item.roleName}</span>
+                              </div>
+                              <div className="mb-2 col-4 d-flex flex-column">
+                                <span className="fs-5">Process Name : </span> <span className='text-primary fw-bold'>{item.processName}</span>
                               </div>
                             </div>
-
+                            <div className="d-flex flex-row align-items-start p-2 shadow">
+                              <div className='flex-column d-flex col-4'>
+                                <span className="fs-5">Problem Solver:</span>
+                                <div className="d-flex flex-row my-2 align-items-center">
+                                  <span className="icon-circle me-1">{item.problemSolver.charAt(0).toUpperCase()}</span>
+                                  <div className='d-flex flex-column'>
+                                    <span className='text-primary fw-bold'>{item.problemSolver}</span>
+                                    <div className="d-flex align-items-center">
+                                      <span>{item.problemSolverMobileNumber}</span>
+                                      <a
+                                        href={`tel:${item.problemSolverMobileNumber}`}
+                                        className="ms-1 text-primary"
+                                        style={{ textDecoration: "none" }}
+                                        aria-label="Call"
+                                      >
+                                        <i className="ri-phone-line" style={{ fontSize: "1rem" }}></i>
+                                      </a>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                              <div className='flex-column d-flex col-4'>
+                                <span className="fs-5">Project Coordinator</span>
+                                <div className="d-flex flex-row my-2 align-items-center">
+                                  <span className="icon-circle me-1">{item.projectCoordinator.charAt(0).toUpperCase()}</span>
+                                  <div className="d-flex flex-column">
+                                    <span className="text-primary fw-bold">{item.projectCoordinator}</span>
+                                    <div className="d-flex align-items-center">
+                                      <span>{item.projectCoordinatorMobileNumber}</span>
+                                      <a
+                                        href={`tel:${item.projectCoordinatorMobileNumber}`}
+                                        className="ms-1 text-primary"
+                                        style={{ textDecoration: "none" }}
+                                        aria-label="Call"
+                                      >
+                                        <i className="ri-phone-line" style={{ fontSize: "1rem" }}></i>
+                                      </a>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                              <div className='flex-column d-flex col-4'>
+                                <span className="fs-5">Project Incharge</span>
+                                <div className="d-flex flex-row my-2 align-items-center">
+                                  <span className="icon-circle me-1">{item.projectIncharge.charAt(0).toUpperCase()}</span>
+                                  <div className="d-flex flex-column">
+                                    <span className="text-primary fw-bold">{item.projectIncharge}</span>
+                                    <div className="d-flex align-items-center">
+                                      <span>{item.projectInchargeMobileNumber}</span>
+                                      <a
+                                        href={`tel:${item.projectInchargeMobileNumber}`}
+                                        className="ms-1 text-primary"
+                                        style={{ textDecoration: "none" }}
+                                        aria-label="Call"
+                                      >
+                                        <i className="ri-phone-line" style={{ fontSize: "1rem" }}></i>
+                                      </a>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
                             <div className='mt-2 d-flex justify-content-between'>
-                              <div className="mb-2 col-4">
-                                <span className="fw-bold">Period: </span> {item.createdDate}
+                              <div className="mb-2 d-flex col-4 flex-column">
+                                <span className="fs-5">Project Name: </span> <span className='text-primary fw-bold'>{item.projectName} <span className='fw-bold text-dark'> ({item.projectId})</span></span>
                               </div>
-                              <div className="mb-2 col-4">
-                                <span className="fw-bold">Created at: </span> {item.createdDate}
+                              <div className="mb-2 col-4 d-flex col-4 flex-column">
+                                <span className="fs-5">Period: </span> <span className='text-primary fw-bold'>{formatPeriod(item.createdDate)}</span>
                               </div>
-                              <div className='col-4 d-flex justify-content-end'>
-                                <Button className='ms-auto' onClick={() => handleEdit(item.taskCommonId)}>
-                                  Show
-                                </Button>
+                              <div className="mb-2 col-4 d-flex col-4 flex-column">
+                                <span className="fs-5">Created at: </span> <span className='text-primary fw-bold'>{formatDate(item.createdDate)}</span>
                               </div>
+                            </div>
+                            <div className='d-flex justify-content-end'>
+                              <Button className='ms-auto' onClick={() => handleEdit(item.taskCommonId)}>
+                                Show
+                              </Button>
                             </div>
                           </div>
                         </div>
                       ))}
                     </td>
                   </tr>
-
-
-
                 </tbody>
               </Table>
             </DragDropContext>

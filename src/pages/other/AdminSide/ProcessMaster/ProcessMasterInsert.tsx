@@ -4,6 +4,7 @@ import { Button, Col, Form, Row, ButtonGroup } from 'react-bootstrap';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import config from '@/config';
 import Select from 'react-select';
+import { FileUploader } from '@/components/FileUploader'
 import CustomSuccessToast from '../../Component/CustomSuccessToast';
 
 interface Process {
@@ -193,7 +194,7 @@ const EmployeeInsert = () => {
         }
     };
 
- 
+
     // Handle form submission
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
 
@@ -204,7 +205,7 @@ const EmployeeInsert = () => {
         };
         // console.log(payload)
         e.preventDefault();
-    
+
         try {
             const apiUrl = `${config.API_URL_APPLICATION}/ProcessMaster/${editMode ? 'UpdateProcess' : 'InsertProcess'}`;
             const response = await axios.post(apiUrl, payload);
@@ -303,7 +304,7 @@ const EmployeeInsert = () => {
                                 <Form.Group controlId="processFlowchart" className="mb-3">
                                     <Form.Label>Process Flowchart:</Form.Label>
                                     <Form.Control
-                                        type="file"
+                                        type="text"
                                         name="processFlowchart"
                                         value={process.processFlowchart}
                                         onChange={handleChange}
@@ -311,6 +312,22 @@ const EmployeeInsert = () => {
                                     />
                                 </Form.Group>
                             </Col>
+                                {/* <FileUploader
+                                    icon="ri-upload-cloud-2-line"
+                                    text="Drop files here or click to upload."
+                                    additionalData={{
+                                        ModuleID: moduleId,
+                                        CreatedBy: 'yourUserID',
+                                        TaskCommonID: taskCommonIDRow,
+                                        // Task_Number: taskNumber,
+                                        // ProcessInitiationID: ProcessInitiationID,
+                                        // ProcessID: processId,
+                                        UpdatedBy: 'yourUpdatedBy',
+                                    }}
+                                    onFileUpload={(files) => {
+                                        console.log('Files uploaded:', files);
+                                    }}
+                                /> */}
                             <Col lg={6}>
                                 <Form.Group controlId="misExempt" className="mb-3">
                                     <Form.Label>MIS Exempt:</Form.Label>
