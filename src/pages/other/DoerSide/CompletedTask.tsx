@@ -38,6 +38,7 @@ interface ProjectAssignListWithDoer {
   taskType: string;
   roleName: string;
   inputs: string;
+  messID: string;
 }
 
 interface ApiResponse {
@@ -227,7 +228,7 @@ const ProjectAssignTable: React.FC = () => {
 
   const formatAndUpdateDate = (createdDate: string, taskTime: string) => {
     // Parse the created date with the correct format 'MM/dd/yyyy HH:mm:ss'
-    const createdDateObj = parse(createdDate, 'MM/dd/yyyy HH:mm:ss', new Date());
+    const createdDateObj = parse(createdDate, 'dd/MM/yyyy HH:mm:ss', new Date());
 
     // Check if the createdDateObj is valid
     if (!isValid(createdDateObj)) {
@@ -250,7 +251,7 @@ const ProjectAssignTable: React.FC = () => {
     const updatedDate = addDays(createdDateObj, daysToAdd);
 
     // Format the updated date to the desired format 'MM/dd/yyyy HH:mm:ss'
-    return format(updatedDate, 'MM/dd/yyyy HH:mm:ss');
+    return format(updatedDate, 'dd/mmm/yyyy HH:mm:ss');
   };
 
   // Example Usage
@@ -311,7 +312,7 @@ const ProjectAssignTable: React.FC = () => {
           {preData.map((task, index) => (
             <div key={index}>
               <h5 className="mt-2">
-                Updated data from <span className="text-primary">{task.projectName}</span> &nbsp;&nbsp;&nbsp;
+                Updated data from <span className="text-primary">{task.messID}</span> &nbsp;&nbsp;&nbsp;
                 <span className='fs-15 information-btn '
                   ref={(el) => (targetRefs.current[index] = el)} // Store the ref for each task
                   onClick={() => setPopoverIndex(popoverIndex === index ? null : index)} // Toggle popover visibility for the clicked task
