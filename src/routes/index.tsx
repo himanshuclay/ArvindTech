@@ -248,12 +248,12 @@ const customPagesRoutes = {
 			route: PrivateRoute,
 		},
 	
-		{
-			path: '/pages/TaskMaster',
-			name: 'Task Master',
-			element: <TaskMaster />,
-			route: PrivateRoute,
-		},
+		// {
+		// 	path: '/pages/TaskMaster',
+		// 	name: 'Task Master',
+		// 	element: <TaskMaster />,
+		// 	route: PrivateRoute,
+		// },
 
 		{
 			path: '/pages/FormMaster',
@@ -761,8 +761,8 @@ const customPagesRoutes = {
 			route: PrivateRoute,
 		},
 		{
-			path: '/pages/TaskMasterNew',
-			name: 'TaskMasterNew',
+			path: '/pages/TaskMaster',
+			name: 'TaskMaster',
 			element: <TaskMasterNew />,
 			route: PrivateRoute,
 		},
