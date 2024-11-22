@@ -300,34 +300,9 @@ const EmployeeInsert = () => {
                                     />
                                 </Form.Group>
                             </Col>
-                            <Col lg={6}>
-                                <Form.Group controlId="processFlowchart" className="mb-3">
-                                    <Form.Label>Process Flowchart:</Form.Label>
-                                    <Form.Control
-                                        type="text"
-                                        name="processFlowchart"
-                                        value={process.processFlowchart}
-                                        onChange={handleChange}
-                                        required
-                                    />
-                                </Form.Group>
-                            </Col>
-                                {/* <FileUploader
-                                    icon="ri-upload-cloud-2-line"
-                                    text="Drop files here or click to upload."
-                                    additionalData={{
-                                        ModuleID: moduleId,
-                                        CreatedBy: 'yourUserID',
-                                        TaskCommonID: taskCommonIDRow,
-                                        // Task_Number: taskNumber,
-                                        // ProcessInitiationID: ProcessInitiationID,
-                                        // ProcessID: processId,
-                                        UpdatedBy: 'yourUpdatedBy',
-                                    }}
-                                    onFileUpload={(files) => {
-                                        console.log('Files uploaded:', files);
-                                    }}
-                                /> */}
+
+                           
+
                             <Col lg={6}>
                                 <Form.Group controlId="misExempt" className="mb-3">
                                     <Form.Label>MIS Exempt:</Form.Label>

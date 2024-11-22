@@ -90,15 +90,8 @@ const ProjectAssignTable: React.FC = () => {
   // ==============================================================
 
   const targetRefs = useRef<(HTMLSpanElement | null)[]>([]);
-
-
   const location = useLocation();
   const navigate = useNavigate();
-
-
-
-
-
 
   useEffect(() => {
     if (location.state && location.state.showToast) {
@@ -109,12 +102,10 @@ const ProjectAssignTable: React.FC = () => {
   }, [location.state]);
 
 
-console.log(preData)
-// console.log(data)
 
 
 
-  // Fetch initial data
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -144,9 +135,7 @@ console.log(preData)
   }, []);
 
 
-  // console.log(taskCommonId)
-  // console.log(data[0].taskCommonId)
-  // Fetch task data when taskCommonId is set
+
   useEffect(() => {
     if (taskCommonId !== null) {
       fetchPreData(taskCommonId);
@@ -295,7 +284,23 @@ console.log(preData)
       </Toast>
     );
   };
-  
+
+
+  // const groupByMessID = (data) => {
+  //   return data.reduce((acc, curr) => {
+  //     if (!acc[curr.messID]) {
+  //       acc[curr.messID] = [];
+  //     }
+  //     acc[curr.messID] = [...acc[curr.messID], ...curr.inputs];
+  //     return acc;
+  //   }, {});
+  // };
+  // const groupedData = groupByMessID(preData);
+
+  // console.log(groupedData);
+
+
+
 
   return (
     <>
@@ -326,7 +331,7 @@ console.log(preData)
                     <Tooltip id="overlay-example" {...props} className='tooltip-position'>
                       <div className='d-flex'>
                         {Array.isArray(task.inputs) && task.inputs.length > 0 ? (
-                          Array.isArray(task.inputs[0]) ? ( // Check if the first element is an array
+                          Array.isArray(task.inputs[0]) ? ( 
                             task.inputs.map((inputArray: any, arrIndex: number) => (
                               <Card key={arrIndex} className="m-2 pop-card">
                                 <Card.Body>
@@ -338,7 +343,7 @@ console.log(preData)
                                 </Card.Body>
                               </Card>
                             ))
-                          ) : ( // If not, assume it's a single array of inputs
+                          ) : ( 
                             <Card className="m-2 pop-card">
                               <Row>
                                 <Card.Body>
@@ -352,7 +357,7 @@ console.log(preData)
                             </Card>
                           )
                         ) : (
-                          <p>No inputs available</p> // Handle case where inputs are not available
+                          <p>No inputs available</p> 
                         )}
                       </div>
                     </Tooltip>
@@ -386,39 +391,39 @@ console.log(preData)
               <thead>
                 <Droppable droppableId="columns" direction="horizontal">
                   {(provided) => (
-                      <tr 
-                      {...provided.droppableProps}  ref={provided.innerRef as React.Ref<HTMLTableRowElement>}
-                       className="text-nowrap">
-                        <th><i className="ri-list-ordered-2"></i> Sr. No</th>
-                        {columns
-                          .filter((col) => col.visible)
-                          .map((column, index) => (
-                            <Draggable key={column.id} draggableId={column.id} index={index}>
-                              {(provided) => (
-                                <th>
-                                  <div
-                                    ref={provided.innerRef}
-                                    {...provided.draggableProps}
-                                    {...provided.dragHandleProps}
-                                  >
-                                    {column.id === 'processName' && <i className="ri-map-2-line"></i>}
-                                    {column.id === 'projectName' && <i className="ri-building-line"></i>}
-                                    {column.id === 'task_Number' && <i className="ri-health-book-line"></i>}
-                                    {column.id === 'roleName' && <i className="ri-shield-user-line"></i>}
-                                    {column.id === 'taskType' && <i className="ri-bookmark-line"></i>}
-                                    {column.id === 'taskTime' && <i className="ri-calendar-line"></i>}
-                                    {column.id === 'createdDate' && <i className="ri-hourglass-line"></i>}
-                                    {column.id === 'completedDate' && <i className="ri-focus-3-line"></i>}
-                                    {column.id === 'moduleName' && <i className="ri-box-3-line"></i>}
-                                    &nbsp; {column.label}
-                                  </div>
-                                </th>
-                              )}
-                            </Draggable>
-                          ))}
-                        {provided.placeholder}
-                        <th>Action</th>
-                      </tr>
+                    <tr
+                      {...provided.droppableProps} ref={provided.innerRef as React.Ref<HTMLTableRowElement>}
+                      className="text-nowrap">
+                      <th><i className="ri-list-ordered-2"></i> Sr. No</th>
+                      {columns
+                        .filter((col) => col.visible)
+                        .map((column, index) => (
+                          <Draggable key={column.id} draggableId={column.id} index={index}>
+                            {(provided) => (
+                              <th>
+                                <div
+                                  ref={provided.innerRef}
+                                  {...provided.draggableProps}
+                                  {...provided.dragHandleProps}
+                                >
+                                  {column.id === 'processName' && <i className="ri-map-2-line"></i>}
+                                  {column.id === 'projectName' && <i className="ri-building-line"></i>}
+                                  {column.id === 'task_Number' && <i className="ri-health-book-line"></i>}
+                                  {column.id === 'roleName' && <i className="ri-shield-user-line"></i>}
+                                  {column.id === 'taskType' && <i className="ri-bookmark-line"></i>}
+                                  {column.id === 'taskTime' && <i className="ri-calendar-line"></i>}
+                                  {column.id === 'createdDate' && <i className="ri-hourglass-line"></i>}
+                                  {column.id === 'completedDate' && <i className="ri-focus-3-line"></i>}
+                                  {column.id === 'moduleName' && <i className="ri-box-3-line"></i>}
+                                  &nbsp; {column.label}
+                                </div>
+                              </th>
+                            )}
+                          </Draggable>
+                        ))}
+                      {provided.placeholder}
+                      <th>Action</th>
+                    </tr>
                   )}
                 </Droppable>
               </thead>
