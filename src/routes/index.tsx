@@ -27,7 +27,6 @@ const ActiveTasks = React.lazy(() => import('../pages/other/ActiveTasks.tsx'))
 const ActiveProject = React.lazy(() => import('../pages/other/ActiveProject.tsx'))
 const ApprovalConsole = React.lazy(() => import('../pages/other/ApprovalConsole.tsx'))
 const Notification = React.lazy(() => import('../pages/other/DoerSide/Notification.tsx'))
-const TaskMaster = React.lazy(() => import('../pages/other/AdminSide/TaskMaster.tsx'))
 const FormMaster = React.lazy(() => import('../pages/other/FormMaster.tsx'))
 const MyTask = React.lazy(() => import('../pages/other/MyTask.tsx'))
 const ChkLnMaster = React.lazy(() => import('../pages/other/ChkLnMaster.tsx'))
@@ -248,12 +247,7 @@ const customPagesRoutes = {
 			route: PrivateRoute,
 		},
 	
-		// {
-		// 	path: '/pages/TaskMaster',
-		// 	name: 'Task Master',
-		// 	element: <TaskMaster />,
-		// 	route: PrivateRoute,
-		// },
+	
 
 		{
 			path: '/pages/FormMaster',
