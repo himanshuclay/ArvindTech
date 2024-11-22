@@ -22,21 +22,21 @@ const getFilteredMenuItems = () => {
         text: '9+',
       },
     },
-    {
-      key: 'Modules-Master',
-      label: 'Workflow',
-      url: '/pages/Modules-Master',
-      icon: 'ri-file-settings-line',
-      children: [
-        {
-          key: 'ModuleMaster',
-          label: 'Task Creator',
-          url: '/pages/Modules-Master',
-          icon: 'ri-slideshow-line',
-          parentKey: 'Modules-Master',
-        },
-      ],
-    },
+    // {
+    //   key: 'Modules-Master',
+    //   label: 'Workflow',
+    //   url: '/pages/Modules-Master',
+    //   icon: 'ri-file-settings-line',
+    //   children: [
+    //     {
+    //       key: 'ModuleMaster',
+    //       label: 'Task Creator',
+    //       url: '/pages/Modules-Master',
+    //       icon: 'ri-slideshow-line',
+    //       parentKey: 'Modules-Master',
+    //     },
+    //   ],
+    // },
 
     {
       key: 'Approval-Console',

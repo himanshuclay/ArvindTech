@@ -109,7 +109,8 @@ const ProjectAssignTable: React.FC = () => {
   }, [location.state]);
 
 
-
+console.log(preData)
+// console.log(data)
 
 
 
@@ -294,6 +295,7 @@ const ProjectAssignTable: React.FC = () => {
       </Toast>
     );
   };
+  
 
   return (
     <>
