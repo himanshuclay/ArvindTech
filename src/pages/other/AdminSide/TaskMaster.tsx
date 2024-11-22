@@ -20,7 +20,7 @@ interface AccountProcessTask {
     task_Number: string;
     finishPoint: string;
     roleId: string;
-    roleName: string;
+    roleName: string;   
     doerName: string;
     approval_Console: string;
     approvalConsoleDoerID: string,
@@ -1183,7 +1183,7 @@ const AccountProcessTable: React.FC = () => {
                                 })
                             ) : (
                                 <tr>
-                                    <td colSpan={columns.length + 1}>
+                                    <td colSpan={12}>
                                         <Container className="mt-5">
                                             <Row className="justify-content-center">
                                                 <Col xs={12} md={8} lg={6}>

@@ -7,9 +7,9 @@ import Select from 'react-select';
 import CustomSuccessToast from '@/pages/other/Component/CustomSuccessToast';
 // import Flatpickr from 'react-flatpickr';
 // import 'flatpickr/dist/themes/material_green.css';
-import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
-import { Table, Container, Alert } from 'react-bootstrap';
-import IconWithLetter from '@/pages/ui/IconWithLetter';
+// import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
+// import { Table, Container, Alert } from 'react-bootstrap';
+// import IconWithLetter from '@/pages/ui/IconWithLetter';
 
 
 interface Process {
@@ -46,19 +46,19 @@ interface GetTypeDayTimeList {
     id: number;
     name: string;
 }
-interface MessDetail {
-    projectName: string;
-    messID: string;
-    messName: string;
-    managerEmpID: string;
-    managerName: string;
-}
+// interface MessDetail {
+//     projectName: string;
+//     messID: string;
+//     messName: string;
+//     managerEmpID: string;
+//     managerName: string;
+// }
 
-interface Column {
-    id: string;
-    label: string;
-    visible: boolean;
-}
+// interface Column {
+//     id: string;
+//     label: string;
+//     visible: boolean;
+// }
 
 
 const AccountProcess = () => {
@@ -70,7 +70,7 @@ const AccountProcess = () => {
     const [toastMessage, setToastMessage] = useState("");
     const [toastVariant, setToastVariant] = useState('');
     const [empName, setEmpName] = useState<string | null>('')
-    const [messDetail, setMessDetail] = useState<MessDetail[]>([])
+    // const [messDetail, setMessDetail] = useState<MessDetail[]>([])
     const [process, setProcess] = useState<Process>({
         id: 0,
         moduleName: '',
@@ -109,21 +109,21 @@ const AccountProcess = () => {
 
 
     // both are required to make dragable column of table 
-    const [columns, setColumns] = useState<Column[]>([
-        { id: 'projectName', label: 'Project Name', visible: true },
-        { id: 'messID', label: 'Mess ID', visible: true },
-        { id: 'messName', label: 'Mess Name', visible: true },
-        { id: 'managerEmpID', label: 'Manager Emp ID', visible: true },
-        { id: 'managerName', label: 'Manager Name', visible: true },
-    ]);
-    const handleOnDragEnd = (result: any) => {
-        if (!result.destination) return;
-        const reorderedColumns = Array.from(columns);
-        const [movedColumn] = reorderedColumns.splice(result.source.index, 1);
-        reorderedColumns.splice(result.destination.index, 0, movedColumn);
-        setColumns(reorderedColumns);
-    };
-    // ==============================================================
+    // const [columns, setColumns] = useState<Column[]>([
+    //     { id: 'projectName', label: 'Project Name', visible: true },
+    //     { id: 'messID', label: 'Mess ID', visible: true },
+    //     { id: 'messName', label: 'Mess Name', visible: true },
+    //     { id: 'managerEmpID', label: 'Manager Emp ID', visible: true },
+    //     { id: 'managerName', label: 'Manager Name', visible: true },
+    // ]);
+    // const handleOnDragEnd = (result: any) => {
+    //     if (!result.destination) return;
+    //     const reorderedColumns = Array.from(columns);
+    //     const [movedColumn] = reorderedColumns.splice(result.source.index, 1);
+    //     reorderedColumns.splice(result.destination.index, 0, movedColumn);
+    //     setColumns(reorderedColumns);
+    // };
+    // // ==============================================================
 
 
     useEffect(() => {
@@ -139,11 +139,11 @@ const AccountProcess = () => {
         }
     }, [id]);
 
-    useEffect(() => {
+    // useEffect(() => {
 
-        fetchMessDetails(process.moduleName, process.processID);
+    //     fetchMessDetails(process.moduleName, process.processID);
 
-    }, [process.moduleName, process.processID]);
+    // }, [process.moduleName, process.processID]);
 
     useEffect(() => {
         GetTypeDayTimeList(1, setDropdownValuesFlag1);
@@ -170,22 +170,22 @@ const AccountProcess = () => {
     };
 
 
-    const fetchMessDetails = async (moduleName: string, processID: string) => {
-        try {
-            const response = await axios.get(`${config.API_URL_APPLICATION}/InitiationMaster/GetMessDetailsforAccount`, {
-                params: { ModuleName: moduleName, ProcessID: processID }
-            });
-            if (response.data.isSuccess) {
-                const fetchedModule = response.data.getMessDetailsforAccount;
-                setMessDetail(fetchedModule);
-                console.log(fetchedModule);
-            } else {
-                console.error(response.data.message);
-            }
-        } catch (error) {
-            console.error('Error fetching module:', error);
-        }
-    };
+    // const fetchMessDetails = async (moduleName: string, processID: string) => {
+    //     try {
+    //         const response = await axios.get(`${config.API_URL_APPLICATION}/InitiationMaster/GetMessDetailsforAccount`, {
+    //             params: { ModuleName: moduleName, ProcessID: processID }
+    //         });
+    //         if (response.data.isSuccess) {
+    //             const fetchedModule = response.data.getMessDetailsforAccount;
+    //             setMessDetail(fetchedModule);
+    //             console.log(fetchedModule);
+    //         } else {
+    //             console.error(response.data.message);
+    //         }
+    //     } catch (error) {
+    //         console.error('Error fetching module:', error);
+    //     }
+    // };
 
 
 
@@ -732,7 +732,7 @@ const AccountProcess = () => {
                     </Form>
                 </div>
 
-                <div className="overflow-auto mt-2 ">
+                {/* <div className="overflow-auto mt-2 ">
                     <DragDropContext onDragEnd={handleOnDragEnd}>
                         <Table hover className='bg-white '>
                             <thead className='text-nowrap'>
@@ -818,7 +818,7 @@ const AccountProcess = () => {
                             </tbody>
                         </Table>
                     </DragDropContext>
-                </div>
+                </div> */}
 
 
             </div>

@@ -207,7 +207,7 @@ const EmployeeInsert = () => {
 
                             <Col lg={6}>
                                 <Form.Group controlId="fmsType" className="mb-3">
-                                    <Form.Label>Type of Tender</Form.Label>
+                                    <Form.Label>Type of Module</Form.Label>
                                     <Select
                                         name="fmsType"
                                         options={options}

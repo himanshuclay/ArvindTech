@@ -107,6 +107,7 @@ const App: React.FC = () => {
           )}
         </tbody>
       </Table>
+      
     </div>
   );
   
