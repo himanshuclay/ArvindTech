@@ -15,6 +15,7 @@ interface Option {
 
 interface Input {
     inputId: any;
+    fieldId: string;
     type: string;
     label: string;
     formName: string;
@@ -185,6 +186,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
         options?: any[];
         required?: boolean;
         conditionalFieldId?: string;
+        fieldId?: string;
     };
 
     const saveDataToLocalStorage = () => {
@@ -213,6 +215,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                         value: formState[inputId],  // Value from formState
                         type: inputConfig.type || 'text',  // Default to 'text' if type not found
                         label: inputConfig.label || '',  // Fetch label from config or set as empty
+                        fieldId: inputConfig.fieldId,
                         placeholder: inputConfig.placeholder || '',  // Fetch or set empty
                         options: inputConfig.options || [],  // Fetch options or default to empty array
                         required: inputConfig.required || false,  // Default to false if not found
