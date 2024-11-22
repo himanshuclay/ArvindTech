@@ -256,7 +256,6 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
     const [vendors, setVendors] = useState<DropdownItem[]>([]);
 
     useEffect(() => {
-        // Log formData to verify it's correctly passed to the component
 
         console.log(selectedCondition)
 
@@ -1396,8 +1395,8 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                                     />
                                 </div> */}
                                     {/* </div>
-             )
-         ))} */}
+                                        )
+                                    ))} */}
                                     <div>
                                         {processId === "ACC.01" ? (
                                             <div className="d-flex justify-content-between mt-2">

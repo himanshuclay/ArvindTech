@@ -845,12 +845,12 @@ const App: React.FC = () => {
     console.log(`Changing color of option at index ${index} to ${value}`);
 
     setEditField((prevField) => {
-      if (!prevField) return prevField; 
+      if (!prevField) return prevField;
 
       const newOptions = prevField.options?.map((option, i) =>
         i === index ? { ...option, color: value } : option
       );
-    
+
       return { ...prevField, options: newOptions };
     });
   };
@@ -1028,18 +1028,17 @@ const App: React.FC = () => {
           return (
             <div className='col-8'>
               <Form.Group className='mt-2'>
-                <Form.Label>Select Master</Form.Label>
-                <Form.Select
-                  value={selectedMaster} // Bind state variable to the value of the select
-                  onChange={(e) => setSelectedMaster(e.target.value)} // Update the state on selection
-                >
-                  <option value="">Select a Master</option>
-                  {mastersList.map((master) => (
-                    <option key={master.id} value={master.id}>
-                      {master.mastersName}
-                    </option>
-                  ))}
-                </Form.Select>
+                <Form.Label>{field.labeltext}</Form.Label>
+                <div className='d-flex justify-content-between'>
+                  <div className='d-flex flex-column'>
+                    <div>Selected Master</div>
+                    <span className='fw-bold'>{selectedMaster}</span>
+                  </div>
+                  <div className='d-flex flex-column'>
+                    <div>Selected Header</div>
+                    <span className='fw-bold'>{selectedHeader}</span>
+                  </div>
+                </div>
               </Form.Group>
             </div>
           );
@@ -1430,6 +1429,33 @@ const App: React.FC = () => {
                         value={editField.placeholder || ''}
                         onChange={(e) => setEditField({ ...editField, placeholder: e.target.value })}
                       />
+                      {editField.type === 'tel' && (
+                        <>
+                          <Form.Label>Phone Number (Indian Standard)</Form.Label>
+                          <Form.Control
+                            type="tel"
+                            value={editField.value || ''}
+                            placeholder="Enter 10-digit phone number"
+                            maxLength={10}
+                            onChange={(e) => {
+                              let value = e.target.value.replace(/[^0-9]/g, ''); // Only numeric characters
+                              if (value.startsWith('91') && value.length > 10) {
+                                value = value.slice(2); // Remove country code if included
+                              } else if (value.startsWith('0') && value.length > 10) {
+                                value = value.slice(1); // Remove leading zero if included
+                              }
+                              if (value.length <= 10) {
+                                setEditField({ ...editField, value }); // Update the value
+                              }
+                            }}
+                            onBlur={() => {
+                              if (editField.value?.length !== 10) {
+                                alert('Invalid phone number. Must be 10 digits.');
+                              }
+                            }}
+                          />
+                        </>
+                      )}
 
                       {/* Conditional Checkbox */}
                       <div className='form-group mt-2'>
@@ -1578,6 +1604,7 @@ const App: React.FC = () => {
                           </option>
                         ))}
                       </Form.Select>
+                      <div className='selected-point'>{selectedMaster}</div>
                     </Form.Group>
 
                     {/* Select Header */}

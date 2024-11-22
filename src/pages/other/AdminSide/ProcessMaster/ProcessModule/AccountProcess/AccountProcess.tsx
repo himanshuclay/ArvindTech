@@ -306,31 +306,31 @@ const AccountProcess = () => {
 
 
 
-                                <Col lg={6}>
-                                    <Form.Group controlId="moduleDisplayName" className="mb-3">
-                                        <Form.Label>Module Name</Form.Label>
-                                        <Form.Control
-                                            type="text"
-                                            name="moduleDisplayName"
-                                            value={process.moduleName}
-                                            readOnly
-                                            disabled
-                                        />
-                                    </Form.Group>
-                                </Col>
+                            <Col lg={6}>
+                                <Form.Group controlId="moduleDisplayName" className="mb-3">
+                                    <Form.Label>Module Name</Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        name="moduleDisplayName"
+                                        value={process.moduleName}
+                                        readOnly
+                                        disabled
+                                    />
+                                </Form.Group>
+                            </Col>
 
-                                <Col lg={6}>
-                                    <Form.Group controlId="processDisplayName" className="mb-3">
-                                        <Form.Label>Process Name</Form.Label>
-                                        <Form.Control
-                                            type="text"
-                                            name="processDisplayName"
-                                            value={process.processDisplayName}
-                                            disabled
-                                            readOnly
-                                        />
-                                    </Form.Group>
-                                </Col>
+                            <Col lg={6}>
+                                <Form.Group controlId="processDisplayName" className="mb-3">
+                                    <Form.Label>Process Name</Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        name="processDisplayName"
+                                        value={process.processDisplayName}
+                                        disabled
+                                        readOnly
+                                    />
+                                </Form.Group>
+                            </Col>
 
                             <Col lg={6}>
                                 <Form.Group controlId="processObjective" className="mb-3">
@@ -369,82 +369,45 @@ const AccountProcess = () => {
                                 </Form.Group>
                             </Col>
 
-                                <Col lg={6}>
-                                    <Form.Group controlId="processObjective" className="mb-3">
-                                        <Form.Label>Process Objective:</Form.Label>
-                                        <Form.Control
-                                            type="textarea"
-                                            name="processObjective"
-                                            value={process.processObjective ? process.processObjective : 'No File Avilable'}
-                                            readOnly
-                                            disabled
-                                        />
-                                    </Form.Group>
-                                </Col>
+                            <Col lg={6}>
+                                <Form.Group controlId="misExempt" className="mb-3">
+                                    <Form.Label>MIS Exempt:</Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        name="misExempt"
+                                        value={process.misExempt}
+                                        disabled
+                                        readOnly
+                                    />
+                                </Form.Group>
+                            </Col>
 
-                                <Col lg={6}>
-                                    <Form.Group controlId="processFlowchart" className="mb-3 position-relative">
-                                        <Form.Label>Process Flowchart:</Form.Label>
-                                        <Form.Control
-                                            type="text"
-                                            name="processFlowchart"
-                                            readOnly
-                                            disabled
-                                        />
+                            <Col lg={6}>
+                                <Form.Group controlId="status1" className="mb-3">
+                                    <Form.Label>Status:</Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        name="status1"
+                                        value={process.status}
+                                        disabled
+                                        readOnly
+                                    />
+                                </Form.Group>
+                            </Col>
 
-                                        {process.processFlowchart && (
-                                            <div className="mt-2 position-absolute download-file">
-                                                <a
-                                                    href={`path_to_your_files/${process.processFlowchart}`}
-                                                    download={process.processFlowchart}
-                                                    className="btn btn-link"
-                                                >
-                                                    <i className="ri-download-fill"></i>
-                                                </a>
-                                            </div>
-                                        )}
-                                    </Form.Group>
-                                </Col>
+                            <Col lg={6}>
+                                <Form.Group controlId="processOwnerName" className="mb-3">
+                                    <Form.Label>Process Owner Name</Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        name="processOwnerName"
+                                        value={process.processOwnerName}
+                                        disabled
+                                        readOnly
+                                    />
+                                </Form.Group>
+                            </Col>
 
-
-                                <Col lg={6}>
-                                    <Form.Group controlId="misExempt" className="mb-3">
-                                        <Form.Label>MIS Exempt:</Form.Label>
-                                        <Form.Control
-                                            type="text"
-                                            name="misExempt"
-                                            value={process.misExempt}
-                                            disabled
-                                            readOnly
-                                        />
-                                    </Form.Group>
-                                </Col>
-
-                                <Col lg={6}>
-                                    <Form.Group controlId="status1" className="mb-3">
-                                        <Form.Label>Status:</Form.Label>
-                                        <Form.Control
-                                            type="text"
-                                            name="status1"
-                                            value={process.status}
-                                            disabled
-                                            readOnly
-                                        />
-                                    </Form.Group>
-                                </Col>
-
-                                <Col lg={6}>
-                                    <Form.Group controlId="processOwnerName" className="mb-3">
-                                        <Form.Label>Process Owner Name</Form.Label>
-                                        <Form.Control
-                                            type="text"
-                                            name="processOwnerName"
-                                            value={process.processOwnerName}
-                                            disabled
-                                            readOnly
-                                        />
-                                    </Form.Group>
-                                </Col>
                             <Col lg={12}>
 
                                 <Row>
