@@ -142,36 +142,6 @@ const AccountProcess = () => {
 
 
 
-
-    // Handle form field changes
-    const handleChange = (e: ChangeEvent<any> | null, name?: string, value?: any) => {
-        if (e) {
-            const { name: eventName, type } = e.target;
-
-            if (type === 'checkbox') {
-                const checked = (e.target as HTMLInputElement).checked;
-                setProcess({
-                    ...process,
-                    [eventName]: checked
-                });
-            } else {
-                const inputValue = (e.target as HTMLInputElement | HTMLSelectElement).value;
-                setProcess({
-                    ...process,
-                    [eventName]: inputValue
-                });
-            }
-        } else if (name) {
-            setProcess({
-                ...process,
-                [name]: value
-            });
-        }
-    };
-
-
-
-
     useEffect(() => {
         if (["Daily"].includes(process.intervalType)) {
             setProcess(process => ({
@@ -209,9 +179,6 @@ const AccountProcess = () => {
 
     const intervalTypeValidIDs = ['ACC.01', 'ACC.02', 'ACC.03', 'ACC.04', 'ACC.05'];
     const timeValidIDs = ['ACC.01', 'ACC.02', 'ACC.03', 'ACC.04', 'ACC.05'];
-    const shopIDValidIDs = ['ACC.02'];
-    const shopNameValidIDs = ['ACC.02'];
-    const processAmountValidIDs = ['ACC.02'];
 
     const [target, setTarget] = useState<HTMLElement | null>(null);
     const ref = useRef(null);
@@ -439,54 +406,9 @@ const AccountProcess = () => {
 
                             </Col>
 
-                            {shopIDValidIDs.includes(process.processID) && (
-                                <Col lg={6}>
-                                    <Form.Group controlId="shopID" className="mb-3">
-                                        <Form.Label>Shop ID</Form.Label>
-                                        <Form.Control
-                                            type="text"
-                                            name="shopID"
-                                            value={process.shopID}
-                                            onChange={handleChange}
-                                            required
-                                            placeholder='Enter Shop ID'
+                            
 
-                                        />
-                                    </Form.Group>
-                                </Col>
-                            )}
-                            {shopNameValidIDs.includes(process.processID) && (
-                                <Col lg={6}>
-                                    <Form.Group controlId="shopName" className="mb-3">
-                                        <Form.Label>Shop Name</Form.Label>
-                                        <Form.Control
-                                            type="text"
-                                            name="shopName"
-                                            value={process.shopName}
-                                            onChange={handleChange}
-                                            required
-                                            placeholder='Enter Shop Name'
-                                        />
-                                    </Form.Group>
-                                </Col>
-                            )}
-
-                            {processAmountValidIDs.includes(process.processID) && (
-                                <Col lg={6}>
-                                    <Form.Group controlId="processedAmount" className="mb-3">
-                                        <Form.Label>Processed Amount</Form.Label>
-                                        <Form.Control
-                                            type="text"
-                                            name="processedAmount"
-                                            value={process.shopName}
-                                            onChange={handleChange}
-                                            required
-                                            placeholder='Enter Processed Amount'
-                                        />
-                                    </Form.Group>
-                                </Col>
-                            )}
-
+                        
 
                             <Col lg={2} className='align-items-end d-flex justify-content-end mb-3'>
                                 <ButtonGroup aria-label="Basic example" className='w-100'>
