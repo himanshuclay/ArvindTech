@@ -257,8 +257,119 @@ const ProjectAssignTable: React.FC = () => {
   // Example Usage
   // const updatedDate = formatAndUpdateDate('21-09-2023 15:30:00', '48');
   // console.log(updatedDate);
+  const preDatas = [
+    {
+      "messID": "MESS-1717998452037",
+      "inputs": [
+        { "label": "Mess Working Status", "value": "Active" },
+        { "label": "No. of people forecasted to dine in the week", "value": "11" },
+        { "label": "Enter Advance Requested Amount", "value": "11000" }
+      ]
+    },
+    {
+      "messID": "MESS-1712231625308",
+      "inputs": [
+        { "label": "Mess Working Status", "value": "Active" },
+        { "label": "No. of people forecasted to dine in the week", "value": "12" },
+        { "label": "Enter Advance Requested Amount", "value": "12000" }
+      ]
+    },
+    {
+      "messID": "MESS-91701666356337",
+      "inputs": [
+        { "label": "Mess Working Status", "value": "Active" },
+        { "label": "No. of people forecasted to dine in the week", "value": "13" },
+        { "label": "Enter Advance Requested Amount", "value": "13000" }
+      ]
+    },
+    {
+      "messID": "MESS-1717998452037",
+      "inputs": [{ "label": "Update Ledger Balance", "value": "10000" }]
+    },
+    {
+      "messID": "MESS-1712231625308",
+      "inputs": [{ "label": "Update Ledger Balance", "value": "11000" }]
+    },
+    {
+      "messID": "MESS-91701666356337",
+      "inputs": [{ "label": "Update Ledger Balance", "value": "12000" }]
+    },
+    {
+      "messID": "MESS-1717998452037",
+      "inputs": [{ "label": "Enter Approved Amount", "value": "9000" }]
+    },
+    {
+      "messID": "MESS-1712231625308",
+      "inputs": [{ "label": "Enter Approved Amount", "value": "10000" }]
+    },
+    {
+      "messID": "MESS-91701666356337",
+      "inputs": [{ "label": "Enter Approved Amount", "value": "11000" }]
+    },
+    {
+      "messID": "MESS-1717998452037",
+      "inputs": [{ "label": "Enter Processed Amount", "value": "8000" }]
+    },
+    {
+      "messID": "MESS-1712231625308",
+      "inputs": [{ "label": "Enter Processed Amount", "value": "9000" }]
+    },
+    {
+      "messID": "MESS-91701666356337",
+      "inputs": [{ "label": "Enter Processed Amount", "value": "10000" }]
+    },
+    {
+      "messID": "MESS-1717998452037",
+      "inputs": [{ "label": "Confirmation of receipt of payment by Shop or Mess Manager", "value": "Yes" }]
+    },
+    {
+      "messID": "MESS-1712231625308",
+      "inputs": [{ "label": "Confirmation of receipt of payment by Shop or Mess Manager", "value": "Yes" }]
+    },
+    {
+      "messID": "MESS-91701666356337",
+      "inputs": [{ "label": "Confirmation of receipt of payment by Shop or Mess Manager", "value": "Yes" }]
+    }
+  ];
 
-
+  const groupByMessID = (data) => {
+    return data.reduce((acc, curr) => {
+      if (!acc[curr.messID]) {
+        acc[curr.messID] = [];
+      }
+      acc[curr.messID] = [...acc[curr.messID], ...curr.inputs];
+      return acc;
+    }, {});
+  };
+  
+  const MessCard = ({ messID, inputs }) => (
+    <div className="card">
+      <h3>{messID}</h3>
+      <ul>
+        {inputs.map((input, index) => (
+          <li key={index}>
+            <strong>{input.label}: </strong>{input.value}
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+  
+  // const MessCardList = () => {
+    const groupedData = groupByMessID(preDatas);
+  
+    return (
+      <div className="mess-cards-container">
+        {Object.keys(groupedData).map((messID) => (
+          <MessCard
+            key={messID}
+            messID={messID}
+            inputs={groupedData[messID]}
+          />
+        ))}
+      </div>
+    );
+  // };
 
   const SuccessToast: React.FC<{ show: boolean; taskName?: string; onClose: () => void }> = ({ show, onClose }) => {
     return (

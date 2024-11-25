@@ -1,10 +1,12 @@
 import axios from 'axios';
-import { useEffect, useState, ChangeEvent, useRef } from 'react';
-import { Button, Col, Form, Row, ButtonGroup, Overlay, Popover } from 'react-bootstrap';
+import { useEffect, useState, ChangeEvent } from 'react';
+import { Button, Col, Form, Row, ButtonGroup } from 'react-bootstrap';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import config from '@/config';
 import Select from 'react-select';
 import CustomSuccessToast from '@/pages/other/Component/CustomSuccessToast';
+
+
 
 interface Process {
     id: number;
@@ -40,16 +42,16 @@ interface GetTypeDayTimeList {
     id: number;
     name: string;
 }
-const AccountProcess = () => {
+
+const HumanResource = () => {
     const { id } = useParams<{ id: string }>();
-    const { processID } = useParams<{ processID: string }>();
 
     const navigate = useNavigate();
+
     const [showToast, setShowToast] = useState(false);
     const [toastMessage, setToastMessage] = useState("");
     const [toastVariant, setToastVariant] = useState('');
     const [empName, setEmpName] = useState<string | null>('')
-    const [show, setShow] = useState(false);
     const [process, setProcess] = useState<Process>({
         id: 0,
         moduleName: '',
@@ -86,6 +88,8 @@ const AccountProcess = () => {
     const [dropdownValuesFlag4, setDropdownValuesFlag4] = useState<GetTypeDayTimeList[]>([]);
 
 
+
+
     useEffect(() => {
         const storedEmpName = localStorage.getItem('EmpName');
         if (storedEmpName) {
@@ -99,6 +103,11 @@ const AccountProcess = () => {
         }
     }, [id]);
 
+    // useEffect(() => {
+
+    //     fetchMessDetails(process.moduleName, process.processID);
+
+    // }, [process.moduleName, process.processID]);
 
     useEffect(() => {
         GetTypeDayTimeList(1, setDropdownValuesFlag1);
@@ -115,6 +124,7 @@ const AccountProcess = () => {
             if (response.data.isSuccess) {
                 const fetchedModule = response.data.getAccountIInitiation;
                 setProcess(fetchedModule);
+                console.log(fetchedModule);
             } else {
                 console.error(response.data.message);
             }
@@ -123,6 +133,8 @@ const AccountProcess = () => {
         }
     };
 
+
+ 
 
 
 
@@ -207,21 +219,13 @@ const AccountProcess = () => {
         }
     };
 
-    const intervalTypeValidIDs = ['ACC.01', 'ACC.02', 'ACC.03', 'ACC.04', 'ACC.05'];
-    const timeValidIDs = ['ACC.01', 'ACC.02', 'ACC.03', 'ACC.04', 'ACC.05'];
-    const shopIDValidIDs = ['ACC.02'];
-    const shopNameValidIDs = ['ACC.02'];
-    const processAmountValidIDs = ['ACC.02'];
 
-    const [target, setTarget] = useState<HTMLElement | null>(null);
-    const ref = useRef(null);
-
-
-    const handleClick = (event: React.MouseEvent<HTMLElement>) => {
-        setShow(!show);
-        setTarget(event.target as HTMLElement);
-    };
-
+    const intervalTypeValidIDs = ['HR.01', 'HR.02', 'HR.03', 'HR.04', 'HR.05','HR.06','HR.07'];
+    const timeValidIDs = ['HR.01', 'HR.02', 'HR.03', 'HR.04', 'HR.05','HR.06','HR.07'];
+    const shopIDValidIDs = ['HR.02'];
+    const shopNameValidIDs = ['HR.02'];
+    const processAmountValidIDs = ['HR.02'];
+  
     return (
         <div>
             <div >
@@ -230,6 +234,7 @@ const AccountProcess = () => {
                 <div className="d-flex bg-white p-2 my-2 justify-content-between align-items-center fs-20 rounded-3 border">
                     <span><i className="ri-file-list-line me-2"></i><span className='fw-bold'>Process Initiation </span></span>
                 </div>
+
                 <div className='bg-white p-2 rounded-3 border'>
                     <Form onSubmit={handleSubmit}>
                         <Row>
@@ -339,6 +344,7 @@ const AccountProcess = () => {
 
                                 <Row>
                                     <h4>Specific Time</h4>
+
                                     {intervalTypeValidIDs.includes(process.processID) && (
                                         <Col lg={6}>
                                             <Form.Group controlId="intervalType" className="mb-3">
@@ -364,7 +370,7 @@ const AccountProcess = () => {
                                     )}
 
 
-                                    {["Weekly"].includes(process.intervalType) && (['ACC.01', 'ACC.02', 'ACC.03', 'ACC.04', 'ACC.05'].includes(process.processID)) && (
+                                    {["Weekly"].includes(process.intervalType) && (['HR.01', 'HR.02', 'HR.03', 'HR.04', 'HR.05','HR.06','HR.07'].includes(process.processID)) && (
                                         <Col lg={6}>
                                             <Form.Group controlId="intervalType" className="mb-3">
                                                 <Form.Label>Day:</Form.Label>
@@ -388,7 +394,7 @@ const AccountProcess = () => {
                                         </Col>
                                     )}
 
-                                    {["Monthly"].includes(process.intervalType) && (['ACC.01', 'ACC.02', 'ACC.03', 'ACC.04', 'ACC.05'].includes(process.processID)) && (
+                                    {["Monthly"].includes(process.intervalType)&& (['HR.01', 'HR.02', 'HR.03', 'HR.04', 'HR.05','HR.06','HR.07'].includes(process.processID)) && (
                                         <Col lg={6}>
                                             <Form.Group controlId="date" className="mb-3">
                                                 <Form.Label>Date:</Form.Label>
@@ -439,6 +445,7 @@ const AccountProcess = () => {
 
                             </Col>
 
+
                             {shopIDValidIDs.includes(process.processID) && (
                                 <Col lg={6}>
                                     <Form.Group controlId="shopID" className="mb-3">
@@ -488,13 +495,6 @@ const AccountProcess = () => {
                             )}
 
 
-                            <Col lg={2} className='align-items-end d-flex justify-content-end mb-3'>
-                                <ButtonGroup aria-label="Basic example" className='w-100'>
-                                    <Button variant="primary" onClick={handleClick}>
-                                        View Initiation Fields
-                                    </Button>
-                                </ButtonGroup>
-                            </Col>
                             <Col></Col>
                             <Col lg={2} className='align-items-end d-flex justify-content-end mb-3'>
                                 <ButtonGroup aria-label="Basic example" className='w-100'>
@@ -507,77 +507,17 @@ const AccountProcess = () => {
                                     </Button>
                                 </ButtonGroup>
                             </Col>
+
                         </Row>
+
                     </Form>
                 </div>
+
             </div>
             <CustomSuccessToast show={showToast} toastMessage={toastMessage} toastVariant={toastVariant} onClose={() => setShowToast(false)} />
 
-            <Overlay
-                show={show}
-                target={target}
-                placement="right"
-                container={ref.current}
-                rootClose
-                onHide={() => setShow(false)}
-            >
-                <Popover id="popover-basic" className='initiation-popup'>
-                    <Popover.Header as="h3" className="text-dark">
-                        Initiation  Fields
-                    </Popover.Header>
-                    <Popover.Body>
-                        {
-                            processID === 'ACC.01' ? <ul className="fs-15 text-dark">
-                                <li>Project</li>
-                                <li>Period</li>
-                                <li>Mess Name</li>
-                                <li>Week</li>
-                                <li>Mess Manager</li>
-                                <li>Source</li>
-                            </ul> :
-                                processID === 'ACC.02' ?
-                                    <ul className="fs-15 text-dark">
-                                        <li>Project</li>
-                                        <li>Period</li>
-                                        <li>Mess Name</li>
-                                        <li>Mess Manager EmpID</li>
-                                        <li>Mess Manager Name</li>
-                                        <li>ShopID</li>
-                                        <li>Shop Name</li>
-                                        <li>ReconID</li>
-                                    </ul> :
-                                    processID === 'ACC.03' ?
-                                        <ul className="fs-15 text-dark">
-                                            <li>Project</li>
-                                            <li>Period</li>
-                                            <li>Month</li>
-                                            <li>Source</li>
-                                        </ul> :
-                                        processID === 'ACC.04' ?
-                                            <ul className="fs-15 text-dark">
-                                                <li>Project</li>
-                                                <li>Period</li>
-                                                <li>ID</li>
-                                                <li>Source</li>
-                                            </ul> :
-                                            processID === 'ACC.05' ?
-                                                <ul className="fs-15 text-dark">
-                                                    <li>Project</li>
-                                                    <li>Period</li>
-                                                    <li>Date</li>
-                                                </ul> : null
-
-                        }
-
-
-
-
-
-                    </Popover.Body>
-                </Popover>
-            </Overlay>
         </div >
     );
 };
 
-export default AccountProcess;
+export default HumanResource;
