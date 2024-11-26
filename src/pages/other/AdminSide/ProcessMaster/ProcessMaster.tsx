@@ -263,6 +263,8 @@ const ModuleMaster = () => {
         setSearchQuery(e.target.value);
         setCurrentPage(1); // Reset to first page on search
     };
+
+
     const handleShow = () => setShow(true);
 
     const handleShowview = () => setShowView(true);
@@ -386,7 +388,7 @@ const ModuleMaster = () => {
                                                         <input
                                                             type="search"
                                                             className=" bg-white"
-                                                            placeholder="Search doer..."
+                                                            placeholder="Search Process..."
                                                             value={searchQuery}
                                                             onChange={handleSearchcurrent}
                                                         />

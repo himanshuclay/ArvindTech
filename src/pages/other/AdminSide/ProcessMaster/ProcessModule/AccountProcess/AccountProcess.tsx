@@ -331,7 +331,7 @@ const AccountProcess = () => {
                                     )}
 
 
-                                    {["Weekly"].includes(process.intervalType) && (['ACC.01', 'ACC.02', 'ACC.03', 'ACC.04', 'ACC.05'].includes(process.processID)) && (
+                                    {["Weekly"].includes(process.intervalType) && (
                                         <Col lg={6}>
                                             <Form.Group controlId="intervalType" className="mb-3">
                                                 <Form.Label>Day:</Form.Label>
