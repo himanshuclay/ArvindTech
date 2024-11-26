@@ -648,40 +648,6 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
             taskStatus: taskStatus, // Use the taskCommonId fetched from localStorage or state
             updatedBy: role
         };
-        
-
-        // let requestData;
-
-        // if (processId === "ACC.01") {
-        //     requestData = {
-        //         id: taskData?.id || 0,
-        //         doerID: role || '',
-        //         task_Json: JSON.stringify(finalData),   // Use the updated taskJson state
-        //         isExpired: 0,
-        //         isCompleted: formState['Pending'] || 'Completed',
-        //         task_Number: taskNumber,
-        //         summary: formState['summary'] || 'Task Summary',  // Ensure summary is from formState
-        //         condition_Json: JSON.stringify(conditionToSend),  // Assuming parsedCondition is defined
-        //         taskCommonId: taskCommonIDRow,
-        //         taskStatus: taskStatus, // Use the taskCommonId fetched from localStorage or state
-        //         updatedBy: role
-        //     };
-        // } 
-        // else {
-        //     requestData = {
-        //         id: taskData?.id || 0,
-        //         doerID: role || '',
-        //         task_Json: JSON.stringify(globalTaskJson),
-        //         isExpired: 0,
-        //         isCompleted: formState['Pending'] || 'Completed',
-        //         task_Number: taskNumber,
-        //         summary: formState['summary'] || 'Task Summary',  // Ensure summary is from formState
-        //         condition_Json: JSON.stringify(conditionToSend),  // Assuming parsedCondition is defined
-        //         taskCommonId: taskCommonIDRow,
-        //         taskStatus: taskStatus, // Use the taskCommonId fetched from localStorage or state
-        //         updatedBy: role
-        //     };
-        // }
 
         console.log(processId)
         console.log(requestData)
@@ -707,7 +673,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
         } catch (error) {
             console.error('Error occurred while updating task:', error);
         } finally {
-            // setLoading(false);  // Hide loader when the request completes (success or error)
+
         }
     };
 
@@ -895,7 +861,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
         fetchMessManagers();
     }, []);
 
-    
+
 
 
 

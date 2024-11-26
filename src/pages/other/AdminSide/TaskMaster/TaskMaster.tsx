@@ -102,6 +102,7 @@ const TaskMaster: React.FC = () => {
             .then((response) => {
                 if (response.data.isSuccess) {
                     setTasks(response.data.getProcessTaskByIds);
+                    console.log(tasks)
                 }
             })
             .catch((error) => console.error('Error fetching tasks:', error));

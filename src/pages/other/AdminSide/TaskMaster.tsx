@@ -883,15 +883,19 @@ const AccountProcessTable: React.FC = () => {
                     // API call when both `selectedModule` and `selectedProcess` are selected
                     response = await axios.get(`${config.API_URL_ACCOUNT}/ProcessTaskMaster/GetProcessTaskByIds?Flag=2&ModuleId=${selectedModuleId}&ProcessId=${selectedProcess}`);
                     console.log(selectedModuleId, selectedProcess)
+                    
                 } else {
                     // Default API call when neither `selectedModule` nor `selectedProcess` is selected
                     response = await axios.get(`${config.API_URL_ACCOUNT}/ProcessTaskMaster/GetProcessTaskByIds?Flag=1`);
                     console.log(selectedModule, selectedProcess)
+                    console.log(response)
                 }
 
                 // Check if API response is successful
                 if (response.data.isSuccess) {
                     setTasks(response.data.getProcessTaskByIds);
+
+                    console.log(tasks)
 
                     const conditionJson =
                         response.data.getProcessTaskByIds[0]?.condition_Json || "[]";
