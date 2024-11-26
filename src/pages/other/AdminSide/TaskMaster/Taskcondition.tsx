@@ -6,6 +6,7 @@ import Select from 'react-select';
 import Flatpickr from 'react-flatpickr';
 import 'flatpickr/dist/themes/material_green.css';
 import CustomSuccessToast from "../../Component/CustomSuccessToast";
+import {format} from 'date-fns';
 
 
 
@@ -58,6 +59,8 @@ interface Option {
     id: string;
     inputId: string;
     optionId?: string;
+    label?: string;
+    color?: string;
     taskNumber?: string;
     taskTiming?: string;
     taskType?: string;
@@ -139,6 +142,8 @@ const TaskCondition: React.FC<ProcessCanvasProps> = ({ show, setShow, taskID }) 
             const initialTaskSelections = parseData.options.map((option: Option) => ({
                 inputId: option.id,
                 optionId: option.id,
+                color: option.color,
+                label: option.label,
                 taskNumber: '',
                 taskType: '',
                 taskTiming: '',
@@ -297,15 +302,6 @@ const TaskCondition: React.FC<ProcessCanvasProps> = ({ show, setShow, taskID }) 
         setTaskSelections(updatedSelections);
     };
 
-    // const updateTaskSelection = (field: keyof TaskSelections, value: any) => {
-    //     setTaskSelections((prevSelections: TaskSelections) => ({
-    //         ...prevSelections,
-    //         inputId: singleData[0]?.finishPoint?.toString(),
-    //         optionId: '',
-    //         [field]: value
-    //     }));
-    // };
-
 
     const updateTaskSelection = (field: keyof TaskSelections, value: any) => {
         setTaskSelections((prevSelections: TaskSelections[]) => {
@@ -463,8 +459,14 @@ const TaskCondition: React.FC<ProcessCanvasProps> = ({ show, setShow, taskID }) 
                                                         className="card m-1 p-1"
                                                         style={{ width: "25%", border: "1px solid #ccc", borderRadius: "5px" }}
                                                     >
-                                                        <h6 className="text-primary m-1">Task {index + 1}</h6>
-                                                        <span><strong>Number:</strong> {task.taskNumber || "N/A"}</span>
+                                                        <h5 className="text-primary my-1">{task.label ? (
+                                                                <span style={{ color: task.color , textTransform:'uppercase'}}>{task.label}</span>
+                                                            ) : (
+                                                                "Task"
+                                                            )}
+                                                        </h5>
+
+                                                        <span><strong>Task Number:</strong> {task.taskNumber || "N/A"}</span>
                                                         <span><strong>Type:</strong> {task.taskType || "N/A"}</span>
                                                         <span><strong>Timing:</strong> {task.taskTiming || "N/A"}</span>
                                                         {task.taskTiming === "Day" && (
@@ -506,7 +508,7 @@ const TaskCondition: React.FC<ProcessCanvasProps> = ({ show, setShow, taskID }) 
                                                 value={0}
                                                 label="No"
                                                 checked={isExpirable === 0}
-                                                onChange={() => handleChangeExpirable(0)} // Set to 0 when 'No' is selected
+                                                onChange={() => handleChangeExpirable(0)}
                                             />
                                             <Form.Check
                                                 inline
@@ -516,7 +518,7 @@ const TaskCondition: React.FC<ProcessCanvasProps> = ({ show, setShow, taskID }) 
                                                 value={1}
                                                 label="Yes"
                                                 checked={isExpirable === 1}
-                                                onChange={() => handleChangeExpirable(1)} // Set to 1 when 'Yes' is selected
+                                                onChange={() => handleChangeExpirable(1)}
                                             />
                                         </div>
                                     </Form.Group>
@@ -527,7 +529,9 @@ const TaskCondition: React.FC<ProcessCanvasProps> = ({ show, setShow, taskID }) 
                                             <Form.Label>Expiration Date</Form.Label>
                                             <Flatpickr
                                                 value={expirationDate || ''}
-                                                onChange={([date]) => handleChangeExpirationDate(date.toISOString())}
+                                                onChange={([date]) => {
+                                                    const formatedDate = format(date, 'dd-MMM-yy hh:mm a');
+                                                    handleChangeExpirationDate(formatedDate)}}
                                                 options={{
                                                     enableTime: true,
                                                     dateFormat: "Y-m-d H:i",
@@ -569,7 +573,8 @@ const TaskCondition: React.FC<ProcessCanvasProps> = ({ show, setShow, taskID }) 
                                     <Row key={index} className="bg-light m-2 p-2">
                                         <Col lg={4}>
                                             <Form.Group controlId="taskNumber" className="mb-3">
-                                                <Form.Label>Select Successor Task For</Form.Label>
+                                                <Form.Label>Select Successor Task For <span style={{ color: option.color }}> {option.label}</span></Form.Label>
+
                                                 <Select
                                                     name="taskNumber"
                                                     value={combinedOptions.find((item) => item.task_Number === taskSelections[index]?.taskNumber) || null}

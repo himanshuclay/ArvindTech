@@ -44,7 +44,8 @@ interface ModuleOwnerName {
 const EmployeeInsert = () => {
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
-
+    const [files, setFiles] = useState<File[]>([]);
+    const [error, setError] = useState('');
     const [showToast, setShowToast] = useState(false);
     const [toastMessage, setToastMessage] = useState("");
     const [toastVariant, setToastVariant] = useState('');
@@ -169,7 +170,34 @@ const EmployeeInsert = () => {
         fetchModuleOwnerName();
     }, []);
 
+    const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const selectedFiles = Array.from(event.target.files || []);
+        let newFiles: File[] = [];
+        let errorMessage = '';
 
+        // Validation for file count
+        if (selectedFiles.length > 5) {
+            errorMessage = 'You can only upload up to 5 files.';
+        } else {
+            // Validation for file size
+            newFiles = selectedFiles.filter(file => {
+                if (file.size > 10 * 1024 * 1024) {
+                    errorMessage = 'Each file must be less than 10MB.';
+                    return false;
+                }
+                return true;
+            });
+        }
+
+        // Set error message or selected files
+        if (errorMessage) {
+            setError(errorMessage);
+            setFiles([]);
+        } else {
+            setError('');
+            setFiles(newFiles);
+        }
+    };
 
 
 
@@ -301,7 +329,7 @@ const EmployeeInsert = () => {
                                 </Form.Group>
                             </Col>
 
-                           
+
 
                             <Col lg={6}>
                                 <Form.Group controlId="misExempt" className="mb-3">
@@ -368,6 +396,36 @@ const EmployeeInsert = () => {
                                         placeholder="Select Process Owner Name"
                                         required
                                     />
+                                </Form.Group>
+                            </Col>
+                            <Col lg={6}>
+                                <Form.Group controlId="processFlowchart" className="mb-3">
+                                    <Form.Label>Process Flowchart</Form.Label>
+                                    <div className='input-file-custom'>
+                                        <label htmlFor="processFlowchart" className="file-upload w-100">
+                                            <div className='d-flex justify-content-between align-items-center'>
+                                                <i className="ri-upload-cloud-2-line h1 text-muted m-0"></i>
+                                                <div>
+                                                    <h4>Drop files here or click to upload.</h4>
+                                                    <span className='fs-13 text-muted'>(.jpeg, .jpg, .png, .pdf Note: You can only select up to 5 files, each up to 10MB.)</span>
+                                                </div>
+                                            </div>
+                                        </label>
+                                        <input
+                                            id="processFlowchart"
+                                            type="file"
+                                            multiple
+                                            onChange={handleFileChange}
+                                            accept=".png,.jpeg,.jpg,.pdf"
+                                            style={{ display: 'none' }}
+                                        />
+                                        {error && <p style={{ color: 'red' }}>{error}</p>}
+                                        <ul>
+                                            {files.map((file, index) => (
+                                                <li key={index}>{file.name}</li>
+                                            ))}
+                                        </ul>
+                                    </div>
                                 </Form.Group>
                             </Col>
 

@@ -3,6 +3,7 @@ import { useEffect, useState, ChangeEvent } from 'react';
 import { Button, Col, Form, Row } from 'react-bootstrap';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import config from '@/config';
+import CustomSuccessToast from '@/pages/other/Component/CustomSuccessToast';
 
 
 
@@ -27,6 +28,9 @@ const EmployeeInsert = () => {
         updatedBy: '',
 
     });
+    const [showToast, setShowToast] = useState(false);
+    const [toastMessage, setToastMessage] = useState<string>('');
+    const [toastVariant, setToastVariant] = useState('');
 
     useEffect(() => {
         const storedEmpName = localStorage.getItem('EmpName');
@@ -92,14 +96,26 @@ const EmployeeInsert = () => {
             updatedBy: editMode ? empName : '',
         };
 
+    
         try {
-            if (editMode) {
-                await axios.post(`${config.API_URL_APPLICATION}/RoleMaster/UpdateRole`, payload);
+            const apiUrl = `${config.API_URL_APPLICATION}/RoleMaster/${editMode ? 'UpdateRole' : 'InsertRole'}`;
+            const response = await axios.post(apiUrl, payload);
+
+            if (response.status === 200) {
+                navigate('/pages/RoleMaster', {
+                    state: {
+                        showToast: true,
+                        toastMessage: editMode ? "Module updated successfully!" : "Module added successfully!",
+                        toastVariant: "rgb(28 175 85)",
+                    },
+                });
             } else {
-                await axios.post(`${config.API_URL_APPLICATION}/RoleMaster/InsertRole`, payload);
+                setToastMessage(response.data.message || "Failed to process request");
             }
-            navigate('/pages/RoleMaster');
-        } catch (error) {
+        } catch (error: any) {
+            setToastMessage(error);
+            setToastVariant("rgb(213 18 18)");
+            setShowToast(true);
             console.error('Error submitting module:', error);
         }
     };
@@ -147,6 +163,8 @@ const EmployeeInsert = () => {
                     </Form>
                 </div>
             </div>
+            <CustomSuccessToast show={showToast} toastMessage={toastMessage} toastVariant={toastVariant} onClose={() => setShowToast(false)} />
+
         </div>
     );
 };

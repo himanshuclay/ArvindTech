@@ -640,3 +640,36 @@ ul.side-nav-second-level:first-child {
   color: #201d56;
   font-size: 12px;
 }
+
+.mess-cards-container {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.mess-cards-container .card {
+  border: 1px solid #ccc;
+  padding: 20px;
+  margin: 10px;
+  width: 30%;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.card h3 {
+  margin-bottom: 15px;
+}
+
+.card ul {
+  list-style-type: none;
+  padding-left: 0;
+}
+
+.card li {
+  margin: 5px 0;
+}
+
+
+.initiation-popup{
+  width: 250px;
+  box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+}
