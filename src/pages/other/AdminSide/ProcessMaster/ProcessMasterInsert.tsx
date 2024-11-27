@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { useEffect, useState, ChangeEvent } from 'react';
-import { Button, Col, Form, Row, ButtonGroup } from 'react-bootstrap';
+import { Button, Col, Form, Row, ButtonGroup, Modal } from 'react-bootstrap';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import config from '@/config';
 import Select from 'react-select';
@@ -18,6 +18,7 @@ interface Process {
     processFlowchart: string;
     processOwnerID: string;
     processOwnerName: string;
+    link: string;
     status: string;
     createdBy: string;
     updatedBy: string;
@@ -49,11 +50,14 @@ const EmployeeInsert = () => {
     const [showToast, setShowToast] = useState(false);
     const [toastMessage, setToastMessage] = useState("");
     const [toastVariant, setToastVariant] = useState('');
+    const [showLink, setShowLink] = useState(false);
     const [editMode, setEditMode] = useState<boolean>(false);
     const [misExempt, setMisExempt] = useState<MISExempt[]>([]);
     const [moduleDisplayName, setModuleDisplayName] = useState<ModuleDisplayName[]>([]);
     const [processOwnerName, setProcessOwnerName] = useState<ModuleOwnerName[]>([]);
     const [empName, setEmpName] = useState<string | null>('')
+    const [urlError, setUrlError] = useState("");
+    const [iframeUrl, setIframeUrl] = useState("");
     const [process, setProcess] = useState<Process>({
         id: 0,
         moduleName: '',
@@ -65,6 +69,7 @@ const EmployeeInsert = () => {
         processFlowchart: '',
         processOwnerID: '',
         processOwnerName: '',
+        link: '',
         status: '',
         createdBy: '',
         updatedBy: ''
@@ -82,20 +87,8 @@ const EmployeeInsert = () => {
         if (id) {
             setEditMode(true);
             fetchModuleById(id);
-            setProcess((process) => ({
-                ...process,
-                updatedBy: empName || '',
-                createdBy: ''
-
-            }));
         } else {
             setEditMode(false);
-            setProcess((process) => ({
-                ...process,
-                createdBy: empName || '',
-                updatedBy: ''
-
-            }));
         }
     }, [id]);
 
@@ -215,13 +208,55 @@ const EmployeeInsert = () => {
             });
         } else {
             const value = (e.target as HTMLInputElement | HTMLSelectElement).value;
+
+            if (name === "link") {
+                // Validate URL if the field is "link"
+                if (value && !isValidUrl(value)) {
+                    setUrlError("Please enter a valid URL.");
+                } else {
+                    setUrlError("");
+                }
+            }
+
             setProcess({
                 ...process,
                 [name]: value
             });
         }
+
+
     };
 
+    const isValidUrl = (url: string) => {
+        const urlPattern = /^(https?:\/\/)[\w.-]+(\.[\w.-]+)+[/#?]?.*$/;
+        return urlPattern.test(url);
+    };
+
+    const handleOpenLink = () => {
+        setShowLink(true)
+
+        if (process.link.includes("youtube.com") || process.link.includes("youtu.be")) {
+            const videoId = getYouTubeVideoId(process.link);
+            if (videoId) {
+                setIframeUrl(`https://www.youtube.com/embed/${videoId}`);
+            } else {
+                setUrlError("Invalid YouTube video link.");
+            }
+        } else {
+            setUrlError("Only YouTube links are supported for embedding.");
+        }
+    };
+
+    // Extract YouTube video ID from a URL
+    const getYouTubeVideoId = (url: string) => {
+        const regex = /(?:youtube\.com.*(?:\?v=|\/embed\/|\/v\/|\/.*\/)|youtu\.be\/)([^#&?]*).*/;
+        const match = url.match(regex);
+        return match && match[1] ? match[1] : null;
+    };
+
+    const handleClose = () => {
+        setShowLink(false)
+    }
 
     // Handle form submission
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -231,7 +266,7 @@ const EmployeeInsert = () => {
             createdBy: editMode ? process.createdBy : empName,
             updatedBy: editMode ? empName : '',
         };
-        // console.log(payload)
+        console.log(payload)
         e.preventDefault();
 
         try {
@@ -250,7 +285,7 @@ const EmployeeInsert = () => {
                 setToastMessage(response.data.message || "Failed to process request");
             }
         } catch (error: any) {
-            setToastMessage(error);
+            setToastMessage(error || 'Failed to Add/Update process');
             setToastVariant("rgb(213 18 18)");
             setShowToast(true);
             console.error('Error submitting module:', error);
@@ -324,13 +359,9 @@ const EmployeeInsert = () => {
                                         value={process.processObjective}
                                         onChange={handleChange}
                                         placeholder='Enter Process Objective'
-                                    // required
                                     />
                                 </Form.Group>
                             </Col>
-
-
-
                             <Col lg={6}>
                                 <Form.Group controlId="misExempt" className="mb-3">
                                     <Form.Label>MIS Exempt:</Form.Label>
@@ -373,7 +404,6 @@ const EmployeeInsert = () => {
                                     />
                                 </Form.Group>
                             </Col>
-
                             <Col lg={6}>
                                 <Form.Group controlId="processOwnerName" className="mb-3">
                                     <Form.Label>Process Owner Name</Form.Label>
@@ -396,6 +426,25 @@ const EmployeeInsert = () => {
                                         placeholder="Select Process Owner Name"
                                         required
                                     />
+                                </Form.Group>
+                            </Col>
+                            <Col lg={6}>
+                                <Form.Group controlId="link" className="mb-3 position-relative">
+                                    <Form.Label>Link</Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        name="link"
+                                        value={process.link}
+                                        onChange={handleChange}
+                                        placeholder="e.g., https://www.example.com"
+                                        isInvalid={!!urlError}
+                                    />
+                                    <Form.Control.Feedback type="invalid">{urlError}</Form.Control.Feedback>
+                                    {process.link && isValidUrl(process.link) && (
+                                        <div onClick={handleOpenLink} className="mt-2 link-btn p-1"><i className="ri-eye-fill"></i></div>
+                                    )}
+
+
                                 </Form.Group>
                             </Col>
                             <Col lg={6}>
@@ -449,6 +498,30 @@ const EmployeeInsert = () => {
                 </div>
             </div>
             <CustomSuccessToast show={showToast} toastMessage={toastMessage} toastVariant={toastVariant} onClose={() => setShowToast(false)} />
+
+            <Modal className="p-0" show={showLink} onHide={handleClose} size="xl">
+                <Modal.Body>
+                    {iframeUrl ? (
+                        <div className="p-0 m-0">
+                            <iframe
+                                width="100%"
+                                height="550"
+                                src={iframeUrl}
+                                title="YouTube video player"
+                                frameBorder="0"
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                allowFullScreen
+                            ></iframe>
+                        </div>
+                    ) :
+                        urlError}
+                </Modal.Body>
+            </Modal>
+
+
+
+
+
 
         </div >
     );

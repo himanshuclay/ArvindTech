@@ -283,7 +283,7 @@ const ProjectAssignTable: React.FC = () => {
     const startDate = new Date(createdDate);
     const endDate = new Date(startDate);
     endDate.setDate(startDate.getDate() + 6); // Add 7 days to the start date
-  
+
     return `${format(startDate, "dd MMM yyyy")} to ${format(endDate, "dd MMM yyyy")}`;
   };
 
@@ -339,10 +339,10 @@ const ProjectAssignTable: React.FC = () => {
   //   setExpandedRow(expandedRow === id ? null : id);
   // };
 
-  const handleDoerChange = (taskNumber: string, selectedOption: any) => {
-    // Handle the change for doer selection
-    console.log(`Doer changed for task ${taskNumber}:`, selectedOption);
-  };
+  // const handleDoerChange = (taskNumber: string, selectedOption: any) => {
+  //   // Handle the change for doer selection
+  //   console.log(`Doer changed for task ${taskNumber}:`, selectedOption);
+  // };
 
 
 
@@ -512,9 +512,9 @@ const ProjectAssignTable: React.FC = () => {
                         <td colSpan={10}>
                           <div>
                             <DynamicForm
+                              fromComponent='PendingTask'
                               formData={JSON.parse(item.task_Json)}
                               taskNumber={item.task_Number}
-                              onDoerChange={handleDoerChange}
                               data={data}
                               show={show}
                               setShow={setShow}

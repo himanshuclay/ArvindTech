@@ -4,11 +4,8 @@ import BuisnessDevelopmentProcess from './ProcessModule/BuisnessDevelopmentProce
 import HumanResource from './ProcessModule/HumanResource/HumanResource';
 
 const ProcessInitiation = () => {
-    const { processID } = useParams<{ processID: string }>();
     const { moduleID } = useParams<{ moduleID: string }>();
 
-    console.log(processID)
-    console.log(moduleID)
 
     return (
         <>

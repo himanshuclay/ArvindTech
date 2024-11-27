@@ -39,6 +39,7 @@ type FormField = {
   value?: string;
   fileType?: string;        // The value of the input
   fileSize?: string;
+  visibility: boolean,
 };
 
 interface FormFieldOption {
@@ -107,12 +108,13 @@ const generateFormFieldId = (): string => `${formFieldCounter++}`;
 
 // Define initial inventory with unique IDs
 const initialInventory: FormField[] = [
-  { inputId: generateFormFieldId(), type: 'text', labeltext: 'Label text', placeholder: 'Enter text' },
-  { inputId: generateFormFieldId(), type: 'checkbox', labeltext: 'Checkbox' },
+  { inputId: generateFormFieldId(), type: 'text', labeltext: 'Label text', placeholder: 'Enter text', visibility: true },
+  { inputId: generateFormFieldId(), type: 'checkbox', labeltext: 'Checkbox', visibility: true },
   {
     inputId: generateFormFieldId(),
     type: 'select',
     labeltext: 'Select',
+    visibility: true,
     options: [
 
     ],
@@ -124,7 +126,8 @@ const initialInventory: FormField[] = [
     type: 'file',
     labeltext: 'File Upload',
     conditionalField: false,
-    conditionalFieldId: 'someid'
+    conditionalFieldId: 'someid',
+    visibility: true
   },
   {
     inputId: generateFormFieldId(),
@@ -133,7 +136,8 @@ const initialInventory: FormField[] = [
     options: [
     ],
     conditionalField: false,
-    conditionalFieldId: 'someid'
+    conditionalFieldId: 'someid',
+    visibility: true
   },
   {
     inputId: generateFormFieldId(),
@@ -142,11 +146,12 @@ const initialInventory: FormField[] = [
     options: [
     ],
     conditionalField: false,
-    conditionalFieldId: 'someid'
+    conditionalFieldId: 'someid',
+    visibility: true
   },
-  { inputId: generateFormFieldId(), type: 'date', labeltext: 'Date' },
-  { inputId: generateFormFieldId(), type: 'custom', labeltext: 'Custom Field', placeholder: 'Enter text', conditionalField: false, conditionalFieldId: 'someid' },
-  { inputId: generateFormFieldId(), type: 'paragraph', labeltext: 'Paragraph', conditionalField: false, conditionalFieldId: 'someid' },
+  { inputId: generateFormFieldId(), type: 'date', labeltext: 'Date', visibility: true },
+  { inputId: generateFormFieldId(), type: 'custom', labeltext: 'Custom Field', placeholder: 'Enter text', conditionalField: false, conditionalFieldId: 'someid', visibility: true },
+  { inputId: generateFormFieldId(), type: 'paragraph', labeltext: 'Paragraph', conditionalField: false, conditionalFieldId: 'someid', visibility: true },
   {
     inputId: generateFormFieldId(),
     type: 'CustomSelect',
@@ -155,7 +160,8 @@ const initialInventory: FormField[] = [
     options: [
     ],
     conditionalField: false,
-    conditionalFieldId: 'someid'
+    conditionalFieldId: 'someid',
+    visibility: true
   },
 ];
 
@@ -174,6 +180,7 @@ const App: React.FC = () => {
   const [editField, setEditField] = useState<FormField>({
     inputId: 'example',
     options: [],
+    visibility: true
   });
   const [selectedTaskIdx, setSelectedTaskIdx] = useState<number | null>(null);
   const [employees, setEmployees] = useState<Employee[]>([]);
@@ -320,10 +327,10 @@ const App: React.FC = () => {
 
     // Save form data
     const newTaskFields: FormField[] = [
-      { inputId: '99', type: 'text', labeltext: `${formData.taskName}` },
-      { inputId: '100', type: 'text', labeltext: `${formData.ModuleName}` },
-      { inputId: '102', type: 'text', labeltext: `${formData.processName}` },
-      { inputId: '103', type: 'text', labeltext: `${selectedRole?.roleName}` },
+      { inputId: '99', type: 'text', labeltext: `${formData.taskName}`, visibility: true },
+      { inputId: '100', type: 'text', labeltext: `${formData.ModuleName}`, visibility: true },
+      { inputId: '102', type: 'text', labeltext: `${formData.processName}`, visibility: true },
+      { inputId: '103', type: 'text', labeltext: `${selectedRole?.roleName}`, visibility: true },
     ];
 
 
@@ -556,6 +563,7 @@ const App: React.FC = () => {
           value: field.value || "",
           fileType: fileType || "", // Add fileType if available
           fileSize: fileSize || "", // Add fileSize if available
+          visibility: field.visibility,
         };
       }
       if (field.type === 'CustomSelect') {
@@ -568,7 +576,8 @@ const App: React.FC = () => {
           conditionalFieldId: field.conditionalFieldId || "", // Use existing conditionalFieldId if any
           value: field.value || "",
           selectedMaster: selectedMaster,
-          selectedHeader: selectedHeader
+          selectedHeader: selectedHeader,
+          visibility: field.visibility,
         };
       }
 
@@ -583,6 +592,7 @@ const App: React.FC = () => {
         required: field.required || false,
         conditionalFieldId: field.conditionalFieldId || "", // Use existing conditionalFieldId if any
         value: field.value || "",
+        visibility: field.visibility,
       };
     });
 
