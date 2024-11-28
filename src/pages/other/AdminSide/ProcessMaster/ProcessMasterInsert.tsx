@@ -6,6 +6,7 @@ import config from '@/config';
 import Select from 'react-select';
 // import { FileUploader } from '@/components/FileUploader'
 import CustomSuccessToast from '../../Component/CustomSuccessToast';
+import { FileUploader } from '@/components/FileUploader';
 
 interface Process {
     id: number;
@@ -45,8 +46,8 @@ interface ModuleOwnerName {
 const EmployeeInsert = () => {
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
-    const [files, setFiles] = useState<File[]>([]);
-    const [error, setError] = useState('');
+    // const [files, setFiles] = useState<File[]>([]);
+    // const [error, setError] = useState('');
     const [showToast, setShowToast] = useState(false);
     const [toastMessage, setToastMessage] = useState("");
     const [toastVariant, setToastVariant] = useState('');
@@ -55,7 +56,7 @@ const EmployeeInsert = () => {
     const [misExempt, setMisExempt] = useState<MISExempt[]>([]);
     const [moduleDisplayName, setModuleDisplayName] = useState<ModuleDisplayName[]>([]);
     const [processOwnerName, setProcessOwnerName] = useState<ModuleOwnerName[]>([]);
-    const [empName, setEmpName] = useState<string | null>('')
+    const [empName, setEmpName] = useState<string >('')
     const [urlError, setUrlError] = useState("");
     const [iframeUrl, setIframeUrl] = useState("");
     const [process, setProcess] = useState<Process>({
@@ -163,34 +164,34 @@ const EmployeeInsert = () => {
         fetchModuleOwnerName();
     }, []);
 
-    const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        const selectedFiles = Array.from(event.target.files || []);
-        let newFiles: File[] = [];
-        let errorMessage = '';
+    // const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    //     const selectedFiles = Array.from(event.target.files || []);
+    //     let newFiles: File[] = [];
+    //     let errorMessage = '';
 
-        // Validation for file count
-        if (selectedFiles.length > 5) {
-            errorMessage = 'You can only upload up to 5 files.';
-        } else {
-            // Validation for file size
-            newFiles = selectedFiles.filter(file => {
-                if (file.size > 10 * 1024 * 1024) {
-                    errorMessage = 'Each file must be less than 10MB.';
-                    return false;
-                }
-                return true;
-            });
-        }
+    //     // Validation for file count
+    //     if (selectedFiles.length > 5) {
+    //         errorMessage = 'You can only upload up to 5 files.';
+    //     } else {
+    //         // Validation for file size
+    //         newFiles = selectedFiles.filter(file => {
+    //             if (file.size > 10 * 1024 * 1024) {
+    //                 errorMessage = 'Each file must be less than 10MB.';
+    //                 return false;
+    //             }
+    //             return true;
+    //         });
+    //     }
 
-        // Set error message or selected files
-        if (errorMessage) {
-            setError(errorMessage);
-            setFiles([]);
-        } else {
-            setError('');
-            setFiles(newFiles);
-        }
-    };
+    //     // Set error message or selected files
+    //     if (errorMessage) {
+    //         setError(errorMessage);
+    //         setFiles([]);
+    //     } else {
+    //         setError('');
+    //         setFiles(newFiles);
+    //     }
+    // };
 
 
 
@@ -447,7 +448,7 @@ const EmployeeInsert = () => {
 
                                 </Form.Group>
                             </Col>
-                            <Col lg={6}>
+                            {/* <Col lg={6}>
                                 <Form.Group controlId="processFlowchart" className="mb-3">
                                     <Form.Label>Process Flowchart</Form.Label>
                                     <div className='input-file-custom'>
@@ -475,6 +476,27 @@ const EmployeeInsert = () => {
                                             ))}
                                         </ul>
                                     </div>
+                                </Form.Group>
+                            </Col> */}
+                            <Col lg={6}>
+                                <Form.Group controlId="processFlowchart" className="mb-3">
+                                    <Form.Label>Process Flowchart</Form.Label>
+                                    <FileUploader
+                                        icon="ri-upload-cloud-2-line"
+                                        text="Drop files here or click to upload."
+                                        additionalData={{
+                                            ModuleID: process.moduleID,
+                                            CreatedBy: empName,
+                                            TaskCommonID: 1,
+                                            Task_Number: '',
+                                            ProcessInitiationID: 1,
+                                            ProcessID: process.processID,
+                                            UpdatedBy: empName,
+                                        }}
+                                        onFileUpload={(files) => {
+                                            console.log('Files uploaded:', files);
+                                        }}
+                                    />
                                 </Form.Group>
                             </Col>
 
