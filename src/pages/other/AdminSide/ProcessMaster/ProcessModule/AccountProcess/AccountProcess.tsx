@@ -558,7 +558,7 @@ const AccountProcess = () => {
 
                             <Col lg={3} className='align-items-end d-flex justify-content-end mb-3'>
                                 <ButtonGroup aria-label="Basic example" className='w-100'>
-                                    <Link to={'/pages/ProcessMaster'} className="btn btn-primary">
+                                    <Link to={'/pages/ProcessInitiation'} className="btn btn-primary">
                                         Back
                                     </Link>
                                     &nbsp;
@@ -598,7 +598,7 @@ const AccountProcess = () => {
                         <Table striped bordered hover>
                             <thead>
                                 <tr>
-                                    <th>#</th>
+                                    <th>Sr.no.</th>
                                     <th>Form Name</th>
                                     <th>Action</th>
                                 </tr>
