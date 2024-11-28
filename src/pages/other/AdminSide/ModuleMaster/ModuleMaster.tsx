@@ -194,7 +194,6 @@ const ModuleMaster = () => {
 
     const handleClear = () => {
         setModuleDisplayName('');
-        // setModuleOwnerName('');
         fetchModules();
     };
 
@@ -202,9 +201,7 @@ const ModuleMaster = () => {
     const filteredModules = modules.filter(module =>
         module.moduleDisplayName.toLowerCase().includes(searchQuery.toLowerCase()) ||
         module.moduleID.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        module.fmsType.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        module.moduleOwnerID.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        module.moduleOwnerName.toLowerCase().includes(searchQuery.toLowerCase())
+        module.fmsType.toLowerCase().includes(searchQuery.toLowerCase()) 
     );
 
 

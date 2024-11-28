@@ -534,7 +534,7 @@ ul.side-nav-second-level:first-child {
 }
 
 .side-nav-second-level .side-nav-item {
-  border-left: 5px solid #201d56;
+  border-left: 5px solid var(--tz-primary);
 }
 
 .w-200px div {
@@ -672,4 +672,13 @@ ul.side-nav-second-level:first-child {
 .initiation-popup{
   width: 250px;
   box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+}
+
+
+.link-btn {
+  bottom: 3px;
+  position: absolute;
+  right: 3px;
+  color: #201d56;
+  cursor: pointer;
 }

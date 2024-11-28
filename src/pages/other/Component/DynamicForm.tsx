@@ -37,13 +37,12 @@ interface DynamicFormProps {
         inputs: Input[];
     };
     taskNumber: any;
-    // onDoerChange: (taskNumber: string, selectedOption: Option | null) => void;
     data: any;
     show: boolean;
     parsedCondition: any;
     setShow: any;
     preData: any;
-    selectedTasknumber: any;
+    selectedTasknumber: any
     setLoading: any
     taskCommonIDRow: any
     taskStatus: any
@@ -52,6 +51,7 @@ interface DynamicFormProps {
     ProcessInitiationID: any
     approval_Console: any
     approvalConsoleInputID: any
+    fromComponent: string
 }
 
 interface Condition {
@@ -91,6 +91,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
     approval_Console,
     approvalConsoleInputID,
     taskStatus,
+    fromComponent,
     setLoading }) => {
     //  const [formDatas, setFormDatas] = useState<any>({});
     const [formState, setFormState] = useState<FormState>({});
@@ -267,7 +268,6 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
         );
 
         if (customSelectInput && customSelectInput.selectedMaster && customSelectInput.selectedHeader) {
-
             const fetchVendors = async () => {
                 try {
                     const response = await axios.get(
@@ -618,9 +618,10 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
             return newState;
         });
     };
+    console.log(formState);
 
 
-
+console.log(moduleId)
 
     const handleSubmit = async (event: React.FormEvent, taskNumber: string) => {
         event.preventDefault();
@@ -629,53 +630,96 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
         localStorage.removeItem(localStorageKey);
         console.log('Final Submitted Data:', finalData);
         const role = localStorage.getItem('EmpId') || '';
-        const taskData = data.find((task: Task) => task.task_Number === taskNumber);
+        // if (fromComponent != 'AccountProcess'){
+        // }
 
         // Prepare the data to be posted
         // const taskCommonId = localStorage.getItem('taskCommonId') || 0;  // Retrieve from localStorage or set to 0 if not found
 
         const conditionToSend = selectedCondition.length > 0 ? selectedCondition : parsedCondition[0];
 
-        const requestData = {
-            id: taskData?.id || 0,
-            doerID: role || '',
-            task_Json: processId === "ACC.01" ? JSON.stringify(finalData) : JSON.stringify(globalTaskJson), // Conditional task_Json
-            isExpired: 0,
-            isCompleted: formState['Pending'] || 'Completed',
-            task_Number: taskNumber,
-            summary: formState['summary'] || 'Task Summary',
-            condition_Json: JSON.stringify(conditionToSend),  // Assuming conditionToSend is defined
-            taskCommonId: taskCommonIDRow,
-            taskStatus: taskStatus, // Use the taskCommonId fetched from localStorage or state
-            updatedBy: role
-        };
+
+
 
         console.log(processId)
-        console.log(requestData)
+
+
 
         // setLoading(true);  // Show loader when the request is initiated
-
-        try {
-            const response = await fetch(`${config.API_URL_ACCOUNT}/ProcessInitiation/UpdateDoerTask`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(requestData),
-            });
-
-            if (response.ok) {
-                const responseData = await response.json();
-                navigate('/pages/completedTask', { state: { showToast: true, taskName: data[0].task_Number } });
-                console.log('Task updated successfully:', responseData);
-            } else {
-                console.error('Failed to update the task:', response.statusText);
+        if (fromComponent === 'AccountProcess') {
+            const adhocRequestedData = {
+                projectName: '',
+                moduleID: moduleId,
+                processID: processId,
+                taskCommonID: 1, // need to re work for this
+                adhocJson: JSON.stringify(globalTaskJson),
+                createdBy: role,
             }
-        } catch (error) {
-            console.error('Error occurred while updating task:', error);
-        } finally {
+
+            console.log(adhocRequestedData)
+
+            try {
+                const apiUrl = `${config.API_URL_ACCOUNT}/AdhocForm/InsertAdhocJsonMaster`;
+                const response = await axios.post(apiUrl, adhocRequestedData);
+                console.log(response)
+
+                if (response.status >= 200 && response.status < 300) {
+                    console.log('ADHOC submitted successfully:', response.data);
+                    navigate('/pages/ProcessMaster');
+                } else {
+                    console.error('Error submitting module:', response.status, response.statusText);
+                    // Optionally, show an error message to the user
+                }
+            } catch (error: any) {
+                console.error('Error submitting module:', error.message || error);
+                // Optionally, handle network errors or unexpected errors here
+            }
+        }
+        if (fromComponent === 'PendingTask') {
+
+            const taskData = data.find((task: Task) => task.task_Number === taskNumber);
+            const requestData = {
+                id: taskData?.id || 0,
+                doerID: role || '',
+                task_Json: processId === "ACC.01" ? JSON.stringify(finalData) : JSON.stringify(globalTaskJson), // Conditional task_Json
+                isExpired: 0,
+                isCompleted: formState['Pending'] || 'Completed',
+                task_Number: taskNumber,
+                summary: formState['summary'] || 'Task Summary',
+                condition_Json: JSON.stringify(conditionToSend),  // Assuming conditionToSend is defined
+                taskCommonId: taskCommonIDRow,
+                taskStatus: taskStatus, // Use the taskCommonId fetched from localStorage or state
+                updatedBy: role
+            };
+            console.log(requestData)
+
+
+            try {
+                const response = await fetch(`${config.API_URL_ACCOUNT}/ProcessInitiation/UpdateDoerTask`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(requestData),
+                });
+
+                if (response.ok) {
+                    const responseData = await response.json();
+                    navigate('/pages/completedTask', { state: { showToast: true, taskName: data[0].task_Number } });
+                    console.log('Task updated successfully:', responseData);
+                } else {
+                    console.error('Failed to update the task:', response.statusText);
+                }
+            } catch (error) {
+                console.error('Error occurred while updating task:', error);
+            } finally {
+
+            }
 
         }
+
+
+
     };
 
     // const handleApprovalSubmit = async (event: React.FormEvent, taskNumber: string) => {
@@ -930,27 +974,44 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
 
                 {location.pathname != '/pages/ApprovalConsole' && (
                     <div className='px-3'>
-                        {preData &&
-                            <>
-                                {/* {preData.map((task: any, index: any) => (
-                                    <div key={index}>
-                                        {selectedTasknumber != task.taskNumber && (
-                                            <>
-                                                <h5 className='mt-2'>Updated data from <span className='text-primary'>{task.taskNumber}</span></h5>
-                                                <div>
-                                                    {task.inputs.map((input: any, idx: any) => (
-                                                        <div key={idx}>
-                                                            <strong>{input.label}:</strong> <span className='text-primary'>{input.value}</span>
-                                                        </div>
-                                                    ))}
+
+                        {/* {preData.map((task: any, index: any) => (
+                            <div key={index}>
+                                {selectedTasknumber != task.taskNumber && (
+                                    <>
+                                        <h5 className='mt-2'>Updated data from <span className='text-primary'>{task.taskNumber}</span></h5>
+                                        <div>
+                                            {task.inputs.map((input: any, idx: any) => (
+                                                <div key={idx}>
+                                                    <strong>{input.label}:</strong> <span className='text-primary'>{input.value}</span>
                                                 </div>
-                                                <hr />
-                                            </>
-                                        )}
-                                    </div>
-                                ))} */}
-                            </>
-                        }
+                                            ))}
+                                        </div>
+                                        <hr />
+                                    </>
+                                )}
+                            </div>
+                        ))} */}
+                        {preData && preData.length > 0 && preData.map((task: { taskNumber: string; inputs: { label: string; value: string }[] }, index: number) => (
+                            <div key={index}>
+                                {selectedTasknumber !== task.taskNumber && (
+                                    <>
+                                        <h5 className="mt-2">
+                                            Updated data from <span className="text-primary">{task.taskNumber}</span>
+                                        </h5>
+                                        <div>
+                                            {task.inputs.map((input, idx) => (
+                                                <div key={idx}>
+                                                    <strong>{input.label}:</strong> <span className="text-primary">{input.value}</span>
+                                                </div>
+                                            ))}
+                                        </div>
+                                        <hr />
+                                    </>
+                                )}
+                            </div>
+                        ))}
+
 
 
                     </div>
