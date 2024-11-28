@@ -139,6 +139,11 @@ const TaskMaster: React.FC = () => {
         <div>
             <div className="d-flex bg-white p-2 my-2 justify-content-between align-items-center fs-20">
                 <span><i className="ri-file-list-line me-2"></i><span className='fw-bold test-nowrap'>Task List</span></span>
+                <div className="col-md-4 my-1 d-flex justify-content-end">
+                    <Link to="/pages/Modules-Master">
+                        <Button variant="primary">Create Task</Button>
+                    </Link>
+                </div>
 
             </div>
             <div className="row m-0 align-items-end bg-white p-3  shadow">
@@ -177,14 +182,10 @@ const TaskMaster: React.FC = () => {
                     />
                 </Form.Group>
 
-                <div className="col-md-4 my-1 d-flex justify-content-end">
-                    <Link to="/pages/Modules-Master">
-                        <Button variant="primary">Create Task</Button>
-                    </Link>
-                </div>
+
             </div>
 
-            <div className="overflow-auto text-nowrap mt-4">
+            <div className="overflow-auto mt-2">
                 <DragDropContext onDragEnd={handleOnDragEnd}>
                     <Table hover className="bg-white">
                         <thead>
@@ -221,9 +222,17 @@ const TaskMaster: React.FC = () => {
                                     <tr key={task.id}>
                                         <td>{index + 1}</td>
                                         {columns
+
                                             .filter((col) => col.visible)
                                             .map((col) => (
-                                                <td key={col.id}>
+                                                <td key={col.id}
+                                                    className={
+                                                        col.id === 'moduleName' ? 'fw-bold fs-13 text-dark text-nowrap' :
+                                                            col.id === 'taskName' ? 'fw-bold fs-13   text-wrap' :
+                                                                ''
+                                                    }
+                                                >
+
                                                     {col.id && (
                                                         task[col.id as keyof Task]
                                                     )}
@@ -237,8 +246,9 @@ const TaskMaster: React.FC = () => {
                                                     handleJsonModal(task.task_Json);
 
                                                 }}
+                                                className='text-nowrap'
                                             >
-                                                View JSON
+                                                View Task
                                             </Button>
                                         </td>
                                         <td>

@@ -161,14 +161,6 @@ const getFilteredMenuItems = () => {
     },
 
 
-
-    // {
-    //   key: 'ChkLnMaster',
-    //   label: 'Action Center',
-    //   url: '/pages/ChkLnMaster',
-    //   icon: 'ri-user-settings-line',
-    //   parentKey: 'pages',
-    // },
     {
       key: 'systemmaster',
       label: 'System Master',
@@ -186,6 +178,13 @@ const getFilteredMenuItems = () => {
           key: 'systemmaster-ProcessMaster',
           label: 'Process Master',
           url: '/pages/ProcessMaster',
+          icon: 'ri-bubble-chart-line',
+          parentKey: 'systemmaster',
+        },
+        {
+          key: 'systemmaster-ProcessInitiation',
+          label: ' Initiation Master',
+          url: '/pages/ProcessInitiation',
           icon: 'ri-bubble-chart-line',
           parentKey: 'systemmaster',
         },

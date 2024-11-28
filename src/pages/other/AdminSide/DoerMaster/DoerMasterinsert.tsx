@@ -12,7 +12,8 @@ interface Doer {
     taskID: string;
     identifier: string;
     input: string;
-    inputValue: string;
+    identifierValue: string;
+    source: string;
     empID: string;
     empName: string;
     createdBy: string;
@@ -47,7 +48,8 @@ const EmployeeInsert = () => {
         taskID: '',
         identifier: '',
         input: '',
-        inputValue: '',
+        identifierValue: '',
+        source: '',
         empID: '',
         empName: '',
         createdBy: '',
@@ -56,7 +58,6 @@ const EmployeeInsert = () => {
     });
 
     const [searchTaskID, setSearchTaskID] = useState('');
-    // const [identifierData, setIdentifierData] = useState('');
 
     useEffect(() => {
         const storedEmpName = localStorage.getItem('EmpName');
@@ -123,8 +124,8 @@ const EmployeeInsert = () => {
                         ...prev,
                         taskID: fetchedTasks[0].taskID,
                         identifier: fetchedTasks[0].identifier,
-                        input: fetchedTasks[0].input,
-                        inputValue: fetchedTasks[0].inputValue,
+                        source: fetchedTasks[0].source,
+                        identifierValue: fetchedTasks[0].identifierValue,
                         empID: fetchedTasks[0].empID,
                         empName: fetchedTasks[0].employeeName,
                     }));
@@ -167,33 +168,6 @@ const EmployeeInsert = () => {
             updatedBy: editMode ? empName : '',
         };
         console.log(payload)
-        // try {
-        //     if (editMode) {
-        //         await axios.post(`${config.API_URL_APPLICATION}/DoerMaster/UpdateDoer`, payload);
-        //         navigate('/pages/DoerMaster', {
-        //             state: {
-        //                 showToast: true,
-        //                 toastMessage: "Doer Updated successfully!",
-        //                 toastVariant: "rgb(28 175 85)"
-        //             }
-        //         });
-        //     } else {
-        //         await axios.post(`${config.API_URL_APPLICATION}/DoerMaster/InsertDoer`, payload);
-        //         navigate('/pages/DoerMaster', {
-        //             state: {
-        //                 showToast: true,
-        //                 toastMessage: "Doer Added successfully!",
-        //                 toastVariant: "rgb(28 175 85)"
-        //             }
-        //         });
-        //     }
-        // } catch (error) {
-        //     const errorMessage = error instanceof Error ? error.message : 'Error Adding/Updating';
-        //     setToastMessage(errorMessage);
-        //     setToastVariant("rgb(213 18 18)"); 
-        //     setShowToast(true);
-        //     console.error('Error submitting module:', error);
-        // }
 
         try {
             const apiUrl = `${config.API_URL_APPLICATION}/DoerMaster/${editMode ? 'UpdateDoer' : 'InsertDoer'}`;
@@ -264,29 +238,31 @@ const EmployeeInsert = () => {
                                     />
                                 </Form.Group>
                             </Col>
+                          
                             <Col lg={6}>
-                                <Form.Group controlId="input" className="mb-3">
-                                    <Form.Label>Input:</Form.Label>
+                                <Form.Group controlId="identifierValue" className="mb-3">
+                                    <Form.Label>Identifier Value:</Form.Label>
                                     <Form.Control
                                         type="text"
-                                        name="input"
-                                        value={doers.input}
+                                        name="identifierValue"
+                                        value={doers.identifierValue}
                                         onChange={handleChange}
                                         required
-                                        placeholder='Enter Input'
+                                        placeholder='Enter Identifier Value'
                                     />
                                 </Form.Group>
                             </Col>
+
                             <Col lg={6}>
-                                <Form.Group controlId="inputValue" className="mb-3">
-                                    <Form.Label>Input Value:</Form.Label>
+                                <Form.Group controlId="source" className="mb-3">
+                                    <Form.Label>Source:</Form.Label>
                                     <Form.Control
                                         type="text"
-                                        name="inputValue"
-                                        value={doers.inputValue}
+                                        name="source"
+                                        value={doers.source}
                                         onChange={handleChange}
                                         required
-                                        placeholder='Enter InputValue'
+                                        placeholder='Source'
                                     />
                                 </Form.Group>
                             </Col>

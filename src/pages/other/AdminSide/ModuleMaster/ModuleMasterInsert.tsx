@@ -185,6 +185,7 @@ const EmployeeInsert = () => {
                                         onChange={(e) => setModule({ ...module, moduleDisplayName: e.target.value })}
                                         required
                                         placeholder='Enter Module Name'
+                                        disabled={editMode}
                                     />
                                   
 
@@ -201,6 +202,7 @@ const EmployeeInsert = () => {
                                         onChange={handleChange}
                                         required
                                         placeholder='Enter Module ID'
+                                        disabled={editMode}
                                     />
                                 </Form.Group>
                             </Col>

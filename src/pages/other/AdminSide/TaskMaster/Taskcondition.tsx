@@ -104,21 +104,7 @@ const TaskCondition: React.FC<ProcessCanvasProps> = ({ show, setShow, taskID }) 
     const [singleData, setSignleData] = useState<TaskData[]>([]); // Use an array of TaskData
     const [showToast, setShowToast] = useState(false);
     const [toastMessage, setToastMessage] = useState<string>('');
-    const [parseConditionData, setParseConditionData] = useState<FormData[]>([
-        // {
-        //     sundayLogic: "Increase Planned day by 1 Day",
-        //     isExpirable: 1,
-        //     expirationDate: "2024-11-22T06:30:00.000Z",
-        //     taskSelections: [
-        //         {
-        //             taskNumber: "ACC.01.T3",
-        //             taskType: "Actual",
-        //             taskTiming: "Day",
-        //             Day: "3",
-        //         }
-        //     ]
-        // }
-    ]);
+    const [parseConditionData, setParseConditionData] = useState<FormData[]>([]);
     const [toastVariant, setToastVariant] = useState('');
     const [showNestedModal, setShowNestedModal] = useState(false);
 
@@ -361,7 +347,9 @@ const TaskCondition: React.FC<ProcessCanvasProps> = ({ show, setShow, taskID }) 
 
         };
 
+        alert("This Update will be Applicable for next Cycle")
         console.log(payload)
+
 
         try {
             const apiUrl = `${config.API_URL_ACCOUNT}/ProcessTaskMaster/InsertUpdateProcessTaskandDoer`;

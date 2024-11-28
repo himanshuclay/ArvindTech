@@ -435,7 +435,6 @@ const ModuleMaster = () => {
                                                             <th><i className="ri-flow-chart "></i> Subprojects</th>
                                                             <th><i className="ri-task-line"></i> Tasks</th>
                                                             <th><i className="ri-tools-line"></i> Action</th>
-                                                            <th><i className="ri-play-circle-fill"></i> Initiation</th>
                                                         </tr>
                                                     )}
                                                 </Droppable>
@@ -461,6 +460,9 @@ const ModuleMaster = () => {
                                                                                 <IconWithLetter letter={item.processOwnerName.charAt(0)} />
                                                                                 {item.processOwnerName.split('_')[0]}
                                                                             </div>
+                                                                            {item.userUpdatedMobileNumber ?
+                                                                                <p className='phone_user fw-normal m-0'><a href={`tel:${item.userUpdatedMobileNumber}`}> <i className="ri-phone-fill"></i> {item.userUpdatedMobileNumber}</a></p> : ""
+                                                                            }
                                                                         </td>
                                                                     ) : (
                                                                         <div>
@@ -476,7 +478,6 @@ const ModuleMaster = () => {
                                                             <td><Button variant='primary' className=' text-white icon-padding' title="You can Add and Remove Porject from this Process." onClick={() => handleEdit(item.id)}> <i className="fs-18 ri-folder-add-line "></i> </Button></td>
                                                             <td><Button variant='primary' className=' text-white icon-padding' title="You can View the running tasks." onClick={() => handleViewEdit(item.id)}>  <i className=" fs-18 ri-eye-line "></i></Button></td>
                                                             <td><Link to={`/pages/ProcessMasterinsert/${item.id}`}><Button variant='primary' className=' text-white icon-padding' title="You can Edit the Porcess." ><i className='fs-18 ri-edit-line text-white' ></i></Button></Link></td>
-                                                            <td><Link to={`/pages/ProcessInitiation/${item.moduleID}-Module/${item.processID}/Process/${item.id}`}><Button variant='primary' className='icon-padding text-white'><i className=" fs-18 ri-list-settings-line text-white"></i></Button></Link></td>
 
                                                         </tr>
                                                     ))

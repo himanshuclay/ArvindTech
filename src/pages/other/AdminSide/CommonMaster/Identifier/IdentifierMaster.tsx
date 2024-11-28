@@ -62,9 +62,9 @@ const ModuleMaster = () => {
     // both are required to make dragable column of table 
     const [columns, setColumns] = useState<Column[]>([
         { id: 'taskID', label: 'Task Number', visible: true },
-        { id: 'identifier', label: 'Identifier', visible: true },
-        { id: 'input', label: 'Input', visible: true },
-        { id: 'inputValue', label: 'Input Value', visible: true },
+        { id: 'identifier', label: 'Identifier ', visible: true },
+        { id: 'identifierValue', label: 'Identifier Value', visible: true },
+        { id: 'source', label: 'Source Type', visible: true },
         { id: 'empID', label: 'Employee ID ', visible: true },
         { id: 'employeeName', label: 'Employee Name', visible: true },
 
@@ -213,7 +213,7 @@ const ModuleMaster = () => {
 
 
     const filteredIdentifiers = identifiers.filter(identifier =>
-        identifier.identifier.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        // identifier.identifier.toLowerCase().includes(searchQuery.toLowerCase()) ||
         identifier.taskID.toLowerCase().includes(searchQuery.toLowerCase()) ||
         identifier.input.toLowerCase().includes(searchQuery.toLowerCase()) ||
         identifier.inputValue.toLowerCase().includes(searchQuery.toLowerCase()) ||

@@ -322,6 +322,7 @@ const EmployeeInsert = () => {
                                         isSearchable={true}
                                         placeholder="Select Module Name"
                                         required
+                                        isDisabled={editMode}
                                     />
                                 </Form.Group>
                             </Col>
@@ -335,6 +336,8 @@ const EmployeeInsert = () => {
                                         onChange={handleChange}
                                         required
                                         placeholder='Enter Process ID'
+                                        disabled={editMode}
+
                                     />
                                 </Form.Group>
                             </Col>
@@ -348,6 +351,8 @@ const EmployeeInsert = () => {
                                         onChange={handleChange}
                                         required
                                         placeholder='Enter Process Name'
+                                        disabled={editMode}
+
                                     />
                                 </Form.Group>
                             </Col>
@@ -478,7 +483,7 @@ const EmployeeInsert = () => {
                                     </div>
                                 </Form.Group>
                             </Col> */}
-                            <Col lg={6}>
+                            <Col lg={12}>
                                 <Form.Group controlId="processFlowchart" className="mb-3">
                                     <Form.Label>Process Flowchart</Form.Label>
                                     <FileUploader

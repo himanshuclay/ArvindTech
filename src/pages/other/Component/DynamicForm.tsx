@@ -308,7 +308,6 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
         const runOnReload = () => {
             console.log("Page reloaded or component mounted");
             localStorage.removeItem(localStorageKey);
-            console.log([preData])
             // Your logic here
         };
 
@@ -852,7 +851,6 @@ console.log(moduleId)
                     const response = await axios.get(`https://arvindo-api.clay.in/api/ProcessInitiation/GetMessData?EmpID=${selectedManager}`);
                     const data = response.data.getMessDataByMessManagerEmpID[0]; // Assuming one result
 
-                    // Update bank details state with the fetched data
                     setBankDetails({
                         reimbursementBankAccountNumber: data.reimbursementBankAccountNumber,
                         reimbursementBankName: data.reimbursementBankName,
@@ -952,8 +950,6 @@ console.log(moduleId)
     useEffect(() => {
         const savedDataString = localStorage.getItem(localStorageKey);
         const savedData: MessData[] = JSON.parse(savedDataString || '[]');
-
-        console.log(preData)
 
         const currentData = savedData.find((data) => data.messID === messList[currentStep].messID);
         if (currentData) {

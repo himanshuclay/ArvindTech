@@ -12,10 +12,10 @@ interface Identifier {
     id: number;
     identifier: string;
     taskID: string;
-    input: string;
-    inputValue: string;
+    identifierValue: string;
     empID: string;
     employeeName: string;
+    source: string;
     createdBy: string;
     updatedBy: string;
 }
@@ -30,6 +30,11 @@ interface EmployeeList {
     employeeName: string;
 }
 
+interface IdentifierValue {
+    id: string;
+    name: string;
+}
+
 
 
 const EmployeeInsert = () => {
@@ -42,13 +47,15 @@ const EmployeeInsert = () => {
     const [showToast, setShowToast] = useState(false);
     const [toastMessage, setToastMessage] = useState("");
     const [toastVariant, setToastVariant] = useState('');
+    const [identifierName, setIdentifierName] = useState('');
+    const [identifierValue, setIdentifierValue] = useState<IdentifierValue[]>([]);
     const [identifiers, setIdentifiers] = useState<Identifier>({
         id: 0,
         identifier: '',
         taskID: '',
-        input: '',
-        inputValue: '',
+        identifierValue: '',
         empID: '',
+        source: '',
         employeeName: '',
         createdBy: '',
         updatedBy: '',
@@ -89,6 +96,27 @@ const EmployeeInsert = () => {
         }
     };
 
+    useEffect(() => {
+        const fetchIdentifierValue = async (identifierName: string) => {
+            try {
+                const response = await axios.get(`${config.API_URL_APPLICATION}/IdentifierMaster/GetIdentifierByFlag`, {
+                    params: { IdentifierName: identifierName }
+                });
+                if (response.data.isSuccess) {
+                    const fetchedModule = response.data.getIdentifierByFlags;
+                    setIdentifierValue(fetchedModule);
+                } else {
+                    console.error(response.data.message);
+                }
+            } catch (error) {
+                console.error('Error fetching module:', error);
+            }
+        };
+
+        fetchIdentifierValue(identifierName);
+
+    }, [identifierName])
+
 
     useEffect(() => {
         const fetchData = async (endpoint: string, setter: Function, listName: string) => {
@@ -108,16 +136,25 @@ const EmployeeInsert = () => {
     }, []);
 
 
-    const handleChange = (e: ChangeEvent<any>) => {
-        const { name, type } = e.target;
-        if (type === 'checkbox') {
-            const checked = (e.target as HTMLInputElement).checked;
-            setIdentifiers({
-                ...identifiers,
-                [name]: checked
-            });
-        } else {
-            const value = (e.target as HTMLInputElement | HTMLSelectElement).value;
+
+    const handleChange = (e: ChangeEvent<any> | null, name?: string, value?: any) => {
+        if (e) {
+            const { name: eventName, type } = e.target;
+
+            if (type === 'checkbox') {
+                const checked = (e.target as HTMLInputElement).checked;
+                setIdentifiers({
+                    ...identifiers,
+                    [eventName]: checked
+                });
+            } else {
+                const inputValue = (e.target as HTMLInputElement | HTMLSelectElement).value;
+                setIdentifiers({
+                    ...identifiers,
+                    [eventName]: inputValue
+                });
+            }
+        } else if (name) {
             setIdentifiers({
                 ...identifiers,
                 [name]: value
@@ -134,38 +171,38 @@ const EmployeeInsert = () => {
             updatedBy: editMode ? empName : '',
         };
         console.log(payload)
-     
-      
+
+
         try {
-            if (editMode) {
-                await axios.post(`${config.API_URL_APPLICATION}/IdentifierMaster/InsertUpdateIdentifier`, payload);
-                navigate('/pages/IdentifierMaster', {
-                    state: {
-                        showToast: true,
-                        toastMessage: "Identifier Updated successfully!",
-                        toastVariant: "rgb(28 175 85)"
-                    }
-                });
-            } else {
-                await axios.post(`${config.API_URL_APPLICATION}/IdentifierMaster/InsertUpdateIdentifier`, payload);
-                navigate('/pages/IdentifierMaster', {
-                    state: {
-                        showToast: true,
-                        toastMessage: "Identifier Added successfully!",
-                        toastVariant: "rgb(28 175 85)"
-                    }
-                });
-            }
+            await axios.post(`${config.API_URL_APPLICATION}/IdentifierMaster/InsertUpdateIdentifier`, payload);
+            navigate('/pages/IdentifierMaster', {
+                state: {
+                    showToast: true,
+                    toastMessage: editMode ? 'Identifier Updated Successfully! ' : 'Identifier Added Successfully!',
+                    toastVariant: "rgb(28 175 85)"
+                }
+            });
 
 
-        } catch (error) {
-            setToastMessage("Error Adding/Updating");
+        } catch (error :any) {
+            setToastMessage(error || "Error Adding/Updating");
             setToastVariant("rgb(213 18 18)");
             setShowToast(true);
             console.error('Error submitting module:', error);
         }
     };
 
+
+    const options = [
+        { value: 'Master', label: 'Master' },
+        { value: 'Manual Creation', label: 'Manual Creation' }
+    ];
+    const optionsIdentifier = [
+        { value: 'PROJECT', label: 'PROJECT' },
+        { value: 'SUBPROJECT', label: 'SUBPROJECT' },
+        { value: 'INVOICETYPE', label: 'INVOICETYPE' },
+        { value: 'BANK', label: 'BANK' }
+    ];
 
     return (
         <div>
@@ -202,39 +239,55 @@ const EmployeeInsert = () => {
                             <Col lg={6}>
                                 <Form.Group controlId="identifier" className="mb-3">
                                     <Form.Label>Identifier Name:</Form.Label>
-                                    <Form.Control
-                                        type="text"
+                                    <Select
                                         name="identifier"
-                                        value={identifiers.identifier}
-                                        onChange={handleChange}
+                                        options={optionsIdentifier}
+                                        value={optionsIdentifier.find(option => option.value === identifierName)}
+                                        onChange={(selectedOption) => {
+                                            const value = selectedOption?.value || '';
+                                            handleChange(null, 'identifier', value);
+                                            setIdentifierName(value);
+                                        }}
+                                        placeholder="Select Identifier Name"
                                         required
-                                        placeholder='Enter Identifier Name'
                                     />
                                 </Form.Group>
                             </Col>
+
+
                             <Col lg={6}>
-                                <Form.Group controlId="input" className="mb-3">
-                                    <Form.Label>Input:</Form.Label>
-                                    <Form.Control
-                                        type="text"
-                                        name="input"
-                                        value={identifiers.input}
-                                        onChange={handleChange}
+                                <Form.Group controlId="identifierValue" className="mb-3">
+                                    <Form.Label>Identifier Value:</Form.Label>
+                                    <Select
+                                        name="identifierValue"
+                                        value={identifierValue.find((mod) => mod.name === identifiers.identifierValue)}
+                                        onChange={(selectedOption) => {
+                                            setIdentifiers({
+                                                ...identifiers,
+                                                identifierValue: selectedOption?.name || '',
+                                            });
+                                        }}
+                                        getOptionLabel={(mod) => mod.name}
+                                        getOptionValue={(mod) => mod.name}
+                                        options={identifierValue}
+                                        isSearchable={true}
+                                        placeholder="Select Identifier Value"
                                         required
-                                        placeholder='Enter Input'
+                                        isDisabled={!identifierName}
                                     />
                                 </Form.Group>
                             </Col>
+
                             <Col lg={6}>
-                                <Form.Group controlId="inputValue" className="mb-3">
-                                    <Form.Label>Input Value:</Form.Label>
-                                    <Form.Control
-                                        type="text"
-                                        name="inputValue"
-                                        value={identifiers.inputValue}
-                                        onChange={handleChange}
+                                <Form.Group controlId="source" className="mb-3">
+                                    <Form.Label>Source</Form.Label>
+                                    <Select
+                                        name="source"
+                                        options={options}
+                                        value={options.find(option => option.value === identifiers.source)}
+                                        onChange={selectedOption => handleChange(null, 'source', selectedOption?.value)}
+                                        placeholder="Source Type"
                                         required
-                                        placeholder='Enter InputValue'
                                     />
                                 </Form.Group>
                             </Col>
