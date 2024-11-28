@@ -221,9 +221,9 @@ const ApprovalPage: React.FC = () => {
 
       {selectedTask && show && (
         <DynamicForm
+          fromComponent='ApprovalConsole'
           formData={JSON.parse(selectedTask.task_Json)}
           taskNumber={selectedTask.task_Number}
-          onDoerChange={() => { }}
           data={tasks}
           show={show}
 
