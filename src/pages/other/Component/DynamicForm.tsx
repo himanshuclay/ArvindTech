@@ -27,6 +27,7 @@ interface Input {
     value?: any;
     selectedMaster?: string;
     selectedHeader?: string;
+    visibility?: boolean;
 }
 
 interface DynamicFormProps {
@@ -512,16 +513,14 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
 
     // Handle change in input values
     const handleChange = (inputId: string, value: string | boolean | string[]) => {
-        // Prevent default behavior (if needed)
-        // event.preventDefault(); 
-
         const excludedInputIds = ['99', '100', '102', '103'];
         const input = formData.inputs.find(input => input.inputId === inputId);
 
         let updatedValue = value;
+        let updatedVisibility = input?.visibility ?? true; // Default to true if visibility is not defined
         var selectedLabel: any;
-        console.log(`Selected label: ${selectedLabel}`);
 
+        console.log(`Selected label: ${selectedLabel}`);
 
         if (input) {
             selectedLabel = input.label;
@@ -545,12 +544,13 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
 
                 // Update visibility based on the selected option ID
                 setShowMessManagerSelect(selectedOption.id === '11-1');
+
+                // Example: Change visibility based on selected option
+                updatedVisibility = selectedOption.id === '11-1' ? true : false; // Adjust visibility logic as needed
             } else {
-                // Handle case where no option is selected
                 console.warn(`No option found for the value: ${value}`);
             }
         }
-
 
         // Handle multiselect input type
         if (input && input.type === 'multiselect') {
@@ -593,6 +593,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
             const newState = {
                 ...prevState,
                 ...(excludedInputIds.includes(inputId) ? {} : { [inputId]: updatedValue }),
+                ...(excludedInputIds.includes(inputId) ? {} : { [`${inputId}_visibility`]: updatedVisibility }), // Add visibility to state
             };
 
             // Update taskJson only when inputId is not excluded
@@ -602,11 +603,10 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                     inputs: formData.inputs.map(input => ({
                         ...input,
                         value: newState[input.inputId] !== undefined ? newState[input.inputId] : input.value,
+                        visibility: newState[`${input.inputId}_visibility`] !== undefined ? newState[`${input.inputId}_visibility`] : input.visibility, // Update visibility in taskJson
                     })),
                 };
 
-                // Set taskJson in JSON format, matching formData structure
-                // setTaskJson(JSON.stringify(updatedTaskJson, null, 2)); 
                 setglobalTaskJson(updatedTaskJson);
             }
 
@@ -618,10 +618,11 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
             return newState;
         });
     };
+
     console.log(formState);
 
 
-console.log(moduleId)
+    console.log(moduleId)
 
     const handleSubmit = async (event: React.FormEvent, taskNumber: string) => {
         event.preventDefault();
@@ -1146,7 +1147,7 @@ console.log(moduleId)
                                 <div className="form-section" style={{ width: '90%', paddingLeft: '20px' }}>
                                     <div className="my-task">
                                         {formData.inputs.map((input: Input) => (
-                                            shouldDisplayInput(input) && (
+                                            (fromComponent === 'TaskMaster' || shouldDisplayInput(input)) && (
                                                 <div className='form-group' key={input.inputId} style={{ marginBottom: '1rem' }}>
                                                     <label className='label'>{input.label}</label>
                                                     {input.type === 'text' && (
@@ -1455,12 +1456,14 @@ console.log(moduleId)
                                                     </button>
                                                 )}
                                             </div>
-                                        ) : <button
+                                        ) : <> {fromComponent != 'TaskMaster' && <button
                                             type="submit" // This button will submit the form
                                             className="btn btn-success mt-2"
                                         >
                                             Submit
                                         </button>}
+                                        </>
+                                        }
                                     </div>
                                 </div>
                             </Modal.Body>

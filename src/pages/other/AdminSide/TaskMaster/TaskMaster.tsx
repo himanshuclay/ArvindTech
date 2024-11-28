@@ -223,7 +223,7 @@ const TaskMaster: React.FC = () => {
                                         {columns
                                             .filter((col) => col.visible)
                                             .map((col) => (
-                                                <td key={col.id}>
+                                                <td key={col.id} className='col-2'>
                                                     {col.id && (
                                                         task[col.id as keyof Task]
                                                     )}
@@ -238,7 +238,7 @@ const TaskMaster: React.FC = () => {
 
                                                 }}
                                             >
-                                                View JSON
+                                                View Task
                                             </Button>
                                         </td>
                                         <td>
