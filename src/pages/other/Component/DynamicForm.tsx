@@ -36,14 +36,14 @@ interface DynamicFormProps {
         approval_Console: string;
         inputs: Input[];
     };
-    taskNumber: string;
-    onDoerChange: (taskNumber: string, selectedOption: Option | null) => void;
+    taskNumber: any;
+    // onDoerChange: (taskNumber: string, selectedOption: Option | null) => void;
     data: any;
     show: boolean;
     parsedCondition: any;
     setShow: any;
     preData: any;
-    selectedTasknumber: string
+    selectedTasknumber: any;
     setLoading: any
     taskCommonIDRow: any
     taskStatus: any
@@ -308,6 +308,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
         const runOnReload = () => {
             console.log("Page reloaded or component mounted");
             localStorage.removeItem(localStorageKey);
+            console.log([preData])
             // Your logic here
         };
 
@@ -908,6 +909,8 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
         const savedDataString = localStorage.getItem(localStorageKey);
         const savedData: MessData[] = JSON.parse(savedDataString || '[]');
 
+        console.log(preData)
+
         const currentData = savedData.find((data) => data.messID === messList[currentStep].messID);
         if (currentData) {
             setFormState(currentData.taskJson || []);
@@ -927,24 +930,27 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
 
                 {location.pathname != '/pages/ApprovalConsole' && (
                     <div className='px-3'>
-
-                        {preData.map((task: any, index: any) => (
-                            <div key={index}>
-                                {selectedTasknumber != task.taskNumber && (
-                                    <>
-                                        <h5 className='mt-2'>Updated data from <span className='text-primary'>{task.taskNumber}</span></h5>
-                                        <div>
-                                            {task.inputs.map((input: any, idx: any) => (
-                                                <div key={idx}>
-                                                    <strong>{input.label}:</strong> <span className='text-primary'>{input.value}</span>
+                        {preData &&
+                            <>
+                                {/* {preData.map((task: any, index: any) => (
+                                    <div key={index}>
+                                        {selectedTasknumber != task.taskNumber && (
+                                            <>
+                                                <h5 className='mt-2'>Updated data from <span className='text-primary'>{task.taskNumber}</span></h5>
+                                                <div>
+                                                    {task.inputs.map((input: any, idx: any) => (
+                                                        <div key={idx}>
+                                                            <strong>{input.label}:</strong> <span className='text-primary'>{input.value}</span>
+                                                        </div>
+                                                    ))}
                                                 </div>
-                                            ))}
-                                        </div>
-                                        <hr />
-                                    </>
-                                )}
-                            </div>
-                        ))}
+                                                <hr />
+                                            </>
+                                        )}
+                                    </div>
+                                ))} */}
+                            </>
+                        }
 
 
                     </div>

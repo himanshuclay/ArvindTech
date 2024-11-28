@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { Button, Form, Table, Alert, Container, Row, Col } from 'react-bootstrap';
+import { Button, Form, Table, Alert, Container, Row, Col, Modal } from 'react-bootstrap';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import { Link } from 'react-router-dom';
 import config from '@/config';
 import Select from 'react-select';
 import TaskCondition from './Taskcondition';
+import DynamicForm from '../../Component/DynamicForm';
 
 // Interfaces for the data
 interface Task {
@@ -14,6 +15,7 @@ interface Task {
     processName: string;
     task_Number: string;
     roleName: string;
+    task_Json: string;
 }
 
 interface Module {
@@ -41,6 +43,9 @@ const TaskMaster: React.FC = () => {
     const [selectedModuleId, setSelectedModuleId] = useState<string>('');
     const [selectedProcess, setSelectedProcess] = useState<string>('');
     const [show, setShow] = useState(false);
+    const [selectedJson, setSelectedJson] = useState<string>(''); // State for JSON display
+    const [showJsonModal, setShowJsonModal] = useState(false); // State to show/hide JSON modal
+
 
 
 
@@ -102,21 +107,31 @@ const TaskMaster: React.FC = () => {
             .then((response) => {
                 if (response.data.isSuccess) {
                     setTasks(response.data.getProcessTaskByIds);
-                    console.log(tasks)
                 }
             })
             .catch((error) => console.error('Error fetching tasks:', error));
     }, [selectedModuleId && selectedProcess]);
 
 
-   
+
 
     const handleShow = () => setShow(true);
     const handleCondition = (id: number) => {
         handleShow();
         setTaskID(id)
+        console.log(taskID)
 
     };
+
+
+
+    // Handle JSON Modal
+    const handleJsonModal = (task_Json: string) => {
+        setSelectedJson(task_Json);
+        setShowJsonModal(true)
+    };
+
+    console.log(selectedJson)
 
 
 
@@ -131,10 +146,10 @@ const TaskMaster: React.FC = () => {
                     <Form.Label>Select Module</Form.Label>
                     <Select
                         name="selectedModule"
-                        value={modules.find(item => item.moduleName === selectedModule) || null} 
+                        value={modules.find(item => item.moduleName === selectedModule) || null}
                         onChange={(selectedOption) => {
                             setSelectedModule(selectedOption ? selectedOption.moduleName : "");
-                            setSelectedModuleId(selectedOption ? selectedOption.moduleID : ""); 
+                            setSelectedModuleId(selectedOption ? selectedOption.moduleID : "");
                         }}
                         options={modules}
                         getOptionLabel={(item) => item.moduleName}
@@ -150,7 +165,7 @@ const TaskMaster: React.FC = () => {
                     <Form.Label>Select Process</Form.Label>
                     <Select
                         name="selectedProcess"
-                        value={processes.find(item => item.processID === selectedProcess) || null} 
+                        value={processes.find(item => item.processID === selectedProcess) || null}
                         onChange={(selectedOption) => setSelectedProcess(selectedOption ? selectedOption.processID : "")}
                         options={processes}
                         getOptionLabel={(item) => item.processName}
@@ -168,8 +183,6 @@ const TaskMaster: React.FC = () => {
                     </Link>
                 </div>
             </div>
-
-
 
             <div className="overflow-auto text-nowrap mt-4">
                 <DragDropContext onDragEnd={handleOnDragEnd}>
@@ -211,11 +224,23 @@ const TaskMaster: React.FC = () => {
                                             .filter((col) => col.visible)
                                             .map((col) => (
                                                 <td key={col.id}>
-
-                                                    {task[col.id as keyof Task]}
-
+                                                    {col.id && (
+                                                        task[col.id as keyof Task]
+                                                    )}
                                                 </td>
                                             ))}
+                                        <td>
+                                            <Button
+                                                variant="primary"
+                                                onClick={() => {
+
+                                                    handleJsonModal(task.task_Json);
+
+                                                }}
+                                            >
+                                                View JSON
+                                            </Button>
+                                        </td>
                                         <td>
                                             <Button variant="primary" onClick={() => handleCondition(task.id)}>Conditions</Button>
                                         </td>
@@ -242,6 +267,48 @@ const TaskMaster: React.FC = () => {
                 </DragDropContext>
             </div>
             <TaskCondition show={show} setShow={setShow} taskID={taskID} />
+
+            {/* <DynamicForm
+                formData={JSON.parse(selectedJson)}
+                taskNumber
+                data
+                show={showJsonModal}
+                setShow={setShowJsonModal}
+                parsedCondition
+                preData
+                selectedTasknumber
+                setLoading
+                taskCommonIDRow
+                taskStatus
+                processId
+                moduleId
+                ProcessInitiationID
+                approval_Console
+                approvalConsoleInputID
+
+            /> */}
+
+            {selectedJson &&
+                <DynamicForm
+                    formData={JSON.parse(selectedJson)}
+                    taskNumber
+                    data
+                    show={showJsonModal}
+                    setShow={setShowJsonModal}
+                    parsedCondition
+                    preData
+                    selectedTasknumber
+                    setLoading
+                    taskCommonIDRow
+                    taskStatus
+                    processId
+                    moduleId
+                    ProcessInitiationID
+                    approval_Console
+                    approvalConsoleInputID
+
+                />
+            }
 
         </div>
     );
