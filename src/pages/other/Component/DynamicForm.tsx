@@ -206,6 +206,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
         const currentmessManagerName = messList[currentStep].managerName;
         const currentmessManagerId = messList[currentStep].managerEmpID;
         const currentmessManagerNumber = messList[currentStep].mobileNumber;
+        const messTaskNumber = taskNumber;
         // const formConfig = formData?.inputs || [];
 
         // Transform formState into the taskJson structure
@@ -239,6 +240,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
         if (existingIndex >= 0) {
             updatedData[existingIndex] = {
                 messID: currentmessID,
+                messTaskNumber: messTaskNumber,
                 messName: currentmessName,
                 messManager: currentmessManagerName,
                 messManagerId: currentmessManagerId,
@@ -253,6 +255,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
             updatedData.push({
                 messID: currentmessID,
                 messName: currentmessName,
+                messTaskNumber: messTaskNumber,
                 messManager: currentmessManagerName,
                 messManagerId: currentmessManagerId,
                 mobileNumber: currentmessManagerNumber,
@@ -1009,12 +1012,12 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                         ))} */}
                         {location.pathname !== '/pages/ApprovalConsole' && (
                             <div className="d-flex flex-wrap mx-3">
-                                {preData && preData.length > 0 && preData.map((task: { taskNumber: string; messName: string; messManager: string; managerNumber: string; inputs: { label: string; value: string }[] }, index: number) => (
+                                {preData && preData.length > 0 && preData.map((task: { taskNumber: string; messName: string; messTaskNumber: string; messManager: string; managerNumber: string; inputs: { label: string; value: string }[] }, index: number) => (
                                     <div key={index} className="m-1 w-24">
                                         {selectedTasknumber !== task.taskNumber && (
                                             <div className="card shadow-sm w-100">
                                                 <div className="card-body">
-                                                    <h5 className="card-title text-primary">Task Number: <span>{taskNumber}</span></h5>
+                                                    <h5 className="card-title text-primary">Task Number: <span>{task.messTaskNumber}</span></h5>
                                                     <p className="card-text mb-2">
                                                         <strong>Mess Name: </strong><span className='text-primary'>{task.messName}</span><br />
                                                         <strong>Mess Manager Name: </strong> <span className='text-primary'>{task.messManager}</span><br />

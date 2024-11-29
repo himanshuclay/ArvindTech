@@ -251,6 +251,7 @@ const ProjectAssignTable: React.FC = () => {
                     messName: taskJson.messName, // Include messID for reference
                     messManager: taskJson.messManager, // Include messID for reference
                     managerNumber: taskJson.mobileNumber,
+                    messTaskNumber: taskJson.messTaskNumber,
                     inputs: filteredInputsdata // Return filtered inputs
                   };
 
@@ -589,46 +590,48 @@ const ProjectAssignTable: React.FC = () => {
                                   </div>
                                 </div>
                               </div>
-                              <div className='flex-column d-flex col-4'>
-                                <span className="fs-5">Project Coordinator</span>
-                                <div className="d-flex flex-row my-2 align-items-center">
-                                  <span className="icon-circle me-1">{item.projectCoordinator.charAt(0).toUpperCase()}</span>
-                                  <div className="d-flex flex-column">
-                                    <span className="text-primary fw-bold">{item.projectCoordinator}</span>
-                                    <div className="d-flex align-items-center">
-                                      <span>{item.projectCoordinatorMobileNumber}</span>
-                                      <a
-                                        href={`tel:${item.projectCoordinatorMobileNumber}`}
-                                        className="ms-1 text-primary"
-                                        style={{ textDecoration: "none" }}
-                                        aria-label="Call"
-                                      >
-                                        <i className="ri-phone-line" style={{ fontSize: "1rem" }}></i>
-                                      </a>
+                              {item.projectCoordinator &&
+                                <div className='flex-column d-flex col-4'>
+                                  <span className="fs-5">Project Coordinator</span>
+                                  <div className="d-flex flex-row my-2 align-items-center">
+                                    <span className="icon-circle me-1">{item.projectCoordinator.charAt(0).toUpperCase()}</span>
+                                    <div className="d-flex flex-column">
+                                      <span className="text-primary fw-bold">{item.projectCoordinator}</span>
+                                      <div className="d-flex align-items-center">
+                                        <span>{item.projectCoordinatorMobileNumber}</span>
+                                        <a
+                                          href={`tel:${item.projectCoordinatorMobileNumber}`}
+                                          className="ms-1 text-primary"
+                                          style={{ textDecoration: "none" }}
+                                          aria-label="Call"
+                                        >
+                                          <i className="ri-phone-line" style={{ fontSize: "1rem" }}></i>
+                                        </a>
+                                      </div>
                                     </div>
                                   </div>
-                                </div>
-                              </div>
-                              <div className='flex-column d-flex col-4'>
-                                <span className="fs-5">Project Incharge</span>
-                                <div className="d-flex flex-row my-2 align-items-center">
-                                  <span className="icon-circle me-1">{item.projectIncharge.charAt(0).toUpperCase()}</span>
-                                  <div className="d-flex flex-column">
-                                    <span className="text-primary fw-bold">{item.projectIncharge}</span>
-                                    <div className="d-flex align-items-center">
-                                      <span>{item.projectInchargeMobileNumber}</span>
-                                      <a
-                                        href={`tel:${item.projectInchargeMobileNumber}`}
-                                        className="ms-1 text-primary"
-                                        style={{ textDecoration: "none" }}
-                                        aria-label="Call"
-                                      >
-                                        <i className="ri-phone-line" style={{ fontSize: "1rem" }}></i>
-                                      </a>
+                                </div>}
+                              {item.projectIncharge &&
+                                <div className='flex-column d-flex col-4'>
+                                  <span className="fs-5">Project Incharge</span>
+                                  <div className="d-flex flex-row my-2 align-items-center">
+                                    <span className="icon-circle me-1">{item.projectIncharge.charAt(0).toUpperCase()}</span>
+                                    <div className="d-flex flex-column">
+                                      <span className="text-primary fw-bold">{item.projectIncharge}</span>
+                                      <div className="d-flex align-items-center">
+                                        <span>{item.projectInchargeMobileNumber}</span>
+                                        <a
+                                          href={`tel:${item.projectInchargeMobileNumber}`}
+                                          className="ms-1 text-primary"
+                                          style={{ textDecoration: "none" }}
+                                          aria-label="Call"
+                                        >
+                                          <i className="ri-phone-line" style={{ fontSize: "1rem" }}></i>
+                                        </a>
+                                      </div>
                                     </div>
                                   </div>
-                                </div>
-                              </div>
+                                </div>}
                             </div>
                             <div className='mt-2 d-flex justify-content-between'>
                               <div className="mb-2 d-flex col-4 flex-column">
