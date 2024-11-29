@@ -1,12 +1,11 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { Button, Table, Offcanvas, Toast, Container, Row, Col, Alert, Card } from 'react-bootstrap';
+import { Button, Table, Toast, Container, Row, Col, Alert, Modal } from 'react-bootstrap';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { parse, addDays, format, isValid } from 'date-fns';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
-import Overlay from 'react-bootstrap/Overlay';
-import Tooltip from 'react-bootstrap/Tooltip';
 import config from '@/config';
+import MessCards from '../Component/Previous&Completed';
 
 
 
@@ -55,16 +54,17 @@ interface Column {
 
 
 
+
 const ProjectAssignTable: React.FC = () => {
   const [data, setData] = useState<ProjectAssignListWithDoer[]>([]);
-  const [preData, setPreData] = useState<ProjectAssignListWithDoer[]>([]);
+  const [preData, setPreData] = useState<any>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [show, setShow] = useState(false);
   const [taskCommonId, setTaskCommonId] = useState<number | null>(null);
   const [showToast, setShowToast] = useState(false);
   const [taskName, setTaskName] = useState<string | undefined>(undefined);
 
-  const [popoverIndex, setPopoverIndex] = useState<number | null>(null);
+  // const [popoverIndex, setPopoverIndex] = useState<number | null>(null);
   // =======================================================================
   // both are required to make dragable column of table 
   const [columns, setColumns] = useState<Column[]>([
@@ -89,7 +89,7 @@ const ProjectAssignTable: React.FC = () => {
   };
   // ==============================================================
 
-  const targetRefs = useRef<(HTMLSpanElement | null)[]>([]);
+  // const targetRefs = useRef<(HTMLSpanElement | null)[]>([]);
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -183,6 +183,10 @@ const ProjectAssignTable: React.FC = () => {
 
                 return {
                   messID: taskJson.messID, // Include messID for reference
+                  messName: taskJson.messName, // Include messID for reference
+                  messManager: taskJson.messManager, // Include messID for reference
+                  managerNumber: taskJson.mobileNumber,
+                  messTaskNumber: taskJson.messTaskNumber,
                   inputs: filteredInputsdata // Return filtered inputs
                 };
               } else {
@@ -254,122 +258,6 @@ const ProjectAssignTable: React.FC = () => {
     return format(updatedDate, 'dd/mmm/yyyy HH:mm:ss');
   };
 
-  // Example Usage
-  // const updatedDate = formatAndUpdateDate('21-09-2023 15:30:00', '48');
-  // console.log(updatedDate);
-  // const preDatas = [
-  //   {
-  //     "messID": "MESS-1717998452037",
-  //     "inputs": [
-  //       { "label": "Mess Working Status", "value": "Active" },
-  //       { "label": "No. of people forecasted to dine in the week", "value": "11" },
-  //       { "label": "Enter Advance Requested Amount", "value": "11000" }
-  //     ]
-  //   },
-  //   {
-  //     "messID": "MESS-1712231625308",
-  //     "inputs": [
-  //       { "label": "Mess Working Status", "value": "Active" },
-  //       { "label": "No. of people forecasted to dine in the week", "value": "12" },
-  //       { "label": "Enter Advance Requested Amount", "value": "12000" }
-  //     ]
-  //   },
-  //   {
-  //     "messID": "MESS-91701666356337",
-  //     "inputs": [
-  //       { "label": "Mess Working Status", "value": "Active" },
-  //       { "label": "No. of people forecasted to dine in the week", "value": "13" },
-  //       { "label": "Enter Advance Requested Amount", "value": "13000" }
-  //     ]
-  //   },
-  //   {
-  //     "messID": "MESS-1717998452037",
-  //     "inputs": [{ "label": "Update Ledger Balance", "value": "10000" }]
-  //   },
-  //   {
-  //     "messID": "MESS-1712231625308",
-  //     "inputs": [{ "label": "Update Ledger Balance", "value": "11000" }]
-  //   },
-  //   {
-  //     "messID": "MESS-91701666356337",
-  //     "inputs": [{ "label": "Update Ledger Balance", "value": "12000" }]
-  //   },
-  //   {
-  //     "messID": "MESS-1717998452037",
-  //     "inputs": [{ "label": "Enter Approved Amount", "value": "9000" }]
-  //   },
-  //   {
-  //     "messID": "MESS-1712231625308",
-  //     "inputs": [{ "label": "Enter Approved Amount", "value": "10000" }]
-  //   },
-  //   {
-  //     "messID": "MESS-91701666356337",
-  //     "inputs": [{ "label": "Enter Approved Amount", "value": "11000" }]
-  //   },
-  //   {
-  //     "messID": "MESS-1717998452037",
-  //     "inputs": [{ "label": "Enter Processed Amount", "value": "8000" }]
-  //   },
-  //   {
-  //     "messID": "MESS-1712231625308",
-  //     "inputs": [{ "label": "Enter Processed Amount", "value": "9000" }]
-  //   },
-  //   {
-  //     "messID": "MESS-91701666356337",
-  //     "inputs": [{ "label": "Enter Processed Amount", "value": "10000" }]
-  //   },
-  //   {
-  //     "messID": "MESS-1717998452037",
-  //     "inputs": [{ "label": "Confirmation of receipt of payment by Shop or Mess Manager", "value": "Yes" }]
-  //   },
-  //   {
-  //     "messID": "MESS-1712231625308",
-  //     "inputs": [{ "label": "Confirmation of receipt of payment by Shop or Mess Manager", "value": "Yes" }]
-  //   },
-  //   {
-  //     "messID": "MESS-91701666356337",
-  //     "inputs": [{ "label": "Confirmation of receipt of payment by Shop or Mess Manager", "value": "Yes" }]
-  //   }
-  // ];
-
-  // const groupByMessID = (data) => {
-  //   return data.reduce((acc, curr) => {
-  //     if (!acc[curr.messID]) {
-  //       acc[curr.messID] = [];
-  //     }
-  //     acc[curr.messID] = [...acc[curr.messID], ...curr.inputs];
-  //     return acc;
-  //   }, {});
-  // };
-  
-  // const MessCard = ({ messID, inputs }) => (
-  //   <div className="card">
-  //     <h3>{messID}</h3>
-  //     <ul>
-  //       {inputs.map((input, index) => (
-  //         <li key={index}>
-  //           <strong>{input.label}: </strong>{input.value}
-  //         </li>
-  //       ))}
-  //     </ul>
-  //   </div>
-  // );
-  
-  // const MessCardList = () => {
-  //   const groupedData = groupByMessID(preDatas);
-  
-  //   return (
-  //     <div className="mess-cards-container">
-  //       {Object.keys(groupedData).map((messID) => (
-  //         <MessCard
-  //           key={messID}
-  //           messID={messID}
-  //           inputs={groupedData[messID]}
-  //         />
-  //       ))}
-  //     </div>
-  //   );
-  // };
 
   const SuccessToast: React.FC<{ show: boolean; taskName?: string; onClose: () => void }> = ({ show, onClose }) => {
     return (
@@ -396,53 +284,38 @@ const ProjectAssignTable: React.FC = () => {
     );
   };
 
-
-  // const groupByMessID = (data) => {
-  //   return data.reduce((acc, curr) => {
-  //     if (!acc[curr.messID]) {
-  //       acc[curr.messID] = [];
-  //     }
-  //     acc[curr.messID] = [...acc[curr.messID], ...curr.inputs];
-  //     return acc;
-  //   }, {});
-  // };
-  // const groupedData = groupByMessID(preData);
-
-  // console.log(groupedData);
-
-
-
-
   return (
     <>
-      <Offcanvas show={show} onHide={handleClose} placement="end">
-        <Offcanvas.Header closeButton>
-          <Offcanvas.Title>Task Details</Offcanvas.Title>
-        </Offcanvas.Header>
-        <Offcanvas.Body>
-          {preData.map((task, index) => (
+      <Modal size='xl' show={show} onHide={handleClose} placement="end">
+        <Modal.Header closeButton>
+          <Modal.Title>Task Details</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          {/* {preData.map((task, index) => (
             <div key={index}>
-              <h5 className="mt-2">
-                Updated data from <span className="text-primary">{task.messID}</span> &nbsp;&nbsp;&nbsp;
-                <span className='fs-15 information-btn '
-                  ref={(el) => (targetRefs.current[index] = el)} // Store the ref for each task
-                  onClick={() => setPopoverIndex(popoverIndex === index ? null : index)} // Toggle popover visibility for the clicked task
-                >
-                  <i className="ri-error-warning-fill fs-20"></i>
-                </span>
+              <span className='fs-15 information-btn '
+                ref={(el) => (targetRefs.current[index] = el)}
+                onClick={() => setPopoverIndex(popoverIndex === index ? null : index)}
+              >
+                <h5 className="mt-2 border border-primary rounded-1 p-2 d-flex justify-content-between cursor-pointer">
 
-              </h5>
+                  <span>
+                    <span className='fs-4 fw-bold text-primary'> Task Id : </span> <span className="text-primary fs-13 fw-500"> {task.messName}</span> &nbsp;&nbsp;&nbsp;
+                  </span>
+                  <i className="ri-eye-line fs-4"></i>
+                </h5>
+              </span>
               <div>
                 <Overlay
-                  target={targetRefs.current[index]} // Use the ref for the current task
-                  show={popoverIndex === index} // Only show popover for the clicked task
+                  target={targetRefs.current[index]}
+                  show={popoverIndex === index}
                   placement="left"
                 >
                   {(props) => (
                     <Tooltip id="overlay-example" {...props} className='tooltip-position'>
                       <div className='d-flex'>
                         {Array.isArray(task.inputs) && task.inputs.length > 0 ? (
-                          Array.isArray(task.inputs[0]) ? ( 
+                          Array.isArray(task.inputs[0]) ? (
                             task.inputs.map((inputArray: any, arrIndex: number) => (
                               <Card key={arrIndex} className="m-2 pop-card">
                                 <Card.Body>
@@ -454,7 +327,7 @@ const ProjectAssignTable: React.FC = () => {
                                 </Card.Body>
                               </Card>
                             ))
-                          ) : ( 
+                          ) : (
                             <Card className="m-2 pop-card">
                               <Row>
                                 <Card.Body>
@@ -468,7 +341,7 @@ const ProjectAssignTable: React.FC = () => {
                             </Card>
                           )
                         ) : (
-                          <p>No inputs available</p> 
+                          <p>No inputs available</p>
                         )}
                       </div>
                     </Tooltip>
@@ -476,11 +349,11 @@ const ProjectAssignTable: React.FC = () => {
                 </Overlay>
 
               </div>
-              <hr />
             </div>
-          ))}
-        </Offcanvas.Body>
-      </Offcanvas>
+          ))} */}
+          <MessCards data={preData} />
+        </Modal.Body>
+      </Modal>
 
       <div className="d-flex p-2 bg-white mt-2 mb-2 rounded shadow"><h5 className="mb-0">Completed Tasks</h5></div>
       <div className='overflow-auto '>

@@ -6,6 +6,7 @@ import { FileUploader } from '@/components/FileUploader'
 import { useNavigate, useLocation } from 'react-router-dom';
 import config from '@/config';
 import Select, { SingleValue } from 'react-select';
+import MessCards from './Previous&Completed';
 
 interface Option {
     id: string;
@@ -1012,22 +1013,33 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                         ))} */}
                         {location.pathname !== '/pages/ApprovalConsole' && (
                             <div className="d-flex flex-wrap mx-3">
-                                {preData && preData.length > 0 && preData.map((task: { taskNumber: string; messName: string; messTaskNumber: string; messManager: string; managerNumber: string; inputs: { label: string; value: string }[] }, index: number) => (
-                                    <div key={index} className="m-1 w-24">
+                                {/* {preData && preData.length > 0 && preData.map((task: { taskNumber: string; messName: string; messTaskNumber: string; messManager: string; managerNumber: string; inputs: { label: string; value: string }[] }, index: number) => (
+                                    <div key={index} className={`m-1 w-24 ${currentStep === index ? "activeIndex" : ""}`}>
                                         {selectedTasknumber !== task.taskNumber && (
                                             <div className="card shadow-sm w-100">
                                                 <div className="card-body">
                                                     <h5 className="card-title text-primary">Task Number: <span>{task.messTaskNumber}</span></h5>
-                                                    <p className="card-text mb-2">
-                                                        <strong>Mess Name: </strong><span className='text-primary'>{task.messName}</span><br />
-                                                        <strong>Mess Manager Name: </strong> <span className='text-primary'>{task.messManager}</span><br />
-                                                        <strong>Mess Manager contact: </strong><a
-                                                            href={`tel:${task.managerNumber}`}
-                                                            className="ms-1 text-primary"
-                                                            style={{ textDecoration: "none" }}
-                                                            aria-label="Call"
-                                                        ><i className="ri-phone-fill" style={{ fontSize: "1rem" }}></i>{task.managerNumber}</a>
-                                                    </p>
+
+                                                    {messList.length > 0 &&
+                                                        index === messList.length &&
+                                                        (
+                                                            <p className="card-text mb-2">
+                                                                <strong>Mess Name: </strong><span className="text-primary">{task.messName}</span><br />
+                                                                <strong>Mess Manager Name: </strong> <span className="text-primary">{task.messManager}</span><br />
+                                                                <strong>Mess Manager Contact: </strong>
+                                                                <a
+                                                                    href={`tel:${task.managerNumber}`}
+                                                                    className="ms-1 text-primary"
+                                                                    style={{ textDecoration: "none" }}
+                                                                    aria-label="Call"
+                                                                >
+                                                                    <i className="ri-phone-fill" style={{ fontSize: "1rem" }}></i>
+                                                                    {task.managerNumber}
+                                                                </a>
+                                                            </p>
+                                                        )
+                                                    }
+
                                                     <div className="card-text">
                                                         <h6>Value:</h6>
                                                         <ul className="">
@@ -1042,7 +1054,8 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                                             </div>
                                         )}
                                     </div>
-                                ))}
+                                ))} */}
+                                <MessCards data={preData} />
                             </div>
                         )}
 

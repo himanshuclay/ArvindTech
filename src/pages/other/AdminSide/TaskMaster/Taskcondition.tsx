@@ -6,7 +6,7 @@ import Select from 'react-select';
 import Flatpickr from 'react-flatpickr';
 import 'flatpickr/dist/themes/material_green.css';
 import CustomSuccessToast from "../../Component/CustomSuccessToast";
-import {format} from 'date-fns';
+import { format } from 'date-fns';
 
 
 
@@ -91,6 +91,7 @@ interface TaskSelections {
     WeekDay?: string;
     time?: string;
 }
+
 
 const TaskCondition: React.FC<ProcessCanvasProps> = ({ show, setShow, taskID }) => {
     const [ModuleId, setModuleId] = useState<string>('');
@@ -383,6 +384,10 @@ const TaskCondition: React.FC<ProcessCanvasProps> = ({ show, setShow, taskID }) 
         { value: 'Keep making task as per logic ', label: 'Keep making task as per logic ' },
         { value: 'SkipCSkip Creating task', label: 'Skip Creating task' }
     ];
+    const ExpiryLogic = [
+        { value: 'Expire On Next Task Initiation', label: 'Expire On Next Task Initiation' },
+        { value: 'Expire On Defined Days', label: 'Expire On Defined Days' },
+    ];
     const optionstaskType = [
         { value: 'Actual', label: 'Actual' },
         { value: 'Planned', label: 'Planned' }
@@ -448,10 +453,10 @@ const TaskCondition: React.FC<ProcessCanvasProps> = ({ show, setShow, taskID }) 
                                                         style={{ width: "25%", border: "1px solid #ccc", borderRadius: "5px" }}
                                                     >
                                                         <h5 className="text-primary my-1">{task.label ? (
-                                                                <span style={{ color: task.color , textTransform:'uppercase'}}>{task.label}</span>
-                                                            ) : (
-                                                                "Task"
-                                                            )}
+                                                            <span style={{ color: task.color, textTransform: 'uppercase' }}>{task.label}</span>
+                                                        ) : (
+                                                            "Task"
+                                                        )}
                                                         </h5>
 
                                                         <span><strong>Task Number:</strong> {task.taskNumber || "N/A"}</span>
@@ -512,14 +517,28 @@ const TaskCondition: React.FC<ProcessCanvasProps> = ({ show, setShow, taskID }) 
                                     </Form.Group>
                                 </Col>
                                 {isExpirable === 1 && (
-                                    <Col lg={3}>
+                                    <Col lg={8} className="d-flex flex-row mt-2">
+                                        <Form.Group className="mx-2">
+                                            <Form.Label>Expiration days</Form.Label>
+                                            <Select
+                                                name="sundayLogic"
+                                                options={ExpiryLogic}
+                                                // value={ExpiryLogic.find(
+                                                //     (opt) => opt.value === ExpiryLogic
+                                                // ) || null}
+                                                // onChange={(selectedOption) => setSundayLogic(selectedOption?.value)}
+                                                placeholder="Select expiry Logic"
+                                                required
+                                            />
+                                        </Form.Group>
                                         <Form.Group controlId="expirationDate" className="mb-3">
                                             <Form.Label>Expiration Date</Form.Label>
                                             <Flatpickr
                                                 value={expirationDate || ''}
                                                 onChange={([date]) => {
                                                     const formatedDate = format(date, 'dd-MMM-yy hh:mm a');
-                                                    handleChangeExpirationDate(formatedDate)}}
+                                                    handleChangeExpirationDate(formatedDate)
+                                                }}
                                                 options={{
                                                     enableTime: true,
                                                     dateFormat: "Y-m-d H:i",
@@ -529,6 +548,12 @@ const TaskCondition: React.FC<ProcessCanvasProps> = ({ show, setShow, taskID }) 
                                                 className="form-control"
                                                 required
                                             />
+                                        </Form.Group>
+                                        <Form.Group className="ms-2">
+                                            <Form.Label>Expiration days</Form.Label>
+                                            <Form.Control
+                                                type="number"
+                                            ></Form.Control>
                                         </Form.Group>
                                     </Col>
 
@@ -792,7 +817,7 @@ const TaskCondition: React.FC<ProcessCanvasProps> = ({ show, setShow, taskID }) 
             </Modal>
             <CustomSuccessToast show={showToast} toastMessage={toastMessage} toastVariant={toastVariant} onClose={() => setShowToast(false)} />
 
-        </div>
+        </div >
     );
 
 
