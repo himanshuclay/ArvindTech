@@ -1016,9 +1016,9 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                                                 <div className="card-body">
                                                     <h5 className="card-title text-primary">Task Number: <span>{taskNumber}</span></h5>
                                                     <p className="card-text mb-2">
-                                                        <strong>Mess Name:</strong> {task.messName} <br />
-                                                        <strong>Mess Manager Name:</strong> {task.messManager}<br />
-                                                        <strong>Mess Manager contact:</strong><a
+                                                        <strong>Mess Name: </strong><span className='text-primary'>{task.messName}</span><br />
+                                                        <strong>Mess Manager Name: </strong> <span className='text-primary'>{task.messManager}</span><br />
+                                                        <strong>Mess Manager contact: </strong><a
                                                             href={`tel:${task.managerNumber}`}
                                                             className="ms-1 text-primary"
                                                             style={{ textDecoration: "none" }}
@@ -1030,7 +1030,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                                                         <ul className="">
                                                             {task.inputs.map((input, idx) => (
                                                                 <li key={idx} className="list-group-item">
-                                                                    <strong>{input.label}</strong> <span className="text-primary">{input.value}</span>
+                                                                    <strong>{input.label} </strong> <span className="text-primary">{input.value}</span>
                                                                 </li>
                                                             ))}
                                                         </ul>
