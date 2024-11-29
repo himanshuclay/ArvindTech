@@ -102,7 +102,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
     const [messManagers, setMessManagers] = useState<{ value: string, label: string }[]>([]);
     const [selectedManager, setSelectedManager] = useState<string>("Avisineni Pavan Kumar_LLP05337"); // Initialize with default value
     const [showMessManagerSelect, setShowMessManagerSelect] = useState(false);
-    const [messList, setMessList] = useState<{ messID: string; messName: string; managerEmpID: string; managerName: string }[]>([]);
+    const [messList, setMessList] = useState<{ messID: string; messName: string; managerEmpID: string; managerName: string; mobileNumber: string }[]>([]);
 
     const [selectedCondition, setSelectedCondition] = useState<any[]>([]);
 
@@ -176,6 +176,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
 
     console.log(taskCommonIDRow)
     console.log(formData)
+    console.log(preData)
     // console.log(formDatas)
 
 
@@ -201,6 +202,10 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
 
         // Get the current messID for the step
         const currentmessID = messList[currentStep].messID;
+        const currentmessName = messList[currentStep].messName;
+        const currentmessManagerName = messList[currentStep].managerName;
+        const currentmessManagerId = messList[currentStep].managerEmpID;
+        const currentmessManagerNumber = messList[currentStep].mobileNumber;
         // const formConfig = formData?.inputs || [];
 
         // Transform formState into the taskJson structure
@@ -234,6 +239,10 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
         if (existingIndex >= 0) {
             updatedData[existingIndex] = {
                 messID: currentmessID,
+                messName: currentmessName,
+                messManager: currentmessManagerName,
+                messManagerId: currentmessManagerId,
+                mobileNumber: currentmessManagerNumber,
                 formId: formData.formId,
                 formName: formData.formName,
                 taskJson,  // Replace with the newly transformed taskJson
@@ -243,6 +252,10 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
             // If messID doesn't exist, add a new entry with current messID, taskJson, and comments
             updatedData.push({
                 messID: currentmessID,
+                messName: currentmessName,
+                messManager: currentmessManagerName,
+                messManagerId: currentmessManagerId,
+                mobileNumber: currentmessManagerNumber,
                 formId: formData.formId,
                 formName: formData.formName,
                 taskJson,  // Use the transformed taskJson
@@ -327,6 +340,10 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
 
     type SavedData = {
         messID: string;
+        messName: string;
+        messManager: string;
+        messManagerId: string;
+        mobileNumber: string;
         taskJson: TaskJson;
         comments?: string;
     };
@@ -648,7 +665,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
         // setLoading(true);  // Show loader when the request is initiated
         if (fromComponent === 'AccountProcess') {
             const adhocRequestedData = {
-                projectName: '',
+                projectName: projectNames,
                 moduleID: moduleId,
                 processID: processId,
                 taskCommonID: 1, // need to re work for this
@@ -689,7 +706,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                 condition_Json: JSON.stringify(conditionToSend),  // Assuming conditionToSend is defined
                 taskCommonId: taskCommonIDRow,
                 taskStatus: taskStatus, // Use the taskCommonId fetched from localStorage or state
-                updatedBy: role
+                updatedBy: role,
             };
             console.log(requestData)
 
@@ -881,6 +898,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
     const handleSelectMessImpChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
         const selectedValue = event.target.value;
         setSelectedManager(selectedValue);
+        console.log(selectedManager)
     };
 
 
@@ -964,7 +982,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
 
     return (
         <>
-            <Modal size='lg' className="p-3" show={show} placement="end" onHide={handleClose} >
+            <Modal size='xl' className="p-3" show={show} placement="end" onHide={handleClose} >
                 <Modal.Header closeButton className=' '>
                     <Modal.Title className='text-dark'>Task Details</Modal.Title>
                 </Modal.Header>
@@ -989,25 +1007,41 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                                 )}
                             </div>
                         ))} */}
-                        {preData && preData.length > 0 && preData.map((task: { taskNumber: string; inputs: { label: string; value: string }[] }, index: number) => (
-                            <div key={index}>
-                                {selectedTasknumber !== task.taskNumber && (
-                                    <>
-                                        <h5 className="mt-2">
-                                            Updated data from <span className="text-primary">{task.taskNumber}</span>
-                                        </h5>
-                                        <div>
-                                            {task.inputs.map((input, idx) => (
-                                                <div key={idx}>
-                                                    <strong>{input.label}:</strong> <span className="text-primary">{input.value}</span>
+                        {location.pathname !== '/pages/ApprovalConsole' && (
+                            <div className="d-flex flex-wrap mx-3">
+                                {preData && preData.length > 0 && preData.map((task: { taskNumber: string; messName: string; messManager: string; managerNumber: string; inputs: { label: string; value: string }[] }, index: number) => (
+                                    <div key={index} className="m-1 w-24">
+                                        {selectedTasknumber !== task.taskNumber && (
+                                            <div className="card shadow-sm w-100">
+                                                <div className="card-body">
+                                                    <h5 className="card-title text-primary">Task Number: <span>{taskNumber}</span></h5>
+                                                    <p className="card-text mb-2">
+                                                        <strong>Mess Name:</strong> {task.messName} <br />
+                                                        <strong>Mess Manager Name:</strong> {task.messManager}<br />
+                                                        <strong>Mess Manager contact:</strong><a
+                                                            href={`tel:${task.managerNumber}`}
+                                                            className="ms-1 text-primary"
+                                                            style={{ textDecoration: "none" }}
+                                                            aria-label="Call"
+                                                        ><i className="ri-phone-fill" style={{ fontSize: "1rem" }}></i>{task.managerNumber}</a>
+                                                    </p>
+                                                    <div className="card-text">
+                                                        <h6>Value:</h6>
+                                                        <ul className="">
+                                                            {task.inputs.map((input, idx) => (
+                                                                <li key={idx} className="list-group-item">
+                                                                    <strong>{input.label}</strong> <span className="text-primary">{input.value}</span>
+                                                                </li>
+                                                            ))}
+                                                        </ul>
+                                                    </div>
                                                 </div>
-                                            ))}
-                                        </div>
-                                        <hr />
-                                    </>
-                                )}
+                                            </div>
+                                        )}
+                                    </div>
+                                ))}
                             </div>
-                        ))}
+                        )}
 
 
 

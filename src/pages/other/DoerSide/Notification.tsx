@@ -248,8 +248,12 @@ const ProjectAssignTable: React.FC = () => {
 
                   return {
                     messID: taskJson.messID, // Include messID for reference
+                    messName: taskJson.messName, // Include messID for reference
+                    messManager: taskJson.messManager, // Include messID for reference
+                    managerNumber: taskJson.mobileNumber,
                     inputs: filteredInputsdata // Return filtered inputs
                   };
+
                 } else {
                   console.error('taskJson does not have valid inputs:', taskJson);
                   return null; // Handle invalid inputs array gracefully
@@ -258,6 +262,7 @@ const ProjectAssignTable: React.FC = () => {
             }).flat(); // Flatten the array if needed
 
           setPreData(filteredTasks);
+          console.log(preData)
         } else {
           console.error('API Response Error:', response.data?.message || 'Unknown error');
         }
