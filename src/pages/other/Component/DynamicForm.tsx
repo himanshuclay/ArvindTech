@@ -1055,7 +1055,11 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                                         )}
                                     </div>
                                 ))} */}
+                                {preData && preData.length > 0 && 
+                                (
                                 <MessCards data={preData} />
+                                )
+                                 }
                             </div>
                         )}
 
