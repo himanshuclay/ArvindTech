@@ -11,8 +11,10 @@ import CustomSuccessToast from '@/pages/other/Component/CustomSuccessToast';
 interface Identifier {
     id: number;
     identifier: string;
+    identifier1: string;
     taskID: string;
     identifierValue: string;
+    identifierValue1: string;
     empID: string;
     employeeName: string;
     source: string;
@@ -47,13 +49,15 @@ const EmployeeInsert = () => {
     const [showToast, setShowToast] = useState(false);
     const [toastMessage, setToastMessage] = useState("");
     const [toastVariant, setToastVariant] = useState('');
-    const [identifierName, setIdentifierName] = useState('');
     const [identifierValue, setIdentifierValue] = useState<IdentifierValue[]>([]);
+    const [identifierValue1, setIdentifierValue1] = useState<IdentifierValue[]>([]);
     const [identifiers, setIdentifiers] = useState<Identifier>({
         id: 0,
         identifier: '',
+        identifier1: '',
         taskID: '',
         identifierValue: '',
+        identifierValue1: '',
         empID: '',
         source: '',
         employeeName: '',
@@ -79,7 +83,6 @@ const EmployeeInsert = () => {
         }
     }, [id]);
 
-
     const fetchDoerById = async (id: string) => {
         try {
             const response = await axios.get(`${config.API_URL_APPLICATION}/IdentifierMaster/GetIdentifier`, {
@@ -97,14 +100,14 @@ const EmployeeInsert = () => {
     };
 
     useEffect(() => {
-        const fetchIdentifierValue = async (identifierName: string) => {
+        const fetchIdentifierValue = async (identifierName: string, setter: React.Dispatch<React.SetStateAction<any>>) => {
             try {
                 const response = await axios.get(`${config.API_URL_APPLICATION}/IdentifierMaster/GetIdentifierByFlag`, {
                     params: { IdentifierName: identifierName }
                 });
                 if (response.data.isSuccess) {
                     const fetchedModule = response.data.getIdentifierByFlags;
-                    setIdentifierValue(fetchedModule);
+                    setter(fetchedModule);
                 } else {
                     console.error(response.data.message);
                 }
@@ -113,9 +116,14 @@ const EmployeeInsert = () => {
             }
         };
 
-        fetchIdentifierValue(identifierName);
+        if (identifiers.identifier) {
+            fetchIdentifierValue(identifiers.identifier, setIdentifierValue);
+        }
+        if (identifiers.identifier1) {
+            fetchIdentifierValue(identifiers.identifier1, setIdentifierValue1);
+        }
+    }, [identifiers.identifier, identifiers.identifier1]);
 
-    }, [identifierName])
 
 
     useEffect(() => {
@@ -170,8 +178,6 @@ const EmployeeInsert = () => {
             createdBy: editMode ? identifiers.createdBy : empName,
             updatedBy: editMode ? empName : '',
         };
-        console.log(payload)
-
 
         try {
             await axios.post(`${config.API_URL_APPLICATION}/IdentifierMaster/InsertUpdateIdentifier`, payload);
@@ -182,9 +188,7 @@ const EmployeeInsert = () => {
                     toastVariant: "rgb(28 175 85)"
                 }
             });
-
-
-        } catch (error :any) {
+        } catch (error: any) {
             setToastMessage(error || "Error Adding/Updating");
             setToastVariant("rgb(213 18 18)");
             setShowToast(true);
@@ -242,11 +246,10 @@ const EmployeeInsert = () => {
                                     <Select
                                         name="identifier"
                                         options={optionsIdentifier}
-                                        value={optionsIdentifier.find(option => option.value === identifierName)}
+                                        value={optionsIdentifier.find(option => option.value === identifiers.identifier)}
                                         onChange={(selectedOption) => {
                                             const value = selectedOption?.value || '';
                                             handleChange(null, 'identifier', value);
-                                            setIdentifierName(value);
                                         }}
                                         placeholder="Select Identifier Name"
                                         required
@@ -273,7 +276,45 @@ const EmployeeInsert = () => {
                                         isSearchable={true}
                                         placeholder="Select Identifier Value"
                                         required
-                                        isDisabled={!identifierName}
+                                    />
+                                </Form.Group>
+                            </Col>
+                            <Col lg={6}>
+                                <Form.Group controlId="identifier1" className="mb-3">
+                                    <Form.Label>Identifier Name 1:</Form.Label>
+                                    <Select
+                                        name="identifier1"
+                                        options={optionsIdentifier}
+                                        value={optionsIdentifier.find(option => option.value === identifiers.identifier1)}
+                                        onChange={(selectedOption) => {
+                                            const value = selectedOption?.value || '';
+                                            handleChange(null, 'identifier1', value);
+                                        }}
+                                        placeholder="Select Identifier Name 1"
+                                        required
+                                    />
+                                </Form.Group>
+                            </Col>
+
+
+                            <Col lg={6}>
+                                <Form.Group controlId="identifierValue1" className="mb-3">
+                                    <Form.Label>Identifier Value1</Form.Label>
+                                    <Select
+                                        name="identifierValue1"
+                                        value={identifierValue1.find((mod) => mod.name === identifiers.identifierValue1)}
+                                        onChange={(selectedOption) => {
+                                            setIdentifiers({
+                                                ...identifiers,
+                                                identifierValue1: selectedOption?.name || '',
+                                            });
+                                        }}
+                                        getOptionLabel={(mod) => mod.name}
+                                        getOptionValue={(mod) => mod.name}
+                                        options={identifierValue1}
+                                        isSearchable={true}
+                                        placeholder="Select Identifier Value1"
+                                        required
                                     />
                                 </Form.Group>
                             </Col>

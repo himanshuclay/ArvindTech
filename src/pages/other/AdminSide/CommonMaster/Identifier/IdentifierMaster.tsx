@@ -14,9 +14,11 @@ import IconWithLetter from '@/pages/ui/IconWithLetter';
 interface Identifier {
     id: number;
     identifier: string;
+    identifier1: string;
     taskID: string;
     input: string;
-    inputValue: string;
+    identifierValue: string;
+    identifierValue1: string;
     empID: string;
     employeeName: string;
 }
@@ -24,6 +26,16 @@ interface Column {
     id: string;
     label: string;
     visible: boolean;
+}
+interface IdentifierEmpList {
+    empID: string;
+    employeeName: string;
+}
+interface TaskNumberList {
+    taskID: string;
+}
+interface IdentifierList {
+    identifier: string;
 }
 
 const ModuleMaster = () => {
@@ -33,8 +45,12 @@ const ModuleMaster = () => {
     const [totalPages, setTotalPages] = useState(1);
     const [searchQuery, setSearchQuery] = useState('');
     const [downloadCsv, setDownloadCsv] = useState<Identifier[]>([]);
-    const [roleList, setRoleList] = useState<Identifier[]>([]);
-    const [searchRole, setSearchRole] = useState<number>();
+    const [taskNumber, setTaskNumber] = useState('');
+    const [identifierID, setIdentifierID] = useState('');
+    const [empID, setEmpID] = useState('');
+    const [identifierEmpList, setIdentifierEmpList] = useState<IdentifierEmpList[]>([]);
+    const [taskNumberList, setTaskNumberList] = useState<TaskNumberList[]>([]);
+    const [identifierList, setIdentifierList] = useState<IdentifierList[]>([]);
 
     const location = useLocation();
     const navigate = useNavigate();
@@ -64,6 +80,8 @@ const ModuleMaster = () => {
         { id: 'taskID', label: 'Task Number', visible: true },
         { id: 'identifier', label: 'Identifier ', visible: true },
         { id: 'identifierValue', label: 'Identifier Value', visible: true },
+        { id: 'identifier1', label: 'Identifier 1', visible: true },
+        { id: 'identifierValue1', label: 'Identifier Value 1', visible: true },
         { id: 'source', label: 'Source Type', visible: true },
         { id: 'empID', label: 'Employee ID ', visible: true },
         { id: 'employeeName', label: 'Employee Name', visible: true },
@@ -87,10 +105,32 @@ const ModuleMaster = () => {
 
 
 
-    const handleSearch = () => {
-        if (searchRole) {
-            fetchsinglerole(searchRole);
-        }
+    const handleSearch = (e: any) => {
+
+        e.preventDefault();
+
+        let query = `?`;
+        if (taskNumber) query += `TaskID=${taskNumber}&`;
+        if (identifierID) query += `IdentifierID=${identifierID}&`;
+        if (empID) query += `EmpID=${empID}&`;
+
+        // Remove trailing '&' or '?' from the query string
+        query = query.endsWith('&') ? query.slice(0, -1) : query;
+
+        const apiUrl = `${config.API_URL_APPLICATION}/IdentifierMaster/SearchIdentifier${query}`;
+
+        console.log(apiUrl)
+        axios.get(apiUrl, {
+            headers: {
+                'accept': '*/*'
+            }
+        })
+            .then((response) => {
+                setIdentifiers(response.data.identifierLists)
+            })
+            .catch((error) => {
+                console.error('Error fetching data:', error);
+            });
     };
 
 
@@ -117,21 +157,6 @@ const ModuleMaster = () => {
 
 
 
-    const fetchsinglerole = async (searchRole: number) => {
-        try {
-            const response = await axios.get(`${config.API_URL_APPLICATION}/IdentifierMaster/GetIdentifier`, {
-                params: { id: searchRole }
-            });
-            if (response.data.isSuccess) {
-                setIdentifiers(response.data.identifierLists);
-            } else {
-                console.error(response.data.message);
-            }
-        } catch (error) {
-            console.error('Error fetching doers:', error);
-        }
-
-    };
 
     const fetchRolesCsv = async () => {
         try {
@@ -163,25 +188,28 @@ const ModuleMaster = () => {
             }
         };
 
-        fetchData('CommonDropdown/GetIdentifier', setRoleList, 'identifierList');
+        fetchData('CommonDropdown/GetEmployeeList', setIdentifierEmpList, 'commonTypes');
+        fetchData('CommonDropdown/GetTaskList', setTaskNumberList, 'taskList');
+        fetchData('CommonDropdown/GetIdentifier', setIdentifierList, 'identifierList');
     }, []);
 
 
     const handleClear = () => {
         fetchRoles();
-        setSearchRole(undefined);
+
     };
 
 
     const convertToCSV = (data: Identifier[]) => {
         const csvRows = [
-            ['ID', 'Identifier', 'Task ID', 'Input', 'Input Value', 'Employee ID', 'Employee Name'],
+            ['ID', 'Task ID', 'Identifier', 'Identifier Value', 'Identifier1', 'Identifier Value 1', 'Employee ID', 'Employee Name'],
             ...data.map(identifier => [
                 identifier.id.toString(),
-                identifier.identifier,
                 identifier.taskID,
-                identifier.input,
-                identifier.inputValue,
+                identifier.identifier,
+                identifier.identifierValue,
+                identifier.identifier1,
+                identifier.identifierValue1,
                 identifier.empID,
                 identifier.employeeName,
             ])
@@ -213,10 +241,9 @@ const ModuleMaster = () => {
 
 
     const filteredIdentifiers = identifiers.filter(identifier =>
-        // identifier.identifier.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        identifier.identifier.toLowerCase().includes(searchQuery.toLowerCase()) ||
         identifier.taskID.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        identifier.input.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        identifier.inputValue.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        identifier.identifierValue.toLowerCase().includes(searchQuery.toLowerCase()) ||
         identifier.empID.toLowerCase().includes(searchQuery.toLowerCase()) ||
         identifier.employeeName.toLowerCase().includes(searchQuery.toLowerCase())
     );
@@ -245,38 +272,70 @@ const ModuleMaster = () => {
                     </div>
                 ) : (<>
                     <div className='bg-white p-2 pb-2'>
-                        <Row>
-                            <Col lg={6} className="mt-2">
-                                <Form.Group controlId="searchRole">
-                                    <Form.Label>Identifier:</Form.Label>
-                                    <Select
-                                        name="searchRole"
-                                        value={roleList.find(item => item.id === searchRole) || null}
-                                        onChange={(selectedOption) => setSearchRole(selectedOption ? selectedOption.id : 0)}
-                                        options={roleList}
-                                        getOptionLabel={(item) => item.identifier}
-                                        getOptionValue={(item) => item.identifier}
-                                        isSearchable={true}
-                                        placeholder="Select Identifier"
-                                        className="h45"
-                                    />
-                                </Form.Group>
-                            </Col>
+                        <Form onSubmit={handleSearch}>
+                            <Row>
+                                <Col lg={4}>
+                                    <Form.Group controlId="taskNumber">
+                                        <Form.Label>Task Number</Form.Label>
 
-                            <Col></Col>
-                            <Col lg={3} className="align-items-end d-flex justify-content-end mt-2">
-                                <ButtonGroup aria-label="Basic example" className="w-100">
-                                    <Button type="button" variant="primary" onClick={handleClear}>
-                                        <i className="ri-loop-left-line"></i>
-                                    </Button>
-                                    &nbsp;
-                                    <Button type="submit" variant="primary" onClick={handleSearch}>
-                                        Search
-                                    </Button>
-                                </ButtonGroup>
-                            </Col>
-                        </Row>
+                                        <Select
+                                            name="taskNumber"
+                                            value={taskNumberList.find(item => item.taskID === taskNumber) || null} // handle null
+                                            onChange={(selectedOption) => setTaskNumber(selectedOption ? selectedOption.taskID : "")} // null check
+                                            options={taskNumberList}
+                                            getOptionLabel={(item) => item.taskID}
+                                            getOptionValue={(item) => item.taskID}
+                                            isSearchable={true}
+                                            placeholder="Select Task Number"
+                                            className="h45"
+                                        />
+                                    </Form.Group>
+                                </Col>
+                                <Col lg={3}>
+                                    <Form.Group controlId="identifierID">
+                                        <Form.Label>Identifier</Form.Label>
 
+                                        <Select
+                                            name="identifierID"
+                                            value={identifierList.find(item => item.identifier === identifierID) || null} // handle null
+                                            onChange={(selectedOption) => setIdentifierID(selectedOption ? selectedOption.identifier : "")} // null check
+                                            options={identifierList}
+                                            getOptionLabel={(item) => item.identifier}
+                                            getOptionValue={(item) => item.identifier}
+                                            isSearchable={true}
+                                            placeholder="Select Identifier"
+                                            className="h45"
+                                        />
+                                    </Form.Group>
+                                </Col>
+
+                                <Col lg={3}>
+                                    <Form.Group controlId="empID">
+                                        <Form.Label>Employee Name:</Form.Label>
+                                        <Select
+                                            name="empID"
+                                            value={identifierEmpList.find(item => item.empID === empID) || null} // handle null
+                                            onChange={(selectedOption) => setEmpID(selectedOption ? selectedOption.empID : "")} // null check
+                                            options={identifierEmpList}
+                                            getOptionLabel={(item) => item.employeeName.split('_')[0]}
+                                            getOptionValue={(item) => item.empID}
+                                            isSearchable={true}
+                                            placeholder="Select Employee Name"
+                                            className="h45"
+                                        />
+                                    </Form.Group>
+                                </Col>
+                                <Col className='align-items-end d-flex justify-content-end'>
+                                    <ButtonGroup aria-label="Basic example" className='w-100'>
+                                        <Button type="button" variant="primary" onClick={handleClear}>
+                                            <i className="ri-loop-left-line"></i>
+                                        </Button>
+                                        &nbsp;
+                                        <Button type="submit" variant="primary" >Search</Button>
+                                    </ButtonGroup>
+                                </Col>
+                            </Row>
+                        </Form>
 
 
                         <Row className='mt-3'>
@@ -424,3 +483,4 @@ const ModuleMaster = () => {
 };
 
 export default ModuleMaster;
+

@@ -11,7 +11,7 @@ interface Doer {
     id: number;
     taskID: string;
     identifier: string;
-    input: string;
+    inputValue: string;
     identifierValue: string;
     source: string;
     empID: string;
@@ -47,7 +47,7 @@ const EmployeeInsert = () => {
         id: 0,
         taskID: '',
         identifier: '',
-        input: '',
+        inputValue: '',
         identifierValue: '',
         source: '',
         empID: '',

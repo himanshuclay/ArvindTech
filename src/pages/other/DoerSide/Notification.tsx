@@ -66,7 +66,7 @@ interface ApiResponse {
 }
 
 interface FilteredTask {
-  taskNumber: string;
+  // taskNumber: string;
   inputs: {
     label: string;
     value: string;
@@ -206,82 +206,117 @@ const ProjectAssignTable: React.FC = () => {
 
 
   useEffect(() => {
-
     const fetchPreData = async (taskCommonId: number) => {
       try {
         const flag = 5;
         const response = await axios.get<ApiResponse>(
           `${config.API_URL_ACCOUNT}/ProcessInitiation/GetFilterTask?TaskCommonId=${taskCommonId}&Flag=${flag}`
         );
-
-        if (response.data && response.data.isSuccess) {
+    
+        if (response.data?.isSuccess) {
           const fetchedData = response.data.getFilterTasks || [];
           console.log(fetchedData);
-
-          // Filter out tasks with isCompleted as "Pending"
+    
+          // Filter and transform data
           const filteredTasks = fetchedData
-            .filter((task) => task.isCompleted !== "Pending") // Filter step
-            .map((task: ProjectAssignListWithDoer) => {
-              const taskJsonArray = JSON.parse(task.task_Json); // Parse task_Json to get an array of taskJson objects
-
-              // Assuming taskJsonArray is an array, handle each taskJson object
-              return taskJsonArray.map((taskJson: any) => {
-                // Ensure taskJson is valid and has taskJson and inputs
-                if (taskJson && taskJson.taskJson && taskJson.taskJson.inputs && Array.isArray(taskJson.taskJson.inputs)) {
-                  // Create a map for the options
-                  const optionsMap = taskJson.taskJson.inputs.reduce((map: Record<string, string>, input: any) => {
-                    if (input.options) {
-                      input.options.forEach((option: any) => {
-                        map[option.id] = option.label; // Map option ids to labels
-                      });
-                    }
-                    return map;
-                  }, {});
-
-                  // Create a filtered array of inputs excluding specific inputIds
-                  const filteredInputsdata = taskJson.taskJson.inputs
-                    .filter((input: any) => !['99', '100', '102', '103'].includes(input.inputId)) // Exclude unwanted inputIds
-                    .map((input: any) => ({
-                      label: input.label,
-                      value: optionsMap[input.value] || input.value // Replace value with label if it exists in optionsMap
-                    }));
-
-                  return {
-                    messID: taskJson.messID, // Include messID for reference
-                    messName: taskJson.messName, // Include messID for reference
-                    messManager: taskJson.messManager, // Include messID for reference
-                    managerNumber: taskJson.mobileNumber,
-                    messTaskNumber: taskJson.messTaskNumber,
-                    inputs: filteredInputsdata // Return filtered inputs
-                  };
-
+            .filter((task) => task.isCompleted !== "Pending") // Exclude pending tasks
+            .flatMap((task: ProjectAssignListWithDoer) => {
+              let taskJsonArray: any[] = [];
+    
+              try {
+                // Parse task_Json and check its structure
+                taskJsonArray = JSON.parse(task.task_Json);
+                console.log("Parsed taskJsonArray:", taskJsonArray);
+              } catch (error) {
+                console.error("Error parsing task_Json:", task.task_Json, error);
+                return []; // Return an empty array if parsing fails
+              }
+    
+              // If taskJsonArray is not an array, log and handle accordingly
+              if (!Array.isArray(taskJsonArray)) {
+                console.error("taskJsonArray is not an array:", taskJsonArray);
+                console.log("task_Json is not in the expected array format:", task.task_Json);
+                
+                // Handle taskJsonArray as an object if it's an object
+                if (typeof taskJsonArray === "object" && taskJsonArray !== null) {
+                  console.log("task_Json is an object:", taskJsonArray);
+                  // Transform the object into an array for processing
+                  taskJsonArray = [taskJsonArray]; // Wrap the object in an array
                 } else {
-                  console.error('taskJson does not have valid inputs:', taskJson);
-                  return null; // Handle invalid inputs array gracefully
+                  return []; // If not an object or array, return an empty array
                 }
-              }).filter((item: number) => item !== null); // Filter out any null tasks resulting from invalid inputs
-            }).flat(); // Flatten the array if needed
-
+              }
+    
+              // Proceed with the rest of the taskJsonArray processing
+              return taskJsonArray.flatMap((taskJson: any) => {
+                if (!taskJson) {
+                  console.error("Invalid taskJson:", taskJson);
+                  return [];
+                }
+    
+                // Extract inputs from the appropriate structure
+                const inputs = taskJson.taskJson?.inputs || taskJson.inputs;
+                if (!Array.isArray(inputs)) {
+                  console.error("Invalid inputs:", inputs);
+                  return [];
+                }
+                console.log(inputs);
+    
+                // Map options for replacing value with label
+                const optionsMap = inputs.reduce((map: Record<string, string>, input: any) => {
+                  if (input.options) {
+                    input.options.forEach((option: any) => {
+                      map[option.id] = option.label;
+                    });
+                  }
+                  return map;
+                }, {});
+    
+                // Filter and map inputs
+                const filteredInputsData = inputs
+                  .filter((input: any) => !["99", "100", "102", "103"].includes(input.inputId)) // Exclude unwanted inputs
+                  .map((input: any) => ({
+                    label: input.label,
+                    value: optionsMap[input.value] || input.value, // Replace value with label if available
+                  }));
+    
+                // Return transformed task object
+                return {
+                  messID: taskJson.messID,
+                  messName: taskJson.messName,
+                  messManager: taskJson.messManager,
+                  managerNumber: taskJson.mobileNumber,
+                  messTaskNumber: taskJson.messTaskNumber,
+                  inputs: filteredInputsData,
+                };
+              });
+            });
+    
           setPreData(filteredTasks);
-          console.log(preData)
+          console.log("Filtered Tasks:", filteredTasks);
         } else {
-          console.error('API Response Error:', response.data?.message || 'Unknown error');
+          console.error("API Response Error:", response.data?.message || "Unknown error");
         }
       } catch (error) {
         if (axios.isAxiosError(error)) {
-          console.error('Axios Error:', error.message);
+          console.error("Axios Error:", error.message);
         } else {
-          console.error('Unexpected Error:', error);
+          console.error("Unexpected Error:", error);
         }
       } finally {
         setLoading(false);
       }
     };
+    
+    
+    
+    
+  
     if (taskCommonId) {
       fetchPreData(taskCommonId);
-
     }
   }, [taskCommonId]);
+  
 
   // console.log(preData)
 

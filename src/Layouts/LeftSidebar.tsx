@@ -160,6 +160,22 @@ const getFilteredMenuItems = () => {
       ],
     },
 
+    {
+      key: 'Analytics',
+      label: 'Analytics',
+      url: '/pages/Invoice',
+      icon: 'ri-user-settings-line',
+      children: [
+        {
+          key: 'MIS',
+          label: 'MIS Report',
+          url: '/pages',
+          icon: 'ri-slideshow-line',
+          parentKey: 'GetTestData',
+        }
+      ],
+    },
+
 
     {
       key: 'systemmaster',
@@ -225,7 +241,7 @@ const getFilteredMenuItems = () => {
         },
         {
           key: 'LnMaster',
-          label: 'Task List',
+          label: 'LN Master',
           url: '/pages/MyTask',
           icon: 'ri-user-settings-line',
           parentKey: 'systemmaster',
