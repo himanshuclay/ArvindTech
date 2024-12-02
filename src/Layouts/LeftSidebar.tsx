@@ -403,20 +403,7 @@ const getFilteredMenuItems = () => {
           icon: 'ri-user-settings-line',
           parentKey: 'master',
         },
-        {
-          key: 'Mess-Master',
-          label: 'Mess Master',
-          url: '/pages/MessMaster',
-          icon: 'ri-restaurant-line',
-          parentKey: 'master',
-        },
-        {
-          key: 'Tender',
-          label: 'Tender Master',
-          url: '/pages/TenderMaster',
-          icon: 'ri-service-line',
-          parentKey: 'master',
-        },
+    
         {
           key: 'Vender',
           label: 'Vender Master',
