@@ -303,43 +303,34 @@ const getFilteredMenuItems = () => {
           parentKey: 'systemmaster',
         },
     
-        {
-          key: 'CommonDropdown',
-          label: 'Common Master ',
+      {
+          key: 'Account Masters',
+          label: 'Account Masters',
           parentKey: 'systemmaster',
           icon: 'ri-list-check-3',
           children: [
-            // {
-            //   key: 'Identifier',
-            //   label: 'Identifier Master',
-            //   url: '/pages/IdentifierMaster',
-            //   parentKey: 'CommonDropdown',
-            // },
-         
             {
-              key: 'DepartmentMaster',
-              label: 'Department Master',
-              url: '/pages/DepartmentMaster',
-              parentKey: 'CommonDropdown',
+              key: 'Mess-Master',
+              label: 'Mess Master',
+              url: '/pages/MessMaster',
+              parentKey: 'Account Masters',
             },
+           
+          ],
+        },
+        {
+          key: 'BD Masters',
+          label: 'BD Masters',
+          parentKey: 'systemmaster',
+          icon: 'ri-list-check-3',
+          children: [
             {
-              key: 'HrInputMaster',
-              label: 'Filling Frequency Master',
-              url: '/pages/FillingFrequencyMaster',
-              parentKey: 'CommonDropdown',
+              key: 'Tender-Master',
+              label: 'Tender Master',
+              url: '/pages/TenderMaster',
+              parentKey: 'BD Masters',
             },
-            {
-              key: 'ManagementContract',
-              label: 'Management Contract ',
-              url: '/pages/ManagementContractMaster',
-              parentKey: 'CommonDropdown',
-            },
-            {
-              key: 'ProjectType',
-              label: 'Project Type Master',
-              url: '/pages/ProjectTypeMaster',
-              parentKey: 'CommonDropdown',
-            },
+           
           ],
         },
         {
@@ -378,6 +369,39 @@ const getFilteredMenuItems = () => {
             },
           ],
         },
+        {
+          key: 'CommonDropdown',
+          label: 'Common Master ',
+          parentKey: 'systemmaster',
+          icon: 'ri-list-check-3',
+          children: [
+            {
+              key: 'DepartmentMaster',
+              label: 'Department Master',
+              url: '/pages/DepartmentMaster',
+              parentKey: 'CommonDropdown',
+            },
+            {
+              key: 'HrInputMaster',
+              label: 'Filling Frequency Master',
+              url: '/pages/FillingFrequencyMaster',
+              parentKey: 'CommonDropdown',
+            },
+            {
+              key: 'ManagementContract',
+              label: 'Management Contract ',
+              url: '/pages/ManagementContractMaster',
+              parentKey: 'CommonDropdown',
+            },
+            {
+              key: 'ProjectType',
+              label: 'Project Type Master',
+              url: '/pages/ProjectTypeMaster',
+              parentKey: 'CommonDropdown',
+            },
+          ],
+        },
+       
       ],
     },
 
