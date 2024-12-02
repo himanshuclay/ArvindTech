@@ -38,11 +38,25 @@ const getFilteredMenuItems = () => {
     //   ],
     // },
 
+    // {
+    //   key: 'Approval-Console',
+    //   label: 'Approval Console',
+    //   isTitle: false,
+    //   url: '/pages/ApprovalConsole',
+    //   icon: 'ri-dashboard-3-line',
+    // },
     {
-      key: 'Approval-Console',
-      label: 'Approval Console',
+      key: 'Modules',
+      label: 'Modules',
       isTitle: false,
-      url: '/pages/ApprovalConsole',
+      url: '/pages/Notification',
+      icon: 'ri-dashboard-3-line',
+    },
+    {
+      key: 'Process',
+      label: 'Process',
+      isTitle: false,
+      url: '/pages/Notification',
       icon: 'ri-dashboard-3-line',
     },
 
@@ -109,31 +123,38 @@ const getFilteredMenuItems = () => {
     },
     {
       key: 'Filtertask',
-      label: 'Filter Task',
+      label: 'Task',
       isTitle: false,
       icon: 'ri-settings-fill',
       children: [
         {
           key: 'Action',
-          label: 'Active Project',
-          url: '/pages/ActiveProject',
+          label: 'My Task',
+          url: '/pages/Notification',
           icon: 'ri-slideshow-line',
           parentKey: 'Filtertask',
         },
-        // {
-        //   key: 'ActiveTasks',
-        //   label: 'Active Task',
-        //   url: '/pages/FilterTasks',
-        //   icon: 'ri-slideshow-line',
-        //   parentKey: 'Modules-Master',
-        // },
+        {
+          key: 'ActiveTasks',
+          label: 'Track Task',
+          url: '/pages/Notification',
+          icon: 'ri-slideshow-line',
+          parentKey: 'Modules-Master',
+        },
         {
           key: 'FilterTasks',
-          label: 'Running Task',
-          url: '/pages/RunningTask',
+          label: 'Other Task',
+          url: '/pages/Notification',
           icon: 'ri-slideshow-line',
           parentKey: 'Filtertask',
         },
+        {
+          key: 'FilterTasks',
+          label: 'Approval Console',
+          url: '/pages/ApprovalConsole',
+          icon: 'ri-dashboard-3-line',
+          parentKey: 'Filtertask',
+        }
       ],
     },
     {

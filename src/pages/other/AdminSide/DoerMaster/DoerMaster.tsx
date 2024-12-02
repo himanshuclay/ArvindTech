@@ -85,8 +85,9 @@ const ModuleMaster = () => {
     const [columns, setColumns] = useState<Column[]>([
         { id: 'taskID', label: 'Task ID', visible: true },
         { id: 'identifier', label: 'Identifier', visible: true },
-        { id: 'input', label: 'Input', visible: true },
+        { id: 'identifier1', label: 'Identifier 1', visible: true },
         { id: 'inputValue', label: 'Input Value', visible: true },
+        { id: 'inputValue1', label: 'Input Value 1', visible: true },
         { id: 'empID', label: 'Employee ID', visible: true },
         { id: 'empName', label: 'Employee Name', visible: true },
 
@@ -118,6 +119,8 @@ const ModuleMaster = () => {
         if (searchEmployeeName) query += `DoerName=${searchEmployeeName}&`;
         if (searchTaskId) query += `TaskID=${searchTaskId}&`;
         if (searchIdentifier) query += `Identifier=${searchIdentifier}&`;
+        query += `PageIndex=${currentPage}`;
+
 
         query = query.endsWith('&') ? query.slice(0, -1) : query;
 
@@ -132,6 +135,8 @@ const ModuleMaster = () => {
             .then((response) => {
                 console.log("search response ", response.data.doerMasterListResponses);
                 setDoers(response.data.doerMasterListResponses)
+                setTotalPages(Math.ceil(response.data.totalCount / 10));
+
             })
             .catch((error) => {
                 console.error('Error fetching data:', error);
@@ -199,7 +204,8 @@ const ModuleMaster = () => {
 
     const handleClear = () => {
         setSearchEmployeeName('');
-        // setSearchDoerRole('');
+        setSearchIdentifier('');
+        setSearchTaskId('');
         fetchDoers();
     };
 
@@ -399,11 +405,12 @@ const ModuleMaster = () => {
                                                                             {...provided.draggableProps}
                                                                             {...provided.dragHandleProps}>
                                                                             {column.id === 'inputValue' && (<i className="ri-keyboard-line"></i>)}
+                                                                            {column.id === 'inputValue1' && (<i className="ri-keyboard-line"></i>)}
                                                                             {column.id === 'taskID' && (<i className="ri-settings-2-fill"></i>)}
                                                                             {column.id === 'doerRole' && (<i className="ri-user-settings-fill"></i>)}
                                                                             {column.id === 'empName' && (<i className="ri-user-fill"></i>)}
                                                                             {column.id === 'identifier' && (<i className="ri-price-tag-3-fill"></i>)}
-                                                                            {column.id === 'input' && (<i className="ri-pencil-fill"></i>)}
+                                                                            {column.id === 'identifier1' && (<i className="ri-price-tag-3-fill"></i>)}
                                                                             {column.id === 'empID' && (<i className="ri-user-follow-fill"></i>)}
                                                                             &nbsp; {column.label}
                                                                         </div>
