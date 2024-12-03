@@ -22,29 +22,6 @@ const getFilteredMenuItems = () => {
         text: '9+',
       },
     },
-    // {
-    //   key: 'Modules-Master',
-    //   label: 'Workflow',
-    //   url: '/pages/Modules-Master',
-    //   icon: 'ri-file-settings-line',
-    //   children: [
-    //     {
-    //       key: 'ModuleMaster',
-    //       label: 'Task Creator',
-    //       url: '/pages/Modules-Master',
-    //       icon: 'ri-slideshow-line',
-    //       parentKey: 'Modules-Master',
-    //     },
-    //   ],
-    // },
-
-    // {
-    //   key: 'Approval-Console',
-    //   label: 'Approval Console',
-    //   isTitle: false,
-    //   url: '/pages/ApprovalConsole',
-    //   icon: 'ri-dashboard-3-line',
-    // },
     {
       key: 'Modules',
       label: 'Modules',
@@ -122,45 +99,45 @@ const getFilteredMenuItems = () => {
       parentKey: 'Modules-Master',
     },
     {
-      key: 'Filtertask',
+      key: 'TaskAdmin',
       label: 'Task',
       isTitle: false,
       icon: 'ri-settings-fill',
       children: [
         {
-          key: 'Action',
+          key: 'Mytask',
           label: 'My Task',
-          url: '/pages/Notification',
+          url: '/pages/admin/Notification',
           icon: 'ri-slideshow-line',
-          parentKey: 'Filtertask',
+          parentKey: 'TaskAdmin',
         },
         {
-          key: 'ActiveTasks',
+          key: 'Track Task',
           label: 'Track Task',
           url: '/pages/Notification',
           icon: 'ri-slideshow-line',
-          parentKey: 'Modules-Master',
+          parentKey: 'TaskAdmin',
         },
         {
-          key: 'FilterTasks',
+          key: 'Other Task',
           label: 'Other Task',
           url: '/pages/Notification',
           icon: 'ri-slideshow-line',
-          parentKey: 'Filtertask',
+          parentKey: 'TaskAdmin',
         },
         {
-          key: 'FilterTasks',
+          key: 'Approval',
           label: 'Approval Console',
           url: '/pages/ApprovalConsole',
           icon: 'ri-dashboard-3-line',
-          parentKey: 'Filtertask',
+          parentKey: 'TaskAdmin',
         }
       ],
     },
     {
       key: 'GetTestData',
       label: 'Templates',
-      url: '/pages/Invoice',
+      url: '/pages/AdhocTempleteList',
       icon: 'ri-user-settings-line',
       children: [
         {
@@ -173,7 +150,7 @@ const getFilteredMenuItems = () => {
         {
           key: 'GetTestData-Lists',
           label: 'Template Lists',
-          url: '/pages/invoice',
+          url: '/pages/AdhocTempleteList',
           icon: 'ri-slideshow-line',
           parentKey: 'GetTestData',
         },
@@ -184,7 +161,7 @@ const getFilteredMenuItems = () => {
     {
       key: 'Analytics',
       label: 'Analytics',
-      url: '/pages/Invoice',
+      url: '/pages/AdhocTempleteList',
       icon: 'ri-user-settings-line',
       children: [
         {
@@ -192,7 +169,7 @@ const getFilteredMenuItems = () => {
           label: 'MIS Report',
           url: '/pages',
           icon: 'ri-slideshow-line',
-          parentKey: 'GetTestData',
+          parentKey: 'Analytics',
         }
       ],
     },
@@ -263,7 +240,7 @@ const getFilteredMenuItems = () => {
         {
           key: 'LnMaster',
           label: 'LN Master',
-          url: '/pages/MyTask',
+          url: '/pages/LnMaster',
           icon: 'ri-user-settings-line',
           parentKey: 'systemmaster',
         },
@@ -302,8 +279,8 @@ const getFilteredMenuItems = () => {
           icon: 'ri-list-check-3',
           parentKey: 'systemmaster',
         },
-    
-      {
+
+        {
           key: 'Account Masters',
           label: 'Account Masters',
           parentKey: 'systemmaster',
@@ -315,7 +292,7 @@ const getFilteredMenuItems = () => {
               url: '/pages/MessMaster',
               parentKey: 'Account Masters',
             },
-           
+
           ],
         },
         {
@@ -330,7 +307,7 @@ const getFilteredMenuItems = () => {
               url: '/pages/TenderMaster',
               parentKey: 'BD Masters',
             },
-           
+
           ],
         },
         {
@@ -401,12 +378,12 @@ const getFilteredMenuItems = () => {
             },
           ],
         },
-       
+
       ],
     },
 
 
-    
+
     {
       key: 'master',
       label: 'Business Master',
@@ -427,7 +404,7 @@ const getFilteredMenuItems = () => {
           icon: 'ri-user-settings-line',
           parentKey: 'master',
         },
-    
+
         {
           key: 'Vender',
           label: 'Vender Master',
@@ -455,12 +432,26 @@ const getFilteredMenuItems = () => {
 
   if (role === 'Admin') {
     return MENU_ITEMS.filter(item => {
-      return item.key !== 'CompletedTask' && item.key !== 'ExpireTask' && item.key !== 'TaskPlanned' && item.key !== 'Action' && item.key !== 'Notification';
+      return item.key !== 'CompletedTask' &&
+        item.key !== 'ExpireTask' &&
+        item.key !== 'TaskPlanned' &&
+        item.key !== 'Action' &&
+        item.key !== 'Notification';
     });
   }
   return MENU_ITEMS.filter(item => {
     if (role === 'EMPLOYEE') {
-      return item.key !== 'Filtertask' && item.key !== 'master' && item.key !== 'Modules-Master' && item.key !== 'Action' && item.key !== 'ChkLnMaster' && item.key !== 'systemmaster' && item.key !== 'Modules-Master'; // Exclude 'System Master' and 'Modules-Master' for 'user' role
+      return item.key !== 'Filtertask' &&
+        item.key !== 'TaskAdmin' &&
+        item.key !== 'Analytics' &&
+        item.key !== 'master' &&
+        item.key !== 'Modules-Master' &&
+        item.key !== 'Action' &&
+        item.key !== 'ChkLnMaster' &&
+        item.key !== 'systemmaster' &&
+        item.key !== 'Modules-Master' &&
+        item.key !== 'Process' &&
+        item.key !== 'Modules';
     }
 
     return true;

@@ -49,10 +49,7 @@ const MessCards: React.FC<{ data: Task[] }> = ({ data }) => {
                                     <strong>Manager:</strong> {messTasks[0]?.messManager}
                                 </p>
                                 <p>
-                                    {/* <strong>Mess Manager Contact:</strong>{" "}
-                                    <a href={`tel:${messTasks[0]?.managerNumber}`}>
-                                        {messTasks[0]?.managerNumber}
-                                    </a> */}
+
                                     <strong>Mess Manager Contact: </strong>
                                     <a
                                         href={`tel:${messTasks[0]?.managerNumber}`}
@@ -68,9 +65,12 @@ const MessCards: React.FC<{ data: Task[] }> = ({ data }) => {
                                 <h6>Tasks:</h6>
                                 {messTasks.map((task, index) => (
                                     <div key={index} className="mb-3">
-                                        <p>
-                                            <strong>Task ID:</strong> {task.messTaskNumber}
-                                        </p>
+
+                                        {task.messTaskNumber ?
+                                            <p>
+                                                <strong>Task ID:</strong> {task.messTaskNumber}
+                                            </p> : ''
+                                        }
                                         {Array.isArray(task.inputs) && task.inputs.length > 0 ? (
                                             <ul>
                                                 {task.inputs.map(

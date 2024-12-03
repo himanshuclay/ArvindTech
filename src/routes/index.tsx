@@ -28,7 +28,7 @@ const ActiveProject = React.lazy(() => import('../pages/other/ActiveProject.tsx'
 const ApprovalConsole = React.lazy(() => import('../pages/other/ApprovalConsole.tsx'))
 const Notification = React.lazy(() => import('../pages/other/DoerSide/Notification.tsx'))
 const FormMaster = React.lazy(() => import('../pages/other/FormMaster.tsx'))
-const MyTask = React.lazy(() => import('../pages/other/MyTask.tsx'))
+const LnMaster = React.lazy(() => import('../pages/other/AdminSide/LnMaster/LnMaster.tsx'))
 const ChkLnMaster = React.lazy(() => import('../pages/other/ChkLnMaster.tsx'))
 const TicketMaster = React.lazy(() => import('../pages/other/TicketMaster.tsx'))
 const SystemLogs = React.lazy(() => import('../pages/other/SystemLogs.tsx'))
@@ -156,8 +156,8 @@ const customPagesRoutes = {
 			route: PrivateRoute,
 		},
 		{
-			path: '/pages/invoice',
-			name: 'Invoice',
+			path: '/pages/AdhocTempleteList',
+			name: 'AdhocTempleteList',
 			element: <AdhocTempleteList />,
 			route: PrivateRoute,
 		},
@@ -235,6 +235,12 @@ const customPagesRoutes = {
 			route: PrivateRoute,
 		},
 		{
+			path: '/pages/admin/Notification',
+			name: 'Notification',
+			element: <Notification />,
+			route: PrivateRoute,
+		},
+		{
 			path: '/pages/ApprovalConsole',
 			name: 'Approval Console',
 			element: <ApprovalConsole />,
@@ -257,9 +263,9 @@ const customPagesRoutes = {
 			route: PrivateRoute,
 		},
 		{
-			path: '/pages/MyTask',
-			name: 'MyTask',
-			element: <MyTask />,
+			path: '/pages/LnMaster',
+			name: 'LnMaster',
+			element: <LnMaster />,
 			route: PrivateRoute,
 		},
 		{
