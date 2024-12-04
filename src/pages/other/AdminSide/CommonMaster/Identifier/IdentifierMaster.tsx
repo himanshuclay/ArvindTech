@@ -7,33 +7,21 @@ import config from '@/config';
 import Select from 'react-select';
 import CustomSuccessToast from '@/pages/other/Component/CustomSuccessToast';
 import { useLocation, useNavigate } from 'react-router-dom';
-import IconWithLetter from '@/pages/ui/IconWithLetter';
 
 
 
 interface Identifier {
     id: number;
-    identifier: string;
-    identifier1: string;
-    taskID: string;
-    input: string;
+    identifierName: string;
     identifierValue: string;
-    identifierValue1: string;
-    empID: string;
-    employeeName: string;
+    source: string;
 }
 interface Column {
     id: string;
     label: string;
     visible: boolean;
 }
-interface IdentifierEmpList {
-    empID: string;
-    employeeName: string;
-}
-interface TaskNumberList {
-    taskID: string;
-}
+
 interface IdentifierList {
     identifier: string;
 }
@@ -45,11 +33,7 @@ const ModuleMaster = () => {
     const [totalPages, setTotalPages] = useState(1);
     const [searchQuery, setSearchQuery] = useState('');
     const [downloadCsv, setDownloadCsv] = useState<Identifier[]>([]);
-    const [taskNumber, setTaskNumber] = useState('');
     const [identifierID, setIdentifierID] = useState('');
-    const [empID, setEmpID] = useState('');
-    const [identifierEmpList, setIdentifierEmpList] = useState<IdentifierEmpList[]>([]);
-    const [taskNumberList, setTaskNumberList] = useState<TaskNumberList[]>([]);
     const [identifierList, setIdentifierList] = useState<IdentifierList[]>([]);
 
     const location = useLocation();
@@ -77,14 +61,14 @@ const ModuleMaster = () => {
 
     // both are required to make dragable column of table 
     const [columns, setColumns] = useState<Column[]>([
-        { id: 'taskID', label: 'Task Number', visible: true },
-        { id: 'identifier', label: 'Identifier ', visible: true },
+        // { id: 'taskID', label: 'Task Number', visible: true },
+        { id: 'identifierName', label: 'Identifier Name', visible: true },
         { id: 'identifierValue', label: 'Identifier Value', visible: true },
-        { id: 'identifier1', label: 'Identifier 1', visible: true },
-        { id: 'identifierValue1', label: 'Identifier Value 1', visible: true },
+        // { id: 'identifier1', label: 'Identifier 1', visible: true },
+        // { id: 'identifierValue1', label: 'Identifier Value 1', visible: true },
         { id: 'source', label: 'Source Type', visible: true },
-        { id: 'empID', label: 'Employee ID ', visible: true },
-        { id: 'employeeName', label: 'Employee Name', visible: true },
+        // { id: 'empID', label: 'Employee ID ', visible: true },
+        // { id: 'employeeName', label: 'Employee Name', visible: true },
 
 
     ]);
@@ -110,12 +94,11 @@ const ModuleMaster = () => {
         e.preventDefault();
 
         let query = `?`;
-        if (taskNumber) query += `TaskID=${taskNumber}&`;
-        if (identifierID) query += `IdentifierID=${identifierID}&`;
-        if (empID) query += `EmpID=${empID}&`;
+        if (identifierID) query += `IdentifierName=${identifierID}&`;
+        query += `PageIndex=${currentPage}`;
 
         // Remove trailing '&' or '?' from the query string
-        query = query.endsWith('&') ? query.slice(0, -1) : query;
+        // query = query.endsWith('&') ? query.slice(0, -1) : query;
 
         const apiUrl = `${config.API_URL_APPLICATION}/IdentifierMaster/SearchIdentifier${query}`;
 
@@ -127,6 +110,7 @@ const ModuleMaster = () => {
         })
             .then((response) => {
                 setIdentifiers(response.data.identifierLists)
+                setTotalPages(Math.ceil(response.data.totalCount / 10));
             })
             .catch((error) => {
                 console.error('Error fetching data:', error);
@@ -187,31 +171,25 @@ const ModuleMaster = () => {
                 console.error(`Error fetching data from ${endpoint}:`, error);
             }
         };
-
-        fetchData('CommonDropdown/GetEmployeeList', setIdentifierEmpList, 'commonTypes');
-        fetchData('CommonDropdown/GetTaskList', setTaskNumberList, 'taskList');
         fetchData('CommonDropdown/GetIdentifier', setIdentifierList, 'identifierList');
     }, []);
 
 
     const handleClear = () => {
         fetchRoles();
+        setIdentifierID('');
 
     };
 
 
     const convertToCSV = (data: Identifier[]) => {
         const csvRows = [
-            ['ID', 'Task ID', 'Identifier', 'Identifier Value', 'Identifier1', 'Identifier Value 1', 'Employee ID', 'Employee Name'],
+            ['ID', 'IdentifierName', 'identifierValue', 'source'],
             ...data.map(identifier => [
                 identifier.id.toString(),
-                identifier.taskID,
-                identifier.identifier,
+                identifier.identifierName,
                 identifier.identifierValue,
-                identifier.identifier1,
-                identifier.identifierValue1,
-                identifier.empID,
-                identifier.employeeName,
+                identifier.source,
             ])
         ];
 
@@ -241,11 +219,12 @@ const ModuleMaster = () => {
 
 
     const filteredIdentifiers = identifiers.filter(identifier =>
-        identifier.identifier.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        identifier.taskID.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        identifier.identifierValue.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        identifier.empID.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        identifier.employeeName.toLowerCase().includes(searchQuery.toLowerCase())
+        // identifier.identifier.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        // identifier.taskID.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        identifier.identifierValue.toLowerCase().includes(searchQuery.toLowerCase())
+        //  ||
+        // identifier.empID.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        // identifier.employeeName.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
     return (
@@ -274,23 +253,6 @@ const ModuleMaster = () => {
                     <div className='bg-white p-2 pb-2'>
                         <Form onSubmit={handleSearch}>
                             <Row>
-                                <Col lg={4}>
-                                    <Form.Group controlId="taskNumber">
-                                        <Form.Label>Task Number</Form.Label>
-
-                                        <Select
-                                            name="taskNumber"
-                                            value={taskNumberList.find(item => item.taskID === taskNumber) || null} // handle null
-                                            onChange={(selectedOption) => setTaskNumber(selectedOption ? selectedOption.taskID : "")} // null check
-                                            options={taskNumberList}
-                                            getOptionLabel={(item) => item.taskID}
-                                            getOptionValue={(item) => item.taskID}
-                                            isSearchable={true}
-                                            placeholder="Select Task Number"
-                                            className="h45"
-                                        />
-                                    </Form.Group>
-                                </Col>
                                 <Col lg={3}>
                                     <Form.Group controlId="identifierID">
                                         <Form.Label>Identifier</Form.Label>
@@ -309,22 +271,11 @@ const ModuleMaster = () => {
                                     </Form.Group>
                                 </Col>
 
-                                <Col lg={3}>
-                                    <Form.Group controlId="empID">
-                                        <Form.Label>Employee Name:</Form.Label>
-                                        <Select
-                                            name="empID"
-                                            value={identifierEmpList.find(item => item.empID === empID) || null} // handle null
-                                            onChange={(selectedOption) => setEmpID(selectedOption ? selectedOption.empID : "")} // null check
-                                            options={identifierEmpList}
-                                            getOptionLabel={(item) => item.employeeName.split('_')[0]}
-                                            getOptionValue={(item) => item.empID}
-                                            isSearchable={true}
-                                            placeholder="Select Employee Name"
-                                            className="h45"
-                                        />
-                                    </Form.Group>
+                                <Col>
+                                
                                 </Col>
+
+
                                 <Col className='align-items-end d-flex justify-content-end'>
                                     <ButtonGroup aria-label="Basic example" className='w-100'>
                                         <Button type="button" variant="primary" onClick={handleClear}>
@@ -418,16 +369,11 @@ const ModuleMaster = () => {
                                                             className={
                                                                 col.id === 'identifier' ? 'fw-bold fs-13 text-dark text-nowrap' : ''
                                                             }>
-                                                            {col.id === 'employeeName' && item.employeeName ? (
-                                                                <div className="d-flex align-items-center">
-                                                                    <IconWithLetter letter={item.employeeName.charAt(0)} />
-                                                                    {item.employeeName.split('_')[0]}
-                                                                </div>
-                                                            ) : (
-                                                                <div>
-                                                                    {item[col.id as keyof Identifier]}
-                                                                </div>
-                                                            )}
+
+                                                            <div>
+                                                                {item[col.id as keyof Identifier]}
+                                                            </div>
+
                                                         </td>
                                                     ))}
                                                     <td><Link to={`/pages/identifiermasterinsert/${item.id}`}>
