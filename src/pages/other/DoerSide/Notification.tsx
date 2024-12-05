@@ -95,7 +95,7 @@ const ProjectAssignTable: React.FC = () => {
 
   // both are required to make dragable column of table 
   const [columns, setColumns] = useState<Column[]>([
-    // { id: 'moduleName', label: 'Module Name', visible: true },
+    { id: 'taskName', label: 'Task Name', visible: true },
     // { id: 'processName', label: 'Process Name', visible: true },
     { id: 'projectName', label: 'Project Name', visible: true },
     // { id: 'roleName', label: 'Role Name', visible: true },
@@ -467,7 +467,7 @@ const ProjectAssignTable: React.FC = () => {
                       <tr
                         {...provided.droppableProps} ref={provided.innerRef as React.Ref<HTMLTableRowElement>}
                         className='text-nowrap'>
-                        <th><i className="ri-list-ordered-2"></i>Task Name</th>
+                        {/* <th><i className="ri-list-ordered-2"></i>Task Name</th> */}
                         {columns.filter(col => col.visible).map((column, index) => (
                           <Draggable key={column.id} draggableId={column.id} index={index}>
                             {(provided) => (
@@ -508,9 +508,11 @@ const ProjectAssignTable: React.FC = () => {
                   {data.length > 0 ? (
                     data.slice(0, 10).map((item, index) => (
                       <tr key={item.id}>
-                        <td>{JSON.parse(item.task_Json)?.inputs.find(
+                        {/* <td>
+                          {JSON.parse(item.task_Json)?.inputs?.find(
                           (input: any) => input.inputId === "99"
-                        )?.label || "Task name not found"}</td>
+                        )?.label || "Task name not found"}
+                        </td> */}
                         {columns.filter(col => col.visible).map((col) => (
                           <td key={col.id}
 
@@ -582,7 +584,7 @@ const ProjectAssignTable: React.FC = () => {
 
                   <tr>
                     <td colSpan={100}>
-                      {data.map((item, index) => (
+                      {data?.map((item, index) => (
                         <div key={item.id} className="task-item">
                           <div
                             className={`card-body task-details ${openIndex === index ? "open" : "closed"
@@ -592,9 +594,10 @@ const ProjectAssignTable: React.FC = () => {
                               <div className="col-4 mb-2 d-flex flex-column">
                                 <span className="fs-5">Task Name:</span>{" "}
                                 <span className='text-primary fw-bold'>
-                                  {JSON.parse(item.task_Json)?.inputs.find(
+                                  {JSON.parse(item.task_Json)?.inputs?.find(
                                     (input: any) => input.inputId === "99"
                                   )?.label || "Task name not found"}
+                                  {/* {item.taskName} */}
                                 </span>
                               </div>
                               <div className='col-4 d-flex flex-column'>

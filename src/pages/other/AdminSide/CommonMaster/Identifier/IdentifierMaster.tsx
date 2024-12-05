@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { useState, useEffect, ChangeEvent } from 'react';
-import { Button, Pagination, Table, Container, Row, Col, Alert, Form, ButtonGroup } from 'react-bootstrap';
+import { Button, Pagination, Table, Container, Row, Col, Alert, Form, ButtonGroup, Modal } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import config from '@/config';
@@ -217,6 +217,19 @@ const ModuleMaster = () => {
         setCurrentPage(1);
     };
 
+    const [modalContent, setModalContent] = useState<string | null>(null);
+    const [showModal, setShowModal] = useState(false);
+
+    const handleModalOpen = (content: string) => {
+        setModalContent(content);
+        setShowModal(true);
+    };
+
+    const handleModalClose = () => {
+        setShowModal(false);
+        setModalContent(null);
+    };
+
 
     const filteredIdentifiers = identifiers.filter(identifier =>
         // identifier.identifier.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -272,7 +285,7 @@ const ModuleMaster = () => {
                                 </Col>
 
                                 <Col>
-                                
+
                                 </Col>
 
 
@@ -365,17 +378,37 @@ const ModuleMaster = () => {
                                                 <tr key={item.id}>
                                                     <td>{(currentPage - 1) * 10 + index + 1}</td>
                                                     {columns.filter(col => col.visible).map((col) => (
-                                                        <td key={col.id}
-                                                            className={
-                                                                col.id === 'identifier' ? 'fw-bold fs-13 text-dark text-nowrap' : ''
-                                                            }>
-
-                                                            <div>
-                                                                {item[col.id as keyof Identifier]}
-                                                            </div>
-
+                                                        <td key={col.id}>
+                                                            {col.id === 'identifierValue' ? (
+                                                                <div
+                                                                    className="fw-bold fs-13 text-dark ellipsis-text"
+                                                                    style={{ cursor: 'pointer' }}
+                                                                    onClick={() => handleModalOpen(String(item[col.id as keyof typeof item]))}
+                                                                >
+                                                                    {item[col.id as keyof typeof item]}
+                                                                </div>
+                                                            ) : (
+                                                                <div>
+                                                                    {item[col.id as keyof typeof item]}
+                                                                </div>
+                                                            )}
                                                         </td>
                                                     ))}
+                                                    {modalContent && (
+                                                        <Modal show={showModal} onHide={handleModalClose} centered>
+                                                            <Modal.Header closeButton>
+                                                                <Modal.Title>Details</Modal.Title>
+                                                            </Modal.Header>
+                                                            <Modal.Body>
+                                                                {modalContent}
+                                                            </Modal.Body>
+                                                            <Modal.Footer>
+                                                                <Button variant="secondary" onClick={handleModalClose}>
+                                                                    Close
+                                                                </Button>
+                                                            </Modal.Footer>
+                                                        </Modal>
+                                                    )}
                                                     <td><Link to={`/pages/identifiermasterinsert/${item.id}`}>
                                                         <Button variant='primary' className='p-0 text-white'>
                                                             <i className='btn ri-edit-line text-white' ></i>
@@ -429,3 +462,4 @@ const ModuleMaster = () => {
 };
 
 export default ModuleMaster;
+

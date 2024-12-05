@@ -1,27 +1,24 @@
 import axios from 'axios';
 import { useEffect, useState, ChangeEvent } from 'react';
-import { Button, Col, Form, Row } from 'react-bootstrap';
-import { useParams, useNavigate, Link } from 'react-router-dom';
+import { Button, Col, Form, Row, Badge, CloseButton } from 'react-bootstrap';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import config from '@/config';
-import Select from 'react-select';
+// import Select from 'react-select';
 import CustomSuccessToast from '@/pages/other/Component/CustomSuccessToast';
-
 
 
 interface Identifier {
     id: number;
     identifierName: string;
-    identifierValue: string;
-    selectmaster: string;
+    identifierValue: any;
     source: string;
     createdBy: string;
     updatedBy: string;
 }
 
-interface ProjectList {
-    projectName: string;
-
-}
+// interface ProjectList {
+//     projectName: string;
+// }
 
 
 
@@ -30,16 +27,16 @@ const EmployeeInsert = () => {
     const navigate = useNavigate();
     const [editMode, setEditMode] = useState<boolean>(false);
     const [empName, setEmpName] = useState<string | null>('')
-    const [projectList, setProjectList] = useState<ProjectList[]>([])
     const [showToast, setShowToast] = useState(false);
     const [toastMessage, setToastMessage] = useState("");
     const [toastVariant, setToastVariant] = useState('');
+    const [tags, setTags] = useState<string[]>([]);
+    const [inputValue, setInputValue] = useState<any>('');
     const [identifiers, setIdentifiers] = useState<Identifier>({
         id: 0,
         identifierName: '',
         identifierValue: '',
-        source: '',
-        selectmaster: '',
+        source: 'Manual Creation',
         createdBy: '',
         updatedBy: '',
     });
@@ -70,6 +67,12 @@ const EmployeeInsert = () => {
             if (response.data.isSuccess) {
                 const fetchedModule = response.data.identifierLists[0];
                 setIdentifiers(fetchedModule);
+                const receivedValue = fetchedModule.identifierValue.split(",").map((item: any) => item.trim());
+                // setInputValue(receivedValue ? receivedValue.split(",").map((item:any) => item.trim()) : []);
+                console.log(inputValue)
+                setTags(receivedValue)
+
+                // setTags(inputValue)
             } else {
                 console.error(response.data.message);
             }
@@ -78,24 +81,44 @@ const EmployeeInsert = () => {
         }
     };
 
-    useEffect(() => {
-        const fetchData = async (endpoint: string, setter: Function, listName: string) => {
-            try {
-                const response = await axios.get(`${config.API_URL_APPLICATION}/${endpoint}`);
-                if (response.data.isSuccess) {
-                    setter(response.data[listName]);
-                } else {
-                    console.error(response.data.message);
-                }
-            } catch (error) {
-                console.error(`Error fetching data from ${endpoint}:`, error);
+    const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+        if (e.key === 'Enter' && inputValue.trim()) {
+            if (!tags.includes(inputValue.trim())) {
+                setTags([...tags, inputValue.trim()]);
             }
-        };
+            setInputValue(''); // Clear input
+            e.preventDefault(); // Prevent form submission
+        }
+    };
 
-        fetchData('CommonDropdown/GetProjectList', setProjectList, 'projectListResponses');
-    }, []);
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setInputValue(e.target.value);
+    };
 
+    const removeTag = (index: number) => {
+        setTags(tags.filter((_, i) => i !== index));
+    };
 
+    // useEffect(() => {
+    //     const fetchData = async (endpoint: string, setter: Function, listName: string) => {
+    //         try {
+    //             const response = await axios.get(`${config.API_URL_APPLICATION}/${endpoint}`);
+    //             if (response.data.isSuccess) {
+    //                 setter(response.data[listName]);
+    //             } else {
+    //                 console.error(response.data.message);
+    //             }
+    //         } catch (error) {
+    //             console.error(`Error fetching data from ${endpoint}:`, error);
+    //         }
+    //     };
+
+    //     fetchData('CommonDropdown/GetProjectList', setProjectList, 'projectListResponses');
+    // }, []);
+
+    const clearAllTags = () => {
+        setTags([]);
+    };
 
 
     const handleChange = (e: ChangeEvent<any> | null, name?: string, value?: any) => {
@@ -128,10 +151,12 @@ const EmployeeInsert = () => {
 
         const payload = {
             ...identifiers,
+            identifierValue: Array.isArray(tags) ? tags.join(", ") : String(tags),
             createdBy: editMode ? identifiers.createdBy : empName,
             updatedBy: editMode ? empName : '',
         };
         console.log(payload)
+
 
         try {
             await axios.post(`${config.API_URL_APPLICATION}/IdentifierMaster/InsertUpdateIdentifier`, payload);
@@ -151,15 +176,6 @@ const EmployeeInsert = () => {
     };
 
 
-    const options = [
-        { value: 'Master', label: 'Master' },
-        { value: 'Manual Creation', label: 'Manual Creation' }
-    ];
-    const optionsValue = [
-        { value: 'Project Master', label: 'Project Master' },
-        { value: 'SubProject Master', label: 'SubProject Master' }
-    ];
-
     return (
         <div>
             <div className="container">
@@ -170,10 +186,8 @@ const EmployeeInsert = () => {
                     <Form onSubmit={handleSubmit}>
                         <Row>
 
-
-
                             <Col lg={6}>
-                                <Form.Group controlId="identifierName" className="mb-3">
+                                <Form.Group controlId="identifier" className="mb-3">
                                     <Form.Label>Identifier Name</Form.Label>
                                     <Form.Control
                                         type="text"
@@ -186,119 +200,45 @@ const EmployeeInsert = () => {
                                 </Form.Group>
                             </Col>
 
-                            <Col lg={6}>
-                                <Form.Group controlId="source" className="mb-3">
-                                    <Form.Label>Source</Form.Label>
-                                    <Select
-                                        name="source"
-                                        options={options}
-                                        value={options.find(option => option.value === identifiers.source)}
-                                        onChange={selectedOption => handleChange(null, 'source', selectedOption?.value)}
-                                        placeholder="Source Type"
-                                        required
+
+
+                            <Col lg={6} className='position-relative'>
+                                <Form.Label>Identifier Value</Form.Label>
+                                <div style={{ border: '1px solid #ced4da', borderRadius: '4px' }}>
+
+                                    <Form.Control
+                                        type="text"
+                                        name='inputValue'
+                                        placeholder="Type and press Enter"
+                                        value={inputValue}
+                                        onChange={handleInputChange}
+                                        onKeyDown={handleKeyDown}
+                                        style={{ border: 'none', outline: 'none' }}
                                     />
-                                </Form.Group>
-                            </Col>
-                            {identifiers.source === "Manual Creation" ?
-                                <Col lg={6}>
-                                    <Form.Group controlId="identifierValue" className="mb-3">
-                                        <Form.Label>Identifier Value</Form.Label>
-
-                                        <Form.Control
-                                            type="text"
-                                            name="identifierValue"
-                                            value={identifiers.identifierValue}
-                                            onChange={handleChange}
-                                            required
-                                            placeholder='Enter identifier name'
-                                        />
-                                    </Form.Group>
-                                </Col>
-                                :
-                                <Col lg={6}>
-                                    <Form.Group controlId="selectmaster" className="mb-3">
-                                        <Form.Label>Identifier Value</Form.Label>
-                                        <Select
-                                            name="selectmaster"
-                                            value={optionsValue.find((mod) => mod.label === identifiers.selectmaster)}
-                                            onChange={(selectedOption) => {
-                                                setIdentifiers({
-                                                    ...identifiers,
-                                                    selectmaster: selectedOption?.label || '',
-                                                });
-                                            }}
-                                            getOptionLabel={(mod) => mod.label}
-                                            getOptionValue={(mod) => mod.value}
-                                            options={optionsValue}
-                                            isSearchable={true}
-                                            placeholder="Select Identifier Value"
-                                            required
-                                        />
-
-                                    </Form.Group>
-                                </Col>
-                            }
-
-
-                            { identifiers.source === "Master" ? (identifiers.selectmaster === 'Project Master' ?
-
-                                <Col lg={6}>
-                                    <Form.Group controlId="identifierValue" className="mb-3">
-                                        <Form.Label>Identifier Value</Form.Label>
-                                        <Select
-                                            name="identifierValue"
-                                            value={projectList.find((mod) => mod.projectName === identifiers.identifierValue)}
-                                            onChange={(selectedOption) => {
-                                                setIdentifiers({
-                                                    ...identifiers,
-                                                    identifierValue: selectedOption?.projectName || '',
-                                                });
-                                            }}
-                                            getOptionLabel={(mod) => mod.projectName}
-                                            getOptionValue={(mod) => mod.projectName}
-                                            options={projectList}
-                                            isSearchable={true}
-                                            placeholder="Select Identifier Value"
-                                            required
-                                        />
-
-                                    </Form.Group>
-                                </Col>
-
-                                : <Col lg={6}>
-                                    <Form.Group controlId="identifierValue" className="mb-3">
-                                        <Form.Label>Identifier Value</Form.Label>
-                                        <Select
-                                            name="identifierValue"
-                                            value={projectList.find((mod) => mod.projectName === identifiers.identifierValue)}
-                                            onChange={(selectedOption) => {
-                                                setIdentifiers({
-                                                    ...identifiers,
-                                                    identifierValue: selectedOption?.projectName || '',
-                                                });
-                                            }}
-                                            getOptionLabel={(mod) => mod.projectName}
-                                            getOptionValue={(mod) => mod.projectName}
-                                            options={projectList}
-                                            isSearchable={true}
-                                            placeholder="Select Identifier Value"
-                                            required
-                                        />
-
-                                    </Form.Group>
-                                </Col>
-
-                            )
-                            :null
-
-
-
-                            }
-
-                            <Col className='align-items-end d-flex justify-content-between mb-3'>
-                                <div>
-                                    <span className='fs-5 '>This field is required*</span>
                                 </div>
+                                <div onClick={clearAllTags} style={{ position: 'absolute', top: '33px', right: '15px', cursor: 'pointer', }}>
+                                    <i className="ri-close-line fs-18 "></i>
+                                </div>
+
+                                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', marginBottom: '4px', marginTop: '4px' }}>
+                                    {tags.map((tag, index) => (
+                                        <Badge bg="primary" key={index} style={{ display: 'flex', alignItems: 'center', fontSize: '11px' }}>
+                                            {tag}
+                                            <CloseButton
+                                                onClick={() => removeTag(index)}
+                                                style={{ marginLeft: '8px', fontSize: "8px", }}
+                                                variant="white"
+                                            />
+                                        </Badge>
+                                    ))}
+                                </div>
+                            </Col>
+
+
+
+                            <Col></Col>
+                            <Col lg={4} className='align-items-end d-flex justify-content-end mb-3'>
+
                                 <div>
                                     <Link to={'/pages/IdentifierMaster'}>
                                         <Button variant="primary" >
