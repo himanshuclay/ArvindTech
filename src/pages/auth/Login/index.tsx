@@ -18,7 +18,7 @@ const BottomLinks = () => {
 		<Row>
 			<Col xs={12} className="text-center">
 				<p className="text-dark-emphasis">
-					Don't have an account?{' '}
+					Don't have an accounts?{' '}
 					<Link
 						to="/auth/register"
 						className="text-dark fw-bold ms-1 link-offset-3 text-decoration-underline"
@@ -96,7 +96,6 @@ const Login = () => {
 					</div>
 				</VerticalForm>
 			</AuthLayout>
-			<BottomLinks></BottomLinks>
 		</>
 	)
 }

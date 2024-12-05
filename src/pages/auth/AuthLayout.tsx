@@ -7,6 +7,7 @@ import logoDark from '@/assets/images/logo-dark.png'
 
 import { Card, Col, Container, Image, Row } from 'react-bootstrap'
 // import { Link } from 'react-router-dom'
+import { useLocation } from 'react-router-dom';
 
 interface AccountLayoutProps {
 	pageImage?: string
@@ -30,6 +31,9 @@ const AuthLayout = ({
 	userImage,
 	starterClass,
 }: AccountLayoutProps) => {
+	const location = useLocation();
+	const isRegisterRoute = location.pathname === '/auth/register';
+	const isforgotpasswordRoute = location.pathname === '/auth/forgot-password';
 	useEffect(() => {
 		if (document.body) {
 			document.body.classList.add('authentication-bg', 'position-relative')
@@ -47,7 +51,11 @@ const AuthLayout = ({
 			<div className="account-pages pt-2 pt-sm-5 pb-4 pb-sm-5 position-relative">
 				<Container>
 					<Row className="justify-content-center">
-						<Col xxl={4} lg={4}>
+						<Col
+							xxl={isRegisterRoute || isforgotpasswordRoute ? 6 : 4}
+							lg={isRegisterRoute || isforgotpasswordRoute ? 6 : 4}
+						>
+
 							<Card className="overflow-hidden">
 								<Row className="g-0">
 									{/* <Col lg={6} className="d-none d-lg-block p-2">
@@ -68,9 +76,8 @@ const AuthLayout = ({
 												</a>
 											</div>
 											<div
-												className={`p-4 my-auto ${
-													starterClass ? 'text-center' : ''
-												}`}
+												className={`p-4 my-auto ${starterClass ? 'text-center' : ''
+													}`}
 											>
 												{userImage ? (
 													<div className="text-center w-75 m-auto">

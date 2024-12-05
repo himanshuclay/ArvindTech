@@ -1,9 +1,12 @@
-import { Button, Col, Row } from 'react-bootstrap';
+import { Button, Col, Form, Row } from 'react-bootstrap';
 import AuthLayout from '../AuthLayout';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { useEffect, useState } from 'react';
 import { VerticalForm, FormInput, PageBreadcrumb } from '@/components';
+import config from '@/config';
+import Flatpickr from 'react-flatpickr';
+import 'flatpickr/dist/themes/material_green.css';
 
 interface UserData {
 	empID: string;
@@ -29,14 +32,17 @@ const BottomLink = () => (
 );
 
 const Register = () => {
+	const navigate = useNavigate();
 	const [loading, setLoading] = useState(false);
+	const [verifyDoj, setVerifyDoj] = useState(false);
+	const [verifyDob, setVerifyDob] = useState(false);
 	const [formData, setFormData] = useState<UserData>({
 		empID: '',
 		fullname: '',
 		mobileNumber: '',
-		joiningDate: '', // Keep the date as string from the input
-		dob: '', // Keep the date as string from the input
-		password: '', // User will manually input the password
+		joiningDate: '',
+		dob: '',
+		password: '',
 		role: 'EMPLOYEE',
 	});
 
@@ -45,17 +51,14 @@ const Register = () => {
 		if (!empID) return; // Prevent fetching if empID is empty
 		try {
 			const response = await axios.get(
-				`https://arvindo-api2.clay.in/api/Login/GetEmployeeDetailsbyEmpId?EmpID=${empID}`
+				`${config.API_URL_APPLICATION}/Login/GetEmployeeDetailsbyEmpId?EmpID=${empID}`
 			);
 			if (response.data.isSuccess) {
-				const details = response.data.getEmployeeDetailsbyEmpId;
+				const details = response.data.fetchDetails[0];
+				console.log(details)
 				setFormData({
 					...formData,
-					empID: details.empID,
 					fullname: details.employeeName,
-					mobileNumber: details.mobileNumber,
-					joiningDate: details.dateOfJoining, // Keep date as string
-					dob: details.dateOfBirth, // Keep date as string
 					role: details.role,
 				});
 			}
@@ -64,48 +67,87 @@ const Register = () => {
 		}
 	};
 
+	const verifyDOJ = async (empID: string, joiningDate: string) => {
+		if (!empID || !joiningDate) return; // Prevent API call if empID or joiningDate is empty
+
+		try {
+			const response = await axios.post(`${config.API_URL_APPLICATION}/Login/VerifyJoiningDate`, null, {
+				params: { EmpID: empID, Input: joiningDate, }
+			});
+			if (response.data.isSuccess) {
+				console.log('Date is verified:', response.data.message);
+				setVerifyDoj(true);
+			} else {
+				console.warn('Verification failed:', response.data.message);
+				setVerifyDoj(false);
+				setFormData({
+					...formData,
+					joiningDate: '',
+				});
+				alert('Enter Valid Employee ID or Date of Joining')
+
+			}
+		} catch (error) {
+			console.error('Error verifying the joining date:', error);
+		}
+	};
+
+	const verifyDOB = async (empID: string, dob: string) => {
+		if (!empID || !dob) return; // Prevent API call if empID or joiningDate is empty
+
+		try {
+			const response = await axios.post(`${config.API_URL_APPLICATION}/Login/VerifyDOB`, null, {
+				params: { EmpID: empID, Input: dob, }
+			});
+			if (response.data.isSuccess) {
+				console.log('Date od Birth is verified:', response.data.message);
+				setVerifyDob(true);
+			} else {
+				console.warn('Verification failed:', response.data.message);
+				setVerifyDob(false);
+				setFormData({
+					...formData,
+					dob: '',
+				});
+				alert('Enter Valid Employee ID or Date of Birth')
+			}
+		} catch (error) {
+			console.error('Error verifying the joining date:', error);
+		}
+	};
+
+
 	const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		e.preventDefault();
 		const { name, value } = e.target;
-
-		console.log('Field being changed:', name);
-		console.log('New value:', value);
-
 		setFormData((prevData) => ({
 			...prevData,
-			[name]: value, // Dynamically update the field based on its "name"
+			[name]: value,
 		}));
 	};
 
-	useEffect(() => {
-		console.log('Form Data Updated:', formData); // Log form data whenever it updates
-	}, [formData]);
 
-	// Handle form submission
 	const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
 		setLoading(true);
 
 		try {
-			// Prepare the data for the POST request without modifying date format
 			const postData = {
 				empID: formData.empID,
 				empName: formData.fullname,
 				mobileNumber: formData.mobileNumber,
-				joiningDate: formData.joiningDate, // Directly use the string value
-				dob: formData.dob, // Directly use the string value
-				password: formData.password, // Ensure the password field is filled by the user
+				joiningDate: formData.joiningDate,
+				dob: formData.dob,
+				password: formData.password,
 				role: formData.role,
-				status: 'active', // Hardcoded for now
-				createdBy: 'admin', // Adjust accordingly
-				updatedBy: 'admin', // Adjust accordingly
+				status: 'active',
+				createdBy: 'admin',
+				updatedBy: 'admin',
 			};
 
-			console.log(formData.password);
-			console.log(postData);
 
 			// Send the POST request
 			const response = await axios.post(
-				'https://arvindo-api2.clay.in/api/Login/InsertLoginData',
+				`${config.API_URL_APPLICATION}/Login/InsertLoginData`,
 				postData,
 				{
 					headers: {
@@ -117,6 +159,7 @@ const Register = () => {
 			// Check the response
 			if (response.status === 200) {
 				console.log('Registration successful:', response.data);
+				navigate('/auth/login');
 			} else {
 				console.error('Registration failed:', response);
 			}
@@ -127,103 +170,194 @@ const Register = () => {
 		}
 	};
 
+
+	useEffect(() => {
+		const delayDebounceFn = setTimeout(() => {
+			if (formData.empID) {
+				fetchEmployeeDetails(formData.empID);
+			}
+		}, 500);
+
+		return () => clearTimeout(delayDebounceFn);
+	}, [formData.empID]);
+
+	console.log(formData)
+
 	return (
 		<>
 			<PageBreadcrumb title="Register" />
 			<AuthLayout
-				authTitle="Free Sign Up"
+				authTitle="Sign Up"
 				helpText="Enter your details to sign up."
 				bottomLinks={<BottomLink />}
 				hasThirdPartyLogin
 			>
 				<VerticalForm<UserData> onSubmit={onSubmit}>
-					<FormInput
-						label="Employee ID"
-						type="text"
-						name="empID"
-						placeholder="Enter your Employee ID"
-						value={formData.empID}
-						onChange={handleInputChange}
-						containerClass="mb-3"
-						required
-					/>
 
-					<Button
-						variant="secondary"
-						className="mb-3"
-						onClick={(e) => {
-							e.preventDefault(); // Prevent form submission
-							fetchEmployeeDetails(formData.empID);
-						}}
-					>
-						Fetch Employee Details
-					</Button>
+					<Row>
+						<Col>
+							<FormInput
+								label="Employee ID"
+								type="text"
+								name="empID"
+								placeholder="Enter your Employee ID"
+								value={formData.empID}
+								onChange={handleInputChange}
+								containerClass="mb-3"
+								required
+							/>
+						</Col>
+						<Col>
+							<FormInput
+								label="Full Name"
+								type="text"
+								name="fullname"
+								placeholder="Your name"
+								value={formData.fullname}
+								onChange={handleInputChange}
+								containerClass="mb-3"
+								readOnly
+								disabled
+							/>
+						</Col>
+					</Row>
 
-					<FormInput
-						label="Full Name"
-						type="text"
-						name="fullname"
-						placeholder="Enter your name"
-						value={formData.fullname}
-						onChange={handleInputChange}
-						containerClass="mb-3"
-					/>
 
-					<FormInput
-						label="Mobile Number"
-						type="text"
-						name="mobileNumber"
-						placeholder="Enter your mobile number"
-						value={formData.mobileNumber}
-						onChange={handleInputChange}
-						containerClass="mb-3"
-					/>
+					<Row>
+						<Col lg={6} className="position-relative">
+							<Form.Group controlId="joiningDate" className="mb-3">
+								<Form.Label>Date of Joining</Form.Label>
+								<Flatpickr
+									value={formData.joiningDate ? new Date(formData.joiningDate).toISOString().split('T')[0] : ''}
+									onChange={([date]) => {
+										const adjustedDate = new Date(date);
+										adjustedDate.setHours(0, 0, 0, 0);
+										setFormData({
+											...formData,
+											joiningDate: adjustedDate.toDateString(),
+										});
+									}}
+									options={{
+										enableTime: false,
+										dateFormat: "Y-m-d",
+										time_24hr: false,
+									}}
+									placeholder="yyyy-MM-dd"
+									className="form-control"
+									required
+								/>
+							</Form.Group>
 
-					<FormInput
-						label="Password"
-						type="text" // Change to password type
-						name="password"
-						placeholder="Enter your password" // Adjust placeholder
-						value={formData.password}
-						onChange={handleInputChange}
-						containerClass="mb-3"
-						required
-					/>
+							{formData.joiningDate ?
+								<div
+									className="position-absolute signup-verify fs-11"
+									onClick={() => {
+										if (!formData.empID) {
+											alert('Please enter Employee ID before verifying.');
+										} else {
+											verifyDOJ(formData.empID, formData.joiningDate);
+										}
+									}}
+									style={{ borderLeft: 'none', cursor: 'pointer' }}
+								>
+									{verifyDoj ? <i className="ri-checkbox-circle-fill fs-15 text-success mr-1"></i> : 'Verify'}
+								</div> : null
+							}
+						</Col>
 
-					<FormInput
-						label="Joining Date"
-						type="text"
-						name="joiningDate"
-						value={formData.joiningDate} // Unchanged date format
-						onChange={handleInputChange}
-						containerClass="mb-3"
-						readOnly
-					/>
+						<Col lg={6} className='position-relative'>
+							<Form.Group controlId="dob" className="mb-3">
+								<Form.Label>Date of Birth</Form.Label>
+								<Flatpickr
+									value={formData.dob ? new Date(formData.dob).toISOString().split('T')[0] : ''}
+									onChange={([date]) => {
+										const adjustedDate = new Date(date);
+										adjustedDate.setHours(0, 0, 0, 0);
+										setFormData({
+											...formData,
+											dob: adjustedDate.toDateString(),
+										});
+									}}
+									options={{
+										enableTime: false,
+										dateFormat: "Y-m-d",
+										time_24hr: false,
+									}}
+									placeholder="yyyy-MM-dd"
+									className="form-control"
+									required
+								/>
+							</Form.Group>
+							{formData.dob ?
+								<div
+									className="position-absolute signup-verify fs-11"
+									onClick={() => {
+										if (!formData.empID) {
+											alert('Please enter Employee ID before verifying.');
+										} else {
+											verifyDOB(formData.empID, formData.dob);
+										}
+									}}
+									style={{ borderLeft: 'none', cursor: 'pointer' }}
+								>
+									{verifyDob ? <i className="ri-checkbox-circle-fill fs-15 text-success"></i> : 'Verify'}
+								</div> : null
+							}
+						</Col>
+					</Row>
 
-					<FormInput
-						label="Date of Birth"
-						type="text"
-						name="dob"
-						value={formData.dob} // Unchanged date format
-						onChange={handleInputChange}
-						containerClass="mb-3"
-						readOnly
-					/>
 
-					<FormInput
-						label="Role"
-						type="text"
-						name="role"
-						value={formData.role}
-						onChange={handleInputChange}
-						containerClass="mb-3"
-						readOnly
-					/>
+					<Row>
+						<Col lg={6}>
+							<FormInput
+								label="Mobile Number"
+								type="text"
+								name="mobileNumber"
+								placeholder="Enter your mobile number"
+								value={formData.mobileNumber}
+								onChange={handleInputChange}
+								containerClass="mb-3"
+							/>
+						</Col>
+						<Col lg={6}>
+							<Form.Group controlId="password" className="mb-3">
+								<Form.Label>Password</Form.Label>
+								<Form.Control
+									type="password"
+									name="password"
+									value={formData.password}
+									onChange={handleInputChange}
+									required
+									placeholder='Enter Password'
+								/>
+							</Form.Group>
+						</Col>
+					</Row>
+
+
+
+
+
 
 					<div className="mb-0 d-grid text-center">
-						<Button variant="primary" className="fw-semibold" type="submit" disabled={loading}>
-							Sign Up
-						</Button>
+						{formData.empID &&
+							formData.fullname &&
+							formData.mobileNumber &&
+							formData.joiningDate &&
+							formData.dob &&
+							formData.password &&
+							verifyDob &&
+							verifyDoj ?
+
+							<Button variant="primary" className="fw-semibold" type="submit" disabled={loading}>
+								Sign Up
+							</Button>
+							:
+							<Button variant="primary" className="fw-semibold" type="submit" disabled>
+								Sign Up
+							</Button>
+
+						}
 					</div>
 				</VerticalForm>
 			</AuthLayout>
