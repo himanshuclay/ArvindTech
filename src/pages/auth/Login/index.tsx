@@ -96,7 +96,6 @@ const Login = () => {
 					</div>
 				</VerticalForm>
 			</AuthLayout>
-			<BottomLinks></BottomLinks>
 		</>
 	)
 }
