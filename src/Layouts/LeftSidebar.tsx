@@ -462,6 +462,7 @@ const getFilteredMenuItems = () => {
         item.key !== 'systemmaster' &&
         item.key !== 'Modules-Master' &&
         item.key !== 'Process' &&
+        item.key !== 'ProcessDataMaster' &&
         item.key !== 'Modules';
     }
 
