@@ -508,7 +508,7 @@ const ProjectAssignTable: React.FC = () => {
                   {data.length > 0 ? (
                     data.slice(0, 10).map((item, index) => (
                       <tr key={item.id}>
-                        <td>{JSON.parse(item.task_Json)?.inputs.find(
+                        <td>{JSON.parse(item.task_Json)?.inputs?.find(
                           (input: any) => input.inputId === "99"
                         )?.label || "Task name not found"}</td>
                         {columns.filter(col => col.visible).map((col) => (
@@ -582,7 +582,7 @@ const ProjectAssignTable: React.FC = () => {
 
                   <tr>
                     <td colSpan={100}>
-                      {data.map((item, index) => (
+                      {data?.map((item, index) => (
                         <div key={item.id} className="task-item">
                           <div
                             className={`card-body task-details ${openIndex === index ? "open" : "closed"
@@ -592,7 +592,7 @@ const ProjectAssignTable: React.FC = () => {
                               <div className="col-4 mb-2 d-flex flex-column">
                                 <span className="fs-5">Task Name:</span>{" "}
                                 <span className='text-primary fw-bold'>
-                                  {JSON.parse(item.task_Json)?.inputs.find(
+                                  {JSON.parse(item.task_Json)?.inputs?.find(
                                     (input: any) => input.inputId === "99"
                                   )?.label || "Task name not found"}
                                 </span>

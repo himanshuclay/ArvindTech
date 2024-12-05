@@ -12,9 +12,6 @@ interface Doer {
     taskID: string;
     identifier: string;
     identifier1: string;
-    inputValue: string;
-    inputValue1: string;
-    source: string;
     empID: string;
     empName: string;
     createdBy: string;
@@ -49,9 +46,6 @@ const EmployeeInsert = () => {
         taskID: '',
         identifier: '',
         identifier1: '',
-        inputValue: '',
-        inputValue1: '',
-        source: '',
         empID: '',
         empName: '',
         createdBy: '',
@@ -243,19 +237,7 @@ const EmployeeInsert = () => {
                                 </Form.Group>
                             </Col>
                           
-                            <Col lg={6}>
-                                <Form.Group controlId="inputValue" className="mb-3">
-                                    <Form.Label>Identifier Value</Form.Label>
-                                    <Form.Control
-                                        type="text"
-                                        name="inputValue"
-                                        value={doers.inputValue}
-                                        onChange={handleChange}
-                                        required
-                                        placeholder='Enter Identifier Value'
-                                    />
-                                </Form.Group>
-                            </Col>
+                            
                             <Col lg={6}>
                                 <Form.Group controlId="identifier1" className="mb-3">
                                     <Form.Label>identifier 1</Form.Label>
@@ -270,33 +252,8 @@ const EmployeeInsert = () => {
                                 </Form.Group>
                             </Col>
                           
-                            <Col lg={6}>
-                                <Form.Group controlId="inputValue1" className="mb-3">
-                                    <Form.Label>Input Value 1</Form.Label>
-                                    <Form.Control
-                                        type="text"
-                                        name="inputValue1"
-                                        value={doers.inputValue1}
-                                        onChange={handleChange}
-                                        required
-                                        placeholder='Enter Identifier Value 1'
-                                    />
-                                </Form.Group>
-                            </Col>
 
-                            <Col lg={6}>
-                                <Form.Group controlId="source" className="mb-3">
-                                    <Form.Label>Source</Form.Label>
-                                    <Form.Control
-                                        type="text"
-                                        name="source"
-                                        value={doers.source}
-                                        onChange={handleChange}
-                                        required
-                                        placeholder='Source'
-                                    />
-                                </Form.Group>
-                            </Col>
+                           
 
                             <Col lg={6}>
                                 <Form.Group controlId="empName" className="mb-3">

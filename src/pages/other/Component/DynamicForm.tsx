@@ -281,7 +281,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
 
         console.log(selectedCondition)
 
-        const customSelectInput = formData.inputs.find(
+        const customSelectInput = formData.inputs?.find(
             (input) => input.type === "CustomSelect"
         );
 
