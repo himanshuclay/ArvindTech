@@ -10,31 +10,17 @@ import CustomSuccessToast from '@/pages/other/Component/CustomSuccessToast';
 
 interface Identifier {
     id: number;
-    identifier: string;
-    identifier1: string;
-    taskID: string;
+    identifierName: string;
     identifierValue: string;
-    identifierValue1: string;
-    empID: string;
-    employeeName: string;
+    selectmaster: string;
     source: string;
     createdBy: string;
     updatedBy: string;
 }
 
-interface TaskList {
-    id: number;
-    taskID: string;
-}
+interface ProjectList {
+    projectName: string;
 
-interface EmployeeList {
-    empId: string;
-    employeeName: string;
-}
-
-interface IdentifierValue {
-    id: string;
-    name: string;
 }
 
 
@@ -43,24 +29,17 @@ const EmployeeInsert = () => {
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
     const [editMode, setEditMode] = useState<boolean>(false);
-    const [taskList, setTaskList] = useState<TaskList[]>([]);
-    const [employeeList, setEmployeeList] = useState<EmployeeList[]>([]);
     const [empName, setEmpName] = useState<string | null>('')
+    const [projectList, setProjectList] = useState<ProjectList[]>([])
     const [showToast, setShowToast] = useState(false);
     const [toastMessage, setToastMessage] = useState("");
     const [toastVariant, setToastVariant] = useState('');
-    const [identifierValue, setIdentifierValue] = useState<IdentifierValue[]>([]);
-    const [identifierValue1, setIdentifierValue1] = useState<IdentifierValue[]>([]);
     const [identifiers, setIdentifiers] = useState<Identifier>({
         id: 0,
-        identifier: '',
-        identifier1: '',
-        taskID: '',
+        identifierName: '',
         identifierValue: '',
-        identifierValue1: '',
-        empID: '',
         source: '',
-        employeeName: '',
+        selectmaster: '',
         createdBy: '',
         updatedBy: '',
     });
@@ -100,33 +79,6 @@ const EmployeeInsert = () => {
     };
 
     useEffect(() => {
-        const fetchIdentifierValue = async (identifierName: string, setter: React.Dispatch<React.SetStateAction<any>>) => {
-            try {
-                const response = await axios.get(`${config.API_URL_APPLICATION}/IdentifierMaster/GetIdentifierByFlag`, {
-                    params: { IdentifierName: identifierName }
-                });
-                if (response.data.isSuccess) {
-                    const fetchedModule = response.data.getIdentifierByFlags;
-                    setter(fetchedModule);
-                } else {
-                    console.error(response.data.message);
-                }
-            } catch (error) {
-                console.error('Error fetching module:', error);
-            }
-        };
-
-        if (identifiers.identifier) {
-            fetchIdentifierValue(identifiers.identifier, setIdentifierValue);
-        }
-        if (identifiers.identifier1) {
-            fetchIdentifierValue(identifiers.identifier1, setIdentifierValue1);
-        }
-    }, [identifiers.identifier, identifiers.identifier1]);
-
-
-
-    useEffect(() => {
         const fetchData = async (endpoint: string, setter: Function, listName: string) => {
             try {
                 const response = await axios.get(`${config.API_URL_APPLICATION}/${endpoint}`);
@@ -139,9 +91,10 @@ const EmployeeInsert = () => {
                 console.error(`Error fetching data from ${endpoint}:`, error);
             }
         };
-        fetchData('CommonDropdown/GetEmployeeListWithId', setEmployeeList, 'employeeLists');
-        fetchData('CommonDropdown/GetTaskList', setTaskList, 'taskList');
+
+        fetchData('CommonDropdown/GetProjectList', setProjectList, 'projectListResponses');
     }, []);
+
 
 
 
@@ -178,6 +131,7 @@ const EmployeeInsert = () => {
             createdBy: editMode ? identifiers.createdBy : empName,
             updatedBy: editMode ? empName : '',
         };
+        console.log(payload)
 
         try {
             await axios.post(`${config.API_URL_APPLICATION}/IdentifierMaster/InsertUpdateIdentifier`, payload);
@@ -201,11 +155,9 @@ const EmployeeInsert = () => {
         { value: 'Master', label: 'Master' },
         { value: 'Manual Creation', label: 'Manual Creation' }
     ];
-    const optionsIdentifier = [
-        { value: 'PROJECT', label: 'PROJECT' },
-        { value: 'SUBPROJECT', label: 'SUBPROJECT' },
-        { value: 'INVOICETYPE', label: 'INVOICETYPE' },
-        { value: 'BANK', label: 'BANK' }
+    const optionsValue = [
+        { value: 'Project Master', label: 'Project Master' },
+        { value: 'SubProject Master', label: 'SubProject Master' }
     ];
 
     return (
@@ -217,104 +169,19 @@ const EmployeeInsert = () => {
                 <div className='bg-white p-2 rounded-3 border'>
                     <Form onSubmit={handleSubmit}>
                         <Row>
-                            <Col lg={6}>
-                                <Form.Group controlId="taskID" className="mb-3">
-                                    <Form.Label>Task Number</Form.Label>
-                                    <Select
-                                        name="taskID"
-                                        value={taskList.find((mod) => mod.taskID === identifiers.taskID)}
-                                        onChange={(selectedOption) => {
-                                            setIdentifiers({
-                                                ...identifiers,
-                                                taskID: selectedOption?.taskID || '',
-                                            });
-                                        }}
-                                        getOptionLabel={(mod) => mod.taskID}
-                                        getOptionValue={(mod) => mod.taskID}
-                                        options={taskList}
-                                        isSearchable={true}
-                                        placeholder="Select Task Number"
-                                        required
-                                    />
-                                </Form.Group>
-                            </Col>
+
 
 
                             <Col lg={6}>
-                                <Form.Group controlId="identifier" className="mb-3">
-                                    <Form.Label>Identifier Name:</Form.Label>
-                                    <Select
-                                        name="identifier"
-                                        options={optionsIdentifier}
-                                        value={optionsIdentifier.find(option => option.value === identifiers.identifier)}
-                                        onChange={(selectedOption) => {
-                                            const value = selectedOption?.value || '';
-                                            handleChange(null, 'identifier', value);
-                                        }}
-                                        placeholder="Select Identifier Name"
+                                <Form.Group controlId="identifierName" className="mb-3">
+                                    <Form.Label>Identifier Name</Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        name="identifierName"
+                                        value={identifiers.identifierName}
+                                        onChange={handleChange}
                                         required
-                                    />
-                                </Form.Group>
-                            </Col>
-
-
-                            <Col lg={6}>
-                                <Form.Group controlId="identifierValue" className="mb-3">
-                                    <Form.Label>Identifier Value:</Form.Label>
-                                    <Select
-                                        name="identifierValue"
-                                        value={identifierValue.find((mod) => mod.name === identifiers.identifierValue)}
-                                        onChange={(selectedOption) => {
-                                            setIdentifiers({
-                                                ...identifiers,
-                                                identifierValue: selectedOption?.name || '',
-                                            });
-                                        }}
-                                        getOptionLabel={(mod) => mod.name}
-                                        getOptionValue={(mod) => mod.name}
-                                        options={identifierValue}
-                                        isSearchable={true}
-                                        placeholder="Select Identifier Value"
-                                        required
-                                    />
-                                </Form.Group>
-                            </Col>
-                            <Col lg={6}>
-                                <Form.Group controlId="identifier1" className="mb-3">
-                                    <Form.Label>Identifier Name 1:</Form.Label>
-                                    <Select
-                                        name="identifier1"
-                                        options={optionsIdentifier}
-                                        value={optionsIdentifier.find(option => option.value === identifiers.identifier1)}
-                                        onChange={(selectedOption) => {
-                                            const value = selectedOption?.value || '';
-                                            handleChange(null, 'identifier1', value);
-                                        }}
-                                        placeholder="Select Identifier Name 1"
-                                        required
-                                    />
-                                </Form.Group>
-                            </Col>
-
-
-                            <Col lg={6}>
-                                <Form.Group controlId="identifierValue1" className="mb-3">
-                                    <Form.Label>Identifier Value1</Form.Label>
-                                    <Select
-                                        name="identifierValue1"
-                                        value={identifierValue1.find((mod) => mod.name === identifiers.identifierValue1)}
-                                        onChange={(selectedOption) => {
-                                            setIdentifiers({
-                                                ...identifiers,
-                                                identifierValue1: selectedOption?.name || '',
-                                            });
-                                        }}
-                                        getOptionLabel={(mod) => mod.name}
-                                        getOptionValue={(mod) => mod.name}
-                                        options={identifierValue1}
-                                        isSearchable={true}
-                                        placeholder="Select Identifier Value1"
-                                        required
+                                        placeholder='Enter identifier name'
                                     />
                                 </Form.Group>
                             </Col>
@@ -332,31 +199,102 @@ const EmployeeInsert = () => {
                                     />
                                 </Form.Group>
                             </Col>
+                            {identifiers.source === "Manual Creation" ?
+                                <Col lg={6}>
+                                    <Form.Group controlId="identifierValue" className="mb-3">
+                                        <Form.Label>Identifier Value</Form.Label>
 
-                            <Col lg={6}>
-                                <Form.Group controlId="employeeName" className="mb-3">
-                                    <Form.Label>Employee Name</Form.Label>
-                                    <Select
-                                        name="employeeName"
-                                        value={employeeList.find(
-                                            (mod) => mod.employeeName === identifiers.employeeName
-                                        )}
-                                        onChange={(selectedOption) => {
-                                            setIdentifiers({
-                                                ...identifiers,
-                                                employeeName: selectedOption?.employeeName || '',
-                                                empID: selectedOption?.empId || '',
-                                            });
-                                        }}
-                                        getOptionLabel={(mod) => mod.employeeName}
-                                        getOptionValue={(mod) => mod.employeeName}
-                                        options={employeeList}
-                                        isSearchable={true}
-                                        placeholder="Select Employee Name"
-                                        required
-                                    />
-                                </Form.Group>
-                            </Col>
+                                        <Form.Control
+                                            type="text"
+                                            name="identifierValue"
+                                            value={identifiers.identifierValue}
+                                            onChange={handleChange}
+                                            required
+                                            placeholder='Enter identifier name'
+                                        />
+                                    </Form.Group>
+                                </Col>
+                                :
+                                <Col lg={6}>
+                                    <Form.Group controlId="selectmaster" className="mb-3">
+                                        <Form.Label>Identifier Value</Form.Label>
+                                        <Select
+                                            name="selectmaster"
+                                            value={optionsValue.find((mod) => mod.label === identifiers.selectmaster)}
+                                            onChange={(selectedOption) => {
+                                                setIdentifiers({
+                                                    ...identifiers,
+                                                    selectmaster: selectedOption?.label || '',
+                                                });
+                                            }}
+                                            getOptionLabel={(mod) => mod.label}
+                                            getOptionValue={(mod) => mod.value}
+                                            options={optionsValue}
+                                            isSearchable={true}
+                                            placeholder="Select Identifier Value"
+                                            required
+                                        />
+
+                                    </Form.Group>
+                                </Col>
+                            }
+
+
+                            { identifiers.source === "Master" ? (identifiers.selectmaster === 'Project Master' ?
+
+                                <Col lg={6}>
+                                    <Form.Group controlId="identifierValue" className="mb-3">
+                                        <Form.Label>Identifier Value</Form.Label>
+                                        <Select
+                                            name="identifierValue"
+                                            value={projectList.find((mod) => mod.projectName === identifiers.identifierValue)}
+                                            onChange={(selectedOption) => {
+                                                setIdentifiers({
+                                                    ...identifiers,
+                                                    identifierValue: selectedOption?.projectName || '',
+                                                });
+                                            }}
+                                            getOptionLabel={(mod) => mod.projectName}
+                                            getOptionValue={(mod) => mod.projectName}
+                                            options={projectList}
+                                            isSearchable={true}
+                                            placeholder="Select Identifier Value"
+                                            required
+                                        />
+
+                                    </Form.Group>
+                                </Col>
+
+                                : <Col lg={6}>
+                                    <Form.Group controlId="identifierValue" className="mb-3">
+                                        <Form.Label>Identifier Value</Form.Label>
+                                        <Select
+                                            name="identifierValue"
+                                            value={projectList.find((mod) => mod.projectName === identifiers.identifierValue)}
+                                            onChange={(selectedOption) => {
+                                                setIdentifiers({
+                                                    ...identifiers,
+                                                    identifierValue: selectedOption?.projectName || '',
+                                                });
+                                            }}
+                                            getOptionLabel={(mod) => mod.projectName}
+                                            getOptionValue={(mod) => mod.projectName}
+                                            options={projectList}
+                                            isSearchable={true}
+                                            placeholder="Select Identifier Value"
+                                            required
+                                        />
+
+                                    </Form.Group>
+                                </Col>
+
+                            )
+                            :null
+
+
+
+                            }
+
                             <Col className='align-items-end d-flex justify-content-between mb-3'>
                                 <div>
                                     <span className='fs-5 '>This field is required*</span>

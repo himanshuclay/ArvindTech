@@ -334,7 +334,7 @@ const EmployeeMaster = () => {
         if (link.download !== undefined) {
             const url = URL.createObjectURL(blob);
             link.setAttribute('href', url);
-            link.setAttribute('download', 'Projects.csv');
+            link.setAttribute('download', 'Employee Master.csv');
             link.style.visibility = 'hidden';
             document.body.appendChild(link);
             link.click();

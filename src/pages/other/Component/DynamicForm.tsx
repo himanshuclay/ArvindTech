@@ -531,8 +531,8 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
 
 
 
-     // Handle change in input values
-     const handleChange = (inputId: string, value: string | boolean | string[]) => {
+    // Handle change in input values
+    const handleChange = (inputId: string, value: string | boolean | string[]) => {
         // Prevent default behavior (if needed)
         // event.preventDefault(); 
 
@@ -1058,11 +1058,11 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                                         )}
                                     </div>
                                 ))} */}
-                                {preData && preData.length > 0 && 
-                                (
-                                <MessCards data={preData} />
-                                )
-                                 }
+                                {preData && preData.length > 0 &&
+                                    (
+                                        <MessCards data={preData} />
+                                    )
+                                }
                             </div>
                         )}
 

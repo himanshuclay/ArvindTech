@@ -1,7 +1,7 @@
 import axios, { AxiosError } from 'axios';
 import MockAdapter from 'axios-mock-adapter';
 // import { Message } from 'rsuite';
-// import config from '@/config';
+import config from '@/config';
 
 
 // type User = {
@@ -31,7 +31,7 @@ const TOKEN =
     async function loginUser(email: string, password: string) {
       try {
         // Make the API call to login
-        const response = await axios.post('https://arvindo-api2.clay.in/api/Login/GetLogin', {
+        const response = await axios.post(`${config.API_URL_APPLICATION}/Login/GetLogin`, {
           email,
           password,
         });

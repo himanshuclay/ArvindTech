@@ -12,7 +12,7 @@ const PageBreadcrumb = ({ subName, title, addedChild }: PageTitleProps) => {
 		<>
 			<Helmet>
 				<title>
-					{title} | Velonic React - Bootstrap 5 Admin & Dashboard Template
+					{title} | Arvind Techno
 				</title>
 			</Helmet>
 			{subName && (
