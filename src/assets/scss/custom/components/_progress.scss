@@ -697,3 +697,9 @@ ul.side-nav-second-level:first-child {
   margin: 30px 0;
 
 }
+.ellipsis-text {
+  width: 150px; /* Set the fixed width */
+  white-space: nowrap; /* Prevent text from wrapping to the next line */
+  overflow: hidden; /* Hide overflowing text */
+  text-overflow: ellipsis; /* Show ellipsis (...) for overflowing text */
+}

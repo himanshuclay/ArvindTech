@@ -1,25 +1,24 @@
 import axios from 'axios';
 import { useEffect, useState, ChangeEvent } from 'react';
 import { Button, Col, Form, Row, Badge, CloseButton } from 'react-bootstrap';
-import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import config from '@/config';
-import Select from 'react-select';
+// import Select from 'react-select';
 import CustomSuccessToast from '@/pages/other/Component/CustomSuccessToast';
 
 
 interface Identifier {
     id: number;
-    identifier: string;
-    identifierValue: string;
+    identifierName: string;
+    identifierValue: any;
     source: string;
     createdBy: string;
     updatedBy: string;
 }
 
-interface ProjectList {
-    projectName: string;
-
-}
+// interface ProjectList {
+//     projectName: string;
+// }
 
 
 
@@ -28,15 +27,15 @@ const EmployeeInsert = () => {
     const navigate = useNavigate();
     const [editMode, setEditMode] = useState<boolean>(false);
     const [empName, setEmpName] = useState<string | null>('')
-    const [projectList, setProjectList] = useState<ProjectList[]>([])
+    // const [projectList, setProjectList] = useState<ProjectList[]>([])
     const [showToast, setShowToast] = useState(false);
     const [toastMessage, setToastMessage] = useState("");
     const [toastVariant, setToastVariant] = useState('');
     const [tags, setTags] = useState<string[]>([]);
-    const [inputValue, setInputValue] = useState('');
+    const [inputValue, setInputValue] = useState<any>('');
     const [identifiers, setIdentifiers] = useState<Identifier>({
         id: 0,
-        identifier: '',
+        identifierName: '',
         identifierValue: '',
         source: 'Manual Creation',
         createdBy: '',
@@ -69,6 +68,12 @@ const EmployeeInsert = () => {
             if (response.data.isSuccess) {
                 const fetchedModule = response.data.identifierLists[0];
                 setIdentifiers(fetchedModule);
+                const receivedValue = fetchedModule.identifierValue.split(",").map((item: any) => item.trim());
+                // setInputValue(receivedValue ? receivedValue.split(",").map((item:any) => item.trim()) : []);
+                console.log(inputValue)
+                setTags(receivedValue)
+
+                // setTags(inputValue)
             } else {
                 console.error(response.data.message);
             }
@@ -95,22 +100,22 @@ const EmployeeInsert = () => {
         setTags(tags.filter((_, i) => i !== index));
     };
 
-    useEffect(() => {
-        const fetchData = async (endpoint: string, setter: Function, listName: string) => {
-            try {
-                const response = await axios.get(`${config.API_URL_APPLICATION}/${endpoint}`);
-                if (response.data.isSuccess) {
-                    setter(response.data[listName]);
-                } else {
-                    console.error(response.data.message);
-                }
-            } catch (error) {
-                console.error(`Error fetching data from ${endpoint}:`, error);
-            }
-        };
+    // useEffect(() => {
+    //     const fetchData = async (endpoint: string, setter: Function, listName: string) => {
+    //         try {
+    //             const response = await axios.get(`${config.API_URL_APPLICATION}/${endpoint}`);
+    //             if (response.data.isSuccess) {
+    //                 setter(response.data[listName]);
+    //             } else {
+    //                 console.error(response.data.message);
+    //             }
+    //         } catch (error) {
+    //             console.error(`Error fetching data from ${endpoint}:`, error);
+    //         }
+    //     };
 
-        fetchData('CommonDropdown/GetProjectList', setProjectList, 'projectListResponses');
-    }, []);
+    //     fetchData('CommonDropdown/GetProjectList', setProjectList, 'projectListResponses');
+    // }, []);
 
     const clearAllTags = () => {
         setTags([]);
@@ -147,28 +152,28 @@ const EmployeeInsert = () => {
 
         const payload = {
             ...identifiers,
-            identifierValue: tags,
+            identifierValue: Array.isArray(tags) ? tags.join(", ") : String(tags),
             createdBy: editMode ? identifiers.createdBy : empName,
             updatedBy: editMode ? empName : '',
         };
         console.log(payload)
 
 
-        // try {
-        //     await axios.post(`${config.API_URL_APPLICATION}/IdentifierMaster/InsertUpdateIdentifier`, payload);
-        //     navigate('/pages/IdentifierMaster', {
-        //         state: {
-        //             showToast: true,
-        //             toastMessage: editMode ? 'Identifier Updated Successfully! ' : 'Identifier Added Successfully!',
-        //             toastVariant: "rgb(28 175 85)"
-        //         }
-        //     });
-        // } catch (error: any) {
-        //     setToastMessage(error || "Error Adding/Updating");
-        //     setToastVariant("rgb(213 18 18)");
-        //     setShowToast(true);
-        //     console.error('Error submitting module:', error);
-        // }
+        try {
+            await axios.post(`${config.API_URL_APPLICATION}/IdentifierMaster/InsertUpdateIdentifier`, payload);
+            navigate('/pages/IdentifierMaster', {
+                state: {
+                    showToast: true,
+                    toastMessage: editMode ? 'Identifier Updated Successfully! ' : 'Identifier Added Successfully!',
+                    toastVariant: "rgb(28 175 85)"
+                }
+            });
+        } catch (error: any) {
+            setToastMessage(error || "Error Adding/Updating");
+            setToastVariant("rgb(213 18 18)");
+            setShowToast(true);
+            console.error('Error submitting module:', error);
+        }
     };
 
 
@@ -187,8 +192,8 @@ const EmployeeInsert = () => {
                                     <Form.Label>Identifier Name</Form.Label>
                                     <Form.Control
                                         type="text"
-                                        name="identifier"
-                                        value={identifiers.identifier}
+                                        name="identifierName"
+                                        value={identifiers.identifierName}
                                         onChange={handleChange}
                                         required
                                         placeholder='Enter identifier name'
@@ -212,17 +217,17 @@ const EmployeeInsert = () => {
                                         style={{ border: 'none', outline: 'none' }}
                                     />
                                 </div>
-                                <div onClick={clearAllTags}  style={{ position: 'absolute', top: '33px', right: '15px',cursor: 'pointer',}}>
+                                <div onClick={clearAllTags} style={{ position: 'absolute', top: '33px', right: '15px', cursor: 'pointer', }}>
                                     <i className="ri-close-line fs-18 "></i>
                                 </div>
 
-                                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', marginBottom: '4px',marginTop:'4px' }}>
+                                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', marginBottom: '4px', marginTop: '4px' }}>
                                     {tags.map((tag, index) => (
-                                        <Badge bg="primary" key={index} style={{ display: 'flex', alignItems: 'center' ,fontSize:'11px'}}>
+                                        <Badge bg="primary" key={index} style={{ display: 'flex', alignItems: 'center', fontSize: '11px' }}>
                                             {tag}
                                             <CloseButton
                                                 onClick={() => removeTag(index)}
-                                                style={{ marginLeft: '8px',fontSize:"8px" ,}}
+                                                style={{ marginLeft: '8px', fontSize: "8px", }}
                                                 variant="white"
                                             />
                                         </Badge>

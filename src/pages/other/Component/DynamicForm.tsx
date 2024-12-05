@@ -536,7 +536,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
         // Prevent default behavior (if needed)
         // event.preventDefault(); 
 
-        const excludedInputIds = ['99', '100', '102', '103'];
+        const excludedInputIds = [ '100', '102', '103'];
         const input = formData.inputs.find(input => input.inputId === inputId);
 
         let updatedValue = value;
@@ -719,7 +719,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
 
 
             try {
-                const response = await fetch(`${config.API_URL_ACCOUNT}/ProcessInitiation/UpdateDoerTask`, {
+                const response = await fetch(`${config.API_URL_ACCOUNT}/ProcessInitiation/UpdateDoerTasks`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -1200,7 +1200,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                                 <div className="form-section" style={{ width: '90%', paddingLeft: '20px' }}>
                                     <div className="my-task">
                                         {formData.inputs.map((input: Input) => (
-                                            (fromComponent === 'TaskMaster' || shouldDisplayInput(input)) && (
+                                            (fromComponent === 'TaskMaster' && 'PendingTask' || shouldDisplayInput(input)) && (
                                                 <div className='form-group' key={input.inputId} style={{ marginBottom: '1rem' }}>
                                                     <label className='label'>{input.label}</label>
                                                     {input.type === 'text' && (
