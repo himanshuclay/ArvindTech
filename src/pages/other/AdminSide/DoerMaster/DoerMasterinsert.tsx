@@ -23,11 +23,6 @@ interface TaskList {
     taskID: string;
 }
 
-interface EmployeeList {
-    empId: string;
-    employeeName: string;
-}
-
 
 
 
@@ -35,7 +30,6 @@ const EmployeeInsert = () => {
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
     const [editMode, setEditMode] = useState<boolean>(false);
-    const [employeeList, setEmployeeList] = useState<EmployeeList[]>([]);
     const [empName, setEmpName] = useState<string | null>()
     const [taskList, setTaskList] = useState<TaskList[]>([]);
     const [showToast, setShowToast] = useState(false);
@@ -73,6 +67,8 @@ const EmployeeInsert = () => {
     }, [id]);
 
 
+    console.log(searchTaskID)
+
     const fetchDoerById = async (id: string) => {
         try {
             const response = await axios.get(`${config.API_URL_APPLICATION}/DoerMaster/GetDoer`, {
@@ -104,40 +100,8 @@ const EmployeeInsert = () => {
                 console.error(`Error fetching data from ${endpoint}:`, error);
             }
         };
-        fetchData('CommonDropdown/GetEmployeeListWithId', setEmployeeList, 'employeeLists');
         fetchData('CommonDropdown/GetTaskList', setTaskList, 'taskList');
     }, []);
-
-
-
-    useEffect(() => {
-        const fetchDistricts = async () => {
-            try {
-                const response = await axios.get(`${config.API_URL_APPLICATION}/IdentifierMaster/GetIdentifierByTaskID?TaskID=${searchTaskID}`);
-                const fetchedTasks = response.data.identifierLists;
-                if (fetchedTasks.length > 0) {
-                    setDoers(prev => ({
-                        ...prev,
-                        taskID: fetchedTasks[0].taskID,
-                        identifier: fetchedTasks[0].identifier,
-                        source: fetchedTasks[0].source,
-                        inputValue: fetchedTasks[0].identifierValue,
-                        identifier1: fetchedTasks[0].identifier1,
-                        inputValue1: fetchedTasks[0].identifierValue1,
-                        empID: fetchedTasks[0].empID,
-                        empName: fetchedTasks[0].employeeName,
-                    }));
-                }
-            } catch (error) {
-                console.error('Error fetching districts:', error);
-            }
-        };
-        fetchDistricts();
-    }, [searchTaskID]);
-
-
-
-
 
 
 
@@ -170,7 +134,6 @@ const EmployeeInsert = () => {
         try {
             const apiUrl = `${config.API_URL_APPLICATION}/DoerMaster/${editMode ? 'UpdateDoer' : 'InsertDoer'}`;
             const response = await axios.post(apiUrl, payload);
-
             if (response.status === 200) {
                 navigate('/pages/DoerMaster', {
                     state: {
@@ -210,7 +173,7 @@ const EmployeeInsert = () => {
                                         onChange={(selectedOption) => {
                                             const taskID = selectedOption ? selectedOption.taskID : '';
                                             setSearchTaskID(taskID);
-                                            setDoers(prev => ({ ...prev, taskID })); // Update district in employee
+                                            setDoers(prev => ({ ...prev, taskID })); 
                                         }}
                                         options={taskList || []}
                                         getOptionLabel={(item) => item.taskID}
@@ -236,8 +199,8 @@ const EmployeeInsert = () => {
                                     />
                                 </Form.Group>
                             </Col>
-                          
-                            
+
+
                             <Col lg={6}>
                                 <Form.Group controlId="identifier1" className="mb-3">
                                     <Form.Label>identifier 1</Form.Label>
@@ -251,34 +214,10 @@ const EmployeeInsert = () => {
                                     />
                                 </Form.Group>
                             </Col>
-                          
 
-                           
 
-                            <Col lg={6}>
-                                <Form.Group controlId="empName" className="mb-3">
-                                    <Form.Label> Doer Name</Form.Label>
-                                    <Select
-                                        name="empName"
-                                        value={employeeList.find(
-                                            (mod) => mod.employeeName === doers.empName
-                                        )}
-                                        onChange={(selectedOption) => {
-                                            setDoers({
-                                                ...doers,
-                                                empName: selectedOption?.employeeName || '',
-                                                empID: selectedOption?.empId || '',
-                                            });
-                                        }}
-                                        getOptionLabel={(mod) => mod.employeeName}
-                                        getOptionValue={(mod) => mod.employeeName}
-                                        options={employeeList}
-                                        isSearchable={true}
-                                        placeholder="Select Doer Name"
-                                        required
-                                    />
-                                </Form.Group>
-                            </Col>
+
+
 
                             <Col className='align-items-end d-flex justify-content-between mb-3'>
                                 <div>

@@ -241,25 +241,26 @@ const ForgotPassword = () => {
 							<Form.Group controlId="joiningDate" className="mb-3">
 								<Form.Label>Date of Joining</Form.Label>
 								<Flatpickr
-									value={formData.joiningDate ? new Date(formData.joiningDate).toISOString().split('T')[0] : ''}
+									value={formData.joiningDate || ''}
 									onChange={([date]) => {
-										const adjustedDate = new Date(date);
-										adjustedDate.setHours(0, 0, 0, 0);
-										setFormData({
-											...formData,
-											joiningDate: adjustedDate.toDateString(),
-										});
+										if (date) {
+											const formattedDate = date.toLocaleDateString('en-CA'); 
+											setFormData({
+												...formData,
+												joiningDate: formattedDate,
+											});
+										}
 									}}
 									options={{
 										enableTime: false,
-										dateFormat: "Y-m-d",
-										time_24hr: false,
+										dateFormat: "Y-m-d", 
 									}}
 									placeholder="yyyy-MM-dd"
 									className="form-control"
 									required
 								/>
 							</Form.Group>
+
 
 							{formData.joiningDate ?
 								<div
@@ -273,7 +274,7 @@ const ForgotPassword = () => {
 									}}
 									style={{ borderLeft: 'none', cursor: 'pointer' }}
 								>
-									{verifyDoj ? <i className="ri-checkbox-circle-fill fs-15 text-success "></i> : 'Verify'}
+									{verifyDoj ? <i className="ri-checkbox-circle-fill fs-15 text-success mr-1"></i> : 'Verify'}
 								</div> : null
 							}
 						</Col>
@@ -282,14 +283,15 @@ const ForgotPassword = () => {
 							<Form.Group controlId="dob" className="mb-3">
 								<Form.Label>Date of Birth</Form.Label>
 								<Flatpickr
-									value={formData.dob ? new Date(formData.dob).toISOString().split('T')[0] : ''}
+									value={formData.dob || ''}
 									onChange={([date]) => {
-										const adjustedDate = new Date(date);
-										adjustedDate.setHours(0, 0, 0, 0);
-										setFormData({
-											...formData,
-											dob: adjustedDate.toDateString(),
-										});
+										if (date) {
+											const formattedDate =date.toLocaleDateString('en-CA'); 
+											setFormData({
+												...formData,
+												dob: formattedDate,
+											});
+										}
 									}}
 									options={{
 										enableTime: false,

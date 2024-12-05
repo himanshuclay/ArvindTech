@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { Button, Table, Container, Row, Col, Alert } from 'react-bootstrap'; // Assuming DynamicForm is in the same directory
+import { Button, Table, Container, Row, Col, Alert, Collapse } from 'react-bootstrap'; // Assuming DynamicForm is in the same directory
 import { parse, format, addDays } from 'date-fns';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import DynamicForm from '../Component/DynamicForm';
@@ -90,9 +90,12 @@ const ProjectAssignTable: React.FC = () => {
   const [show, setShow] = useState(false);
 
 
+  const [expandedRow, setExpandedRow] = useState<number | null>(null); // For row expansion
 
 
-
+  const toggleExpandRow = (id: number) => {
+    setExpandedRow(expandedRow === id ? null : id);
+  };
   // both are required to make dragable column of table 
   const [columns, setColumns] = useState<Column[]>([
     { id: 'taskName', label: 'Task Name', visible: true },
@@ -197,11 +200,6 @@ const ProjectAssignTable: React.FC = () => {
 
   // console.log(data)
 
-  const [openIndex, setOpenIndex] = useState<number | null>(null);
-
-  const toggleDetails = (index: number) => {
-    setOpenIndex(openIndex === index ? null : index);
-  };
 
 
 
@@ -212,17 +210,17 @@ const ProjectAssignTable: React.FC = () => {
         const response = await axios.get<ApiResponse>(
           `${config.API_URL_ACCOUNT}/ProcessInitiation/GetFilterTask?TaskCommonId=${taskCommonId}&Flag=${flag}`
         );
-    
+
         if (response.data?.isSuccess) {
           const fetchedData = response.data.getFilterTasks || [];
           console.log(fetchedData);
-    
+
           // Filter and transform data
           const filteredTasks = fetchedData
             .filter((task) => task.isCompleted !== "Pending") // Exclude pending tasks
             .flatMap((task: ProjectAssignListWithDoer) => {
               let taskJsonArray: any[] = [];
-    
+
               try {
                 // Parse task_Json and check its structure
                 taskJsonArray = JSON.parse(task.task_Json);
@@ -231,12 +229,12 @@ const ProjectAssignTable: React.FC = () => {
                 console.error("Error parsing task_Json:", task.task_Json, error);
                 return []; // Return an empty array if parsing fails
               }
-    
+
               // If taskJsonArray is not an array, log and handle accordingly
               if (!Array.isArray(taskJsonArray)) {
                 console.error("taskJsonArray is not an array:", taskJsonArray);
                 console.log("task_Json is not in the expected array format:", task.task_Json);
-                
+
                 // Handle taskJsonArray as an object if it's an object
                 if (typeof taskJsonArray === "object" && taskJsonArray !== null) {
                   console.log("task_Json is an object:", taskJsonArray);
@@ -246,14 +244,14 @@ const ProjectAssignTable: React.FC = () => {
                   return []; // If not an object or array, return an empty array
                 }
               }
-    
+
               // Proceed with the rest of the taskJsonArray processing
               return taskJsonArray.flatMap((taskJson: any) => {
                 if (!taskJson) {
                   console.error("Invalid taskJson:", taskJson);
                   return [];
                 }
-    
+
                 // Extract inputs from the appropriate structure
                 const inputs = taskJson.taskJson?.inputs || taskJson.inputs;
                 if (!Array.isArray(inputs)) {
@@ -261,7 +259,7 @@ const ProjectAssignTable: React.FC = () => {
                   return [];
                 }
                 console.log(inputs);
-    
+
                 // Map options for replacing value with label
                 const optionsMap = inputs.reduce((map: Record<string, string>, input: any) => {
                   if (input.options) {
@@ -271,7 +269,7 @@ const ProjectAssignTable: React.FC = () => {
                   }
                   return map;
                 }, {});
-    
+
                 // Filter and map inputs
                 const filteredInputsData = inputs
                   .filter((input: any) => !["99", "100", "102", "103"].includes(input.inputId)) // Exclude unwanted inputs
@@ -279,7 +277,7 @@ const ProjectAssignTable: React.FC = () => {
                     label: input.label,
                     value: optionsMap[input.value] || input.value, // Replace value with label if available
                   }));
-    
+
                 // Return transformed task object
                 return {
                   messID: taskJson.messID,
@@ -291,7 +289,7 @@ const ProjectAssignTable: React.FC = () => {
                 };
               });
             });
-    
+
           setPreData(filteredTasks);
           console.log("Filtered Tasks:", filteredTasks);
         } else {
@@ -307,16 +305,16 @@ const ProjectAssignTable: React.FC = () => {
         setLoading(false);
       }
     };
-    
-    
-    
-    
-  
+
+
+
+
+
     if (taskCommonId) {
       fetchPreData(taskCommonId);
     }
   }, [taskCommonId]);
-  
+
 
   // console.log(preData)
 
@@ -507,191 +505,158 @@ const ProjectAssignTable: React.FC = () => {
 
                   {data.length > 0 ? (
                     data.slice(0, 10).map((item, index) => (
-                      <tr key={item.id}>
-                        {/* <td>
+                      <>
+
+
+
+                        <tr key={item.id}>
+                          {/* <td>
                           {JSON.parse(item.task_Json)?.inputs?.find(
                           (input: any) => input.inputId === "99"
                         )?.label || "Task name not found"}
                         </td> */}
-                        {columns.filter(col => col.visible).map((col) => (
-                          <td key={col.id}
+                          {columns.filter(col => col.visible).map((col) => (
+                            <td key={col.id}
 
-                            className={
-                              // Add class based on column id
-                              col.id === 'processName' ? 'fw-bold fs-14 text-dark text-nowrap' :
-                                col.id === 'task_Number' ? 'fw-bold fs-13 text-dark text-nowrap task1' :
-                                  col.id === 'processOwnerName' ? 'fw-bold fs-13 text-dark text-nowrap' :
-                                    col.id === 'plannedDate' ? ' text-nowrap ' :
-                                      col.id === 'createdDate' ? ' text-nowrap ' :
-                                        // Add class based on value (e.g., expired tasks)
-                                        (col.id === 'moduleName' && item[col.id] === 'Accounts') ? 'text-nowrap task4' :
-                                          (col.id === 'moduleName' && item[col.id] === 'Accounts Checklist') ? 'text-nowrap task3' :
-                                            ''
-                            }
-                          >
-                            <div className=''>
+                              className={
+                                // Add class based on column id
+                                col.id === 'taskName' ? 'fw-bold fs-14 text-dark text-nowrap' :
+                                  ''
+                              }
+                            >
+                              <div className=''>
 
-                              {col.id === 'plannedDate' ? (
-                                <td>
-                                  {formatAndUpdateDate(item.createdDate, item.taskTime)}
-                                </td>
-                              ) : (<>{item[col.id as keyof ProjectAssignListWithDoer]}</>
-                              )}
+                                {col.id === 'plannedDate' ? (
+                                  <td>
+                                    {formatAndUpdateDate(item.createdDate, item.taskTime)}
+                                  </td>
+                                ) : (<>{item[col.id as keyof ProjectAssignListWithDoer]}</>
+                                )}
 
+                              </div>
+                            </td>
+
+                          ))}
+
+                          <td>
+                            <Button onClick={() => toggleExpandRow(item.id)}>
+                              {expandedRow === item.id ? <i className=" fs-16 ri-arrow-up-s-line"></i> : <i className=" fs-16 ri-arrow-down-s-line"></i>}
+                            </Button>
+                          </td>
+                          <td colSpan={10}>
+                            <div>
+                              <DynamicForm
+                                fromComponent='PendingTask'
+                                formData={JSON.parse(item.task_Json)}
+                                taskNumber={item.task_Number}
+                                data={data}
+                                show={show}
+                                setShow={setShow}
+                                parsedCondition={parsedCondition}
+                                preData={preData}
+                                selectedTasknumber={selectedTasknumber}
+                                setLoading={setLoading}
+                                taskCommonIDRow={taskCommonIDRow}
+                                taskStatus
+                                processId={item.processID}
+                                moduleId={item.moduleID}
+                                ProcessInitiationID={item.id}
+                                approval_Console={item.approval_Console}
+                                approvalConsoleInputID={item.approvalConsoleInputID}
+
+                              />
                             </div>
                           </td>
+                        </tr>
+                        {expandedRow && expandedRow === item.id ?
+                          <tr>
+                            <td colSpan={12}>
+                              <Collapse in={expandedRow === item.id}  >
+                                <div className='p-3'>
 
-                        ))}
-                        <td>
-                          <button
-                            className="btn btn-link text-decoration-none"
-                            onClick={() => toggleDetails(index)}
-                          >
-                            <i
-                              className={`ri-arrow-${openIndex === index ? "up" : "down"}-s-line ri-lg`}
-                            ></i>
-                          </button>
-                        </td>
-                        <td colSpan={10}>
-                          <div>
-                            <DynamicForm
-                              fromComponent='PendingTask'
-                              formData={JSON.parse(item.task_Json)}
-                              taskNumber={item.task_Number}
-                              data={data}
-                              show={show}
-                              setShow={setShow}
-                              parsedCondition={parsedCondition}
-                              preData={preData}
-                              selectedTasknumber={selectedTasknumber}
-                              setLoading={setLoading}
-                              taskCommonIDRow={taskCommonIDRow}
-                              taskStatus
-                              processId={item.processID}
-                              moduleId={item.moduleID}
-                              ProcessInitiationID={item.id}
-                              approval_Console={item.approval_Console}
-                              approvalConsoleInputID={item.approvalConsoleInputID}
+                                  <Row>
+                                    <Col lg={4}>
+                                      <p className='mb-1'>Task Name</p>
+                                      <h5 className='text-primary'>{item.taskName}</h5>
+                                    </Col>
+                                    <Col lg={4}>
+                                      <p className='mb-1'>Role Name</p>
+                                      <h5 className='text-primary'>{item.roleName}</h5>
+                                    </Col>
+                                    <Col lg={4}>
+                                      <p className='mb-1'>Process Name</p>
+                                      <h5 className='text-primary'>{item.processName}</h5>
+                                    </Col>
+                                  </Row>
 
-                            />
-                          </div>
-                        </td>
-                      </tr>
+                                  <Row className='taskDetailsView'>
+                                    {item.problemSolver ?
+                                      <Col lg={4}>
+                                        <p className='mb-1'>Problem Solver</p>
+                                        <h5 className='d-flex align-items-center text-primary m-0' >
+                                          <span className="icon-circle me-1">{item.problemSolver.charAt(0).toUpperCase()}</span>
+                                          {item.problemSolver}
+                                        </h5>
+                                        {item.problemSolverMobileNumber ?
+                                          <p className='phone_user fw-normal m-0'><a href={`tel:${item.problemSolverMobileNumber}`}>
+                                            <i className="ri-phone-fill"></i> {item.problemSolverMobileNumber}</a></p> : ""
+                                        }
+                                      </Col> : null
+                                    }
+                                    {item.projectIncharge ?
+                                      <Col lg={4}>
+                                        <p className='mb-1'>Project Incharge</p>
+                                        <h5 className='text-primary'>{item.projectIncharge}</h5>
+                                      </Col> : null
+                                    }
+                                    {item.projectCoordinator ?
+                                      <Col lg={4}>
+                                        <p className='mb-1'>Project Coordinator</p>
+                                        <h5 className='text-primary'>{item.projectCoordinator}</h5>
+
+                                      </Col> : null
+                                    }
+                                  </Row>
+
+                                  <Row>
+                                    <Col lg={4}>
+                                      <p className='mb-1'>Project Name</p>
+                                      <h5 className='text-primary'>{item.projectName}-({item.projectId})</h5>
+                                    </Col>
+
+                                    <Col lg={4}>
+                                      <p className='mb-1'>Period</p>
+                                      <h5 className='text-primary'>{formatPeriod(item.createdDate)}</h5>
+                                    </Col>
+
+                                    <Col lg={4}>
+                                      <p className='mb-1'>Created At</p>
+                                      <h5 className='text-primary'>{formatDate(item.createdDate)}</h5>
+                                    </Col>
+                                  </Row>
+
+
+
+                                  <div className=' d-flex justify-content-end'>
+
+                                    <Button className='ms-auto' onClick={() => handleEdit(item.taskCommonId)}>
+                                      Show
+                                    </Button>
+                                  </div>
+
+                                </div>
+                              </Collapse>
+                            </td>
+                          </tr>
+                          : ''
+                        }
+
+                      </>
                     ))
                   ) : (
                     <tr><td colSpan={columns.length + 1}>No data available</td></tr>
                   )}
 
-                  <tr>
-                    <td colSpan={100}>
-                      {data?.map((item, index) => (
-                        <div key={item.id} className="task-item">
-                          <div
-                            className={`card-body task-details ${openIndex === index ? "open" : "closed"
-                              }`}
-                          >
-                            <div className='mt-1 d-flex justify-content-start'>
-                              <div className="col-4 mb-2 d-flex flex-column">
-                                <span className="fs-5">Task Name:</span>{" "}
-                                <span className='text-primary fw-bold'>
-                                  {JSON.parse(item.task_Json)?.inputs?.find(
-                                    (input: any) => input.inputId === "99"
-                                  )?.label || "Task name not found"}
-                                  {/* {item.taskName} */}
-                                </span>
-                              </div>
-                              <div className='col-4 d-flex flex-column'>
-                                <span className="fs-5">Role: </span><span className='text-primary fw-bold'>{item.roleName}</span>
-                              </div>
-                              <div className="mb-2 col-4 d-flex flex-column">
-                                <span className="fs-5">Process Name : </span> <span className='text-primary fw-bold'>{item.processName}</span>
-                              </div>
-                            </div>
-                            <div className="d-flex flex-row align-items-start p-2 shadow">
-                              <div className='flex-column d-flex col-4'>
-                                <span className="fs-5">Problem Solver:</span>
-                                <div className="d-flex flex-row my-2 align-items-center">
-                                  <span className="icon-circle me-1">{item.problemSolver.charAt(0).toUpperCase()}</span>
-                                  <div className='d-flex flex-column'>
-                                    <span className='text-primary fw-bold'>{item.problemSolver}</span>
-                                    <div className="d-flex align-items-center">
-                                      <span>{item.problemSolverMobileNumber}</span>
-                                      <a
-                                        href={`tel:${item.problemSolverMobileNumber}`}
-                                        className="ms-1 text-primary"
-                                        style={{ textDecoration: "none" }}
-                                        aria-label="Call"
-                                      >
-                                        <i className="ri-phone-line" style={{ fontSize: "1rem" }}></i>
-                                      </a>
-                                    </div>
-                                  </div>
-                                </div>
-                              </div>
-                              {item.projectCoordinator &&
-                                <div className='flex-column d-flex col-4'>
-                                  <span className="fs-5">Project Coordinator</span>
-                                  <div className="d-flex flex-row my-2 align-items-center">
-                                    <span className="icon-circle me-1">{item.projectCoordinator.charAt(0).toUpperCase()}</span>
-                                    <div className="d-flex flex-column">
-                                      <span className="text-primary fw-bold">{item.projectCoordinator}</span>
-                                      <div className="d-flex align-items-center">
-                                        <span>{item.projectCoordinatorMobileNumber}</span>
-                                        <a
-                                          href={`tel:${item.projectCoordinatorMobileNumber}`}
-                                          className="ms-1 text-primary"
-                                          style={{ textDecoration: "none" }}
-                                          aria-label="Call"
-                                        >
-                                          <i className="ri-phone-line" style={{ fontSize: "1rem" }}></i>
-                                        </a>
-                                      </div>
-                                    </div>
-                                  </div>
-                                </div>}
-                              {item.projectIncharge &&
-                                <div className='flex-column d-flex col-4'>
-                                  <span className="fs-5">Project Incharge</span>
-                                  <div className="d-flex flex-row my-2 align-items-center">
-                                    <span className="icon-circle me-1">{item.projectIncharge.charAt(0).toUpperCase()}</span>
-                                    <div className="d-flex flex-column">
-                                      <span className="text-primary fw-bold">{item.projectIncharge}</span>
-                                      <div className="d-flex align-items-center">
-                                        <span>{item.projectInchargeMobileNumber}</span>
-                                        <a
-                                          href={`tel:${item.projectInchargeMobileNumber}`}
-                                          className="ms-1 text-primary"
-                                          style={{ textDecoration: "none" }}
-                                          aria-label="Call"
-                                        >
-                                          <i className="ri-phone-line" style={{ fontSize: "1rem" }}></i>
-                                        </a>
-                                      </div>
-                                    </div>
-                                  </div>
-                                </div>}
-                            </div>
-                            <div className='mt-2 d-flex justify-content-between'>
-                              <div className="mb-2 d-flex col-4 flex-column">
-                                <span className="fs-5">Project Name: </span> <span className='text-primary fw-bold'>{item.projectName} <span className='fw-bold text-dark'> ({item.projectId})</span></span>
-                              </div>
-                              <div className="mb-2 col-4 d-flex col-4 flex-column">
-                                <span className="fs-5">Period: </span> <span className='text-primary fw-bold'>{formatPeriod(item.createdDate)}</span>
-                              </div>
-                              <div className="mb-2 col-4 d-flex col-4 flex-column">
-                                <span className="fs-5">Created at: </span> <span className='text-primary fw-bold'>{formatDate(item.createdDate)}</span>
-                              </div>
-                            </div>
-                            <div className='d-flex justify-content-end'>
-                              <Button className='ms-auto' onClick={() => handleEdit(item.taskCommonId)}>
-                                Show
-                              </Button>
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-                    </td>
-                  </tr>
                 </tbody>
               </Table>
             </DragDropContext>
