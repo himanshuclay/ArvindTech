@@ -274,7 +274,7 @@ const ForgotPassword = () => {
 									}}
 									style={{ borderLeft: 'none', cursor: 'pointer' }}
 								>
-									{verifyDoj ? <i className="ri-checkbox-circle-fill fs-15 text-success mr-1"></i> : 'Verify'}
+									{verifyDoj ? <i className="ri-checkbox-circle-fill fs-15 text-success"></i> : 'Verify'}
 								</div> : null
 							}
 						</Col>

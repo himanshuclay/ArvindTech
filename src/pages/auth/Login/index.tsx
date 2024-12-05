@@ -74,15 +74,28 @@ const Login = () => {
 						containerClass="mb-3"
 					>
 						<Link to="/auth/forgot-password" className="text-muted float-end">
-							<small>Forgot your password?</small>
+							<small className='text-danger'>Forgot your password?</small>
 						</Link>
 					</FormInput>
-					<FormInput
-						label="Remember me"
-						type="checkbox"
-						name="checkbox"
-						containerClass={'mb-3'}
-					/>
+
+					<Row className='d-flex jusify-content-between'>
+
+						<Col>
+							<FormInput
+								label="Remember me"
+								type="checkbox"
+								name="checkbox"
+								containerClass={'mb-3'}
+							/>
+						</Col>
+						<Col className='d-flex justify-content-end '>
+							<div className='login-help'>
+								Help ?
+							</div>
+						</Col>
+
+
+					</Row>
 					<div className="mb-0 text-start">
 						<Button
 							variant="soft-primary"
