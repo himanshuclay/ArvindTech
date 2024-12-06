@@ -43,10 +43,10 @@ interface CompletionStatus {
     name: any;
 }
 
-interface EmployeeList {
-    empId: string;
-    employeeName: string;
-}
+// interface EmployeeList {
+//     empId: string;
+//     employeeName: string;
+// }
 
 interface PorjectList {
     id: string;
