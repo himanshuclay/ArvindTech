@@ -1,92 +1,17 @@
 import axios from 'axios';
 import { useEffect, useState, ChangeEvent } from 'react';
 import { Button, Col, Form, Row } from 'react-bootstrap';
-import { useParams, useNavigate, Link } from 'react-router-dom';
 import config from '@/config';
 import Select from 'react-select';
-import CustomSuccessToast from '../../Component/CustomSuccessToast';
 
+const YourComponent = () => {
+    const [identifierList, setIdentifierList] = useState<any[]>([]); // Adjust type as needed
+    const [selectedIdentifierOne, setSelectedIdentifierOne] = useState<any>(''); // Default as empty string
+    const [selectedIdentifierTwo, setSelectedIdentifierTwo] = useState<any>(''); // Default as empty string
+    const [taskList, setTaskList] = useState<any[]>([]); // Task list state
+    const [selectedTask, setSelectedTask] = useState<string | null>(null); // Selected task
 
-interface Doer {
-    id: number;
-    taskID: string;
-    identifier: string;
-    identifier1: string;
-    empID: string;
-    empName: string;
-    createdBy: string;
-    updatedBy: string;
-}
-
-interface TaskList {
-    id: number;
-    taskID: string;
-}
-
-
-
-
-const EmployeeInsert = () => {
-    const { id } = useParams<{ id: string }>();
-    const navigate = useNavigate();
-    const [editMode, setEditMode] = useState<boolean>(false);
-    const [empName, setEmpName] = useState<string | null>()
-    const [taskList, setTaskList] = useState<TaskList[]>([]);
-    const [showToast, setShowToast] = useState(false);
-    const [toastMessage, setToastMessage] = useState("");
-    const [toastVariant, setToastVariant] = useState('');
-    const [doers, setDoers] = useState<Doer>({
-        id: 0,
-        taskID: '',
-        identifier: '',
-        identifier1: '',
-        empID: '',
-        empName: '',
-        createdBy: '',
-        updatedBy: '',
-
-    });
-
-    const [searchTaskID, setSearchTaskID] = useState('');
-
-    useEffect(() => {
-        const storedEmpName = localStorage.getItem('EmpName');
-        if (storedEmpName) {
-            setEmpName(storedEmpName);
-        }
-    }, []);
-
-
-    useEffect(() => {
-        if (id) {
-            setEditMode(true);
-            fetchDoerById(id);
-        } else {
-            setEditMode(false);
-        }
-    }, [id]);
-
-
-    console.log(searchTaskID)
-
-    const fetchDoerById = async (id: string) => {
-        try {
-            const response = await axios.get(`${config.API_URL_APPLICATION}/DoerMaster/GetDoer`, {
-                params: { id: id }
-            });
-            if (response.data.isSuccess) {
-                const fetchedModule = response.data.doerMasterList[0];
-                setDoers(fetchedModule);
-            } else {
-                console.error(response.data.message);
-            }
-        } catch (error) {
-            console.error('Error fetching module:', error);
-        }
-    };
-
-
-
+    // Fetch identifier list and task list from API
     useEffect(() => {
         const fetchData = async (endpoint: string, setter: Function, listName: string) => {
             try {
@@ -100,153 +25,126 @@ const EmployeeInsert = () => {
                 console.error(`Error fetching data from ${endpoint}:`, error);
             }
         };
+        fetchData('CommonDropdown/GetIdentifier', setIdentifierList, 'identifierList');
         fetchData('CommonDropdown/GetTaskList', setTaskList, 'taskList');
     }, []);
 
+    // Submit the form data to the API
+    const handleSubmit = async (e: ChangeEvent<HTMLFormElement>) => {
+        e.preventDefault(); // Prevent form from submitting traditionally
 
-
-    const handleChange = (e: ChangeEvent<any>) => {
-        const { name, type } = e.target;
-        if (type === 'checkbox') {
-            const checked = (e.target as HTMLInputElement).checked;
-            setDoers({
-                ...doers,
-                [name]: checked
-            });
-        } else {
-            const value = (e.target as HTMLInputElement | HTMLSelectElement).value;
-            setDoers({
-                ...doers,
-                [name]: value
-            });
-        }
-    };
-
-    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
-        const payload = {
-            ...doers,
-            createdBy: editMode ? doers.createdBy : empName,
-            updatedBy: editMode ? empName : '',
+        // Prepare the data to send to the API with names instead of IDs
+        const requestData = {
+            Identifier1: selectedIdentifierOne, // Sending the name (selected value) instead of ID
+            Identifier2: selectedIdentifierTwo, // Sending the name (selected value) instead of ID
+            TaskID: selectedTask // Sending the task name
         };
-        console.log(payload)
+
+        console.log(requestData)
 
         try {
-            const apiUrl = `${config.API_URL_APPLICATION}/DoerMaster/${editMode ? 'UpdateDoer' : 'InsertDoer'}`;
-            const response = await axios.post(apiUrl, payload);
-            if (response.status === 200) {
-                navigate('/pages/DoerMaster', {
-                    state: {
-                        showToast: true,
-                        toastMessage: editMode ? "Doers updated successfully!" : "Doers added successfully!",
-                        toastVariant: "rgb(28 175 85)",
-                    },
-                });
-            } else {
-                setToastMessage(response.data.message || "Failed to process request");
-            }
-        } catch (error: any) {
-            setToastMessage(error);
-            setToastVariant("rgb(213 18 18)");
-            setShowToast(true);
-            console.error('Error submitting module:', error);
-        }
+            const response = await axios.post(`${config.API_URL_APPLICATION}/DoerMaster/InsertDoerByIdentifier`, requestData);
 
+            if (response.data.isSuccess) {
+                // Handle success response
+                console.log('Data submitted successfully', response.data);
+            } else {
+                // Handle error response
+                console.error('Error:', response.data.message);
+            }
+        } catch (error) {
+            // Handle network error
+            console.error('Error submitting data:', error);
+        }
     };
 
+    const handleIdentifierChange = (selectedOption: any, identifier: string) => {
+        if (identifier === 'identifierOne') {
+            setSelectedIdentifierOne(selectedOption ? selectedOption.label : ''); // Use `label` for name
+        } else {
+            setSelectedIdentifierTwo(selectedOption ? selectedOption.label : ''); // Use `label` for name
+        }
+    };
+
+    const handleTaskChange = (selectedOption: { value: string; label: string } | null) => {
+        if (selectedOption) {
+            setSelectedTask(selectedOption.label); // Use `label` for task name
+        } else {
+            setSelectedTask(null); // Clear the selected task if none is chosen
+        }
+    };
 
     return (
         <div>
-            <div className="container">
-                <div className="d-flex bg-white p-2 my-2 justify-content-between align-items-center fs-20 rounded-3 border">
-                    <span><i className="ri-file-list-line me-2"></i><span className='fw-bold'>{editMode ? 'Edit Doer' : 'Add Doer'}</span></span>
-                </div>
-                <div className='bg-white p-2 rounded-3 border'>
-                    <Form onSubmit={handleSubmit}>
-                        <Row>
-                            <Col lg={6}>
-                                <Form.Group controlId="taskID" className="mb-3">
-                                    <Form.Label>Task Number</Form.Label>
-                                    <Select
-                                        name="taskID"
-                                        value={taskList.find(item => item.taskID === doers.taskID) || null}
-                                        onChange={(selectedOption) => {
-                                            const taskID = selectedOption ? selectedOption.taskID : '';
-                                            setSearchTaskID(taskID);
-                                            setDoers(prev => ({ ...prev, taskID })); 
-                                        }}
-                                        options={taskList || []}
-                                        getOptionLabel={(item) => item.taskID}
-                                        getOptionValue={(item) => item.taskID}
-                                        isSearchable={true}
-                                        placeholder="Select Task Number"
-                                        className="h45"
-                                    />
-                                </Form.Group>
-                            </Col>
+            <div className="d-flex p-2 bg-white mt-2 mb-2 rounded shadow"><h5 className="mb-0">Task's Identifier Combinations</h5></div>
+            <Form onSubmit={handleSubmit}>
+                <Row>
+                    {/* Task Selection */}
+                    <Col md={6}>
+                        <Form.Group controlId="taskSelection">
+                            <Form.Label>Task</Form.Label>
+                            <Select
+                                options={taskList.map((item) => ({
+                                    value: item.id, // Use `id` as the value
+                                    label: item.taskID // Use `taskID` as the label (this is the name)
+                                }))}
+                                value={selectedTask
+                                    ? { value: selectedTask, label: taskList.find(item => item.taskID === selectedTask)?.taskID }
+                                    : null} // If a task is selected, show the corresponding taskID
+                                onChange={(selectedOption) => handleTaskChange(selectedOption)} // Update `selectedTask`
+                                placeholder="Select Task"
+                            />
+                        </Form.Group>
+                    </Col>
 
+                    {/* Identifier One */}
+                    <Col md={6}>
+                        <Form.Group controlId="identifierOne">
+                            <Form.Label>Identifier One</Form.Label>
+                            <Select
+                                options={identifierList.map((item) => ({
+                                    value: item.id, // Use `id` as the value
+                                    label: item.identifier // Use `identifier` as the label (this is the name)
+                                }))}
+                                value={selectedIdentifierOne
+                                    ? { value: selectedIdentifierOne, label: identifierList.find(item => item.identifier === selectedIdentifierOne)?.identifier }
+                                    : null} // Map the selected ID to the correct identifier name
+                                onChange={(selectedOption) => handleIdentifierChange(selectedOption, 'identifierOne')}
+                                placeholder="Select Identifier One"
+                            />
+                        </Form.Group>
+                    </Col>
 
-                            <Col lg={6}>
-                                <Form.Group controlId="identifier" className="mb-3">
-                                    <Form.Label>identifier</Form.Label>
-                                    <Form.Control
-                                        type="text"
-                                        name="identifier"
-                                        value={doers.identifier}
-                                        onChange={handleChange}
-                                        required
-                                        placeholder='Enter Identifier'
-                                    />
-                                </Form.Group>
-                            </Col>
+                    {/* Identifier Two */}
+                    <Col md={6}>
+                        <Form.Group controlId="identifierTwo">
+                            <Form.Label>Identifier Two</Form.Label>
+                            <Select
+                                options={[
+                                    { value: null, label: 'Not Applied' }, // Add the "Not Applied" option
+                                    ...identifierList.map((item) => ({
+                                        value: item.id, // Use `id` as the value
+                                        label: item.identifier // Use `identifier` as the label (this is the name)
+                                    }))
+                                ]}
+                                value={selectedIdentifierTwo
+                                    ? { value: selectedIdentifierTwo, label: identifierList.find(item => item.identifier === selectedIdentifierTwo)?.identifier }
+                                    : null} // Map the selected ID to the correct identifier name
+                                onChange={(selectedOption) => handleIdentifierChange(selectedOption, 'identifierTwo')}
+                                placeholder="Select Identifier Two"
+                            />
+                        </Form.Group>
+                    </Col>
 
+                </Row>
 
-                            <Col lg={6}>
-                                <Form.Group controlId="identifier1" className="mb-3">
-                                    <Form.Label>identifier 1</Form.Label>
-                                    <Form.Control
-                                        type="text"
-                                        name="identifier1"
-                                        value={doers.identifier1}
-                                        onChange={handleChange}
-                                        required
-                                        placeholder='Enter Identifier 1'
-                                    />
-                                </Form.Group>
-                            </Col>
-
-
-
-
-
-                            <Col className='align-items-end d-flex justify-content-between mb-3'>
-                                <div>
-                                    <span className='fs-5 '>All fields are required*</span>
-                                </div>
-                                <div>
-                                    <Link to={'/pages/DoerMaster'}>
-                                        <Button variant="primary" >
-                                            Back
-                                        </Button>
-                                    </Link>
-                                    &nbsp;
-                                    <Button variant="primary" type="submit">
-                                        {editMode ? 'Update Doer' : 'Add Doer'}
-                                    </Button>
-                                </div>
-
-                            </Col>
-
-                        </Row>
-
-                    </Form>
-                </div>
-
-            </div>
-            <CustomSuccessToast show={showToast} toastMessage={toastMessage} toastVariant={toastVariant} onClose={() => setShowToast(false)} />
-
+                <Button className='mt-3' variant="primary" type="submit">
+                    Submit
+                </Button>
+            </Form>
         </div>
+
     );
 };
 
-export default EmployeeInsert;
+export default YourComponent;
