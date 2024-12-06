@@ -264,7 +264,7 @@ const ProjectInsert = () => {
                                 </Form.Group>
                             </Col>
 
-                            <Col lg={6}>
+                            {/* <Col lg={6}>
                                 <Form.Group controlId="incharge" className="mb-3">
                                     <Form.Label>Project Incharge</Form.Label>
                                     <Select
@@ -292,7 +292,7 @@ const ProjectInsert = () => {
                                         isMulti={true}
                                     />
                                 </Form.Group>
-                            </Col>
+                            </Col> */}
 
                             {/* <Col lg={6}>
                                 <Form.Group controlId="coordinator" className="mb-3">
@@ -600,7 +600,6 @@ const ProjectInsert = () => {
                                         value={subProject.nameOfWork}
                                         onChange={handleChange}
                                         placeholder='Enter Name Of Work'
-                                        required
                                     />
                                 </Form.Group>
                             </Col>
