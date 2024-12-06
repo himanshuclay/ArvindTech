@@ -83,7 +83,7 @@ const ProjectInsert = () => {
         stateId: 0,
         projectType: 0,
         managementContract: 0,
-        projectIncharge: {},
+        projectIncharge: [],
         projectCoordinator: '',
         completionStatus: 0,
         nameOfWork: '',

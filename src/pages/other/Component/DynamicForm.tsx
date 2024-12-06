@@ -56,14 +56,14 @@ interface DynamicFormProps {
     fromComponent: string
 }
 
-interface Condition {
-    inputId: string;
-    optionId: string;
-    taskNumber: string;
-    taskTiming: string;
-    taskType: string;
-    daySelection: string;
-}
+// interface taskSelection {
+//     inputId: string;
+//     optionId: string;
+//     taskNumber: string;
+//     taskTiming: string;
+//     taskType: string;
+//     daySelection: string;
+// }
 
 interface MessData {
     messID: string;
@@ -531,19 +531,20 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
 
     const [approvalStatus, setApprovalStatus] = useState<OptionType | null>(null);
 
-
+   console.log("this is my condition",parsedCondition)
 
     // Handle change in input values
     const handleChange = (inputId: string, value: string | boolean | string[]) => {
         // Prevent default behavior (if needed)
         // event.preventDefault(); 
 
-        const excludedInputIds = [ '100', '102', '103'];
-        const input = formData.inputs.find(input => input.inputId === inputId);
+        const excludedInputIds = [ '99', '100', '102', '103'];
+        const input = formData.inputs.find(input => String(input.inputId) === String(inputId));
 
         let updatedValue = value;
         var selectedLabel: any;
         console.log(`Selected label: ${selectedLabel}`);
+        console.log(input)
 
 
         if (input) {
@@ -553,19 +554,60 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
         // Handle select and CustomSelect input types
         if (input && (input.type === 'select' || input.type === 'CustomSelect')) {
             const selectedOption = input.options?.find(option => option.label === value);
+        
+            console.log('Selected Option:', selectedOption);
+        
             if (selectedOption) {
                 updatedValue = selectedOption.id;
                 selectedLabel = selectedOption.label;
+        
+                console.log('Updated Value:', updatedValue); // Debug
+                console.log('Parsed Condition:', parsedCondition);
+        
+                // Check if parsedCondition and taskSelections are valid
+                if (Array.isArray(parsedCondition)) {
+                    // Flatten the parsedCondition array
+                    const flattenedCondition = parsedCondition.flat();
+                
+                    console.log('Flattened Parsed Condition:', flattenedCondition);
+                
+                    flattenedCondition.forEach((condition) => {
+                        if (Array.isArray(condition.taskSelections)) {
+                            console.log('Task Selections:', condition.taskSelections);
+                
+                            // Filter taskSelections where inputId matches updatedValue
+                            const filteredTaskSelections = condition.taskSelections.filter(
+                                (taskSelection: any) => String(taskSelection.inputId) === String(updatedValue)
+                            );
+                
+                            if (filteredTaskSelections.length > 0) {
+                                console.log('Filtered Task Selections:', filteredTaskSelections);
+                
+                                // Update the condition with filtered taskSelections
+                                setSelectedCondition({ 
+                                    ...condition, 
+                                    taskSelections: filteredTaskSelections 
+                                });
+                                
+                                console.log("Updated Condition:", {
+                                    ...condition,
+                                    taskSelections: filteredTaskSelections,
+                                });
 
-                // Ensure parsedCondition is an array of arrays and has at least one array
-                if (Array.isArray(parsedCondition) && parsedCondition.length > 0) {
-                    const selectedConditionFromParsed = parsedCondition[0].find((condition: Condition) => condition.optionId === updatedValue);
-
-                    if (selectedConditionFromParsed) {
-                        setSelectedCondition([selectedConditionFromParsed]);
-                    }
+                                console.log("this is what i want", selectedCondition)
+                            } else {
+                                console.warn('No matching task found for updatedValue:', updatedValue);
+                
+                                // Reset taskSelections if no match is found
+                            }
+                        } else {
+                            console.error('taskSelections is not an array or undefined:', condition.taskSelections);
+                        }
+                    });
+                } else {
+                    console.error('parsedCondition is not an array:', parsedCondition);
                 }
-
+        
                 // Update visibility based on the selected option ID
                 setShowMessManagerSelect(selectedOption.id === '11-1');
             } else {
@@ -573,7 +615,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                 console.warn(`No option found for the value: ${value}`);
             }
         }
-
+        
 
         // Handle multiselect input type
         if (input && input.type === 'multiselect') {
@@ -660,12 +702,14 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
         // Prepare the data to be posted
         // const taskCommonId = localStorage.getItem('taskCommonId') || 0;  // Retrieve from localStorage or set to 0 if not found
 
-        const conditionToSend = selectedCondition.length > 0 ? selectedCondition : parsedCondition[0];
+        // const conditionToSend = selectedCondition.length > 0 ? selectedCondition : [parsedCondition[0]]; // Ensure the fallback is an array
 
 
 
 
-        console.log(processId)
+
+        console.log("this is selected",selectedCondition)
+        console.log("this is selected2",parsedCondition)
 
 
 
@@ -705,23 +749,24 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
             const taskData = data.find((task: Task) => task.task_Number === taskNumber);
             const requestData = {
                 id: taskData?.id || 0,
-                doerID: role || '',
-                task_Json: processId === "ACC.01" ? JSON.stringify(finalData) : JSON.stringify(globalTaskJson), // Conditional task_Json
-                isExpired: 0,
-                isCompleted: formState['Pending'] || 'Completed',
-                task_Number: taskNumber,
-                summary: formState['summary'] || 'Task Summary',
-                condition_Json: JSON.stringify(conditionToSend),  // Assuming conditionToSend is defined
-                taskCommonId: taskCommonIDRow,
-                taskStatus: taskStatus, // Use the taskCommonId fetched from localStorage or state
-                updatedBy: role,
+                doerID: role || '', // Fallback to an empty string if role is undefined
+                task_Json: processId === "ACC.01" ? JSON.stringify(finalData) : JSON.stringify(globalTaskJson), // Conditional task_Json based on processId
+                isExpired: 0, // Assuming this is a static value
+                isCompleted: formState['Pending'] || 'Completed', // Use 'Pending' if available, else default to 'Completed'
+                task_Number: taskNumber, // Ensure taskNumber is available
+                summary: formState['summary'] || 'Task Summary', // Fallback to a default if 'summary' is not in formState
+                condition_Json: JSON.stringify(selectedCondition), // Ensure conditionToSend is properly serialized
+                taskCommonId: taskCommonIDRow, // Use the taskCommonIDRow value from the context
+                taskStatus: taskStatus, // Ensure taskStatus is available
+                updatedBy: role, // Use role for updatedBy
             };
+            
             console.log(requestData)
             console.log(finalData)
 
 
             try {
-                const response = await fetch(`${config.API_URL_ACCOUNT}/ProcessInitiation/UpdateDoerTasks`, {
+                const response = await fetch(`${config.API_URL_ACCOUNT}/ProcessInitiation/UpdateDoerTaskss`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
