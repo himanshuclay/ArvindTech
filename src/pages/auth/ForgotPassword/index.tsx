@@ -171,7 +171,8 @@ const ForgotPassword = () => {
 			"Password must contain at least one special character.",
 			"Password must contain at least one uppercase letter.",
 			"Password must contain at least one lowercase letter.",
-			"Password must contain at least one number."
+			"Password must contain at least one number.",
+			'Password must be between 8 and 16 characters long.'
 		];
 
 		// Remove messages if the condition is met
@@ -187,8 +188,9 @@ const ForgotPassword = () => {
 		if (hasNumber) {
 			validationMessages = validationMessages.filter(message => !message.includes("number"));
 		}
-		if (!isLengthValid) validationMessages.push("Password must be between 8 and 16 characters long.");
-
+		if (!isLengthValid) {
+			validationMessages = validationMessages.filter(message => !message.includes("characters long"));
+		}
 		if (validationMessages.length > 0) {
 			setToastMessage(validationMessages.join(" "));
 			setToastVariant("rgb(213 18 18)"); // Red color for error
