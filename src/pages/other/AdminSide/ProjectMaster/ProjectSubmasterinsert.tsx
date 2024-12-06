@@ -60,7 +60,7 @@ const ProjectInsert = () => {
     const [editMode, setEditMode] = useState<boolean>(false);
     const [empName, setEmpName] = useState<string | null>()
     const [completionStatus, setCompletionStatus] = useState<CompletionStatus[]>([]);
-    const [employeeList, setEmployeeList] = useState<EmployeeList[]>([]);
+    // const [employeeList, setEmployeeList] = useState<EmployeeList[]>([]);
     const [projectList, setProjectList] = useState<PorjectList[]>([]);
 
 
@@ -150,7 +150,7 @@ const ProjectInsert = () => {
         };
 
         fetchData('CommonDropdown/GetCompletionStatus', setCompletionStatus, 'completionStatusListResponses');
-        fetchData('CommonDropdown/GetEmployeeListWithId', setEmployeeList, 'employeeLists');
+        // fetchData('CommonDropdown/GetEmployeeListWithId', setEmployeeList, 'employeeLists');
         fetchData('CommonDropdown/GetProjectList', setProjectList, 'projectListResponses');
 
     }, []);
