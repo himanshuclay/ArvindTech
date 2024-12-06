@@ -65,7 +65,7 @@ const EmployeeInsert = () => {
 
     const fetchModuleById = async (id: string) => {
         try {
-            const response = await axios.get('https://arvindo-api2.clay.in/api/ModuleMaster/GetModule', {
+            const response = await axios.get(`${config.API_URL_APPLICATION}/ModuleMaster/GetModule`, {
                 params: { id: id }
             });
             if (response.data.isSuccess) {
@@ -215,8 +215,10 @@ const EmployeeInsert = () => {
                                         options={options}
                                         value={options.find(option => option.value === module.fmsType)}
                                         onChange={selectedOption => handleChange(null, 'fmsType', selectedOption?.value)}
-                                        placeholder="Select Fms Type"
+                                        placeholder="Select Type of  Module"
                                         required
+                                        isDisabled={editMode}
+
                                     />
                                 </Form.Group>
                             </Col>

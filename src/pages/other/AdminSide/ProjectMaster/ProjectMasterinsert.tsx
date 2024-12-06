@@ -6,6 +6,7 @@ import config from '@/config';
 import Select from 'react-select';
 import Flatpickr from 'react-flatpickr';
 import 'flatpickr/dist/themes/material_green.css';
+import CustomSuccessToast from '../../Component/CustomSuccessToast';
 
 
 interface Project {
@@ -15,10 +16,7 @@ interface Project {
     stateId: number;
     projectType: number;
     managementContract: number;
-    // projectIncharge: Array<{
-    //     projectIncharge: string;
-    // }>;
-    projectIncharge: {},
+    projectIncharge: string[];
     projectCoordinator: string;
     completionStatus: number;
     nameOfWork: string;
@@ -68,6 +66,9 @@ const ProjectInsert = () => {
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
     const [editMode, setEditMode] = useState<boolean>(false);
+    const [showToast, setShowToast] = useState(false);
+    const [toastMessage, setToastMessage] = useState("");
+    const [toastVariant, setToastVariant] = useState('');
     const [empName, setEmpName] = useState<string | null>()
     const [stateList, setStateList] = useState<StateList[]>([]);
     const [completionStatus, setCompletionStatus] = useState<CompletionStatus[]>([]);
@@ -194,17 +195,29 @@ const ProjectInsert = () => {
             ...project,
             createdBy: editMode ? project.createdBy : empName,
             updatedBy: editMode ? empName : '',
+            projectIncharge: project.projectIncharge.join(','),
         };
         console.log(payload)
 
         try {
-            if (editMode) {
-                await axios.post(`${config.API_URL_APPLICATION}/ProjectMaster/UpdateProject`, payload);
+            const apiUrl = `${config.API_URL_APPLICATION}/ProjectMaster/${editMode ? 'UpdateProject' : 'InsertProject'}`;
+            const response = await axios.post(apiUrl, payload);
+
+            if (response.status === 200) {
+                navigate('/pages/ProjectMaster', {
+                    state: {
+                        showToast: true,
+                        toastMessage: editMode ? "Project updated successfully!" : "Project added successfully!",
+                        toastVariant: "rgb(28 175 85)",
+                    },
+                });
             } else {
-                await axios.post(`${config.API_URL_APPLICATION}/ProjectMaster/InsertProject`, payload);
+                setToastMessage(response.data.message || "Failed to process request");
             }
-            navigate('/pages/ProjectMaster');
-        } catch (error) {
+        } catch (error: any) {
+            setToastMessage(error || 'Failed to Add/Update Project');
+            setToastVariant("rgb(213 18 18)");
+            setShowToast(true);
             console.error('Error submitting module:', error);
         }
     };
@@ -229,7 +242,7 @@ const ProjectInsert = () => {
                                         name="projectID"
                                         value={project.projectID}
                                         onChange={handleChange}
-                                        required
+                                        // required
                                         placeholder='Enter Project ID'
 
                                     />
@@ -243,7 +256,7 @@ const ProjectInsert = () => {
                                         name="projectName"
                                         value={project.projectName}
                                         onChange={handleChange}
-                                        required
+                                        // required
                                         placeholder='Enter Project Name'
 
                                     />
@@ -266,7 +279,7 @@ const ProjectInsert = () => {
                                         options={stateList}
                                         isSearchable={true}
                                         placeholder="Select State Name"
-                                        required
+                                        // required
                                     />
                                 </Form.Group>
                             </Col>
@@ -288,7 +301,7 @@ const ProjectInsert = () => {
                                         options={projectTypeList}
                                         isSearchable={true}
                                         placeholder="Select Project Type"
-                                        required
+                                        // required
                                     />
                                 </Form.Group>
                             </Col>
@@ -311,7 +324,7 @@ const ProjectInsert = () => {
                                         options={managementContractList}
                                         isSearchable={true}
                                         placeholder="Select Management Contract"
-                                        required
+                                        // required
                                     />
                                 </Form.Group>
                             </Col>
@@ -320,43 +333,44 @@ const ProjectInsert = () => {
 
 
                             <Col lg={6}>
-                                <Form.Group controlId="incharge" className="mb-3">
+                                <Form.Group controlId="incharges" className="mb-3">
                                     <Form.Label>Project Incharge</Form.Label>
                                     <Select
-                                        name="incharge"
-                                        // Convert the selected employee IDs back to the Select's value format for display
+                                        name="incharges"
                                         value={employeeList.filter(emp =>
-                                            Object.keys(project.projectIncharge).includes(emp.empId)
+                                            project.projectIncharge.includes(emp.empId)
                                         )}
                                         onChange={(selectedOptions) => {
-                                            const inchargeObject = selectedOptions
-                                                ? selectedOptions.reduce((obj, emp) => ({ ...obj, [emp.empId]: emp.empId }), {})
-                                                : {};
-
-                                            setProject({
-                                                ...project,
-                                                projectIncharge: inchargeObject,
-                                            });
+                                            const projectIncharge = (selectedOptions || []).map(option => option.empId);
+                                            setProject(prev => ({
+                                                ...prev,
+                                                projectIncharge
+                                            }));
                                         }}
                                         getOptionLabel={(emp) => emp.employeeName}
                                         getOptionValue={(emp) => emp.empId}
                                         options={employeeList}
                                         isSearchable={true}
-                                        placeholder="Select Project Incharge"
                                         isMulti={true}
+                                        placeholder="Select Projects"
                                     />
                                 </Form.Group>
                             </Col>
+
+
+
+
+
                             <Col lg={6}>
                                 <Form.Group controlId="coordinator" className="mb-3">
                                     <Form.Label>Project Coordinator </Form.Label>
                                     <Select
                                         name="coordinator"
-                                        value={employeeList.find((emp) => emp.empId === project.projectCoordinator)}
+                                        value={employeeList.find((emp) => emp.employeeName === project.projectCoordinator)}
                                         onChange={(selectedOption) => {
                                             setProject({
                                                 ...project,
-                                                projectCoordinator: selectedOption?.empId || "",
+                                                projectCoordinator: selectedOption?.employeeName || "",
                                             });
                                         }}
                                         getOptionLabel={(emp) => emp.employeeName}
@@ -387,7 +401,7 @@ const ProjectInsert = () => {
                                         options={completionStatus}
                                         isSearchable={true}
                                         placeholder="Select State Name"
-                                        required
+                                        // required
                                     />
                                 </Form.Group>
                             </Col>
@@ -654,7 +668,6 @@ const ProjectInsert = () => {
                                         name="nameOfWork"
                                         value={project.nameOfWork}
                                         onChange={handleChange}
-                                        required
                                     />
                                 </Form.Group>
                             </Col>
@@ -684,6 +697,8 @@ const ProjectInsert = () => {
                 </div>
 
             </div>
+            <CustomSuccessToast show={showToast} toastMessage={toastMessage} toastVariant={toastVariant} onClose={() => setShowToast(false)} />
+
         </div>
     );
 };

@@ -99,23 +99,6 @@ const EmployeeInsert = () => {
         setTags(tags.filter((_, i) => i !== index));
     };
 
-    // useEffect(() => {
-    //     const fetchData = async (endpoint: string, setter: Function, listName: string) => {
-    //         try {
-    //             const response = await axios.get(`${config.API_URL_APPLICATION}/${endpoint}`);
-    //             if (response.data.isSuccess) {
-    //                 setter(response.data[listName]);
-    //             } else {
-    //                 console.error(response.data.message);
-    //             }
-    //         } catch (error) {
-    //             console.error(`Error fetching data from ${endpoint}:`, error);
-    //         }
-    //     };
-
-    //     fetchData('CommonDropdown/GetProjectList', setProjectList, 'projectListResponses');
-    // }, []);
-
     const clearAllTags = () => {
         setTags([]);
     };

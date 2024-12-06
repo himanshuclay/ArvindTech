@@ -1,5 +1,5 @@
 import { Button, Col, Row } from 'react-bootstrap'
-import { Navigate, Link } from 'react-router-dom'
+import { Navigate, Link, useNavigate, useLocation } from 'react-router-dom'
 import { yupResolver } from '@hookform/resolvers/yup'
 import * as yup from 'yup'
 import AuthLayout from '../AuthLayout'
@@ -7,6 +7,8 @@ import useLogin from './useLogin'
 
 // components
 import { VerticalForm, FormInput, PageBreadcrumb } from '@/components'
+import { useEffect, useState } from 'react'
+import CustomSuccessToast from '@/pages/other/Component/CustomSuccessToast'
 
 interface UserData {
 	email: string
@@ -18,7 +20,7 @@ const BottomLinks = () => {
 		<Row>
 			<Col xs={12} className="text-center">
 				<p className="text-dark-emphasis">
-					Don't have an accounts?{' '}
+					Don't have an account?{' '}
 					<Link
 						to="/auth/register"
 						className="text-dark fw-bold ms-1 link-offset-3 text-decoration-underline"
@@ -39,6 +41,35 @@ const schemaResolver = yupResolver(
 )
 const Login = () => {
 	const { loading, login, redirectUrl, isAuthenticated } = useLogin()
+
+
+	const location = useLocation();
+    const navigate = useNavigate();
+    const [showToast, setShowToast] = useState(false);
+    const [toastMessage, setToastMessage] = useState('');
+    const [toastVariant, setToastVariant] = useState('');
+    useEffect(() => {
+        if (location.state && location.state.showToast) {
+            setShowToast(true);
+            setToastMessage(location.state.toastMessage);
+            setToastVariant(location.state.toastVariant);
+
+            setTimeout(() => {
+                setShowToast(false);
+                navigate(location.pathname, { replace: true });
+            }, 5000);
+        }
+        return () => {
+            setShowToast(false);
+            setToastMessage('');
+            setToastVariant('');
+        };
+    }, [location.state, navigate]);
+
+
+
+
+
 	return (
 		<>
 			<PageBreadcrumb title="Log In" />
@@ -60,7 +91,7 @@ const Login = () => {
 						label="Employee ID"
 						type="text"
 						name="email"
-						placeholder="Enter Your Email Id"
+						placeholder="Enter Your Employee Id"
 						containerClass="mb-3"
 						required
 					/>
@@ -74,15 +105,28 @@ const Login = () => {
 						containerClass="mb-3"
 					>
 						<Link to="/auth/forgot-password" className="text-muted float-end">
-							<small>Forgot your password?</small>
+							<small className='text-danger'>Forgot your password?</small>
 						</Link>
 					</FormInput>
-					<FormInput
-						label="Remember me"
-						type="checkbox"
-						name="checkbox"
-						containerClass={'mb-3'}
-					/>
+
+					<Row className='d-flex jusify-content-between'>
+
+						<Col>
+							<FormInput
+								label="Remember me"
+								type="checkbox"
+								name="checkbox"
+								containerClass={'mb-3'}
+							/>
+						</Col>
+						<Col className='d-flex justify-content-end '>
+							<div className='login-help'>
+								Help ?
+							</div>
+						</Col>
+
+
+					</Row>
 					<div className="mb-0 text-start">
 						<Button
 							variant="soft-primary"
@@ -96,6 +140,13 @@ const Login = () => {
 					</div>
 				</VerticalForm>
 			</AuthLayout>
+
+			<CustomSuccessToast
+                show={showToast}
+                toastMessage={toastMessage}
+                toastVariant={toastVariant}
+                onClose={() => setShowToast(false)}
+            />
 		</>
 	)
 }
