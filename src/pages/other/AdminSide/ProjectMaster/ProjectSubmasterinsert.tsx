@@ -294,7 +294,7 @@ const ProjectInsert = () => {
                                 </Form.Group>
                             </Col>
 
-                            <Col lg={6}>
+                            {/* <Col lg={6}>
                                 <Form.Group controlId="coordinator" className="mb-3">
                                     <Form.Label>Project Coordinator </Form.Label>
                                     <Select
@@ -313,7 +313,7 @@ const ProjectInsert = () => {
                                         placeholder="Select Project Coordinator"
                                     />
                                 </Form.Group>
-                            </Col>
+                            </Col> */}
 
 
 

@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { useState, useEffect, ChangeEvent } from 'react';
-import { Button, Pagination, Table, Container, Row, Col, Alert, Form, ButtonGroup, Modal } from 'react-bootstrap';
+import { Button, Pagination, Table, Container, Row, Col, Alert, Form, ButtonGroup, Modal, Badge } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import config from '@/config';
@@ -59,6 +59,18 @@ const ModuleMaster = () => {
         };
     }, [location.state, navigate]);
 
+
+
+
+    const [selectedRow, setSelectedRow] = useState<string | null>(null);
+
+    const handleModalOpen = (identifierValue: string) => {
+        setSelectedRow(identifierValue); // Set the identifier value of the selected row
+    };
+
+    const handleModalClose = () => {
+        setSelectedRow(null); // Clear the selected row
+    };
     // both are required to make dragable column of table 
     const [columns, setColumns] = useState<Column[]>([
         // { id: 'taskID', label: 'Task Number', visible: true },
@@ -217,27 +229,11 @@ const ModuleMaster = () => {
         setCurrentPage(1);
     };
 
-    const [modalContent, setModalContent] = useState<string | null>(null);
-    const [showModal, setShowModal] = useState(false);
 
-    const handleModalOpen = (content: string) => {
-        setModalContent(content);
-        setShowModal(true);
-    };
-
-    const handleModalClose = () => {
-        setShowModal(false);
-        setModalContent(null);
-    };
 
 
     const filteredIdentifiers = identifiers.filter(identifier =>
-        // identifier.identifier.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        // identifier.taskID.toLowerCase().includes(searchQuery.toLowerCase()) ||
         identifier.identifierValue.toLowerCase().includes(searchQuery.toLowerCase())
-        //  ||
-        // identifier.empID.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        // identifier.employeeName.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
     return (
@@ -379,56 +375,61 @@ const ModuleMaster = () => {
                                                     <td>{(currentPage - 1) * 10 + index + 1}</td>
                                                     {columns.filter(col => col.visible).map((col) => (
                                                         <td key={col.id}>
-                                                            {col.id === 'identifierValue' ? (
+                                                            {col.id === "identifierValue" ? (
                                                                 <div
                                                                     className="fw-bold fs-13 text-dark ellipsis-text"
-                                                                    style={{ cursor: 'pointer' }}
-                                                                    onClick={() => handleModalOpen(String(item[col.id as keyof typeof item]))}
+                                                                    style={{ cursor: "pointer" }}
+                                                                    onClick={() => handleModalOpen(String(item.identifierValue))}
                                                                 >
                                                                     {item[col.id as keyof typeof item]}
                                                                 </div>
                                                             ) : (
-                                                                <div>
-                                                                    {item[col.id as keyof typeof item]}
-                                                                </div>
+                                                                <div>{item[col.id as keyof typeof item]}</div>
                                                             )}
                                                         </td>
                                                     ))}
-                                                    {modalContent && (
-                                                        <Modal show={showModal} onHide={handleModalClose} centered>
+                                                    <td>
+                                                        <Link to={`/pages/identifiermasterinsert/${item.id}`}>
+                                                            <Button variant="primary" className="p-0 text-white">
+                                                                <i className="btn ri-edit-line text-white"></i>
+                                                            </Button>
+                                                        </Link>
+                                                    </td>
+
+                                                    {/* Modal for the selected row */}
+                                                    {selectedRow === String(item.identifierValue) && (
+                                                        <Modal show={!!selectedRow} onHide={handleModalClose} centered>
                                                             <Modal.Header closeButton>
-                                                                <Modal.Title>Details</Modal.Title>
+                                                                <Modal.Title>Identifier Value</Modal.Title>
                                                             </Modal.Header>
                                                             <Modal.Body>
-                                                                {modalContent}
+                                                                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', marginBottom: '4px', marginTop: '4px' }}>
+                                                                    {selectedRow.split(',').map(item => item.trim()).map((tag, index) => (
+                                                                        <Badge bg="primary" key={index} style={{ display: 'flex', alignItems: 'center', fontSize: '11px',padding:'5px 10px' }}>
+                                                                            {tag}
+
+                                                                        </Badge>
+                                                                    ))}
+                                                                </div>
                                                             </Modal.Body>
-                                                            <Modal.Footer>
-                                                                <Button variant="secondary" onClick={handleModalClose}>
-                                                                    Close
-                                                                </Button>
-                                                            </Modal.Footer>
                                                         </Modal>
                                                     )}
-                                                    <td><Link to={`/pages/identifiermasterinsert/${item.id}`}>
-                                                        <Button variant='primary' className='p-0 text-white'>
-                                                            <i className='btn ri-edit-line text-white' ></i>
-                                                        </Button>
-                                                    </Link>
-                                                    </td>
                                                 </tr>
                                             ))
                                         ) : (
                                             <tr>
-                                                <td colSpan={12}><Container className="mt-5">
-                                                    <Row className="justify-content-center">
-                                                        <Col xs={12} md={8} lg={6}>
-                                                            <Alert variant="info" className="text-center">
-                                                                <h4>No Data Found</h4>
-                                                                <p>You currently don't have Data</p>
-                                                            </Alert>
-                                                        </Col>
-                                                    </Row>
-                                                </Container></td>
+                                                <td colSpan={12}>
+                                                    <Container className="mt-5">
+                                                        <Row className="justify-content-center">
+                                                            <Col xs={12} md={8} lg={6}>
+                                                                <Alert variant="info" className="text-center">
+                                                                    <h4>No Data Found</h4>
+                                                                    <p>You currently don't have Data</p>
+                                                                </Alert>
+                                                            </Col>
+                                                        </Row>
+                                                    </Container>
+                                                </td>
                                             </tr>
                                         )}
                                     </tbody>

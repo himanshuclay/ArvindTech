@@ -6,6 +6,8 @@ import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import config from '@/config';
 import ProjectViewPopup from './ProjectViewPopup';
 import Select from 'react-select';
+import CustomSuccessToast from '../../Component/CustomSuccessToast';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 
 
@@ -17,7 +19,8 @@ interface Project {
     stateId: number;
     projectType: number;
     managementContract: number;
-    projectIncharge: number;
+    projectIncharge: string;
+    projectInchargeName: string;
     projectCoordinator: number;
     completionStatus: number;
     nameOfWork: string;
@@ -58,12 +61,35 @@ const ProjectMaster = () => {
     const [completionStatus, setCompletionStatus] = useState<CompletionStatus[]>([]);
 
 
-
     const [searchProjectInchage, setSearchProjectInchage] = useState('');
     const [searchProjectCoordinator, setSearchProjectCoordinator] = useState('');
     const [searchProjectName, setSearchProjectName] = useState('');
     const [searchCompletionStatus, setSearchCompletionStatus] = useState<number>();
 
+
+    const location = useLocation();
+    const navigate = useNavigate();
+    const [showToast, setShowToast] = useState(false);
+    const [toastMessage, setToastMessage] = useState('');
+    const [toastVariant, setToastVariant] = useState('');
+
+    useEffect(() => {
+        if (location.state && location.state.showToast) {
+            setShowToast(true);
+            setToastMessage(location.state.toastMessage);
+            setToastVariant(location.state.toastVariant);
+
+            setTimeout(() => {
+                setShowToast(false);
+                navigate(location.pathname, { replace: true });
+            }, 5000);
+        }
+        return () => {
+            setShowToast(false);
+            setToastMessage('');
+            setToastVariant('');
+        };
+    }, [location.state, navigate]);
 
     // both are required to make dragable column of table 
     const [columns, setColumns] = useState<Column[]>([
@@ -72,7 +98,7 @@ const ProjectMaster = () => {
         { id: 'stateName', label: 'State Name', visible: true },
         { id: 'projectTypeName', label: 'Project Type', visible: true },
         { id: 'managementContractName', label: 'Management Contract', visible: true },
-        { id: 'projectInchargeName', label: 'Project Incharge', visible: true },
+        { id: 'projectIncharge', label: 'Project Incharge', visible: true },
         { id: 'projectCoordinatorName', label: 'Project Coordinator', visible: true },
         { id: 'completionStatusName', label: 'Completion Status', visible: true }
     ]);
@@ -180,7 +206,7 @@ const ProjectMaster = () => {
                 project.stateId,
                 project.projectType,
                 project.managementContract,
-                project.projectIncharge,
+                project.projectInchargeName,
                 project.projectCoordinator,
                 project.completionStatus,
                 project.nameOfWork
@@ -436,8 +462,28 @@ const ProjectMaster = () => {
                                                             //     col.id === 'empID' ? 'fw-bold fs-13 text-dark' :''
                                                             // }
                                                             >
-                                                                <div>{item[col.id as keyof Project]}</div>
+
+
+
+
+                                                                <div>
+
+                                                                    {col.id === 'projectIncharge' ? (
+                                                                        <td>
+                                                                            {item.projectIncharge.split(",")
+                                                                                .map((incharge: any, index: any) => (
+                                                                                    <div key={index}>{incharge.trim()}</div> // Display each on a new line
+                                                                                ))}
+                                                                        </td>
+                                                                    ) : (
+                                                                        <td>{item[col.id as keyof Project]}</td>
+                                                                    )}
+
+                                                                </div>
                                                             </td>
+
+
+
                                                         ))}
                                                         {/* Action Button */}
                                                         <td><Button variant='primary' className='px-3 text-white' onClick={() => handleViewEdit(item.projectName)}>  <i className="ri-eye-line fs-4"></i></Button></td>
@@ -487,6 +533,7 @@ const ProjectMaster = () => {
 
                 <ProjectViewPopup showView={showView} setShowView={setShowView} projectName={manageId} />
 
+                <CustomSuccessToast show={showToast} toastMessage={toastMessage} toastVariant={toastVariant} onClose={() => setShowToast(false)} />
 
             </div>
 

@@ -7,6 +7,7 @@ import { VerticalForm, FormInput, PageBreadcrumb } from '@/components';
 import config from '@/config';
 import Flatpickr from 'react-flatpickr';
 import 'flatpickr/dist/themes/material_green.css';
+import CustomSuccessToast from '@/pages/other/Component/CustomSuccessToast';
 
 interface UserData {
 	empID: string;
@@ -33,6 +34,9 @@ const BottomLink = () => (
 
 const Register = () => {
 	const navigate = useNavigate();
+	const [showToast, setShowToast] = useState(false);
+	const [toastMessage, setToastMessage] = useState("");
+	const [toastVariant, setToastVariant] = useState('');
 	const [loading, setLoading] = useState(false);
 	const [verifyDoj, setVerifyDoj] = useState(false);
 	const [verifyDob, setVerifyDob] = useState(false);
@@ -78,19 +82,26 @@ const Register = () => {
 				console.log('Date is verified:', response.data.message);
 				setVerifyDoj(true);
 			} else {
-				console.warn('Verification failed:', response.data.message);
+				setToastMessage("Enter Valid Date Of Joning");
+				setToastVariant("rgb(213 18 18)");
+				setShowToast(true);
 				setVerifyDoj(false);
 				setFormData({
 					...formData,
 					joiningDate: '',
 				});
-				alert('Enter Valid Employee ID or Date of Joining')
+
+
+				// alert('Enter Valid Employee ID or Date of Joining')
 
 			}
 		} catch (error) {
 			console.error('Error verifying the joining date:', error);
 		}
 	};
+
+	console.log(toastMessage)
+
 
 	const verifyDOB = async (empID: string, dob: string) => {
 		if (!empID || !dob) return; // Prevent API call if empID or joiningDate is empty
@@ -103,13 +114,14 @@ const Register = () => {
 				console.log('Date od Birth is verified:', response.data.message);
 				setVerifyDob(true);
 			} else {
-				console.warn('Verification failed:', response.data.message);
+				setToastMessage("Enter Valid Date of Birth");
+				setToastVariant("rgb(213 18 18)");
+				setShowToast(true);
 				setVerifyDob(false);
 				setFormData({
 					...formData,
 					dob: '',
 				});
-				alert('Enter Valid Employee ID or Date of Birth')
 			}
 		} catch (error) {
 			console.error('Error verifying the joining date:', error);
@@ -118,17 +130,67 @@ const Register = () => {
 
 
 	const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-		e.preventDefault();
 		const { name, value } = e.target;
-		setFormData((prevData) => ({
-			...prevData,
-			[name]: value,
-		}));
-	};
 
+		if (name === "mobileNumber") {
+			if (!/^\d{0,10}$/.test(value)) return; // Restrict non-numeric input and limit to 10 digits
+			setFormData((prevData) => ({ ...prevData, mobileNumber: value }));
+			if (value.length === 10) {
+				setToastMessage(""); // Clear any error message
+				setShowToast(false);
+			} else {
+				setToastMessage("Enter a valid 10-digit mobile number");
+				setToastVariant("rgb(213 18 18)");
+				setShowToast(true);
+			}
+		} else {
+			setFormData((prevData) => ({ ...prevData, [name]: value }));
+		}
+	};
 
 	const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
 		setLoading(true);
+
+
+
+		const { password } = formData;
+
+		// Validation checks
+		const hasSpecialCharacter = /[!@#$%^&*(),.?":{}|<>]/.test(password);
+		const hasUppercase = /[A-Z]/.test(password);
+		const hasLowercase = /[a-z]/.test(password);
+		const hasNumber = /[0-9]/.test(password);
+		const isLengthValid = password.length >= 8 && password.length <= 16;
+
+		let validationMessages: string[] = [
+			"Password must contain at least one special character.",
+			"Password must contain at least one uppercase letter.",
+			"Password must contain at least one lowercase letter.",
+			"Password must contain at least one number."
+		];
+
+		// Remove messages if the condition is met
+		if (hasSpecialCharacter) {
+			validationMessages = validationMessages.filter(message => !message.includes("special character"));
+		}
+		if (hasUppercase) {
+			validationMessages = validationMessages.filter(message => !message.includes("uppercase letter"));
+		}
+		if (hasLowercase) {
+			validationMessages = validationMessages.filter(message => !message.includes("lowercase letter"));
+		}
+		if (hasNumber) {
+			validationMessages = validationMessages.filter(message => !message.includes("number"));
+		}
+		if (!isLengthValid) validationMessages.push("Password must be between 8 and 16 characters long.");
+
+		if (validationMessages.length > 0) {
+			setToastMessage(validationMessages.join(" "));
+			setToastVariant("rgb(213 18 18)"); // Red color for error
+			setShowToast(true);
+			setLoading(false); // Stop loading if validation fails
+			return; // Prevent form submission and API call
+		}
 
 		try {
 			const postData = {
@@ -159,11 +221,21 @@ const Register = () => {
 			// Check the response
 			if (response.status === 200) {
 				console.log('Registration successful:', response.data);
-				navigate('/auth/login');
+				navigate('/auth/login', {
+					state: {
+						showToast: true,
+						toastMessage: 'Registration successful !',
+						toastVariant: "rgb(28 175 85)"
+					}
+				});
 			} else {
 				console.error('Registration failed:', response);
+
 			}
-		} catch (error) {
+		} catch (error: any) {
+			setToastMessage(error);
+			setToastVariant("rgb(213 18 18)");
+			setShowToast(true);
 			console.error('Error during registration:', error);
 		} finally {
 			setLoading(false);
@@ -181,7 +253,6 @@ const Register = () => {
 		return () => clearTimeout(delayDebounceFn);
 	}, [formData.empID]);
 
-	console.log(formData)
 
 	return (
 		<>
@@ -231,7 +302,7 @@ const Register = () => {
 									value={formData.joiningDate || ''}
 									onChange={([date]) => {
 										if (date) {
-											const formattedDate =date.toLocaleDateString('en-CA'); 
+											const formattedDate = date.toLocaleDateString('en-CA');
 											setFormData({
 												...formData,
 												joiningDate: formattedDate,
@@ -240,7 +311,7 @@ const Register = () => {
 									}}
 									options={{
 										enableTime: false,
-										dateFormat: "Y-m-d ", 
+										dateFormat: "Y-m-d ",
 									}}
 									placeholder="yyyy-MM-dd"
 									className="form-control"
@@ -254,7 +325,9 @@ const Register = () => {
 									className="position-absolute signup-verify fs-11"
 									onClick={() => {
 										if (!formData.empID) {
-											alert('Please enter Employee ID before verifying.');
+											setToastMessage("Please enter Employee ID before verifying");
+											setToastVariant("rgb(213 18 18)");
+											setShowToast(true);
 										} else {
 											verifyDOJ(formData.empID, formData.joiningDate);
 										}
@@ -273,7 +346,7 @@ const Register = () => {
 									value={formData.dob || ''}
 									onChange={([date]) => {
 										if (date) {
-											const formattedDate = date.toLocaleDateString('en-CA'); 
+											const formattedDate = date.toLocaleDateString('en-CA');
 											setFormData({
 												...formData,
 												dob: formattedDate,
@@ -295,7 +368,9 @@ const Register = () => {
 									className="position-absolute signup-verify fs-11"
 									onClick={() => {
 										if (!formData.empID) {
-											alert('Please enter Employee ID before verifying.');
+											setToastMessage("Please enter Employee ID before verifying");
+											setToastVariant("rgb(213 18 18)");
+											setShowToast(true);
 										} else {
 											verifyDOB(formData.empID, formData.dob);
 										}
@@ -318,7 +393,10 @@ const Register = () => {
 								placeholder="Enter your mobile number"
 								value={formData.mobileNumber}
 								onChange={handleInputChange}
+								maxLength={10}
+								minLength={10}
 								containerClass="mb-3"
+								required
 							/>
 						</Col>
 						<Col lg={6}>
@@ -328,12 +406,45 @@ const Register = () => {
 									type="password"
 									name="password"
 									value={formData.password}
-									onChange={handleInputChange}
+									onChange={(e) => {
+										const { name, value } = e.target;
+
+										// Validation checks
+										const hasSpecialCharacter = /[!@#$%^&*(),.?":{}|<>]/.test(value);
+										const hasUppercase = /[A-Z]/.test(value);
+										const hasLowercase = /[a-z]/.test(value);
+										const hasNumber = /[0-9]/.test(value);
+
+										let validationMessage = "";
+										if (!hasSpecialCharacter) {
+											validationMessage = "Password must contain at least one special character.";
+										} else if (!hasUppercase) {
+											validationMessage = "Password must contain at least one uppercase letter.";
+										} else if (!hasLowercase) {
+											validationMessage = "Password must contain at least one lowercase letter.";
+										} else if (!hasNumber) {
+											validationMessage = "Password must contain at least one number.";
+										}
+
+										if (validationMessage) {
+											setToastMessage(validationMessage);
+											setToastVariant("rgb(213 18 18)");
+											setShowToast(true);
+										} else {
+											setShowToast(false); // Hide toast when valid
+										}
+
+										setFormData((prevData) => ({
+											...prevData,
+											[name]: value,
+										}));
+									}}
 									required
-									placeholder='Enter Password'
+									placeholder="Enter Password"
 								/>
 							</Form.Group>
 						</Col>
+
 					</Row>
 
 
@@ -344,7 +455,7 @@ const Register = () => {
 					<div className="mb-0 d-grid text-center">
 						{formData.empID &&
 							formData.fullname &&
-							formData.mobileNumber &&
+							formData.mobileNumber.length === 10 &&
 							formData.joiningDate &&
 							formData.dob &&
 							formData.password &&
@@ -363,6 +474,8 @@ const Register = () => {
 					</div>
 				</VerticalForm>
 			</AuthLayout>
+			<CustomSuccessToast show={showToast} toastMessage={toastMessage} toastVariant={toastVariant} onClose={() => setShowToast(false)} />
+
 		</>
 	);
 };
