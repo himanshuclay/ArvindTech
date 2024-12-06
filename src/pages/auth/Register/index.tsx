@@ -136,7 +136,7 @@ const Register = () => {
 			if (!/^\d{0,10}$/.test(value)) return; // Restrict non-numeric input and limit to 10 digits
 			setFormData((prevData) => ({ ...prevData, mobileNumber: value }));
 			if (value.length === 10) {
-				setToastMessage(""); // Clear any error message
+				setToastMessage(""); 
 				setShowToast(false);
 			} else {
 				setToastMessage("Enter a valid 10-digit mobile number");
@@ -183,8 +183,10 @@ const Register = () => {
 		if (hasNumber) {
 			validationMessages = validationMessages.filter(message => !message.includes("number"));
 		}
-		if (!isLengthValid) {
-			validationMessages = validationMessages.filter(message => !message.includes("characters long"));
+		if (isLengthValid) { // Corrected logic
+			validationMessages = validationMessages.filter(
+				(message) => !message.includes("between 8 and 16 characters long")
+			);
 		}
 
 		if (validationMessages.length > 0) {
@@ -227,7 +229,7 @@ const Register = () => {
 				navigate('/auth/login', {
 					state: {
 						showToast: true,
-						toastMessage: 'Registration successful !',
+						toastMessage: 'Registration successfully !',
 						toastVariant: "rgb(28 175 85)"
 					}
 				});
@@ -409,39 +411,7 @@ const Register = () => {
 									type="password"
 									name="password"
 									value={formData.password}
-									onChange={(e) => {
-										const { name, value } = e.target;
-
-										// Validation checks
-										const hasSpecialCharacter = /[!@#$%^&*(),.?":{}|<>]/.test(value);
-										const hasUppercase = /[A-Z]/.test(value);
-										const hasLowercase = /[a-z]/.test(value);
-										const hasNumber = /[0-9]/.test(value);
-
-										let validationMessage = "";
-										if (!hasSpecialCharacter) {
-											validationMessage = "Password must contain at least one special character.";
-										} else if (!hasUppercase) {
-											validationMessage = "Password must contain at least one uppercase letter.";
-										} else if (!hasLowercase) {
-											validationMessage = "Password must contain at least one lowercase letter.";
-										} else if (!hasNumber) {
-											validationMessage = "Password must contain at least one number.";
-										}
-
-										if (validationMessage) {
-											setToastMessage(validationMessage);
-											setToastVariant("rgb(213 18 18)");
-											setShowToast(true);
-										} else {
-											setShowToast(false); // Hide toast when valid
-										}
-
-										setFormData((prevData) => ({
-											...prevData,
-											[name]: value,
-										}));
-									}}
+									onChange={handleInputChange}
 									required
 									placeholder="Enter Password"
 								/>

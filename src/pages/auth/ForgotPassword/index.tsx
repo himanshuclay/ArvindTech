@@ -188,8 +188,10 @@ const ForgotPassword = () => {
 		if (hasNumber) {
 			validationMessages = validationMessages.filter(message => !message.includes("number"));
 		}
-		if (!isLengthValid) {
-			validationMessages = validationMessages.filter(message => !message.includes("characters long"));
+		if (isLengthValid) { // Corrected logic
+			validationMessages = validationMessages.filter(
+				(message) => !message.includes("between 8 and 16 characters long")
+			);
 		}
 		if (validationMessages.length > 0) {
 			setToastMessage(validationMessages.join(" "));
@@ -199,7 +201,7 @@ const ForgotPassword = () => {
 			return; // Prevent form submission and API call
 		}
 
-		if ((formData.password === formData.confirmpassword) && (!hasSpecialCharacter || !hasUppercase || !hasLowercase || !hasNumber)) {
+		if (formData.password === formData.confirmpassword)  {
 
 			try {
 				const postData = {
@@ -233,7 +235,7 @@ const ForgotPassword = () => {
 					navigate('/auth/login', {
 						state: {
 							showToast: true,
-							toastMessage: 'Registration successful !',
+							toastMessage: 'Password Updated  successfully !',
 							toastVariant: "rgb(28 175 85)"
 						}
 					});
@@ -400,6 +402,7 @@ const ForgotPassword = () => {
 
 					<Row>
 
+
 						<Col lg={6}>
 							<Form.Group controlId="password" className="mb-3">
 								<Form.Label>Password</Form.Label>
@@ -407,89 +410,27 @@ const ForgotPassword = () => {
 									type="password"
 									name="password"
 									value={formData.password}
-									onChange={(e) => {
-										const { name, value } = e.target;
-
-										// Validation checks
-										const hasSpecialCharacter = /[!@#$%^&*(),.?":{}|<>]/.test(value);
-										const hasUppercase = /[A-Z]/.test(value);
-										const hasLowercase = /[a-z]/.test(value);
-										const hasNumber = /[0-9]/.test(value);
-
-										let validationMessage = "";
-										if (!hasSpecialCharacter) {
-											validationMessage = "Password must contain at least one special character.";
-										} else if (!hasUppercase) {
-											validationMessage = "Password must contain at least one uppercase letter.";
-										} else if (!hasLowercase) {
-											validationMessage = "Password must contain at least one lowercase letter.";
-										} else if (!hasNumber) {
-											validationMessage = "Password must contain at least one number.";
-										}
-
-										if (validationMessage) {
-											setToastMessage(validationMessage);
-											setToastVariant("rgb(213 18 18)");
-											setShowToast(true);
-										} else {
-											setShowToast(false); // Hide toast when valid
-										}
-
-										setFormData((prevData) => ({
-											...prevData,
-											[name]: value,
-										}));
-									}}
+									onChange={handleInputChange}
 									required
 									placeholder="Enter Password"
 								/>
 							</Form.Group>
 						</Col>
+					
 						<Col lg={6}>
 							<Form.Group controlId="confirmpassword" className="mb-3">
-								<Form.Label>Confirm Password </Form.Label>
+								<Form.Label>Confirm Password</Form.Label>
 								<Form.Control
 									type="password"
 									name="confirmpassword"
 									value={formData.confirmpassword}
-									onChange={(e) => {
-										const { name, value } = e.target;
-
-										// Validation checks
-										const hasSpecialCharacter = /[!@#$%^&*(),.?":{}|<>]/.test(value);
-										const hasUppercase = /[A-Z]/.test(value);
-										const hasLowercase = /[a-z]/.test(value);
-										const hasNumber = /[0-9]/.test(value);
-
-										let validationMessage = "";
-										if (!hasSpecialCharacter) {
-											validationMessage = "Password must contain at least one special character.";
-										} else if (!hasUppercase) {
-											validationMessage = "Password must contain at least one uppercase letter.";
-										} else if (!hasLowercase) {
-											validationMessage = "Password must contain at least one lowercase letter.";
-										} else if (!hasNumber) {
-											validationMessage = "Password must contain at least one number.";
-										}
-
-										if (validationMessage) {
-											setToastMessage(validationMessage);
-											setToastVariant("rgb(213 18 18)");
-											setShowToast(true);
-										} else {
-											setShowToast(false); // Hide toast when valid
-										}
-
-										setFormData((prevData) => ({
-											...prevData,
-											[name]: value,
-										}));
-									}}
+									onChange={handleInputChange}
 									required
 									placeholder="Enter Password"
 								/>
 							</Form.Group>
 						</Col>
+					
 
 
 					</Row>
