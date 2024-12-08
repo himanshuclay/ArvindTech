@@ -26,8 +26,6 @@ interface Project {
     updatedBy: string;
 }
 
-
-
 interface Column {
     id: string;
     label: string;
@@ -36,14 +34,8 @@ interface Column {
 
 
 const ProjectViewPopup: React.FC<ProcessCanvasProps> = ({ showView, setShowView, projectName }) => {
-
-
     const [loading, setLoading] = useState<boolean>(false);
-    // const [currentPage, setCurrentPage] = useState(1);
     const [subProject, setSubProject] = useState<Project[]>([]);
-    // const [totalPages, setTotalPages] = useState(1);
-
-
 
     const [columns, setColumns] = useState<Column[]>([
         { id: 'subProjectID', label: 'Sub Project ID', visible: true },
@@ -76,8 +68,7 @@ const ProjectViewPopup: React.FC<ProcessCanvasProps> = ({ showView, setShowView,
                 });
 
                 if (response.data.isSuccess) {
-                    setSubProject(response.data.subProjects); // Assuming subProjects is the correct key
-                    // setTotalPages(Math.ceil(response.data.totalCount / 10));
+                    setSubProject(response.data.subProjects); 
                 } else {
                     console.error(response.data.message);
                 }
@@ -89,16 +80,13 @@ const ProjectViewPopup: React.FC<ProcessCanvasProps> = ({ showView, setShowView,
         };
 
         if (projectName) {
-            fetchSubProjects(); // Fetch data only if projectName is available
+            fetchSubProjects(); 
         }
     }, [projectName]);
 
     const handleClose = () => {
         setShowView(false);
     };
-
-
-    console.log(subProject)
 
     return (
         <div>
@@ -107,7 +95,6 @@ const ProjectViewPopup: React.FC<ProcessCanvasProps> = ({ showView, setShowView,
                     <Modal.Title className="text-dark">View Sub Project</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
-
                     {loading ? (
                         <div className='loader-container'>
                             <div className="loader"></div>
@@ -128,7 +115,6 @@ const ProjectViewPopup: React.FC<ProcessCanvasProps> = ({ showView, setShowView,
                                 </Container>
                             ) : (
                                 <div className="overflow-auto text-nowrap">
-
                                     <DragDropContext onDragEnd={handleOnDragEnd}>
                                         <Table hover className='bg-white '>
                                             <thead>
@@ -166,7 +152,7 @@ const ProjectViewPopup: React.FC<ProcessCanvasProps> = ({ showView, setShowView,
                                                 {subProject.length > 0 ? (
                                                     subProject.map((item, index) => (
                                                         <tr key={item.id}>
-                                                            <td>{ index + 1}</td>
+                                                            <td>{index + 1}</td>
                                                             {columns.filter(col => col.visible).map((col) => (
                                                                 <td key={col.id}>
                                                                     <div>{item[col.id as keyof Project]}</div>
@@ -182,33 +168,27 @@ const ProjectViewPopup: React.FC<ProcessCanvasProps> = ({ showView, setShowView,
                                                     ))
                                                 ) : (
                                                     <tr>
-                                                        <td colSpan={columns.length + 1}>No data available</td>
+                                                        <td colSpan={12}>
+                                                            <Container className="mt-5">
+                                                                <Row className="justify-content-center">
+                                                                    <Col xs={12} md={8} lg={6}>
+                                                                        <Alert variant="info" className="text-center">
+                                                                            <h4>No Data Found</h4>
+                                                                            <p>You currently don't have any Data</p>
+                                                                        </Alert>
+                                                                    </Col>
+                                                                </Row>
+                                                            </Container>
+                                                        </td>
                                                     </tr>
                                                 )}
                                             </tbody>
                                         </Table>
                                     </DragDropContext>
                                 </div>
-
-
                             )}
-
                         </>
                     )}
-                    {/* <div className="d-flex justify-content-center align-items-center bg-white w-20 rounded-5 m-auto py-1 pb-1 my-2 pagination-rounded">
-                        <Pagination >
-                            <Pagination.First onClick={() => setCurrentPage(1)} disabled={currentPage === 1} />
-                            <Pagination.Prev onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))} disabled={currentPage === 1} />
-                            <Pagination.Item active>{currentPage}</Pagination.Item>
-                            <Pagination.Next onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))} disabled={currentPage === totalPages} />
-                            <Pagination.Last onClick={() => setCurrentPage(totalPages)} disabled={currentPage === totalPages} />
-                        </Pagination>
-                    </div> */}
-                    <Link to={`/pages/ProjectSubmasterinsert`}>
-                        <Button variant='primary' className='p-1 text-white'>
-                            Edit
-                        </Button>
-                    </Link>
                 </Modal.Body>
             </Modal>
         </div>

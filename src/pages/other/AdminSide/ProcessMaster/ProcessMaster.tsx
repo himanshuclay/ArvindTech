@@ -9,8 +9,7 @@ import ProcessCanvas from './ProcessCanvas';
 import ProcessViewPopup from './ProcessViewPopup';
 import Select from 'react-select';
 import { useLocation, useNavigate } from 'react-router-dom';
-import CustomSuccessToast from '../../Component/CustomSuccessToast';
-// import axiosInstance from '@/utils/axiosInstance';
+import { toast } from 'react-toastify';
 
 
 
@@ -24,6 +23,8 @@ interface Process {
     processOwnerName: string;
     createdBy: string;
     updatedBy: string;
+    createdDate: string;
+    updatedDate: string;
     processName: string;
     userUpdatedMobileNumber: string;
     status: string;
@@ -58,26 +59,12 @@ const ModuleMaster = () => {
 
     const location = useLocation();
     const navigate = useNavigate();
-    const [showToast, setShowToast] = useState(false);
-    const [toastMessage, setToastMessage] = useState('');
-    const [toastVariant, setToastVariant] = useState('');
-
     useEffect(() => {
-        if (location.state && location.state.showToast) {
-            setShowToast(true);
-            setToastMessage(location.state.toastMessage);
-            setToastVariant(location.state.toastVariant);
-
-            setTimeout(() => {
-                setShowToast(false);
-                navigate(location.pathname, { replace: true });
-            }, 5000);
+        if (location.state?.successMessage) {
+            toast.dismiss()
+            toast.success(location.state.successMessage);
+            navigate(location.pathname, { replace: true });
         }
-        return () => {
-            setShowToast(false);
-            setToastMessage('');
-            setToastVariant('');
-        };
     }, [location.state, navigate]);
 
 
@@ -227,7 +214,7 @@ const ModuleMaster = () => {
 
     const convertToCSV = (data: Process[]) => {
         const csvRows = [
-            ['ID', 'Module Name', 'Process ID', 'Process Display Name', 'Process Objective', 'Process Owner Name', 'User Updated Mobile Number', 'Created By', 'Updated By'],
+            ['ID', 'Module Name', 'Process ID', 'Process Display Name', 'Process Objective', 'Process Owner Name', 'User Updated Mobile Number', 'Created By', 'Updated By','Created Date','Updated Date'],
             ...data.map(mod => [
                 mod.id,
                 mod.moduleName,
@@ -237,7 +224,9 @@ const ModuleMaster = () => {
                 mod.processOwnerName || '',
                 mod.userUpdatedMobileNumber || '',
                 mod.createdBy,
-                mod.updatedBy
+                mod.updatedBy,
+                mod.createdDate,
+                mod.updatedDate
             ])
         ];
         return csvRows.map(row => row.join(',')).join('\n');
@@ -251,7 +240,7 @@ const ModuleMaster = () => {
         if (link.download !== undefined) {
             const url = URL.createObjectURL(blob);
             link.setAttribute('href', url);
-            link.setAttribute('download', 'Process.csv');
+            link.setAttribute('download', 'Process Master.csv');
             link.style.visibility = 'hidden';
             document.body.appendChild(link);
             link.click();
@@ -517,12 +506,6 @@ const ModuleMaster = () => {
                     <ProcessCanvas show={show} setShow={setShow} manageId={manageId} />
                     <ProcessViewPopup showView={showView} setShowView={setShowView} id={manageId} />
 
-                    <CustomSuccessToast
-                        show={showToast}
-                        toastMessage={toastMessage}
-                        toastVariant={toastVariant}
-                        onClose={() => setShowToast(false)}
-                    />
 
                 </div>
             )}

@@ -732,3 +732,12 @@ input.numInput.cur-year:hover {
   font-weight: 600;
   color: #1fc91f;
 }
+
+.toast-containers .Toastify__toast {
+  font-weight: bold !important; /* Makes all text bold */
+  font-size: 12px; /* Optional: Adjust font size globally */
+}
+
+.toast-containers .Toastify__toast-body {
+  font-weight: bold !important; /* Specifically targets toast body text */
+}

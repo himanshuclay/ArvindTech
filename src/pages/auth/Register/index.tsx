@@ -6,8 +6,9 @@ import { useEffect, useState } from 'react';
 import { VerticalForm, FormInput, PageBreadcrumb } from '@/components';
 import config from '@/config';
 import Flatpickr from 'react-flatpickr';
+import { toast } from 'react-toastify';
 import 'flatpickr/dist/themes/material_green.css';
-import CustomSuccessToast from '@/pages/other/Component/CustomSuccessToast';
+import 'react-toastify/dist/ReactToastify.css';
 
 interface UserData {
 	empID: string;
@@ -34,9 +35,7 @@ const BottomLink = () => (
 
 const Register = () => {
 	const navigate = useNavigate();
-	const [showToast, setShowToast] = useState(false);
-	const [toastMessage, setToastMessage] = useState("");
-	const [toastVariant, setToastVariant] = useState('');
+	const [showPassword, setShowPassword] = useState(false);
 	const [loading, setLoading] = useState(false);
 	const [verifyDoj, setVerifyDoj] = useState(false);
 	const [verifyDob, setVerifyDob] = useState(false);
@@ -50,25 +49,74 @@ const Register = () => {
 		role: 'EMPLOYEE',
 	});
 
+	const [isErrorShown, setIsErrorShown] = useState(false);
+
 	// Fetch employee details by empID
 	const fetchEmployeeDetails = async (empID: string) => {
 		if (!empID) return; // Prevent fetching if empID is empty
 		try {
 			const response = await axios.get(
-				`${config.API_URL_APPLICATION}/Login/GetEmployeeDetailsbyEmpId?EmpID=${empID}`
+				`${config.API_URL_APPLICATION}/Login/GetEmployeeDetailsbyEmpId?Flag=2&EmpID=${empID}`
 			);
 			if (response.data.isSuccess) {
 				const details = response.data.fetchDetails[0];
-				console.log(details)
 				setFormData({
 					...formData,
 					fullname: details.employeeName,
 					role: details.role,
 				});
 			}
-		} catch (error) {
-			console.error('Error fetching employee details:', error);
+		} catch (error: any) {
+			toast.dismiss()
+			toast.error(
+				<>
+					<div style={{ marginBottom: "10px" }}>{error}</div>
+					<div style={{ display: "flex", gap: "10px" }}>
+						<button
+							onClick={() => navigate("/auth/forgot-password")}
+							style={{
+								backgroundColor: "#007bff",
+								color: "#fff",
+								border: "none",
+								padding: "5px 10px",
+								borderRadius: "5px",
+								fontSize: "11px",
+								fontWeight: "bold",
+								cursor: "pointer",
+								transition: "all 0.3s ease",
+							}}
+							onMouseOver={(e) => (e.currentTarget.style.backgroundColor = "#0056b3")}
+							onMouseOut={(e) => (e.currentTarget.style.backgroundColor = "#007bff")}
+						>
+							Update Password <i className="ri-arrow-right-line"></i>
+						</button>
+						<button
+							onClick={() => navigate("/auth/login")}
+							style={{
+								backgroundColor: "#28a745",
+								color: "#fff",
+								border: "none",
+								padding: "5px 10px",
+								borderRadius: "5px",
+								fontSize: "11px",
+								fontWeight: "bold",
+								cursor: "pointer",
+								transition: "all 0.3s ease",
+							}}
+							onMouseOver={(e) => (e.currentTarget.style.backgroundColor = "#1c7430")}
+							onMouseOut={(e) => (e.currentTarget.style.backgroundColor = "#28a745")}
+						>
+							Go to Login <i className="ri-arrow-right-line"></i>
+						</button>
+					</div>
+				</>,
+				{ autoClose: 30000 }
+			);
 		}
+	};
+
+	const togglePasswordVisibility = () => {
+		setShowPassword(!showPassword);
 	};
 
 	const verifyDOJ = async (empID: string, joiningDate: string) => {
@@ -82,9 +130,9 @@ const Register = () => {
 				console.log('Date is verified:', response.data.message);
 				setVerifyDoj(true);
 			} else {
-				setToastMessage("Enter Valid Date Of Joning");
-				setToastVariant("rgb(213 18 18)");
-				setShowToast(true);
+
+
+				toast.error("Enter Valid Date Of Joning");
 				setVerifyDoj(false);
 				setFormData({
 					...formData,
@@ -100,8 +148,6 @@ const Register = () => {
 		}
 	};
 
-	console.log(toastMessage)
-
 
 	const verifyDOB = async (empID: string, dob: string) => {
 		if (!empID || !dob) return; // Prevent API call if empID or joiningDate is empty
@@ -114,9 +160,7 @@ const Register = () => {
 				console.log('Date od Birth is verified:', response.data.message);
 				setVerifyDob(true);
 			} else {
-				setToastMessage("Enter Valid Date of Birth");
-				setToastVariant("rgb(213 18 18)");
-				setShowToast(true);
+				toast.error("Enter Valid Date of Birth");
 				setVerifyDob(false);
 				setFormData({
 					...formData,
@@ -129,19 +173,29 @@ const Register = () => {
 	};
 
 
+
 	const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+		e.preventDefault();
 		const { name, value } = e.target;
 
-		if (name === "mobileNumber") {
-			if (!/^\d{0,10}$/.test(value)) return; // Restrict non-numeric input and limit to 10 digits
+		if (name === "empID") {
+			// Clear fullname when empID changes
+			setFormData((prevData) => ({
+				...prevData,
+				empID: value,
+				fullname: "", // Clear fullname
+			}));
+		} else if (name === "mobileNumber") {
+			if (!/^\d{0,10}$/.test(value)) return;
 			setFormData((prevData) => ({ ...prevData, mobileNumber: value }));
+
 			if (value.length === 10) {
-				setToastMessage(""); 
-				setShowToast(false);
+				if (!/^[6-9]/.test(value) && !isErrorShown) {
+					toast.error("Mobile number should start with a digit between 6 and 9.");
+					setIsErrorShown(true);
+				}
 			} else {
-				setToastMessage("Enter a valid 10-digit mobile number");
-				setToastVariant("rgb(213 18 18)");
-				setShowToast(true);
+				setIsErrorShown(false);
 			}
 		} else {
 			setFormData((prevData) => ({ ...prevData, [name]: value }));
@@ -151,11 +205,8 @@ const Register = () => {
 	const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
 		setLoading(true);
 
-
-
 		const { password } = formData;
 
-		// Validation checks
 		const hasSpecialCharacter = /[!@#$%^&*(),.?":{}|<>]/.test(password);
 		const hasUppercase = /[A-Z]/.test(password);
 		const hasLowercase = /[a-z]/.test(password);
@@ -190,11 +241,9 @@ const Register = () => {
 		}
 
 		if (validationMessages.length > 0) {
-			setToastMessage(validationMessages.join(" "));
-			setToastVariant("rgb(213 18 18)"); // Red color for error
-			setShowToast(true);
-			setLoading(false); // Stop loading if validation fails
-			return; // Prevent form submission and API call
+			toast.error(validationMessages.join(" "));
+			setLoading(false);
+			return;
 		}
 
 		try {
@@ -212,7 +261,6 @@ const Register = () => {
 			};
 
 
-			// Send the POST request
 			const response = await axios.post(
 				`${config.API_URL_APPLICATION}/Login/InsertLoginData`,
 				postData,
@@ -223,41 +271,56 @@ const Register = () => {
 				}
 			);
 
-			// Check the response
 			if (response.status === 200) {
-				console.log('Registration successful:', response.data);
-				navigate('/auth/login', {
-					state: {
-						showToast: true,
-						toastMessage: 'Registration successfully !',
-						toastVariant: "rgb(28 175 85)"
-					}
-				});
+				setTimeout(() => {
+					navigate('/auth/login');
+				}, 20000);
+
+				toast.dismiss()
+				toast.success(
+					<>Employee Registration successfully!
+						<button
+							onClick={() => navigate('/auth/login')}
+							style={{
+								backgroundColor: "#007bff",
+								color: "#fff",
+								border: "none",
+								padding: "5px 10px",
+								borderRadius: "5px",
+								fontSize: "11px",
+								fontWeight: "bold",
+								cursor: "pointer",
+								transition: "all 0.3s ease",
+							}}
+						>
+							Go to Login
+						</button>
+					</>,
+					{ autoClose: 19000 }
+				);
+
+
 			} else {
 				console.error('Registration failed:', response);
-
 			}
 		} catch (error: any) {
-			setToastMessage(error);
-			setToastVariant("rgb(213 18 18)");
-			setShowToast(true);
-			console.error('Error during registration:', error);
+			toast.error(error);
 		} finally {
 			setLoading(false);
 		}
 	};
 
 
+
 	useEffect(() => {
 		const delayDebounceFn = setTimeout(() => {
-			if (formData.empID) {
+			if (formData.empID.length > 7) {
 				fetchEmployeeDetails(formData.empID);
 			}
 		}, 500);
 
 		return () => clearTimeout(delayDebounceFn);
 	}, [formData.empID]);
-
 
 	return (
 		<>
@@ -329,10 +392,9 @@ const Register = () => {
 								<div
 									className="position-absolute signup-verify fs-11"
 									onClick={() => {
+										toast.dismiss();
 										if (!formData.empID) {
-											setToastMessage("Please enter Employee ID before verifying");
-											setToastVariant("rgb(213 18 18)");
-											setShowToast(true);
+											toast.error("Please enter Employee ID before verifying");
 										} else {
 											verifyDOJ(formData.empID, formData.joiningDate);
 										}
@@ -372,10 +434,9 @@ const Register = () => {
 								<div
 									className="position-absolute signup-verify fs-11"
 									onClick={() => {
+										toast.dismiss();
 										if (!formData.empID) {
-											setToastMessage("Please enter Employee ID before verifying");
-											setToastVariant("rgb(213 18 18)");
-											setShowToast(true);
+											toast.error("Please enter Employee ID before verifying");
 										} else {
 											verifyDOB(formData.empID, formData.dob);
 										}
@@ -407,22 +468,27 @@ const Register = () => {
 						<Col lg={6}>
 							<Form.Group controlId="password" className="mb-3">
 								<Form.Label>Password</Form.Label>
-								<Form.Control
-									type="password"
-									name="password"
-									value={formData.password}
-									onChange={handleInputChange}
-									required
-									placeholder="Enter Password"
-								/>
+								<div className="input-group">
+									<Form.Control
+										type={showPassword ? "text" : "password"}
+										name="password"
+										value={formData.password}
+										onChange={handleInputChange}
+										required
+										placeholder="Enter Password"
+									/>
+									<button
+										type="button"
+										className="btn btn-outline-secondary"
+										onClick={togglePasswordVisibility}
+										style={{ border: "1px solid #ced4da", borderRadius: "0 .25rem .25rem 0" }}
+									>
+										{showPassword ? <i className="ri-eye-off-line"></i> : <i className="ri-eye-line"></i>}
+									</button>
+								</div>
 							</Form.Group>
 						</Col>
-
 					</Row>
-
-
-
-
 
 
 					<div className="mb-0 d-grid text-center">
@@ -447,7 +513,6 @@ const Register = () => {
 					</div>
 				</VerticalForm>
 			</AuthLayout>
-			<CustomSuccessToast show={showToast} toastMessage={toastMessage} toastVariant={toastVariant} onClose={() => setShowToast(false)} />
 
 		</>
 	);

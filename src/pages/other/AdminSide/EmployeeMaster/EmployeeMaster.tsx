@@ -1,6 +1,5 @@
 import axios from 'axios';
 import { useState, useEffect, ChangeEvent } from 'react';
-// import { Button, Pagination, Table, Container, Row, Col, Alert} from 'react-bootstrap';
 import { Button, Pagination, Table, Container, Row, Col, Alert, Form, ButtonGroup } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
@@ -9,7 +8,7 @@ import EmployeeBankPopup from './EmployeeBankPopup';
 import Select from 'react-select';
 import IconWithLetter from '@/pages/ui/IconWithLetter';
 import { useLocation, useNavigate } from 'react-router-dom';
-import CustomSuccessToast from '../../Component/CustomSuccessToast';
+import { toast } from 'react-toastify';
 
 
 
@@ -91,36 +90,23 @@ const EmployeeMaster = () => {
     const [manageId, setManageID] = useState<number>();
     const [employeeList, setEmployeeList] = useState<EmployeeList[]>([]);
     const [completionStatus, setCompletionStatus] = useState<CompletionStatus[]>([]);
-
-
-
     const [searchProjectCoordinator, setSearchProjectCoordinator] = useState('');
     const [searchCompletionStatus, setSearchCompletionStatus] = useState<number>();
 
 
-
+    
     const location = useLocation();
     const navigate = useNavigate();
-    const [showToast, setShowToast] = useState(false);
-    const [toastMessage, setToastMessage] = useState('');
-    const [toastVariant, setToastVariant] = useState('');
     useEffect(() => {
-        if (location.state && location.state.showToast) {
-            setShowToast(true);
-            setToastMessage(location.state.toastMessage);
-            setToastVariant(location.state.toastVariant);
-
-            setTimeout(() => {
-                setShowToast(false);
-                navigate(location.pathname, { replace: true });
-            }, 5000);
+        if (location.state?.successMessage) {
+            toast.dismiss()
+            toast.success(location.state.successMessage);
+            navigate(location.pathname, { replace: true });
         }
-        return () => {
-            setShowToast(false);
-            setToastMessage('');
-            setToastVariant('');
-        };
     }, [location.state, navigate]);
+
+
+  
     // both are required to make dragable column of table 
     const [columns, setColumns] = useState<Column[]>([
         { id: 'empID', label: 'Employee ID ', visible: true },
@@ -223,53 +209,29 @@ const EmployeeMaster = () => {
         const csvRows = [
             [
                 'ID',
-                'Employee ID',
-                'Employee Name',
-                'Father Name',
-                'Email',
-                'Role',
-                'Data Access Level',
-                'Employee Status',
-                'HR Updated Mobile No',
-                'User Updated Mobile No',
-                'State',
-                'District',
-                'Area',
-                'Pin',
-                'Address',
-                'Photo',
-                'Gender',
-                'Date of Birth',
-                'Date of Joining',
-                'Date of Leaving',
-                'Department Name',
-                'Designation',
-                'App Exempt',
-                'Is Performance Review',
-                'App Access Level',
-                'App Access',
-                'Current Project Name',
-                'Salary Bank Account Type',
-                'Salary Bank Account Number',
-                'Salary Bank Name',
-                'Salary Bank IFSC',
-                'Salary Branch Name',
+                'Employee ID', 'Employee Name',
+                'Father Name','Email',
+                'Role','Data Access Level', 
+                'Employee Status','HR Updated Mobile No',
+                'User Updated Mobile No', 'State',
+                'District', 'Area','Pin', 'Address',
+                'Photo','Gender','Date of Birth',
+                'Date of Joining','Date of Leaving',
+                'Department Name','Designation',
+                'App Exempt','Is Performance Review',
+                'App Access Level','App Access',
+                'Current Project Name','Salary Bank Account Type',
+                'Salary Bank Account Number','Salary Bank Name',
+                'Salary Bank IFSC','Salary Branch Name',
                 'Reimbursement Bank Account Type',
                 'Reimbursement Bank Account Number',
-                'Reimbursement Bank Name',
-                'Reimbursement Bank IFSC',
-                'Reimbursement Branch Name',
-                'Expense Bank Account Type',
-                'Expense Bank Account Number',
-                'Expense Bank Name',
-                'Expense Bank IFSC',
-                'Expense Branch Name',
-                'Excel DOB Value',
-                'Excel DOJ Value',
-                'Excel DOL Value',
-                'Is Registered',
-                'Created By',
-                'Updated By'
+                'Reimbursement Bank Name','Reimbursement Bank IFSC',
+                'Reimbursement Branch Name','Expense Bank Account Type',
+                'Expense Bank Account Number','Expense Bank Name',
+                'Expense Bank IFSC','Expense Branch Name',
+                'Excel DOB Value','Excel DOJ Value',
+                'Excel DOL Value','Is Registered',
+                'Created By','Updated By'
             ],
             ...data.map(employee => [
                 employee.id,
@@ -667,18 +629,8 @@ const EmployeeMaster = () => {
                         <Pagination.Last onClick={() => setCurrentPage(totalPages)} disabled={currentPage === totalPages} />
                     </Pagination>
                 </div>
-
-
                 <EmployeeBankPopup showView={showView} setShowView={setShowView} id={manageId} />
-
-
             </div>
-            <CustomSuccessToast
-                show={showToast}
-                toastMessage={toastMessage}
-                toastVariant={toastVariant}
-                onClose={() => setShowToast(false)}
-            />
         </>
     );
 };

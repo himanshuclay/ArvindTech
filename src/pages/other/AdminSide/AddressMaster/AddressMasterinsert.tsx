@@ -3,8 +3,8 @@ import { useEffect, useState, ChangeEvent } from 'react';
 import { Button, Col, Form, Row } from 'react-bootstrap';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import config from '@/config';
-import CustomSuccessToast from '@/pages/other/Component/CustomSuccessToast';
 import Select from 'react-select';
+import { toast } from 'react-toastify';
 
 interface Addresses {
     id:number;
@@ -21,11 +21,9 @@ interface StateList {
     stateName: any;
 }
 const AddressMasterinsert = () => {
+    toast.dismiss()
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
-    const [showToast, setShowToast] = useState(false);
-    const [toastMessage, setToastMessage] = useState("");
-    const [toastVariant, setToastVariant] = useState('');
     const [editMode, setEditMode] = useState<boolean>(false);
     const [empName, setEmpName] = useState<string | null>()
     const [stateList, setStateList] = useState<StateList[]>([]);
@@ -123,25 +121,19 @@ const AddressMasterinsert = () => {
                 await axios.post(`${config.API_URL_APPLICATION}/AddressMaster/InsertorUpdateAddress`, payload);
                 navigate('/pages/AddressMaster', {
                     state: {
-                        showToast: true,
-                        toastMessage: "Address Updated successfully!",
-                        toastVariant: "rgb(28 175 85)"
+                        successMessage: "Address Updated successfully!",
                     }
                 });
             } else {
                 await axios.post(`${config.API_URL_APPLICATION}/AddressMaster/InsertorUpdateAddress`, payload);
                 navigate('/pages/AddressMaster', {
                     state: {
-                        showToast: true,
-                        toastMessage: "Address Updated successfully!",
-                        toastVariant: "rgb(28 175 85)"
+                        successMessage: "Address Updated successfully!",
                     }
                 });
             }
-        } catch (error) {
-            setToastMessage("Error Adding/Updating");
-            setToastVariant("rgb(213 18 18)");
-            setShowToast(true);
+        } catch (error:any) {
+            toast.error(error || "Error Adding/Updating");
             console.error('Error submitting module:', error);
         }
     };
@@ -234,8 +226,6 @@ const AddressMasterinsert = () => {
                     </Form>
                 </div>
             </div>
-            <CustomSuccessToast show={showToast} toastMessage={toastMessage} toastVariant={toastVariant} onClose={() => setShowToast(false)} />
-
         </div>
     );
 };

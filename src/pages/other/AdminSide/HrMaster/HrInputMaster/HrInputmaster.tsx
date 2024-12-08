@@ -7,7 +7,7 @@ import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import config from '@/config';
 // import Select from 'react-select';
 import { useLocation, useNavigate } from 'react-router-dom';
-import CustomSuccessToast from '@/pages/other/Component/CustomSuccessToast';
+import { toast } from 'react-toastify';
 
 interface HrInput {
     id: number;
@@ -43,31 +43,14 @@ const HrInputMaster = () => {
     const [downloadCsv, setDownloadCsv] = useState<HrInput[]>([]);
 
 
-
     const location = useLocation();
     const navigate = useNavigate();
-    const [showToast, setShowToast] = useState(false);
-    const [toastMessage, setToastMessage] = useState('');
-    const [toastVariant, setToastVariant] = useState('');
-
-
-
     useEffect(() => {
-        if (location.state && location.state.showToast) {
-            setShowToast(true);
-            setToastMessage(location.state.toastMessage);
-            setToastVariant(location.state.toastVariant);
-
-            setTimeout(() => {
-                setShowToast(false);
-                navigate(location.pathname, { replace: true });
-            }, 5000);
+        if (location.state?.successMessage) {
+            toast.dismiss()
+            toast.success(location.state.successMessage);
+            navigate(location.pathname, { replace: true });
         }
-        return () => {
-            setShowToast(false);
-            setToastMessage('');
-            setToastVariant('');
-        };
     }, [location.state, navigate]);
 
 
@@ -475,12 +458,6 @@ const HrInputMaster = () => {
 
                 </div>
             )}
-            <CustomSuccessToast
-                show={showToast}
-                toastMessage={toastMessage}
-                toastVariant={toastVariant}
-                onClose={() => setShowToast(false)}
-            />
         </>
     );
 };

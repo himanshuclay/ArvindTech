@@ -6,7 +6,7 @@ import config from '@/config';
 import Select from 'react-select';
 import Flatpickr from 'react-flatpickr';
 import 'flatpickr/dist/themes/material_green.css';
-import CustomSuccessToast from '../../Component/CustomSuccessToast';
+import { toast } from 'react-toastify';
 
 
 interface Tender {
@@ -77,12 +77,10 @@ interface StatusList {
 
 
 const DepartmentMasterinsert = () => {
+    toast.dismiss()
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
     const [editMode, setEditMode] = useState<boolean>(false);
-    const [showToast, setShowToast] = useState(false);
-    const [toastMessage, setToastMessage] = useState("");
-    const [toastVariant, setToastVariant] = useState('');
     const [stateList, setStateList] = useState<StateList[]>([]);
     const [employeeList, setEmployeeList] = useState<EmployeeList[]>([]);
     const [statusList, setStatusList] = useState<StatusList[]>([]);
@@ -234,27 +232,21 @@ const DepartmentMasterinsert = () => {
                 await axios.post(`${config.API_URL_APPLICATION}/TenderMaster/InsertorUpdateTender`, payload);
                 navigate('/pages/TenderMaster', {
                     state: {
-                        showToast: true,
-                        toastMessage: "Tender Updated successfully!",
-                        toastVariant: "rgb(28 175 85)"
+                        successMessage: "Tender Updated successfully!",
                     }
                 });
             } else {
                 await axios.post(`${config.API_URL_APPLICATION}/TenderMaster/InsertorUpdateTender`, payload);
                 navigate('/pages/TenderMaster', {
                     state: {
-                        showToast: true,
-                        toastMessage: "Tender Added successfully!",
-                        toastVariant: "rgb(28 175 85)"
+                        successMessage: "Tender Added successfully!",
                     }
                 });
             }
 
 
-        } catch (error) {
-            setToastMessage("Error Adding/Updating");
-            setToastVariant("rgb(213 18 18)");
-            setShowToast(true);
+        } catch (error:any) {
+            toast.error(error || "Error Adding/Updating");
             console.error('Error submitting module:', error);
         }
     };
@@ -982,7 +974,6 @@ const DepartmentMasterinsert = () => {
                 </div>
 
             </div>
-            <CustomSuccessToast show={showToast} toastMessage={toastMessage} toastVariant={toastVariant} onClose={() => setShowToast(false)} />
         </div>
     );
 };

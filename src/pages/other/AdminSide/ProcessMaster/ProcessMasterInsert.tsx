@@ -4,9 +4,8 @@ import { Button, Col, Form, Row, ButtonGroup, Modal } from 'react-bootstrap';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import config from '@/config';
 import Select from 'react-select';
-// import { FileUploader } from '@/components/FileUploader'
-import CustomSuccessToast from '../../Component/CustomSuccessToast';
 import { FileUploader } from '@/components/FileUploader';
+import { toast } from 'react-toastify';
 
 interface Process {
     id: number;
@@ -44,19 +43,15 @@ interface ModuleOwnerName {
 
 
 const EmployeeInsert = () => {
+    toast.dismiss()
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
-    // const [files, setFiles] = useState<File[]>([]);
-    // const [error, setError] = useState('');
-    const [showToast, setShowToast] = useState(false);
-    const [toastMessage, setToastMessage] = useState("");
-    const [toastVariant, setToastVariant] = useState('');
     const [showLink, setShowLink] = useState(false);
     const [editMode, setEditMode] = useState<boolean>(false);
     const [misExempt, setMisExempt] = useState<MISExempt[]>([]);
     const [moduleDisplayName, setModuleDisplayName] = useState<ModuleDisplayName[]>([]);
     const [processOwnerName, setProcessOwnerName] = useState<ModuleOwnerName[]>([]);
-    const [empName, setEmpName] = useState<string >('')
+    const [empName, setEmpName] = useState<string>('')
     const [urlError, setUrlError] = useState("");
     const [iframeUrl, setIframeUrl] = useState("");
     const [process, setProcess] = useState<Process>({
@@ -164,39 +159,6 @@ const EmployeeInsert = () => {
         fetchModuleOwnerName();
     }, []);
 
-    // const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    //     const selectedFiles = Array.from(event.target.files || []);
-    //     let newFiles: File[] = [];
-    //     let errorMessage = '';
-
-    //     // Validation for file count
-    //     if (selectedFiles.length > 5) {
-    //         errorMessage = 'You can only upload up to 5 files.';
-    //     } else {
-    //         // Validation for file size
-    //         newFiles = selectedFiles.filter(file => {
-    //             if (file.size > 10 * 1024 * 1024) {
-    //                 errorMessage = 'Each file must be less than 10MB.';
-    //                 return false;
-    //             }
-    //             return true;
-    //         });
-    //     }
-
-    //     // Set error message or selected files
-    //     if (errorMessage) {
-    //         setError(errorMessage);
-    //         setFiles([]);
-    //     } else {
-    //         setError('');
-    //         setFiles(newFiles);
-    //     }
-    // };
-
-
-
-
-
 
     // Handle form field changes
     const handleChange = (e: ChangeEvent<any>) => {
@@ -261,14 +223,13 @@ const EmployeeInsert = () => {
 
     // Handle form submission
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
 
         const payload = {
             ...process,
             createdBy: editMode ? process.createdBy : empName,
             updatedBy: editMode ? empName : '',
         };
-        console.log(payload)
-        e.preventDefault();
 
         try {
             const apiUrl = `${config.API_URL_APPLICATION}/ProcessMaster/${editMode ? 'UpdateProcess' : 'InsertProcess'}`;
@@ -277,18 +238,14 @@ const EmployeeInsert = () => {
             if (response.status === 200) {
                 navigate('/pages/ProcessMaster', {
                     state: {
-                        showToast: true,
-                        toastMessage: editMode ? "Process updated successfully!" : "Process added successfully!",
-                        toastVariant: "rgb(28 175 85)",
+                        successMessage: editMode ? "Process updated successfully!" : "Process added successfully!",
                     },
                 });
             } else {
-                setToastMessage(response.data.message || "Failed to process request");
+                toast.error(response.data.message || "Failed to process request");
             }
         } catch (error: any) {
-            setToastMessage(error || 'Failed to Add/Update process');
-            setToastVariant("rgb(213 18 18)");
-            setShowToast(true);
+            toast.error(error)
             console.error('Error submitting module:', error);
         }
     };
@@ -524,7 +481,6 @@ const EmployeeInsert = () => {
                     </Form>
                 </div>
             </div>
-            <CustomSuccessToast show={showToast} toastMessage={toastMessage} toastVariant={toastVariant} onClose={() => setShowToast(false)} />
 
             <Modal className="p-0" show={showLink} onHide={handleClose} size="xl">
                 <Modal.Body>

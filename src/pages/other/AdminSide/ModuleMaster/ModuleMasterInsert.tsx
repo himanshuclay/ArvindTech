@@ -4,7 +4,7 @@ import { Button, Col, Form, Row, ButtonGroup } from 'react-bootstrap';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import config from '@/config';
 import Select from 'react-select';
-import CustomSuccessToast from '@/pages/other/Component/CustomSuccessToast';
+import { toast } from 'react-toastify';
 
 interface Module {
     id: number;
@@ -27,11 +27,9 @@ interface Status {
 }
 
 const EmployeeInsert = () => {
+    toast.dismiss()
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
-    const [showToast, setShowToast] = useState(false);
-    const [toastMessage, setToastMessage] = useState<string>('');
-    const [toastVariant, setToastVariant] = useState('');
     const [editMode, setEditMode] = useState<boolean>(false);
     const [misExempt, setMisExempt] = useState<MISExempt[]>([]);
     const [statusID, setStatusID] = useState<Status[]>([]);
@@ -133,8 +131,6 @@ const EmployeeInsert = () => {
             updatedBy: editMode ? empName : '',
         };
 
-        console.log(payload);
-
         try {
             const apiUrl = `${config.API_URL_APPLICATION}/ModuleMaster/${editMode ? 'UpdateModule' : 'InsertModule'}`;
             const response = await axios.post(apiUrl, payload);
@@ -142,22 +138,20 @@ const EmployeeInsert = () => {
             if (response.status === 200) {
                 navigate('/pages/ModuleMaster', {
                     state: {
-                        showToast: true,
-                        toastMessage: editMode ? "Module updated successfully!" : "Module added successfully!",
-                        toastVariant: "rgb(28 175 85)",
+                        successMessage: editMode ? "Module updated successfully!" : "Module added successfully!",
                     },
                 });
             } else {
-                setToastMessage(response.data.message || "Failed to process request");
+                toast.dismiss()
+                toast.error(response.data.message || "Failed to process request");
             }
         } catch (error: any) {
-            setToastMessage(error);
-            setToastVariant("rgb(213 18 18)");
-            setShowToast(true);
+            toast.dismiss()
+            toast.error(error)
             console.error('Error submitting module:', error);
         }
     };
-    
+
 
     const options = [
         { value: 'CHK', label: 'CHK' },
@@ -187,14 +181,14 @@ const EmployeeInsert = () => {
                                         placeholder='Enter Module Name'
                                         disabled={editMode}
                                     />
-                                  
+
 
                                 </Form.Group>
                             </Col>
 
                             <Col lg={6}>
                                 <Form.Group controlId="ModuleID" className="mb-3">
-                                    <Form.Label>ModuleID:</Form.Label>
+                                    <Form.Label>ModuleID</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="moduleID"
@@ -225,7 +219,7 @@ const EmployeeInsert = () => {
                             <Col lg={6}>
 
                                 <Form.Group controlId="misExempt" className="mb-3">
-                                    <Form.Label>MIS Exempt:</Form.Label>
+                                    <Form.Label>MIS Exempt</Form.Label>
 
                                     <Select
                                         name="statusID"
@@ -249,7 +243,7 @@ const EmployeeInsert = () => {
                             <Col lg={6}>
 
                                 <Form.Group controlId="statusID" className="mb-3">
-                                    <Form.Label>Status:</Form.Label>
+                                    <Form.Label>Status</Form.Label>
                                     <Select
                                         name="statusID"
                                         value={statusID.find((mod) => mod.id === module.statusID)}
@@ -287,9 +281,6 @@ const EmployeeInsert = () => {
                     </Form>
                 </div>
             </div>
-
-            <CustomSuccessToast show={showToast} toastMessage={toastMessage} toastVariant={toastVariant} onClose={() => setShowToast(false)} />
-
         </div>
     );
 };

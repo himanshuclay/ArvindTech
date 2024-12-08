@@ -6,8 +6,8 @@ import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import IconWithLetter from '@/pages/ui/IconWithLetter';
 import config from '@/config';
 import Select from 'react-select';
-import CustomSuccessToast from '@/pages/other/Component/CustomSuccessToast';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
 
 
 
@@ -71,29 +71,17 @@ const RequirementMaster = () => {
     const [projectList, setProjectList] = useState<ProjectList[]>([]);
     const [departmentList, setDepartmentList] = useState<DepartmentList[]>([]);
 
-
     const location = useLocation();
     const navigate = useNavigate();
-    const [showToast, setShowToast] = useState(false);
-    const [toastMessage, setToastMessage] = useState('');
-    const [toastVariant, setToastVariant] = useState('');
     useEffect(() => {
-        if (location.state && location.state.showToast) {
-            setShowToast(true);
-            setToastMessage(location.state.toastMessage);
-            setToastVariant(location.state.toastVariant);
-
-            setTimeout(() => {
-                setShowToast(false);
-                navigate(location.pathname, { replace: true });
-            }, 5000);
+        if (location.state?.successMessage) {
+            toast.dismiss()
+            toast.success(location.state.successMessage);
+            navigate(location.pathname, { replace: true });
         }
-        return () => {
-            setShowToast(false);
-            setToastMessage('');
-            setToastVariant('');
-        };
     }, [location.state, navigate]);
+
+
     // both are required to make dragable column of table 
     const [columns, setColumns] = useState<Column[]>([
         { id: 'entryDate', label: 'Entry Date', visible: true },
@@ -573,12 +561,6 @@ const RequirementMaster = () => {
 
 
             </div >
-            <CustomSuccessToast
-                show={showToast}
-                toastMessage={toastMessage}
-                toastVariant={toastVariant}
-                onClose={() => setShowToast(false)}
-            />
         </>
     );
 };

@@ -3,8 +3,7 @@ import { useEffect, useState, ChangeEvent } from 'react';
 import { Button, Col, Form, Row, Badge, CloseButton } from 'react-bootstrap';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import config from '@/config';
-// import Select from 'react-select';
-import CustomSuccessToast from '@/pages/other/Component/CustomSuccessToast';
+import { toast } from 'react-toastify';
 
 
 interface Identifier {
@@ -16,20 +15,13 @@ interface Identifier {
     updatedBy: string;
 }
 
-// interface ProjectList {
-//     projectName: string;
-// }
-
-
 
 const EmployeeInsert = () => {
+    toast.dismiss()
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
     const [editMode, setEditMode] = useState<boolean>(false);
     const [empName, setEmpName] = useState<string | null>('')
-    const [showToast, setShowToast] = useState(false);
-    const [toastMessage, setToastMessage] = useState("");
-    const [toastVariant, setToastVariant] = useState('');
     const [tags, setTags] = useState<string[]>([]);
     const [inputValue, setInputValue] = useState<any>('');
     const [identifiers, setIdentifiers] = useState<Identifier>({
@@ -131,13 +123,13 @@ const EmployeeInsert = () => {
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-
         const payload = {
             ...identifiers,
-            identifierValue: Array.isArray(tags) ? tags.join(", ") : String(tags),
+            identifierValue: Array.isArray(tags) ? JSON.stringify(tags) : String(tags),
             createdBy: editMode ? identifiers.createdBy : empName,
             updatedBy: editMode ? empName : '',
         };
+
         console.log(payload)
 
 
@@ -145,15 +137,11 @@ const EmployeeInsert = () => {
             await axios.post(`${config.API_URL_APPLICATION}/IdentifierMaster/InsertUpdateIdentifier`, payload);
             navigate('/pages/IdentifierMaster', {
                 state: {
-                    showToast: true,
-                    toastMessage: editMode ? 'Identifier Updated Successfully! ' : 'Identifier Added Successfully!',
-                    toastVariant: "rgb(28 175 85)"
+                    successMessage: editMode ? 'Identifier Updated Successfully! ' : 'Identifier Added Successfully!',
                 }
             });
         } catch (error: any) {
-            setToastMessage(error || "Error Adding/Updating");
-            setToastVariant("rgb(213 18 18)");
-            setShowToast(true);
+            toast.error(error || "Error Adding/Updating");
             console.error('Error submitting module:', error);
         }
     };
@@ -217,8 +205,6 @@ const EmployeeInsert = () => {
                                 </div>
                             </Col>
 
-
-
                             <Col></Col>
                             <Col lg={4} className='align-items-end d-flex justify-content-end mb-3'>
 
@@ -238,8 +224,6 @@ const EmployeeInsert = () => {
                     </Form>
                 </div>
             </div>
-            <CustomSuccessToast show={showToast} toastMessage={toastMessage} toastVariant={toastVariant} onClose={() => setShowToast(false)} />
-
         </div>
     );
 };

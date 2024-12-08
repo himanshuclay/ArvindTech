@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { useState, useEffect, ChangeEvent } from 'react';
+import { useState, useEffect } from 'react';
 import { Button, Pagination, Table, Container, Row, Col, Alert, Form, ButtonGroup } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
@@ -7,7 +7,7 @@ import IconWithLetter from '@/pages/ui/IconWithLetter';
 import config from '@/config';
 import Select from 'react-select';
 import { useLocation, useNavigate } from 'react-router-dom';
-import CustomSuccessToast from '../../Component/CustomSuccessToast';
+import { toast } from 'react-toastify';
 
 
 
@@ -43,37 +43,21 @@ const ProcessInitiation = () => {
     const [moduleList, setModuleList] = useState<Process[]>([]);
     const [employeeList, setEmployeeList] = useState<Process[]>([]);
     const [processList, setProcessList] = useState<Process[]>([]);
-    const [searchQuery, setSearchQuery] = useState('');
     const [ModuleName, setModuleName] = useState('');
     const [ProcessName, setProcessName] = useState('');
     const [ProcessOwnerName, setProcessOwnerName] = useState('');
-    const [downloadCsv, setDownloadCsv] = useState<Process[]>([]);
+
 
 
     const location = useLocation();
     const navigate = useNavigate();
-    const [showToast, setShowToast] = useState(false);
-    const [toastMessage, setToastMessage] = useState('');
-    const [toastVariant, setToastVariant] = useState('');
-
     useEffect(() => {
-        if (location.state && location.state.showToast) {
-            setShowToast(true);
-            setToastMessage(location.state.toastMessage);
-            setToastVariant(location.state.toastVariant);
-
-            setTimeout(() => {
-                setShowToast(false);
-                navigate(location.pathname, { replace: true });
-            }, 5000);
+        if (location.state?.successMessage) {
+            toast.dismiss()
+            toast.success(location.state.successMessage);
+            navigate(location.pathname, { replace: true });
         }
-        return () => {
-            setShowToast(false);
-            setToastMessage('');
-            setToastVariant('');
-        };
     }, [location.state, navigate]);
-
 
 
     const handleSearch = (e: any) => {
@@ -122,7 +106,6 @@ const ProcessInitiation = () => {
 
     useEffect(() => {
         fetchProcess();
-        fetchProcessCsv()
     }, [currentPage]);
 
 
@@ -148,18 +131,6 @@ const ProcessInitiation = () => {
         }
     };
 
-    const fetchProcessCsv = async () => {
-        try {
-            const response = await axios.get(`${config.API_URL_APPLICATION}/ProcessMaster/GetProcess`);
-            if (response.data.isSuccess) {
-                setDownloadCsv(response.data.processMasterList);
-            } else {
-                console.error(response.data.message);
-            }
-        } catch (error) {
-            console.error('Error fetching modules:', error);
-        }
-    };
 
 
     useEffect(() => {
@@ -207,64 +178,14 @@ const ProcessInitiation = () => {
         fetchProcess();
     };
 
-    const filteredProcess = processes.filter(process =>
-        process.moduleName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        process.processDisplayName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        process.processOwnerName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        process.processObjective.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        process.userUpdatedMobileNumber.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        process.status.toLowerCase().includes(searchQuery.toLowerCase())
-    );
-
-
-    const convertToCSV = (data: Process[]) => {
-        const csvRows = [
-            ['ID', 'Module Name', 'Process ID', 'Process Display Name', 'Process Objective', 'Process Owner Name', 'User Updated Mobile Number', 'Created By', 'Updated By'],
-            ...data.map(mod => [
-                mod.id,
-                mod.moduleName,
-                mod.processID,
-                mod.processDisplayName,
-                `"${mod.processObjective}"`,
-                mod.processOwnerName || '',
-                mod.userUpdatedMobileNumber || '',
-                mod.createdBy,
-                mod.updatedBy
-            ])
-        ];
-        return csvRows.map(row => row.join(',')).join('\n');
-    };
-
-
-    const downloadCSV = () => {
-        const csvData = convertToCSV(downloadCsv);
-        const blob = new Blob([csvData], { type: 'text/csv;charset=utf-8;' });
-        const link = document.createElement('a');
-        if (link.download !== undefined) {
-            const url = URL.createObjectURL(blob);
-            link.setAttribute('href', url);
-            link.setAttribute('download', 'Process.csv');
-            link.style.visibility = 'hidden';
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-        }
-    };
-
-    const handleSearchcurrent = (e: ChangeEvent<HTMLInputElement>) => {
-        setSearchQuery(e.target.value);
-        setCurrentPage(1); 
-    };
-
-
 
     return (
         <>
             <div className="d-flex bg-white p-2 my-2 justify-content-between align-items-center fs-20">
                 <span><i className="ri-file-list-line me-2"></i><span className='fw-bold test-nowrap'>Initiaion Process  List</span></span>
-               
+
             </div>
-            {!filteredProcess ? (
+            {!processes ? (
                 <Container className="mt-5">
                     <Row className="justify-content-center">
                         <Col xs={12} md={8} lg={6}>
@@ -353,24 +274,6 @@ const ProcessInitiation = () => {
                                     </Form>
                                     <Row className='mt-3'>
                                         <div className="d-flex justify-content-end bg-light p-1">
-                                            <div className="app-search d-none d-lg-block me-4">
-                                                <form>
-                                                    <div className="input-group px300 ">
-                                                        <input
-                                                            type="search"
-                                                            className=" bg-white"
-                                                            placeholder="Search Process..."
-                                                            value={searchQuery}
-                                                            onChange={handleSearchcurrent}
-                                                        />
-                                                        <span className="ri-search-line search-icon text-muted" />
-                                                    </div>
-                                                </form>
-                                            </div>
-
-                                            <Button variant="primary" onClick={downloadCSV} className="">
-                                                Download CSV
-                                            </Button>
                                         </div>
                                     </Row>
                                 </div>
@@ -409,8 +312,8 @@ const ProcessInitiation = () => {
                                                 </Droppable>
                                             </thead>
                                             <tbody>
-                                                {filteredProcess.length > 0 ? (
-                                                    filteredProcess.slice(0, 10).map((item, index) => (
+                                                {processes.length > 0 ? (
+                                                    processes.slice(0, 10).map((item, index) => (
                                                         <tr key={item.id}>
                                                             <td>{(currentPage - 1) * 10 + index + 1}</td>
                                                             {columns.filter(col => col.visible).map((col) => (
@@ -423,7 +326,7 @@ const ProcessInitiation = () => {
                                                                                         ''
                                                                     }
                                                                 >
-                                                                     {col.id === 'processOwnerName' ? (
+                                                                    {col.id === 'processOwnerName' ? (
                                                                         <td>
                                                                             <div className='d-flex align-items-center'>
                                                                                 <IconWithLetter letter={item.processOwnerName.charAt(0)} />
@@ -481,12 +384,6 @@ const ProcessInitiation = () => {
                         </Pagination>
                     </div>
 
-                    <CustomSuccessToast
-                        show={showToast}
-                        toastMessage={toastMessage}
-                        toastVariant={toastVariant}
-                        onClose={() => setShowToast(false)}
-                    />
 
                 </div>
             )}

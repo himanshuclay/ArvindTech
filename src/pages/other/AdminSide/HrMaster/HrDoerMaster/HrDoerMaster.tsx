@@ -8,7 +8,7 @@ import config from '@/config';
 // import Select from 'react-select';
 import { useLocation, useNavigate } from 'react-router-dom';
 import IconWithLetter from '@/pages/ui/IconWithLetter';
-import CustomSuccessToast from '@/pages/other/Component/CustomSuccessToast';
+import { toast } from 'react-toastify';
 
 interface HrDoer {
     id: number;
@@ -40,33 +40,16 @@ const HrDoerMaster = () => {
     const [searchQuery, setSearchQuery] = useState('');
     const [downloadCsv, setDownloadCsv] = useState<HrDoer[]>([]);
 
-
-
     const location = useLocation();
     const navigate = useNavigate();
-    const [showToast, setShowToast] = useState(false);
-    const [toastMessage, setToastMessage] = useState('');
-    const [toastVariant, setToastVariant] = useState('');
-
-
-
     useEffect(() => {
-        if (location.state && location.state.showToast) {
-            setShowToast(true);
-            setToastMessage(location.state.toastMessage);
-            setToastVariant(location.state.toastVariant);
-
-            setTimeout(() => {
-                setShowToast(false);
-                navigate(location.pathname, { replace: true });
-            }, 5000);
+        if (location.state?.successMessage) {
+            toast.dismiss()
+            toast.success(location.state.successMessage);
+            navigate(location.pathname, { replace: true });
         }
-        return () => {
-            setShowToast(false);
-            setToastMessage('');
-            setToastVariant('');
-        };
     }, [location.state, navigate]);
+
 
 
     // const [moduleDisplayName, setModuleDisplayName] = useState('');
@@ -472,12 +455,6 @@ const HrDoerMaster = () => {
 
                 </div>
             )}
-            <CustomSuccessToast
-                show={showToast}
-                toastMessage={toastMessage}
-                toastVariant={toastVariant}
-                onClose={() => setShowToast(false)}
-            />
         </>
     );
 };

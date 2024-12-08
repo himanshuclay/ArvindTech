@@ -1,21 +1,10 @@
 import axios, { AxiosError } from 'axios';
 import MockAdapter from 'axios-mock-adapter';
-// import { Message } from 'rsuite';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import config from '@/config';
 
 
-// type User = {
-//   id: number;
-//   email?: string;
-//   username: string;
-//   password: string;
-//   firstName: string;
-//   lastName: string;
-//   EmpId: string;
-//   role: string;
-//   EmpName:string;
-//   token: string;
-// };
 
 const TOKEN =
   'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJjb2RlcnRoZW1lcyIsImlhdCI6MTU4NzM1NjY0OSwiZXhwIjoxOTAyODg5NDQ5LCJhdWQiOiJjb2RlcnRoZW1lcy5jb20iLCJzdWIiOiJzdXBwb3J0QGNvZGVydGhlbWVzLmNvbSIsImxhc3ROYW1lIjoiVGVzdCIsIkVtYWlsIjoic3VwcG9ydEBjb2RlcnRoZW1lcy5jb20iLCJSb2xlIjoiQWRtaW4iLCJmaXJzdE5hbWUiOiJIeXBlciJ9.P27f7JNBF-vOaJFpkn-upfEh3zSprYfyhTOYhijykdI';
@@ -30,7 +19,6 @@ const TOKEN =
   export default function configureFakeBackend() {
     async function loginUser(email: string, password: string) {
       try {
-        // Make the API call to login
         const response = await axios.post(`${config.API_URL_APPLICATION}/Login/GetLogin`, {
           email,
           password,
@@ -43,35 +31,30 @@ const TOKEN =
         if (isSuccess) {
           let user;
           if (loginData) {
-            // For previous response structure
             user = loginData;
           } else if (getEmployeeDetailsbyEmpId) {
-            // For current response structure
             user = getEmployeeDetailsbyEmpId;
           }
   
-          // Store the token and role in localStorage (adjust as necessary)
           localStorage.setItem('EmpId', user.email || user.empID);
           localStorage.setItem('role', user.role);
           localStorage.setItem('EmpName', user.employeeName);
           localStorage.setItem('token', token);
   
-          // Assuming token is still a static value for dev purposes
           const userWithToken = {
             ...user,
-            token: TOKEN, // Replace with actual token if provided
+            token: TOKEN, 
           };
   
-          // Navigate to the dashboard if needed
-          // window.location.href = '/dashboard';
   
           return { status: 200, data: userWithToken };
         } else {
+          toast.error(message || 'Email or password is incorrect');
           return Promise.reject({ status: 401, message: message || 'Email or password is incorrect' });
         }
-      } catch (error) {
+      } catch (error:any) {
+        toast.error(error); 
         console.error('Login error:', error);
-        alert('You have entered incorrect credentials');
         return Promise.reject({ status: 500, message: 'Something went wrong. Please try again later.' });
       }
     }
@@ -82,7 +65,6 @@ const TOKEN =
         const params = JSON.parse(config.data);
         const { email, password } = params;
   
-        // Call the loginUser function to handle the actual API login
         const result = await loginUser(email, password);
   
         if (result && result.status === 200) {

@@ -4,7 +4,7 @@ import { Button, Col, Form, Row, ButtonGroup } from 'react-bootstrap';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import config from '@/config';
 import Select from 'react-select';
-import CustomSuccessToast from '@/pages/other/Component/CustomSuccessToast';
+import { toast } from 'react-toastify';
 
 
 
@@ -44,13 +44,11 @@ interface GetTypeDayTimeList {
 }
 
 const HumanResource = () => {
+    toast.dismiss()
     const { id } = useParams<{ id: string }>();
 
     const navigate = useNavigate();
 
-    const [showToast, setShowToast] = useState(false);
-    const [toastMessage, setToastMessage] = useState("");
-    const [toastVariant, setToastVariant] = useState('');
     const [empName, setEmpName] = useState<string | null>('')
     const [process, setProcess] = useState<Process>({
         id: 0,
@@ -205,16 +203,12 @@ const HumanResource = () => {
             await axios.post(`${config.API_URL_APPLICATION}/InitiationMaster/UpdateAccountIInitiation`, payload);
             navigate('/pages/ProcessMaster', {
                 state: {
-                    showToast: true,
-                    toastMessage: "Process Initiated successfully!",
-                    toastVariant: "rgb(28 175 85)"
+                    successMessage: "Process Initiated successfully!",
                 }
             });
 
-        } catch (error) {
-            setToastMessage("Error Adding/Updating");
-            setToastVariant("rgb(213 18 18)");
-            setShowToast(true);
+        } catch (error:any) {
+            toast.error(error || "Error Adding/Updating");
             console.error('Error submitting module:', error);
         }
     };
@@ -514,8 +508,6 @@ const HumanResource = () => {
                 </div>
 
             </div>
-            <CustomSuccessToast show={showToast} toastMessage={toastMessage} toastVariant={toastVariant} onClose={() => setShowToast(false)} />
-
         </div >
     );
 };

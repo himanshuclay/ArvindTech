@@ -1,10 +1,11 @@
 import axios from 'axios';
 import { useState, useEffect, ChangeEvent } from 'react';
 import { Button, Pagination, Table, Container, Row, Col, Alert, Form, ButtonGroup } from 'react-bootstrap';
-import { Link } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import config from '@/config';
 import Select from 'react-select';
+import { toast } from 'react-toastify';
 
 
 
@@ -37,11 +38,18 @@ const DesignationMaster = () => {
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
     const [searchQuery, setSearchQuery] = useState('');
-
-
-
     const [departmentList, setDepartmentList] = useState<DepartmentList[]>([]);
 
+    
+    const location = useLocation();
+    const navigate = useNavigate();
+    useEffect(() => {
+        if (location.state?.successMessage) {
+            toast.dismiss()
+            toast.success(location.state.successMessage);
+            navigate(location.pathname, { replace: true });
+        }
+    }, [location.state, navigate]);
 
     // both are required to make dragable column of table 
     const [columns, setColumns] = useState<Column[]>([
