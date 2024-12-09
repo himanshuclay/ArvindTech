@@ -82,7 +82,6 @@ const Login = () => {
 		}
 	};
 
-	console.log(emp)
 
 	return (
 		<>
@@ -163,7 +162,7 @@ const Login = () => {
 								disabled={loading}
 							>
 								<i className="ri-login-circle-fill me-1" />{' '}
-								<span className="fw-bold">Log In</span>{' '}
+								<span className="fw-bold">Verify</span>{' '}
 							</Button>
 						</div>
 					}

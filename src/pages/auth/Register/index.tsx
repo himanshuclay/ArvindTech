@@ -261,7 +261,6 @@ const Register = () => {
 				dob: formData.dob,
 				password: formData.password,
 				role: formData.role,
-				status: 'active',
 				createdBy: 'admin',
 				updatedBy: 'admin',
 			};
