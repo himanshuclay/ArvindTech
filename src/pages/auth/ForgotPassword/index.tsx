@@ -2,7 +2,7 @@ import { Button, Col, Form, Row } from 'react-bootstrap'
 import AuthLayout from '../AuthLayout'
 import { Link, useNavigate } from 'react-router-dom'
 import { FormInput, VerticalForm, PageBreadcrumb } from '@/components'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import config from '@/config';
 import Flatpickr from 'react-flatpickr';
 import { toast } from 'react-toastify';
@@ -66,19 +66,44 @@ const ForgotPassword = () => {
 
 
 	const fetchEmployeeDetails = async (empID: string) => {
-		if (!empID) return; // Prevent fetching if empID is empty
 		try {
 			const response = await axios.get(
 				`${config.API_URL_APPLICATION}/Login/GetEmployeeDetailsbyEmpId?Flag=1&EmpID=${empID}`
 			);
 			if (response.data.isSuccess) {
 				const details = response.data.fetchDetails[0];
-				console.log(details)
 				setFormData({
 					...formData,
 					fullname: details.employeeName,
 					role: details.role,
 				});
+			}else{
+				toast.error(
+					<>
+						<div style={{ marginBottom: "10px" }}>{response.data.message}</div>
+						<div style={{ display: "flex", gap: "10px" }}>
+							<button
+								onClick={() => navigate("/auth/register")}
+								style={{
+									backgroundColor: "#007bff",
+									color: "#fff",
+									border: "none",
+									padding: "5px 10px",
+									borderRadius: "5px",
+									fontSize: "11px",
+									fontWeight: "bold",
+									cursor: "pointer",
+									transition: "all 0.3s ease",
+								}}
+								onMouseOver={(e) => (e.currentTarget.style.backgroundColor = "#0056b3")}
+								onMouseOut={(e) => (e.currentTarget.style.backgroundColor = "#007bff")}
+							>
+								Sign Up <i className="ri-arrow-right-line"></i>
+							</button>
+						</div>
+					</>,
+					{ autoClose: 30000 }
+				);
 			}
 		} catch (error: any) {
 			toast.dismiss()
@@ -108,6 +133,7 @@ const ForgotPassword = () => {
 				</>,
 				{ autoClose: 30000 }
 			);
+			console.error(error)
 		}
 	};
 
@@ -296,16 +322,11 @@ const ForgotPassword = () => {
 	};
 
 
-
-	useEffect(() => {
-		const delayDebounceFn = setTimeout(() => {
-			if (formData.empID.length > 7) {
-				fetchEmployeeDetails(formData.empID);
-			}
-		}, 500);
-
-		return () => clearTimeout(delayDebounceFn);
-	}, [formData.empID]);
+	const handleBlur = () => {
+		if (formData.empID) {
+			fetchEmployeeDetails(formData.empID);
+		}
+	};
 
 	return (
 		<div>
@@ -325,6 +346,7 @@ const ForgotPassword = () => {
 								placeholder="Enter your Employee ID"
 								value={formData.empID}
 								onChange={handleInputChange}
+								onBlur={handleBlur}
 								containerClass="mb-3"
 								required
 							/>
@@ -338,6 +360,7 @@ const ForgotPassword = () => {
 								value={formData.fullname}
 								onChange={handleInputChange}
 								containerClass="mb-3"
+
 								readOnly
 								disabled
 							/>
