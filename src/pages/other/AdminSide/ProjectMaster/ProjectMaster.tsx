@@ -1,13 +1,13 @@
 import axios from 'axios';
 import { useState, useEffect, ChangeEvent } from 'react';
 import { Button, Pagination, Table, Container, Row, Col, Alert, Form, ButtonGroup } from 'react-bootstrap';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import config from '@/config';
 import ProjectViewPopup from './ProjectViewPopup';
 import Select from 'react-select';
-import CustomSuccessToast from '../../Component/CustomSuccessToast';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
+import { toast } from 'react-toastify';
 
 
 
@@ -22,10 +22,35 @@ interface Project {
     projectIncharge: string;
     projectInchargeName: string;
     projectCoordinator: number;
+    projectCoordinatorName: number;
     completionStatus: number;
     nameOfWork: string;
     createdBy: string;
     updatedBy: string;
+    projectTypeName: string;
+    stateName: string;
+    managementContractName: string;
+    projectInchargeMobileNumber: string;
+    projectCoordinatorMobileNumber: string;
+    completionStatusName: string;
+    contractualWorkValue: string;
+    executorCompany: string;
+    nextValueofWorkItemForTeam: string;
+    percentageofWorkDone: string;
+    revisedContractualWorkValue: string;
+    totalWorkDoneValueuptoPreviousMonth: string;
+    valueofWorkDoneinthisMonth: string;
+    valueofWorkDoneinthisFY: string;
+    contractualStartDate: string;
+    contractualCompletionDate: string;
+    expectedDateofEarliestProjectCompletion: string;
+    expectedDateofLatestProjectCompletion: string;
+    refreshWorkDate: string;
+    estimateCompletionDate: string;
+    recordedMonth: string;
+    recordedYear: string;
+    createdDate: string;
+    updatedDate: string;
 }
 
 
@@ -59,37 +84,23 @@ const ProjectMaster = () => {
     const [employeeList, setEmployeeList] = useState<EmployeeList[]>([]);
     const [projectList, setProjectList] = useState<ProjectList[]>([]);
     const [completionStatus, setCompletionStatus] = useState<CompletionStatus[]>([]);
-
-
     const [searchProjectInchage, setSearchProjectInchage] = useState('');
     const [searchProjectCoordinator, setSearchProjectCoordinator] = useState('');
     const [searchProjectName, setSearchProjectName] = useState('');
     const [searchCompletionStatus, setSearchCompletionStatus] = useState<number>();
+    const [downloadCsv, setDownloadCsv] = useState<Project[]>([]);
 
 
     const location = useLocation();
     const navigate = useNavigate();
-    const [showToast, setShowToast] = useState(false);
-    const [toastMessage, setToastMessage] = useState('');
-    const [toastVariant, setToastVariant] = useState('');
-
     useEffect(() => {
-        if (location.state && location.state.showToast) {
-            setShowToast(true);
-            setToastMessage(location.state.toastMessage);
-            setToastVariant(location.state.toastVariant);
-
-            setTimeout(() => {
-                setShowToast(false);
-                navigate(location.pathname, { replace: true });
-            }, 5000);
+        if (location.state?.successMessage) {
+            toast.dismiss()
+            toast.success(location.state.successMessage);
+            navigate(location.pathname, { replace: true });
         }
-        return () => {
-            setShowToast(false);
-            setToastMessage('');
-            setToastVariant('');
-        };
     }, [location.state, navigate]);
+
 
     // both are required to make dragable column of table 
     const [columns, setColumns] = useState<Column[]>([
@@ -99,7 +110,7 @@ const ProjectMaster = () => {
         { id: 'projectTypeName', label: 'Project Type', visible: true },
         { id: 'managementContractName', label: 'Management Contract', visible: true },
         { id: 'projectIncharge', label: 'Project Incharge', visible: true },
-        { id: 'projectCoordinatorName', label: 'Project Coordinator', visible: true },
+        { id: 'projectCoordinatorName', label: 'Project Coordinator ', visible: true },
         { id: 'completionStatusName', label: 'Completion Status', visible: true }
     ]);
 
@@ -117,7 +128,7 @@ const ProjectMaster = () => {
         setSearchProjectCoordinator('')
         setSearchProjectName('')
         setSearchCompletionStatus(0)
-        fetchDoers();
+        fetchProjects();
     };
 
     const handleSearch = (e: any) => {
@@ -128,18 +139,12 @@ const ProjectMaster = () => {
         if (searchProjectCoordinator) query += `ProjectCoordinator=${searchProjectCoordinator}&`;
         if (searchProjectName) query += `ProjectName=${searchProjectName}&`;
         if (searchCompletionStatus) query += `CompletionStatus=${searchCompletionStatus}&`;
-
+        query += `PageIndex=${currentPage}`;
 
         query = query.endsWith('&') ? query.slice(0, -1) : query;
 
         const apiUrl = `${config.API_URL_APPLICATION}/ProjectMaster/SearchProject${query}`;
-
-        console.log(apiUrl)
-        axios.get(apiUrl, {
-            headers: {
-                'accept': '*/*'
-            }
-        })
+        axios.get(apiUrl, { headers: { 'accept': '*/*' } })
             .then((response) => {
                 console.log("search response ", response.data.projectMasterList);
                 setProject(response.data.projectMasterList)
@@ -150,10 +155,11 @@ const ProjectMaster = () => {
     };
 
     useEffect(() => {
-        fetchDoers();
+        fetchProjects();
+        fetchModulesCsv()
     }, [currentPage]);
 
-    const fetchDoers = async () => {
+    const fetchProjects = async () => {
         setLoading(true);
         try {
             const response = await axios.get(`${config.API_URL_APPLICATION}/ProjectMaster/GetProject`, {
@@ -174,7 +180,19 @@ const ProjectMaster = () => {
     };
 
 
+    const fetchModulesCsv = async () => {
+        try {
+            const response = await axios.get(`${config.API_URL_APPLICATION}/ProjectMaster/GetProject`);
+            if (response.data.isSuccess) {
+                setDownloadCsv(response.data.projectMasterList);
+            } else {
+                console.error(response.data.message);
+            }
+        } catch (error) {
+            console.error('Error fetching modules:', error);
+        }
 
+    };
 
     useEffect(() => {
         const fetchData = async (endpoint: string, setter: Function, listName: string) => {
@@ -196,40 +214,90 @@ const ProjectMaster = () => {
 
     }, []);
 
-    const convertToCSV = (data: Project[]) => {
-        const csvRows = [
-            ['ID', 'Project Name', 'Project ID', 'State Name', 'Project Type', 'Management Contract', 'Project Incharge', 'Project Coordinator', 'Completion Status', 'Name of Work'],
-            ...data.map(project => [
-                project.id,
-                project.projectName,
-                project.projectID,
-                project.stateId,
-                project.projectType,
-                project.managementContract,
-                project.projectInchargeName,
-                project.projectCoordinator,
-                project.completionStatus,
-                project.nameOfWork
-            ])
-        ];
-        return csvRows.map(row => row.join(',')).join('\n');
-    };
-
 
     const downloadCSV = () => {
-        const csvData = convertToCSV(project);
+        const csvData = convertToCSV(downloadCsv);
         const blob = new Blob([csvData], { type: 'text/csv;charset=utf-8;' });
         const link = document.createElement('a');
         if (link.download !== undefined) {
             const url = URL.createObjectURL(blob);
             link.setAttribute('href', url);
-            link.setAttribute('download', 'Projects.csv');
+            link.setAttribute('download', 'Project Master.csv');
             link.style.visibility = 'hidden';
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
         }
     };
+
+    const convertToCSV = (data: Project[]) => {
+        const csvRows = [
+            [
+                'ID',
+                'Project Name', 'Project ID',
+                ,'State Name',
+                'Project Type','Project Type Name',
+                'Management Contract','Management Contract Name',
+                'Project Incharge','Project Incharge Name',
+                'Project Incharge Mobile Number','Project Coordinator',
+                'Project Coordinator Name','Project Coordinator Mobile Number',
+                'Completion Status','Completion Status Name',
+                'Name of Work','Contractual Work Value',
+                'Executor Company','Next Value of Work Item for Team',
+                'Percentage of Work Done','Revised Contractual Work Value',
+                'Total Work Done Value Upto Previous Month',
+                'Value of Work Done in This Month','Value of Work Done in This FY',
+                'Contractual Start Date','Contractual Completion Date',
+                'Expected Date of Earliest Project Completion',
+                'Expected Date of Latest Project Completion',
+                'Refresh Work Date','Estimate Completion Date',
+                'Recorded Month','Recorded Year','Created By',
+                'Created Date','Updated By','Updated Date'
+            ],
+            ...data.map(project => [
+                project.id,
+                project.projectName,
+                project.projectID,
+                project.stateName,
+                project.projectType,
+                project.projectTypeName,
+                project.managementContract,
+                project.managementContractName,
+                project.projectIncharge,
+                project.projectInchargeName,
+                project.projectInchargeMobileNumber || '',
+                project.projectCoordinator,
+                project.projectCoordinatorName,
+                project.projectCoordinatorMobileNumber || '',
+                project.completionStatus,
+                project.completionStatusName,
+                project.nameOfWork || '',
+                project.contractualWorkValue || '',
+                project.executorCompany || '',
+                project.nextValueofWorkItemForTeam || '',
+                project.percentageofWorkDone || '',
+                project.revisedContractualWorkValue || '',
+                project.totalWorkDoneValueuptoPreviousMonth || '',
+                project.valueofWorkDoneinthisMonth || '',
+                project.valueofWorkDoneinthisFY || '',
+                project.contractualStartDate || '',
+                project.contractualCompletionDate || '',
+                project.expectedDateofEarliestProjectCompletion || '',
+                project.expectedDateofLatestProjectCompletion || '',
+                project.refreshWorkDate || '',
+                project.estimateCompletionDate || '',
+                project.recordedMonth || '',
+                project.recordedYear || '',
+                project.createdBy || '',
+                project.createdDate || '',
+                project.updatedBy || '',
+                project.updatedDate || ''
+            ])
+        ];
+        return csvRows.map(row => row.join(',')).join('\n');
+    };
+    
+
 
     const handleSearchcurrent = (e: ChangeEvent<HTMLInputElement>) => {
         setSearchQuery(e.target.value);
@@ -243,8 +311,6 @@ const ProjectMaster = () => {
 
 
     const handleShowview = () => setShowView(true);
-
-
     const handleViewEdit = (projectName: string) => {
         handleShowview();
         setManageID(projectName)
@@ -334,8 +400,6 @@ const ProjectMaster = () => {
                                         </Form.Group>
                                     </Col>
 
-
-
                                     <Col lg={6} className="mt-2">
                                         <Form.Group controlId="searchCompletionStatus">
                                             <Form.Label>Completion Status:</Form.Label>
@@ -353,13 +417,7 @@ const ProjectMaster = () => {
                                         </Form.Group>
                                     </Col>
 
-
-
-
-
-
-                                    <Col lg={8} className="mt-2"></Col>
-
+                                    <Col></Col>
                                     <Col lg={4} className="align-items-end d-flex justify-content-end mt-3">
                                         <ButtonGroup aria-label="Basic example" className="w-100">
                                             <Button type="button" variant="primary" onClick={handleClear}>
@@ -424,8 +482,6 @@ const ProjectMaster = () => {
                                                                         <div ref={provided.innerRef}
                                                                             {...provided.draggableProps}
                                                                             {...provided.dragHandleProps}>
-
-
                                                                             {column.id === 'projectName' && (<i className="ri-file-list-line"></i>)}
                                                                             {column.id === 'projectID' && (<i className="ri-barcode-box-line"></i>)}
                                                                             {column.id === 'stateName' && (<i className="ri-map-pin-line"></i>)}
@@ -456,16 +512,7 @@ const ProjectMaster = () => {
                                                     <tr key={item.id}>
                                                         <td>{(currentPage - 1) * 10 + index + 1}</td>
                                                         {columns.filter(col => col.visible).map((col) => (
-                                                            <td key={col.id}
-                                                            // className={
-                                                            //     // Add class based on column id
-                                                            //     col.id === 'empID' ? 'fw-bold fs-13 text-dark' :''
-                                                            // }
-                                                            >
-
-
-
-
+                                                            <td key={col.id}>
                                                                 <div>
 
                                                                     {col.id === 'projectIncharge' ? (
@@ -530,10 +577,7 @@ const ProjectMaster = () => {
                     </Pagination>
                 </div>
 
-
                 <ProjectViewPopup showView={showView} setShowView={setShowView} projectName={manageId} />
-
-                <CustomSuccessToast show={showToast} toastMessage={toastMessage} toastVariant={toastVariant} onClose={() => setShowToast(false)} />
 
             </div>
 

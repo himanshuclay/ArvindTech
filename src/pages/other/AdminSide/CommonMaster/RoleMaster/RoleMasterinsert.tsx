@@ -3,7 +3,7 @@ import { useEffect, useState, ChangeEvent } from 'react';
 import { Button, Col, Form, Row } from 'react-bootstrap';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import config from '@/config';
-import CustomSuccessToast from '@/pages/other/Component/CustomSuccessToast';
+import { toast } from 'react-toastify';
 
 
 
@@ -28,9 +28,6 @@ const EmployeeInsert = () => {
         updatedBy: '',
 
     });
-    const [showToast, setShowToast] = useState(false);
-    const [toastMessage, setToastMessage] = useState<string>('');
-    const [toastVariant, setToastVariant] = useState('');
 
     useEffect(() => {
         const storedEmpName = localStorage.getItem('EmpName');
@@ -104,18 +101,14 @@ const EmployeeInsert = () => {
             if (response.status === 200) {
                 navigate('/pages/RoleMaster', {
                     state: {
-                        showToast: true,
-                        toastMessage: editMode ? "Module updated successfully!" : "Module added successfully!",
-                        toastVariant: "rgb(28 175 85)",
+                        successMessage: editMode ? "Module updated successfully!" : "Module added successfully!",
                     },
                 });
             } else {
-                setToastMessage(response.data.message || "Failed to process request");
+                toast.error(response.data.message || "Failed to process request");
             }
         } catch (error: any) {
-            setToastMessage(error);
-            setToastVariant("rgb(213 18 18)");
-            setShowToast(true);
+            toast.error(error);
             console.error('Error submitting module:', error);
         }
     };
@@ -163,8 +156,6 @@ const EmployeeInsert = () => {
                     </Form>
                 </div>
             </div>
-            <CustomSuccessToast show={showToast} toastMessage={toastMessage} toastVariant={toastVariant} onClose={() => setShowToast(false)} />
-
         </div>
     );
 };

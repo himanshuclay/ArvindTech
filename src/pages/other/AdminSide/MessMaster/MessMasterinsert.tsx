@@ -4,9 +4,7 @@ import { Button, Col, Form, Row } from 'react-bootstrap';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import config from '@/config';
 import Select from 'react-select';
-import CustomSuccessToast from '../../Component/CustomSuccessToast';
-
-
+import { toast } from 'react-toastify';
 
 
 interface Mess {
@@ -36,6 +34,7 @@ interface EmployeeList {
 }
 
 const EmployeeInsert = () => {
+    toast.dismiss()
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
     const [editMode, setEditMode] = useState<boolean>(false);
@@ -43,9 +42,6 @@ const EmployeeInsert = () => {
     const [projectList, setProjectList] = useState<ProjectList[]>([])
     const [statusList, setStatusList] = useState<Status[]>([])
     const [employeeList, setEmployeeList] = useState<EmployeeList[]>([])
-    const [showToast, setShowToast] = useState(false);
-    const [toastMessage, setToastMessage] = useState("");
-    const [toastVariant, setToastVariant] = useState('');
     const [messes, setMesses] = useState<Mess>({
             id: 0,
             messID: '',
@@ -59,9 +55,6 @@ const EmployeeInsert = () => {
             updatedBy: ''
         }
     );
-
-
-    console.log(messes)
 
     useEffect(() => {
         const storedEmpName = localStorage.getItem('EmpName');
@@ -79,9 +72,6 @@ const EmployeeInsert = () => {
             setEditMode(false);
         }
     }, [id]);
-
-
-    console.log(id)
 
     const fetchDoerById = async (id: string) => {
         try {
@@ -113,13 +103,9 @@ const EmployeeInsert = () => {
                 console.error(`Error fetching data from ${endpoint}:`, error);
             }
         };
-
         fetchData('CommonDropdown/GetProjectList', setProjectList, 'projectListResponses');
         fetchData('CommonDropdown/GetStatus', setStatusList, 'statusListResponses');
         fetchData('CommonDropdown/GetEmployeeListWithId', setEmployeeList, 'employeeLists');
-   
-
-
     }, []);
 
 
@@ -149,33 +135,25 @@ const EmployeeInsert = () => {
             createdBy: editMode ? messes.createdBy : empName,
             updatedBy: editMode ? empName : '',
         };
-        console.log(payload)
         try {
             if (editMode) {
                 await axios.post(`${config.API_URL_APPLICATION}/MessMaster/UpdateMess`, payload);
                 navigate('/pages/MessMaster', {
                     state: {
-                        showToast: true,
-                        toastMessage: "Doer Updated successfully!",
-                        toastVariant: "rgb(28 175 85)"
+                        successMessage: "Doer Updated successfully!",
                     }
                 });
             } else {
                 await axios.post(`${config.API_URL_APPLICATION}/MessMaster/InsertMess`, payload);
                 navigate('/pages/MessMaster', {
                     state: {
-                        showToast: true,
-                        toastMessage: "Doer Added successfully!",
-                        toastVariant: "rgb(28 175 85)"
+                        successMessage: "Doer Added successfully!",
                     }
                 });
             }
-        } catch (error) {
+        } catch (error:any) {
             const errorMessage = error instanceof Error ? error.message : 'Error Adding/Updating';
-            setToastMessage(errorMessage);
-            setToastVariant("rgb(213 18 18)"); 
-            setShowToast(true);
-            console.error('Error submitting module:', error);
+            toast.error(errorMessage);
         }
 
     };
@@ -298,10 +276,6 @@ const EmployeeInsert = () => {
                             </Col>
 
 
-
-
-
-
                             <Col className='align-items-end d-flex justify-content-between mb-3'>
                                 <div>
                                     <span className='fs-5 '>This field is required*</span>
@@ -322,8 +296,6 @@ const EmployeeInsert = () => {
                     </Form>
                 </div>
             </div>
-            <CustomSuccessToast show={showToast} toastMessage={toastMessage} toastVariant={toastVariant} onClose={() => setShowToast(false)} />
-
         </div>
     );
 };

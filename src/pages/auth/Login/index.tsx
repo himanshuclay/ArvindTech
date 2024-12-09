@@ -1,14 +1,14 @@
 import { Button, Col, Row } from 'react-bootstrap'
-import { Navigate, Link, useNavigate, useLocation } from 'react-router-dom'
+import { Navigate, Link, useLocation } from 'react-router-dom'
 import { yupResolver } from '@hookform/resolvers/yup'
 import * as yup from 'yup'
 import AuthLayout from '../AuthLayout'
 import useLogin from './useLogin'
-
+import { toast } from 'react-toastify';
 // components
 import { VerticalForm, FormInput, PageBreadcrumb } from '@/components'
-import { useEffect, useState } from 'react'
-import CustomSuccessToast from '@/pages/other/Component/CustomSuccessToast'
+import { useEffect } from 'react'
+// import CustomSuccessToast from '@/pages/other/Component/CustomSuccessToast'
 
 interface UserData {
 	email: string
@@ -44,30 +44,11 @@ const Login = () => {
 
 
 	const location = useLocation();
-    const navigate = useNavigate();
-    const [showToast, setShowToast] = useState(false);
-    const [toastMessage, setToastMessage] = useState('');
-    const [toastVariant, setToastVariant] = useState('');
-    useEffect(() => {
-        if (location.state && location.state.showToast) {
-            setShowToast(true);
-            setToastMessage(location.state.toastMessage);
-            setToastVariant(location.state.toastVariant);
-
-            setTimeout(() => {
-                setShowToast(false);
-                navigate(location.pathname, { replace: true });
-            }, 5000);
-        }
-        return () => {
-            setShowToast(false);
-            setToastMessage('');
-            setToastVariant('');
-        };
-    }, [location.state, navigate]);
-
-
-
+	useEffect(() => {
+		if (location.state?.successMessage) {
+		  toast.success(location.state.successMessage); 
+		}
+	  }, [location.state]);
 
 
 	return (
@@ -78,7 +59,7 @@ const Login = () => {
 
 			<AuthLayout
 				authTitle="Sign In"
-				helpText="Enter your email address and password to access account."
+				helpText="Enter your Employee ID and Password to access account."
 				bottomLinks={<BottomLinks />}
 				hasThirdPartyLogin
 			>
@@ -91,7 +72,7 @@ const Login = () => {
 						label="Employee ID"
 						type="text"
 						name="email"
-						placeholder="Enter Your Employee Id"
+						placeholder="Enter Your Employee ID"
 						containerClass="mb-3"
 						required
 					/>
@@ -105,7 +86,7 @@ const Login = () => {
 						containerClass="mb-3"
 					>
 						<Link to="/auth/forgot-password" className="text-muted float-end">
-							<small className='text-danger'>Forgot your password?</small>
+							<small className='text-danger'>Forgot your Password?</small>
 						</Link>
 					</FormInput>
 
@@ -140,13 +121,6 @@ const Login = () => {
 					</div>
 				</VerticalForm>
 			</AuthLayout>
-
-			<CustomSuccessToast
-                show={showToast}
-                toastMessage={toastMessage}
-                toastVariant={toastVariant}
-                onClose={() => setShowToast(false)}
-            />
 		</>
 	)
 }

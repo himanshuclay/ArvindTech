@@ -5,11 +5,12 @@ import config from '@/config';
 import Select from 'react-select';
 
 const YourComponent = () => {
-    const [identifierList, setIdentifierList] = useState<any[]>([]); // Adjust type as needed
-    const [selectedIdentifierOne, setSelectedIdentifierOne] = useState<any>(''); // Default as empty string
-    const [selectedIdentifierTwo, setSelectedIdentifierTwo] = useState<any>(''); // Default as empty string
-    const [taskList, setTaskList] = useState<any[]>([]); // Task list state
-    const [selectedTask, setSelectedTask] = useState<string | null>(null); // Selected task
+    const [identifierList, setIdentifierList] = useState<any[]>([]);
+    const [selectedIdentifierOne, setSelectedIdentifierOne] = useState<any>('');
+    const [selectedIdentifierTwo, setSelectedIdentifierTwo] = useState<any>('');
+    const [taskList, setTaskList] = useState<any[]>([]);
+    const [selectedTask, setSelectedTask] = useState<string | null>(null);
+    const [doerMasterList, setDoerMasterList] = useState<any[]>([]);
 
     // Fetch identifier list and task list from API
     useEffect(() => {
@@ -29,121 +30,155 @@ const YourComponent = () => {
         fetchData('CommonDropdown/GetTaskList', setTaskList, 'taskList');
     }, []);
 
-    // Submit the form data to the API
-    const handleSubmit = async (e: ChangeEvent<HTMLFormElement>) => {
-        e.preventDefault(); // Prevent form from submitting traditionally
+    const fetchDoerMasterList = async () => {
+        try {
+            const response = await axios.get(`${config.API_URL_APPLICATION}/DoerMaster/GetDoerByIdentifier?PageSize=1`);
+            if (response.data.isSuccess) {
+                setDoerMasterList(response.data.getDoerByIdentifiers); // Update to match the new response structure
+            } else {
+                console.error(response.data.message);
+            }
+        } catch (error) {
+            console.error('Error fetching doer master list:', error);
+        }
+    };
 
-        // Prepare the data to send to the API with names instead of IDs
+
+    // Call fetchDoerMasterList on component mount
+    useEffect(() => {
+        fetchDoerMasterList();
+    }, []);
+
+    const handleSubmit = async (e: ChangeEvent<HTMLFormElement>) => {
+        e.preventDefault();
+
         const requestData = {
-            Identifier1: selectedIdentifierOne, // Sending the name (selected value) instead of ID
-            Identifier2: selectedIdentifierTwo, // Sending the name (selected value) instead of ID
-            TaskID: selectedTask // Sending the task name
+            Identifier: selectedIdentifierOne,
+            Identifier1: selectedIdentifierTwo,
+            TaskID: selectedTask
         };
 
-        console.log(requestData)
+        console.log(requestData);
 
         try {
             const response = await axios.post(`${config.API_URL_APPLICATION}/DoerMaster/InsertDoerByIdentifier`, requestData);
 
             if (response.data.isSuccess) {
-                // Handle success response
                 console.log('Data submitted successfully', response.data);
+                fetchDoerMasterList(); // Refresh table data
             } else {
-                // Handle error response
                 console.error('Error:', response.data.message);
             }
         } catch (error) {
-            // Handle network error
             console.error('Error submitting data:', error);
         }
     };
 
     const handleIdentifierChange = (selectedOption: any, identifier: string) => {
         if (identifier === 'identifierOne') {
-            setSelectedIdentifierOne(selectedOption ? selectedOption.label : ''); // Use `label` for name
+            setSelectedIdentifierOne(selectedOption ? selectedOption.label : '');
         } else {
-            setSelectedIdentifierTwo(selectedOption ? selectedOption.label : ''); // Use `label` for name
+            setSelectedIdentifierTwo(selectedOption ? selectedOption.label : '');
         }
     };
 
     const handleTaskChange = (selectedOption: { value: string; label: string } | null) => {
         if (selectedOption) {
-            setSelectedTask(selectedOption.label); // Use `label` for task name
+            setSelectedTask(selectedOption.label);
         } else {
-            setSelectedTask(null); // Clear the selected task if none is chosen
+            setSelectedTask(null);
         }
     };
+
 
     return (
         <div>
             <div className="d-flex p-2 bg-white mt-2 mb-2 rounded shadow"><h5 className="mb-0">Task's Identifier Combinations</h5></div>
             <Form onSubmit={handleSubmit}>
                 <Row>
-                    {/* Task Selection */}
                     <Col md={6}>
                         <Form.Group controlId="taskSelection">
                             <Form.Label>Task</Form.Label>
                             <Select
                                 options={taskList.map((item) => ({
-                                    value: item.id, // Use `id` as the value
-                                    label: item.taskID // Use `taskID` as the label (this is the name)
+                                    value: item.id,
+                                    label: item.taskID
                                 }))}
                                 value={selectedTask
                                     ? { value: selectedTask, label: taskList.find(item => item.taskID === selectedTask)?.taskID }
-                                    : null} // If a task is selected, show the corresponding taskID
-                                onChange={(selectedOption) => handleTaskChange(selectedOption)} // Update `selectedTask`
+                                    : null}
+                                onChange={(selectedOption) => handleTaskChange(selectedOption)}
                                 placeholder="Select Task"
                             />
                         </Form.Group>
                     </Col>
-
-                    {/* Identifier One */}
                     <Col md={6}>
                         <Form.Group controlId="identifierOne">
                             <Form.Label>Identifier One</Form.Label>
                             <Select
                                 options={identifierList.map((item) => ({
-                                    value: item.id, // Use `id` as the value
-                                    label: item.identifier // Use `identifier` as the label (this is the name)
+                                    value: item.id,
+                                    label: item.identifier
                                 }))}
                                 value={selectedIdentifierOne
                                     ? { value: selectedIdentifierOne, label: identifierList.find(item => item.identifier === selectedIdentifierOne)?.identifier }
-                                    : null} // Map the selected ID to the correct identifier name
+                                    : null}
                                 onChange={(selectedOption) => handleIdentifierChange(selectedOption, 'identifierOne')}
                                 placeholder="Select Identifier One"
                             />
                         </Form.Group>
                     </Col>
-
-                    {/* Identifier Two */}
                     <Col md={6}>
                         <Form.Group controlId="identifierTwo">
                             <Form.Label>Identifier Two</Form.Label>
                             <Select
                                 options={[
-                                    { value: null, label: 'Not Applied' }, // Add the "Not Applied" option
+                                    { value: null, label: 'Not Applied' },
                                     ...identifierList.map((item) => ({
-                                        value: item.id, // Use `id` as the value
-                                        label: item.identifier // Use `identifier` as the label (this is the name)
+                                        value: item.id,
+                                        label: item.identifier
                                     }))
                                 ]}
                                 value={selectedIdentifierTwo
                                     ? { value: selectedIdentifierTwo, label: identifierList.find(item => item.identifier === selectedIdentifierTwo)?.identifier }
-                                    : null} // Map the selected ID to the correct identifier name
+                                    : null}
                                 onChange={(selectedOption) => handleIdentifierChange(selectedOption, 'identifierTwo')}
                                 placeholder="Select Identifier Two"
                             />
                         </Form.Group>
                     </Col>
-
                 </Row>
-
-                <Button className='mt-3' variant="primary" type="submit">
+                <Button className="mt-3" variant="primary" type="submit">
                     Submit
                 </Button>
             </Form>
-        </div>
 
+            {/* Table to display DoerMaster list */}
+            <div className="mt-4">
+                <h5>Task Identifier Combinations</h5>
+                <table className="table table-responsive">
+                    <thead>
+                        <tr>
+                            <th>Task Name</th>
+                            <th>Identifier</th>
+                            <th>Identifier 1</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {doerMasterList.map((item, index) => (
+                            <tr key={index}>
+                                <td>{item.taskID}</td>
+                                <td>{item.identifier}</td>
+                                <td>{item.identifier1}</td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            </div>
+
+
+
+        </div>
     );
 };
 

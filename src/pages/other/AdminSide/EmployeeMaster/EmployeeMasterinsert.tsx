@@ -6,8 +6,7 @@ import config from '@/config';
 import Select from 'react-select';
 import Flatpickr from 'react-flatpickr';
 import 'flatpickr/dist/themes/material_green.css';
-import CustomSuccessToast from '../../Component/CustomSuccessToast';
-
+import { toast } from 'react-toastify';
 
 interface Employee {
     id: number;
@@ -93,6 +92,7 @@ interface AreaData {
 
 
 const EmployeeMasterInsert = () => {
+    toast.dismiss()
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
     const [editMode, setEditMode] = useState<boolean>(false);
@@ -102,9 +102,6 @@ const EmployeeMasterInsert = () => {
     const [misExempt, setMisExempt] = useState<MISExempt[]>([]);
     const [appAccess, setAppAccess] = useState<AppAccess[]>([]);
     const [departmentList, setDepartmentList] = useState<Department[]>([]);
-    const [showToast, setShowToast] = useState(false);
-    const [toastMessage, setToastMessage] = useState("");
-    const [toastVariant, setToastVariant] = useState('');
     const [employee, setEmployee] = useState<Employee>({
         id: 0,
         empID: '',
@@ -354,25 +351,19 @@ const EmployeeMasterInsert = () => {
                 await axios.post(`${config.API_URL_APPLICATION}/EmployeeMaster/UpdateEmployee`, payload);
                 navigate('/pages/EmployeeMaster', {
                     state: {
-                        showToast: true,
-                        toastMessage: "Employee Updated successfully!",
-                        toastVariant: "rgb(28 175 85)"
+                        successMessage: "Employee Updated successfully!",
                     }
                 });
             } else {
                 await axios.post(`${config.API_URL_APPLICATION}/EmployeeMaster/InsertEmployee`, payload);
                 navigate('/pages/EmployeeMaster', {
                     state: {
-                        showToast: true,
-                        toastMessage: "Employee Added successfully!",
-                        toastVariant: "rgb(28 175 85)"
+                        successMessage: "Employee Added successfully!",
                     }
                 });
             }
-        } catch (error) {
-            setToastMessage("Error Adding/Updating");
-            setToastVariant("rgb(213 18 18)");
-            setShowToast(true);
+        } catch (error:any) {
+            toast.error(error||"Error Adding/Updating");
             console.error('Error submitting module:', error);
         }
     };
@@ -762,7 +753,6 @@ const EmployeeMasterInsert = () => {
                                         value={employee.salaryBankAccountType}
                                         onChange={handleChange}
                                         placeholder='Enter Bank Account Number'
-                                        required
                                     />
                                 </Form.Group>
                             </Col>
@@ -910,8 +900,6 @@ const EmployeeMasterInsert = () => {
                 </div>
 
             </div>
-            <CustomSuccessToast show={showToast} toastMessage={toastMessage} toastVariant={toastVariant} onClose={() => setShowToast(false)} />
-
         </div>
     );
 };

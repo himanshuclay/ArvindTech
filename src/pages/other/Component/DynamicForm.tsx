@@ -555,63 +555,33 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
         if (input && (input.type === 'select' || input.type === 'CustomSelect')) {
             const selectedOption = input.options?.find(option => option.label === value);
         
-            console.log('Selected Option:', selectedOption);
         
             if (selectedOption) {
                 updatedValue = selectedOption.id;
                 selectedLabel = selectedOption.label;
         
-                console.log('Updated Value:', updatedValue); // Debug
-                console.log('Parsed Condition:', parsedCondition);
         
-                // Check if parsedCondition and taskSelections are valid
                 if (Array.isArray(parsedCondition)) {
-                    // Flatten the parsedCondition array
                     const flattenedCondition = parsedCondition.flat();
-                
-                    console.log('Flattened Parsed Condition:', flattenedCondition);
-                
                     flattenedCondition.forEach((condition) => {
                         if (Array.isArray(condition.taskSelections)) {
-                            console.log('Task Selections:', condition.taskSelections);
                 
-                            // Filter taskSelections where inputId matches updatedValue
                             const filteredTaskSelections = condition.taskSelections.filter(
                                 (taskSelection: any) => String(taskSelection.inputId) === String(updatedValue)
                             );
                 
                             if (filteredTaskSelections.length > 0) {
-                                console.log('Filtered Task Selections:', filteredTaskSelections);
-                
-                                // Update the condition with filtered taskSelections
-                                setSelectedCondition({ 
-                                    ...condition, 
-                                    taskSelections: filteredTaskSelections 
-                                });
-                                
-                                console.log("Updated Condition:", {
-                                    ...condition,
-                                    taskSelections: filteredTaskSelections,
-                                });
+                                setSelectedCondition({  ...condition, taskSelections: filteredTaskSelections  });
 
-                                console.log("this is what i want", selectedCondition)
-                            } else {
-                                console.warn('No matching task found for updatedValue:', updatedValue);
-                
-                                // Reset taskSelections if no match is found
+                            } else { console.warn('No matching task found for updatedValue:', updatedValue);
                             }
-                        } else {
-                            console.error('taskSelections is not an array or undefined:', condition.taskSelections);
+                        } else { console.error('taskSelections is not an array or undefined:', condition.taskSelections);
                         }
                     });
-                } else {
-                    console.error('parsedCondition is not an array:', parsedCondition);
-                }
-        
-                // Update visibility based on the selected option ID
+                } else { console.error('parsedCondition is not an array:', parsedCondition);}
+
                 setShowMessManagerSelect(selectedOption.id === '11-1');
             } else {
-                // Handle case where no option is selected
                 console.warn(`No option found for the value: ${value}`);
             }
         }
@@ -660,7 +630,6 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                 ...(excludedInputIds.includes(inputId) ? {} : { [inputId]: updatedValue }),
             };
 
-            // Update taskJson only when inputId is not excluded
             if (!excludedInputIds.includes(inputId)) {
                 const updatedTaskJson = {
                     ...formData,
@@ -669,13 +638,8 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                         value: newState[input.inputId] !== undefined ? newState[input.inputId] : input.value,
                     })),
                 };
-
-                // Set taskJson in JSON format, matching formData structure
-                // setTaskJson(JSON.stringify(updatedTaskJson, null, 2)); 
                 setglobalTaskJson(updatedTaskJson);
             }
-
-            // Re-evaluate conditions after state update
             reEvaluateConditions(newState);
 
             console.log(newState);
@@ -683,11 +647,6 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
             return newState;
         });
     };
-
-    console.log(formState);
-
-
-    console.log(moduleId)
 
     const handleSubmit = async (event: React.FormEvent, taskNumber: string) => {
         event.preventDefault();
@@ -705,14 +664,6 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
         // const conditionToSend = selectedCondition.length > 0 ? selectedCondition : [parsedCondition[0]]; // Ensure the fallback is an array
 
 
-
-
-
-        console.log("this is selected",selectedCondition)
-        console.log("this is selected2",parsedCondition)
-
-
-
         // setLoading(true);  // Show loader when the request is initiated
         if (fromComponent === 'AccountProcess') {
             const adhocRequestedData = {
@@ -723,8 +674,6 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                 adhocJson: JSON.stringify(globalTaskJson),
                 createdBy: role,
             }
-
-            console.log(adhocRequestedData)
 
             try {
                 const apiUrl = `${config.API_URL_ACCOUNT}/AdhocForm/InsertAdhocJsonMaster`;
@@ -761,9 +710,6 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                 updatedBy: role, // Use role for updatedBy
             };
             
-            console.log(requestData)
-            console.log(finalData)
-
 
             try {
                 const response = await fetch(`${config.API_URL_ACCOUNT}/ProcessInitiation/UpdateDoerTaskss`, {
@@ -788,9 +734,6 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
             }
 
         }
-
-
-
     };
 
     // const handleApprovalSubmit = async (event: React.FormEvent, taskNumber: string) => {
@@ -1044,23 +987,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                 {location.pathname != '/pages/ApprovalConsole' && (
                     <div className='px-3'>
 
-                        {/* {preData.map((task: any, index: any) => (
-                            <div key={index}>
-                                {selectedTasknumber != task.taskNumber && (
-                                    <>
-                                        <h5 className='mt-2'>Updated data from <span className='text-primary'>{task.taskNumber}</span></h5>
-                                        <div>
-                                            {task.inputs.map((input: any, idx: any) => (
-                                                <div key={idx}>
-                                                    <strong>{input.label}:</strong> <span className='text-primary'>{input.value}</span>
-                                                </div>
-                                            ))}
-                                        </div>
-                                        <hr />
-                                    </>
-                                )}
-                            </div>
-                        ))} */}
+                      
                         {location.pathname !== '/pages/ApprovalConsole' && (
                             <div className="d-flex flex-wrap mx-3">
                                 {/* {preData && preData.length > 0 && preData.map((task: { taskNumber: string; messName: string; messTaskNumber: string; messManager: string; managerNumber: string; inputs: { label: string; value: string }[] }, index: number) => (

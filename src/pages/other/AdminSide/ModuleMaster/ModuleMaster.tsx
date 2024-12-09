@@ -6,8 +6,8 @@ import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 // import IconWithLetter from '@/pages/ui/IconWithLetter';
 import config from '@/config';
 import Select from 'react-select';
-import CustomSuccessToast from '@/pages/other/Component/CustomSuccessToast';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
 
 interface Module {
     id: number;
@@ -24,6 +24,8 @@ interface Module {
     employeeName: string;
     createdBy: string;
     updatedBy: string;
+    createdDate: string;
+    updatedDate: string;
 }
 
 interface Column {
@@ -41,56 +43,33 @@ const ModuleMaster = () => {
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
     const [moduleList, setModuleList] = useState<Module[]>([]);
-    // const [employeeList, setEmployeeList] = useState<Module[]>([]);
     const [searchQuery, setSearchQuery] = useState('');
     const [downloadCsv, setDownloadCsv] = useState<Module[]>([]);
-
     const [moduleDisplayName, setModuleDisplayName] = useState('');
-    // const [moduleOwnerName, setModuleOwnerName] = useState('');
+
 
     const location = useLocation();
     const navigate = useNavigate();
-    const [showToast, setShowToast] = useState(false);
-    const [toastMessage, setToastMessage] = useState('');
-    const [toastVariant, setToastVariant] = useState('');
     useEffect(() => {
-        if (location.state && location.state.showToast) {
-            setShowToast(true);
-            setToastMessage(location.state.toastMessage);
-            setToastVariant(location.state.toastVariant);
-
-            setTimeout(() => {
-                setShowToast(false);
-                navigate(location.pathname, { replace: true });
-            }, 5000);
+        if (location.state?.successMessage) {
+            toast.dismiss()
+            toast.success(location.state.successMessage);
+            navigate(location.pathname, { replace: true });
         }
-        return () => {
-            setShowToast(false);
-            setToastMessage('');
-            setToastVariant('');
-        };
     }, [location.state, navigate]);
 
 
 
     const handleSearch = (e: any) => {
         e.preventDefault();
-
         let query = `?`;
         if (moduleDisplayName) query += `ModuleDisplayName=${moduleDisplayName}&`;
-        // if (moduleOwnerName) query += `ModuleOwnerName=${moduleOwnerName}&`;
-
+        query += `PageIndex=${currentPage}`;
         query = query.endsWith('&') ? query.slice(0, -1) : query;
 
         const apiUrl = `${config.API_URL_APPLICATION}/ModuleMaster/SearchModuleList${query}`;
-
-        axios.get(apiUrl, {
-            headers: {
-                'accept': '*/*'
-            }
-        })
+        axios.get(apiUrl, { headers: { 'accept': '*/*' } })
             .then((response) => {
-                console.log(response.data.moduleMasterListResponses);
                 setModules(response.data.moduleMasterListResponses)
             })
             .catch((error) => {
@@ -134,9 +113,7 @@ const ModuleMaster = () => {
         setLoading(true);
         try {
             const response = await axios.get(`${config.API_URL_APPLICATION}/ModuleMaster/GetModule`, {
-                params: {
-                    PageIndex: currentPage
-                }
+                params: { PageIndex: currentPage }
             });
             if (response.data.isSuccess) {
                 setModules(response.data.moduleMasterList);
@@ -165,8 +142,6 @@ const ModuleMaster = () => {
         }
 
     };
-    
-
 
 
     useEffect(() => {
@@ -182,9 +157,7 @@ const ModuleMaster = () => {
                 console.error(`Error fetching data from ${endpoint}:`, error);
             }
         };
-
         fetchData('CommonDropdown/GetModuleList', setModuleList, 'moduleNameListResponses');
-        // fetchData('CommonDropdown/GetEmployeeListWithId', setEmployeeList, 'employeeLists');
     }, []);
 
 
@@ -201,13 +174,13 @@ const ModuleMaster = () => {
     const filteredModules = modules.filter(module =>
         module.moduleDisplayName.toLowerCase().includes(searchQuery.toLowerCase()) ||
         module.moduleID.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        module.fmsType.toLowerCase().includes(searchQuery.toLowerCase()) 
+        module.fmsType.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
 
     const convertToCSV = (data: Module[]) => {
         const csvRows = [
-            ['ID', 'Module Display Name', 'FMS Type', 'Module ID', 'MIS Exempt ID', 'Status ID', 'Module Owner Name ID', 'Created By', 'Updated By'],
+            ['ID', 'Module Display Name', 'FMS Type', 'Module ID', 'MIS Exempt ID', 'Status ID', 'Module Owner Name ID', 'Created By', 'Updated By', 'Created Date', 'Updated Date'],
             ...data.map(mod => [
                 mod.id,
                 mod.moduleDisplayName,
@@ -217,7 +190,9 @@ const ModuleMaster = () => {
                 mod.statusID,
                 mod.moduleOwnerName,
                 mod.createdBy,
-                mod.updatedBy
+                mod.updatedBy,
+                mod.createdDate,
+                mod.updatedDate
             ])
         ];
 
@@ -232,7 +207,7 @@ const ModuleMaster = () => {
         if (link.download !== undefined) {
             const url = URL.createObjectURL(blob);
             link.setAttribute('href', url);
-            link.setAttribute('download', 'Modules.csv');
+            link.setAttribute('download', 'Module Master.csv');
             link.style.visibility = 'hidden';
             document.body.appendChild(link);
             link.click();
@@ -302,22 +277,6 @@ const ModuleMaster = () => {
                                                 </Form.Group>
                                             </Col>
 
-                                            {/* <Col lg={5}>
-                                                <Form.Group controlId="ModuleOwnerName">
-                                                    <Form.Label>Module Owner Name:</Form.Label>
-                                                    <Select
-                                                        name="ModuleOwnerName"
-                                                        value={employeeList.find(emp => emp.empId === moduleOwnerName) || null} // handle null
-                                                        onChange={(selectedOption) => setModuleOwnerName(selectedOption ? selectedOption.empId : "")} // null check
-                                                        options={employeeList}
-                                                        getOptionLabel={(emp) => emp.employeeName}
-                                                        getOptionValue={(emp) => emp.empId}
-                                                        isSearchable={true}
-                                                        placeholder="Select Module Owner Name."
-                                                        className="h45"
-                                                    />
-                                                </Form.Group>
-                                            </Col> */}
 
 
                                             <Col ></Col>
@@ -428,25 +387,6 @@ const ModuleMaster = () => {
                                                                             </td>
                                                                         ) :
 
-                                                                            // col.id === 'moduleOwnerName' ? (
-                                                                            //     <td>
-                                                                            //         <div >
-                                                                            //             <div className='d-flex align-items-center'>
-                                                                            //                 <IconWithLetter letter={item.moduleOwnerName.charAt(0)} />
-                                                                            //                 {item.moduleOwnerName.split('_')[0]}
-                                                                            //             </div>
-                                                                            //             {item.userUpdatedMobileNumber ?
-                                                                            //                 <p className='phone_user fw-normal m-0'>
-                                                                            //                     <a href={`tel:${item.userUpdatedMobileNumber}`}> <i className="ri-phone-fill"></i> {item.userUpdatedMobileNumber}</a>
-
-                                                                            //                 </p> : ""
-                                                                            //             }
-
-
-                                                                            //         </div>
-                                                                            //     </td>
-                                                                            // ) :
-
                                                                             (
                                                                                 <td>{item[col.id as keyof Module]}</td>
                                                                             )}
@@ -456,9 +396,11 @@ const ModuleMaster = () => {
                                                                 </td>
                                                             ))}
                                                             <td><Link to={`/pages/ModuleMasterinsert/${item.id}`}>
-                                                                <i className='btn ri-edit-line' ></i>
-                                                            </Link>
-                                                            </td>
+                                                                <Button variant='primary' className=' text-white p-0' title="You can Edit the Porcess." >
+                                                                    <i className='btn ri-edit-line text-white' ></i>
+
+                                                                </Button></Link></td>
+
                                                         </tr>
                                                     ))
                                                 ) : (
@@ -500,8 +442,6 @@ const ModuleMaster = () => {
                     </div>
                 </div>
             )}
-            <CustomSuccessToast show={showToast} toastMessage={toastMessage} toastVariant={toastVariant} onClose={() => setShowToast(false)} />
-
         </>
     );
 };

@@ -6,6 +6,7 @@ import config from '@/config';
 import Select from 'react-select';
 import Flatpickr from 'react-flatpickr';
 import 'flatpickr/dist/themes/material_green.css'; // You can choose other themes as well
+import { toast } from 'react-toastify';
 
 
 interface SubProject {
@@ -43,10 +44,6 @@ interface CompletionStatus {
     name: any;
 }
 
-interface EmployeeList {
-    empId: string;
-    employeeName: string;
-}
 
 interface PorjectList {
     id: string;
@@ -55,12 +52,12 @@ interface PorjectList {
 
 
 const ProjectInsert = () => {
+    toast.dismiss()
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
     const [editMode, setEditMode] = useState<boolean>(false);
     const [empName, setEmpName] = useState<string | null>()
     const [completionStatus, setCompletionStatus] = useState<CompletionStatus[]>([]);
-    const [employeeList, setEmployeeList] = useState<EmployeeList[]>([]);
     const [projectList, setProjectList] = useState<PorjectList[]>([]);
 
 
@@ -69,7 +66,7 @@ const ProjectInsert = () => {
         projectName: '',
         subProjectID: '',
         subProjectName: '',
-        projectIncharge:{},
+        projectIncharge: {},
         projectCoordinator: '',
         completionStatus: 0,
         nameOfWork: '',
@@ -150,7 +147,6 @@ const ProjectInsert = () => {
         };
 
         fetchData('CommonDropdown/GetCompletionStatus', setCompletionStatus, 'completionStatusListResponses');
-        fetchData('CommonDropdown/GetEmployeeListWithId', setEmployeeList, 'employeeLists');
         fetchData('CommonDropdown/GetProjectList', setProjectList, 'projectListResponses');
 
     }, []);
@@ -177,9 +173,11 @@ const ProjectInsert = () => {
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
 
         const payloadInsert = {
-            ...subProject,
+            subProjectID: subProject.subProjectID,
+            completionStatus: subProject.completionStatus,
+            subProjectName: subProject.subProjectName,
+            projectName: subProject.projectName,
             createdBy: editMode ? subProject.createdBy : empName,
-            updatedBy: editMode ? empName : '',
         };
         const payloadUpdate = {
             ...subProject,
@@ -199,10 +197,17 @@ const ProjectInsert = () => {
                 console.log('SubProjectMaster/InsertSubProject')
 
             }
-            navigate('/pages/ProjectMaster');
-        } catch (error) {
-            console.error('Error submitting module:', error);
+            navigate('/pages/ProjectMaster', {
+                state: {
+                    successMessage: editMode ? "Sub Project Updated successfully!" : "Sub Project Added successfully!",
+                },
+            });
+
+        } catch (error:any) {
+            toast.error(error)
         }
+
+        
     };
 
 
@@ -263,59 +268,6 @@ const ProjectInsert = () => {
                                     />
                                 </Form.Group>
                             </Col>
-
-                            {/* <Col lg={6}>
-                                <Form.Group controlId="incharge" className="mb-3">
-                                    <Form.Label>Project Incharge</Form.Label>
-                                    <Select
-                                        name="incharge"
-                                        // Convert the selected employee IDs back to the Select's value format for display
-                                        value={employeeList.filter(emp =>
-                                            Object.keys(subProject.projectIncharge).includes(emp.empId)
-                                        )}
-                                        onChange={(selectedOptions) => {
-                                            // Convert selected options to an object where keys are empIds
-                                            const inchargeObject = selectedOptions
-                                                ? selectedOptions.reduce((obj, emp) => ({ ...obj, [emp.empId]: emp.empId }), {})
-                                                : {};
-
-                                                setSubProject({
-                                                ...subProject,
-                                                projectIncharge: inchargeObject,
-                                            });
-                                        }}
-                                        getOptionLabel={(emp) => emp.employeeName}
-                                        getOptionValue={(emp) => emp.empId}
-                                        options={employeeList}
-                                        isSearchable={true}
-                                        placeholder="Select Project Incharge"
-                                        isMulti={true}
-                                    />
-                                </Form.Group>
-                            </Col> */}
-
-                            {/* <Col lg={6}>
-                                <Form.Group controlId="coordinator" className="mb-3">
-                                    <Form.Label>Project Coordinator </Form.Label>
-                                    <Select
-                                        name="coordinator"
-                                        value={employeeList.find((emp) => emp.empId === subProject.projectCoordinator)}
-                                        onChange={(selectedOption) => {
-                                            setSubProject({
-                                                ...subProject,
-                                                projectCoordinator: selectedOption?.empId || "",
-                                            });
-                                        }}
-                                        getOptionLabel={(emp) => emp.employeeName}
-                                        getOptionValue={(emp) => emp.employeeName}
-                                        options={employeeList}
-                                        isSearchable={true}
-                                        placeholder="Select Project Coordinator"
-                                    />
-                                </Form.Group>
-                            </Col> */}
-
-
 
                             <Col lg={6}>
                                 <Form.Group controlId="completionStatus" className="mb-3">
@@ -590,19 +542,6 @@ const ProjectInsert = () => {
                                 </Col>
 
                             </>}
-
-                            <Col lg={6}>
-                                <Form.Group controlId="nameOfWork" className="mb-3">
-                                    <Form.Label>nameOfWork:</Form.Label>
-                                    <Form.Control
-                                        type="text"
-                                        name="nameOfWork"
-                                        value={subProject.nameOfWork}
-                                        onChange={handleChange}
-                                        placeholder='Enter Name Of Work'
-                                    />
-                                </Form.Group>
-                            </Col>
 
 
                             <Col className='align-items-end d-flex justify-content-between mb-3'>

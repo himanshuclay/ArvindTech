@@ -10,7 +10,7 @@ const CustomSuccessToast: React.FC<{
         <Toast
             show={show}
             onClose={onClose}
-            delay={5000}
+            delay={60000}
             autohide
             style={{
                 position: 'fixed',

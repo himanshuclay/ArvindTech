@@ -6,6 +6,7 @@ import { Button, Col, Form, Row } from 'react-bootstrap';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import config from '@/config';
 import Select from 'react-select';
+import { toast } from 'react-toastify';
 
 
 interface Designation {
@@ -29,6 +30,7 @@ interface DepartmentList {
 
 
 const DesignationMasterinsert = () => {
+    toast.dismiss()
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
     const [editMode, setEditMode] = useState<boolean>(false);
@@ -127,15 +129,19 @@ const DesignationMasterinsert = () => {
             createdBy: editMode ? designations.createdBy : empName,
             updatedBy: editMode ? empName : '',
         };
-        console.log(payload)
         try {
             if (editMode) {
                 await axios.post(`${config.API_URL_APPLICATION}/DesignationMaster/InsertorUpdateDesignation`, payload);
             } else {
                 await axios.post(`${config.API_URL_APPLICATION}/DesignationMaster/InsertorUpdateDesignation`, payload);
             }
-            navigate('/pages/DesignationMaster');
-        } catch (error) {
+            navigate('/pages/DesignationMaster', {
+                state: {
+                    successMessage: editMode ? 'Designation Updated Successfully! ' : 'Designation Added Successfully!',
+                }
+            });
+        } catch (error:any) {
+            toast.error(error || "Error Added/Update");
             console.error('Error submitting module:', error);
         }
     };
@@ -150,9 +156,6 @@ const DesignationMasterinsert = () => {
                 <div className='bg-white p-2 rounded-3 border'>
                     <Form onSubmit={handleSubmit}>
                         <Row>
-
-
-
 
                             <Col lg={6}>
                                 <Form.Group controlId="department" className="mb-3">
@@ -260,7 +263,6 @@ const DesignationMasterinsert = () => {
 
                     </Form>
                 </div>
-
             </div>
         </div>
     );

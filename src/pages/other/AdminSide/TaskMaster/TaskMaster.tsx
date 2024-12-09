@@ -278,26 +278,6 @@ const TaskMaster: React.FC = () => {
             </div>
             <TaskCondition show={show} setShow={setShow} taskID={taskID} />
 
-            {/* <DynamicForm
-                formData={JSON.parse(selectedJson)}
-                taskNumber
-                data
-                show={showJsonModal}
-                setShow={setShowJsonModal}
-                parsedCondition
-                preData
-                selectedTasknumber
-                setLoading
-                taskCommonIDRow
-                taskStatus
-                processId
-                moduleId
-                ProcessInitiationID
-                approval_Console
-                approvalConsoleInputID
-
-            /> */}
-
             {selectedJson &&
                 <DynamicForm
                     fromComponent='TaskMaster'

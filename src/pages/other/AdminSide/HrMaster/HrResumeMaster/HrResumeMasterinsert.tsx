@@ -3,7 +3,7 @@ import { useEffect, useState, ChangeEvent } from 'react';
 import { Button, Col, Form, Row, ButtonGroup } from 'react-bootstrap';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import config from '@/config';
-import CustomSuccessToast from '@/pages/other/Component/CustomSuccessToast';
+import { toast } from 'react-toastify';
 
 interface HrResume {
     id: number;
@@ -17,12 +17,9 @@ interface HrResume {
 
 
 const HrInputMasterinsert = () => {
+    toast.dismiss()
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
-
-    const [showToast, setShowToast] = useState(false);
-    const [toastMessage, setToastMessage] = useState("");
-    const [toastVariant, setToastVariant] = useState('');
     const [editMode, setEditMode] = useState<boolean>(false);
     const [empName, setEmpName] = useState<string | null>('')
     const [hrResumes, setHrResumes] = useState<HrResume>({
@@ -105,24 +102,18 @@ const HrInputMasterinsert = () => {
             if (editMode) {
                 await axios.post(`${config.API_URL_APPLICATION}/ResumeMaster/InsertorUpdateResume`, payload);
                 navigate('/pages/HrResumeMaster', { state: { 
-                    showToast: true,
-                    toastMessage:"HrResume Updated successfully!",
-                    toastVariant:"rgb(28 175 85)"
+                    successMessage:"HrResume Updated successfully!",
                    } });
             } else {
                 await axios.post(`${config.API_URL_APPLICATION}/ResumeMaster/InsertorUpdateResume`, payload);
                 navigate('/pages/HrResumeMaster', { state: { 
-                    showToast: true,
-                    toastMessage:"HrResume Added successfully!",
-                    toastVariant:"rgb(28 175 85)"
+                    successMessage:"HrResume Added successfully!",
                    } });
             }
           
 
-        } catch (error) {
-            setToastMessage("Error Adding/Updating");
-            setToastVariant("rgb(213 18 18)");
-            setShowToast(true);
+        } catch (error:any) {
+            toast.error(error || "Error Adding/Updating");
             console.error('Error submitting module:', error);
         }
     };
@@ -218,8 +209,6 @@ const HrInputMasterinsert = () => {
                     </Form>
                 </div>
             </div>
-            <CustomSuccessToast show={showToast} toastMessage={toastMessage} toastVariant={toastVariant} onClose={() => setShowToast(false)} />
-
         </div >
     );
 };

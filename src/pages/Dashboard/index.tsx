@@ -1,17 +1,14 @@
 import { Col, Row } from 'react-bootstrap'
 import Statistics from './Statistics'
-// import WeeklySelesChart from './WeeklySelesChart'
-// import YearlySelesChart from './YearlySelesChart'
-// import ChatList from './ChatList'
-// import Projects from './Projects'
 
-// componets
 import { PageBreadcrumb } from '@/components'
-
-// data
 import {  statistics } from './data'
 
+
+
 const Dashboard = () => {
+
+
 	return (
 		<>
 			<PageBreadcrumb title="Welcome!" subName="Dashboards" />

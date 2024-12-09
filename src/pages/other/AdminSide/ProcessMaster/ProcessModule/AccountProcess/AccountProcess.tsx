@@ -4,8 +4,8 @@ import { Button, Col, Form, Row, ButtonGroup, Overlay, Popover, Modal, Table } f
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import config from '@/config';
 import Select from 'react-select';
-import CustomSuccessToast from '@/pages/other/Component/CustomSuccessToast';
 import DynamicForm from '@/pages/other/Component/DynamicForm';
+import { toast } from 'react-toastify';
 
 interface Process {
     id: number;
@@ -47,14 +47,12 @@ interface AdhocList {
     formName: string;
 }
 const AccountProcess = () => {
+    toast.dismiss()
     const { id } = useParams<{ id: string }>();
     const { processID } = useParams<{ processID: string }>();
     const { moduleID } = useParams<{ moduleID: string }>();
 
     const navigate = useNavigate();
-    const [showToast, setShowToast] = useState(false);
-    const [toastMessage, setToastMessage] = useState("");
-    const [toastVariant, setToastVariant] = useState('');
     const [empName, setEmpName] = useState<string | null>('')
     const [show, setShow] = useState(false);
     const [adhocLlist, setAdhocLlist] = useState<AdhocList[]>([]);
@@ -199,18 +197,14 @@ const AccountProcess = () => {
         e.preventDefault();
         try {
             await axios.post(`${config.API_URL_APPLICATION}/InitiationMaster/UpdateAccountIInitiation`, payload);
-            navigate('/pages/ProcessMaster', {
+            navigate('/pages/ProcessInitiation', {
                 state: {
-                    showToast: true,
-                    toastMessage: "Process Initiated successfully!",
-                    toastVariant: "rgb(28 175 85)"
+                    successMessage: "Process Initiated successfully!",
                 }
             });
 
-        } catch (error) {
-            setToastMessage("Error Adding/Updating");
-            setToastVariant("rgb(213 18 18)");
-            setShowToast(true);
+        } catch (error:any) {
+            toast.error(error);
             console.error('Error submitting module:', error);
         }
     };
@@ -587,7 +581,6 @@ const AccountProcess = () => {
                     </Form>
                 </div>
             </div>
-            <CustomSuccessToast show={showToast} toastMessage={toastMessage} toastVariant={toastVariant} onClose={() => setShowToast(false)} />
 
             <Modal className="p-2" show={showAdhoc} onHide={handleClose} size="lg">
                 <Modal.Header closeButton>

@@ -7,7 +7,7 @@ import config from '@/config';
 import Select from 'react-select';
 import IconWithLetter from '@/pages/ui/IconWithLetter';
 import { useLocation, useNavigate } from 'react-router-dom';
-import CustomSuccessToast from '../../Component/CustomSuccessToast';
+import { toast } from 'react-toastify';
 
 
 
@@ -44,33 +44,18 @@ const MessMaster = () => {
     const [searchQuery, setSearchQuery] = useState('');
     const [downloadCsv, setDownloadCsv] = useState<Mess[]>([]);
     const [messList, setMessList] = useState<MessList[]>([]);
-    
-    
     const [MessName, setMessName] = useState('');
 
 
 
     const location = useLocation();
     const navigate = useNavigate();
-    const [showToast, setShowToast] = useState(false);
-    const [toastMessage, setToastMessage] = useState('');
-    const [toastVariant, setToastVariant] = useState('');
     useEffect(() => {
-        if (location.state && location.state.showToast) {
-            setShowToast(true);
-            setToastMessage(location.state.toastMessage);
-            setToastVariant(location.state.toastVariant);
-
-            setTimeout(() => {
-                setShowToast(false);
-                navigate(location.pathname, { replace: true });
-            }, 5000);
+        if (location.state?.successMessage) {
+            toast.dismiss()
+            toast.success(location.state.successMessage);
+            navigate(location.pathname, { replace: true });
         }
-        return () => {
-            setShowToast(false);
-            setToastMessage('');
-            setToastVariant('');
-        };
     }, [location.state, navigate]);
 
 
@@ -237,9 +222,6 @@ const MessMaster = () => {
     };
 
 
-    // const filteredDoers = messes.filter(role =>
-    //     role.roleName.toLowerCase().includes(searchQuery.toLowerCase())
-    // );
     return (
         <>
             <div className="container">
@@ -479,12 +461,6 @@ const MessMaster = () => {
 
 
             </div >
-            <CustomSuccessToast
-                show={showToast}
-                toastMessage={toastMessage}
-                toastVariant={toastVariant}
-                onClose={() => setShowToast(false)}
-            />
         </>
     );
 };

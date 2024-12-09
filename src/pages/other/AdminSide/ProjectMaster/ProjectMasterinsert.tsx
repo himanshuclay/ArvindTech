@@ -6,7 +6,7 @@ import config from '@/config';
 import Select from 'react-select';
 import Flatpickr from 'react-flatpickr';
 import 'flatpickr/dist/themes/material_green.css';
-import CustomSuccessToast from '../../Component/CustomSuccessToast';
+import { toast } from 'react-toastify';
 
 
 interface Project {
@@ -41,8 +41,6 @@ interface Project {
 }
 
 
-
-
 interface StateList {
     id: number;
     stateName: any;
@@ -63,12 +61,10 @@ interface PorjectTypeList {
 
 
 const ProjectInsert = () => {
+    toast.dismiss()
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
     const [editMode, setEditMode] = useState<boolean>(false);
-    const [showToast, setShowToast] = useState(false);
-    const [toastMessage, setToastMessage] = useState("");
-    const [toastVariant, setToastVariant] = useState('');
     const [empName, setEmpName] = useState<string | null>()
     const [stateList, setStateList] = useState<StateList[]>([]);
     const [completionStatus, setCompletionStatus] = useState<CompletionStatus[]>([]);
@@ -160,7 +156,6 @@ const ProjectInsert = () => {
                 console.error(`Error fetching data from ${endpoint}:`, error);
             }
         };
-
         fetchData('CommonDropdown/GetStateList', setStateList, 'stateListResponses');
         fetchData('CommonDropdown/GetCompletionStatus', setCompletionStatus, 'completionStatusListResponses');
         fetchData('CommonDropdown/GetEmployeeListWithId', setEmployeeList, 'employeeLists');
@@ -197,27 +192,20 @@ const ProjectInsert = () => {
             updatedBy: editMode ? empName : '',
             projectIncharge: project.projectIncharge.join(','),
         };
-        console.log(payload)
-
         try {
             const apiUrl = `${config.API_URL_APPLICATION}/ProjectMaster/${editMode ? 'UpdateProject' : 'InsertProject'}`;
             const response = await axios.post(apiUrl, payload);
-
             if (response.status === 200) {
                 navigate('/pages/ProjectMaster', {
                     state: {
-                        showToast: true,
-                        toastMessage: editMode ? "Project updated successfully!" : "Project added successfully!",
-                        toastVariant: "rgb(28 175 85)",
+                        successMessage: editMode ? "Project Updated successfully!" : "Project Added successfully!",
                     },
                 });
             } else {
-                setToastMessage(response.data.message || "Failed to process request");
+                toast.error(response.data.message || "Failed to process request")
             }
         } catch (error: any) {
-            setToastMessage(error || 'Failed to Add/Update Project');
-            setToastVariant("rgb(213 18 18)");
-            setShowToast(true);
+            toast.error(error)
             console.error('Error submitting module:', error);
         }
     };
@@ -242,8 +230,9 @@ const ProjectInsert = () => {
                                         name="projectID"
                                         value={project.projectID}
                                         onChange={handleChange}
-                                        // required
+                                        required
                                         placeholder='Enter Project ID'
+                                        disabled={editMode}
 
                                     />
                                 </Form.Group>
@@ -256,7 +245,7 @@ const ProjectInsert = () => {
                                         name="projectName"
                                         value={project.projectName}
                                         onChange={handleChange}
-                                        // required
+                                        required
                                         placeholder='Enter Project Name'
 
                                     />
@@ -279,7 +268,7 @@ const ProjectInsert = () => {
                                         options={stateList}
                                         isSearchable={true}
                                         placeholder="Select State Name"
-                                        // required
+                                        required
                                     />
                                 </Form.Group>
                             </Col>
@@ -301,7 +290,7 @@ const ProjectInsert = () => {
                                         options={projectTypeList}
                                         isSearchable={true}
                                         placeholder="Select Project Type"
-                                        // required
+                                        required
                                     />
                                 </Form.Group>
                             </Col>
@@ -324,7 +313,7 @@ const ProjectInsert = () => {
                                         options={managementContractList}
                                         isSearchable={true}
                                         placeholder="Select Management Contract"
-                                        // required
+                                        required
                                     />
                                 </Form.Group>
                             </Col>
@@ -401,7 +390,7 @@ const ProjectInsert = () => {
                                         options={completionStatus}
                                         isSearchable={true}
                                         placeholder="Select State Name"
-                                        // required
+                                        required
                                     />
                                 </Form.Group>
                             </Col>
@@ -697,7 +686,6 @@ const ProjectInsert = () => {
                 </div>
 
             </div>
-            <CustomSuccessToast show={showToast} toastMessage={toastMessage} toastVariant={toastVariant} onClose={() => setShowToast(false)} />
 
         </div>
     );

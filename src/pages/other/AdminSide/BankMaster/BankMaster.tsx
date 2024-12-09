@@ -6,7 +6,7 @@ import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import config from '@/config';
 import Select from 'react-select';
 import { useLocation, useNavigate } from 'react-router-dom';
-import CustomSuccessToast from '@/pages/other/Component/CustomSuccessToast';
+import { toast } from 'react-toastify';
 
 
 
@@ -33,9 +33,11 @@ interface Column {
 interface StateList {
     id: number;
     stateName: string;
+    city: string
 }
 interface BankList {
     bank: string;
+    bankName: string;
     branch: string;
 }
 
@@ -48,31 +50,20 @@ const BankMaster = () => {
     const [stateList, setStateList] = useState<StateList[]>([]);
     const [bankList, setBankList] = useState<BankList[]>([]);
     const [branchName, setBranchName] = useState<BankList[]>([]);
-
+    const [cityName, setCityName] = useState<StateList[]>([]);
 
 
     const location = useLocation();
     const navigate = useNavigate();
-    const [showToast, setShowToast] = useState(false);
-    const [toastMessage, setToastMessage] = useState('');
-    const [toastVariant, setToastVariant] = useState('');
     useEffect(() => {
-        if (location.state && location.state.showToast) {
-            setShowToast(true);
-            setToastMessage(location.state.toastMessage);
-            setToastVariant(location.state.toastVariant);
-
-            setTimeout(() => {
-                setShowToast(false);
-                navigate(location.pathname, { replace: true });
-            }, 5000);
+        if (location.state?.successMessage) {
+            toast.dismiss()
+            toast.success(location.state.successMessage);
+            navigate(location.pathname, { replace: true });
         }
-        return () => {
-            setShowToast(false);
-            setToastMessage('');
-            setToastVariant('');
-        };
     }, [location.state, navigate]);
+
+
 
 
 
@@ -86,8 +77,6 @@ const BankMaster = () => {
         { id: 'state', label: 'State', visible: true },
     ]);
 
-
-
     const handleOnDragEnd = (result: any) => {
         if (!result.destination) return;
         const reorderedColumns = Array.from(columns);
@@ -97,7 +86,7 @@ const BankMaster = () => {
     };
     // ==============================================================
 
-  
+
 
 
 
@@ -125,13 +114,14 @@ const BankMaster = () => {
 
 
     const [searchBank, setSearchBank] = useState('');
+    const [searcCity, setSearchCity] = useState('');
     const [searchIfsc, setSearchIfsc] = useState('');
     const [searchBranch, setSearchBranch] = useState('');
     const [searchState, setSearchState] = useState('');
 
     useEffect(() => {
         // If any search criteria is filled, run handleSearch; otherwise, fetch master data
-        if (searchBank || searchIfsc || searchBranch ||searchState ) {
+        if (searchBank || searchIfsc || searchBranch || searchState) {
             handleSearch();
         } else {
             fetchStaffRequirements();
@@ -148,6 +138,7 @@ const BankMaster = () => {
         if (searchIfsc) query += `Ifsc=${searchIfsc}&`;
         if (searchBranch) query += `Branch=${searchBranch}&`;
         if (searchState) query += `State=${searchState}&`;
+        if (searcCity) query += `City=${searcCity}&`;
         query += `PageIndex=${currentPage}`;
 
         query = query.endsWith('&') ? query.slice(0, -1) : query;
@@ -160,7 +151,6 @@ const BankMaster = () => {
             }
         })
             .then((response) => {
-                console.log("search response ", response.data.bankMasterListResponses);
                 setBanks(response.data.bankMasterListResponses)
                 setTotalPages(Math.ceil(response.data.totalCount / 10));
             })
@@ -198,12 +188,41 @@ const BankMaster = () => {
                 setBranchName([]);
             }
         };
-
-        // Only call the second API if both searchPinCode and selectedDistrict are valid
         if (searchBank && searchState) {
             fetchAreaData();
         }
     }, [searchBank, searchState]);
+
+
+    useEffect(() => {
+        const fetchCity = async () => {
+            try {
+                const response = await axios.get(`${config.API_URL_APPLICATION}/BankMaster/GetCityNamebyState?state=${searchState}`);
+                setCityName(response.data.cityNames); // Assume the response contains area data
+            } catch (error) {
+                console.error('Error fetching area data:', error);
+                setCityName([]);
+            }
+        };
+        if (searchState) {
+            fetchCity();
+        }
+    }, [searchState]);
+
+    useEffect(() => {
+        const fetchBankBycity = async () => {
+            try {
+                const response = await axios.get(`${config.API_URL_APPLICATION}/BankMaster/GetBankNamebyCity?city=${searcCity}`);
+                const fetchBankBycityList = response.data.bankNamebyCities
+                setBankList(fetchBankBycityList);
+            } catch (error) {
+                console.error('Error fetching area data:', error);
+            }
+        };
+        if (searcCity) {
+            fetchBankBycity();
+        }
+    }, [searcCity]);
 
 
 
@@ -213,6 +232,7 @@ const BankMaster = () => {
         setSearchBranch('');
         setSearchIfsc('');
         setSearchBank('');
+        setSearchCity('');
     };
 
     const convertToCSV = (data: Bank[]) => {
@@ -292,7 +312,7 @@ const BankMaster = () => {
                     <>
                         <div className='bg-white p-2 pb-2'>
                             <Row>
-                                <Col lg={6} className=''>
+                                <Col lg={4} className=''>
                                     <Form.Group controlId="searchIfsc">
                                         <Form.Label>IFSC Code</Form.Label>
                                         <Form.Control
@@ -305,7 +325,7 @@ const BankMaster = () => {
                                         />
                                     </Form.Group>
                                 </Col>
-                                <Col lg={6} className=''>
+                                <Col lg={4} className=''>
                                     <Form.Group controlId="searchState">
                                         <Form.Label>State</Form.Label>
                                         <Select
@@ -322,23 +342,39 @@ const BankMaster = () => {
                                     </Form.Group>
                                 </Col>
 
-                                <Col lg={6} className='mt-2'>
+                                <Col lg={4} className=''>
+                                    <Form.Group controlId="searchBank">
+                                        <Form.Label>City</Form.Label>
+                                        <Select
+                                            name="searchBank"
+                                            value={cityName.find(item => item.city === searcCity) || null}
+                                            onChange={(selectedOption) => setSearchCity(selectedOption ? selectedOption.city : '')}
+                                            options={cityName}
+                                            getOptionLabel={(item) => item.city}
+                                            getOptionValue={(item) => item.city}
+                                            isSearchable={true}
+                                            placeholder="Select City"
+                                            className="h45"
+                                        />
+                                    </Form.Group>
+                                </Col>
+                                <Col lg={4} className='mt-2'>
                                     <Form.Group controlId="searchBank">
                                         <Form.Label>Bank Name</Form.Label>
                                         <Select
                                             name="searchBank"
-                                            value={bankList.find(item => item.bank === searchBank) || null}
-                                            onChange={(selectedOption) => setSearchBank(selectedOption ? selectedOption.bank : '')}
+                                            value={bankList.find(item => (item.bank || item.bankName ) === searchBank) || null}
+                                            onChange={(selectedOption) => setSearchBank(selectedOption ? (selectedOption.bank || selectedOption.bankName ): '')}
                                             options={bankList}
-                                            getOptionLabel={(item) => item.bank}
-                                            getOptionValue={(item) => item.bank}
+                                            getOptionLabel={(item) => item.bank || item.bankName}
+                                            getOptionValue={(item) => item.bank || item.bankName}
                                             isSearchable={true}
                                             placeholder="Select Bank"
                                             className="h45"
                                         />
                                     </Form.Group>
                                 </Col>
-                                <Col lg={6} className='mt-2'>
+                                <Col lg={4} className='mt-2'>
                                     <Form.Group controlId="searchBranch">
                                         <Form.Label>Branch Name</Form.Label>
                                         <Select
@@ -355,8 +391,7 @@ const BankMaster = () => {
                                     </Form.Group>
                                 </Col>
 
-                                <Col ></Col>
-                                <Col lg={3} className="align-items-end d-flex justify-content-end mt-2">
+                                <Col lg={4} className="align-items-end d-flex justify-content-end mt-2">
                                     <ButtonGroup aria-label="Basic example" className="w-100">
                                         <Button type="button" variant="primary" onClick={handleClear}>
                                             <i className="ri-loop-left-line"></i>
@@ -501,12 +536,6 @@ const BankMaster = () => {
 
 
             </div >
-            <CustomSuccessToast
-                show={showToast}
-                toastMessage={toastMessage}
-                toastVariant={toastVariant}
-                onClose={() => setShowToast(false)}
-            />
         </>
     );
 };

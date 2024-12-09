@@ -1,14 +1,10 @@
-
-
 import axios from 'axios';
 import { useEffect, useState, ChangeEvent } from 'react';
 import { Button, Col, Form, Row } from 'react-bootstrap';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import config from '@/config';
 import Select from 'react-select';
-// import Flatpickr from 'react-flatpickr';
-import 'flatpickr/dist/themes/material_green.css';
-import CustomSuccessToast from '../../Component/CustomSuccessToast';
+import { toast } from 'react-toastify';
 
 
 interface Vender {
@@ -56,17 +52,13 @@ interface EmployeeList {
 
 
 const DepartmentMasterinsert = () => {
+    toast.dismiss()
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
     const [editMode, setEditMode] = useState<boolean>(false);
     const [employeeList, setEmployeeList] = useState<EmployeeList[]>([]);
-    const [showToast, setShowToast] = useState(false);
-    const [toastMessage, setToastMessage] = useState("");
-    const [toastVariant, setToastVariant] = useState('');
     const [stateList, setStateList] = useState<StateList[]>([]);
     const [fillingFrequencyList, setFillingFrequencyList] = useState<FillingFrequencyList[]>([]);
-   
-    // const [empName, setEmpName] = useState<string | null>()
     const [venders, setVenders] = useState<Vender>({
         id:0,
         vendorCode: '',
@@ -91,12 +83,6 @@ const DepartmentMasterinsert = () => {
         creatorEmail: ''
     });
 
-    // useEffect(() => {
-    //     const storedEmpName = localStorage.getItem('EmpName');
-    //     if (storedEmpName) {
-    //         setEmpName(storedEmpName);
-    //     }
-    // }, []);
 
 
     useEffect(() => {
@@ -213,8 +199,6 @@ const DepartmentMasterinsert = () => {
 
         const payload = {
             ...venders,
-            // createdBy: editMode ? venders.createdBy : empName,
-            // updatedBy: editMode ? empName : '',
         };
         console.log(payload)
         try {
@@ -222,27 +206,21 @@ const DepartmentMasterinsert = () => {
                 await axios.post(`${config.API_URL_APPLICATION}/VendorMaster/UpdateVendor`, payload);
                 navigate('/pages/VenderMaster', {
                     state: {
-                        showToast: true,
-                        toastMessage: "Vender Updated successfully!",
-                        toastVariant: "rgb(28 175 85)"
+                        successMessage: "Vender Updated successfully!",
                     }
                 });
             } else {
                 await axios.post(`${config.API_URL_APPLICATION}/VendorMaster/InsertVendor`, payload);
                 navigate('/pages/VenderMaster', {
                     state: {
-                        showToast: true,
-                        toastMessage: "Vender Added successfully!",
-                        toastVariant: "rgb(28 175 85)"
+                        successMessage: "Vender Added successfully!",
                     }
                 });
             }
 
 
-        } catch (error) {
-            setToastMessage("Error Adding/Updating");
-            setToastVariant("rgb(213 18 18)");
-            setShowToast(true);
+        } catch (error:any) {
+            toast.error(error || "Error Adding/Updating");
             console.error('Error submitting module:', error);
         }
     };
@@ -564,7 +542,6 @@ const DepartmentMasterinsert = () => {
                 </div>
 
             </div>
-            <CustomSuccessToast show={showToast} toastMessage={toastMessage} toastVariant={toastVariant} onClose={() => setShowToast(false)} />
         </div>
     );
 };

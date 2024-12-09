@@ -5,8 +5,8 @@ import { useEffect, useState } from "react";
 import Select from 'react-select';
 import Flatpickr from 'react-flatpickr';
 import 'flatpickr/dist/themes/material_green.css';
-import CustomSuccessToast from "../../Component/CustomSuccessToast";
 import { format } from 'date-fns';
+import { toast } from "react-toastify";
 
 
 
@@ -103,10 +103,7 @@ const TaskCondition: React.FC<ProcessCanvasProps> = ({ show, setShow, taskID }) 
     const [expirationDate, setExpirationDate] = useState<string>(''); // Default to null (no date selected)
     const [tasks, setTasks] = useState<TaskData[]>([]);
     const [singleData, setSignleData] = useState<TaskData[]>([]); // Use an array of TaskData
-    const [showToast, setShowToast] = useState(false);
-    const [toastMessage, setToastMessage] = useState<string>('');
     const [parseConditionData, setParseConditionData] = useState<FormData[]>([]);
-    const [toastVariant, setToastVariant] = useState('');
     const [showNestedModal, setShowNestedModal] = useState(false);
 
 
@@ -329,29 +326,90 @@ const TaskCondition: React.FC<ProcessCanvasProps> = ({ show, setShow, taskID }) 
         }
     };
 
+    // const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    //     e.preventDefault();
+
+    //     const conditionJsonFormatted = [
+
+    //         {
+    //             sundayLogic,
+    //             isExpirable,
+    //             expirationDate,
+    //             taskSelections
+    //         }
+    //     ]
+
+    //     const payload = {
+    //         ...singleData[0],
+    //         condition_Json: JSON.stringify(conditionJsonFormatted)
+
+    //     };
+
+    //     toast.info("This update will be applicable for the next cycle.");
+    //     // alert("This Update will be Applicable for next Cycle")
+
+
+    //     try {
+    //         const apiUrl = `${config.API_URL_ACCOUNT}/ProcessTaskMaster/InsertUpdateProcessTaskandDoer`;
+    //         const response = await axios.post(apiUrl, payload);
+
+    //         if (response.status === 200) {
+    //             const conditionData = parseConditionJson(singleData);
+    //             setParseConditionData(conditionData);
+    //             toast.success("Condition is set successfully!");
+    //         } else {
+    //             toast.error(response.data.message || "Failed to process request");
+    //         }
+    //     } catch (error: any) {
+    //         const errorMessage =
+    //             error.response?.data?.message || "An unexpected error occurred";
+    //         toast.error(errorMessage);
+    //         console.error("Error submitting process task:", error);
+    //     }
+
+    // };
+
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
 
         const conditionJsonFormatted = [
-
             {
                 sundayLogic,
                 isExpirable,
                 expirationDate,
-                taskSelections
-            }
-        ]
+                taskSelections,
+            },
+        ];
 
         const payload = {
             ...singleData[0],
-            condition_Json: JSON.stringify(conditionJsonFormatted)
-
+            condition_Json: JSON.stringify(conditionJsonFormatted),
         };
 
-        alert("This Update will be Applicable for next Cycle")
-        console.log(payload)
+        toast.warn(
+            ({ closeToast }) => (
+                <div>
+                    <p>This update will be applicable for the next cycle. Confirm?</p>
+                    <button onClick={async () => {
+                        closeToast();
+                        await submitPayload(payload);
+                    }}
+                        style={{ marginRight: "10px", backgroundColor: "green", color: "white", border: "none", padding: "5px 10px", cursor: "pointer", }}
+                    >
+                        Confirm
+                    </button>
+                    <button onClick={closeToast}
+                        style={{ backgroundColor: "red", color: "white", border: "none", padding: "5px 10px", cursor: "pointer", }}
+                    >
+                        Cancel
+                    </button>
+                </div>
+            ),
+            { autoClose: false }
+        );
+    };
 
-
+    const submitPayload = async (payload: any) => {
         try {
             const apiUrl = `${config.API_URL_ACCOUNT}/ProcessTaskMaster/InsertUpdateProcessTaskandDoer`;
             const response = await axios.post(apiUrl, payload);
@@ -359,23 +417,16 @@ const TaskCondition: React.FC<ProcessCanvasProps> = ({ show, setShow, taskID }) 
             if (response.status === 200) {
                 const conditionData = parseConditionJson(singleData);
                 setParseConditionData(conditionData);
-                setShowToast(true);
-                setToastMessage("Condition is set successfully!");
-                setToastVariant("rgb(28 175 85)");
+                toast.success("Condition is set successfully!");
             } else {
-                setToastMessage(response.data.message || "Failed to process request");
-                setToastVariant("rgb(213 18 18)");
-                setShowToast(true);
+                toast.error(response.data.message || "Failed to process request");
             }
         } catch (error: any) {
             const errorMessage =
                 error.response?.data?.message || "An unexpected error occurred";
-            setToastMessage(errorMessage);
-            setToastVariant("rgb(213 18 18)");
-            setShowToast(true);
+            toast.error(errorMessage);
             console.error("Error submitting process task:", error);
         }
-
     };
 
 
@@ -815,7 +866,6 @@ const TaskCondition: React.FC<ProcessCanvasProps> = ({ show, setShow, taskID }) 
 
                 </Modal.Body>
             </Modal>
-            <CustomSuccessToast show={showToast} toastMessage={toastMessage} toastVariant={toastVariant} onClose={() => setShowToast(false)} />
 
         </div >
     );
