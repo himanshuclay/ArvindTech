@@ -45,6 +45,7 @@ const ForgotPassword = () => {
 	const [showCPassword, setShowCPassword] = useState(false);
 	const [loading, setLoading] = useState(false);
 	const [verifyDoj, setVerifyDoj] = useState(false);
+	const [verifyEmpID, setVerifyEmpID] = useState(false);
 	const [verifyDob, setVerifyDob] = useState(false);
 	const [formData, setFormData] = useState<UserData>({
 		empID: '',
@@ -68,7 +69,7 @@ const ForgotPassword = () => {
 	const fetchEmployeeDetails = async (empID: string) => {
 		try {
 			const response = await axios.get(
-				`${config.API_URL_APPLICATION}/Login/GetEmployeeDetailsbyEmpId?Flag=1&EmpID=${empID}`
+				`${config.API_URL_APPLICATION}/Login/GetEmployeeDetailsbyEmpId?Flag=2&EmpID=${empID}`
 			);
 			if (response.data.isSuccess) {
 				const details = response.data.fetchDetails[0];
@@ -77,6 +78,7 @@ const ForgotPassword = () => {
 					fullname: details.employeeName,
 					role: details.role,
 				});
+				setVerifyEmpID(true)
 			}else{
 				toast.error(
 					<>
@@ -110,26 +112,6 @@ const ForgotPassword = () => {
 			toast.error(
 				<>
 					<div style={{ marginBottom: "10px" }}>{error}</div>
-					<div style={{ display: "flex", gap: "10px" }}>
-						<button
-							onClick={() => navigate("/auth/register")}
-							style={{
-								backgroundColor: "#007bff",
-								color: "#fff",
-								border: "none",
-								padding: "5px 10px",
-								borderRadius: "5px",
-								fontSize: "11px",
-								fontWeight: "bold",
-								cursor: "pointer",
-								transition: "all 0.3s ease",
-							}}
-							onMouseOver={(e) => (e.currentTarget.style.backgroundColor = "#0056b3")}
-							onMouseOut={(e) => (e.currentTarget.style.backgroundColor = "#007bff")}
-						>
-							Sign Up <i className="ri-arrow-right-line"></i>
-						</button>
-					</div>
 				</>,
 				{ autoClose: 30000 }
 			);
@@ -200,6 +182,7 @@ const ForgotPassword = () => {
 				empID: value,
 				fullname: "", // Clear fullname
 			}));
+			setVerifyEmpID(false)
 		} else {
 			setFormData((prevData) => ({ ...prevData, [name]: value }));
 		}
@@ -322,12 +305,6 @@ const ForgotPassword = () => {
 	};
 
 
-	const handleBlur = () => {
-		if (formData.empID) {
-			fetchEmployeeDetails(formData.empID);
-		}
-	};
-
 	return (
 		<div>
 			<PageBreadcrumb title="Forgot Password" />
@@ -338,7 +315,7 @@ const ForgotPassword = () => {
 			>
 				<VerticalForm<UserData> onSubmit={onSubmit}>
 					<Row>
-						<Col>
+					<Col className='position-relative'>
 							<FormInput
 								label="Employee ID"
 								type="text"
@@ -346,10 +323,23 @@ const ForgotPassword = () => {
 								placeholder="Enter your Employee ID"
 								value={formData.empID}
 								onChange={handleInputChange}
-								onBlur={handleBlur}
 								containerClass="mb-3"
 								required
 							/>
+							{formData.empID ?
+								<div
+									className="position-absolute signup-verify fs-11"
+									onClick={() => {
+										toast.dismiss();
+										if (formData.empID) {
+											fetchEmployeeDetails(formData.empID);
+										}
+									}}
+									style={{ borderLeft: 'none', cursor: 'pointer' }}
+								>
+									{verifyEmpID ? <i className="ri-checkbox-circle-fill fs-15 text-success "></i> : 'Verify'}
+								</div> : null
+							}
 						</Col>
 						<Col>
 							<FormInput
@@ -458,7 +448,7 @@ const ForgotPassword = () => {
 					<Row>
 						<Col lg={6}>
 							<Form.Group controlId="password" className="mb-3">
-								<Form.Label>Password</Form.Label>
+								<Form.Label>New Password</Form.Label>
 								<div className="input-group">
 									<Form.Control
 										type={showPassword ? "text" : "password"}
@@ -484,7 +474,7 @@ const ForgotPassword = () => {
 
 						<Col lg={6}>
 							<Form.Group controlId="confirmpassword" className="mb-3">
-								<Form.Label>Password</Form.Label>
+								<Form.Label>Confirm Password</Form.Label>
 								<div className="input-group">
 									<Form.Control
 										type={showCPassword ? "text" : "password"}
@@ -516,6 +506,7 @@ const ForgotPassword = () => {
 							formData.password &&
 							formData.confirmpassword &&
 							verifyDob &&
+							verifyEmpID &&
 							verifyDoj ?
 
 							<Button variant="primary" className="fw-semibold" type="submit" disabled={loading}>

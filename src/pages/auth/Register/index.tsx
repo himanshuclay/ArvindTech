@@ -39,6 +39,7 @@ const Register = () => {
 	const [loading, setLoading] = useState(false);
 	const [verifyDoj, setVerifyDoj] = useState(false);
 	const [verifyDob, setVerifyDob] = useState(false);
+	const [verifyEmpID, setVerifyEmpID] = useState(false);
 	const [formData, setFormData] = useState<UserData>({
 		empID: '',
 		fullname: '',
@@ -54,7 +55,7 @@ const Register = () => {
 	const fetchEmployeeDetails = async (empID: string) => {
 		try {
 			const response = await axios.get(
-				`${config.API_URL_APPLICATION}/Login/GetEmployeeDetailsbyEmpId?Flag=2&EmpID=${empID}`
+				`${config.API_URL_APPLICATION}/Login/GetEmployeeDetailsbyEmpId?Flag=1&EmpID=${empID}`
 			);
 			if (response.data.isSuccess) {
 				const details = response.data.fetchDetails[0];
@@ -63,48 +64,51 @@ const Register = () => {
 					fullname: details.employeeName,
 					role: details.role,
 				});
-			}else{
+				setVerifyEmpID(true)
+			} else {
 				toast.error(
 					<>
-						<div style={{ marginBottom: "10px" }}>{response.data.message}</div>
-						<div style={{ display: "flex", gap: "10px" }}>
-							<button
-								onClick={() => navigate("/auth/forgot-password")}
-								style={{
-									backgroundColor: "#007bff",
-									color: "#fff",
-									border: "none",
-									padding: "5px 10px",
-									borderRadius: "5px",
-									fontSize: "11px",
-									fontWeight: "bold",
-									cursor: "pointer",
-									transition: "all 0.3s ease",
-								}}
-								onMouseOver={(e) => (e.currentTarget.style.backgroundColor = "#0056b3")}
-								onMouseOut={(e) => (e.currentTarget.style.backgroundColor = "#007bff")}
-							>
-								Update Password <i className="ri-arrow-right-line"></i>
-							</button>
-							<button
-								onClick={() => navigate("/auth/login")}
-								style={{
-									backgroundColor: "#28a745",
-									color: "#fff",
-									border: "none",
-									padding: "5px 10px",
-									borderRadius: "5px",
-									fontSize: "11px",
-									fontWeight: "bold",
-									cursor: "pointer",
-									transition: "all 0.3s ease",
-								}}
-								onMouseOver={(e) => (e.currentTarget.style.backgroundColor = "#1c7430")}
-								onMouseOut={(e) => (e.currentTarget.style.backgroundColor = "#28a745")}
-							>
-								Go to Login <i className="ri-arrow-right-line"></i>
-							</button>
-						</div>
+						<div style={{ marginBottom: "10px" }}>{response.data.message || 'Entered Wrong Emploee ID'}</div>
+						{response.data.message === 'Employee is already registered' ?
+							<div style={{ display: "flex", gap: "10px" }}>
+								<button
+									onClick={() => navigate("/auth/forgot-password")}
+									style={{
+										backgroundColor: "#007bff",
+										color: "#fff",
+										border: "none",
+										padding: "5px 10px",
+										borderRadius: "5px",
+										fontSize: "11px",
+										fontWeight: "bold",
+										cursor: "pointer",
+										transition: "all 0.3s ease",
+									}}
+									onMouseOver={(e) => (e.currentTarget.style.backgroundColor = "#0056b3")}
+									onMouseOut={(e) => (e.currentTarget.style.backgroundColor = "#007bff")}
+								>
+									Update Password <i className="ri-arrow-right-line"></i>
+								</button>
+								<button
+									onClick={() => navigate("/auth/login")}
+									style={{
+										backgroundColor: "#28a745",
+										color: "#fff",
+										border: "none",
+										padding: "5px 10px",
+										borderRadius: "5px",
+										fontSize: "11px",
+										fontWeight: "bold",
+										cursor: "pointer",
+										transition: "all 0.3s ease",
+									}}
+									onMouseOver={(e) => (e.currentTarget.style.backgroundColor = "#1c7430")}
+									onMouseOut={(e) => (e.currentTarget.style.backgroundColor = "#28a745")}
+								>
+									Go to Login <i className="ri-arrow-right-line"></i>
+								</button>
+							</div> : null
+						}
 					</>,
 					{ autoClose: 30000 }
 				);
@@ -113,45 +117,7 @@ const Register = () => {
 			toast.dismiss()
 			toast.error(
 				<>
-					<div style={{ marginBottom: "10px" }}>{error}</div>
-					<div style={{ display: "flex", gap: "10px" }}>
-						<button
-							onClick={() => navigate("/auth/forgot-password")}
-							style={{
-								backgroundColor: "#007bff",
-								color: "#fff",
-								border: "none",
-								padding: "5px 10px",
-								borderRadius: "5px",
-								fontSize: "11px",
-								fontWeight: "bold",
-								cursor: "pointer",
-								transition: "all 0.3s ease",
-							}}
-							onMouseOver={(e) => (e.currentTarget.style.backgroundColor = "#0056b3")}
-							onMouseOut={(e) => (e.currentTarget.style.backgroundColor = "#007bff")}
-						>
-							Update Password <i className="ri-arrow-right-line"></i>
-						</button>
-						<button
-							onClick={() => navigate("/auth/login")}
-							style={{
-								backgroundColor: "#28a745",
-								color: "#fff",
-								border: "none",
-								padding: "5px 10px",
-								borderRadius: "5px",
-								fontSize: "11px",
-								fontWeight: "bold",
-								cursor: "pointer",
-								transition: "all 0.3s ease",
-							}}
-							onMouseOver={(e) => (e.currentTarget.style.backgroundColor = "#1c7430")}
-							onMouseOut={(e) => (e.currentTarget.style.backgroundColor = "#28a745")}
-						>
-							Go to Login <i className="ri-arrow-right-line"></i>
-						</button>
-					</div>
+					<div style={{ marginBottom: "10px" }}>{error || 'Entered Wrong Emploee ID'}</div>
 				</>,
 				{ autoClose: 30000 }
 			);
@@ -224,6 +190,7 @@ const Register = () => {
 				empID: value,
 				fullname: "", // Clear fullname
 			}));
+			setVerifyEmpID(false)
 		} else if (name === "mobileNumber") {
 			if (!/^\d{0,10}$/.test(value)) return;
 			setFormData((prevData) => ({ ...prevData, mobileNumber: value }));
@@ -350,13 +317,6 @@ const Register = () => {
 	};
 
 
-
-	const handleBlur = () => {
-		if (formData.empID) {
-			fetchEmployeeDetails(formData.empID);
-		}
-	};
-
 	return (
 		<>
 			<PageBreadcrumb title="Register" />
@@ -369,7 +329,7 @@ const Register = () => {
 				<VerticalForm<UserData> onSubmit={onSubmit}>
 
 					<Row>
-						<Col>
+						<Col className='position-relative'>
 							<FormInput
 								label="Employee ID"
 								type="text"
@@ -377,10 +337,23 @@ const Register = () => {
 								placeholder="Enter your Employee ID"
 								value={formData.empID}
 								onChange={handleInputChange}
-								onBlur={handleBlur}
 								containerClass="mb-3"
 								required
 							/>
+							{formData.empID ?
+								<div
+									className="position-absolute signup-verify fs-11"
+									onClick={() => {
+										toast.dismiss();
+										if (formData.empID) {
+											fetchEmployeeDetails(formData.empID);
+										}
+									}}
+									style={{ borderLeft: 'none', cursor: 'pointer' }}
+								>
+									{verifyEmpID ? <i className="ri-checkbox-circle-fill fs-15 text-success "></i> : 'Verify'}
+								</div> : null
+							}
 						</Col>
 						<Col>
 							<FormInput
@@ -535,6 +508,7 @@ const Register = () => {
 							formData.dob &&
 							formData.password &&
 							verifyDob &&
+							verifyEmpID &&
 							verifyDoj ?
 
 							<Button variant="primary" className="fw-semibold" type="submit" disabled={loading}>
