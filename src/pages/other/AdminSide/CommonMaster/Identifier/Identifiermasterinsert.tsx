@@ -134,7 +134,7 @@ const EmployeeInsert = () => {
 
         const payload = {
             ...identifiers,
-            identifierValue: Array.isArray(tags) ? tags.join(", ") : String(tags),
+            identifierValue: Array.isArray(tags) ? tags : String(tags),
             createdBy: editMode ? identifiers.createdBy : empName,
             updatedBy: editMode ? empName : '',
         };
@@ -168,7 +168,6 @@ const EmployeeInsert = () => {
                 <div className='bg-white p-2 rounded-3 border'>
                     <Form onSubmit={handleSubmit}>
                         <Row>
-
                             <Col lg={6}>
                                 <Form.Group controlId="identifier" className="mb-3">
                                     <Form.Label>Identifier Name</Form.Label>
@@ -182,9 +181,6 @@ const EmployeeInsert = () => {
                                     />
                                 </Form.Group>
                             </Col>
-
-
-
                             <Col lg={6} className='position-relative'>
                                 <Form.Label>Identifier Value</Form.Label>
                                 <div style={{ border: '1px solid #ced4da', borderRadius: '4px' }}>

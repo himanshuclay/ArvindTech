@@ -4,6 +4,7 @@ import Select, { SingleValue } from 'react-select';
 import { Container, Row, Col, Card, Form, Button } from 'react-bootstrap';
 import config from '@/config';
 import DynamicForm from './Component/DynamicForm';
+// import 'remixicon/fonts/remixicon.css'; // Import Remix Icons
 
 interface Input {
   inputId: string;
@@ -15,14 +16,6 @@ interface Input {
   required: boolean;
   conditionalFieldId: string;
 }
-
-// interface FilteredTask {
-//   taskNumber: string;
-//   inputs: {
-//     label: string;
-//     value: string;
-//   }[];
-// }
 
 interface Task {
   id: number;
@@ -68,13 +61,7 @@ const ApprovalPage: React.FC = () => {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [approvalStatuses, setApprovalStatuses] = useState<Record<number, OptionType | null>>({});
   const [selectedTask, setSelectedTask] = useState<Task | any>('');
-  // const [preData, setPreData] = useState<FilteredTask[]>([]);
-  // const [loading, setLoading] = useState<boolean>(true);
-  // const [parsedCondition, setParsedCondition] = useState<any[]>([]);
-  // const [taskCommonIDRow, setTaskCommonIdRow] = useState<number | null>(null);
   const [show, setShow] = useState(false);
-
-
 
   useEffect(() => {
     const fetchData = async () => {
@@ -117,7 +104,6 @@ const ApprovalPage: React.FC = () => {
         const isApprovalConsole = task.approval_Console === "Select Approval_Console";
         let parsedTaskJson;
   
-        // Parse task_Json safely
         try {
           parsedTaskJson = JSON.parse(task.task_Json);
         } catch (error) {
@@ -125,36 +111,32 @@ const ApprovalPage: React.FC = () => {
           return null;
         }
   
-        let updatedTaskJson = [...parsedTaskJson]; // Ensure immutability
+        let updatedTaskJson = [...parsedTaskJson];
         let updatedIsCompleted = task.isCompleted;
   
         if (isApprovalConsole) {
-          // Approval Doer's logic
           if (approvalStatus === "rejected") {
-            updatedIsCompleted = "Pending"; // Send back to doer
+            updatedIsCompleted = "Pending";
           } else if (approvalStatus === "approved") {
-            updatedIsCompleted = "Completed"; // Mark as completed
+            updatedIsCompleted = "Completed";
           } else if (approvalStatus === "amendment") {
-            // For submit with amendment, modify the task_Json (simulating amendment updates)
             updatedTaskJson = updatedTaskJson.map((field) => {
               if (field.inputId === "specificFieldId") {
-                return { ...field, value: "Amended Value" }; // Example amendment
+                return { ...field, value: "Amended Value" };
               }
               return field;
             });
-            updatedIsCompleted = "Pending for Approval"; // Keep it pending for doer revalidation
+            updatedIsCompleted = "Pending for Approval";
           }
         } else {
-          // Doer's submission
           updatedIsCompleted = isApprovalConsole ? "Pending for Approval" : "Completed";
         }
   
-        // Save both doer and approval task_Json separately
         const payload = {
           id: task.id,
           doerID: task.doerId,
-          task_Json: JSON.stringify(updatedTaskJson), // Updated task JSON
-          doer_task_Json: task.task_Json, // Original doer side JSON
+          task_Json: JSON.stringify(updatedTaskJson),
+          doer_task_Json: task.task_Json,
           approval_task_Json: isApprovalConsole ? JSON.stringify(updatedTaskJson) : null,
           isCompleted: updatedIsCompleted,
           task_Number: task.task_Number,
@@ -165,7 +147,6 @@ const ApprovalPage: React.FC = () => {
           updatedBy: task.createdBy,
         };
   
-        // Make API call to update the task
         const response = await axios.post(`${config.API_URL_ACCOUNT}/ProcessInitiation/UpdateDoerTask`, payload);
         return response.data;
       });
@@ -176,64 +157,69 @@ const ApprovalPage: React.FC = () => {
       console.error('Error submitting tasks:', error);
     }
   };
-  
-  // console.log(selectedTask.task_Json)
 
   return (
     <Container>
-        <h4 className="ps-2 my-4 py-2 bg-white">Approval Page</h4>
-      {tasks.map((task) => (
-        <Card key={task.id} className="mb-4">
-          <Card.Header as="h5">Task Number: {task.task_Number}</Card.Header>
-          <Card.Body>
-            <Row>
-              <Col md={6}>
-                <Card.Text>Project Name: {task.projectName}</Card.Text>
-                <Card.Text>Process Name: {task.processName}</Card.Text>
-                <Card.Text>Status: {task.isCompleted}</Card.Text>
-                <Card.Text>Task Start Date: {task.createdDate}</Card.Text>
-              </Col>
-              <Col md={6}>
-                {task.approval_Console === 'Select Approval_Console' && (
-                  <Form.Group>
-                    <Form.Label>Approval Status</Form.Label>
-                    <Select
-                      options={options}
-                      value={approvalStatuses[task.id] || null}
-                      onChange={(selectedOption) => handleSelectChange(task.id, selectedOption)}
-                      placeholder="Select Approval Status"
-                    />
-                  </Form.Group>
-                )}
-              </Col>
-              <div className='d-flex justify-content-end'>
-                <Button onClick={() => handleShowDetails(task)}>
-                  Show Details
-                </Button>
-              </div>
-            </Row>
-          </Card.Body>
-        </Card>
-      ))}
+      <h4 className="ps-2 my-4 py-2 bg-white">Approval Page</h4>
+      {tasks.length === 0 ? (
+        <div className="text-center my-5">
+          <i className="ri-file-search-line" style={{ fontSize: '48px' }}></i>
+          <p>No Approval Request Yet</p>
+        </div>
+      ) : (
+        tasks.map((task) => (
+          <Card key={task.id} className="mb-4">
+            <Card.Header as="h5">Task Number: {task.task_Number}</Card.Header>
+            <Card.Body>
+              <Row>
+                <Col md={6}>
+                  <Card.Text>Project Name: {task.projectName}</Card.Text>
+                  <Card.Text>Process Name: {task.processName}</Card.Text>
+                  <Card.Text>Status: {task.isCompleted}</Card.Text>
+                  <Card.Text>Task Start Date: {task.createdDate}</Card.Text>
+                </Col>
+                <Col md={6}>
+                  {task.approval_Console === 'Select Approval_Console' && (
+                    <Form.Group>
+                      <Form.Label>Approval Status</Form.Label>
+                      <Select
+                        options={options}
+                        value={approvalStatuses[task.id] || null}
+                        onChange={(selectedOption) => handleSelectChange(task.id, selectedOption)}
+                        placeholder="Select Approval Status"
+                      />
+                    </Form.Group>
+                  )}
+                </Col>
+                <div className="d-flex justify-content-end">
+                  <Button onClick={() => handleShowDetails(task)}>
+                    Show Details
+                  </Button>
+                </div>
+              </Row>
+            </Card.Body>
+          </Card>
+        ))
+      )}
+
       <Button variant="primary" onClick={handleSubmit} className="mt-4">
         Submit Approvals
       </Button>
 
       {selectedTask && show && (
         <DynamicForm
-          fromComponent='ApprovalConsole'
+          fromComponent="ApprovalConsole"
           formData={JSON.parse(selectedTask.task_Json)}
           taskNumber={selectedTask.task_Number}
           data={tasks}
           show={show}
-
           setShow={setShow}
-          parsedCondition
-          preData
+          parsedCondition={[]}
+          preData={[]}
           selectedTasknumber={selectedTask.task_Number}
-          setLoading
-          taskCommonIDRow
-          taskStatus
+          setLoading={() => {}}
+          taskCommonIDRow={selectedTask.taskCommonId}
+          taskStatus={selectedTask.isCompleted}
           processId={selectedTask.processID}
           moduleId={selectedTask.moduleID}
           ProcessInitiationID={selectedTask.id}
