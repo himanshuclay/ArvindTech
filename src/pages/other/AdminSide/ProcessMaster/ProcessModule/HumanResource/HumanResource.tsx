@@ -44,7 +44,6 @@ interface GetTypeDayTimeList {
 }
 
 const HumanResource = () => {
-    toast.dismiss()
     const { id } = useParams<{ id: string }>();
 
     const navigate = useNavigate();
@@ -89,6 +88,8 @@ const HumanResource = () => {
 
 
     useEffect(() => {
+        toast.dismiss()
+
         const storedEmpName = localStorage.getItem('EmpName');
         if (storedEmpName) {
             setEmpName(storedEmpName);
@@ -132,7 +133,7 @@ const HumanResource = () => {
     };
 
 
- 
+
 
 
 
@@ -207,19 +208,19 @@ const HumanResource = () => {
                 }
             });
 
-        } catch (error:any) {
+        } catch (error: any) {
             toast.error(error || "Error Adding/Updating");
             console.error('Error submitting module:', error);
         }
     };
 
 
-    const intervalTypeValidIDs = ['HR.01', 'HR.02', 'HR.03', 'HR.04', 'HR.05','HR.06','HR.07'];
-    const timeValidIDs = ['HR.01', 'HR.02', 'HR.03', 'HR.04', 'HR.05','HR.06','HR.07'];
+    const intervalTypeValidIDs = ['HR.01', 'HR.02', 'HR.03', 'HR.04', 'HR.05', 'HR.06', 'HR.07'];
+    const timeValidIDs = ['HR.01', 'HR.02', 'HR.03', 'HR.04', 'HR.05', 'HR.06', 'HR.07'];
     const shopIDValidIDs = ['HR.02'];
     const shopNameValidIDs = ['HR.02'];
     const processAmountValidIDs = ['HR.02'];
-  
+
     return (
         <div>
             <div >
@@ -364,7 +365,7 @@ const HumanResource = () => {
                                     )}
 
 
-                                    {["Weekly"].includes(process.intervalType) && (['HR.01', 'HR.02', 'HR.03', 'HR.04', 'HR.05','HR.06','HR.07'].includes(process.processID)) && (
+                                    {["Weekly"].includes(process.intervalType) && (['HR.01', 'HR.02', 'HR.03', 'HR.04', 'HR.05', 'HR.06', 'HR.07'].includes(process.processID)) && (
                                         <Col lg={6}>
                                             <Form.Group controlId="intervalType" className="mb-3">
                                                 <Form.Label>Day:</Form.Label>
@@ -388,7 +389,7 @@ const HumanResource = () => {
                                         </Col>
                                     )}
 
-                                    {["Monthly"].includes(process.intervalType)&& (['HR.01', 'HR.02', 'HR.03', 'HR.04', 'HR.05','HR.06','HR.07'].includes(process.processID)) && (
+                                    {["Monthly"].includes(process.intervalType) && (['HR.01', 'HR.02', 'HR.03', 'HR.04', 'HR.05', 'HR.06', 'HR.07'].includes(process.processID)) && (
                                         <Col lg={6}>
                                             <Form.Group controlId="date" className="mb-3">
                                                 <Form.Label>Date:</Form.Label>

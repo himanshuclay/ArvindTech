@@ -34,7 +34,6 @@ interface EmployeeList {
 }
 
 const EmployeeInsert = () => {
-    toast.dismiss()
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
     const [editMode, setEditMode] = useState<boolean>(false);
@@ -57,6 +56,8 @@ const EmployeeInsert = () => {
     );
 
     useEffect(() => {
+    toast.dismiss()
+
         const storedEmpName = localStorage.getItem('EmpName');
         if (storedEmpName) {
             setEmpName(storedEmpName);

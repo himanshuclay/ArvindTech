@@ -30,6 +30,8 @@ const EmployeeInsert = () => {
     });
 
     useEffect(() => {
+    toast.dismiss()
+
         const storedEmpName = localStorage.getItem('EmpName');
         if (storedEmpName) {
             setEmpName(storedEmpName);

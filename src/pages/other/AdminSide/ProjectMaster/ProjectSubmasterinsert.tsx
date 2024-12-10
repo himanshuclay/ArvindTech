@@ -52,7 +52,6 @@ interface PorjectList {
 
 
 const ProjectInsert = () => {
-    toast.dismiss()
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
     const [editMode, setEditMode] = useState<boolean>(false);
@@ -93,6 +92,8 @@ const ProjectInsert = () => {
 
 
     useEffect(() => {
+        toast.dismiss()
+
         const storedEmpName = localStorage.getItem('EmpName');
         if (storedEmpName) {
             setEmpName(storedEmpName);
@@ -203,11 +204,11 @@ const ProjectInsert = () => {
                 },
             });
 
-        } catch (error:any) {
+        } catch (error: any) {
             toast.error(error)
         }
 
-        
+
     };
 
 

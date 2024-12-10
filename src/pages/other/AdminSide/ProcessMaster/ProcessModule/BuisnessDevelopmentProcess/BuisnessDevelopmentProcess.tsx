@@ -60,7 +60,6 @@ interface Column {
 
 
 const AccountProcess = () => {
-    toast.dismiss()
     const { id } = useParams<{ id: string }>();
 
     const navigate = useNavigate();
@@ -122,6 +121,8 @@ const AccountProcess = () => {
 
 
     useEffect(() => {
+    toast.dismiss()
+
         const storedEmpName = localStorage.getItem('EmpName');
         if (storedEmpName) {
             setEmpName(storedEmpName);
