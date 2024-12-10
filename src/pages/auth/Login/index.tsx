@@ -127,15 +127,15 @@ const Login = () => {
 
 					<Row className='d-flex jusify-content-between'>
 
-						<Col>
+						{/* <Col>
 							<FormInput
 								label="Remember me"
 								type="checkbox"
 								name="checkbox"
 								containerClass={'mb-3'}
 							/>
-						</Col>
-						<Col className='d-flex justify-content-end '>
+						</Col> */}
+						<Col className='d-flex justify-content-end mb-1 mt-0'>
 							<div className='login-help'>
 								Help ?
 							</div>
@@ -162,7 +162,7 @@ const Login = () => {
 								disabled={loading}
 							>
 								<i className="ri-login-circle-fill me-1" />{' '}
-								<span className="fw-bold">Verify</span>{' '}
+								<span className="fw-bold">Log In</span>{' '}
 							</Button>
 						</div>
 					}

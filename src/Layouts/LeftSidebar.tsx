@@ -451,7 +451,7 @@ const getFilteredMenuItems = () => {
     });
   }
   return MENU_ITEMS.filter(item => {
-    if (role === 'EMPLOYEE') {
+    if (role === 'Employee') {
       return item.key !== 'Filtertask' &&
         item.key !== 'TaskAdmin' &&
         item.key !== 'Analytics' &&
