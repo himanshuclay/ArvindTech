@@ -54,8 +54,8 @@ const YourComponent = () => {
         e.preventDefault();
 
         const requestData = {
-            Identifier: selectedIdentifierOne,
-            Identifier1: selectedIdentifierTwo,
+            Identifier1: selectedIdentifierOne,
+            Identifier2: selectedIdentifierTwo,
             TaskID: selectedTask
         };
 
