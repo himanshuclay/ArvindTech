@@ -31,14 +31,6 @@ interface Vender {
     creatorEmail: string;
 }
 
-
-
-interface StateList {
-    id: number;
-    stateName: string;
-}
-
-
 interface FillingFrequencyList {
     id: number;
     name: string;
@@ -50,13 +42,20 @@ interface EmployeeList {
     employeeName: string;
 }
 
+interface District {
+    district: string;
+    state: string;
+}
+
+interface AreaData {
+    areaName: string;
+}
 
 const DepartmentMasterinsert = () => {
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
     const [editMode, setEditMode] = useState<boolean>(false);
     const [employeeList, setEmployeeList] = useState<EmployeeList[]>([]);
-    const [stateList, setStateList] = useState<StateList[]>([]);
     const [fillingFrequencyList, setFillingFrequencyList] = useState<FillingFrequencyList[]>([]);
     const [venders, setVenders] = useState<Vender>({
         id: 0,
@@ -82,7 +81,10 @@ const DepartmentMasterinsert = () => {
         creatorEmail: ''
     });
 
-
+    const [districts, setDistricts] = useState<District[]>([]);
+    const [areaData, setAreaData] = useState<AreaData[]>([]);
+    const [searchPin, setSearchPin] = useState('');
+    const [searchDistrict, setSearchDistrict] = useState('');
 
     useEffect(() => {
         toast.dismiss()
@@ -127,14 +129,10 @@ const DepartmentMasterinsert = () => {
                 console.error(`Error fetching data from ${endpoint}:`, error);
             }
         };
-
         fetchData('CommonDropdown/GetFillingFrequency', setFillingFrequencyList, 'fillingFrequencyListResponses');
-        fetchData('CommonDropdown/GetStateList', setStateList, 'stateListResponses');
         fetchData('CommonDropdown/GetEmployeeListWithId', setEmployeeList, 'employeeLists');
 
     }, []);
-
-
 
 
     const fetchbankByIFSC = async (ifsc: string) => {
@@ -195,6 +193,65 @@ const DepartmentMasterinsert = () => {
             });
         }
     };
+
+
+
+
+    useEffect(() => {
+        const fetchDistricts = async () => {
+            try {
+                const response = await axios.get(`${config.API_URL_APPLICATION}/AddressMaster/GetAddressData?PinCode=${searchPin}`);
+                const fetchedDistricts = response.data.addresses;
+                setDistricts(fetchedDistricts);
+                if (fetchedDistricts.length > 0) {
+                    const firstDistrict = fetchedDistricts[0].district;
+                    // Use functional updates to avoid intermediate rendering issues
+                    setSearchDistrict(firstDistrict);
+                    setVenders(prev => ({ ...prev, district: firstDistrict }));
+                }
+            } catch (error) {
+                console.error('Error fetching districts:', error);
+                setDistricts([]);
+            }
+        };
+
+        if (searchPin.length === 6) {
+            fetchDistricts();
+        } else {
+            setDistricts([]);
+            setSearchDistrict('');
+            setAreaData([]);
+        }
+    }, [searchPin]);
+
+    useEffect(() => {
+        const fetchAreaData = async () => {
+            try {
+                const response = await axios.get(`${config.API_URL_APPLICATION}/AddressMaster/GetAddressData?PinCode=${searchPin}&District=${searchDistrict}`);
+                const fetchedAreas = response.data.addresses;
+                setAreaData(fetchedAreas);
+                if (fetchedAreas.length > 0) {
+                    const firstArea = fetchedAreas[0].areaName;
+                    const fetchedState = fetchedAreas[0]?.state || '';
+                    setVenders(prev => ({
+                        ...prev,
+                        area: firstArea,
+                        state: fetchedState,
+                    }));
+                }
+            } catch (error) {
+                console.error('Error fetching area data:', error);
+                setAreaData([]);
+            }
+        };
+
+        if (searchPin.length === 6 && searchDistrict) {
+            fetchAreaData();
+        }
+    }, [searchPin, searchDistrict]);
+
+
+
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
 
@@ -277,79 +334,90 @@ const DepartmentMasterinsert = () => {
                                 </Form.Group>
                             </Col>
                             <Col lg={6}>
-                                <Form.Group controlId="addressLine1" className="mb-3">
-                                    <Form.Label>Address</Form.Label>
+                                <Form.Group controlId="pin" className="mb-3">
+                                    <Form.Label>Pincode:</Form.Label>
                                     <Form.Control
                                         type="text"
-                                        name="addressLine1"
-                                        value={venders.addressLine1}
-                                        onChange={handleChange}
+                                        name="pin"
+                                        value={venders.pin}
+                                        onChange={(e) => {
+                                            setSearchPin(e.target.value);
+                                            setVenders(prev => ({ ...prev, pin: e.target.value })); // Update pin in employee
+                                        }}
                                         required
-                                        placeholder="Address"
-                                    />
-                                </Form.Group>
-                            </Col>
-                            <Col lg={6}>
-                                <Form.Group controlId="district" className="mb-3">
-                                    <Form.Label>District</Form.Label>
-                                    <Form.Control
-                                        type="text"
-                                        name="district"
-                                        value={venders.district}
-                                        onChange={handleChange}
-                                        required
-                                        placeholder="District"
+                                        placeholder="Enter Pincode"
                                     />
                                 </Form.Group>
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="state" className="mb-3">
-                                    <Form.Label>State</Form.Label>
-                                    <Select
+                                    <Form.Label>State:</Form.Label>
+                                    <Form.Control
+                                        type="text"
                                         name="state"
-                                        value={stateList.find((mod) => mod.stateName === venders.state)}
-                                        onChange={(selectedOption) => {
-                                            setVenders({
-                                                ...venders,
-                                                state: selectedOption?.stateName || '',
-                                            });
-                                        }}
-                                        getOptionLabel={(mod) => mod.stateName}
-                                        getOptionValue={(mod) => mod.stateName}
-                                        options={stateList}
-                                        isSearchable={true}
-                                        placeholder="Select State Name"
-                                        required
+                                        value={venders.state}
+                                        onChange={handleChange}
+                                        placeholder='Enter State Name'
+                                        readOnly
+                                        disabled={!searchPin}
                                     />
                                 </Form.Group>
                             </Col>
                             <Col lg={6}>
-                                <Form.Group controlId="area" className="mb-3">
-                                    <Form.Label>Area Name</Form.Label>
-                                    <Form.Control
-                                        type="text"
-                                        name="area"
-                                        value={venders.area}
-                                        onChange={handleChange}
-                                        required
-                                        placeholder="Area Name"
+                                <Form.Group controlId="district" className="mb-3">
+                                    <Form.Label>District:</Form.Label>
+                                    <Select
+                                        name="district"
+                                        value={districts.find(item => item.district === venders.district) || null}
+                                        onChange={(selectedOption) => {
+                                            const district = selectedOption ? selectedOption.district : '';
+                                            setSearchDistrict(district);
+                                            setVenders(prev => ({ ...prev, district })); // Update district in employee
+                                        }}
+                                        options={districts || []}
+                                        getOptionLabel={(item) => item.district}
+                                        getOptionValue={(item) => item.district}
+                                        isSearchable={true}
+                                        placeholder="Select District"
+                                        className="h45"
+                                        isDisabled={!searchPin}
                                     />
                                 </Form.Group>
                             </Col>
 
                             <Col lg={6}>
-                                <Form.Group controlId="pin" className="mb-3">
-                                    <Form.Label>Pin Code</Form.Label>
-                                    <Form.Control
-                                        type="text"
-                                        name="pin"
-                                        value={venders.pin}
-                                        onChange={handleChange}
-                                        required
-                                        placeholder="Enter Pin Code"
+                                <Form.Group controlId="area" className="mb-3">
+                                    <Form.Label>Area:</Form.Label>
+                                    <Select
+                                        name="area"
+                                        value={areaData.find(item => item.areaName === venders.area) || null}
+                                        onChange={(selectedOption) => {
+                                            const areaName = selectedOption ? selectedOption.areaName : '';
+                                            setVenders(prev => ({ ...prev, area: areaName })); // Update area in employee
+                                        }}
+                                        options={areaData || []}
+                                        getOptionLabel={(item) => item?.areaName || ''}
+                                        getOptionValue={(item) => item?.areaName || ''}
+                                        isSearchable={true}
+                                        placeholder="Select Area"
+                                        className="h45"
+                                        isDisabled={!searchDistrict}
                                     />
                                 </Form.Group>
                             </Col>
+                            <Col lg={6}>
+                                <Form.Group controlId="addressLine1" className="mb-3">
+                                    <Form.Label>Address:</Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        name="addressLine1"
+                                        value={venders.addressLine1}
+                                        onChange={handleChange}
+                                        placeholder='Enter Your Full Address'
+                                    />
+                                </Form.Group>
+                            </Col>
+
                             <Col lg={6}>
                                 <Form.Group controlId="email" className="mb-3">
                                     <Form.Label>Email</Form.Label>
@@ -419,6 +487,11 @@ const DepartmentMasterinsert = () => {
                                     />
                                 </Form.Group>
                             </Col>
+
+
+
+
+
 
                             <Col lg={6}>
                                 <Form.Group controlId="bankAccountNumber" className="mb-3">

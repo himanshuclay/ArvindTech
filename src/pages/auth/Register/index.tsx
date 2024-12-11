@@ -50,6 +50,7 @@ const Register = () => {
 		role: 'EMPLOYEE',
 	});
 
+	const [isMobileVerified, setIsMobileVerified] = useState(false);
 	const [isErrorShown, setIsErrorShown] = useState(false);
 
 	const fetchEmployeeDetails = async (empID: string) => {
@@ -183,33 +184,45 @@ const Register = () => {
 	const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		e.preventDefault();
 		const { name, value } = e.target;
-
+	
 		if (name === "empID") {
 			setFormData((prevData) => ({
 				...prevData,
 				empID: value,
 				fullname: "", // Clear fullname
 			}));
-			setVerifyEmpID(false)
+			setVerifyEmpID(false);
 		} else if (name === "mobileNumber") {
 			if (!/^\d{0,10}$/.test(value)) return;
 			setFormData((prevData) => ({ ...prevData, mobileNumber: value }));
-
+	
 			if (value.length === 10) {
-				if (!/^[6-9]/.test(value) && !isErrorShown) {
-					toast.error("Mobile number should start with a digit between 6 and 9.");
-					setIsErrorShown(true);
+				if (/^[6-9]/.test(value)) {
+					setIsMobileVerified(true);
+					setIsErrorShown(false);
+				} else {
+					if (!isErrorShown) {
+						toast.error("Mobile number should start with a digit between 6 and 9.");
+						setIsErrorShown(true);
+					}
+					setIsMobileVerified(false);
 				}
 			} else {
 				setIsErrorShown(false);
+				setIsMobileVerified(false);
 			}
 		} else {
 			setFormData((prevData) => ({ ...prevData, [name]: value }));
 		}
 	};
-
+	
 	const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
 		setLoading(true);
+
+		if (!isMobileVerified) {
+			toast.error("Please verify your mobile number before submitting the form.");
+			return;
+		}
 
 		const { password } = formData;
 
@@ -508,7 +521,9 @@ const Register = () => {
 							formData.dob &&
 							formData.password &&
 							verifyDob &&
+							!isErrorShown &&
 							verifyEmpID &&
+							isMobileVerified &&
 							verifyDoj ?
 
 							<Button variant="primary" className="fw-semibold" type="submit" disabled={loading}>

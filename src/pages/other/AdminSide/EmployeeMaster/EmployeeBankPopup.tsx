@@ -25,7 +25,7 @@ interface Employee  {
 interface EmployeePopusProps {
     showView: boolean;
     setShowView: (show: boolean) => void;
-    id: any; // Ensure this is defined as a string
+    id: any; 
 }
 
 interface Column {

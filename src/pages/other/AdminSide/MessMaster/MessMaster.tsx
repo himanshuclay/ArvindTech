@@ -36,6 +36,13 @@ interface MessList {
     messName: string;
 }
 
+interface ModuleProjectList {
+    id: string;
+    projectName: string
+    moduleName: string
+}
+
+
 const MessMaster = () => {
     const [messes, setMesses] = useState<Mess[]>([]);
     const [loading, setLoading] = useState(false);
@@ -44,7 +51,7 @@ const MessMaster = () => {
     const [searchQuery, setSearchQuery] = useState('');
     const [downloadCsv, setDownloadCsv] = useState<Mess[]>([]);
     const [messList, setMessList] = useState<MessList[]>([]);
-    const [MessName, setMessName] = useState('');
+    const [projectList, setProjectList] = useState<ModuleProjectList[]>([])
 
 
 
@@ -89,17 +96,22 @@ const MessMaster = () => {
     }, [currentPage]);
 
 
+
+    const [searchMessName, setSearchMessName] = useState('')
+    const [searchStatus, setSearchStatus] = useState('')
+    const [searchProjectName, setSearchProjectName] = useState('')
+
     const handleSearch = (e: any) => {
         e.preventDefault();
 
         let query = `?`;
-        // if (ProcessName) query += `ProcessName=${ProcessName}&`;
-        // if (ModuleName) query += `ModuleName=${ModuleName}&`;
-        // if (ProcessOwnerName) query += `ProcessOwnerName=${ProcessOwnerName}&`;
+        if (searchMessName) query += `MessName=${searchMessName}&`;
+        if (searchStatus) query += `Status=${searchStatus}&`;
+        if (searchProjectName) query += `ProjectName=${searchProjectName}&`;
+        query += `PageIndex=${currentPage}`;
 
         // Remove trailing '&' or '?' from the query string
         query = query.endsWith('&') ? query.slice(0, -1) : query;
-        query += `PageIndex=${currentPage}`;
 
         const apiUrl = `https://arvindo-api2.clay.in/api/MessMaster/SearchMess${query}`;
 
@@ -111,6 +123,7 @@ const MessMaster = () => {
         })
             .then((response) => {
                 setMesses(response.data.messMasterList)
+                setTotalPages(Math.ceil(response.data.totalCount / 10));
             })
             .catch((error) => {
                 console.error('Error fetching data:', error);
@@ -172,18 +185,23 @@ const MessMaster = () => {
             }
         };
 
-        fetchData('CommonDropdown/GetMessNameListWithId', setMessList, 'messNameLists');
+        fetchData('MessMaster/GetMess', setMessList, 'messMasterList');
+        fetchData('CommonDropdown/GetProjectList', setProjectList, 'projectListResponses');
+
     }, []);
 
 
     const handleClear = () => {
+        setSearchMessName('')
+        setSearchProjectName('')
+        setSearchStatus('')
         fetchRoles();
     };
 
 
     const convertToCSV = (data: Mess[]) => {
         const csvRows = [
-            ['Mess ID', 'Mess Name', 'Manager Emp ID', 'Manager Name', 'Mess Contact No','Project Name', 'Status', 'Created By', 'Updated By'],
+            ['Mess ID', 'Mess Name', 'Manager Emp ID', 'Manager Name', 'Mess Contact No', 'Project Name', 'Status', 'Created By', 'Updated By'],
             ...data.map(mess => [
                 mess.messID.toString(),
                 mess.messName,
@@ -223,6 +241,26 @@ const MessMaster = () => {
     };
 
 
+    const optionsStatus = [
+        { value: 'Active', label: 'Active' },
+        { value: 'Inactive', label: 'Inactive' }
+    ];
+
+
+
+    const filteredMesses = messes.filter(item =>
+        item.messName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        item.managerEmpID.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        item.managerName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        item.mobileNumber.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        item.projectName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        item.status.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        item.createdBy.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        item.updatedBy.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+    
+
+
     return (
         <>
             <div className="container">
@@ -247,64 +285,60 @@ const MessMaster = () => {
                     </div>
                 ) : (<>
                     <div className='bg-white p-2 pb-2'>
-                        <Form 
+                        <Form
                         // onSubmit={handleSearch}
                         >
                             <Row>
 
-                                <Col lg={6}>
+                                <Col lg={4}>
                                     <Form.Group controlId="searchMessName">
                                         <Form.Label>Mess Name:</Form.Label>
 
                                         <Select
                                             name="searchMessName"
-                                            value={messList.find(item => item.messName === MessName) || null} // handle null
-                                            onChange={(selectedOption) => setMessName(selectedOption ? selectedOption.messName : "")} // null check
+                                            value={messList.find(item => item.messName === searchMessName) || null} // handle null
+                                            onChange={(selectedOption) => setSearchMessName(selectedOption ? selectedOption.messName : "")} // null check
                                             options={messList}
                                             getOptionLabel={(item) => item.messName}
                                             getOptionValue={(item) => item.messName}
                                             isSearchable={true}
-                                            placeholder="Search..."
+                                            placeholder="Select Mess Name"
                                             className="h45"
                                         />
                                     </Form.Group>
                                 </Col>
 
-                                <Col lg={6}>
-                                    <Form.Group controlId="ProcessOwnerName">
-                                        <Form.Label>Manager Name:</Form.Label>
+                                <Col lg={4}>
+                                    <Form.Group controlId="searchStatus">
+                                        <Form.Label>Mess Status</Form.Label>
                                         <Select
-                                            name="ProcessOwnerName"
-                                            // value={employeeList.find(item => item.empId === ProcessOwnerName) || null} // handle null
-                                            // onChange={(selectedOption) => setProcessOwnerName(selectedOption ? selectedOption.empId : "")} // null check
-                                            // options={employeeList}
-                                            // getOptionLabel={(item) => item.employeeName.split('_')[0]}
-                                            // getOptionValue={(item) => item.empId}
-                                            isSearchable={true}
-                                            placeholder="Search..."
-                                            className="h45"
+                                            name="searchStatus"
+                                            options={optionsStatus}
+                                            value={optionsStatus.find(option => option.value === searchStatus) || null}
+                                            onChange={(selectedOption) => setSearchStatus(selectedOption?.value || '')}
+                                            placeholder="Select Status"
                                         />
                                     </Form.Group>
                                 </Col>
-                                <Col lg={6} className='mt-2'>
-                                    <Form.Group controlId="ProcessOwnerName">
+                                <Col lg={4} className=''>
+                                    <Form.Group controlId="searchProjectName">
                                         <Form.Label>Project Name:</Form.Label>
                                         <Select
-                                            name="ProcessOwnerName"
-                                            // value={employeeList.find(item => item.empId === ProcessOwnerName) || null} // handle null
-                                            // onChange={(selectedOption) => setProcessOwnerName(selectedOption ? selectedOption.empId : "")} // null check
-                                            // options={employeeList}
-                                            // getOptionLabel={(item) => item.employeeName.split('_')[0]}
-                                            // getOptionValue={(item) => item.empId}
+                                            name="searchProjectName"
+                                            value={projectList.find(item => item.projectName === searchProjectName) || null} // handle null
+                                            onChange={(selectedOption) => setSearchProjectName(selectedOption ? selectedOption.projectName : "")} // null check
+                                            options={projectList}
+                                            getOptionLabel={(item) => item.projectName}
+                                            getOptionValue={(item) => item.projectName}
                                             isSearchable={true}
-                                            placeholder="Search..."
+                                            placeholder="Select Project "
                                             className="h45"
                                         />
                                     </Form.Group>
                                 </Col>
 
                                 <Col></Col>
-                                <Col lg={3} className='align-items-end d-flex justify-content-end'>
+                                <Col lg={3} className='align-items-end d-flex justify-content-end mt-3'>
                                     <ButtonGroup aria-label="Basic example" className='w-100'>
                                         <Button type="button" variant="primary" onClick={handleClear}>
                                             <i className="ri-loop-left-line"></i>
@@ -343,7 +377,7 @@ const MessMaster = () => {
                     </div>
 
                     <div className="overflow-auto text-nowrap">
-                        {!messes ? (
+                        {!filteredMesses ? (
                             <Container className="mt-5">
                                 <Row className="justify-content-center">
                                     <Col xs={12} md={8} lg={6}>
@@ -390,8 +424,8 @@ const MessMaster = () => {
                                         </Droppable>
                                     </thead>
                                     <tbody>
-                                        {messes.length > 0 ? (
-                                            messes.slice(0, 10).map((item, index) => (
+                                        {filteredMesses.length > 0 ? (
+                                            filteredMesses.slice(0, 10).map((item, index) => (
                                                 <tr key={item.id}>
                                                     <td>{(currentPage - 1) * 10 + index + 1}</td>
                                                     {columns.filter(col => col.visible).map((col) => (
@@ -428,19 +462,19 @@ const MessMaster = () => {
                                             ))
                                         ) : (
                                             <tr>
-                                                    <td colSpan={12}>
-                                                        <Container className="mt-5">
-                                                            <Row className="justify-content-center">
-                                                                <Col xs={12} md={8} lg={6}>
-                                                                    <Alert variant="info" className="text-center">
-                                                                        <h4>No Data Found</h4>
-                                                                        <p>You currently don't have any Data</p>
-                                                                    </Alert>
-                                                                </Col>
-                                                            </Row>
-                                                        </Container>
-                                                    </td>
-                                                </tr>
+                                                <td colSpan={12}>
+                                                    <Container className="mt-5">
+                                                        <Row className="justify-content-center">
+                                                            <Col xs={12} md={8} lg={6}>
+                                                                <Alert variant="info" className="text-center">
+                                                                    <h4>No Data Found</h4>
+                                                                    <p>You currently don't have any Data</p>
+                                                                </Alert>
+                                                            </Col>
+                                                        </Row>
+                                                    </Container>
+                                                </td>
+                                            </tr>
                                         )}
                                     </tbody>
                                 </Table>

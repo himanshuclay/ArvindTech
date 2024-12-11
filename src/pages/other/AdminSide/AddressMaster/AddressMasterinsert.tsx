@@ -21,7 +21,6 @@ interface StateList {
     stateName: any;
 }
 const AddressMasterinsert = () => {
-    toast.dismiss()
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
     const [editMode, setEditMode] = useState<boolean>(false);

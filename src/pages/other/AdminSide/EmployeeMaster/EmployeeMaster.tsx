@@ -120,6 +120,7 @@ const EmployeeMaster = () => {
         { id: 'registrationDate', label: 'Registration Date', visible: true },
         { id: 'daL_Module', label: 'DAL Module', visible: true },
         { id: 'daL_Project', label: 'DAL Project', visible: true },
+        { id: 'designation', label: 'Designation', visible: true },
         { id: 'dateOfJoining', label: 'Date Of Joining', visible: true },
         { id: 'dateOfLeaving', label: 'Date Of Leaving', visible: true },
 
@@ -257,7 +258,7 @@ const EmployeeMaster = () => {
                 'ID',
                 'Employee ID', 'Employee Name',
                 'Father Name', 'Email',
-                'Role', 'Data Access Level',
+             'Data Access Level',
                 'Employee Status', 'HR Updated Mobile No',
                 'User Updated Mobile No', 'State',
                 'District', 'Area', 'Pin', 'Address',
@@ -285,7 +286,6 @@ const EmployeeMaster = () => {
                 employee.employeeName,
                 employee.fatherName,
                 employee.email,
-                employee.role,
                 employee.dataAccessLevel,
                 employee.empStatus,
                 employee.hrUpdatedMobileNo,
@@ -357,11 +357,20 @@ const EmployeeMaster = () => {
         setCurrentPage(1);
     };
 
-    const filteredDoers = employee.filter(doer =>
-        doer.employeeName.includes(searchQuery.toLowerCase()) ||
-        doer.empID.includes(searchQuery.toLowerCase())
-    );
 
+
+    
+    const filteredEmployees = employee.filter(item =>
+        item.employeeName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        item.empID.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        item.empStatus.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        item.hrUpdatedMobileNo.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        item.userUpdatedMobileNo.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        item.departmentName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        item.designation.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        item.currentProjectName.toLowerCase().includes(searchQuery.toLowerCase()) 
+    );
+    
 
     const handleShowview = () => setShowView(true);
 
@@ -552,7 +561,7 @@ const EmployeeMaster = () => {
                             </Row>
                         </div>
                         <div className="overflow-auto text-nowrap ">
-                            {!filteredDoers ? (
+                            {!filteredEmployees ? (
                                 <Container className="mt-5">
                                     <Row className="justify-content-center">
                                         <Col xs={12} md={8} lg={6}>
@@ -604,8 +613,8 @@ const EmployeeMaster = () => {
                                             </Droppable>
                                         </thead>
                                         <tbody>
-                                            {filteredDoers.length > 0 ? (
-                                                filteredDoers.slice(0, 10).map((item, index) => (
+                                            {filteredEmployees.length > 0 ? (
+                                                filteredEmployees.slice(0, 10).map((item, index) => (
                                                     <tr key={item.id}>
                                                         <td>{(currentPage - 1) * 10 + index + 1}</td>
                                                         {columns.filter(col => col.visible).map((col) => (
@@ -618,7 +627,8 @@ const EmployeeMaster = () => {
                                                                     <td>
                                                                         {item.daL_Project.split(",")
                                                                             .map((incharge: any, index: any) => (
-                                                                                <div key={index}>{incharge.trim()}</div> // Display each on a new line
+                                                                                <div key={index}>{incharge.trim()} 
+                                                                                </div>// Display each on a new line
                                                                             ))}
                                                                     </td>
                                                                 ) : col.id === 'employeeName' ? (
