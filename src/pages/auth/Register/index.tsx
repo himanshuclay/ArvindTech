@@ -523,6 +523,7 @@ const Register = () => {
 							verifyDob &&
 							!isErrorShown &&
 							verifyEmpID &&
+							isMobileVerified &&
 							verifyDoj ?
 
 							<Button variant="primary" className="fw-semibold" type="submit" disabled={loading}>
