@@ -32,9 +32,10 @@ const YourComponent = () => {
 
     const fetchDoerMasterList = async () => {
         try {
-            const response = await axios.get(`${config.API_URL_APPLICATION}/DoerMaster/GetDoerByIdentifier?PageSize=1`);
+            const response = await axios.get(`${config.API_URL_APPLICATION}/DoerMaster/GetDoerByIdentifier?PageIndex=1`);
             if (response.data.isSuccess) {
-                setDoerMasterList(response.data.getDoerByIdentifiers); // Update to match the new response structure
+                setDoerMasterList(response.data.getDoerByIdentifiers);
+                console.log(doerMasterList) // Update to match the new response structure
             } else {
                 console.error(response.data.message);
             }
@@ -66,6 +67,7 @@ const YourComponent = () => {
             if (response.data.isSuccess) {
                 console.log('Data submitted successfully', response.data);
                 fetchDoerMasterList(); // Refresh table data
+                console.log(doerMasterList)
             } else {
                 console.error('Error:', response.data.message);
             }
