@@ -246,7 +246,7 @@ const ForgotPassword = () => {
 					dob: formData.dob,
 					password: formData.password,
 					role: formData.role,
-					status: 'active',
+					status: 'Current',
 					createdBy: 'admin',
 					updatedBy: 'admin',
 				};

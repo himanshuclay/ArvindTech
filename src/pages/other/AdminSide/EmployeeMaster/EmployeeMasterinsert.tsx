@@ -76,6 +76,7 @@ interface ModuleProjectList {
 interface Department {
     id: number;
     departmentName: string;
+    department: string;
 }
 interface District {
     district: string;
@@ -96,6 +97,7 @@ const EmployeeMasterInsert = () => {
     const [projectList, setProjectList] = useState<ModuleProjectList[]>([])
     const [moduleList, setModuleList] = useState<ModuleProjectList[]>([])
     const [departmentList, setDepartmentList] = useState<Department[]>([]);
+    const [designationList, setDesignationList] = useState<Department[]>([]);
     const [employee, setEmployee] = useState<Employee>({
         id: 0,
         empID: '',
@@ -237,6 +239,7 @@ const EmployeeMasterInsert = () => {
         fetchData('CommonDropdown/GetProjectList', setProjectList, 'projectListResponses');
         fetchData('CommonDropdown/GetDepartment', setDepartmentList, 'getDepartments');
         fetchData('CommonDropdown/GetModuleList', setModuleList, 'moduleNameListResponses');
+        fetchData('DesignationMaster/GetDesignation', setDesignationList, 'designations');
 
 
     }, []);
@@ -331,21 +334,43 @@ const EmployeeMasterInsert = () => {
                 if (eventName === "userUpdatedMobileNo" || eventName === "hrUpdatedMobileNo") {
                     validateMobileNumber(eventName, inputValue);
                 } else {
-                    setEmployee((prevData) => ({
-                        ...prevData,
-                        [eventName]: inputValue
-                    }));
+                    setEmployee((prevData) => {
+                        const updatedData = { ...prevData, [eventName]: inputValue };
+
+                        // Clear corresponding fields based on dataAccessLevel
+                        if (eventName === "dataAccessLevel") {
+                            if (inputValue === "Module") {
+                                updatedData.daL_Project = [];
+                            } else if (inputValue === "Project") {
+                                updatedData.daL_Module = "";
+                            } else {
+                                updatedData.daL_Module = "";
+                                updatedData.daL_Project = [];
+                            }
+                        }
+
+                        return updatedData;
+                    });
                 }
             }
         } else if (name) {
-            if (name === "userUpdatedMobileNo" || name === "hrUpdatedMobileNo") {
-                validateMobileNumber(name, value);
-            } else {
-                setEmployee((prevData) => ({
-                    ...prevData,
-                    [name]: value
-                }));
-            }
+            setEmployee((prevData) => {
+                const updatedData = { ...prevData, [name]: value };
+
+                // Clear corresponding fields based on dataAccessLevel
+                if (name === "dataAccessLevel") {
+                    if (value === "Module") {
+                        updatedData.daL_Project = [];
+                    } else if (value === "Project") {
+                        updatedData.daL_Module = "";
+                    } else {
+                        updatedData.daL_Module = "";
+                        updatedData.daL_Project = [];
+                    }
+                }
+
+                return updatedData;
+            });
         }
     };
 
@@ -367,7 +392,6 @@ const EmployeeMasterInsert = () => {
 
 
 
-
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
 
@@ -383,14 +407,14 @@ const EmployeeMasterInsert = () => {
                 await axios.post(`${config.API_URL_APPLICATION}/EmployeeMaster/UpdateEmployee`, payload);
                 navigate('/pages/EmployeeMaster', {
                     state: {
-                        successMessage: "Employee Updated successfully!",
+                        successMessage: `Employee Updated successfully! `,
                     }
                 });
             } else {
                 await axios.post(`${config.API_URL_APPLICATION}/EmployeeMaster/InsertEmployee`, payload);
                 navigate('/pages/EmployeeMaster', {
                     state: {
-                        successMessage: "Employee Added successfully!",
+                        successMessage: ` Employee Added successfully! `,
                     }
                 });
             }
@@ -412,7 +436,7 @@ const EmployeeMasterInsert = () => {
     ];
     const optionsEmpStatus = [
         { value: 'Current', label: 'Current' },
-        { value: 'Formar', label: 'Formar' },
+        { value: 'Former', label: 'Former' },
         { value: 'Absconding', label: 'Absconding' },
     ];
     const optionsAppAccesLevel = [
@@ -429,6 +453,7 @@ const EmployeeMasterInsert = () => {
         { value: 'Module', label: 'Module' },
         { value: 'Project', label: 'Project' }
     ];
+
 
     return (
         <div>
@@ -495,14 +520,21 @@ const EmployeeMasterInsert = () => {
                             <Col lg={6}>
                                 <Form.Group controlId="designation" className="mb-3">
                                     <Form.Label>Designation *</Form.Label>
-                                    <Form.Control
-                                        type="text"
+                                    <Select
                                         name="designation"
-                                        value={employee.designation}
-                                        onChange={handleChange}
+                                        value={designationList.find((emp) => emp.department === employee.designation)}
+                                        onChange={(selectedOption) => {
+                                            setEmployee({
+                                                ...employee,
+                                                designation: selectedOption?.department || "",
+                                            });
+                                        }}
+                                        getOptionLabel={(emp) => emp.department}
+                                        getOptionValue={(emp) => emp.department}
+                                        options={designationList}
+                                        isSearchable={true}
+                                        placeholder="Select Designation Name"
                                         required
-                                        placeholder='Enter Designation Name'
-
                                     />
                                 </Form.Group>
                             </Col>
@@ -564,10 +596,15 @@ const EmployeeMasterInsert = () => {
                                     <Form.Label> Date of Birth *</Form.Label>
                                     <Flatpickr
                                         value={employee.dateOfBirth}
-                                        onChange={([date]) => setEmployee({
-                                            ...employee,
-                                            dateOfBirth: date.toISOString().split('T')[0]
-                                        })}
+                                        onChange={([date]) => {
+                                            if (date) {
+                                                const formattedDate = date.toLocaleDateString('en-CA');
+                                                setEmployee({
+                                                    ...employee,
+                                                    dateOfBirth: formattedDate,
+                                                });
+                                            }
+                                        }}
                                         options={{
                                             enableTime: false,
                                             dateFormat: "Y-m-d",
@@ -586,10 +623,15 @@ const EmployeeMasterInsert = () => {
                                     <Form.Label> Date of Joing *</Form.Label>
                                     <Flatpickr
                                         value={employee.dateOfJoining}
-                                        onChange={([date]) => setEmployee({
-                                            ...employee,
-                                            dateOfJoining: date.toISOString().split('T')[0]
-                                        })}
+                                        onChange={([date]) => {
+                                            if (date) {
+                                                const formattedDate = date.toLocaleDateString('en-CA');
+                                                setEmployee({
+                                                    ...employee,
+                                                    dateOfJoining: formattedDate,
+                                                });
+                                            }
+                                        }}
                                         options={{
                                             enableTime: false,
                                             dateFormat: "Y-m-d",
@@ -598,26 +640,6 @@ const EmployeeMasterInsert = () => {
                                         placeholder=" Date of Joing "
                                         className="form-control"
                                         required
-                                    />
-                                </Form.Group>
-                            </Col>
-
-                            <Col lg={6}>
-                                <Form.Group controlId="dateOfLeaving" className="mb-3">
-                                    <Form.Label> Date of Leaving </Form.Label>
-                                    <Flatpickr
-                                        value={employee.dateOfLeaving}
-                                        onChange={([date]) => setEmployee({
-                                            ...employee,
-                                            dateOfLeaving: date.toISOString().split('T')[0]
-                                        })}
-                                        options={{
-                                            enableTime: false,
-                                            dateFormat: "Y-m-d",
-                                            time_24hr: false,
-                                        }}
-                                        placeholder=" Date of Leaving "
-                                        className="form-control"
                                     />
                                 </Form.Group>
                             </Col>
@@ -740,7 +762,7 @@ const EmployeeMasterInsert = () => {
 
                             <Col lg={6}>
                                 <Form.Group controlId="daL_Module" className="mb-3">
-                                    <Form.Label>DAL Module *</Form.Label>
+                                    <Form.Label>DAL Module {employee.dataAccessLevel === 'Module' ? '*' : null} </Form.Label>
                                     <Select
                                         name="daL_Module"
                                         value={moduleList.find((emp) => emp.moduleName === employee.daL_Module)}
@@ -754,6 +776,7 @@ const EmployeeMasterInsert = () => {
                                         getOptionValue={(emp) => emp.moduleName}
                                         options={moduleList}
                                         isSearchable={true}
+                                        required={employee.dataAccessLevel === 'Module'}
                                         placeholder="Select DAL Module"
                                     />
                                 </Form.Group>
@@ -762,7 +785,7 @@ const EmployeeMasterInsert = () => {
 
                             <Col lg={6}>
                                 <Form.Group controlId="daL_Project" className="mb-3">
-                                    <Form.Label>DAL Project</Form.Label>
+                                    <Form.Label>DAL Project {employee.dataAccessLevel === 'Project' ? '*' : null} </Form.Label>
                                     <Select
                                         name="daL_Project"
                                         value={projectList.filter(emp => employee.daL_Project.includes(emp.projectName)
@@ -779,6 +802,7 @@ const EmployeeMasterInsert = () => {
                                         options={projectList}
                                         isSearchable={true}
                                         isMulti={true}
+                                        required={employee.dataAccessLevel === 'Project'}
                                         placeholder="Select Projects"
                                     />
                                 </Form.Group>
@@ -786,31 +810,15 @@ const EmployeeMasterInsert = () => {
 
 
 
-
-
-
-
-
-
-
                             <Col lg={6}>
                                 <Form.Group controlId="registrationDate" className="mb-3">
                                     <Form.Label>Registration Date *</Form.Label>
-                                    <Flatpickr
+                                    <Form.Control
+                                        type="text"
+                                        name="registrationDate"
                                         value={employee.registrationDate}
-                                        onChange={([date]) => setEmployee({
-                                            ...employee,
-                                            registrationDate: date.toISOString().split('T')[0]
-                                        })}
-                                        options={{
-                                            enableTime: false,
-                                            dateFormat: "Y-m-d",
-                                            time_24hr: false,
-                                        }}
-                                        placeholder=" Date of Registration "
-                                        className="form-control"
-                                        required
-                                        disabled={editMode}
+                                        placeholder='Date of Registration'
+                                        disabled
 
                                     />
                                 </Form.Group>
@@ -825,6 +833,28 @@ const EmployeeMasterInsert = () => {
                                         value={employee.userUpdatedMobileNo}
                                         onChange={handleChange}
                                         placeholder='Enter User Update Mobile Number'
+                                    />
+                                </Form.Group>
+                            </Col>
+
+
+                            <Col lg={6}>
+                                <Form.Group controlId="dateOfLeaving" className="mb-3">
+                                    <Form.Label> Date of Leaving {employee.empStatus === 'Former' ? '*' : null}</Form.Label>
+                                    <Flatpickr
+                                        value={employee.dateOfLeaving}
+                                        onChange={([date]) => setEmployee({
+                                            ...employee,
+                                            dateOfLeaving: date.toISOString().split('T')[0]
+                                        })}
+                                        options={{
+                                            enableTime: false,
+                                            dateFormat: "Y-m-d",
+                                            time_24hr: false,
+                                        }}
+                                        placeholder=" Date of Leaving "
+                                        className="form-control"
+                                        required={employee.empStatus === 'Former'}
                                     />
                                 </Form.Group>
                             </Col>
