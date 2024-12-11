@@ -52,7 +52,6 @@ interface EmployeeList {
 
 
 const DepartmentMasterinsert = () => {
-    toast.dismiss()
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
     const [editMode, setEditMode] = useState<boolean>(false);
@@ -60,14 +59,14 @@ const DepartmentMasterinsert = () => {
     const [stateList, setStateList] = useState<StateList[]>([]);
     const [fillingFrequencyList, setFillingFrequencyList] = useState<FillingFrequencyList[]>([]);
     const [venders, setVenders] = useState<Vender>({
-        id:0,
+        id: 0,
         vendorCode: '',
         category: '',
         name: '',
         addressLine1: '',
         district: '',
         area: '',
-        state:'',
+        state: '',
         pin: '',
         email: '',
         contactNo: '',
@@ -86,6 +85,8 @@ const DepartmentMasterinsert = () => {
 
 
     useEffect(() => {
+        toast.dismiss()
+
         if (id) {
             setEditMode(true);
             fetchStaffRequirementsId(id);
@@ -135,7 +136,7 @@ const DepartmentMasterinsert = () => {
 
 
 
-   
+
     const fetchbankByIFSC = async (ifsc: string) => {
         try {
             const response = await axios.get(`${config.API_URL_APPLICATION}/BankMaster/GetBank`, {
@@ -219,13 +220,13 @@ const DepartmentMasterinsert = () => {
             }
 
 
-        } catch (error:any) {
+        } catch (error: any) {
             toast.error(error || "Error Adding/Updating");
             console.error('Error submitting module:', error);
         }
     };
 
- 
+
 
     return (
         <div>
@@ -335,7 +336,7 @@ const DepartmentMasterinsert = () => {
                                     />
                                 </Form.Group>
                             </Col>
-                           
+
                             <Col lg={6}>
                                 <Form.Group controlId="pin" className="mb-3">
                                     <Form.Label>Pin Code</Form.Label>
@@ -376,7 +377,7 @@ const DepartmentMasterinsert = () => {
                                 </Form.Group>
                             </Col>
 
-                            
+
 
                             <Col lg={6}>
                                 <Form.Group controlId="ifsc" className="mb-3">
@@ -460,7 +461,7 @@ const DepartmentMasterinsert = () => {
                                 </Form.Group>
                             </Col>
 
-                           <Col lg={6}>
+                            <Col lg={6}>
                                 <Form.Group controlId="fillingFrequency" className="mb-3">
                                     <Form.Label>Filling Frequency</Form.Label>
                                     <Select
@@ -481,7 +482,7 @@ const DepartmentMasterinsert = () => {
                                     />
                                 </Form.Group>
                             </Col>
-                           <Col lg={6}>
+                            <Col lg={6}>
                                 <Form.Group controlId="creatorName" className="mb-3">
                                     <Form.Label>Creator Name</Form.Label>
                                     <Select

@@ -89,32 +89,33 @@ const MessMaster = () => {
     }, [currentPage]);
 
 
-    // const handleSearch = (e: any) => {
-    //     e.preventDefault();
+    const handleSearch = (e: any) => {
+        e.preventDefault();
 
-    //     let query = `?`;
-    //     if (ProcessName) query += `ProcessName=${ProcessName}&`;
-    //     if (ModuleName) query += `ModuleName=${ModuleName}&`;
-    //     if (ProcessOwnerName) query += `ProcessOwnerName=${ProcessOwnerName}&`;
+        let query = `?`;
+        // if (ProcessName) query += `ProcessName=${ProcessName}&`;
+        // if (ModuleName) query += `ModuleName=${ModuleName}&`;
+        // if (ProcessOwnerName) query += `ProcessOwnerName=${ProcessOwnerName}&`;
 
-    //     // Remove trailing '&' or '?' from the query string
-    //     query = query.endsWith('&') ? query.slice(0, -1) : query;
+        // Remove trailing '&' or '?' from the query string
+        query = query.endsWith('&') ? query.slice(0, -1) : query;
+        query += `PageIndex=${currentPage}`;
 
-    //     const apiUrl = `https://arvindo-api2.clay.in/api/ProcessMaster/SearchProcessList${query}`;
+        const apiUrl = `https://arvindo-api2.clay.in/api/MessMaster/SearchMess${query}`;
 
-    //     console.log(apiUrl)
-    //     axios.get(apiUrl, {
-    //         headers: {
-    //             'accept': '*/*'
-    //         }
-    //     })
-    //         .then((response) => {
-    //             setProcesses(response.data.processMasterListResponses)
-    //         })
-    //         .catch((error) => {
-    //             console.error('Error fetching data:', error);
-    //         });
-    // };
+        console.log(apiUrl)
+        axios.get(apiUrl, {
+            headers: {
+                'accept': '*/*'
+            }
+        })
+            .then((response) => {
+                setMesses(response.data.messMasterList)
+            })
+            .catch((error) => {
+                console.error('Error fetching data:', error);
+            });
+    };
 
 
     const fetchRoles = async () => {
@@ -309,7 +310,7 @@ const MessMaster = () => {
                                             <i className="ri-loop-left-line"></i>
                                         </Button>
                                         &nbsp;
-                                        <Button type="submit" variant="primary" >Search</Button>
+                                        <Button type="submit" variant="primary" onClick={handleSearch}>Search</Button>
                                     </ButtonGroup>
                                 </Col>
                             </Row>

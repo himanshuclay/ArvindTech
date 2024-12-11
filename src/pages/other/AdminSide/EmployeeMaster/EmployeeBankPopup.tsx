@@ -47,7 +47,6 @@ const EmployeeBankPopup: React.FC<EmployeePopusProps> = ({ showView, setShowView
         { id: 'salaryBankName', label: 'Bank Name ', visible: true },
         { id: 'salaryBankIfsc', label: 'Bank Ifsc', visible: true },
         { id: 'salaryBranchName', label: 'Branch Name', visible: true },
-        { id: 'salaryBankAccountType', label: 'Bank Account Type', visible: true },
         { id: 'salaryBankAccountNumber', label: 'Bank Account Number', visible: true },
     ]);
 
@@ -96,14 +95,9 @@ const EmployeeBankPopup: React.FC<EmployeePopusProps> = ({ showView, setShowView
 
     const hasBankDetails = employee.some(emp => emp.salaryBankName && emp.salaryBankIfsc);
 
-
-
-
-
-
     return (
         <div>
-            <Modal className="" show={showView} placement="end" onHide={handleClose} size='lg'>
+            <Modal className="" show={showView} placement="end" onHide={handleClose} size='xl'>
                 <Modal.Header closeButton>
                     <Modal.Title className="text-dark">View Bank Details</Modal.Title>
                 </Modal.Header>
@@ -153,7 +147,6 @@ const EmployeeBankPopup: React.FC<EmployeePopusProps> = ({ showView, setShowView
                                                                                 {column.id === 'salaryBankIfsc' && (<i className="ri-barcode-line"></i>)}
                                                                                 {column.id === 'salaryBankAccountNumber' && (<i className="ri-numbers-line"></i>)}
                                                                                 {column.id === 'salaryBankName' && (<i className="ri-bank-line"></i>)}
-                                                                                {column.id === 'salaryBankAccountType' && (<i className="ri-account-circle-line"></i>)}
                                                                                 {column.id === 'salaryBranchName' && (<i className="ri-building-line"></i>)}
 
 
@@ -174,6 +167,7 @@ const EmployeeBankPopup: React.FC<EmployeePopusProps> = ({ showView, setShowView
                                                 {hasBankDetails ? (
                                                     employee.slice(0, 10).map((item, index) => (
                                                         <tr key={item.id}>
+                                                            <td>{index +1}</td>
                                                             {columns.filter(col => col.visible).map((col) => (
                                                                 <td key={col.id}
                                                                     className={

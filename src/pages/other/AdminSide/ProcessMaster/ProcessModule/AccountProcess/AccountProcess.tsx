@@ -47,7 +47,6 @@ interface AdhocList {
     formName: string;
 }
 const AccountProcess = () => {
-    toast.dismiss()
     const { id } = useParams<{ id: string }>();
     const { processID } = useParams<{ processID: string }>();
     const { moduleID } = useParams<{ moduleID: string }>();
@@ -101,6 +100,8 @@ const AccountProcess = () => {
 
 
     useEffect(() => {
+    toast.dismiss()
+
         const storedEmpName = localStorage.getItem('EmpName');
         if (storedEmpName) {
             setEmpName(storedEmpName);

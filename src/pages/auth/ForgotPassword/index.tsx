@@ -2,7 +2,7 @@ import { Button, Col, Form, Row } from 'react-bootstrap'
 import AuthLayout from '../AuthLayout'
 import { Link, useNavigate } from 'react-router-dom'
 import { FormInput, VerticalForm, PageBreadcrumb } from '@/components'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import config from '@/config';
 import Flatpickr from 'react-flatpickr';
 import { toast } from 'react-toastify';
@@ -45,6 +45,7 @@ const ForgotPassword = () => {
 	const [showCPassword, setShowCPassword] = useState(false);
 	const [loading, setLoading] = useState(false);
 	const [verifyDoj, setVerifyDoj] = useState(false);
+	const [verifyEmpID, setVerifyEmpID] = useState(false);
 	const [verifyDob, setVerifyDob] = useState(false);
 	const [formData, setFormData] = useState<UserData>({
 		empID: '',
@@ -66,48 +67,55 @@ const ForgotPassword = () => {
 
 
 	const fetchEmployeeDetails = async (empID: string) => {
-		if (!empID) return; // Prevent fetching if empID is empty
 		try {
 			const response = await axios.get(
-				`${config.API_URL_APPLICATION}/Login/GetEmployeeDetailsbyEmpId?Flag=1&EmpID=${empID}`
+				`${config.API_URL_APPLICATION}/Login/GetEmployeeDetailsbyEmpId?Flag=2&EmpID=${empID}`
 			);
 			if (response.data.isSuccess) {
 				const details = response.data.fetchDetails[0];
-				console.log(details)
 				setFormData({
 					...formData,
 					fullname: details.employeeName,
 					role: details.role,
 				});
+				setVerifyEmpID(true)
+			}else{
+				toast.error(
+					<>
+						<div style={{ marginBottom: "10px" }}>{response.data.message}</div>
+						<div style={{ display: "flex", gap: "10px" }}>
+							<button
+								onClick={() => navigate("/auth/register")}
+								style={{
+									backgroundColor: "#007bff",
+									color: "#fff",
+									border: "none",
+									padding: "5px 10px",
+									borderRadius: "5px",
+									fontSize: "11px",
+									fontWeight: "bold",
+									cursor: "pointer",
+									transition: "all 0.3s ease",
+								}}
+								onMouseOver={(e) => (e.currentTarget.style.backgroundColor = "#0056b3")}
+								onMouseOut={(e) => (e.currentTarget.style.backgroundColor = "#007bff")}
+							>
+								Sign Up <i className="ri-arrow-right-line"></i>
+							</button>
+						</div>
+					</>,
+					{ autoClose: 30000 }
+				);
 			}
 		} catch (error: any) {
 			toast.dismiss()
 			toast.error(
 				<>
 					<div style={{ marginBottom: "10px" }}>{error}</div>
-					<div style={{ display: "flex", gap: "10px" }}>
-						<button
-							onClick={() => navigate("/auth/register")}
-							style={{
-								backgroundColor: "#007bff",
-								color: "#fff",
-								border: "none",
-								padding: "5px 10px",
-								borderRadius: "5px",
-								fontSize: "11px",
-								fontWeight: "bold",
-								cursor: "pointer",
-								transition: "all 0.3s ease",
-							}}
-							onMouseOver={(e) => (e.currentTarget.style.backgroundColor = "#0056b3")}
-							onMouseOut={(e) => (e.currentTarget.style.backgroundColor = "#007bff")}
-						>
-							Sign Up <i className="ri-arrow-right-line"></i>
-						</button>
-					</div>
 				</>,
 				{ autoClose: 30000 }
 			);
+			console.error(error)
 		}
 	};
 
@@ -174,6 +182,7 @@ const ForgotPassword = () => {
 				empID: value,
 				fullname: "", // Clear fullname
 			}));
+			setVerifyEmpID(false)
 		} else {
 			setFormData((prevData) => ({ ...prevData, [name]: value }));
 		}
@@ -296,17 +305,6 @@ const ForgotPassword = () => {
 	};
 
 
-
-	useEffect(() => {
-		const delayDebounceFn = setTimeout(() => {
-			if (formData.empID.length > 7) {
-				fetchEmployeeDetails(formData.empID);
-			}
-		}, 500);
-
-		return () => clearTimeout(delayDebounceFn);
-	}, [formData.empID]);
-
 	return (
 		<div>
 			<PageBreadcrumb title="Forgot Password" />
@@ -317,7 +315,7 @@ const ForgotPassword = () => {
 			>
 				<VerticalForm<UserData> onSubmit={onSubmit}>
 					<Row>
-						<Col>
+					<Col className='position-relative'>
 							<FormInput
 								label="Employee ID"
 								type="text"
@@ -328,6 +326,20 @@ const ForgotPassword = () => {
 								containerClass="mb-3"
 								required
 							/>
+							{formData.empID ?
+								<div
+									className="position-absolute signup-verify fs-11"
+									onClick={() => {
+										toast.dismiss();
+										if (formData.empID) {
+											fetchEmployeeDetails(formData.empID);
+										}
+									}}
+									style={{ borderLeft: 'none', cursor: 'pointer' }}
+								>
+									{verifyEmpID ? <i className="ri-checkbox-circle-fill fs-15 text-success "></i> : 'Verify'}
+								</div> : null
+							}
 						</Col>
 						<Col>
 							<FormInput
@@ -338,6 +350,7 @@ const ForgotPassword = () => {
 								value={formData.fullname}
 								onChange={handleInputChange}
 								containerClass="mb-3"
+
 								readOnly
 								disabled
 							/>
@@ -435,7 +448,7 @@ const ForgotPassword = () => {
 					<Row>
 						<Col lg={6}>
 							<Form.Group controlId="password" className="mb-3">
-								<Form.Label>Password</Form.Label>
+								<Form.Label>New Password</Form.Label>
 								<div className="input-group">
 									<Form.Control
 										type={showPassword ? "text" : "password"}
@@ -461,7 +474,7 @@ const ForgotPassword = () => {
 
 						<Col lg={6}>
 							<Form.Group controlId="confirmpassword" className="mb-3">
-								<Form.Label>Password</Form.Label>
+								<Form.Label>Confirm Password</Form.Label>
 								<div className="input-group">
 									<Form.Control
 										type={showCPassword ? "text" : "password"}
@@ -493,6 +506,7 @@ const ForgotPassword = () => {
 							formData.password &&
 							formData.confirmpassword &&
 							verifyDob &&
+							verifyEmpID &&
 							verifyDoj ?
 
 							<Button variant="primary" className="fw-semibold" type="submit" disabled={loading}>

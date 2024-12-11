@@ -55,6 +55,9 @@ interface Employee {
     excelDojValue: string;
     excelDolValue: string;
     isRegistered: string;
+    daL_Module: string;
+    daL_Project: string[];
+    registrationDate: string;
     createdBy: string;
     updatedBy: string;
 }
@@ -64,19 +67,12 @@ interface GenderList {
     name: string
 }
 
-interface ProjectList {
+interface ModuleProjectList {
     id: string;
     projectName: string
+    moduleName: string
 }
 
-interface MISExempt {
-    id: number;
-    name: string;
-}
-interface AppAccess {
-    id: number;
-    appAccess: string;
-}
 interface Department {
     id: number;
     departmentName: string;
@@ -92,15 +88,13 @@ interface AreaData {
 
 
 const EmployeeMasterInsert = () => {
-    toast.dismiss()
-    const { id } = useParams<{ id: string }>();
+    const { id } = useParams<{ id: any }>();
     const navigate = useNavigate();
     const [editMode, setEditMode] = useState<boolean>(false);
     const [empName, setEmpName] = useState<string | null>()
     const [genderList, setGenderList] = useState<GenderList[]>([])
-    const [projectList, setProjectList] = useState<ProjectList[]>([])
-    const [misExempt, setMisExempt] = useState<MISExempt[]>([]);
-    const [appAccess, setAppAccess] = useState<AppAccess[]>([]);
+    const [projectList, setProjectList] = useState<ModuleProjectList[]>([])
+    const [moduleList, setModuleList] = useState<ModuleProjectList[]>([])
     const [departmentList, setDepartmentList] = useState<Department[]>([]);
     const [employee, setEmployee] = useState<Employee>({
         id: 0,
@@ -149,6 +143,9 @@ const EmployeeMasterInsert = () => {
         excelDojValue: '',
         excelDolValue: '',
         isRegistered: '',
+        daL_Module: '',
+        daL_Project: [],
+        registrationDate: '',
         createdBy: '',
         updatedBy: '',
     });
@@ -159,6 +156,7 @@ const EmployeeMasterInsert = () => {
     const [searchDistrict, setSearchDistrict] = useState('');
 
     useEffect(() => {
+        toast.dismiss()
         const storedEmpName = localStorage.getItem('EmpName');
         if (storedEmpName) {
             setEmpName(storedEmpName);
@@ -237,9 +235,8 @@ const EmployeeMasterInsert = () => {
 
         fetchData('CommonDropdown/GetGender', setGenderList, 'genderListResponses');
         fetchData('CommonDropdown/GetProjectList', setProjectList, 'projectListResponses');
-        fetchData('CommonDropdown/GetMISExempt', setMisExempt, 'mISExemptListResponses');
-        fetchData('CommonDropdown/GetAppAccess', setAppAccess, 'appAccessListResponses');
         fetchData('CommonDropdown/GetDepartment', setDepartmentList, 'getDepartments');
+        fetchData('CommonDropdown/GetModuleList', setModuleList, 'moduleNameListResponses');
 
 
     }, []);
@@ -251,9 +248,10 @@ const EmployeeMasterInsert = () => {
                 const fetchedDistricts = response.data.addresses;
                 setDistricts(fetchedDistricts);
                 if (fetchedDistricts.length > 0) {
-                    const firstDistrict = fetchedDistricts[0].district; // Assuming the first district in the list
+                    const firstDistrict = fetchedDistricts[0].district;
+                    // Use functional updates to avoid intermediate rendering issues
                     setSearchDistrict(firstDistrict);
-                    setEmployee(prev => ({ ...prev, district: firstDistrict })); // Automatically set district in employee
+                    setEmployee(prev => ({ ...prev, district: firstDistrict }));
                 }
             } catch (error) {
                 console.error('Error fetching districts:', error);
@@ -271,6 +269,7 @@ const EmployeeMasterInsert = () => {
     }, [searchPin]);
 
 
+
     useEffect(() => {
         const fetchAreaData = async () => {
             try {
@@ -278,13 +277,13 @@ const EmployeeMasterInsert = () => {
                 const fetchedAreas = response.data.addresses;
                 setAreaData(fetchedAreas);
                 if (fetchedAreas.length > 0) {
-                    const firstArea = fetchedAreas[0].areaName; 
-                    setEmployee(prev => ({ 
+                    const firstArea = fetchedAreas[0].areaName;
+                    const fetchedState = fetchedAreas[0]?.state || '';
+                    setEmployee(prev => ({
                         ...prev,
-                         area: firstArea ,
-                         state: fetchedAreas[0].state
-                        
-                    })); 
+                        area: firstArea,
+                        state: fetchedState,
+                    }));
                 }
             } catch (error) {
                 console.error('Error fetching area data:', error);
@@ -298,22 +297,55 @@ const EmployeeMasterInsert = () => {
     }, [searchPin, searchDistrict]);
 
 
+    const handleChange = (e: ChangeEvent<any> | null, name?: string, value?: any) => {
+        const validateMobileNumber = (fieldName: string, fieldValue: string) => {
+            if (!/^\d{0,10}$/.test(fieldValue)) return false; // Allow only numeric input up to 10 digits
 
+            setEmployee((prevData) => ({
+                ...prevData,
+                [fieldName]: fieldValue
+            }));
 
-    const handleChange = (e: ChangeEvent<any>) => {
-        const { name, type } = e.target;
-        if (type === 'checkbox') {
-            const checked = (e.target as HTMLInputElement).checked;
-            setEmployee({
-                ...employee,
-                [name]: checked
-            });
-        } else {
-            const value = (e.target as HTMLInputElement | HTMLSelectElement).value;
-            setEmployee({
-                ...employee,
-                [name]: value
-            });
+            if (fieldValue.length === 10) {
+                if (!/^[6-9]/.test(fieldValue)) {
+                    toast.error("Mobile number should start with a digit between 6 and 9.");
+                    return false;
+                }
+            }
+
+            return true;
+        };
+
+        if (e) {
+            const { name: eventName, type } = e.target;
+
+            if (type === 'checkbox') {
+                const checked = (e.target as HTMLInputElement).checked;
+                setEmployee((prevData) => ({
+                    ...prevData,
+                    [eventName]: checked
+                }));
+            } else {
+                const inputValue = (e.target as HTMLInputElement | HTMLSelectElement).value;
+
+                if (eventName === "userUpdatedMobileNo" || eventName === "hrUpdatedMobileNo") {
+                    validateMobileNumber(eventName, inputValue);
+                } else {
+                    setEmployee((prevData) => ({
+                        ...prevData,
+                        [eventName]: inputValue
+                    }));
+                }
+            }
+        } else if (name) {
+            if (name === "userUpdatedMobileNo" || name === "hrUpdatedMobileNo") {
+                validateMobileNumber(name, value);
+            } else {
+                setEmployee((prevData) => ({
+                    ...prevData,
+                    [name]: value
+                }));
+            }
         }
     };
 
@@ -327,7 +359,6 @@ const EmployeeMasterInsert = () => {
             [fieldIfsc]: value
         }));
 
-        // Only fetch if the value is of a specific length
         if (value.length === 11) {
             fetchBankByIFSC(value, accountType);
         }
@@ -344,6 +375,7 @@ const EmployeeMasterInsert = () => {
             ...employee,
             createdBy: editMode ? employee.createdBy : empName,
             updatedBy: editMode ? empName : '',
+            daL_Project: employee.daL_Project.join(','),
         };
         console.log(payload)
         try {
@@ -362,15 +394,41 @@ const EmployeeMasterInsert = () => {
                     }
                 });
             }
-        } catch (error:any) {
-            toast.error(error||"Error Adding/Updating");
+        } catch (error: any) {
+            toast.error(error || "Error Adding/Updating");
             console.error('Error submitting module:', error);
         }
     };
 
 
 
-
+    const optionsAppAccess = [
+        { value: 'Enabled', label: 'Enabled' },
+        { value: 'Disabled', label: 'Disabled' }
+    ];
+    const optionsAppExempt = [
+        { value: 'Yes', label: 'Yes' },
+        { value: 'No', label: 'No' }
+    ];
+    const optionsEmpStatus = [
+        { value: 'Current', label: 'Current' },
+        { value: 'Formar', label: 'Formar' },
+        { value: 'Absconding', label: 'Absconding' },
+    ];
+    const optionsAppAccesLevel = [
+        { value: 'Admin', label: 'Admin' },
+        { value: 'Employee', label: 'Employee' },
+        { value: 'Management', label: 'Management' },
+        { value: 'PC', label: 'PC' },
+        { value: 'DME', label: 'DME' },
+    ];
+    const optionsDataAccesLevel = [
+        { value: 'All', label: 'All' },
+        { value: 'OnlySelf', label: 'OnlySelf' },
+        { value: 'ProjectModule', label: 'ProjectModule' },
+        { value: 'Module', label: 'Module' },
+        { value: 'Project', label: 'Project' }
+    ];
 
     return (
         <div>
@@ -381,11 +439,23 @@ const EmployeeMasterInsert = () => {
                 <div className='bg-white p-2 rounded-3 border'>
                     <Form onSubmit={handleSubmit}>
                         <Row>
-
-
+                            <Col lg={6}>
+                                <Form.Group controlId="empID" className="mb-3">
+                                    <Form.Label>Employee ID *</Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        name="empID"
+                                        value={employee.empID}
+                                        onChange={handleChange}
+                                        required
+                                        placeholder='Enter Employee ID'
+                                        disabled={editMode}
+                                    />
+                                </Form.Group>
+                            </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="employeeName" className="mb-3">
-                                    <Form.Label>Employee Name *:</Form.Label>
+                                    <Form.Label>Employee Name *</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="employeeName"
@@ -393,14 +463,15 @@ const EmployeeMasterInsert = () => {
                                         onChange={handleChange}
                                         required
                                         placeholder='Enter Employee Name'
-
                                     />
                                 </Form.Group>
                             </Col>
 
+
+
                             <Col lg={6}>
                                 <Form.Group controlId="departmentName" className="mb-3">
-                                    <Form.Label>Department Name *:</Form.Label>
+                                    <Form.Label>Department Name *</Form.Label>
                                     <Select
                                         name="departmentName"
                                         value={departmentList.find((emp) => emp.departmentName === employee.departmentName)}
@@ -423,7 +494,7 @@ const EmployeeMasterInsert = () => {
 
                             <Col lg={6}>
                                 <Form.Group controlId="designation" className="mb-3">
-                                    <Form.Label>Designation  *:</Form.Label>
+                                    <Form.Label>Designation *</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="designation"
@@ -438,7 +509,7 @@ const EmployeeMasterInsert = () => {
 
                             <Col lg={6}>
                                 <Form.Group controlId="hrUpdatedMobileNo" className="mb-3">
-                                    <Form.Label>HR Update Mobile Number  *:</Form.Label>
+                                    <Form.Label>HR Update Mobile Number  *</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="hrUpdatedMobileNo"
@@ -453,7 +524,7 @@ const EmployeeMasterInsert = () => {
 
                             <Col lg={6}>
                                 <Form.Group controlId="gender" className="mb-3">
-                                    <Form.Label>Gender *:</Form.Label>
+                                    <Form.Label>Gender *</Form.Label>
                                     <Select
                                         name="gender"
                                         value={genderList.find((emp) => emp.name === employee.gender)}
@@ -475,7 +546,7 @@ const EmployeeMasterInsert = () => {
 
                             <Col lg={6}>
                                 <Form.Group controlId="fatherName" className="mb-3">
-                                    <Form.Label>Father Name:</Form.Label>
+                                    <Form.Label>Father Name *</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="fatherName"
@@ -490,7 +561,7 @@ const EmployeeMasterInsert = () => {
 
                             <Col lg={6}>
                                 <Form.Group controlId="dateOfBirth" className="mb-3">
-                                    <Form.Label> Date of Birth:</Form.Label>
+                                    <Form.Label> Date of Birth *</Form.Label>
                                     <Flatpickr
                                         value={employee.dateOfBirth}
                                         onChange={([date]) => setEmployee({
@@ -510,11 +581,51 @@ const EmployeeMasterInsert = () => {
                             </Col>
 
 
+                            <Col lg={6}>
+                                <Form.Group controlId="dateOfJoining" className="mb-3">
+                                    <Form.Label> Date of Joing *</Form.Label>
+                                    <Flatpickr
+                                        value={employee.dateOfJoining}
+                                        onChange={([date]) => setEmployee({
+                                            ...employee,
+                                            dateOfJoining: date.toISOString().split('T')[0]
+                                        })}
+                                        options={{
+                                            enableTime: false,
+                                            dateFormat: "Y-m-d",
+                                            time_24hr: false,
+                                        }}
+                                        placeholder=" Date of Joing "
+                                        className="form-control"
+                                        required
+                                    />
+                                </Form.Group>
+                            </Col>
+
+                            <Col lg={6}>
+                                <Form.Group controlId="dateOfLeaving" className="mb-3">
+                                    <Form.Label> Date of Leaving </Form.Label>
+                                    <Flatpickr
+                                        value={employee.dateOfLeaving}
+                                        onChange={([date]) => setEmployee({
+                                            ...employee,
+                                            dateOfLeaving: date.toISOString().split('T')[0]
+                                        })}
+                                        options={{
+                                            enableTime: false,
+                                            dateFormat: "Y-m-d",
+                                            time_24hr: false,
+                                        }}
+                                        placeholder=" Date of Leaving "
+                                        className="form-control"
+                                    />
+                                </Form.Group>
+                            </Col>
 
 
                             <Col lg={6}>
                                 <Form.Group controlId="currentProjectName" className="mb-3">
-                                    <Form.Label>Current Project</Form.Label>
+                                    <Form.Label>Current Project Name</Form.Label>
                                     <Select
                                         name="currentProjectName"
                                         value={projectList.find((emp) => emp.projectName === employee.currentProjectName)}
@@ -528,26 +639,18 @@ const EmployeeMasterInsert = () => {
                                         getOptionValue={(emp) => emp.projectName}
                                         options={projectList}
                                         isSearchable={true}
-                                        placeholder="Select currentProjectName"
+                                        placeholder="Select Current Project"
                                     />
                                 </Form.Group>
                             </Col>
                             <Col lg={6}>
-                                <Form.Group controlId="appAccessLevel" className="mb-3">
-                                    <Form.Label>App Access *:</Form.Label>
+                                <Form.Group controlId="appAccess" className="mb-3">
+                                    <Form.Label>App Access *</Form.Label>
                                     <Select
-                                        name="appAccessLevel"
-                                        value={appAccess.find((emp) => emp.appAccess === employee.appAccessLevel)}
-                                        onChange={(selectedOption) => {
-                                            setEmployee({
-                                                ...employee,
-                                                appAccessLevel: selectedOption?.appAccess || "",
-                                            });
-                                        }}
-                                        getOptionLabel={(emp) => emp.appAccess}
-                                        getOptionValue={(emp) => emp.appAccess}
-                                        options={appAccess}
-                                        isSearchable={true}
+                                        name="appAccess"
+                                        options={optionsAppAccess}
+                                        value={optionsAppAccess.find(option => option.value === employee.appAccess)}
+                                        onChange={selectedOption => handleChange(null, 'appAccess', selectedOption?.value)}
                                         placeholder="Select App Access"
                                         required
                                     />
@@ -556,20 +659,12 @@ const EmployeeMasterInsert = () => {
 
                             <Col lg={6}>
                                 <Form.Group controlId="appExempt" className="mb-3">
-                                    <Form.Label>Exempt Status *:</Form.Label>
+                                    <Form.Label>Exempt Status *</Form.Label>
                                     <Select
                                         name="appExempt"
-                                        value={misExempt.find((emp) => emp.name === employee.appExempt)}
-                                        onChange={(selectedOption) => {
-                                            setEmployee({
-                                                ...employee,
-                                                appExempt: selectedOption?.name || "",
-                                            });
-                                        }}
-                                        getOptionLabel={(emp) => emp.name}
-                                        getOptionValue={(emp) => emp.name}
-                                        options={misExempt}
-                                        isSearchable={true}
+                                        options={optionsAppExempt}
+                                        value={optionsAppExempt.find(option => option.value === employee.appExempt)}
+                                        onChange={selectedOption => handleChange(null, 'appExempt', selectedOption?.value)}
                                         placeholder="Select Exempt Status"
                                         required
                                     />
@@ -578,22 +673,158 @@ const EmployeeMasterInsert = () => {
 
                             <Col lg={6}>
                                 <Form.Group controlId="isPerformanceReview" className="mb-3">
-                                    <Form.Label>Performance Review Applicapblity *:</Form.Label>
+                                    <Form.Label>Performance Review Applicapblity *</Form.Label>
                                     <Select
                                         name="isPerformanceReview"
-                                        value={misExempt.find((emp) => emp.name === employee.isPerformanceReview)}
+                                        options={optionsAppExempt}
+                                        value={optionsAppExempt.find(option => option.value === employee.isPerformanceReview)}
+                                        onChange={selectedOption => handleChange(null, 'isPerformanceReview', selectedOption?.value)}
+                                        placeholder="Select Performance Review Applicapblity"
+                                        required
+                                    />
+                                </Form.Group>
+                            </Col>
+                            <Col lg={6}>
+                                <Form.Group controlId="dataAccessLevel" className="mb-3">
+                                    <Form.Label>Data Access Level *</Form.Label>
+                                    <Select
+                                        name="dataAccessLevel"
+                                        options={optionsDataAccesLevel}
+                                        value={optionsDataAccesLevel.find(option => option.value === employee.dataAccessLevel)}
+                                        onChange={selectedOption => handleChange(null, 'dataAccessLevel', selectedOption?.value)}
+                                        placeholder="Select Data Access Level"
+                                        required
+                                    />
+                                </Form.Group>
+                            </Col>
+                            <Col lg={6}>
+                                <Form.Group controlId="appAccessLevel" className="mb-3">
+                                    <Form.Label>App Access Level *</Form.Label>
+                                    <Select
+                                        name="appAccessLevel"
+                                        options={optionsAppAccesLevel}
+                                        value={optionsAppAccesLevel.find(option => option.value === employee.appAccessLevel)}
+                                        onChange={selectedOption => handleChange(null, 'appAccessLevel', selectedOption?.value)}
+                                        placeholder="Select App Access Level"
+                                        required
+                                    />
+                                </Form.Group>
+                            </Col>
+                            <Col lg={6}>
+                                <Form.Group controlId="empStatus" className="mb-3">
+                                    <Form.Label>Employee Status *</Form.Label>
+                                    <Select
+                                        name="empStatus"
+                                        options={optionsEmpStatus}
+                                        value={optionsEmpStatus.find(option => option.value === employee.empStatus)}
+                                        onChange={selectedOption => handleChange(null, 'empStatus', selectedOption?.value)}
+                                        placeholder="Select Employee Status"
+                                        required
+                                    />
+                                </Form.Group>
+                            </Col>
+                            <Col lg={6}>
+                                <Form.Group controlId="isRegistered" className="mb-3">
+                                    <Form.Label>Is Registered *</Form.Label>
+                                    <Select
+                                        name="isRegistered"
+                                        options={optionsAppExempt}
+                                        value={optionsAppExempt.find(option => option.value === employee.isRegistered)}
+                                        onChange={selectedOption => handleChange(null, 'isRegistered', selectedOption?.value)}
+                                        placeholder="Select Is Registered"
+                                        required
+                                        isDisabled={editMode}
+                                    />
+                                </Form.Group>
+                            </Col>
+
+                            <Col lg={6}>
+                                <Form.Group controlId="daL_Module" className="mb-3">
+                                    <Form.Label>DAL Module *</Form.Label>
+                                    <Select
+                                        name="daL_Module"
+                                        value={moduleList.find((emp) => emp.moduleName === employee.daL_Module)}
                                         onChange={(selectedOption) => {
                                             setEmployee({
                                                 ...employee,
-                                                isPerformanceReview: selectedOption?.name || "",
+                                                daL_Module: selectedOption?.moduleName || "",
                                             });
                                         }}
-                                        getOptionLabel={(emp) => emp.name}
-                                        getOptionValue={(emp) => emp.name}
-                                        options={misExempt}
+                                        getOptionLabel={(emp) => emp.moduleName}
+                                        getOptionValue={(emp) => emp.moduleName}
+                                        options={moduleList}
                                         isSearchable={true}
-                                        placeholder="Select Performance Review Applicapblity"
+                                        placeholder="Select DAL Module"
+                                    />
+                                </Form.Group>
+                            </Col>
+
+
+                            <Col lg={6}>
+                                <Form.Group controlId="daL_Project" className="mb-3">
+                                    <Form.Label>DAL Project</Form.Label>
+                                    <Select
+                                        name="daL_Project"
+                                        value={projectList.filter(emp => employee.daL_Project.includes(emp.projectName)
+                                        )}
+                                        onChange={(selectedOptions) => {
+                                            const daL_Project = (selectedOptions || []).map(option => option.projectName);
+                                            setEmployee(prev => ({
+                                                ...prev,
+                                                daL_Project
+                                            }));
+                                        }}
+                                        getOptionLabel={(emp) => emp.projectName}
+                                        getOptionValue={(emp) => emp.projectName}
+                                        options={projectList}
+                                        isSearchable={true}
+                                        isMulti={true}
+                                        placeholder="Select Projects"
+                                    />
+                                </Form.Group>
+                            </Col>
+
+
+
+
+
+
+
+
+
+
+                            <Col lg={6}>
+                                <Form.Group controlId="registrationDate" className="mb-3">
+                                    <Form.Label>Registration Date *</Form.Label>
+                                    <Flatpickr
+                                        value={employee.registrationDate}
+                                        onChange={([date]) => setEmployee({
+                                            ...employee,
+                                            registrationDate: date.toISOString().split('T')[0]
+                                        })}
+                                        options={{
+                                            enableTime: false,
+                                            dateFormat: "Y-m-d",
+                                            time_24hr: false,
+                                        }}
+                                        placeholder=" Date of Registration "
+                                        className="form-control"
                                         required
+                                        disabled={editMode}
+
+                                    />
+                                </Form.Group>
+                            </Col>
+
+                            <Col lg={6}>
+                                <Form.Group controlId="userUpdatedMobileNo" className="mb-3">
+                                    <Form.Label>User Update Mobile Number </Form.Label>
+                                    <Form.Control
+                                        type="number"
+                                        name="userUpdatedMobileNo"
+                                        value={employee.userUpdatedMobileNo}
+                                        onChange={handleChange}
+                                        placeholder='Enter User Update Mobile Number'
                                     />
                                 </Form.Group>
                             </Col>
@@ -736,7 +967,7 @@ const EmployeeMasterInsert = () => {
                                 <Form.Group controlId="salaryBankAccountNumber" className="mb-3">
                                     <Form.Label>Bank Account Number:</Form.Label>
                                     <Form.Control
-                                        type="text"
+                                        type="number"
                                         name="salaryBankAccountNumber"
                                         value={employee.salaryBankAccountNumber}
                                         onChange={handleChange}
@@ -744,18 +975,18 @@ const EmployeeMasterInsert = () => {
                                     />
                                 </Form.Group>
                             </Col>
-                            <Col lg={6}>
+                            {/* <Col lg={6}>
                                 <Form.Group controlId="salaryBankAccountType" className="mb-3">
                                     <Form.Label>Bank Account Type:</Form.Label>
-                                    <Form.Control
-                                        type="text"
+                                    <Select
                                         name="salaryBankAccountType"
-                                        value={employee.salaryBankAccountType}
-                                        onChange={handleChange}
-                                        placeholder='Enter Bank Account Number'
+                                        options={optionsAccountType}
+                                        value={optionsAccountType.find(option => option.value === employee.salaryBankAccountType)}
+                                        onChange={selectedOption => handleChange(null, 'salaryBankAccountType', selectedOption?.value)}
+                                        placeholder="Select Account Type"
                                     />
                                 </Form.Group>
-                            </Col>
+                            </Col> */}
 
 
                             <h3>Reimbursement Account Details</h3>
@@ -806,7 +1037,7 @@ const EmployeeMasterInsert = () => {
                                 <Form.Group controlId="reimbursementBankAccountNumber" className="mb-3">
                                     <Form.Label>Bank Account Number:</Form.Label>
                                     <Form.Control
-                                        type="text"
+                                        type="number"
                                         name="reimbursementBankAccountNumber"
                                         value={employee.reimbursementBankAccountNumber}
                                         onChange={handleChange}
@@ -814,6 +1045,18 @@ const EmployeeMasterInsert = () => {
                                     />
                                 </Form.Group>
                             </Col>
+                            {/* <Col lg={6}>
+                                <Form.Group controlId="reimbursementBankAccountType" className="mb-3">
+                                    <Form.Label>Bank Account Type:</Form.Label>
+                                    <Select
+                                        name="reimbursementBankAccountType"
+                                        options={optionsAccountType}
+                                        value={optionsAccountType.find(option => option.value === employee.reimbursementBankAccountType)}
+                                        onChange={selectedOption => handleChange(null, 'reimbursementBankAccountType', selectedOption?.value)}
+                                        placeholder="Select Account Type"
+                                    />
+                                </Form.Group>
+                            </Col> */}
 
 
                             <h3>Expense Account Details</h3>
@@ -864,7 +1107,7 @@ const EmployeeMasterInsert = () => {
                                 <Form.Group controlId="expenseBankAccountNumber" className="mb-3">
                                     <Form.Label>Bank Account Number:</Form.Label>
                                     <Form.Control
-                                        type="text"
+                                        type="number"
                                         name="expenseBankAccountNumber"
                                         value={employee.expenseBankAccountNumber}
                                         onChange={handleChange}
@@ -873,6 +1116,18 @@ const EmployeeMasterInsert = () => {
                                 </Form.Group>
                             </Col>
 
+                            {/* <Col lg={6}>
+                                <Form.Group controlId="expenseBankAccountType" className="mb-3">
+                                    <Form.Label>Bank Account Type:</Form.Label>
+                                      <Select
+                                        name="expenseBankAccountType"
+                                        options={optionsAccountType}
+                                        value={optionsAccountType.find(option => option.value === employee.expenseBankAccountType)}
+                                        onChange={selectedOption => handleChange(null, 'expenseBankAccountType', selectedOption?.value)}
+                                        placeholder="Select Account Type"
+                                    />
+                                </Form.Group>
+                            </Col> */}
 
 
 
