@@ -77,7 +77,6 @@ interface StatusList {
 
 
 const DepartmentMasterinsert = () => {
-    toast.dismiss()
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
     const [editMode, setEditMode] = useState<boolean>(false);
@@ -136,6 +135,8 @@ const DepartmentMasterinsert = () => {
     });
 
     useEffect(() => {
+    toast.dismiss()
+
         const storedEmpName = localStorage.getItem('EmpName');
         if (storedEmpName) {
             setEmpName(storedEmpName);
