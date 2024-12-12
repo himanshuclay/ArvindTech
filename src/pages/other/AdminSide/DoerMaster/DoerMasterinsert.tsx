@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { useEffect, useState, ChangeEvent } from 'react';
-import { Button, Col, Form, Row } from 'react-bootstrap';
+import { Button, Col, Form, Row, Table } from 'react-bootstrap';
 import config from '@/config';
 import Select from 'react-select';
 
@@ -54,9 +54,9 @@ const YourComponent = () => {
         e.preventDefault();
 
         const requestData = {
-            Identifier1: selectedIdentifierOne,
-            Identifier2: selectedIdentifierTwo,
-            TaskID: selectedTask
+            TaskID: selectedTask,
+            Identifier: selectedIdentifierOne,
+            Identifier1: selectedIdentifierTwo
         };
 
         console.log(requestData);
@@ -66,7 +66,7 @@ const YourComponent = () => {
 
             if (response.data.isSuccess) {
                 console.log('Data submitted successfully', response.data);
-                fetchDoerMasterList(); // Refresh table data
+                // fetchDoerMasterList(); // Refresh table data
                 console.log(doerMasterList)
             } else {
                 console.error('Error:', response.data.message);
@@ -158,7 +158,7 @@ const YourComponent = () => {
             {/* Table to display DoerMaster list */}
             <div className="mt-4">
                 <h5>Task Identifier Combinations</h5>
-                <table className="table table-responsive">
+                <Table hover className="bg-white">
                     <thead>
                         <tr>
                             <th>Task Name</th>
@@ -175,7 +175,7 @@ const YourComponent = () => {
                             </tr>
                         ))}
                     </tbody>
-                </table>
+                </Table>
             </div>
 
 
