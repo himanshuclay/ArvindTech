@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { useState, useEffect, ChangeEvent } from 'react';
+import { useState, useEffect } from 'react';
 import { Button, Pagination, Table, Container, Row, Col, Alert, Form, ButtonGroup } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
@@ -27,11 +27,15 @@ interface Vender {
     ifsc: string;
     branch: string;
     gstin: string;
+    status: string;
+    trade: string;
     fillingFrequency: string;
     vendorContactPerson: string;
     creatorEmpId: string;
     creatorName: string;
     creatorEmail: string;
+    createdDate: string;
+    updatedDate: string;
 }
 
 
@@ -52,7 +56,6 @@ const TenderMaster = () => {
     const [loading, setLoading] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
-    const [searchQuery, setSearchQuery] = useState('');
     const [downloadCsv, setDownloadCsv] = useState<Vender[]>([]);
     const [employeeList, setEmployeeList] = useState<EmployeeList[]>([]);
 
@@ -67,30 +70,34 @@ const TenderMaster = () => {
         }
     }, [location.state, navigate]);
 
-  
+
 
     // both are required to make dragable column of table 
     const [columns, setColumns] = useState<Column[]>([
         { id: 'vendorCode', label: 'Vendor Code', visible: true },
         { id: 'category', label: 'Category', visible: true },
         { id: 'name', label: 'Name', visible: true },
-        { id: 'addressLine1', label: 'Address Line 1', visible: true },
+        { id: 'gstin', label: 'GSTIN', visible: true },
+        { id: 'status', label: 'Status', visible: true },
+        { id: 'trade', label: 'Trade', visible: true },
+        { id: 'vendorContactPerson', label: 'Vendor Contact Person', visible: true },
+        { id: 'contactNo', label: 'Vendor Contact No', visible: true },
+        { id: 'creatorEmpId', label: 'Creator Emp ID', visible: true },
+        { id: 'creatorName', label: 'Creator Name', visible: true },
+        { id: 'creatorEmail', label: 'Creator Email', visible: true },
+        { id: 'email', label: 'Email', visible: true },
         { id: 'district', label: 'District', visible: true },
         { id: 'state', label: 'State', visible: true },
         { id: 'area', label: 'Area', visible: true },
         { id: 'pin', label: 'Pin', visible: true },
-        { id: 'email', label: 'Email', visible: true },
-        { id: 'contactNo', label: 'Contact No', visible: true },
+        { id: 'addressLine1', label: 'Address Line 1', visible: true },
         { id: 'bankAccountNumber', label: 'Bank Account Number', visible: true },
         { id: 'bankName', label: 'Bank Name', visible: true },
         { id: 'ifsc', label: 'IFSC', visible: true },
         { id: 'branch', label: 'Branch', visible: true },
-        { id: 'gstin', label: 'GSTIN', visible: true },
         { id: 'fillingFrequency', label: 'Filling Frequency', visible: true },
-        { id: 'vendorContactPerson', label: 'Vendor Contact Person', visible: true },
-        { id: 'creatorEmpId', label: 'Creator Emp ID', visible: true },
-        { id: 'creatorName', label: 'Creator Name', visible: true },
-        { id: 'creatorEmail', label: 'Creator Email', visible: true },
+        { id: 'createdDate', label: 'Created Date', visible: true },
+        { id: 'updatedDate', label: 'Updated Date', visible: true },
 
     ]);
 
@@ -271,46 +278,25 @@ const TenderMaster = () => {
         }
     };
 
-    const handleSearchcurrent = (e: ChangeEvent<HTMLInputElement>) => {
-        setSearchQuery(e.target.value);
-        setCurrentPage(1);
-    };
-
-    const filteredVenders = venders.filter(vender =>
-        vender.vendorCode.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        vender.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        vender.category.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        vender.addressLine1.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        vender.district.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        vender.state.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        vender.area.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        vender.pin.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        vender.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        vender.contactNo.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        vender.bankAccountNumber.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        vender.bankName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        vender.ifsc.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        vender.branch.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        vender.gstin.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        vender.fillingFrequency.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        vender.vendorContactPerson.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        vender.creatorEmpId.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        vender.creatorName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        vender.creatorEmail.toLowerCase().includes(searchQuery.toLowerCase())
-    );
-    
     return (
         <>
             <div className="container">
                 <div className="d-flex bg-white p-2 my-2 justify-content-between align-items-center">
-                    <span><i className="ri-file-list-line me-2 text-dark fs-16"></i><span className='fw-bold text-dark fs-15'>Vender List</span></span>
+                    <span><i className="ri-file-list-line me-2 text-dark fs-16"></i><span className='fw-bold text-dark fs-15'>Vendor List</span></span>
                     <div className="d-flex justify-content-end  ">
-
-                        <Link to='/pages/VenderMasterinsert'>
-                            <Button variant="primary" className="me-2">
-                                Add Vender
+                        <div>
+                            <Button variant="primary" onClick={downloadCSV} className="me-2">
+                                Download CSV
                             </Button>
-                        </Link>
+                            <Link to='/pages/VendorMasterinsert'>
+                                <Button variant="primary" className="">
+                                    Add Vendor
+                                </Button>
+                            </Link>
+
+
+                        </div>
+
 
                     </div>
                 </div>
@@ -329,19 +315,19 @@ const TenderMaster = () => {
                                 <Row>
                                     <Col lg={4}>
                                         <Form.Group controlId="searchVenderCode">
-                                            <Form.Label>Vender Code </Form.Label>
+                                            <Form.Label>Vendor Code </Form.Label>
                                             <Form.Control
                                                 type="text"
                                                 name="searchVenderCode"
                                                 value={searchVenderCode}
                                                 onChange={(e) => setSearchVenderCode(e.target.value)}
-                                                placeholder='Enter VenderCode'
+                                                placeholder='Enter VendorCode'
                                             />
                                         </Form.Group>
                                     </Col>
                                     <Col lg={4}>
                                         <Form.Group controlId="searchVendorContactPerson">
-                                            <Form.Label>Vender Contact Person </Form.Label>
+                                            <Form.Label>Vendor Contact Person </Form.Label>
                                             <Form.Control
                                                 type="text"
                                                 name="searchVendorContactPerson"
@@ -397,7 +383,7 @@ const TenderMaster = () => {
                             <Row className='mt-3'>
                                 <div className="d-flex justify-content-end bg-light p-1">
                                     <div className="app-search d-none d-lg-block me-4">
-                                        <form>
+                                        {/* <form>
                                             <div className="input-group px300 ">
                                                 <input
                                                     type="search"
@@ -408,18 +394,16 @@ const TenderMaster = () => {
                                                 />
                                                 <span className="ri-search-line search-icon text-muted" />
                                             </div>
-                                        </form>
+                                        </form> */}
                                     </div>
 
-                                    <Button variant="primary" onClick={downloadCSV} className="">
-                                        Download CSV
-                                    </Button>
+
                                 </div>
                             </Row>
                         </div>
 
                         <div className="overflow-auto text-nowrap">
-                            {!filteredVenders ? (
+                            {!venders ? (
                                 <Container className="mt-5">
                                     <Row className="justify-content-center">
                                         <Col xs={12} md={8} lg={6}>
@@ -478,14 +462,14 @@ const TenderMaster = () => {
                                             </Droppable>
                                         </thead>
                                         <tbody>
-                                            {filteredVenders.length > 0 ? (
-                                                filteredVenders.slice(0, 10).map((item, index) => (
+                                            {venders.length > 0 ? (
+                                                venders.slice(0, 10).map((item, index) => (
                                                     <tr key={item.id}>
                                                         <td>{(currentPage - 1) * 10 + index + 1}</td>
                                                         {columns.filter(col => col.visible).map((col) => (
                                                             <td key={col.id}
                                                                 className={
-                                                                    col.id === 'addressLine1' ? 'w-200px' :''
+                                                                    col.id === 'addressLine1' ? 'w-200px' : ''
                                                                 }
                                                             >
                                                                 {col.id === 'creatorName' && item.creatorName ? (
@@ -503,7 +487,7 @@ const TenderMaster = () => {
                                                             </td>
                                                         ))}
 
-                                                        <td><Link to={`/pages/VenderMasterinsert/${item.id}`}>
+                                                        <td><Link to={`/pages/VendorMasterinsert/${item.id}`}>
                                                             <Button variant='primary' className='p-0 text-white'>
                                                                 <i className='btn ri-edit-line text-white' ></i>
                                                             </Button>

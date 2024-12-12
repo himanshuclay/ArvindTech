@@ -79,30 +79,36 @@ const ForgotPassword = () => {
 					role: details.role,
 				});
 				setVerifyEmpID(true)
-			}else{
+			} else {
 				toast.error(
 					<>
 						<div style={{ marginBottom: "10px" }}>{response.data.message}</div>
-						<div style={{ display: "flex", gap: "10px" }}>
-							<button
-								onClick={() => navigate("/auth/register")}
-								style={{
-									backgroundColor: "#007bff",
-									color: "#fff",
-									border: "none",
-									padding: "5px 10px",
-									borderRadius: "5px",
-									fontSize: "11px",
-									fontWeight: "bold",
-									cursor: "pointer",
-									transition: "all 0.3s ease",
-								}}
-								onMouseOver={(e) => (e.currentTarget.style.backgroundColor = "#0056b3")}
-								onMouseOut={(e) => (e.currentTarget.style.backgroundColor = "#007bff")}
-							>
-								Sign Up <i className="ri-arrow-right-line"></i>
-							</button>
-						</div>
+						{response.data.message === 'User not registered' ?
+							<div style={{ display: "flex", gap: "10px" }}>
+								<button
+									onClick={() => navigate("/auth/register")}
+									style={{
+										backgroundColor: "#007bff",
+										color: "#fff",
+										border: "none",
+										padding: "5px 10px",
+										borderRadius: "5px",
+										fontSize: "11px",
+										fontWeight: "bold",
+										cursor: "pointer",
+										transition: "all 0.3s ease",
+									}}
+									onMouseOver={(e) => (e.currentTarget.style.backgroundColor = "#0056b3")}
+									onMouseOut={(e) => (e.currentTarget.style.backgroundColor = "#007bff")}
+								>
+									Sign Up <i className="ri-arrow-right-line"></i>
+								</button>
+							</div>
+							: null
+
+						}
+
+
 					</>,
 					{ autoClose: 30000 }
 				);
@@ -137,9 +143,6 @@ const ForgotPassword = () => {
 					...formData,
 					joiningDate: '',
 				});
-
-
-				// alert('Enter Valid Employee ID or Date of Joining')
 
 			}
 		} catch (error) {
@@ -310,12 +313,12 @@ const ForgotPassword = () => {
 			<PageBreadcrumb title="Forgot Password" />
 			<AuthLayout
 				authTitle="Forgot Password?"
-				helpText="Enter your email address and we'll send you an email with instructions to reset your password."
+				helpText="Enter your Employee ID, Click Verify and then enter Password to forgot Password"
 				bottomLinks={<BottomLink />}
 			>
 				<VerticalForm<UserData> onSubmit={onSubmit}>
 					<Row>
-					<Col className='position-relative'>
+						<Col className='position-relative'>
 							<FormInput
 								label="Employee ID"
 								type="text"

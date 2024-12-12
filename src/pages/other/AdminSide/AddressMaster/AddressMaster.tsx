@@ -17,6 +17,7 @@ interface Addresses {
     areaName: string;
     district: string;
     state: string;
+    status: string;
     createdBy: string;
     updatedBy: string;
 }
@@ -70,6 +71,7 @@ const AddressMaster = () => {
         { id: 'areaName', label: 'Area Name', visible: true },
         { id: 'district', label: 'District', visible: true },
         { id: 'state', label: 'State', visible: true },
+        { id: 'status', label: 'Status', visible: true },
 
     ]);
 
@@ -171,7 +173,7 @@ const AddressMaster = () => {
     useEffect(() => {
         const fetchDistricts = async () => {
             try {
-                const response = await axios.get(`https://arvindo-api2.clay.in/api/AddressMaster/GetAddressData?PinCode=${searchPinCode}`);
+                const response = await axios.get(`${config.API_URL_APPLICATION}/AddressMaster/GetAddressData?PinCode=${searchPinCode}`);
                 setDistricts(response.data.addresses); // Assume the response contains districtList
             } catch (error) {
                 console.error('Error fetching districts:', error);
@@ -192,7 +194,7 @@ const AddressMaster = () => {
     useEffect(() => {
         const fetchAreaData = async () => {
             try {
-                const response = await axios.get(`https://arvindo-api2.clay.in/api/AddressMaster/GetAddressData?PinCode=${searchPinCode}&District=${searchDistrict}`);
+                const response = await axios.get(`${config.API_URL_APPLICATION}/AddressMaster/GetAddressData?PinCode=${searchPinCode}&District=${searchDistrict}`);
                 setAreaData(response.data.addresses); // Assume the response contains area data
             } catch (error) {
                 console.error('Error fetching area data:', error);

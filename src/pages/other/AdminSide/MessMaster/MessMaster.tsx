@@ -113,7 +113,7 @@ const MessMaster = () => {
         // Remove trailing '&' or '?' from the query string
         query = query.endsWith('&') ? query.slice(0, -1) : query;
 
-        const apiUrl = `https://arvindo-api2.clay.in/api/MessMaster/SearchMess${query}`;
+        const apiUrl = `${config.API_URL_APPLICATION}/MessMaster/SearchMess${query}`;
 
         console.log(apiUrl)
         axios.get(apiUrl, {

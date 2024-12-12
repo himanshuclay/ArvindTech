@@ -3,6 +3,7 @@ import axios from 'axios';
 import { Button, Modal, Form, Table } from 'react-bootstrap';
 import Select from 'react-select'; // Make sure you have this or the appropriate select component imported
 import CustomFlatpickr from '@/components/CustomFlatpickr';
+import config from '@/config';
 
 // Define interfaces for the data
 interface AccountProcessTask {
@@ -101,7 +102,7 @@ const AccountProcessTable: React.FC = () => {
     useEffect(() => {
         const fetchModules = async () => {
             try {
-                const response = await axios.get('https://arvindo-api2.clay.in/api/CommonDropdown/GetModuleList');
+                const response = await axios.get('${config.API_URL_APPLICATION}/CommonDropdown/GetModuleList');
                 if (response.data.isSuccess) {
                     setModules(response.data.moduleNameListResponses);
                 }
@@ -872,7 +873,7 @@ const AccountProcessTable: React.FC = () => {
         if (selectedModule) {
             const fetchProcesses = async () => {
                 try {
-                    const response = await axios.get(`https://arvindo-api2.clay.in/api/CommonDropdown/GetProcessNameByModuleName?ModuleName=${selectedModule}`);
+                    const response = await axios.get(`${config.API_URL_APPLICATION}/CommonDropdown/GetProcessNameByModuleName?ModuleName=${selectedModule}`);
                     if (response.data.isSuccess) {
                         setProcesses(response.data.processListResponses);
                     }
@@ -942,7 +943,7 @@ const AccountProcessTable: React.FC = () => {
     useEffect(() => {
         const fetchEmployees = async () => {
             try {
-                const response = await axios.get(`https://arvindo-api2.clay.in/api/CommonDropdown/GetEmployeeListWithId`);
+                const response = await axios.get(`${config.API_URL_APPLICATION}/CommonDropdown/GetEmployeeListWithId`);
                 if (response.data.isSuccess) {
                     setEmployees(response.data.employeeLists);
                 } else {
@@ -1063,7 +1064,7 @@ const AccountProcessTable: React.FC = () => {
     useEffect(() => {
         const fetchProjects = async () => {
             try {
-                const response = await axios.get('https://arvindo-api2.clay.in/api/CommonDropdown/GetProjectList');
+                const response = await axios.get('${config.API_URL_APPLICATION}/CommonDropdown/GetProjectList');
                 if (response.data.isSuccess) {
                     setProjects(response.data.projectListResponses);
                 }

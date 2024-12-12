@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { useState, useEffect, ChangeEvent } from 'react';
+import { useState, useEffect } from 'react';
 import { Button, Pagination, Table, Container, Row, Col, Alert, Form, ButtonGroup } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
@@ -87,7 +87,6 @@ const EmployeeMaster = () => {
     const [loading, setLoading] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
-    const [searchQuery, setSearchQuery] = useState('');
     const [showView, setShowView] = useState(false);
     const [manageId, setManageID] = useState<number>();
     const [employeeList, setEmployeeList] = useState<EmployeeList[]>([]);
@@ -258,7 +257,7 @@ const EmployeeMaster = () => {
                 'ID',
                 'Employee ID', 'Employee Name',
                 'Father Name', 'Email',
-             'Data Access Level',
+                'Data Access Level',
                 'Employee Status', 'HR Updated Mobile No',
                 'User Updated Mobile No', 'State',
                 'District', 'Area', 'Pin', 'Address',
@@ -352,25 +351,7 @@ const EmployeeMaster = () => {
         }
     };
 
-    const handleSearchcurrent = (e: ChangeEvent<HTMLInputElement>) => {
-        setSearchQuery(e.target.value);
-        setCurrentPage(1);
-    };
 
-
-
-    
-    const filteredEmployees = employee.filter(item =>
-        item.employeeName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        item.empID.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        item.empStatus.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        item.hrUpdatedMobileNo.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        item.userUpdatedMobileNo.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        item.departmentName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        item.designation.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        item.currentProjectName.toLowerCase().includes(searchQuery.toLowerCase()) 
-    );
-    
 
     const handleShowview = () => setShowView(true);
 
@@ -414,12 +395,18 @@ const EmployeeMaster = () => {
                 <div className="d-flex bg-white p-2 my-2 justify-content-between align-items-center">
                     <span><i className="ri-file-list-line me-2 text-dark fs-16"></i><span className='fw-bold text-dark fs-15'>Employee List</span></span>
                     <div className="d-flex justify-content-end  ">
+                        <div >
 
+                        <Button variant="primary" onClick={downloadCSV} className="me-2">
+                            Download CSV
+                        </Button>
                         <Link to='/pages/EmployeeMasterinsert'>
                             <Button variant="primary" className="me-2">
                                 Add Employee
                             </Button>
                         </Link>
+                        </div>
+
                     </div>
                 </div>
 
@@ -540,7 +527,7 @@ const EmployeeMaster = () => {
                             <Row className='mt-3'>
                                 <div className="d-flex justify-content-end bg-light p-1">
                                     <div className="app-search d-none d-lg-block me-4">
-                                        <form>
+                                        {/* <form>
                                             <div className="input-group px300 ">
                                                 <input
                                                     type="search"
@@ -551,22 +538,20 @@ const EmployeeMaster = () => {
                                                 />
                                                 <span className="ri-search-line search-icon text-muted" />
                                             </div>
-                                        </form>
+                                        </form> */}
                                     </div>
 
-                                    <Button variant="primary" onClick={downloadCSV} className="">
-                                        Download CSV
-                                    </Button>
+
                                 </div>
                             </Row>
                         </div>
                         <div className="overflow-auto text-nowrap ">
-                            {!filteredEmployees ? (
+                            {!employee ? (
                                 <Container className="mt-5">
                                     <Row className="justify-content-center">
                                         <Col xs={12} md={8} lg={6}>
                                             <Alert variant="info" className="text-center">
-                                                <h4>No Data  Found</h4>
+                                                <h4>No Data Found</h4>
                                                 <p>You currently don't have any Data</p>
                                             </Alert>
                                         </Col>
@@ -613,8 +598,8 @@ const EmployeeMaster = () => {
                                             </Droppable>
                                         </thead>
                                         <tbody>
-                                            {filteredEmployees.length > 0 ? (
-                                                filteredEmployees.slice(0, 10).map((item, index) => (
+                                            {employee.length > 0 ? (
+                                                employee.slice(0, 10).map((item, index) => (
                                                     <tr key={item.id}>
                                                         <td>{(currentPage - 1) * 10 + index + 1}</td>
                                                         {columns.filter(col => col.visible).map((col) => (
@@ -623,26 +608,36 @@ const EmployeeMaster = () => {
                                                                     col.id === 'employeeName' ? 'fw-bold fs-13 text-dark' : ''
                                                                 }
                                                             >
-                                                                {col.id === 'daL_Project' ? (
-                                                                    <td>
-                                                                        {item.daL_Project.split(",")
-                                                                            .map((incharge: any, index: any) => (
-                                                                                <div key={index}>{incharge.trim()} 
-                                                                                </div>// Display each on a new line
-                                                                            ))}
-                                                                    </td>
-                                                                ) : col.id === 'employeeName' ? (
-                                                                    <td>
-                                                                        <div className='d-flex align-items-center'>
-                                                                            <IconWithLetter letter={item.employeeName.charAt(0)} />
-                                                                            {item.employeeName.split('_')[0]}
-                                                                        </div>
-                                                                        {item.userUpdatedMobileNo ?
-                                                                            <p className='phone_user fw-normal m-0'><a href={`tel:${item.userUpdatedMobileNo}`}> <i className="ri-phone-fill"></i> {item.userUpdatedMobileNo}</a></p> : ""
-                                                                        }
-                                                                    </td>
-                                                                ) : (<>{item[col.id as keyof Employee]}</>
-                                                                )}
+                                                                {
+
+                                                                    col.id === 'daL_Project' ? (
+                                                                        <td>
+                                                                            {item.daL_Project.split(",")
+                                                                                .map((incharge: any, index: any) => (
+                                                                                    <div key={index}>{incharge.trim()}
+                                                                                    </div>
+                                                                                ))}
+                                                                        </td>
+                                                                    ) : col.id === 'daL_Module' ? (
+                                                                        <td>
+                                                                            {item.daL_Module.split(",")
+                                                                                .map((incharge: any, index: any) => (
+                                                                                    <div key={index}>{incharge.trim()}
+                                                                                    </div>
+                                                                                ))}
+                                                                        </td>
+                                                                    ) : col.id === 'employeeName' ? (
+                                                                        <td>
+                                                                            <div className='d-flex align-items-center'>
+                                                                                <IconWithLetter letter={item.employeeName.charAt(0)} />
+                                                                                {item.employeeName.split('_')[0]}
+                                                                            </div>
+                                                                            {item.userUpdatedMobileNo ?
+                                                                                <p className='phone_user fw-normal m-0'><a href={`tel:${item.userUpdatedMobileNo}`}> <i className="ri-phone-fill"></i> {item.userUpdatedMobileNo}</a></p> : ""
+                                                                            }
+                                                                        </td>
+                                                                    ) : (<>{item[col.id as keyof Employee]}</>
+                                                                    )}
                                                             </td>
                                                         ))}
                                                         {/* Action Button */}

@@ -7,11 +7,12 @@ import Select from 'react-select';
 import { toast } from 'react-toastify';
 
 interface Addresses {
-    id:number;
-    pinCode: number;
+    id: number;
+    pinCode: string;
     areaName: string;
     district: string;
     state: string;
+    status: string;
     createdBy: string;
     updatedBy: string;
 }
@@ -25,20 +26,22 @@ const AddressMasterinsert = () => {
     const navigate = useNavigate();
     const [editMode, setEditMode] = useState<boolean>(false);
     const [empName, setEmpName] = useState<string | null>()
+    const [pinCodeError, setPinCodeError] = useState<string | null>(null);
     const [stateList, setStateList] = useState<StateList[]>([]);
     const [address, setAddress] = useState<Addresses>({
-        id:0,
-        pinCode: 0,
+        id: 0,
+        pinCode: '',
         areaName: '',
         district: '',
         state: '',
+        status: '',
         createdBy: '',
         updatedBy: ''
     });
-    
+
 
     useEffect(() => {
-    toast.dismiss()
+        toast.dismiss()
 
         const storedEmpName = localStorage.getItem('EmpName');
         if (storedEmpName) {
@@ -89,24 +92,52 @@ const AddressMasterinsert = () => {
         fetchData('CommonDropdown/GetStateList', setStateList, 'stateListResponses');
     }, []);
 
+    const handleBankAccountNumberChange = (e: ChangeEvent<any>) => {
+        const { value } = e.target as HTMLInputElement;
 
+        // Keep only numeric characters
+        const validValue = value.replace(/[^0-9]/g, "");
 
-    const handleChange = (e: ChangeEvent<any>) => {
-        const { name, type } = e.target;
-        if (type === 'checkbox') {
-            const checked = (e.target as HTMLInputElement).checked;
-            setAddress({
-                ...address,
-                [name]: checked
-            });
+        if (validValue.length > 6) {
+            setPinCodeError("Invalid pincode. Pincode cannot exceed 6 digits.");
         } else {
-            const value = (e.target as HTMLInputElement | HTMLSelectElement).value;
+            setPinCodeError(null); // Clear the error if the value is valid
+        }
+
+        setAddress((prevState) => ({
+            ...prevState,
+            pinCode: (validValue)
+        }));
+    };
+
+
+    const handleChange = (e: ChangeEvent<any> | null, name?: string, value?: any) => {
+        if (e) {
+            const { name: eventName, type } = e.target;
+
+            if (type === 'checkbox') {
+                const checked = (e.target as HTMLInputElement).checked;
+                setAddress({
+                    ...address,
+                    [eventName]: checked
+                });
+            } else {
+                const inputValue = (e.target as HTMLInputElement | HTMLSelectElement).value;
+                setAddress({
+                    ...address,
+                    [eventName]: inputValue
+                });
+            }
+        } else if (name) {
             setAddress({
                 ...address,
                 [name]: value
             });
         }
     };
+
+
+
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -133,11 +164,17 @@ const AddressMasterinsert = () => {
                     }
                 });
             }
-        } catch (error:any) {
+        } catch (error: any) {
             toast.error(error || "Error Adding/Updating");
             console.error('Error submitting module:', error);
         }
     };
+
+
+    const optionsAppAccess = [
+        { value: 'Enabled', label: 'Enabled' },
+        { value: 'Disabled', label: 'Disabled' }
+    ];
 
 
     return (
@@ -153,13 +190,18 @@ const AddressMasterinsert = () => {
                                 <Form.Group controlId="pinCode" className="mb-3">
                                     <Form.Label>Pincode</Form.Label>
                                     <Form.Control
-                                        type="number"
+                                        type="text"
                                         name="pinCode"
                                         value={address.pinCode}
-                                        onChange={handleChange}
+                                        onChange={handleBankAccountNumberChange}
                                         required
                                         placeholder='Enter Pincode'
                                     />
+                                    {pinCodeError && (
+                                        <Form.Text className="text-danger">
+                                            {pinCodeError}
+                                        </Form.Text>
+                                    )}
                                 </Form.Group>
                             </Col>
                             <Col lg={6}>
@@ -197,7 +239,7 @@ const AddressMasterinsert = () => {
                                         onChange={(selectedOption) => {
                                             setAddress({
                                                 ...address,
-                                                state: selectedOption?.stateName|| '',
+                                                state: selectedOption?.stateName || '',
                                             });
                                         }}
                                         getOptionLabel={(mod) => mod.stateName}
@@ -205,6 +247,20 @@ const AddressMasterinsert = () => {
                                         options={stateList}
                                         isSearchable={true}
                                         placeholder="Select State Name"
+                                        required
+                                    />
+                                </Form.Group>
+                            </Col>
+
+                            <Col lg={6}>
+                                <Form.Group controlId="status" className="mb-3">
+                                    <Form.Label>Status *</Form.Label>
+                                    <Select
+                                        name="status"
+                                        options={optionsAppAccess}
+                                        value={optionsAppAccess.find(option => option.value === address.status)}
+                                        onChange={selectedOption => handleChange(null, 'status', selectedOption?.value)}
+                                        placeholder="Select Status"
                                         required
                                     />
                                 </Form.Group>

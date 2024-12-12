@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Form, Row, Col } from 'react-bootstrap';
 import Table from 'react-bootstrap/Table';
+import config from '@/config';
 
 interface Module {
   id: number;
@@ -47,7 +48,7 @@ const App: React.FC = () => {
     const fetchInitialData = async () => {
       setLoading(true);
       try {
-        const response = await fetch('https://arvindo-api.clay.in/api/AccountModule/GetTaskAssignListWithDoer?Flag=1');
+        const response = await fetch('${config.API_URL_APPLICATION}/AccountModule/GetTaskAssignListWithDoer?Flag=1');
         if (!response.ok) {
           throw new Error('Network response was not ok');
         }
@@ -74,7 +75,7 @@ const App: React.FC = () => {
   useEffect(() => {
     const fetchModules = async () => {
       try {
-        const response = await fetch('https://arvindo-api2.clay.in/api/CommonDropdown/GetModuleList');
+        const response = await fetch('${config.API_URL_APPLICATION}/CommonDropdown/GetModuleList');
         const result = await response.json();
         if (result.isSuccess) {
           setModules(result.moduleNameListResponses);
@@ -93,7 +94,7 @@ const App: React.FC = () => {
     const fetchProcesses = async () => {
       if (selectedModule) {
         try {
-          const response = await fetch(`https://arvindo-api2.clay.in/api/CommonDropdown/GetProcessNameByModuleName?ModuleName=${selectedModule}`);
+          const response = await fetch(`${config.API_URL_APPLICATION}/CommonDropdown/GetProcessNameByModuleName?ModuleName=${selectedModule}`);
           const result = await response.json();
           if (result.isSuccess) {
             setProcesses(result.processListResponses);
