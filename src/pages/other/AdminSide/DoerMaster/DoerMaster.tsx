@@ -1,14 +1,13 @@
 import axios from 'axios';
-import { useState, useEffect, ChangeEvent } from 'react';
+import { useState, useEffect } from 'react';
 import { Button, Pagination, Table, Container, Row, Col, Alert, Form, ButtonGroup, Modal } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import IconWithLetter from '@/pages/ui/IconWithLetter';
 import config from '@/config';
 import Select from 'react-select';
-import CustomSuccessToast from '../../Component/CustomSuccessToast';
 import { useLocation, useNavigate } from 'react-router-dom';
-// import { spainMapOpts } from '@/pages/ui/maps/VectorMaps/data';
+import { toast } from 'react-toastify';
 
 
 
@@ -34,6 +33,7 @@ interface Column {
 interface EmployeeList {
     empId: string;
     employeeName: string;
+    empName: string;
 }
 
 interface TaskList {
@@ -50,43 +50,30 @@ const ModuleMaster = () => {
     const [loading, setLoading] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
-    const [searchQuery, setSearchQuery] = useState('');
     const [downloadCsv, setDownloadCsv] = useState<Doer[]>([]);
 
     const [showModal, setShowModal] = useState(false);
-    const [selectedDoerName, setSelectedDoerName] = useState<EmployeeList[]>([]);
     const [selectedEmpId, setSelectedEmpId] = useState('');
     const [selectedEmpName, setSelectedEmpName] = useState('');
     const [currentId, setCurrentId] = useState<number | null>(null);
 
     const [employeeList, setEmployeeList] = useState<EmployeeList[]>([]);
+    const [doerList, setdoerList] = useState<EmployeeList[]>([]);
     const [taskList, setTaskList] = useState<TaskList[]>([]);
     const [identifierList, setIdentifierList] = useState<Identifier[]>([]);
 
 
-
     const location = useLocation();
     const navigate = useNavigate();
-    const [showToast, setShowToast] = useState(false);
-    const [toastMessage, setToastMessage] = useState('');
-    const [toastVariant, setToastVariant] = useState('');
     useEffect(() => {
-        if (location.state && location.state.showToast) {
-            setShowToast(true);
-            setToastMessage(location.state.toastMessage);
-            setToastVariant(location.state.toastVariant);
-
-            setTimeout(() => {
-                setShowToast(false);
-                navigate(location.pathname, { replace: true });
-            }, 5000);
+        if (location.state?.successMessage) {
+            toast.dismiss()
+            toast.success(location.state.successMessage);
+            navigate(location.pathname, { replace: true });
         }
-        return () => {
-            setShowToast(false);
-            setToastMessage('');
-            setToastVariant('');
-        };
     }, [location.state, navigate]);
+
+
 
     // both are required to make dragable column of table 
     const [columns, setColumns] = useState<Column[]>([
@@ -100,22 +87,6 @@ const ModuleMaster = () => {
 
     ]);
 
-    // Fetch employee names for the dropdown
-    useEffect(() => {
-        const fetchDoerName = async () => {
-            try {
-                const response = await axios.get(`${config.API_URL_APPLICATION}/CommonDropdown/GetEmployeeListWithId`);
-                if (response.data.isSuccess) {
-                    setSelectedDoerName(response.data.employeeLists);
-                } else {
-                    console.error(response.data.message);
-                }
-            } catch (error) {
-                console.error('Error fetching employee list:', error);
-            }
-        };
-        fetchDoerName();
-    }, []);
 
     const handleOnDragEnd = (result: any) => {
         if (!result.destination) return;
@@ -170,8 +141,17 @@ const ModuleMaster = () => {
     const [searchTaskId, setSearchTaskId] = useState('');
     const [searchIdentifier, setSearchIdentifier] = useState('');
 
-    const handleSearch = (e: any) => {
-        e.preventDefault();
+
+    useEffect(() => {
+        if (searchEmployeeName || searchTaskId || searchIdentifier) {
+            handleSearch();
+        } else {
+            fetchDoers();
+        }
+    }, [currentPage]);
+
+    const handleSearch = (e?: React.FormEvent) => {
+        if (e) e.preventDefault();
 
         let query = `?`;
         if (searchEmployeeName) query += `DoerName=${searchEmployeeName}&`;
@@ -252,6 +232,7 @@ const ModuleMaster = () => {
             }
         };
 
+        fetchData('CommonDropdown/GetDoerFromDoerMaster', setdoerList, 'doerListResponses');
         fetchData('CommonDropdown/GetEmployeeListWithId', setEmployeeList, 'employeeLists');
         fetchData('CommonDropdown/GetTaskList', setTaskList, 'taskList');
         fetchData('CommonDropdown/GetIdentifier', setIdentifierList, 'identifierList');
@@ -307,16 +288,7 @@ const ModuleMaster = () => {
         setShowModal(true);
     };
 
-    const handleSearchcurrent = (e: ChangeEvent<HTMLInputElement>) => {
-        setSearchQuery(e.target.value);
-        setCurrentPage(1);
-    };
 
-    const filteredDoers = doers.filter(doer =>
-        doer.taskID.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        doer.identifier.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        doer.empName.toLowerCase().includes(searchQuery.toLowerCase())
-    );
     return (
         <>
             <div className="container">
@@ -324,6 +296,10 @@ const ModuleMaster = () => {
                     <span><i className="ri-file-list-line me-2 text-dark fs-16"></i><span className='fw-bold text-dark fs-15'>Doers List</span></span>
                     <div className="d-flex justify-content-end  ">
 
+
+                        <Button variant="primary" onClick={downloadCSV} className="me-2">
+                            Download CSV
+                        </Button>
                         <Link to='/pages/DoerMasterinsert'>
                             <Button variant="primary" className="me-2">
                                 Add Task's identifier
@@ -347,16 +323,16 @@ const ModuleMaster = () => {
                                 <Row>
                                     <Col lg={4}>
                                         <Form.Group controlId="searchEmployeeName">
-                                            <Form.Label>Doer Name:</Form.Label>
+                                            <Form.Label>Doer Name</Form.Label>
                                             <Select
                                                 name="searchEmployeeName"
-                                                value={employeeList.find(emp => emp.employeeName === searchEmployeeName) || null} // handle null
-                                                onChange={(selectedOption) => setSearchEmployeeName(selectedOption ? selectedOption.employeeName : "")} // null check
-                                                options={employeeList}
-                                                getOptionLabel={(emp) => emp.employeeName}
-                                                getOptionValue={(emp) => emp.empId}
+                                                value={doerList.find(emp => emp.empName === searchEmployeeName) || null} // handle null
+                                                onChange={(selectedOption) => setSearchEmployeeName(selectedOption ? selectedOption.empName : "")} // null check
+                                                options={doerList}
+                                                getOptionLabel={(emp) => emp.empName}
+                                                getOptionValue={(emp) => emp.empName}
                                                 isSearchable={true}
-                                                placeholder="Search..."
+                                                placeholder="Select Doer Name"
                                                 className="h45"
                                             />
                                         </Form.Group>
@@ -365,7 +341,7 @@ const ModuleMaster = () => {
 
                                     <Col lg={4}>
                                         <Form.Group controlId="searchTaskId">
-                                            <Form.Label>Task ID:</Form.Label>
+                                            <Form.Label>Task Number</Form.Label>
                                             <Select
                                                 name="searchTaskId"
                                                 value={taskList.find(task => task.taskID === searchTaskId) || null} // handle null
@@ -374,7 +350,7 @@ const ModuleMaster = () => {
                                                 getOptionLabel={(task) => task.taskID}
                                                 getOptionValue={(task) => task.taskID}
                                                 isSearchable={true}
-                                                placeholder="Search..."
+                                                placeholder="Select Task Number"
                                                 className="h45"
                                             />
                                         </Form.Group>
@@ -382,7 +358,7 @@ const ModuleMaster = () => {
 
                                     <Col lg={4} className="">
                                         <Form.Group controlId="searchIdentifier">
-                                            <Form.Label>Identifier:</Form.Label>
+                                            <Form.Label>Identifier</Form.Label>
                                             <Select
                                                 name="searchIdentifier"
                                                 value={identifierList.find(item => item.identifier === searchIdentifier) || null} // handle null
@@ -391,7 +367,7 @@ const ModuleMaster = () => {
                                                 getOptionLabel={(item) => item.identifier}
                                                 getOptionValue={(item) => item.identifier}
                                                 isSearchable={true}
-                                                placeholder="Search..."
+                                                placeholder="Select Identifier"
                                                 className="h45"
                                             />
                                         </Form.Group>
@@ -413,7 +389,7 @@ const ModuleMaster = () => {
                                                 <Form.Group>
                                                     <Form.Label>Employee</Form.Label>
                                                     <Select
-                                                        options={selectedDoerName.map((doer) => ({
+                                                        options={employeeList.map((doer) => ({
                                                             value: doer.empId,
                                                             label: doer.employeeName,
                                                         }))}
@@ -469,29 +445,14 @@ const ModuleMaster = () => {
                             <Row className='mt-3'>
                                 <div className="d-flex justify-content-end bg-light p-1">
                                     <div className="app-search d-none d-lg-block me-4">
-                                        <form>
-                                            <div className="input-group px300 ">
-                                                <input
-                                                    type="search"
-                                                    className=" bg-white"
-                                                    placeholder="Search..."
-                                                    value={searchQuery}
-                                                    onChange={handleSearchcurrent}
-                                                />
-                                                <span className="ri-search-line search-icon text-muted" />
-                                            </div>
-                                        </form>
                                     </div>
 
-                                    <Button variant="primary" onClick={downloadCSV} className="">
-                                        Download CSV
-                                    </Button>
                                 </div>
                             </Row>
                         </div>
 
                         <div className="overflow-auto text-nowrap">
-                            {!filteredDoers ? (
+                            {!doers ? (
                                 <Container className="mt-5">
                                     <Row className="justify-content-center">
                                         <Col xs={12} md={8} lg={6}>
@@ -538,8 +499,8 @@ const ModuleMaster = () => {
                                             </Droppable>
                                         </thead>
                                         <tbody>
-                                            {filteredDoers.length > 0 ? (
-                                                filteredDoers.slice(0, 10).map((item, index) => (
+                                            {doers.length > 0 ? (
+                                                doers.slice(0, 10).map((item, index) => (
                                                     <tr key={item.id}>
                                                         <td>{(currentPage - 1) * 10 + index + 1}</td>
                                                         {columns.filter(col => col.visible).map((col) => (
@@ -549,8 +510,6 @@ const ModuleMaster = () => {
                                                                     col.id === 'empID' ? 'fw-bold fs-13 text-dark' :
                                                                         col.id === 'taskID' ? 'fw-bold fs-13 text-dark' :
                                                                             col.id === 'empName' ? 'fw-bold fs-13 text-dark' :
-                                                                                // Add class based on value (e.g., expired tasks)
-                                                                                // (col.id === 'taskID' && item[col.id] === 'ACC.01.T1') ? 'task1' :
                                                                                 ''
                                                                 }
                                                             >
@@ -623,12 +582,6 @@ const ModuleMaster = () => {
 
 
             </div >
-            <CustomSuccessToast
-                show={showToast}
-                toastMessage={toastMessage}
-                toastVariant={toastVariant}
-                onClose={() => setShowToast(false)}
-            />
         </>
     );
 };

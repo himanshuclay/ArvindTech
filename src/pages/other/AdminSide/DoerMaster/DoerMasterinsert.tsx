@@ -3,6 +3,7 @@ import { useEffect, useState, ChangeEvent } from 'react';
 import { Button, Col, Form, Row, Table } from 'react-bootstrap';
 import config from '@/config';
 import Select from 'react-select';
+import { toast } from 'react-toastify';
 
 const YourComponent = () => {
     const [identifierList, setIdentifierList] = useState<any[]>([]);
@@ -72,7 +73,8 @@ const YourComponent = () => {
             } else {
                 console.error('Error:', response.data.message);
             }
-        } catch (error) {
+        } catch (error:any) {
+            toast.error(error)
             console.error('Error submitting data:', error);
         }
     };

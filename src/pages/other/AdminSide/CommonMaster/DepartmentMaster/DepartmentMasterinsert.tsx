@@ -6,12 +6,14 @@ import { Button, Col, Form, Row } from 'react-bootstrap';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import config from '@/config';
 import CustomSuccessToast from '@/pages/other/Component/CustomSuccessToast';
+import Select from 'react-select';
 
 
 
 interface Department {
     id: number;
     departmentName: string;
+    status: string;
     createdBy: string;
     updatedBy: string;
 }
@@ -27,6 +29,7 @@ const DepartmentMasterinsert = () => {
     const [departments, setDepartments] = useState<Department>({
         id: 0,
         departmentName: '',
+        status: '',
         createdBy: '',
         updatedBy: ''
     });
@@ -66,17 +69,24 @@ const DepartmentMasterinsert = () => {
     };
 
 
+    const handleChange = (e: ChangeEvent<any> | null, name?: string, value?: any) => {
+        if (e) {
+            const { name: eventName, type } = e.target;
 
-    const handleChange = (e: ChangeEvent<any>) => {
-        const { name, type } = e.target;
-        if (type === 'checkbox') {
-            const checked = (e.target as HTMLInputElement).checked;
-            setDepartments({
-                ...departments,
-                [name]: checked
-            });
-        } else {
-            const value = (e.target as HTMLInputElement | HTMLSelectElement).value;
+            if (type === 'checkbox') {
+                const checked = (e.target as HTMLInputElement).checked;
+                setDepartments({
+                    ...departments,
+                    [eventName]: checked
+                });
+            } else {
+                const inputValue = (e.target as HTMLInputElement | HTMLSelectElement).value;
+                setDepartments({
+                    ...departments,
+                    [eventName]: inputValue
+                });
+            }
+        } else if (name) {
             setDepartments({
                 ...departments,
                 [name]: value
@@ -120,6 +130,10 @@ const DepartmentMasterinsert = () => {
             console.error('Error submitting module:', error);
         }
     };
+    const optionsAppAccess = [
+        { value: 'Enabled', label: 'Enabled' },
+        { value: 'Disabled', label: 'Disabled' }
+    ];
 
 
     return (
@@ -144,6 +158,20 @@ const DepartmentMasterinsert = () => {
                                     />
                                 </Form.Group>
                             </Col>
+                            
+                            <Col lg={6}>
+                                <Form.Group controlId="status" className="mb-3">
+                                    <Form.Label>Status *</Form.Label>
+                                    <Select
+                                        name="status"
+                                        options={optionsAppAccess}
+                                        value={optionsAppAccess.find(option => option.value === departments.status)}
+                                        onChange={selectedOption => handleChange(null, 'status', selectedOption?.value)}
+                                        placeholder="Select Status"
+                                        required
+                                    />
+                                </Form.Group>
+                            </Col>
 
                             <Col></Col>
                             <Col className='align-items-end d-flex justify-content-end mb-3'>
@@ -155,7 +183,7 @@ const DepartmentMasterinsert = () => {
                                     </Link>
                                     &nbsp;
                                     <Button variant="primary" type="submit">
-                                        {editMode ? 'Update Designation' : 'Add Designation'}
+                                        {editMode ? 'Update Department' : 'Add Department'}
                                     </Button>
                                 </div>
                             </Col>

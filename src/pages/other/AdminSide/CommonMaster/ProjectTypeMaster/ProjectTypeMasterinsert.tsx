@@ -4,12 +4,14 @@ import { Button, Col, Form, Row } from 'react-bootstrap';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import config from '@/config';
 import CustomSuccessToast from '@/pages/other/Component/CustomSuccessToast';
+import Select from 'react-select';
 
 
 
 interface ProjectType {
     id: number;
     name: string;
+    status: string;
     createdBy: string;
     updatedBy: string;
 }
@@ -27,6 +29,7 @@ const ProjectTypeInsert = () => {
     const [projectTypes, setprojectTypes] = useState<ProjectType>({
         id: 0,
         name: '',
+        status: '',
         createdBy: '',
         updatedBy: '',
 
@@ -68,24 +71,31 @@ const ProjectTypeInsert = () => {
 
 
 
+    const handleChange = (e: ChangeEvent<any> | null, name?: string, value?: any) => {
+        if (e) {
+            const { name: eventName, type } = e.target;
 
-
-    const handleChange = (e: ChangeEvent<any>) => {
-        const { name, type } = e.target;
-        if (type === 'checkbox') {
-            const checked = (e.target as HTMLInputElement).checked;
-            setprojectTypes({
-                ...projectTypes,
-                [name]: checked
-            });
-        } else {
-            const value = (e.target as HTMLInputElement | HTMLSelectElement).value;
+            if (type === 'checkbox') {
+                const checked = (e.target as HTMLInputElement).checked;
+                setprojectTypes({
+                    ...projectTypes,
+                    [eventName]: checked
+                });
+            } else {
+                const inputValue = (e.target as HTMLInputElement | HTMLSelectElement).value;
+                setprojectTypes({
+                    ...projectTypes,
+                    [eventName]: inputValue
+                });
+            }
+        } else if (name) {
             setprojectTypes({
                 ...projectTypes,
                 [name]: value
             });
         }
     };
+
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -124,6 +134,10 @@ const ProjectTypeInsert = () => {
         }
     };
 
+ const optionsAppAccess = [
+        { value: 'Enabled', label: 'Enabled' },
+        { value: 'Disabled', label: 'Disabled' }
+    ];
 
 
     return (
@@ -145,6 +159,20 @@ const ProjectTypeInsert = () => {
                                         onChange={handleChange}
                                         required
                                         placeholder='Enter Project Type Name'
+                                    />
+                                </Form.Group>
+                            </Col>
+
+                            <Col lg={6}>
+                                <Form.Group controlId="status" className="mb-3">
+                                    <Form.Label>Status *</Form.Label>
+                                    <Select
+                                        name="status"
+                                        options={optionsAppAccess}
+                                        value={optionsAppAccess.find(option => option.value === projectTypes.status)}
+                                        onChange={selectedOption => handleChange(null, 'status', selectedOption?.value)}
+                                        placeholder="Select Status"
+                                        required
                                     />
                                 </Form.Group>
                             </Col>

@@ -142,6 +142,12 @@ const AddressMasterinsert = () => {
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
 
+
+
+        if (pinCodeError) {
+            toast.error('Invalid PinCode')
+            return
+        }
         const payload = {
             ...address,
             createdBy: editMode ? address.createdBy : empName,
@@ -195,6 +201,7 @@ const AddressMasterinsert = () => {
                                         value={address.pinCode}
                                         onChange={handleBankAccountNumberChange}
                                         required
+                                        maxLength={6}
                                         placeholder='Enter Pincode'
                                     />
                                     {pinCodeError && (

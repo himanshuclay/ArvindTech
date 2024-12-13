@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { useState, useEffect, ChangeEvent } from 'react';
+import { useState, useEffect } from 'react';
 import { Button, Pagination, Table, Container, Row, Col, Alert, Form, ButtonGroup } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
@@ -14,6 +14,7 @@ import CustomSuccessToast from '@/pages/other/Component/CustomSuccessToast';
 interface ProjectType {
     id: number;
     name: string;
+    status: string;
     createdBy: string;
     updatedBy: string;
     updatedDate: string;
@@ -30,7 +31,6 @@ const ModuleMaster = () => {
     const [loading, setLoading] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
-    const [searchQuery, setSearchQuery] = useState('');
     const [downloadCsv, setDownloadCsv] = useState<ProjectType[]>([]);
     const [managementContracts, setManagementContracts] = useState<ProjectType[]>([]);
     const [searchRole, setSearchRole] = useState<number>();
@@ -61,6 +61,7 @@ const ModuleMaster = () => {
     // both are required to make dragable column of table 
     const [columns, setColumns] = useState<Column[]>([
         { id: 'name', label: 'Project Type', visible: true },
+        { id: 'status', label: 'Status', visible: true },
         { id: 'createdBy', label: 'Created By', visible: true },
         { id: 'updatedBy', label: 'Updated By', visible: true },
         { id: 'createdDate', label: 'Created Date ', visible: true },
@@ -171,16 +172,24 @@ const ModuleMaster = () => {
     };
 
 
+  const formatDate = (dateString: string): string => {
+    // If your input is in a known string format, return it directly
+    // This ensures no changes to the date format
+    return dateString; 
+};
+
     const convertToCSV = (data: ProjectType[]) => {
         const csvRows = [
-            ['ID', 'Management Contract', 'Created By', 'Updated By', 'Created Date', 'Updated Date'],
+            ['ID', 'Management Contract', 'Status', 'Created By', 'Updated By', 'Created Date', 'Updated Date'],
             ...data.map(identifier => [
                 identifier.id.toString(),
                 identifier.name,
+                identifier.status,
                 identifier.createdBy,
                 identifier.updatedBy,
-                identifier.createdDate,
-                identifier.updatedDate,
+                formatDate(identifier.createdDate), 
+                formatDate(identifier.updatedDate),
+
             ])
         ];
 
@@ -194,7 +203,7 @@ const ModuleMaster = () => {
         if (link.download !== undefined) {
             const url = URL.createObjectURL(blob);
             link.setAttribute('href', url);
-            link.setAttribute('download', 'Roles.csv');
+            link.setAttribute('download', 'ProjectType Master.csv');
             link.style.visibility = 'hidden';
             document.body.appendChild(link);
             link.click();
@@ -202,22 +211,15 @@ const ModuleMaster = () => {
         }
     };
 
-    const handleSearchcurrent = (e: ChangeEvent<HTMLInputElement>) => {
-        setSearchQuery(e.target.value);
-        setCurrentPage(1);
-    };
-
-
-    // const filteredDoers = identifiers.filter(identifier =>
-    //     identifier.roleName.toLowerCase().includes(searchQuery.toLowerCase())
-    // );
     return (
         <>
             <div className="container">
                 <div className="d-flex bg-white p-2 my-2 justify-content-between align-items-center">
                     <span><i className="ri-file-list-line me-2 text-dark fs-16"></i><span className='fw-bold text-dark fs-15'>Project Type List</span></span>
                     <div className="d-flex justify-content-end  ">
-
+                        <Button variant="primary" onClick={downloadCSV} className="me-2">
+                            Download CSV
+                        </Button>
                         <Link to='/pages/ProjectTypeMasterinsert'>
                             <Button variant="primary" className="me-2">
                                 Add  ProjectType
@@ -272,23 +274,10 @@ const ModuleMaster = () => {
                         <Row className='mt-3'>
                             <div className="d-flex justify-content-end bg-light p-1">
                                 <div className="app-search d-none d-lg-block me-4">
-                                    <form>
-                                        <div className="input-group px300 ">
-                                            <input
-                                                type="search"
-                                                className=" bg-white"
-                                                placeholder="Search..."
-                                                value={searchQuery}
-                                                onChange={handleSearchcurrent}
-                                            />
-                                            <span className="ri-search-line search-icon text-muted" />
-                                        </div>
-                                    </form>
+
                                 </div>
 
-                                <Button variant="primary" onClick={downloadCSV} className="">
-                                    Download CSV
-                                </Button>
+
                             </div>
                         </Row>
                     </div>

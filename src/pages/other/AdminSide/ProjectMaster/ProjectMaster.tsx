@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { useState, useEffect, ChangeEvent } from 'react';
+import { useState, useEffect } from 'react';
 import { Button, Pagination, Table, Container, Row, Col, Alert, Form, ButtonGroup } from 'react-bootstrap';
 import { Link, useNavigate } from 'react-router-dom';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
@@ -78,7 +78,6 @@ const ProjectMaster = () => {
     const [loading, setLoading] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
-    const [searchQuery, setSearchQuery] = useState('');
     const [showView, setShowView] = useState(false);
     const [manageId, setManageID] = useState<string>('');
     const [employeeList, setEmployeeList] = useState<EmployeeList[]>([]);
@@ -109,7 +108,7 @@ const ProjectMaster = () => {
         { id: 'stateName', label: 'State Name', visible: true },
         { id: 'projectTypeName', label: 'Project Type', visible: true },
         { id: 'managementContractName', label: 'Management Contract', visible: true },
-        { id: 'projectIncharge', label: 'Project Incharge', visible: true },
+        { id: 'projectInchargeName', label: 'Project Incharge', visible: true },
         { id: 'projectCoordinatorName', label: 'Project Coordinator ', visible: true },
         { id: 'completionStatusName', label: 'Completion Status', visible: true }
     ]);
@@ -233,43 +232,35 @@ const ProjectMaster = () => {
     const convertToCSV = (data: Project[]) => {
         const csvRows = [
             [
-                'ID',
-                'Project Name', 'Project ID',
-                ,'State Name',
-                'Project Type','Project Type Name',
-                'Management Contract','Management Contract Name',
-                'Project Incharge','Project Incharge Name',
-                'Project Incharge Mobile Number','Project Coordinator',
-                'Project Coordinator Name','Project Coordinator Mobile Number',
-                'Completion Status','Completion Status Name',
-                'Name of Work','Contractual Work Value',
-                'Executor Company','Next Value of Work Item for Team',
-                'Percentage of Work Done','Revised Contractual Work Value',
+                'ID', 'Project Name', 'Project ID', 'State Name',
+                'Project Type Name', 'Management Contract Name',
+                'Project Incharge Name',
+                'Project Incharge Mobile Number', 'Project Coordinator',
+                 'Project Coordinator Mobile Number',
+                'Completion Status Name',
+                'Name of Work', 'Contractual Work Value',
+                'Executor Company', 'Next Value of Work Item for Team',
+                'Percentage of Work Done', 'Revised Contractual Work Value',
                 'Total Work Done Value Upto Previous Month',
-                'Value of Work Done in This Month','Value of Work Done in This FY',
-                'Contractual Start Date','Contractual Completion Date',
+                'Value of Work Done in This Month', 'Value of Work Done in This FY',
+                'Contractual Start Date', 'Contractual Completion Date',
                 'Expected Date of Earliest Project Completion',
                 'Expected Date of Latest Project Completion',
-                'Refresh Work Date','Estimate Completion Date',
-                'Recorded Month','Recorded Year','Created By',
-                'Created Date','Updated By','Updated Date'
+                'Refresh Work Date', 'Estimate Completion Date',
+                'Recorded Month', 'Recorded Year', 'Created By',
+                'Created Date', 'Updated By', 'Updated Date'
             ],
             ...data.map(project => [
                 project.id,
                 project.projectName,
                 project.projectID,
                 project.stateName,
-                project.projectType,
                 project.projectTypeName,
-                project.managementContract,
                 project.managementContractName,
-                project.projectIncharge,
-                project.projectInchargeName,
+                `"${project.projectInchargeName}"`,
                 project.projectInchargeMobileNumber || '',
-                project.projectCoordinator,
                 project.projectCoordinatorName,
                 project.projectCoordinatorMobileNumber || '',
-                project.completionStatus,
                 project.completionStatusName,
                 project.nameOfWork || '',
                 project.contractualWorkValue || '',
@@ -296,18 +287,9 @@ const ProjectMaster = () => {
         ];
         return csvRows.map(row => row.join(',')).join('\n');
     };
-    
 
 
-    const handleSearchcurrent = (e: ChangeEvent<HTMLInputElement>) => {
-        setSearchQuery(e.target.value);
-        setCurrentPage(1);
-    };
 
-    const filteredDoers = project.filter(doer =>
-        doer.projectName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        doer.projectID.toLowerCase().includes(searchQuery.toLowerCase())
-    );
 
 
     const handleShowview = () => setShowView(true);
@@ -324,6 +306,10 @@ const ProjectMaster = () => {
                     <span><i className="ri-file-list-line me-2 text-dark fs-16"></i><span className='fw-bold text-dark fs-15'>Project List</span></span>
                     <div className="d-flex justify-content-end  ">
 
+
+                        <Button variant="primary" onClick={downloadCSV} className="me-2">
+                            Download CSV
+                        </Button>
                         <Link to='/pages/ProjectMasterinsert'>
                             <Button variant="primary" className="me-2">
                                 Add Project
@@ -402,7 +388,7 @@ const ProjectMaster = () => {
 
                                     <Col lg={6} className="mt-2">
                                         <Form.Group controlId="searchCompletionStatus">
-                                            <Form.Label>Completion Status:</Form.Label>
+                                            <Form.Label>Completion Status</Form.Label>
                                             <Select
                                                 name="searchCompletionStatus"
                                                 value={completionStatus.find(task => task.id === searchCompletionStatus)}
@@ -435,28 +421,14 @@ const ProjectMaster = () => {
                             <Row className='mt-3'>
                                 <div className="d-flex justify-content-end bg-light p-1">
                                     <div className="app-search d-none d-lg-block me-4">
-                                        <form>
-                                            <div className="input-group px300 ">
-                                                <input
-                                                    type="search"
-                                                    className=" bg-white"
-                                                    placeholder="Search..."
-                                                    value={searchQuery}
-                                                    onChange={handleSearchcurrent}
-                                                />
-                                                <span className="ri-search-line search-icon text-muted" />
-                                            </div>
-                                        </form>
+
                                     </div>
 
-                                    <Button variant="primary" onClick={downloadCSV} className="">
-                                        Download CSV
-                                    </Button>
                                 </div>
                             </Row>
                         </div>
                         <div className="overflow-auto text-nowrap ">
-                            {!filteredDoers ? (
+                            {!project ? (
                                 <Container className="mt-5">
                                     <Row className="justify-content-center">
                                         <Col xs={12} md={8} lg={6}>
@@ -507,17 +479,17 @@ const ProjectMaster = () => {
                                             </Droppable>
                                         </thead>
                                         <tbody>
-                                            {filteredDoers.length > 0 ? (
-                                                filteredDoers.slice(0, 10).map((item, index) => (
+                                            {project.length > 0 ? (
+                                                project.slice(0, 10).map((item, index) => (
                                                     <tr key={item.id}>
                                                         <td>{(currentPage - 1) * 10 + index + 1}</td>
                                                         {columns.filter(col => col.visible).map((col) => (
                                                             <td key={col.id}>
                                                                 <div>
 
-                                                                    {col.id === 'projectIncharge' ? (
+                                                                    {col.id === 'projectInchargeName' ? (
                                                                         <td>
-                                                                            {item.projectIncharge.split(",")
+                                                                            {item.projectInchargeName.split(",")
                                                                                 .map((incharge: any, index: any) => (
                                                                                     <div key={index}>{incharge.trim()}</div> // Display each on a new line
                                                                                 ))}

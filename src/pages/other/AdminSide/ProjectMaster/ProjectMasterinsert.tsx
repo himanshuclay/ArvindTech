@@ -17,7 +17,9 @@ interface Project {
     projectType: number;
     managementContract: number;
     projectIncharge: string[];
+    projectInchargeName: string[];
     projectCoordinator: string;
+    projectCoordinatorName: string;
     completionStatus: number;
     nameOfWork: string;
     createdBy: string;
@@ -80,7 +82,9 @@ const ProjectInsert = () => {
         projectType: 0,
         managementContract: 0,
         projectIncharge: [],
+        projectInchargeName: [],
         projectCoordinator: '',
+        projectCoordinatorName: '',
         completionStatus: 0,
         nameOfWork: '',
         createdBy: '',
@@ -191,8 +195,10 @@ const ProjectInsert = () => {
             ...project,
             createdBy: editMode ? project.createdBy : empName,
             updatedBy: editMode ? empName : '',
-            projectIncharge: project.projectIncharge.join(','),
+            projectIncharge: Array.isArray(project.projectIncharge) ? project.projectIncharge.join(',') : project.projectIncharge,
+            projectInchargeName: Array.isArray(project.projectInchargeName) ? project.projectInchargeName.join(',') : project.projectInchargeName,
         };
+        console.log(payload)
         try {
             const apiUrl = `${config.API_URL_APPLICATION}/ProjectMaster/${editMode ? 'UpdateProject' : 'InsertProject'}`;
             const response = await axios.post(apiUrl, payload);
@@ -332,9 +338,10 @@ const ProjectInsert = () => {
                                         )}
                                         onChange={(selectedOptions) => {
                                             const projectIncharge = (selectedOptions || []).map(option => option.empId);
+                                            const projectInchargeName = (selectedOptions || []).map(option => option.employeeName);
                                             setProject(prev => ({
                                                 ...prev,
-                                                projectIncharge
+                                                projectIncharge, projectInchargeName
                                             }));
                                         }}
                                         getOptionLabel={(emp) => emp.employeeName}
@@ -342,13 +349,10 @@ const ProjectInsert = () => {
                                         options={employeeList}
                                         isSearchable={true}
                                         isMulti={true}
-                                        placeholder="Select Projects"
+                                        placeholder="Select Employee"
                                     />
                                 </Form.Group>
                             </Col>
-
-
-
 
 
                             <Col lg={6}>
@@ -360,11 +364,12 @@ const ProjectInsert = () => {
                                         onChange={(selectedOption) => {
                                             setProject({
                                                 ...project,
-                                                projectCoordinator: selectedOption?.employeeName || "",
+                                                projectCoordinator: selectedOption?.empId || "",
+                                                projectCoordinatorName: selectedOption?.employeeName || "",
                                             });
                                         }}
                                         getOptionLabel={(emp) => emp.employeeName}
-                                        getOptionValue={(emp) => emp.employeeName}
+                                        getOptionValue={(emp) => emp.empId}
                                         options={employeeList}
                                         isSearchable={true}
                                         placeholder="Select Project Coordinator"
@@ -376,7 +381,7 @@ const ProjectInsert = () => {
 
                             <Col lg={6}>
                                 <Form.Group controlId="completionStatus" className="mb-3">
-                                    <Form.Label>Completion Status *:</Form.Label>
+                                    <Form.Label>Completion Status *</Form.Label>
                                     <Select
                                         name="completionStatus"
                                         value={completionStatus.find((mod) => mod.id === project.completionStatus)}
@@ -503,7 +508,7 @@ const ProjectInsert = () => {
                                             value={project.contractualStartDate}
                                             onChange={([date]) => setProject({
                                                 ...project,
-                                                contractualStartDate: date.toISOString()
+                                                contractualStartDate: date.toLocaleDateString('en-CA')
                                             })}
                                             options={{
                                                 enableTime: false,
@@ -525,7 +530,7 @@ const ProjectInsert = () => {
                                             value={project.contractualCompletionDate}
                                             onChange={([date]) => setProject({
                                                 ...project,
-                                                contractualCompletionDate: date.toISOString()
+                                                contractualCompletionDate: date.toLocaleDateString('en-CA')
                                             })}
                                             options={{
                                                 enableTime: false,
@@ -568,7 +573,7 @@ const ProjectInsert = () => {
                                             value={project.expectedDateofLatestProjectCompletion}
                                             onChange={([date]) => setProject({
                                                 ...project,
-                                                expectedDateofLatestProjectCompletion: date.toISOString()
+                                                expectedDateofLatestProjectCompletion: date.toLocaleDateString('en-CA')
                                             })}
                                             options={{
                                                 enableTime: false,
@@ -589,7 +594,7 @@ const ProjectInsert = () => {
                                             value={project.refreshWorkDate}
                                             onChange={([date]) => setProject({
                                                 ...project,
-                                                refreshWorkDate: date.toISOString()
+                                                refreshWorkDate: date.toLocaleDateString('en-CA')
                                             })}
                                             options={{
                                                 enableTime: false,
@@ -610,7 +615,7 @@ const ProjectInsert = () => {
                                             value={project.estimateCompletionDate}
                                             onChange={([date]) => setProject({
                                                 ...project,
-                                                estimateCompletionDate: date.toISOString()
+                                                estimateCompletionDate: date.toLocaleDateString('en-CA')
                                             })}
                                             options={{
                                                 enableTime: false,
@@ -663,10 +668,7 @@ const ProjectInsert = () => {
                             </Col>
 
 
-                            <Col className='align-items-end d-flex justify-content-between mb-3'>
-                                <div>
-                                    <span className='fs-5 '>All fields are required*</span>
-                                </div>
+                            <Col className='align-items-end d-flex justify-content-end mb-3'>
                                 <div>
                                     <Link to={'/pages/ProjectMaster'}>
                                         <Button variant="primary" >
