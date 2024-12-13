@@ -85,7 +85,7 @@
 
 //       // console.log(modules)
 //       try {
-//         const response = await fetch('https://arvindo-api2.clay.in/api/CommonDropdown/GetModuleList');
+//         const response = await fetch('${config.API_URL_APPLICATION}/CommonDropdown/GetModuleList');
 //         const result = await response.json();
 //         if (result.isSuccess) {
 //           setModules(result.moduleNameListResponses);
@@ -104,7 +104,7 @@
 //     const fetchDoer = async () => {
 
 //       try {
-//         const response = await fetch('https://arvindo-api2.clay.in/api/CommonDropdown/GetEmployeeListWithId');
+//         const response = await fetch('${config.API_URL_APPLICATION}/CommonDropdown/GetEmployeeListWithId');
 //         const result = await response.json();
 //         if (result.isSuccess) {
 //           setDoers(result.employeeLists);
@@ -125,7 +125,7 @@
 
 //       if (selectedModule) {
 //         try {
-//           const response = await fetch(`https://arvindo-api2.clay.in/api/CommonDropdown/GetProcessNameByModuleName?ModuleName=${selectedModule}`);
+//           const response = await fetch(`${config.API_URL_APPLICATION}/CommonDropdown/GetProcessNameByModuleName?ModuleName=${selectedModule}`);
 //           const result = await response.json();
 //           if (result.isSuccess) {
 //             setProcesses(result.processListResponses);

@@ -306,7 +306,7 @@ const App: React.FC = () => {
     // Fetch headers based on the selected master
     if (masterId) {
       try {
-        const response = await axios.get(`https://arvindo-api2.clay.in/api/CommonDropdown/GettableHeaderName?flag=${masterId}`);
+        const response = await axios.get(`${config.API_URL_APPLICATION}/CommonDropdown/GettableHeaderName?flag=${masterId}`);
         if (response.data.isSuccess) {
           setHeadersList(response.data.gettableHeaderNames); // Update headers based on selected master
         } else {

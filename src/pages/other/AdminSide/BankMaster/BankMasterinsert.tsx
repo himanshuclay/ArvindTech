@@ -14,6 +14,7 @@ interface Bank {
     city1: string;
     city2: string;
     state: string;
+    status: string;
     createdBy: string;
     updatedBy: string;
 }
@@ -36,13 +37,14 @@ const BankMasterinsert = () => {
         city1: '',
         city2: '',
         state: '',
+        status: '',
         createdBy: '',
         updatedBy: ''
     });
-    
+
 
     useEffect(() => {
-    toast.dismiss()
+        toast.dismiss()
 
         const storedEmpName = localStorage.getItem('EmpName');
         if (storedEmpName) {
@@ -95,22 +97,33 @@ const BankMasterinsert = () => {
 
 
 
-    const handleChange = (e: ChangeEvent<any>) => {
-        const { name, type } = e.target;
-        if (type === 'checkbox') {
-            const checked = (e.target as HTMLInputElement).checked;
-            setBanks({
-                ...banks,
-                [name]: checked
-            });
-        } else {
-            const value = (e.target as HTMLInputElement | HTMLSelectElement).value;
+    const handleChange = (e: ChangeEvent<any> | null, name?: string, value?: any) => {
+        if (e) {
+            const { name: eventName, type } = e.target;
+
+            if (type === 'checkbox') {
+                const checked = (e.target as HTMLInputElement).checked;
+                setBanks({
+                    ...banks,
+                    [eventName]: checked
+                });
+            } else {
+                const inputValue = (e.target as HTMLInputElement | HTMLSelectElement).value;
+                setBanks({
+                    ...banks,
+                    [eventName]: inputValue
+                });
+            }
+        } else if (name) {
             setBanks({
                 ...banks,
                 [name]: value
             });
         }
     };
+
+
+
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -128,7 +141,7 @@ const BankMasterinsert = () => {
                     state: {
                         successMessage: "Bank Updated successfully!",
                     }
-                }); 
+                });
             } else {
                 await axios.post(`${config.API_URL_APPLICATION}/BankMaster/InsertBank`, payload);
                 navigate('/pages/BankMaster', {
@@ -137,12 +150,17 @@ const BankMasterinsert = () => {
                     }
                 });
             }
-        } catch (error:any) {
-            toast.error(error ||  "Error Adding/Updating");
+        } catch (error: any) {
+            toast.error(error || "Error Adding/Updating");
             console.error('Error submitting module:', error);
         }
     };
 
+
+    const optionsAppAccess = [
+        { value: 'Enabled', label: 'Enabled' },
+        { value: 'Disabled', label: 'Disabled' }
+    ];
 
     return (
         <div>
@@ -154,7 +172,7 @@ const BankMasterinsert = () => {
                     <Form onSubmit={handleSubmit}>
                         <Row>
                             <Col lg={6}>
-                                <Form.Group controlId="bank" className="mb-3">
+                                <Form.Group controlId="bank" className="mb-2">
                                     <Form.Label>Bank Name</Form.Label>
                                     <Form.Control
                                         type="text"
@@ -167,7 +185,7 @@ const BankMasterinsert = () => {
                                 </Form.Group>
                             </Col>
                             <Col lg={6}>
-                                <Form.Group controlId="ifsc" className="mb-3">
+                                <Form.Group controlId="ifsc" className="mb-2">
                                     <Form.Label>IFSC Code</Form.Label>
                                     <Form.Control
                                         type="text"
@@ -180,7 +198,7 @@ const BankMasterinsert = () => {
                                 </Form.Group>
                             </Col>
                             <Col lg={6}>
-                                <Form.Group controlId="branch" className="mb-3">
+                                <Form.Group controlId="branch" className="mb-2">
                                     <Form.Label>Branch Name</Form.Label>
                                     <Form.Control
                                         type="text"
@@ -193,7 +211,7 @@ const BankMasterinsert = () => {
                                 </Form.Group>
                             </Col>
                             <Col lg={6}>
-                                <Form.Group controlId="city1" className="mb-3">
+                                <Form.Group controlId="city1" className="mb-2">
                                     <Form.Label>City1</Form.Label>
                                     <Form.Control
                                         type="text"
@@ -206,7 +224,7 @@ const BankMasterinsert = () => {
                                 </Form.Group>
                             </Col>
                             <Col lg={6}>
-                                <Form.Group controlId="city2" className="mb-3">
+                                <Form.Group controlId="city2" className="mb-2">
                                     <Form.Label>City2 </Form.Label>
                                     <Form.Control
                                         type="text"
@@ -219,7 +237,7 @@ const BankMasterinsert = () => {
                                 </Form.Group>
                             </Col>
                             <Col lg={6}>
-                                <Form.Group controlId="stateName" className="mb-3">
+                                <Form.Group controlId="stateName" className="mb-2">
                                     <Form.Label>State Name *:</Form.Label>
                                     <Select
                                         name="stateName"
@@ -227,7 +245,7 @@ const BankMasterinsert = () => {
                                         onChange={(selectedOption) => {
                                             setBanks({
                                                 ...banks,
-                                                state: selectedOption?.stateName|| '',
+                                                state: selectedOption?.stateName || '',
                                             });
                                         }}
                                         getOptionLabel={(mod) => mod.stateName}
@@ -235,6 +253,19 @@ const BankMasterinsert = () => {
                                         options={stateList}
                                         isSearchable={true}
                                         placeholder="Select State Name"
+                                        required
+                                    />
+                                </Form.Group>
+                            </Col>
+                            <Col lg={6}>
+                                <Form.Group controlId="status" className="mb-3">
+                                    <Form.Label>Status *</Form.Label>
+                                    <Select
+                                        name="status"
+                                        options={optionsAppAccess}
+                                        value={optionsAppAccess.find(option => option.value === banks.status)}
+                                        onChange={selectedOption => handleChange(null, 'status', selectedOption?.value)}
+                                        placeholder="Select Status"
                                         required
                                     />
                                 </Form.Group>

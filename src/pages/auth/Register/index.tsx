@@ -335,7 +335,7 @@ const Register = () => {
 			<PageBreadcrumb title="Register" />
 			<AuthLayout
 				authTitle="Sign Up"
-				helpText="Enter your details to sign up."
+				helpText="Enter your Employee ID, Click Verify and then enter Password to Sign Up."
 				bottomLinks={<BottomLink />}
 				hasThirdPartyLogin
 			>

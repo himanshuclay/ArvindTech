@@ -67,7 +67,7 @@ const HrInputMaster = () => {
 
     //     query = query.endsWith('&') ? query.slice(0, -1) : query;
 
-    //     const apiUrl = `https://arvindo-api2.clay.in/api/ModuleMaster/SearchModuleList${query}`;
+    //     const apiUrl = `${config.API_URL_APPLICATION}/ModuleMaster/SearchModuleList${query}`;
 
     //     axios.get(apiUrl, {
     //         headers: {

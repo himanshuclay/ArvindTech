@@ -731,21 +731,21 @@ const customPagesRoutes = {
 			route: PrivateRoute,
 		},
 		{
-			path: '/pages/VenderMaster',
-			name: 'VenderMaster',
+			path: '/pages/VendorMaster',
+			name: 'VendorMaster',
 			element: <VenderMaster />,
 			route: PrivateRoute,
 		},
 
 		{
-			path: '/pages/VenderMasterinsert/:id',
-			name: 'VenderMasterinsert ',
+			path: '/pages/VendorMasterinsert/:id',
+			name: 'VendorMasterinsert ',
 			element: <VenderMasterinsert />,
 			route: PrivateRoute,
 		},
 		{
-			path: '/pages/VenderMasterinsert',
-			name: 'VenderMasterinsert ',
+			path: '/pages/VendorMasterinsert',
+			name: 'VendorMasterinsert ',
 			element: <VenderMasterinsert />,
 			route: PrivateRoute,
 		},

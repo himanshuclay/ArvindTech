@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { useState, useEffect, ChangeEvent } from 'react';
+import { useState, useEffect } from 'react';
 import { Button, Pagination, Table, Container, Row, Col, Alert, Form, ButtonGroup } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
@@ -19,6 +19,7 @@ interface Bank {
     city1: string;
     city2: string;
     state: string;
+    status: string;
     createdBy: string;
     updatedBy: string;
 }
@@ -46,10 +47,8 @@ const BankMaster = () => {
     const [loading, setLoading] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
-    const [searchQuery, setSearchQuery] = useState('');
     const [stateList, setStateList] = useState<StateList[]>([]);
     const [bankList, setBankList] = useState<BankList[]>([]);
-    const [branchName, setBranchName] = useState<BankList[]>([]);
     const [cityName, setCityName] = useState<StateList[]>([]);
 
 
@@ -75,6 +74,7 @@ const BankMaster = () => {
         { id: 'city1', label: 'City 1', visible: true },
         { id: 'city2', label: 'City 2', visible: true },
         { id: 'state', label: 'State', visible: true },
+        { id: 'status', label: 'Status', visible: true },
     ]);
 
     const handleOnDragEnd = (result: any) => {
@@ -85,11 +85,6 @@ const BankMaster = () => {
         setColumns(reorderedColumns);
     };
     // ==============================================================
-
-
-
-
-
 
     const fetchStaffRequirements = async () => {
         setLoading(true);
@@ -178,21 +173,6 @@ const BankMaster = () => {
 
 
 
-    useEffect(() => {
-        const fetchAreaData = async () => {
-            try {
-                const response = await axios.get(`${config.API_URL_APPLICATION}/BankMaster/GetBranchName?Bank=${searchBank}&State=${searchState}`);
-                setBranchName(response.data.branchNames); // Assume the response contains area data
-            } catch (error) {
-                console.error('Error fetching area data:', error);
-                setBranchName([]);
-            }
-        };
-        if (searchBank && searchState) {
-            fetchAreaData();
-        }
-    }, [searchBank, searchState]);
-
 
     useEffect(() => {
         const fetchCity = async () => {
@@ -269,21 +249,6 @@ const BankMaster = () => {
         }
     };
 
-    const handleSearchcurrent = (e: ChangeEvent<HTMLInputElement>) => {
-        setSearchQuery(e.target.value);
-        setCurrentPage(1);
-    };
-
-
-    const filteredBanks = banks.filter(bank =>
-        bank.bank.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        bank.ifsc.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        bank.branch.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        bank.city1.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        bank.city2.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        bank.state.toLowerCase().includes(searchQuery.toLowerCase())
-    );
-
 
     return (
         <>
@@ -291,12 +256,19 @@ const BankMaster = () => {
                 <div className="d-flex bg-white p-2 my-2 justify-content-between align-items-center">
                     <span><i className="ri-file-list-line me-2 text-dark fs-16"></i><span className='fw-bold text-dark fs-15'>Bank List</span></span>
                     <div className="d-flex justify-content-end  ">
+                        <div>
 
-                        <Link to='/pages/BankMasterinsert'>
-                            <Button variant="primary" className="me-2">
-                                Add Bank
+                            <Button variant="primary" onClick={downloadCSV} className="me-2">
+                                Download CSV
                             </Button>
-                        </Link>
+
+                            <Link to='/pages/BankMasterinsert'>
+                                <Button variant="primary" className="">
+                                    Add Bank
+                                </Button>
+                            </Link>
+
+                        </div>
 
                     </div>
                 </div>
@@ -312,7 +284,7 @@ const BankMaster = () => {
                     <>
                         <div className='bg-white p-2 pb-2'>
                             <Row>
-                                <Col lg={4} className=''>
+                                <Col lg={6} className=''>
                                     <Form.Group controlId="searchIfsc">
                                         <Form.Label>IFSC Code</Form.Label>
                                         <Form.Control
@@ -325,7 +297,7 @@ const BankMaster = () => {
                                         />
                                     </Form.Group>
                                 </Col>
-                                <Col lg={4} className=''>
+                                <Col lg={6} className=''>
                                     <Form.Group controlId="searchState">
                                         <Form.Label>State</Form.Label>
                                         <Select
@@ -342,9 +314,9 @@ const BankMaster = () => {
                                     </Form.Group>
                                 </Col>
 
-                                <Col lg={4} className=''>
+                                <Col lg={6} className='mt-2'>
                                     <Form.Group controlId="searchBank">
-                                        <Form.Label>City</Form.Label>
+                                        <Form.Label>City1</Form.Label>
                                         <Select
                                             name="searchBank"
                                             value={cityName.find(item => item.city === searcCity) || null}
@@ -358,13 +330,13 @@ const BankMaster = () => {
                                         />
                                     </Form.Group>
                                 </Col>
-                                <Col lg={4} className='mt-2'>
+                                <Col lg={6} className='mt-2'>
                                     <Form.Group controlId="searchBank">
                                         <Form.Label>Bank Name</Form.Label>
                                         <Select
                                             name="searchBank"
-                                            value={bankList.find(item => (item.bank || item.bankName ) === searchBank) || null}
-                                            onChange={(selectedOption) => setSearchBank(selectedOption ? (selectedOption.bank || selectedOption.bankName ): '')}
+                                            value={bankList.find(item => (item.bank || item.bankName) === searchBank) || null}
+                                            onChange={(selectedOption) => setSearchBank(selectedOption ? (selectedOption.bank || selectedOption.bankName) : '')}
                                             options={bankList}
                                             getOptionLabel={(item) => item.bank || item.bankName}
                                             getOptionValue={(item) => item.bank || item.bankName}
@@ -374,24 +346,9 @@ const BankMaster = () => {
                                         />
                                     </Form.Group>
                                 </Col>
-                                <Col lg={4} className='mt-2'>
-                                    <Form.Group controlId="searchBranch">
-                                        <Form.Label>Branch Name</Form.Label>
-                                        <Select
-                                            name="searchBranch"
-                                            value={branchName.find(item => item.branch === searchBranch) || null}
-                                            onChange={(selectedOption) => setSearchBranch(selectedOption ? selectedOption.branch : '')}
-                                            options={branchName}
-                                            getOptionLabel={(item) => item.branch}
-                                            getOptionValue={(item) => item.branch.split(',')[0]}
-                                            isSearchable={true}
-                                            placeholder="Select Area"
-                                            className="h45"
-                                        />
-                                    </Form.Group>
-                                </Col>
 
-                                <Col lg={4} className="align-items-end d-flex justify-content-end mt-2">
+                                <Col> </Col>
+                                <Col lg={4} className="align-items-end d-flex justify-content-end mt-3">
                                     <ButtonGroup aria-label="Basic example" className="w-100">
                                         <Button type="button" variant="primary" onClick={handleClear}>
                                             <i className="ri-loop-left-line"></i>
@@ -409,29 +366,16 @@ const BankMaster = () => {
                             <Row className='mt-3'>
                                 <div className="d-flex justify-content-end bg-light p-1">
                                     <div className="app-search d-none d-lg-block me-4">
-                                        <form>
-                                            <div className="input-group px300 ">
-                                                <input
-                                                    type="search"
-                                                    className=" bg-white"
-                                                    placeholder="Search..."
-                                                    value={searchQuery}
-                                                    onChange={handleSearchcurrent}
-                                                />
-                                                <span className="ri-search-line search-icon text-muted" />
-                                            </div>
-                                        </form>
+
                                     </div>
 
-                                    <Button variant="primary" onClick={downloadCSV} className="">
-                                        Download CSV
-                                    </Button>
+
                                 </div>
                             </Row>
                         </div>
 
                         <div className="overflow-auto text-nowrap">
-                            {!filteredBanks ? (
+                            {!banks ? (
                                 <Container className="mt-5">
                                     <Row className="justify-content-center">
                                         <Col xs={12} md={8} lg={6}>
@@ -477,8 +421,8 @@ const BankMaster = () => {
                                             </Droppable>
                                         </thead>
                                         <tbody>
-                                            {filteredBanks.length > 0 ? (
-                                                filteredBanks.slice(0, 10).map((item, index) => (
+                                            {banks.length > 0 ? (
+                                                banks.slice(0, 10).map((item, index) => (
                                                     <tr key={item.id}>
                                                         <td>{(currentPage - 1) * 10 + index + 1}</td>
                                                         {columns.filter(col => col.visible).map((col) => (

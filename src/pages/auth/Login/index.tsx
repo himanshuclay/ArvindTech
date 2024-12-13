@@ -91,7 +91,7 @@ const Login = () => {
 
 			<AuthLayout
 				authTitle="Sign In"
-				helpText="Enter your Employee ID and Password to access account."
+				helpText="Enter your Employee ID, Click Verify and then enter Password to access account"
 				bottomLinks={<BottomLinks />}
 				hasThirdPartyLogin
 			>
@@ -126,15 +126,6 @@ const Login = () => {
 					</FormInput>
 
 					<Row className='d-flex jusify-content-between'>
-
-						{/* <Col>
-							<FormInput
-								label="Remember me"
-								type="checkbox"
-								name="checkbox"
-								containerClass={'mb-3'}
-							/>
-						</Col> */}
 						<Col className='d-flex justify-content-end mb-1 mt-0'>
 							<div className='login-help'>
 								Help ?

@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Button, Table, Collapse, Accordion } from 'react-bootstrap'; // Assuming DynamicForm is in the same directory
 import { FileUploader } from '@/components/FileUploader'
+import config from "@/config";
+
 
 interface ProjectAssignListWithDoer {
   id: number;
@@ -102,7 +104,7 @@ const ProjectAssignTable: React.FC = () => {
     useEffect(() => {
       const fetchMessData = async () => {
         try {
-          const response = await axios.get(`https://arvindo-api2.clay.in/api/CommonDropdown/GetMessandManagerListByProjectName?ProjectName=${projectName}`);
+          const response = await axios.get(`${config.API_URL_APPLICATION}/CommonDropdown/GetMessandManagerListByProjectName?ProjectName=${projectName}`);
           if (response.data.isSuccess) {
             setMessList(response.data.messProjectListResponses);
           } else {
@@ -201,7 +203,7 @@ const ProjectAssignTable: React.FC = () => {
       setLoading(true);  // Show loader when the request is initiated
 
       try {
-        const response = await fetch('https://arvindo-api.clay.in/api/ProcessInitiation/UpdateDoerTask', {
+        const response = await fetch(`${config.API_URL_ACCOUNT}/ProcessInitiation/UpdateDoerTask`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

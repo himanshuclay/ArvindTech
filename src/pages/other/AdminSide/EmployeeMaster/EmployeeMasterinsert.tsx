@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { useEffect, useState, ChangeEvent } from 'react';
+import { useEffect, useState, ChangeEvent, useRef } from 'react';
 import { Button, Col, Form, Row } from 'react-bootstrap';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import config from '@/config';
@@ -55,7 +55,7 @@ interface Employee {
     excelDojValue: string;
     excelDolValue: string;
     isRegistered: string;
-    daL_Module: string;
+    daL_Module: string[];
     daL_Project: string[];
     registrationDate: string;
     createdBy: string;
@@ -97,7 +97,6 @@ const EmployeeMasterInsert = () => {
     const [projectList, setProjectList] = useState<ModuleProjectList[]>([])
     const [moduleList, setModuleList] = useState<ModuleProjectList[]>([])
     const [departmentList, setDepartmentList] = useState<Department[]>([]);
-    const [designationList, setDesignationList] = useState<Department[]>([]);
     const [employee, setEmployee] = useState<Employee>({
         id: 0,
         empID: '',
@@ -145,18 +144,28 @@ const EmployeeMasterInsert = () => {
         excelDojValue: '',
         excelDolValue: '',
         isRegistered: '',
-        daL_Module: '',
+        daL_Module: [],
         daL_Project: [],
         registrationDate: '',
         createdBy: '',
         updatedBy: '',
     });
+    const [ifscError, setIfscError] = useState({
+        salary: '',
+        reimbursement: '',
+        expense: ''
+    });
+    const [errorMessage, setErrorMessage] = useState('');
+
 
     const [districts, setDistricts] = useState<District[]>([]);
     const [areaData, setAreaData] = useState<AreaData[]>([]);
     const [searchPin, setSearchPin] = useState('');
     const [searchDistrict, setSearchDistrict] = useState('');
 
+
+
+    const dateOfLeavingRef = useRef<any>(null);
     useEffect(() => {
         toast.dismiss()
         const storedEmpName = localStorage.getItem('EmpName');
@@ -204,18 +213,58 @@ const EmployeeMasterInsert = () => {
 
             if (response.data.isSuccess && response.data.bankMasterListResponses.length > 0) {
                 const fetchedBankDetails = response.data.bankMasterListResponses[0];
-
                 setEmployee((prevState) => ({
                     ...prevState,
                     [`${accountType.toLowerCase()}BankName`]: fetchedBankDetails.bank,
                     [`${accountType.toLowerCase()}BranchName`]: fetchedBankDetails.branch
                 }));
             } else {
-                console.error(response.data.message || "Bank details not found.");
+                // Handle no bank details found
+                setIfscError((prevState) => ({
+                    ...prevState,
+                    [accountType.toLowerCase()]: 'Bank details not found for the given IFSC code.'
+                }));
             }
         } catch (error) {
             console.error('Error fetching bank details:', error);
+            setIfscError((prevState) => ({
+                ...prevState,
+                [accountType.toLowerCase()]: 'Error fetching bank details.'
+            }));
         }
+    };
+
+
+    const handleIfscBlur = async (accountType: string) => {
+        const ifscField = `${accountType.toLowerCase()}BankIfsc` as keyof Employee;
+        const bankNameField = `${accountType.toLowerCase()}BankName` as keyof Employee;
+        const branchNameField = `${accountType.toLowerCase()}BranchName` as keyof Employee;
+
+        const ifsc = employee[ifscField];
+
+        // Check if IFSC is valid
+        if (typeof ifsc !== 'string' || ifsc.length !== 11) {
+            // Reset bank details if IFSC is invalid
+            setEmployee((prevState) => ({
+                ...prevState,
+                [bankNameField]: '',
+                [branchNameField]: ''
+            }));
+
+            setIfscError((prevState) => ({
+                ...prevState,
+                [accountType.toLowerCase()]: ifsc ? 'Invalid IFSC code. Please enter a valid 11-character code.' : ''
+            }));
+
+            return;
+        }
+
+        setIfscError((prevState) => ({
+            ...prevState,
+            [accountType.toLowerCase()]: ''
+        }));
+        // Fetch bank details if IFSC is valid
+        await fetchBankByIFSC(ifsc, accountType);
     };
 
 
@@ -239,65 +288,88 @@ const EmployeeMasterInsert = () => {
         fetchData('CommonDropdown/GetProjectList', setProjectList, 'projectListResponses');
         fetchData('CommonDropdown/GetDepartment', setDepartmentList, 'getDepartments');
         fetchData('CommonDropdown/GetModuleList', setModuleList, 'moduleNameListResponses');
-        fetchData('DesignationMaster/GetDesignation', setDesignationList, 'designations');
-
-
     }, []);
 
-    useEffect(() => {
-        const fetchDistricts = async () => {
-            try {
-                const response = await axios.get(`${config.API_URL_APPLICATION}/AddressMaster/GetAddressData?PinCode=${searchPin}`);
-                const fetchedDistricts = response.data.addresses;
-                setDistricts(fetchedDistricts);
-                if (fetchedDistricts.length > 0) {
-                    const firstDistrict = fetchedDistricts[0].district;
-                    // Use functional updates to avoid intermediate rendering issues
-                    setSearchDistrict(firstDistrict);
-                    setEmployee(prev => ({ ...prev, district: firstDistrict }));
-                }
-            } catch (error) {
-                console.error('Error fetching districts:', error);
+    const fetchDistricts = async () => {
+        try {
+            // Clear previous errors
+            setErrorMessage('');
+            if (!searchPin.trim()) {
                 setDistricts([]);
+                setSearchDistrict('');
+                setAreaData([]);
+                setEmployee(prev => ({ ...prev, district: '', area: '', state: '' }));
+                return; // Stop execution if the pincode is blank
             }
-        };
 
-        if (searchPin.length === 6) {
-            fetchDistricts();
-        } else {
+            const response = await axios.get(`${config.API_URL_APPLICATION}/AddressMaster/GetAddressData?PinCode=${searchPin}`);
+            const fetchedDistricts = response.data.addresses;
+
+            if (fetchedDistricts.length > 0) {
+                setDistricts(fetchedDistricts);
+
+                const firstDistrict = fetchedDistricts[0].district;
+                const fetchedState = fetchedDistricts[0]?.state || '';
+
+                setSearchDistrict(firstDistrict);
+                setEmployee(prev => ({
+                    ...prev,
+                    district: firstDistrict,
+                    state: fetchedState,
+                }));
+
+                // Fetch area data for the default district
+                await fetchAreaData(searchPin, firstDistrict);
+            } else {
+                // Handle invalid pincode
+                setDistricts([]);
+                setSearchDistrict('');
+                setAreaData([]);
+                setEmployee(prev => ({ ...prev, district: '', area: '', state: '' }));
+
+                setErrorMessage('Invalid Pincode. Please try again.');
+            }
+        } catch (error) {
+            console.error('Error fetching districts:', error);
             setDistricts([]);
             setSearchDistrict('');
             setAreaData([]);
+            setEmployee(prev => ({ ...prev, district: '', area: '', state: '' }));
+
+            setErrorMessage('Invalid Pincode. Please try again.');
         }
-    }, [searchPin]);
+    };
 
 
+    const fetchAreaData = async (pin: string, district: string) => {
+        try {
+            const response = await axios.get(`${config.API_URL_APPLICATION}/AddressMaster/GetAddressData?PinCode=${pin}&District=${district}`);
+            const fetchedAreas = response.data.addresses;
 
-    useEffect(() => {
-        const fetchAreaData = async () => {
-            try {
-                const response = await axios.get(`${config.API_URL_APPLICATION}/AddressMaster/GetAddressData?PinCode=${searchPin}&District=${searchDistrict}`);
-                const fetchedAreas = response.data.addresses;
+            if (fetchedAreas.length > 0) {
                 setAreaData(fetchedAreas);
-                if (fetchedAreas.length > 0) {
-                    const firstArea = fetchedAreas[0].areaName;
-                    const fetchedState = fetchedAreas[0]?.state || '';
-                    setEmployee(prev => ({
-                        ...prev,
-                        area: firstArea,
-                        state: fetchedState,
-                    }));
-                }
-            } catch (error) {
-                console.error('Error fetching area data:', error);
-                setAreaData([]);
-            }
-        };
 
-        if (searchPin.length === 6 && searchDistrict) {
-            fetchAreaData();
+                const firstArea = fetchedAreas[0].areaName;
+                const fetchedState = fetchedAreas[0]?.state || '';
+                setEmployee(prev => ({
+                    ...prev,
+                    area: firstArea,
+                    state: fetchedState,
+                }));
+            } else {
+                // Handle invalid pincode or no areas found
+                setAreaData([]);
+                setEmployee(prev => ({ ...prev, area: '', state: '' }));
+                toast.error("Invalid Pincode or no areas found. Please try again.");
+            }
+        } catch (error) {
+            console.error('Error fetching area data:', error);
+            setAreaData([]);
+            setEmployee(prev => ({ ...prev, area: '', state: '' }));
+            toast.error("Invalid Pincode or no areas found. Please try again.");
         }
-    }, [searchPin, searchDistrict]);
+    };
+
 
 
     const handleChange = (e: ChangeEvent<any> | null, name?: string, value?: any) => {
@@ -306,7 +378,7 @@ const EmployeeMasterInsert = () => {
 
             setEmployee((prevData) => ({
                 ...prevData,
-                [fieldName]: fieldValue
+                [fieldName]: fieldValue,
             }));
 
             if (fieldValue.length === 10) {
@@ -326,7 +398,7 @@ const EmployeeMasterInsert = () => {
                 const checked = (e.target as HTMLInputElement).checked;
                 setEmployee((prevData) => ({
                     ...prevData,
-                    [eventName]: checked
+                    [eventName]: checked,
                 }));
             } else {
                 const inputValue = (e.target as HTMLInputElement | HTMLSelectElement).value;
@@ -342,10 +414,19 @@ const EmployeeMasterInsert = () => {
                             if (inputValue === "Module") {
                                 updatedData.daL_Project = [];
                             } else if (inputValue === "Project") {
-                                updatedData.daL_Module = "";
+                                updatedData.daL_Module = [];
+                            } else if (inputValue === "ProjectModule") {
+                                if (!updatedData.daL_Project?.length || !updatedData.daL_Module?.length) {
+                                    toast.error("Both DAL Project and DAL Module are required for ProjectModule.");
+                                }
                             } else {
-                                updatedData.daL_Module = "";
+                                updatedData.daL_Module = [];
                                 updatedData.daL_Project = [];
+                            }
+                        }
+                        if(name === 'empStatus'){
+                            if(value !== 'Former'){
+                                updatedData.dateOfLeaving = '';
                             }
                         }
 
@@ -362,45 +443,81 @@ const EmployeeMasterInsert = () => {
                     if (value === "Module") {
                         updatedData.daL_Project = [];
                     } else if (value === "Project") {
-                        updatedData.daL_Module = "";
+                        updatedData.daL_Module = [];
+                    } else if (value === "ProjectModule") {
+                        if (!updatedData.daL_Project?.length || !updatedData.daL_Module?.length) {
+                            toast.error("Both DAL Project and DAL Module are required for ProjectModule.");
+                        }
                     } else {
-                        updatedData.daL_Module = "";
+                        updatedData.daL_Module = [];
                         updatedData.daL_Project = [];
+                    }
+                }
+
+                if(name === 'empStatus'){
+                    if(value !== 'Former'){
+                        updatedData.dateOfLeaving = '';
                     }
                 }
 
                 return updatedData;
             });
         }
+
     };
 
 
     const handleIfscChange = (e: ChangeEvent<any>, accountType: string) => {
         const { value } = e.target;
-        const fieldIfsc = `${accountType.toLowerCase()}BankIfsc`;
+        const capitalizedValue = value.charAt(0).toUpperCase() + value.slice(1);
+        const fieldIfsc = `${accountType.toLowerCase()}BankIfsc` as keyof Employee;
 
         setEmployee((prevState) => ({
             ...prevState,
-            [fieldIfsc]: value
+            [fieldIfsc]: capitalizedValue
         }));
 
+        // Validate IFSC length after input change (optional for some cases)
         if (value.length === 11) {
             fetchBankByIFSC(value, accountType);
+        } else {
+            // Reset error if it's incomplete
+            setIfscError((prevError) => ({
+                ...prevError,
+                [accountType.toLowerCase()]: ''
+            }));
         }
     };
 
 
+    const handleBankAccountNumberChange = (e: ChangeEvent<any>, accountType: string) => {
+        const { value } = e.target as HTMLInputElement; 
+
+        const validValue = value.replace(/[^0-9]/g, "");
+
+        setEmployee((prevState) => ({
+            ...prevState,
+            [`${accountType}BankAccountNumber`]: validValue
+        }));
+    };
 
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
 
+        if (employee.empStatus === 'Former' && !employee.dateOfLeaving) {
+            dateOfLeavingRef.current?.flatpickr.open(); // Focus and open the Flatpickr field
+            return;
+        }
+
         const payload = {
             ...employee,
             createdBy: editMode ? employee.createdBy : empName,
             updatedBy: editMode ? empName : '',
-            daL_Project: employee.daL_Project.join(','),
+            daL_Module: Array.isArray(employee.daL_Module) ? employee.daL_Module.join(',') : employee.daL_Module,
+            daL_Project: Array.isArray(employee.daL_Project) ? employee.daL_Project.join(',') : employee.daL_Project,
         };
+
         console.log(payload)
         try {
             if (editMode) {
@@ -520,21 +637,13 @@ const EmployeeMasterInsert = () => {
                             <Col lg={6}>
                                 <Form.Group controlId="designation" className="mb-3">
                                     <Form.Label>Designation *</Form.Label>
-                                    <Select
+                                    <Form.Control
+                                        type="text"
                                         name="designation"
-                                        value={designationList.find((emp) => emp.department === employee.designation)}
-                                        onChange={(selectedOption) => {
-                                            setEmployee({
-                                                ...employee,
-                                                designation: selectedOption?.department || "",
-                                            });
-                                        }}
-                                        getOptionLabel={(emp) => emp.department}
-                                        getOptionValue={(emp) => emp.department}
-                                        options={designationList}
-                                        isSearchable={true}
-                                        placeholder="Select Designation Name"
+                                        value={employee.designation}
+                                        onChange={handleChange}
                                         required
+                                        placeholder='Enter Designation Name'
                                     />
                                 </Form.Group>
                             </Col>
@@ -620,7 +729,7 @@ const EmployeeMasterInsert = () => {
 
                             <Col lg={6}>
                                 <Form.Group controlId="dateOfJoining" className="mb-3">
-                                    <Form.Label> Date of Joing *</Form.Label>
+                                    <Form.Label> Date of Joining *</Form.Label>
                                     <Flatpickr
                                         value={employee.dateOfJoining}
                                         onChange={([date]) => {
@@ -637,7 +746,7 @@ const EmployeeMasterInsert = () => {
                                             dateFormat: "Y-m-d",
                                             time_24hr: false,
                                         }}
-                                        placeholder=" Date of Joing "
+                                        placeholder=" Date of Joining "
                                         className="form-control"
                                         required
                                     />
@@ -695,13 +804,13 @@ const EmployeeMasterInsert = () => {
 
                             <Col lg={6}>
                                 <Form.Group controlId="isPerformanceReview" className="mb-3">
-                                    <Form.Label>Performance Review Applicapblity *</Form.Label>
+                                    <Form.Label>Performance Review Applicability *</Form.Label>
                                     <Select
                                         name="isPerformanceReview"
                                         options={optionsAppExempt}
                                         value={optionsAppExempt.find(option => option.value === employee.isPerformanceReview)}
                                         onChange={selectedOption => handleChange(null, 'isPerformanceReview', selectedOption?.value)}
-                                        placeholder="Select Performance Review Applicapblity"
+                                        placeholder="Select Performance Review Applicability"
                                         required
                                     />
                                 </Form.Group>
@@ -745,47 +854,37 @@ const EmployeeMasterInsert = () => {
                                     />
                                 </Form.Group>
                             </Col>
-                            <Col lg={6}>
-                                <Form.Group controlId="isRegistered" className="mb-3">
-                                    <Form.Label>Is Registered *</Form.Label>
-                                    <Select
-                                        name="isRegistered"
-                                        options={optionsAppExempt}
-                                        value={optionsAppExempt.find(option => option.value === employee.isRegistered)}
-                                        onChange={selectedOption => handleChange(null, 'isRegistered', selectedOption?.value)}
-                                        placeholder="Select Is Registered"
-                                        required
-                                        isDisabled={editMode}
-                                    />
-                                </Form.Group>
-                            </Col>
+
 
                             <Col lg={6}>
                                 <Form.Group controlId="daL_Module" className="mb-3">
-                                    <Form.Label>DAL Module {employee.dataAccessLevel === 'Module' ? '*' : null} </Form.Label>
+                                    <Form.Label> DAL Module {(employee.dataAccessLevel === 'Module' || employee.dataAccessLevel === 'ProjectModule') ? '*' : null} </Form.Label>
+
                                     <Select
                                         name="daL_Module"
-                                        value={moduleList.find((emp) => emp.moduleName === employee.daL_Module)}
-                                        onChange={(selectedOption) => {
-                                            setEmployee({
-                                                ...employee,
-                                                daL_Module: selectedOption?.moduleName || "",
-                                            });
+                                        value={moduleList.filter(emp => employee.daL_Module.includes(emp.moduleName)
+                                        )}
+                                        onChange={(selectedOptions) => {
+                                            const daL_Module = (selectedOptions || []).map(option => option.moduleName);
+                                            setEmployee(prev => ({
+                                                ...prev,
+                                                daL_Module
+                                            }));
                                         }}
                                         getOptionLabel={(emp) => emp.moduleName}
                                         getOptionValue={(emp) => emp.moduleName}
                                         options={moduleList}
                                         isSearchable={true}
-                                        required={employee.dataAccessLevel === 'Module'}
-                                        placeholder="Select DAL Module"
+                                        isMulti={true}
+                                        required={employee.dataAccessLevel === 'Module' || employee.dataAccessLevel === 'ProjectModule'}
+                                        placeholder="Select Module"
                                     />
                                 </Form.Group>
                             </Col>
-
-
                             <Col lg={6}>
                                 <Form.Group controlId="daL_Project" className="mb-3">
-                                    <Form.Label>DAL Project {employee.dataAccessLevel === 'Project' ? '*' : null} </Form.Label>
+                                    <Form.Label> DAL Project {(employee.dataAccessLevel === 'Project' || employee.dataAccessLevel === 'ProjectModule') ? '*' : null} </Form.Label>
+
                                     <Select
                                         name="daL_Project"
                                         value={projectList.filter(emp => employee.daL_Project.includes(emp.projectName)
@@ -802,13 +901,24 @@ const EmployeeMasterInsert = () => {
                                         options={projectList}
                                         isSearchable={true}
                                         isMulti={true}
-                                        required={employee.dataAccessLevel === 'Project'}
+                                        required={employee.dataAccessLevel === 'Project' || employee.dataAccessLevel === 'ProjectModule'}
                                         placeholder="Select Projects"
                                     />
                                 </Form.Group>
                             </Col>
 
 
+                            <Col lg={6}>
+                                <Form.Group controlId="isRegistered" className="mb-3">
+                                    <Form.Label>Is Registered *</Form.Label>
+                                    <Form.Control
+                                        name="isRegistered"
+                                        value={employee.isRegistered}
+                                        placeholder="Is Registered"
+                                        disabled
+                                    />
+                                </Form.Group>
+                            </Col>
 
                             <Col lg={6}>
                                 <Form.Group controlId="registrationDate" className="mb-3">
@@ -826,13 +936,13 @@ const EmployeeMasterInsert = () => {
 
                             <Col lg={6}>
                                 <Form.Group controlId="userUpdatedMobileNo" className="mb-3">
-                                    <Form.Label>User Update Mobile Number </Form.Label>
+                                    <Form.Label>User Updated Mobile Number </Form.Label>
                                     <Form.Control
-                                        type="number"
+                                        type="text"
                                         name="userUpdatedMobileNo"
                                         value={employee.userUpdatedMobileNo}
-                                        onChange={handleChange}
-                                        placeholder='Enter User Update Mobile Number'
+                                        placeholder='User Updated Mobile Number'
+                                        disabled
                                     />
                                 </Form.Group>
                             </Col>
@@ -855,32 +965,40 @@ const EmployeeMasterInsert = () => {
                                         placeholder=" Date of Leaving "
                                         className="form-control"
                                         required={employee.empStatus === 'Former'}
+
                                     />
+
+                                    {employee.empStatus === 'Former' && !employee.dateOfLeaving && (
+                                        <Form.Text className="text-danger">
+                                            Date of Leaving is required for Former employees.
+                                        </Form.Text>
+                                    )}
                                 </Form.Group>
                             </Col>
 
 
                             <h3>Address Details</h3>
-
                             <Col lg={6}>
                                 <Form.Group controlId="pin" className="mb-3">
-                                    <Form.Label>Pincode:</Form.Label>
+                                    <Form.Label>Pincode *</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="pin"
                                         value={employee.pin}
                                         onChange={(e) => {
                                             setSearchPin(e.target.value);
-                                            setEmployee(prev => ({ ...prev, pin: e.target.value })); // Update pin in employee
+                                            setEmployee(prev => ({ ...prev, pin: e.target.value }));
                                         }}
+                                        onBlur={fetchDistricts}
                                         required
                                         placeholder="Enter Pincode"
                                     />
+                                    {errorMessage && <div className="text-danger mt-1">{errorMessage}</div>}
                                 </Form.Group>
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="state" className="mb-3">
-                                    <Form.Label>State:</Form.Label>
+                                    <Form.Label>State </Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="state"
@@ -894,7 +1012,7 @@ const EmployeeMasterInsert = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="district" className="mb-3">
-                                    <Form.Label>District:</Form.Label>
+                                    <Form.Label>District </Form.Label>
                                     <Select
                                         name="district"
                                         value={districts.find(item => item.district === employee.district) || null}
@@ -902,6 +1020,7 @@ const EmployeeMasterInsert = () => {
                                             const district = selectedOption ? selectedOption.district : '';
                                             setSearchDistrict(district);
                                             setEmployee(prev => ({ ...prev, district })); // Update district in employee
+                                            fetchAreaData(searchPin, district);
                                         }}
                                         options={districts || []}
                                         getOptionLabel={(item) => item.district}
@@ -913,10 +1032,9 @@ const EmployeeMasterInsert = () => {
                                     />
                                 </Form.Group>
                             </Col>
-
                             <Col lg={6}>
                                 <Form.Group controlId="area" className="mb-3">
-                                    <Form.Label>Area:</Form.Label>
+                                    <Form.Label>Area </Form.Label>
                                     <Select
                                         name="area"
                                         value={areaData.find(item => item.areaName === employee.area) || null}
@@ -936,7 +1054,7 @@ const EmployeeMasterInsert = () => {
                             </Col>
                             <Col lg={12}>
                                 <Form.Group controlId="address" className="mb-3">
-                                    <Form.Label>Address:</Form.Label>
+                                    <Form.Label>Address *</Form.Label>
                                     <Form.Control
                                         as="textarea"
                                         name="address"
@@ -944,6 +1062,7 @@ const EmployeeMasterInsert = () => {
                                         rows={3}
                                         onChange={handleChange}
                                         placeholder='Enter Your Full Address'
+                                        required
                                     />
                                 </Form.Group>
                             </Col>
@@ -958,8 +1077,10 @@ const EmployeeMasterInsert = () => {
                                         name="salaryBankIfsc"
                                         value={employee.salaryBankIfsc}
                                         onChange={(e) => handleIfscChange(e, 'salary')}
-                                        placeholder='Enter IFSC Code'
+                                        onBlur={() => handleIfscBlur('salary')}
+                                        placeholder="Enter IFSC Code"
                                     />
+                                    {ifscError.salary && <div className="text-danger mt-1">{ifscError.salary}</div>}
                                 </Form.Group>
                             </Col>
 
@@ -970,7 +1091,6 @@ const EmployeeMasterInsert = () => {
                                         type="text"
                                         name="salaryBankName"
                                         value={employee.salaryBankName}
-                                        onChange={handleChange}
                                         placeholder=' Bank Name'
                                         readOnly
                                     />
@@ -984,7 +1104,6 @@ const EmployeeMasterInsert = () => {
                                         type="text"
                                         name="salaryBranchName"
                                         value={employee.salaryBranchName}
-                                        onChange={handleChange}
                                         placeholder=' Branch  Name'
                                         readOnly
                                     />
@@ -997,27 +1116,14 @@ const EmployeeMasterInsert = () => {
                                 <Form.Group controlId="salaryBankAccountNumber" className="mb-3">
                                     <Form.Label>Bank Account Number:</Form.Label>
                                     <Form.Control
-                                        type="number"
+                                        type="text" // Change to "text" to preserve leading zeroes
                                         name="salaryBankAccountNumber"
                                         value={employee.salaryBankAccountNumber}
-                                        onChange={handleChange}
-                                        placeholder='Enter Bank Account Number'
+                                        onChange={(e) => handleBankAccountNumberChange(e, 'salary')}
+                                        placeholder="Enter Bank Account Number"
                                     />
                                 </Form.Group>
                             </Col>
-                            {/* <Col lg={6}>
-                                <Form.Group controlId="salaryBankAccountType" className="mb-3">
-                                    <Form.Label>Bank Account Type:</Form.Label>
-                                    <Select
-                                        name="salaryBankAccountType"
-                                        options={optionsAccountType}
-                                        value={optionsAccountType.find(option => option.value === employee.salaryBankAccountType)}
-                                        onChange={selectedOption => handleChange(null, 'salaryBankAccountType', selectedOption?.value)}
-                                        placeholder="Select Account Type"
-                                    />
-                                </Form.Group>
-                            </Col> */}
-
 
                             <h3>Reimbursement Account Details</h3>
                             <Col lg={6}>
@@ -1028,8 +1134,11 @@ const EmployeeMasterInsert = () => {
                                         name="reimbursementBankIfsc"
                                         value={employee.reimbursementBankIfsc}
                                         onChange={(e) => handleIfscChange(e, 'reimbursement')}
-                                        placeholder='Enter IFSC Code'
+
+                                        onBlur={() => handleIfscBlur('reimbursement')}
+                                        placeholder="Enter IFSC Code"
                                     />
+                                    {ifscError.reimbursement && <div className="text-danger mt-1">{ifscError.reimbursement}</div>}
                                 </Form.Group>
                             </Col>
 
@@ -1067,27 +1176,14 @@ const EmployeeMasterInsert = () => {
                                 <Form.Group controlId="reimbursementBankAccountNumber" className="mb-3">
                                     <Form.Label>Bank Account Number:</Form.Label>
                                     <Form.Control
-                                        type="number"
+                                        type="text" // Change to "text" to preserve leading zeroes
                                         name="reimbursementBankAccountNumber"
                                         value={employee.reimbursementBankAccountNumber}
-                                        onChange={handleChange}
-                                        placeholder='Enter Bank Account Number'
+                                        onChange={(e) => handleBankAccountNumberChange(e, 'reimbursement')}
+                                        placeholder="Enter Bank Account Number"
                                     />
                                 </Form.Group>
                             </Col>
-                            {/* <Col lg={6}>
-                                <Form.Group controlId="reimbursementBankAccountType" className="mb-3">
-                                    <Form.Label>Bank Account Type:</Form.Label>
-                                    <Select
-                                        name="reimbursementBankAccountType"
-                                        options={optionsAccountType}
-                                        value={optionsAccountType.find(option => option.value === employee.reimbursementBankAccountType)}
-                                        onChange={selectedOption => handleChange(null, 'reimbursementBankAccountType', selectedOption?.value)}
-                                        placeholder="Select Account Type"
-                                    />
-                                </Form.Group>
-                            </Col> */}
-
 
                             <h3>Expense Account Details</h3>
                             <Col lg={6}>
@@ -1097,12 +1193,14 @@ const EmployeeMasterInsert = () => {
                                         type="text"
                                         name="expenseBankIfsc"
                                         value={employee.expenseBankIfsc}
+                                        onBlur={() => handleIfscBlur('expense')}
                                         onChange={(e) => handleIfscChange(e, 'expense')}
-                                        placeholder='Enter IFSC Code'
+
+                                        placeholder="Enter IFSC Code"
                                     />
+                                    {ifscError.expense && <div className="text-danger mt-1">{ifscError.expense}</div>}
                                 </Form.Group>
                             </Col>
-
                             <Col lg={6}>
                                 <Form.Group controlId="expenseBankName" className="mb-3">
                                     <Form.Label>Bank Name:</Form.Label>
@@ -1137,28 +1235,14 @@ const EmployeeMasterInsert = () => {
                                 <Form.Group controlId="expenseBankAccountNumber" className="mb-3">
                                     <Form.Label>Bank Account Number:</Form.Label>
                                     <Form.Control
-                                        type="number"
+                                        type="text"
                                         name="expenseBankAccountNumber"
                                         value={employee.expenseBankAccountNumber}
-                                        onChange={handleChange}
+                                        onChange={(e) => handleBankAccountNumberChange(e, 'expense')}
                                         placeholder='Enter Bank Account Number'
                                     />
                                 </Form.Group>
                             </Col>
-
-                            {/* <Col lg={6}>
-                                <Form.Group controlId="expenseBankAccountType" className="mb-3">
-                                    <Form.Label>Bank Account Type:</Form.Label>
-                                      <Select
-                                        name="expenseBankAccountType"
-                                        options={optionsAccountType}
-                                        value={optionsAccountType.find(option => option.value === employee.expenseBankAccountType)}
-                                        onChange={selectedOption => handleChange(null, 'expenseBankAccountType', selectedOption?.value)}
-                                        placeholder="Select Account Type"
-                                    />
-                                </Form.Group>
-                            </Col> */}
-
 
 
                             <Col className='align-items-end d-flex justify-content-between mb-3'>

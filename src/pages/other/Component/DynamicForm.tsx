@@ -291,7 +291,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
             const fetchVendors = async () => {
                 try {
                     const response = await axios.get(
-                        "https://arvindo-api2.clay.in/api/CommonDropdown/GetData",
+                        "${config.API_URL_APPLICATION}/CommonDropdown/GetData",
                         {
                             params: {
                                 MasterName: customSelectInput.selectedMaster,

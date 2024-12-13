@@ -23,12 +23,16 @@ interface Vender {
     bankName: string;
     ifsc: string;
     branch: string;
+    status: string;
+    trade: string;
     gstin: string;
     fillingFrequency: string;
     vendorContactPerson: string;
     creatorEmpId: string;
     creatorName: string;
     creatorEmail: string;
+    createdDate: string;
+    updatedDate: string;
 }
 
 interface FillingFrequencyList {
@@ -36,11 +40,6 @@ interface FillingFrequencyList {
     name: string;
 }
 
-
-interface EmployeeList {
-    empId: string;
-    employeeName: string;
-}
 
 interface District {
     district: string;
@@ -55,7 +54,6 @@ const DepartmentMasterinsert = () => {
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
     const [editMode, setEditMode] = useState<boolean>(false);
-    const [employeeList, setEmployeeList] = useState<EmployeeList[]>([]);
     const [fillingFrequencyList, setFillingFrequencyList] = useState<FillingFrequencyList[]>([]);
     const [venders, setVenders] = useState<Vender>({
         id: 0,
@@ -72,23 +70,45 @@ const DepartmentMasterinsert = () => {
         bankAccountNumber: '',
         bankName: '',
         ifsc: '',
+        trade: '',
         branch: '',
         gstin: '',
+        status: '',
         fillingFrequency: '',
         vendorContactPerson: '',
         creatorEmpId: '',
         creatorName: '',
-        creatorEmail: ''
+        creatorEmail: '',
+        createdDate: '',
+        updatedDate: ''
     });
 
+
+
+    const [ifscError, setIfscError] = useState('');
     const [districts, setDistricts] = useState<District[]>([]);
     const [areaData, setAreaData] = useState<AreaData[]>([]);
     const [searchPin, setSearchPin] = useState('');
     const [searchDistrict, setSearchDistrict] = useState('');
+    const [gstin, setGstin] = useState('');
+    const [gstinError, setGstinError] = useState<string | null>(null);
+
+    const [errorMessage, setErrorMessage] = useState('');
+
 
     useEffect(() => {
-        toast.dismiss()
+        toast.dismiss();
+        const storedEmpName = localStorage.getItem('EmpName');
+        if (storedEmpName && storedEmpName.trim().length > 0) {
+            setVenders((prevState) => ({
+                ...prevState,
+                creatorName: storedEmpName,
+            }));
+        }
+    }, []);
 
+
+    useEffect(() => {
         if (id) {
             setEditMode(true);
             fetchStaffRequirementsId(id);
@@ -96,6 +116,10 @@ const DepartmentMasterinsert = () => {
             setEditMode(false);
         }
     }, [id]);
+
+
+
+
 
 
 
@@ -130,16 +154,17 @@ const DepartmentMasterinsert = () => {
             }
         };
         fetchData('CommonDropdown/GetFillingFrequency', setFillingFrequencyList, 'fillingFrequencyListResponses');
-        fetchData('CommonDropdown/GetEmployeeListWithId', setEmployeeList, 'employeeLists');
 
     }, []);
 
 
-    const fetchbankByIFSC = async (ifsc: string) => {
+
+    const fetchBankByIFSC = async (ifsc: string) => {
         try {
             const response = await axios.get(`${config.API_URL_APPLICATION}/BankMaster/GetBank`, {
-                params: { ifsc }
+                params: { ifsc },
             });
+
             if (response.data.isSuccess && response.data.bankMasterListResponses.length > 0) {
                 const fetchedBankDetails = response.data.bankMasterListResponses[0];
                 setVenders((prevState) => ({
@@ -148,25 +173,48 @@ const DepartmentMasterinsert = () => {
                     branch: fetchedBankDetails.branch,
                 }));
             } else {
-                console.error(response.data.message || "Bank details not found.");
+                setIfscError('Bank details not found for the given IFSC code.');
+                setVenders((prevState) => ({
+                    ...prevState,
+                    bankName: '',
+                    branch: '',
+                }));
             }
         } catch (error) {
             console.error('Error fetching bank details:', error);
+            setIfscError('Error fetching bank details.');
         }
     };
 
 
-    const handleifscChange = (e: ChangeEvent<HTMLInputElement>) => {
-        const { name, value } = e.target;
-        setVenders((prevState) => ({
-            ...prevState,
-            [name]: value
-        }));
 
-        if (name === 'ifsc' && value.length === 11) {
-            fetchbankByIFSC(value);
+    const handleIfscBlur = async () => {
+        const { ifsc } = venders;
+
+        if (!ifsc || ifsc.length !== 11) {
+            setIfscError(ifsc ? 'Invalid IFSC code. Please enter an 11-character code.' : 'IFSC code is required.');
+            setVenders((prevState) => ({
+                ...prevState,
+                bankName: '',
+                branch: '',
+            }));
+            return;
         }
+
+        // Clear error and fetch bank details
+        setIfscError('');
+        await fetchBankByIFSC(ifsc);
     };
+
+    const handleIfscChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const { value } = e.target;
+        const capitalizedValue = value.charAt(0).toUpperCase() + value.slice(1);
+
+        setVenders((prevState) => ({ ...prevState, ifsc: capitalizedValue, }));
+        setIfscError('');
+    };
+
+
 
     const handleChange = (e: ChangeEvent<any> | null, name?: string, value?: any) => {
         if (e) {
@@ -174,19 +222,12 @@ const DepartmentMasterinsert = () => {
 
             if (type === 'checkbox') {
                 const checked = (e.target as HTMLInputElement).checked;
-                setVenders({
-                    ...venders,
-                    [eventName]: checked
-                });
+                setVenders({ ...venders, [eventName]: checked });
             } else {
                 const inputValue = (e.target as HTMLInputElement | HTMLSelectElement).value;
-                setVenders({
-                    ...venders,
-                    [eventName]: inputValue
-                });
+                setVenders({ ...venders, [eventName]: inputValue });
             }
         } else if (name) {
-            // For react-select, where we directly pass the name and value
             setVenders({
                 ...venders,
                 [name]: value
@@ -197,63 +238,147 @@ const DepartmentMasterinsert = () => {
 
 
 
-    useEffect(() => {
-        const fetchDistricts = async () => {
-            try {
-                const response = await axios.get(`${config.API_URL_APPLICATION}/AddressMaster/GetAddressData?PinCode=${searchPin}`);
-                const fetchedDistricts = response.data.addresses;
-                setDistricts(fetchedDistricts);
-                if (fetchedDistricts.length > 0) {
-                    const firstDistrict = fetchedDistricts[0].district;
-                    // Use functional updates to avoid intermediate rendering issues
-                    setSearchDistrict(firstDistrict);
-                    setVenders(prev => ({ ...prev, district: firstDistrict }));
-                }
-            } catch (error) {
-                console.error('Error fetching districts:', error);
-                setDistricts([]);
-            }
-        };
+    const gstinRegex = /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[0-9]{1}[A-Z]{1}[0-9]{1}$/;
 
-        if (searchPin.length === 6) {
-            fetchDistricts();
-        } else {
+    const handleGSTINChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const value = e.target.value;
+
+        setGstin(value);
+        setVenders((prevVenders) => ({
+            ...prevVenders,
+            gstin: value,
+        }));
+        setGstinError(null);
+    };
+    const handleGSTINBlur = () => {
+        if (!gstinRegex.test(gstin)) {
+            setGstinError('Please enter a valid GSTIN.');
+        }
+    };
+
+
+
+    const fetchDistricts = async () => {
+        try {
+            // Clear previous errors
+            setErrorMessage('');
+            if (!searchPin.trim()) {
+                setDistricts([]);
+                setSearchDistrict('');
+                setAreaData([]);
+                setVenders(prev => ({ ...prev, district: '', area: '', state: '' }));
+                return; // Stop execution if the pincode is blank
+            }
+
+            const response = await axios.get(`${config.API_URL_APPLICATION}/AddressMaster/GetAddressData?PinCode=${searchPin}`);
+            const fetchedDistricts = response.data.addresses;
+
+            if (fetchedDistricts.length > 0) {
+                setDistricts(fetchedDistricts);
+
+                const firstDistrict = fetchedDistricts[0].district;
+                const fetchedState = fetchedDistricts[0]?.state || '';
+
+                setSearchDistrict(firstDistrict);
+                setVenders(prev => ({
+                    ...prev,
+                    district: firstDistrict,
+                    state: fetchedState,
+                }));
+
+                // Fetch area data for the default district
+                await fetchAreaData(searchPin, firstDistrict);
+            } else {
+                // Handle invalid pincode
+                setDistricts([]);
+                setSearchDistrict('');
+                setAreaData([]);
+                setVenders(prev => ({ ...prev, district: '', area: '', state: '' }));
+
+                setErrorMessage('Invalid Pincode. Please try again.');
+            }
+        } catch (error) {
+            console.error('Error fetching districts:', error);
             setDistricts([]);
             setSearchDistrict('');
             setAreaData([]);
-        }
-    }, [searchPin]);
+            setVenders(prev => ({ ...prev, district: '', area: '', state: '' }));
 
-    useEffect(() => {
-        const fetchAreaData = async () => {
-            try {
-                const response = await axios.get(`${config.API_URL_APPLICATION}/AddressMaster/GetAddressData?PinCode=${searchPin}&District=${searchDistrict}`);
-                const fetchedAreas = response.data.addresses;
+            setErrorMessage('Invalid Pincode. Please try again.');
+        }
+    };
+
+
+    const fetchAreaData = async (pin: string, district: string) => {
+        try {
+            const response = await axios.get(`${config.API_URL_APPLICATION}/AddressMaster/GetAddressData?PinCode=${pin}&District=${district}`);
+            const fetchedAreas = response.data.addresses;
+
+            if (fetchedAreas.length > 0) {
                 setAreaData(fetchedAreas);
-                if (fetchedAreas.length > 0) {
-                    const firstArea = fetchedAreas[0].areaName;
-                    const fetchedState = fetchedAreas[0]?.state || '';
-                    setVenders(prev => ({
-                        ...prev,
-                        area: firstArea,
-                        state: fetchedState,
-                    }));
-                }
-            } catch (error) {
-                console.error('Error fetching area data:', error);
-                setAreaData([]);
-            }
-        };
 
-        if (searchPin.length === 6 && searchDistrict) {
-            fetchAreaData();
+                const firstArea = fetchedAreas[0].areaName;
+                const fetchedState = fetchedAreas[0]?.state || '';
+                setVenders(prev => ({
+                    ...prev,
+                    area: firstArea,
+                    state: fetchedState,
+                }));
+            } else {
+                // Handle invalid pincode or no areas found
+                setAreaData([]);
+                setVenders(prev => ({ ...prev, area: '', state: '' }));
+                toast.error("Invalid Pincode or no areas found. Please try again.");
+            }
+        } catch (error) {
+            console.error('Error fetching area data:', error);
+            setAreaData([]);
+            setVenders(prev => ({ ...prev, area: '', state: '' }));
+            toast.error("Invalid Pincode or no areas found. Please try again.");
         }
-    }, [searchPin, searchDistrict]);
+    };
+
+    const handleIndianTelephonicChange = (e: ChangeEvent<HTMLInputElement>) => {
+        const { name, value } = e.target;
+
+        // Remove any non-digit characters (except for the "+" sign)
+        let numericValue = value.replace(/[^\d+]/g, '');
+
+        // If the value starts with +91, apply formatting for the Indian number with country code
+        if (numericValue.startsWith('+91')) {
+            numericValue = numericValue
+                .replace(/^(\+91)(\d{5})(\d{0,5}).*/, '$1 $2 $3')
+                .trim();
+        } else {
+            // For local numbers (without the +91 country code), format as XXXXX-XXXXX
+            numericValue = numericValue
+                .replace(/^(\d{5})(\d{0,5}).*/, '$1 $2')
+                .trim();
+        }
+
+        // Check if the user is backspacing and ensure the value is valid
+        if (value === '') {
+            setVenders((prevState) => ({
+                ...prevState,
+                [name]: '',
+            }));
+        } else {
+            setVenders((prevState) => ({
+                ...prevState,
+                [name]: numericValue,
+            }));
+        }
+    };
 
 
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
+
+        if (!gstinRegex.test(gstin)) {
+            setGstinError('Please enter a valid GSTIN.');
+            return;
+        }
 
         const payload = {
             ...venders,
@@ -262,16 +387,16 @@ const DepartmentMasterinsert = () => {
         try {
             if (editMode) {
                 await axios.post(`${config.API_URL_APPLICATION}/VendorMaster/UpdateVendor`, payload);
-                navigate('/pages/VenderMaster', {
+                navigate('/pages/VendorMaster', {
                     state: {
-                        successMessage: "Vender Updated successfully!",
+                        successMessage: "Vendor Updated successfully!",
                     }
                 });
             } else {
                 await axios.post(`${config.API_URL_APPLICATION}/VendorMaster/InsertVendor`, payload);
-                navigate('/pages/VenderMaster', {
+                navigate('/pages/VendorMaster', {
                     state: {
-                        successMessage: "Vender Added successfully!",
+                        successMessage: "Vendor Added successfully!",
                     }
                 });
             }
@@ -283,30 +408,20 @@ const DepartmentMasterinsert = () => {
         }
     };
 
-
+    const optionsAppAccess = [
+        { value: 'Enabled', label: 'Enabled' },
+        { value: 'Disabled', label: 'Disabled' }
+    ];
 
     return (
         <div>
             <div className="container">
                 <div className="d-flex bg-white p-2 my-2 justify-content-between align-items-center fs-20 rounded-3 border">
-                    <span><i className="ri-file-list-line me-2"></i><span className='fw-bold'>{editMode ? 'Edit Vender' : 'Add Vender'}</span></span>
+                    <span><i className="ri-file-list-line me-2"></i><span className='fw-bold'>{editMode ? 'Edit Vendor' : 'Add Vendor'}</span></span>
                 </div>
                 <div className='bg-white p-2 rounded-3 border'>
                     <Form onSubmit={handleSubmit}>
                         <Row>
-                            <Col lg={6}>
-                                <Form.Group controlId="vendorCode" className="mb-3">
-                                    <Form.Label>Vendor Code</Form.Label>
-                                    <Form.Control
-                                        type="text"
-                                        name="vendorCode"
-                                        value={venders.vendorCode}
-                                        onChange={handleChange}
-                                        required
-                                        placeholder="Enter Vendor Code"
-                                    />
-                                </Form.Group>
-                            </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="category" className="mb-3">
                                     <Form.Label>Category</Form.Label>
@@ -315,7 +430,6 @@ const DepartmentMasterinsert = () => {
                                         name="category"
                                         value={venders.category}
                                         onChange={handleChange}
-                                        required
                                         placeholder="Category"
                                     />
                                 </Form.Group>
@@ -328,7 +442,6 @@ const DepartmentMasterinsert = () => {
                                         name="name"
                                         value={venders.name}
                                         onChange={handleChange}
-                                        required
                                         placeholder="Name"
                                     />
                                 </Form.Group>
@@ -342,11 +455,13 @@ const DepartmentMasterinsert = () => {
                                         value={venders.pin}
                                         onChange={(e) => {
                                             setSearchPin(e.target.value);
-                                            setVenders(prev => ({ ...prev, pin: e.target.value })); // Update pin in employee
+                                            setVenders(prev => ({ ...prev, pin: e.target.value }));
                                         }}
-                                        required
+                                        onBlur={fetchDistricts}
                                         placeholder="Enter Pincode"
                                     />
+                                    {errorMessage && <div className="text-danger mt-1">{errorMessage}</div>}
+
                                 </Form.Group>
                             </Col>
                             <Col lg={6}>
@@ -358,7 +473,6 @@ const DepartmentMasterinsert = () => {
                                         value={venders.state}
                                         onChange={handleChange}
                                         placeholder='Enter State Name'
-                                        readOnly
                                         disabled={!searchPin}
                                     />
                                 </Form.Group>
@@ -426,27 +540,22 @@ const DepartmentMasterinsert = () => {
                                         name="email"
                                         value={venders.email}
                                         onChange={handleChange}
-                                        required
-                                        placeholder="Enter Email"
+                                        placeholder="Enter Vendor Email"
                                     />
                                 </Form.Group>
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="contactNo" className="mb-3">
-                                    <Form.Label>contactNo</Form.Label>
+                                    <Form.Label>Contact No</Form.Label>
                                     <Form.Control
                                         type="number"
                                         name="contactNo"
                                         value={venders.contactNo}
                                         onChange={handleChange}
-                                        required
                                         placeholder="Enter Contact No"
                                     />
                                 </Form.Group>
                             </Col>
-
-
-
                             <Col lg={6}>
                                 <Form.Group controlId="ifsc" className="mb-3">
                                     <Form.Label>IFSC Code:</Form.Label>
@@ -454,9 +563,12 @@ const DepartmentMasterinsert = () => {
                                         type="text"
                                         name="ifsc"
                                         value={venders.ifsc}
-                                        onChange={handleifscChange}
+                                        onChange={handleIfscChange}
+                                        onBlur={handleIfscBlur}
                                         placeholder='Enter IFSC Code'
                                     />
+                                    {ifscError && <div className="text-danger mt-1">{ifscError}</div>}
+
                                 </Form.Group>
                             </Col>
 
@@ -501,7 +613,6 @@ const DepartmentMasterinsert = () => {
                                         name="bankAccountNumber"
                                         value={venders.bankAccountNumber}
                                         onChange={handleChange}
-                                        required
                                         placeholder="Estimated Cost"
                                     />
                                 </Form.Group>
@@ -514,10 +625,11 @@ const DepartmentMasterinsert = () => {
                                         type="text"
                                         name="gstin"
                                         value={venders.gstin}
-                                        onChange={handleChange}
-                                        required
-                                        placeholder="GSTIN"
+                                        onChange={handleGSTINChange} // Update value as user types
+                                        onBlur={handleGSTINBlur} // Validate when focus leaves the input
+                                        placeholder="Enter GSTIN"
                                     />
+                                    {gstinError && <div className="text-danger mt-2">{gstinError}</div>}
                                 </Form.Group>
                             </Col>
                             <Col lg={6}>
@@ -528,8 +640,32 @@ const DepartmentMasterinsert = () => {
                                         name="vendorContactPerson"
                                         value={venders.vendorContactPerson}
                                         onChange={handleChange}
-                                        required
                                         placeholder="Enter Vendor Contact Person"
+                                    />
+                                </Form.Group>
+                            </Col>
+
+                            <Col lg={6}>
+                                <Form.Group controlId="contactNo" className="mb-3">
+                                    <Form.Label>Vendor Contact No.</Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        name="contactNo"
+                                        value={venders.contactNo}
+                                        onChange={handleIndianTelephonicChange}
+                                        placeholder="Enter Vendor Contact No."
+                                    />
+                                </Form.Group>
+                            </Col>
+                            <Col lg={6}>
+                                <Form.Group controlId="trade" className="mb-3">
+                                    <Form.Label>Trade</Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        name="trade"
+                                        value={venders.trade}
+                                        onChange={handleChange}
+                                        placeholder="Enter Trade"
                                     />
                                 </Form.Group>
                             </Col>
@@ -551,29 +687,19 @@ const DepartmentMasterinsert = () => {
                                         options={fillingFrequencyList}
                                         isSearchable={true}
                                         placeholder="Select Filling Frequency"
-                                        required
                                     />
                                 </Form.Group>
                             </Col>
+
                             <Col lg={6}>
                                 <Form.Group controlId="creatorName" className="mb-3">
                                     <Form.Label>Creator Name</Form.Label>
-                                    <Select
+                                    <Form.Control
+                                        type="text"
                                         name="creatorName"
-                                        value={employeeList.find((emp) => emp.employeeName === venders.creatorName)}
-                                        onChange={(selectedOption) => {
-                                            setVenders({
-                                                ...venders,
-                                                creatorName: selectedOption?.employeeName || "",
-                                                creatorEmpId: selectedOption?.empId || "",
-                                            });
-                                        }}
-                                        getOptionLabel={(emp) => emp.employeeName}
-                                        getOptionValue={(emp) => emp.employeeName}
-                                        options={employeeList}
-                                        isSearchable={true}
-                                        placeholder="Select Project Incharge"
-                                        required
+                                        value={venders.creatorName || ''}
+                                        placeholder="Enter Creator Name"
+                                        readOnly
                                     />
                                 </Form.Group>
                             </Col>
@@ -582,12 +708,52 @@ const DepartmentMasterinsert = () => {
                                 <Form.Group controlId="creatorEmail" className="mb-3">
                                     <Form.Label>Creator Email</Form.Label>
                                     <Form.Control
-                                        type="text"
+                                        type="email"
                                         name="creatorEmail"
                                         value={venders.creatorEmail}
                                         onChange={handleChange}
-                                        required
                                         placeholder="Enter Creator Email"
+                                    />
+                                </Form.Group>
+                            </Col>
+
+                            {editMode ?
+                                <>
+                                    <Col lg={6}>
+                                        <Form.Group controlId="createdDate" className="mb-3">
+                                            <Form.Label>Created Date</Form.Label>
+                                            <Form.Control
+                                                type="email"
+                                                name="createdDate"
+                                                value={venders.createdDate}
+                                                disabled
+                                            />
+                                        </Form.Group>
+                                    </Col>
+                                    <Col lg={6}>
+                                        <Form.Group controlId="updatedDate" className="mb-3">
+                                            <Form.Label>Updated Date</Form.Label>
+                                            <Form.Control
+                                                type="email"
+                                                name="updatedDate"
+                                                value={venders.updatedDate}
+                                                disabled
+                                            />
+                                        </Form.Group>
+                                    </Col>
+                                </> : null
+                            }
+
+                            <Col lg={6}>
+                                <Form.Group controlId="status" className="mb-3">
+                                    <Form.Label>Status</Form.Label>
+                                    <Select
+                                        name="status"
+                                        options={optionsAppAccess}
+                                        value={optionsAppAccess.find(option => option.value === venders.status)}
+                                        onChange={selectedOption => handleChange(null, 'status', selectedOption?.value)}
+                                        placeholder="Select Status"
+                                        required
                                     />
                                 </Form.Group>
                             </Col>
@@ -597,14 +763,14 @@ const DepartmentMasterinsert = () => {
                                     <span className='fs-5 '>All fields are required *</span>
                                 </div>
                                 <div>
-                                    <Link to={'/pages/VenderMaster'}>
+                                    <Link to={'/pages/VendorMaster'}>
                                         <Button variant="primary" >
                                             Back
                                         </Button>
                                     </Link>
                                     &nbsp;
                                     <Button variant="primary" type="submit">
-                                        {editMode ? 'Update Vender' : 'Add Vender'}
+                                        {editMode ? 'Update Vendor' : 'Add Vendor'}
                                     </Button>
                                 </div>
 
