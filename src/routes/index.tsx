@@ -92,6 +92,7 @@ const MyPendingTask = React.lazy(() => import('../pages/other/DoerSide/PendingDo
 const ProcessManualInitiation = React.lazy(() => import('../pages/other/AdminSide/ProcessMaster/ProcessManualInitiation.tsx'))
 const ProcessInitiation = React.lazy(() => import('../pages/other/AdminSide/ProcessMaster/ProcessInitiation.tsx'))
 const TaskMasterNew = React.lazy(() => import('../pages/other/AdminSide/TaskMaster/TaskMaster.tsx'))
+const CommonMaster = React.lazy(() => import('../pages/other/AdminSide/CommonMaster/CommonMasterPage.tsx'))
 
 
 
@@ -771,6 +772,12 @@ const customPagesRoutes = {
 			path: '/pages/ProcessInitiation',
 			name: 'ProcessInitiation',
 			element: <ProcessInitiation />,
+			route: PrivateRoute,
+		},
+		{
+			path: '/pages/CommonMaster',
+			name: 'CommonMaster',
+			element: <CommonMaster />,
 			route: PrivateRoute,
 		},
 

@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { useState, useEffect, ChangeEvent } from 'react';
+import { useState, useEffect } from 'react';
 import { Button, Pagination, Table, Container, Row, Col, Alert, Form, ButtonGroup } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
@@ -48,7 +48,6 @@ const AddressMaster = () => {
     const [loading, setLoading] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
-    const [searchQuery, setSearchQuery] = useState('');
     const [stateList, setStateList] = useState<StateList[]>([]);
 
     
@@ -90,7 +89,15 @@ const AddressMaster = () => {
     }, [currentPage]);
 
 
-
+    useEffect(() => {
+        // If any search criteria is filled, run handleSearch; otherwise, fetch master data
+        if (searchPinCode || searchAreaName || searchDistrict || searchState) {
+            handleSearch();
+        } else {
+            fetchStaffRequirements();
+            // fetchModulesCsv
+        }
+    }, [currentPage]);
 
 
     const fetchStaffRequirements = async () => {
@@ -126,14 +133,16 @@ const AddressMaster = () => {
 
 
 
-    const handleSearch = (e: any) => {
-        e.preventDefault();
+    const handleSearch = (e?: React.FormEvent) => {
+        if (e) e.preventDefault();
 
         let query = `?`;
         if (searchPinCode) query += `PinCode=${searchPinCode}&`;
         if (searchAreaName) query += `AreaName=${searchAreaName}&`;
         if (searchDistrict) query += `District=${searchDistrict}&`;
         if (searchState) query += `State=${searchState}&`;
+        query += `PageIndex=${currentPage}`;
+
 
         query = query.endsWith('&') ? query.slice(0, -1) : query;
         const apiUrl = `${config.API_URL_APPLICATION}/AddressMaster/SearchAddress${query}`;
@@ -147,6 +156,7 @@ const AddressMaster = () => {
             .then((response) => {
                 console.log("search response ", response.data.addresses);
                 setAddresses(response.data.addresses)
+                setTotalPages(Math.ceil(response.data.totalCount / 10));
             })
             .catch((error) => {
                 console.error('Error fetching data:', error);
@@ -247,11 +257,7 @@ const AddressMaster = () => {
         }
     };
 
-    const handleSearchcurrent = (e: ChangeEvent<HTMLInputElement>) => {
-        setSearchQuery(e.target.value);
-        setCurrentPage(1);
-    };
-
+ 
 
     return (
         <>
@@ -260,6 +266,9 @@ const AddressMaster = () => {
                     <span><i className="ri-file-list-line me-2 text-dark fs-16"></i><span className='fw-bold text-dark fs-15'>Address List</span></span>
                     <div className="d-flex justify-content-end  ">
 
+                    <Button variant="primary" onClick={downloadCSV} className="me-2">
+                                        Download CSV
+                                    </Button>
                         <Link to='/pages/AddressMasterinsert'>
                             <Button variant="primary" className="me-2">
                                 Add Address
@@ -324,7 +333,6 @@ const AddressMaster = () => {
                                             isSearchable={true}
                                             placeholder="Select District"
                                             className="h45"
-                                            isDisabled={!searchPinCode}
 
                                         />
                                     </Form.Group>
@@ -342,7 +350,6 @@ const AddressMaster = () => {
                                             isSearchable={true}
                                             placeholder="Select Area"
                                             className="h45"
-                                            isDisabled={!searchDistrict}
                                         />
                                     </Form.Group>
                                 </Col>
@@ -366,23 +373,10 @@ const AddressMaster = () => {
                             <Row className='mt-3'>
                                 <div className="d-flex justify-content-end bg-light p-1">
                                     <div className="app-search d-none d-lg-block me-4">
-                                        <form>
-                                            <div className="input-group px300 ">
-                                                <input
-                                                    type="search"
-                                                    className=" bg-white"
-                                                    placeholder="Search..."
-                                                    value={searchQuery}
-                                                    onChange={handleSearchcurrent}
-                                                />
-                                                <span className="ri-search-line search-icon text-muted" />
-                                            </div>
-                                        </form>
+                                       
                                     </div>
 
-                                    <Button variant="primary" onClick={downloadCSV} className="">
-                                        Download CSV
-                                    </Button>
+                                  
                                 </div>
                             </Row>
                         </div>

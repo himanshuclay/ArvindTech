@@ -5,11 +5,13 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import config from '@/config';
 import CustomSuccessToast from '@/pages/other/Component/CustomSuccessToast';
 
+import Select from 'react-select';
 
 
 interface Management {
     id: number;
     name: string;
+    status: string;
     createdBy: string;
     updatedBy: string;
 }
@@ -27,6 +29,7 @@ const EmployeeInsert = () => {
     const [managements, setManagements] = useState<Management>({
         id: 0,
         name: '',
+        status: '',
         createdBy: '',
         updatedBy: '',
 
@@ -68,18 +71,24 @@ const EmployeeInsert = () => {
 
 
 
+    const handleChange = (e: ChangeEvent<any> | null, name?: string, value?: any) => {
+        if (e) {
+            const { name: eventName, type } = e.target;
 
-
-    const handleChange = (e: ChangeEvent<any>) => {
-        const { name, type } = e.target;
-        if (type === 'checkbox') {
-            const checked = (e.target as HTMLInputElement).checked;
-            setManagements({
-                ...managements,
-                [name]: checked
-            });
-        } else {
-            const value = (e.target as HTMLInputElement | HTMLSelectElement).value;
+            if (type === 'checkbox') {
+                const checked = (e.target as HTMLInputElement).checked;
+                setManagements({
+                    ...managements,
+                    [eventName]: checked
+                });
+            } else {
+                const inputValue = (e.target as HTMLInputElement | HTMLSelectElement).value;
+                setManagements({
+                    ...managements,
+                    [eventName]: inputValue
+                });
+            }
+        } else if (name) {
             setManagements({
                 ...managements,
                 [name]: value
@@ -124,6 +133,10 @@ const EmployeeInsert = () => {
         }
     };
 
+    const optionsAppAccess = [
+        { value: 'Enabled', label: 'Enabled' },
+        { value: 'Disabled', label: 'Disabled' }
+    ];
 
 
     return (
@@ -145,6 +158,20 @@ const EmployeeInsert = () => {
                                         onChange={handleChange}
                                         required
                                         placeholder='Enter Management Name'
+                                    />
+                                </Form.Group>
+                            </Col>
+                                        
+                            <Col lg={6}>
+                                <Form.Group controlId="status" className="mb-3">
+                                    <Form.Label>Status *</Form.Label>
+                                    <Select
+                                        name="status"
+                                        options={optionsAppAccess}
+                                        value={optionsAppAccess.find(option => option.value === managements.status)}
+                                        onChange={selectedOption => handleChange(null, 'status', selectedOption?.value)}
+                                        placeholder="Select Status"
+                                        required
                                     />
                                 </Form.Group>
                             </Col>

@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { useState, useEffect, ChangeEvent } from 'react';
+import { useState, useEffect } from 'react';
 import { Button, Pagination, Table, Container, Row, Col, Alert, Form, ButtonGroup } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
@@ -14,8 +14,11 @@ import CustomSuccessToast from '@/pages/other/Component/CustomSuccessToast';
 interface Designation {
     id: number;
     departmentName: string;
+    status: string;
     createdBy: string;
     updatedBy: string;
+    updatedDate: string;
+    createdDate: string;
 }
 
 interface Column {
@@ -35,7 +38,6 @@ const DesignationMaster = () => {
     const [loading, setLoading] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
-    const [searchQuery, setSearchQuery] = useState('');
     const [departmentList, setDepartmentList] = useState<DepartmentList[]>([]);
     const [searchDept, setSearchDept] = useState<number>();
 
@@ -69,6 +71,7 @@ const DesignationMaster = () => {
     // both are required to make dragable column of table 
     const [columns, setColumns] = useState<Column[]>([
         { id: 'departmentName', label: 'Department Name', visible: true },
+        { id: 'status', label: 'Status', visible: true },
         { id: 'createdBy', label: 'Created By ', visible: true },
         { id: 'updatedBy', label: 'Updated By ', visible: true },
         { id: 'createdDate', label: 'Created Date ', visible: true },
@@ -168,13 +171,16 @@ const DesignationMaster = () => {
     const convertToCSV = (data: Designation[]) => {
         const csvRows = [
             ['ID',
-                'Department Nsme',
-                'Created By', 'Updated By'],
+                'Department Name', 'Status',
+                'Created By', 'Updated By', 'Created Date', 'Updated Date'],
             ...data.map(doer => [
                 doer.id,
                 doer.departmentName,
+                doer.status,
                 doer.createdBy,
-                doer.updatedBy
+                doer.updatedBy,
+                doer.createdDate,
+                doer.updatedDate,
             ])
         ];
         return csvRows.map(row => row.join(',')).join('\n');
@@ -188,7 +194,7 @@ const DesignationMaster = () => {
         if (link.download !== undefined) {
             const url = URL.createObjectURL(blob);
             link.setAttribute('href', url);
-            link.setAttribute('download', 'Doers.csv');
+            link.setAttribute('download', 'Department Master.csv');
             link.style.visibility = 'hidden';
             document.body.appendChild(link);
             link.click();
@@ -196,10 +202,6 @@ const DesignationMaster = () => {
         }
     };
 
-    const handleSearchcurrent = (e: ChangeEvent<HTMLInputElement>) => {
-        setSearchQuery(e.target.value);
-        setCurrentPage(1);
-    };
 
 
     return (
@@ -209,6 +211,9 @@ const DesignationMaster = () => {
                     <span><i className="ri-file-list-line me-2 text-dark fs-16"></i><span className='fw-bold text-dark fs-15'>Department List</span></span>
                     <div className="d-flex justify-content-end  ">
 
+                        <Button variant="primary" onClick={downloadCSV} className="me-2">
+                            Download CSV
+                        </Button>
                         <Link to='/pages/DepartmentMasterinsert'>
                             <Button variant="primary" className="me-2">
                                 Add Department
@@ -265,23 +270,8 @@ const DesignationMaster = () => {
                             <Row className='mt-3'>
                                 <div className="d-flex justify-content-end bg-light p-1">
                                     <div className="app-search d-none d-lg-block me-4">
-                                        <form>
-                                            <div className="input-group px300 ">
-                                                <input
-                                                    type="search"
-                                                    className=" bg-white"
-                                                    placeholder="Search..."
-                                                    value={searchQuery}
-                                                    onChange={handleSearchcurrent}
-                                                />
-                                                <span className="ri-search-line search-icon text-muted" />
-                                            </div>
-                                        </form>
                                     </div>
 
-                                    <Button variant="primary" onClick={downloadCSV} className="">
-                                        Download CSV
-                                    </Button>
                                 </div>
                             </Row>
                         </div>

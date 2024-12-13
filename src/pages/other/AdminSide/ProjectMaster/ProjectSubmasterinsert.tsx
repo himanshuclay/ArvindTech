@@ -545,10 +545,8 @@ const ProjectInsert = () => {
                             </>}
 
 
-                            <Col className='align-items-end d-flex justify-content-between mb-3'>
-                                <div>
-                                    <span className='fs-5 '>All fields are required*</span>
-                                </div>
+                            <Col className='align-items-end d-flex justify-content-end mb-3'>
+                              
                                 <div>
                                     <Link to={'/pages/ProjectMaster'}>
                                         <Button variant="primary" >

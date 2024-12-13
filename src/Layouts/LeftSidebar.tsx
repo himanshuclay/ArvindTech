@@ -336,7 +336,6 @@ const getFilteredMenuItems = () => {
       icon: 'ri-settings-fill',
       children: [
       
-
         {
           key: 'Account Masters',
           label: 'Account Masters',
@@ -407,35 +406,9 @@ const getFilteredMenuItems = () => {
           key: 'CommonDropdown',
           label: 'Common Master ',
           parentKey: 'ProcessDataMaster',
+          url: '/pages/CommonMaster',
           icon: 'ri-list-check-3',
-          children: [
-            {
-              key: 'DepartmentMaster',
-              label: 'Department Master',
-              url: '/pages/DepartmentMaster',
-              parentKey: 'CommonDropdown',
-            },
-            {
-              key: 'HrInputMaster',
-              label: 'Filling Frequency Master',
-              url: '/pages/FillingFrequencyMaster',
-              parentKey: 'CommonDropdown',
-            },
-            {
-              key: 'ManagementContract',
-              label: 'Management Contract ',
-              url: '/pages/ManagementContractMaster',
-              parentKey: 'CommonDropdown',
-            },
-            {
-              key: 'ProjectType',
-              label: 'Project Type Master',
-              url: '/pages/ProjectTypeMaster',
-              parentKey: 'CommonDropdown',
-            },
-          ],
         },
-
       ],
     },
 

@@ -19,7 +19,8 @@ interface Project {
     projectType: number;
     managementContract: number;
     projectIncharge: number;
-    projectCoordinator: number;
+    projectInchargeName: string;
+    projectCoordinatorName: number;
     completionStatus: number;
     nameOfWork: string;
     createdBy: string;
@@ -41,8 +42,8 @@ const ProjectViewPopup: React.FC<ProcessCanvasProps> = ({ showView, setShowView,
         { id: 'subProjectID', label: 'Sub Project ID', visible: true },
         { id: 'subProjectName', label: 'Sub Project Name', visible: true },
         { id: 'state', label: 'State Name', visible: true },
-        { id: 'projectTypeName', label: 'Project Type Name', visible: true },
-        { id: 'managementContractName', label: 'Management Contract Name', visible: true },
+        { id: 'projectTypeName', label: 'Project Type ', visible: true },
+        { id: 'managementContractName', label: 'Management Contract ', visible: true },
         { id: 'projectInchargeName', label: 'Project Incharge', visible: true },
         { id: 'projectCoordinatorName', label: 'Project Coordinator', visible: true },
         { id: 'completionStatusName', label: 'Completion Status', visible: true },
@@ -68,7 +69,7 @@ const ProjectViewPopup: React.FC<ProcessCanvasProps> = ({ showView, setShowView,
                 });
 
                 if (response.data.isSuccess) {
-                    setSubProject(response.data.subProjects); 
+                    setSubProject(response.data.subProjects);
                 } else {
                     console.error(response.data.message);
                 }
@@ -80,7 +81,7 @@ const ProjectViewPopup: React.FC<ProcessCanvasProps> = ({ showView, setShowView,
         };
 
         if (projectName) {
-            fetchSubProjects(); 
+            fetchSubProjects();
         }
     }, [projectName]);
 
@@ -154,8 +155,22 @@ const ProjectViewPopup: React.FC<ProcessCanvasProps> = ({ showView, setShowView,
                                                         <tr key={item.id}>
                                                             <td>{index + 1}</td>
                                                             {columns.filter(col => col.visible).map((col) => (
+
                                                                 <td key={col.id}>
-                                                                    <div>{item[col.id as keyof Project]}</div>
+                                                                    <div>
+
+                                                                        {col.id === 'projectInchargeName' ? (
+                                                                            <td>
+                                                                                {item.projectInchargeName.split(",")
+                                                                                    .map((incharge: any, index: any) => (
+                                                                                        <div key={index}>{incharge.trim()}</div> // Display each on a new line
+                                                                                    ))}
+                                                                            </td>
+                                                                        ) : (
+                                                                            <td>{item[col.id as keyof Project]}</td>
+                                                                        )}
+
+                                                                    </div>
                                                                 </td>
                                                             ))}
                                                             <td><Link to={`/pages/ProjectSubmasterinsert/${item.id}`}>
