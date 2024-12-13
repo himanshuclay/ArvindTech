@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { useState, useEffect, ChangeEvent } from 'react';
-import { Button, Pagination, Table, Container, Row, Col, Alert, Form, ButtonGroup } from 'react-bootstrap';
+import { Button, Pagination, Table, Container, Row, Col, Alert, Form, ButtonGroup, Modal } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import IconWithLetter from '@/pages/ui/IconWithLetter';
@@ -8,6 +8,7 @@ import config from '@/config';
 import Select from 'react-select';
 import CustomSuccessToast from '../../Component/CustomSuccessToast';
 import { useLocation, useNavigate } from 'react-router-dom';
+// import { spainMapOpts } from '@/pages/ui/maps/VectorMaps/data';
 
 
 
@@ -52,12 +53,18 @@ const ModuleMaster = () => {
     const [searchQuery, setSearchQuery] = useState('');
     const [downloadCsv, setDownloadCsv] = useState<Doer[]>([]);
 
+    const [showModal, setShowModal] = useState(false);
+    const [selectedDoerName, setSelectedDoerName] = useState<EmployeeList[]>([]);
+    const [selectedEmpId, setSelectedEmpId] = useState('');
+    const [selectedEmpName, setSelectedEmpName] = useState('');
+    const [currentId, setCurrentId] = useState<number | null>(null);
+
     const [employeeList, setEmployeeList] = useState<EmployeeList[]>([]);
     const [taskList, setTaskList] = useState<TaskList[]>([]);
     const [identifierList, setIdentifierList] = useState<Identifier[]>([]);
 
 
-    
+
     const location = useLocation();
     const navigate = useNavigate();
     const [showToast, setShowToast] = useState(false);
@@ -84,14 +91,31 @@ const ModuleMaster = () => {
     // both are required to make dragable column of table 
     const [columns, setColumns] = useState<Column[]>([
         { id: 'taskID', label: 'Task ID', visible: true },
-        { id: 'identifier', label: 'Identifier', visible: true },
-        { id: 'identifier1', label: 'Identifier 1', visible: true },
-        { id: 'inputValue', label: 'Input Value', visible: true },
-        { id: 'inputValue1', label: 'Input Value 1', visible: true },
-        { id: 'empID', label: 'Employee ID', visible: true },
+        { id: 'identifier', label: 'First Identifier', visible: true },
+        { id: 'inputValue', label: 'Input Value one', visible: true },
+        { id: 'identifier1', label: 'Second Identifier', visible: true },
+        { id: 'inputValue1', label: 'Input Value two', visible: true },
+        // { id: 'empID', label: 'Employee ID', visible: true },
         { id: 'empName', label: 'Employee Name', visible: true },
 
     ]);
+
+    // Fetch employee names for the dropdown
+    useEffect(() => {
+        const fetchDoerName = async () => {
+            try {
+                const response = await axios.get(`${config.API_URL_APPLICATION}/CommonDropdown/GetEmployeeListWithId`);
+                if (response.data.isSuccess) {
+                    setSelectedDoerName(response.data.employeeLists);
+                } else {
+                    console.error(response.data.message);
+                }
+            } catch (error) {
+                console.error('Error fetching employee list:', error);
+            }
+        };
+        fetchDoerName();
+    }, []);
 
     const handleOnDragEnd = (result: any) => {
         if (!result.destination) return;
@@ -106,6 +130,40 @@ const ModuleMaster = () => {
         fetchDoers();
         fetchRolesCsv();
     }, [currentPage]);
+
+    const storedEmpName = localStorage.getItem('EmpName');
+
+    // Close modal
+    const handleCloseModal = () => {
+        setShowModal(false);
+        setCurrentId(null);
+        setSelectedEmpId('');
+        setSelectedEmpName('');
+    };
+
+    const handleSubmit = async () => {
+        try {
+            const payload = {
+                id: currentId,
+                empID: selectedEmpId,
+                empName: selectedEmpName,
+                updatedBy: storedEmpName, // Replace with actual user ID
+            };
+            console.log(payload);
+
+            const response = await axios.post(`${config.API_URL_APPLICATION}/DoerMaster/AssignDoer`, payload);
+            if (response.data.isSuccess) {
+
+                handleCloseModal();
+                await fetchDoers(); // Refresh the data without reloading the page
+            } else {
+                console.error(response.data.message);
+            }
+        } catch (error) {
+            console.error('Error updating doer:', error);
+        }
+    };
+
 
 
     const [searchEmployeeName, setSearchEmployeeName] = useState('');
@@ -162,6 +220,8 @@ const ModuleMaster = () => {
             setLoading(false);
         }
     };
+
+    console.log(doers)
 
     const fetchRolesCsv = async () => {
         try {
@@ -239,6 +299,11 @@ const ModuleMaster = () => {
             link.click();
             document.body.removeChild(link);
         }
+    };
+
+    const handleEditClick = (id: number) => {
+        setCurrentId(id);
+        setShowModal(true);
     };
 
     const handleSearchcurrent = (e: ChangeEvent<HTMLInputElement>) => {
@@ -331,11 +396,58 @@ const ModuleMaster = () => {
                                         </Form.Group>
                                     </Col>
 
-                                  
 
-                                
+
+
 
                                     <Col></Col>
+
+                                    {/* Modal */}
+                                    <Modal show={showModal} onHide={handleCloseModal}>
+                                        <Modal.Header closeButton>
+                                            <Modal.Title>Edit Doer</Modal.Title>
+                                        </Modal.Header>
+                                        <Modal.Body>
+                                            <Form>
+                                                <Form.Group>
+                                                    <Form.Label>Employee</Form.Label>
+                                                    <Select
+                                                        options={selectedDoerName.map((doer) => ({
+                                                            value: doer.empId,
+                                                            label: doer.employeeName,
+                                                        }))}
+                                                        value={
+                                                            selectedEmpId
+                                                                ? { value: selectedEmpId, label: selectedEmpName }
+                                                                : null
+                                                        }
+                                                        onChange={(selectedOption) => {
+                                                            if (selectedOption) {
+                                                                setSelectedEmpId(selectedOption.value);
+                                                                setSelectedEmpName(selectedOption.label);
+                                                            } else {
+                                                                setSelectedEmpId('');
+                                                                setSelectedEmpName('');
+                                                            }
+                                                        }}
+                                                        placeholder="Select Employee"
+                                                        isClearable
+                                                        isSearchable
+                                                    />
+                                                </Form.Group>
+
+
+                                            </Form>
+                                        </Modal.Body>
+                                        <Modal.Footer>
+                                            <Button variant="secondary" onClick={handleCloseModal}>
+                                                Close
+                                            </Button>
+                                            <Button variant="primary" onClick={handleSubmit}>
+                                                Save Changes
+                                            </Button>
+                                        </Modal.Footer>
+                                    </Modal>
 
                                     <Col lg={4} className="align-items-end d-flex justify-content-end mt-2">
                                         <ButtonGroup aria-label="Basic example" className="w-100">
@@ -443,9 +555,15 @@ const ModuleMaster = () => {
                                                             >
                                                                 <div>
                                                                     {col.id === 'empName' ? (
-                                                                        <div style={{ display: 'flex', alignItems: 'center' }}>
-                                                                            <IconWithLetter letter={item.empName.charAt(0)} />
-                                                                            {item.empName.split('_')[0]}
+                                                                        <div style={{ display: 'flex', alignItems: 'center', }}>
+                                                                            {item.empName ? (
+                                                                                <>
+                                                                                    <IconWithLetter letter={item.empName.charAt(0)} />
+                                                                                    {item.empName.split('_')[0]}
+                                                                                </>
+                                                                            ) : (
+                                                                                <span>< i className="ri-user-search-fill text-secondary fs-2 me-2"></i>No Doer Assigned</span>
+                                                                            )}
                                                                         </div>
                                                                     ) : (
                                                                         <>
@@ -457,11 +575,14 @@ const ModuleMaster = () => {
                                                             </td>
                                                         ))}
 
-                                                        <td><Link to={`/pages/DoerMasterinsert/${item.id}`}>
-                                                            <Button variant='primary' className='p-0 text-white'>
-                                                                <i className='btn ri-edit-line text-white' ></i>
+                                                        <td>
+                                                            <Button
+                                                                variant="primary"
+                                                                className="p-0 text-white"
+                                                                onClick={() => handleEditClick(item.id)}
+                                                            >
+                                                                <i className="btn ri-edit-line text-white"></i>
                                                             </Button>
-                                                        </Link>
                                                         </td>
                                                     </tr>
                                                 ))
@@ -469,15 +590,15 @@ const ModuleMaster = () => {
                                                 <tr>
                                                     <td colSpan={12}>
                                                         <Container className="mt-5">
-                                                        <Row className="justify-content-center">
-                                                            <Col xs={12} md={8} lg={6}>
-                                                                <Alert variant="info" className="text-center">
-                                                                    <h4>No Data Found</h4>
-                                                                    <p>You currently don't have Data</p>
-                                                                </Alert>
-                                                            </Col>
-                                                        </Row>
-                                                    </Container>
+                                                            <Row className="justify-content-center">
+                                                                <Col xs={12} md={8} lg={6}>
+                                                                    <Alert variant="info" className="text-center">
+                                                                        <h4>No Data Found</h4>
+                                                                        <p>You currently don't have Data</p>
+                                                                    </Alert>
+                                                                </Col>
+                                                            </Row>
+                                                        </Container>
                                                     </td>
                                                 </tr>
                                             )}
