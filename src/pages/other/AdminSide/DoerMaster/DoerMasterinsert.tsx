@@ -1,8 +1,9 @@
 import axios from 'axios';
 import { useEffect, useState, ChangeEvent } from 'react';
-import { Button, Col, Form, Row } from 'react-bootstrap';
+import { Button, Col, Form, Row, Table } from 'react-bootstrap';
 import config from '@/config';
 import Select from 'react-select';
+import { toast } from 'react-toastify';
 
 const YourComponent = () => {
     const [identifierList, setIdentifierList] = useState<any[]>([]);
@@ -32,9 +33,10 @@ const YourComponent = () => {
 
     const fetchDoerMasterList = async () => {
         try {
-            const response = await axios.get(`${config.API_URL_APPLICATION}/DoerMaster/GetDoerByIdentifier?PageSize=1`);
+            const response = await axios.get(`${config.API_URL_APPLICATION}/DoerMaster/GetDoerByIdentifier?PageIndex=1`);
             if (response.data.isSuccess) {
-                setDoerMasterList(response.data.getDoerByIdentifiers); // Update to match the new response structure
+                setDoerMasterList(response.data.getDoerByIdentifiers);
+                console.log(doerMasterList) // Update to match the new response structure
             } else {
                 console.error(response.data.message);
             }
@@ -53,9 +55,9 @@ const YourComponent = () => {
         e.preventDefault();
 
         const requestData = {
+            TaskID: selectedTask,
             Identifier: selectedIdentifierOne,
-            Identifier1: selectedIdentifierTwo,
-            TaskID: selectedTask
+            Identifier1: selectedIdentifierTwo
         };
 
         console.log(requestData);
@@ -65,11 +67,13 @@ const YourComponent = () => {
 
             if (response.data.isSuccess) {
                 console.log('Data submitted successfully', response.data);
-                fetchDoerMasterList(); // Refresh table data
+                // fetchDoerMasterList(); // Refresh table data
+                console.log(doerMasterList)
             } else {
                 console.error('Error:', response.data.message);
             }
-        } catch (error) {
+        } catch (error:any) {
+            toast.error(error)
             console.error('Error submitting data:', error);
         }
     };
@@ -156,7 +160,7 @@ const YourComponent = () => {
             {/* Table to display DoerMaster list */}
             <div className="mt-4">
                 <h5>Task Identifier Combinations</h5>
-                <table className="table table-responsive">
+                <Table hover className="bg-white">
                     <thead>
                         <tr>
                             <th>Task Name</th>
@@ -173,7 +177,7 @@ const YourComponent = () => {
                             </tr>
                         ))}
                     </tbody>
-                </table>
+                </Table>
             </div>
 
 
