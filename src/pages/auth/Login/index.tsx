@@ -42,7 +42,7 @@ const schemaResolver = yupResolver(
 	})
 )
 const Login = () => {
-	const [emp, setEmp] = useState<string>('')
+	const [employeeError, setEmployeeError] = useState<string>('')
 	const [verifyEmpID, setVerifyEmpID] = useState(false);
 
 	const { loading, login, redirectUrl, isAuthenticated } = useLogin()
@@ -55,20 +55,19 @@ const Login = () => {
 		}
 	}, [location.state]);
 
-	const fetchEmployeeDetails = async (empID: string) => {
+
+	const blurfunction = async (emp: any) => {
+		console.log('hi')
 		try {
 			const response = await axios.get(
-				`${config.API_URL_APPLICATION}/Login/GetEmployeeDetailsbyEmpId?Flag=2&EmpID=${empID}`
+				`${config.API_URL_APPLICATION}/Login/GetEmployeeDetailsbyEmpId?Flag=2&EmpID=${emp}`
 			);
 			if (response.data.isSuccess) {
 				setVerifyEmpID(true)
+				setEmployeeError('')
 			} else {
-				toast.error(
-					<>
-						<div style={{ marginBottom: "10px" }}>{response.data.message || 'Entered Wrong Emploee ID'}</div>
-					</>,
-					{ autoClose: 30000 }
-				);
+				setEmployeeError(response.data.message || 'Entered Wrong Emploee ID')
+				setVerifyEmpID(false)
 			}
 		} catch (error: any) {
 			toast.dismiss()
@@ -76,11 +75,18 @@ const Login = () => {
 				<>
 					<div style={{ marginBottom: "10px" }}>{error || 'Entered Wrong Emploee ID'}</div>
 				</>,
-				{ autoClose: 30000 }
 			);
 			console.error(error)
 		}
-	};
+
+	}
+
+	useEffect(() => {
+		console.log(employeeError)
+
+	})
+
+
 
 
 	return (
@@ -105,12 +111,12 @@ const Login = () => {
 						type="text"
 						name="email"
 						placeholder="Enter Your Employee ID"
-						containerClass="mb-3"
+						containerClass={verifyEmpID ? "mb-3" : "mb-3"}
+
 						required
-						onChange={(e) => setEmp(e.target.value)}
+						onBlur={(e) => blurfunction(e.target.value)}
+
 					/>
-
-
 					<FormInput
 						label="Password"
 						name="password"
@@ -118,8 +124,9 @@ const Login = () => {
 						required
 						id="password"
 						placeholder="Enter your password"
-						containerClass="mb-3"
+						containerClass="mb-3 position-relative"
 					>
+						<small className='text-danger  login-error'>{employeeError ? <div className="error-text">{employeeError}</div> : null} </small>
 						<Link to="/auth/forgot-password" className="text-muted float-end">
 							<small className='text-danger'>Forgot your Password?</small>
 						</Link>
@@ -158,20 +165,10 @@ const Login = () => {
 						</div>
 					}
 				</VerticalForm>
-				{emp ?
-					<div
-						className="position-absolute signup-login-verify fs-11"
-						onClick={() => {
-							toast.dismiss();
-							if (emp) {
-								fetchEmployeeDetails(emp);
-							}
-						}}
-						style={{ borderLeft: 'none', cursor: 'pointer' }}
-					>
-						{verifyEmpID ? <i className="ri-checkbox-circle-fill fs-15 text-success "></i> : 'Verify'}
-					</div> : null
-				}
+				<div className="position-absolute signup-login-verify fs-11" style={{ borderLeft: 'none', cursor: 'pointer' }} >
+
+					{verifyEmpID ? <i className="ri-checkbox-circle-fill fs-15 text-success "></i> : null}
+				</div>
 			</AuthLayout>
 
 		</>

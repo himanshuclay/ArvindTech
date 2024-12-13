@@ -186,6 +186,7 @@ const EmployeeMasterInsert = () => {
     }, [id]);
 
 
+    console.log(employee.district)
 
     const fetchEmployeeById = async (id: string) => {
         try {
@@ -1016,7 +1017,7 @@ const EmployeeMasterInsert = () => {
                                     <Form.Label>District </Form.Label>
                                     <Select
                                         name="district"
-                                        value={districts.find(item => item.district === employee.district) || null}
+                                        value={districts.find(item => item.district === employee.district)}
                                         onChange={(selectedOption) => {
                                             const district = selectedOption ? selectedOption.district : '';
                                             setSearchDistrict(district);

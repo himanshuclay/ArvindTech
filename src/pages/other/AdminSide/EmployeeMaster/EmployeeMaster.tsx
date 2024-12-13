@@ -370,7 +370,7 @@ const EmployeeMaster = () => {
 
     const optionsEmpStatus = [
         { value: 'Current', label: 'Current' },
-        { value: 'Formar', label: 'Formar' },
+        { value: 'Former', label: 'Former' },
         { value: 'Absconding', label: 'Absconding' },
     ];
 
