@@ -68,6 +68,7 @@ const YourComponent = () => {
                 console.log('Data submitted successfully', response.data);
                 // fetchDoerMasterList(); // Refresh table data
                 console.log(doerMasterList)
+                await fetchDoerMasterList();;
             } else {
                 console.error('Error:', response.data.message);
             }

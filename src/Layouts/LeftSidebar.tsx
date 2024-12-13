@@ -70,12 +70,34 @@ const getFilteredMenuItems = () => {
 
 
 
+    // {
+    //   key: 'Notification',
+    //   label: 'My Task',
+    //   url: '/pages/Notification',
+    //   icon: 'ri-notification-3-line',
+    //   parentKey: 'pages',
+    // },
     {
       key: 'Notification',
       label: 'My Task',
-      url: '/pages/Notification',
-      icon: 'ri-notification-3-line',
-      parentKey: 'pages',
+      isTitle: false,
+      icon: 'ri-settings-fill',
+      children: [
+        {
+          key: 'Mytask',
+          label: 'My Task',
+          url: '/pages/admin/Notification',
+          icon: 'ri-slideshow-line',
+          parentKey: 'TaskAdmin',
+        },
+        {
+          key: 'Approval',
+          label: 'Approval Console',
+          url: '/pages/ApprovalConsole',
+          icon: 'ri-dashboard-3-line',
+          parentKey: 'TaskAdmin',
+        }
+      ]
     },
     {
       key: 'CompletedTask',

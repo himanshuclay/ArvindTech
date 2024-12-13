@@ -180,6 +180,7 @@ const ModuleMaster = () => {
         query += `PageIndex=${currentPage}`;
 
 
+
         query = query.endsWith('&') ? query.slice(0, -1) : query;
 
         const apiUrl = `${config.API_URL_APPLICATION}/DoerMaster/SearchDoer${query}`;
@@ -349,8 +350,8 @@ const ModuleMaster = () => {
                                             <Form.Label>Doer Name:</Form.Label>
                                             <Select
                                                 name="searchEmployeeName"
-                                                value={employeeList.find(emp => emp.empId === searchEmployeeName) || null} // handle null
-                                                onChange={(selectedOption) => setSearchEmployeeName(selectedOption ? selectedOption.empId : "")} // null check
+                                                value={employeeList.find(emp => emp.employeeName === searchEmployeeName) || null} // handle null
+                                                onChange={(selectedOption) => setSearchEmployeeName(selectedOption ? selectedOption.employeeName : "")} // null check
                                                 options={employeeList}
                                                 getOptionLabel={(emp) => emp.employeeName}
                                                 getOptionValue={(emp) => emp.empId}
