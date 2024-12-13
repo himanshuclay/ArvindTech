@@ -8,6 +8,7 @@ import config from '@/config';
 import Select from 'react-select';
 import CustomSuccessToast from '../../Component/CustomSuccessToast';
 import { useLocation, useNavigate } from 'react-router-dom';
+// import { spainMapOpts } from '@/pages/ui/maps/VectorMaps/data';
 
 
 
@@ -90,11 +91,11 @@ const ModuleMaster = () => {
     // both are required to make dragable column of table 
     const [columns, setColumns] = useState<Column[]>([
         { id: 'taskID', label: 'Task ID', visible: true },
-        { id: 'identifier', label: 'Identifier', visible: true },
-        { id: 'identifier1', label: 'Identifier 1', visible: true },
-        { id: 'inputValue', label: 'Input Value', visible: true },
-        { id: 'inputValue1', label: 'Input Value 1', visible: true },
-        { id: 'empID', label: 'Employee ID', visible: true },
+        { id: 'identifier', label: 'First Identifier', visible: true },
+        { id: 'inputValue', label: 'Input Value one', visible: true },
+        { id: 'identifier1', label: 'Second Identifier', visible: true },
+        { id: 'inputValue1', label: 'Input Value two', visible: true },
+        // { id: 'empID', label: 'Employee ID', visible: true },
         { id: 'empName', label: 'Employee Name', visible: true },
 
     ]);
@@ -149,10 +150,10 @@ const ModuleMaster = () => {
                 updatedBy: storedEmpName, // Replace with actual user ID
             };
             console.log(payload);
-    
+
             const response = await axios.post(`${config.API_URL_APPLICATION}/DoerMaster/AssignDoer`, payload);
             if (response.data.isSuccess) {
-                
+
                 handleCloseModal();
                 await fetchDoers(); // Refresh the data without reloading the page
             } else {
@@ -162,7 +163,7 @@ const ModuleMaster = () => {
             console.error('Error updating doer:', error);
         }
     };
-    
+
 
 
     const [searchEmployeeName, setSearchEmployeeName] = useState('');
@@ -554,9 +555,15 @@ const ModuleMaster = () => {
                                                             >
                                                                 <div>
                                                                     {col.id === 'empName' ? (
-                                                                        <div style={{ display: 'flex', alignItems: 'center' }}>
-                                                                            <IconWithLetter letter={item.empName.charAt(0)} />
-                                                                            {item.empName.split('_')[0]}
+                                                                        <div style={{ display: 'flex', alignItems: 'center', }}>
+                                                                            {item.empName ? (
+                                                                                <>
+                                                                                    <IconWithLetter letter={item.empName.charAt(0)} />
+                                                                                    {item.empName.split('_')[0]}
+                                                                                </>
+                                                                            ) : (
+                                                                                <span>< i className="ri-user-search-fill text-secondary fs-2 me-2"></i>No Doer Assigned</span>
+                                                                            )}
                                                                         </div>
                                                                     ) : (
                                                                         <>
