@@ -44,8 +44,11 @@ const schemaResolver = yupResolver(
 const Login = () => {
 	const [employeeError, setEmployeeError] = useState<string>('')
 	const [verifyEmpID, setVerifyEmpID] = useState(false);
-
 	const { loading, login, redirectUrl, isAuthenticated } = useLogin()
+
+	useEffect(() => {
+        localStorage.clear();
+	}, []);
 
 
 	const location = useLocation();
@@ -57,36 +60,33 @@ const Login = () => {
 
 
 	const blurfunction = async (emp: any) => {
-		console.log('hi')
-		try {
-			const response = await axios.get(
-				`${config.API_URL_APPLICATION}/Login/GetEmployeeDetailsbyEmpId?Flag=2&EmpID=${emp}`
-			);
-			if (response.data.isSuccess) {
-				setVerifyEmpID(true)
-				setEmployeeError('')
-			} else {
-				setEmployeeError(response.data.message || 'Entered Wrong Emploee ID')
-				setVerifyEmpID(false)
+		if (emp.length > 0) {
+			try {
+				const response = await axios.get(
+					`${config.API_URL_APPLICATION}/Login/GetEmployeeDetailsbyEmpId?Flag=2&EmpID=${emp}`
+				);
+				if (response.data.isSuccess) {
+					setVerifyEmpID(true)
+					setEmployeeError('')
+				} else {
+					setEmployeeError(response.data.message || 'Entered Wrong Emploee ID')
+					setVerifyEmpID(false)
+				}
+			} catch (error: any) {
+				toast.dismiss()
+				toast.error(
+					<>
+						<div style={{ marginBottom: "10px" }}>{error || 'Entered Wrong Emploee ID'}</div>
+					</>,
+				);
+				console.error(error)
 			}
-		} catch (error: any) {
-			toast.dismiss()
-			toast.error(
-				<>
-					<div style={{ marginBottom: "10px" }}>{error || 'Entered Wrong Emploee ID'}</div>
-				</>,
-			);
-			console.error(error)
+		} else {
+			setEmployeeError('Please Enter Employee ID')
+			setVerifyEmpID(false)
 		}
 
 	}
-
-	useEffect(() => {
-		console.log(employeeError)
-
-	})
-
-
 
 
 	return (
@@ -111,8 +111,7 @@ const Login = () => {
 						type="text"
 						name="email"
 						placeholder="Enter Your Employee ID"
-						containerClass={verifyEmpID ? "mb-3" : "mb-3"}
-
+						containerClass={verifyEmpID ? "mb-3 " : "mb-3 input-border"}
 						required
 						onBlur={(e) => blurfunction(e.target.value)}
 
@@ -126,10 +125,14 @@ const Login = () => {
 						placeholder="Enter your password"
 						containerClass="mb-3 position-relative"
 					>
-						<small className='text-danger  login-error'>{employeeError ? <div className="error-text">{employeeError}</div> : null} </small>
+						<small className='text-danger  login-error'>{employeeError ? <div className="error-text fs-11">{employeeError}</div> : null} </small>
 						<Link to="/auth/forgot-password" className="text-muted float-end">
 							<small className='text-danger'>Forgot your Password?</small>
 						</Link>
+						<p className='password-error'>
+
+							{localStorage.getItem('errorMessage')}
+						</p>
 					</FormInput>
 
 					<Row className='d-flex jusify-content-between'>
@@ -166,7 +169,6 @@ const Login = () => {
 					}
 				</VerticalForm>
 				<div className="position-absolute signup-login-verify fs-11" style={{ borderLeft: 'none', cursor: 'pointer' }} >
-
 					{verifyEmpID ? <i className="ri-checkbox-circle-fill fs-15 text-success "></i> : null}
 				</div>
 			</AuthLayout>

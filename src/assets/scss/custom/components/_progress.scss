@@ -752,3 +752,13 @@ input.numInput.cur-year:hover {
   top: -35%;
   left: 0%;
 }
+
+.input-border input{
+  border-color: hsl(0deg 100% 50%) !important;
+}
+
+.password-error {
+  bottom: -58%;
+  position: absolute;
+  color: #d93f3f;
+}

@@ -256,6 +256,7 @@ const DepartmentMasterinsert = () => {
         }
     };
 
+    console.log(searchDistrict)
 
 
     const fetchDistricts = async () => {
@@ -473,7 +474,6 @@ const DepartmentMasterinsert = () => {
                                         value={venders.state}
                                         onChange={handleChange}
                                         placeholder='Enter State Name'
-                                        disabled={!searchPin}
                                     />
                                 </Form.Group>
                             </Col>
@@ -482,7 +482,11 @@ const DepartmentMasterinsert = () => {
                                     <Form.Label>District:</Form.Label>
                                     <Select
                                         name="district"
-                                        value={districts.find(item => item.district === venders.district) || null}
+                                        value={
+                                            districts.find(item => item.district === venders.district) ||
+                                            (venders.district && { district: venders.district }) ||
+                                            null
+                                        }
                                         onChange={(selectedOption) => {
                                             const district = selectedOption ? selectedOption.district : '';
                                             setSearchDistrict(district);
@@ -494,7 +498,6 @@ const DepartmentMasterinsert = () => {
                                         isSearchable={true}
                                         placeholder="Select District"
                                         className="h45"
-                                        isDisabled={!searchPin}
                                     />
                                 </Form.Group>
                             </Col>
@@ -504,7 +507,11 @@ const DepartmentMasterinsert = () => {
                                     <Form.Label>Area:</Form.Label>
                                     <Select
                                         name="area"
-                                        value={areaData.find(item => item.areaName === venders.area) || null}
+                                        value={
+                                            areaData.find(item => item.areaName === venders.area) ||
+                                            (venders.area && { areaName: venders.area }) ||
+                                            null
+                                        }
                                         onChange={(selectedOption) => {
                                             const areaName = selectedOption ? selectedOption.areaName : '';
                                             setVenders(prev => ({ ...prev, area: areaName })); // Update area in employee
@@ -515,7 +522,6 @@ const DepartmentMasterinsert = () => {
                                         isSearchable={true}
                                         placeholder="Select Area"
                                         className="h45"
-                                        isDisabled={!searchDistrict}
                                     />
                                 </Form.Group>
                             </Col>
