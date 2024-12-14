@@ -15,7 +15,6 @@ interface Employee {
     employeeName: string;
     fatherName: string;
     email: string;
-    role: string;
     dataAccessLevel: string;
     empStatus: string;
     hrUpdatedMobileNo: string;
@@ -104,7 +103,6 @@ const EmployeeMasterInsert = () => {
         employeeName: '',
         fatherName: '',
         email: '',
-        role: '',
         dataAccessLevel: '',
         empStatus: '',
         hrUpdatedMobileNo: '',
@@ -161,7 +159,7 @@ const EmployeeMasterInsert = () => {
 
     const [districts, setDistricts] = useState<District[]>([]);
     const [areaData, setAreaData] = useState<AreaData[]>([]);
-    const [searchPin, setSearchPin] = useState(employee.pin);
+    const [searchPin, setSearchPin] = useState('');
     const [searchDistrict, setSearchDistrict] = useState('');
 
 
@@ -184,8 +182,6 @@ const EmployeeMasterInsert = () => {
             setEditMode(false);
         }
     }, [id]);
-
-    console.log(searchPin)
 
 
     const fetchEmployeeById = async (id: string) => {
@@ -291,20 +287,6 @@ const EmployeeMasterInsert = () => {
         fetchData('CommonDropdown/GetDepartment', setDepartmentList, 'getDepartments');
         fetchData('CommonDropdown/GetModuleList', setModuleList, 'moduleNameListResponses');
     }, []);
-
-    // const [runCount, setRunCount] = useState(0); // Track the number of runs
-
-    // useEffect(() => {
-    //     if (runCount < 3) {
-    //         setSearchPin(employee.pin);
-    //         fetchDistricts();
-    //         const timer = setTimeout(() => {
-    //             setRunCount(prevCount => prevCount + 1);
-    //         }, 1000);
-    //         return () => clearTimeout(timer);
-    //     }
-    // }, [employee.pin, runCount]);
-
 
     console.log(searchDistrict)
     const fetchDistricts = async () => {
@@ -521,6 +503,7 @@ const EmployeeMasterInsert = () => {
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
+        toast.dismiss()
 
         if (employee.empStatus === 'Former' && !employee.dateOfLeaving) {
             dateOfLeavingRef.current?.flatpickr.open(); // Focus and open the Flatpickr field
@@ -603,7 +586,7 @@ const EmployeeMasterInsert = () => {
                                     <Form.Control
                                         type="text"
                                         name="empID"
-                                        value={employee.empID}
+                                        value={employee.empID || ''}
                                         onChange={handleChange}
                                         required
                                         placeholder='Enter Employee ID'
@@ -1069,7 +1052,7 @@ const EmployeeMasterInsert = () => {
                             <h3>Salary Account Details</h3>
                             <Col lg={6}>
                                 <Form.Group controlId="salaryBankIfsc" className="mb-3">
-                                    <Form.Label>IFSC Code:</Form.Label>
+                                    <Form.Label>IFSC Code</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="salaryBankIfsc"
@@ -1084,7 +1067,7 @@ const EmployeeMasterInsert = () => {
 
                             <Col lg={6}>
                                 <Form.Group controlId="salaryBankName" className="mb-3">
-                                    <Form.Label>Bank Name:</Form.Label>
+                                    <Form.Label>Bank Name</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="salaryBankName"
@@ -1097,7 +1080,7 @@ const EmployeeMasterInsert = () => {
 
                             <Col lg={6}>
                                 <Form.Group controlId="salaryBranchName" className="mb-3">
-                                    <Form.Label>Branch  Name:</Form.Label>
+                                    <Form.Label>Branch  Name</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="salaryBranchName"
@@ -1112,7 +1095,7 @@ const EmployeeMasterInsert = () => {
 
                             <Col lg={6}>
                                 <Form.Group controlId="salaryBankAccountNumber" className="mb-3">
-                                    <Form.Label>Bank Account Number:</Form.Label>
+                                    <Form.Label>Bank Account Number</Form.Label>
                                     <Form.Control
                                         type="text" // Change to "text" to preserve leading zeroes
                                         name="salaryBankAccountNumber"
@@ -1126,7 +1109,7 @@ const EmployeeMasterInsert = () => {
                             <h3>Reimbursement Account Details</h3>
                             <Col lg={6}>
                                 <Form.Group controlId="reimbursementBankIfsc" className="mb-3">
-                                    <Form.Label>IFSC Code:</Form.Label>
+                                    <Form.Label>IFSC Code</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="reimbursementBankIfsc"
@@ -1142,7 +1125,7 @@ const EmployeeMasterInsert = () => {
 
                             <Col lg={6}>
                                 <Form.Group controlId="reimbursementBankName" className="mb-3">
-                                    <Form.Label>Bank Name:</Form.Label>
+                                    <Form.Label>Bank Name</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="reimbursementBankName"
@@ -1156,7 +1139,7 @@ const EmployeeMasterInsert = () => {
 
                             <Col lg={6}>
                                 <Form.Group controlId="reimbursementBranchName" className="mb-3">
-                                    <Form.Label>Branch  Name:</Form.Label>
+                                    <Form.Label>Branch  Name</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="reimbursementBranchName"
@@ -1172,7 +1155,7 @@ const EmployeeMasterInsert = () => {
 
                             <Col lg={6}>
                                 <Form.Group controlId="reimbursementBankAccountNumber" className="mb-3">
-                                    <Form.Label>Bank Account Number:</Form.Label>
+                                    <Form.Label>Bank Account Number</Form.Label>
                                     <Form.Control
                                         type="text" // Change to "text" to preserve leading zeroes
                                         name="reimbursementBankAccountNumber"

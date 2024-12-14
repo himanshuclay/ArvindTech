@@ -26,6 +26,8 @@ interface Project {
     completionStatus: number;
     nameOfWork: string;
     createdBy: string;
+    subProjectName: string;
+    subProjectID: string;
     updatedBy: string;
     projectTypeName: string;
     stateName: string;
@@ -228,20 +230,17 @@ const ProjectMaster = () => {
             document.body.removeChild(link);
         }
     };
-
     const convertToCSV = (data: Project[]) => {
         const csvRows = [
             [
                 'ID', 'Project Name', 'Project ID', 'State Name',
                 'Project Type Name', 'Management Contract Name',
-                'Project Incharge Name',
-                'Project Incharge Mobile Number', 'Project Coordinator',
-                 'Project Coordinator Mobile Number',
-                'Completion Status Name',
-                'Name of Work', 'Contractual Work Value',
-                'Executor Company', 'Next Value of Work Item for Team',
-                'Percentage of Work Done', 'Revised Contractual Work Value',
-                'Total Work Done Value Upto Previous Month',
+                'Project Incharge Name', 'Project Incharge Mobile Number',
+                'Project Coordinator Name', 'Project Coordinator Mobile Number',
+                'Completion Status Name', 'Sub Project ID', 'Sub Project Name',
+                'Name of Work', 'Contractual Work Value', 'Executor Company',
+                'Next Value of Work Item for Team', 'Percentage of Work Done',
+                'Revised Contractual Work Value', 'Total Work Done Value Upto Previous Month',
                 'Value of Work Done in This Month', 'Value of Work Done in This FY',
                 'Contractual Start Date', 'Contractual Completion Date',
                 'Expected Date of Earliest Project Completion',
@@ -259,9 +258,11 @@ const ProjectMaster = () => {
                 project.managementContractName,
                 `"${project.projectInchargeName}"`,
                 project.projectInchargeMobileNumber || '',
-                project.projectCoordinatorName,
+                project.projectCoordinatorName || '',
                 project.projectCoordinatorMobileNumber || '',
                 project.completionStatusName,
+                project.subProjectID || '',
+                project.subProjectName || '',
                 project.nameOfWork || '',
                 project.contractualWorkValue || '',
                 project.executorCompany || '',
@@ -287,6 +288,7 @@ const ProjectMaster = () => {
         ];
         return csvRows.map(row => row.join(',')).join('\n');
     };
+    
 
 
 
