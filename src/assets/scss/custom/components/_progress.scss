@@ -669,7 +669,7 @@ ul.side-nav-second-level:first-child {
 }
 
 
-.initiation-popup{
+.initiation-popup {
   width: 250px;
   box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
 }
@@ -686,8 +686,8 @@ ul.side-nav-second-level:first-child {
 .css-olqui2-singleValue {
   color: black !important;
 }
-.activeIndex
-{
+
+.activeIndex {
   border: 2px solid blue;
 }
 
@@ -697,11 +697,12 @@ ul.side-nav-second-level:first-child {
   margin: 30px 0;
 
 }
+
 .ellipsis-text {
-  width: 150px; 
+  width: 150px;
   white-space: nowrap;
-  overflow: hidden; 
-  text-overflow: ellipsis; 
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 
@@ -714,13 +715,16 @@ ul.side-nav-second-level:first-child {
 input.numInput.cur-year:hover {
   color: white;
 }
+
 .numInputWrapper:hover {
   color: white;
 }
 
-.numInputWrapper:hover, .flatpickr-current-month .flatpickr-monthDropdown-months:hover {
+.numInputWrapper:hover,
+.flatpickr-current-month .flatpickr-monthDropdown-months:hover {
   color: #fff !important;
 }
+
 .flatpickr-current-month .flatpickr-monthDropdown-months .flatpickr-monthDropdown-month {
   background-color: #1f1d56 !important;
   outline: none;
@@ -734,13 +738,17 @@ input.numInput.cur-year:hover {
 }
 
 .toast-containers .Toastify__toast {
-  font-weight: bold !important; /* Makes all text bold */
-  font-size: 12px; /* Optional: Adjust font size globally */
+  font-weight: bold !important;
+  /* Makes all text bold */
+  font-size: 12px;
+  /* Optional: Adjust font size globally */
 }
 
 .toast-containers .Toastify__toast-body {
-  font-weight: bold !important; /* Specifically targets toast body text */
+  font-weight: bold !important;
+  /* Specifically targets toast body text */
 }
+
 .signup-login-verify {
   top: 50%;
   right: 12%;
@@ -753,12 +761,21 @@ input.numInput.cur-year:hover {
   left: 0%;
 }
 
-.input-border input{
-  border-color: hsl(0deg 100% 50%) !important;
+.input-border input,
+.input-border {
+  border-color: #DC4C64 !important;
 }
+
 
 .password-error {
   bottom: -58%;
   position: absolute;
   color: #d93f3f;
+}
+
+.signup-error {
+  position: absolute;
+  left: 10px;
+  bottom: 5px;
+  font-size: 11px;
 }

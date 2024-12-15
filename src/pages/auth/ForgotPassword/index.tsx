@@ -2,7 +2,7 @@ import { Button, Col, Form, Row } from 'react-bootstrap'
 import AuthLayout from '../AuthLayout'
 import { Link, useNavigate } from 'react-router-dom'
 import { FormInput, VerticalForm, PageBreadcrumb } from '@/components'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import config from '@/config';
 import Flatpickr from 'react-flatpickr';
 import { toast } from 'react-toastify';
@@ -58,6 +58,11 @@ const ForgotPassword = () => {
 		role: 'EMPLOYEE',
 	});
 
+	const [dateOBError, setDateOBError] = useState('');
+	const [dateOJError, setDateOJError] = useState('');
+	const [empIdError, setEmpIdError] = useState('');
+	const [confirmPasswordError, setConfirmPasswordError] = useState('');
+
 	const togglePasswordVisibility = () => {
 		setShowPassword(!showPassword);
 	};
@@ -79,81 +84,51 @@ const ForgotPassword = () => {
 					role: details.role,
 				});
 				setVerifyEmpID(true)
+				setEmpIdError('')
+
 			} else {
-				toast.error(
-					<>
-						<div style={{ marginBottom: "10px" }}>{response.data.message}</div>
-						{response.data.message === 'User not registered' ?
-							<div style={{ display: "flex", gap: "10px" }}>
-								<button
-									onClick={() => navigate("/auth/register")}
-									style={{
-										backgroundColor: "#007bff",
-										color: "#fff",
-										border: "none",
-										padding: "5px 10px",
-										borderRadius: "5px",
-										fontSize: "11px",
-										fontWeight: "bold",
-										cursor: "pointer",
-										transition: "all 0.3s ease",
-									}}
-									onMouseOver={(e) => (e.currentTarget.style.backgroundColor = "#0056b3")}
-									onMouseOut={(e) => (e.currentTarget.style.backgroundColor = "#007bff")}
-								>
-									Sign Up <i className="ri-arrow-right-line"></i>
-								</button>
-							</div>
-							: null
-
-						}
-
-
-					</>,
-					{ autoClose: 30000 }
+				setEmpIdError(
+					response.data.message === "User not registered"
+						? (
+							<>User not registered <Link to="/auth/register" className='fw-bold text-success'> Sign Up <i className="ri-arrow-right-line"></i></Link></>
+						)
+						: response.data.message || 'Entered Wrong Employee ID'
 				);
+
+
 			}
 		} catch (error: any) {
-			toast.dismiss()
-			toast.error(
-				<>
-					<div style={{ marginBottom: "10px" }}>{error}</div>
-				</>,
-				{ autoClose: 30000 }
-			);
+			setEmpIdError(error || 'Entered Wrong Emploee ID');
 			console.error(error)
 		}
 	};
 
-
 	const verifyDOJ = async (empID: string, joiningDate: string) => {
-		if (!empID || !joiningDate) return; // Prevent API call if empID or joiningDate is empty
-
 		try {
-			const response = await axios.post(`${config.API_URL_APPLICATION}/Login/VerifyJoiningDate`, null, {
-				params: { EmpID: empID, Input: joiningDate, }
-			});
+			const response = await axios.post(
+				`${config.API_URL_APPLICATION}/Login/VerifyJoiningDate`,
+				null,
+				{ params: { EmpID: empID, Input: joiningDate } }
+			);
+
 			if (response.data.isSuccess) {
 				console.log('Date is verified:', response.data.message);
 				setVerifyDoj(true);
+				setDateOJError('');
 			} else {
-				toast.error("Enter Valid Date Of Joning");
+				setDateOJError('Enter a valid Date of Joining');
 				setVerifyDoj(false);
-				setFormData({
-					...formData,
-					joiningDate: '',
-				});
 
 			}
 		} catch (error) {
 			console.error('Error verifying the joining date:', error);
+			setDateOJError('Unable to verify Date of Joining. Please try again later.');
+			setVerifyDoj(false);
 		}
 	};
 
 
 	const verifyDOB = async (empID: string, dob: string) => {
-		if (!empID || !dob) return; // Prevent API call if empID or joiningDate is empty
-
 		try {
 			const response = await axios.post(`${config.API_URL_APPLICATION}/Login/VerifyDOB`, null, {
 				params: { EmpID: empID, Input: dob, }
@@ -161,29 +136,68 @@ const ForgotPassword = () => {
 			if (response.data.isSuccess) {
 				console.log('Date od Birth is verified:', response.data.message);
 				setVerifyDob(true);
+				setDateOBError('')
 			} else {
-				toast.error("Enter Valid Date of Birth");
+				setDateOBError("Enter Valid Date of Birth");
 				setVerifyDob(false);
-				setFormData({
-					...formData,
-					dob: '',
-				});
 			}
 		} catch (error) {
 			console.error('Error verifying the joining date:', error);
+			setDateOBError('Unable to verify Date of Birth. Please try again later.');
 		}
 	};
 
 
+	const [validationMessages, setValidationMessages] = useState([
+		"Include a special character.",
+		"Include an uppercase letter.",
+		"Include a lowercase letter.",
+		"Include a number.",
+		"Length must be 8-16 characters.",
+	]);
+
+	useEffect(() => {
+		const password = formData.password;
+		const hasSpecialCharacter = /[!@#$%^&*(),.?":{}|<>]/.test(password);
+		const hasUppercase = /[A-Z]/.test(password);
+		const hasLowercase = /[a-z]/.test(password);
+		const hasNumber = /\d/.test(password);
+		const isLengthValid = password.length >= 8 && password.length <= 16;
+
+		const updatedMessages = [];
+		if (!hasSpecialCharacter) updatedMessages.push("Include a special character.");
+		if (!hasUppercase) updatedMessages.push("Include an uppercase letter.");
+		if (!hasLowercase) updatedMessages.push("Include a lowercase letter.");
+		if (!hasNumber) updatedMessages.push("Include a number.");
+		if (!isLengthValid) updatedMessages.push("Length must be 8-16 characters.");
+
+		setValidationMessages(updatedMessages);
+	}, [formData.password]);
+
+
 	const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		const { name, value } = e.target;
-
-		if (name === "empID") {
-			// Clear fullname when empID changes
+		setLoading(false)
+		if (name === "password") {
+			setFormData((prevData) => ({ ...prevData, password: value }));
+		} else if (name === "confirmpassword") {
+			setConfirmPasswordError('')
+			setFormData((prevData) => ({ ...prevData, confirmpassword: value }));
+		} else if (name === "empID") {
+			setDateOJError('')
+			setDateOBError('')
+			setEmpIdError('')
+			setConfirmPasswordError('')
+			setVerifyDoj(false)
+			setVerifyDob(false)
 			setFormData((prevData) => ({
 				...prevData,
 				empID: value,
-				fullname: "", // Clear fullname
+				fullname: "",
+				dob: "",
+				joiningDate: "",
+				confirmpassword: "",
+				password: "",
 			}));
 			setVerifyEmpID(false)
 		} else {
@@ -193,53 +207,7 @@ const ForgotPassword = () => {
 
 	const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
 		setLoading(true);
-
-
-
-		const { password } = formData;
-
-		// Validation checks
-		const hasSpecialCharacter = /[!@#$%^&*(),.?":{}|<>]/.test(password);
-		const hasUppercase = /[A-Z]/.test(password);
-		const hasLowercase = /[a-z]/.test(password);
-		const hasNumber = /[0-9]/.test(password);
-		const isLengthValid = password.length >= 8 && password.length <= 16;
-
-		let validationMessages: string[] = [
-			"Password must contain at least one special character.",
-			"Password must contain at least one uppercase letter.",
-			"Password must contain at least one lowercase letter.",
-			"Password must contain at least one number.",
-			'Password must be between 8 and 16 characters long.'
-		];
-
-		// Remove messages if the condition is met
-		if (hasSpecialCharacter) {
-			validationMessages = validationMessages.filter(message => !message.includes("special character"));
-		}
-		if (hasUppercase) {
-			validationMessages = validationMessages.filter(message => !message.includes("uppercase letter"));
-		}
-		if (hasLowercase) {
-			validationMessages = validationMessages.filter(message => !message.includes("lowercase letter"));
-		}
-		if (hasNumber) {
-			validationMessages = validationMessages.filter(message => !message.includes("number"));
-		}
-		if (isLengthValid) { // Corrected logic
-			validationMessages = validationMessages.filter(
-				(message) => !message.includes("between 8 and 16 characters long")
-			);
-		}
-		toast.dismiss();
-		if (validationMessages.length > 0) {
-			toast.error(validationMessages.join(" "));
-			setLoading(false);
-			return;
-		}
-
 		if (formData.password === formData.confirmpassword) {
-
 			try {
 				const postData = {
 					empID: formData.empID,
@@ -268,30 +236,26 @@ const ForgotPassword = () => {
 				if (response.status === 200) {
 					setTimeout(() => {
 						navigate('/auth/login');
-					}, 20000);
+					}, 11000);
 
 					toast.dismiss()
 					toast.success(
-						<>Password Update Successfully!
-							<button
-								onClick={() => navigate('/auth/login')}
-								style={{
-									backgroundColor: "#007bff",
-									color: "#fff",
-									border: "none",
-									padding: "5px 10px",
-									borderRadius: "5px",
-									fontSize: "11px",
-									fontWeight: "bold",
-									cursor: "pointer",
-									transition: "all 0.3s ease",
-								}}
-							>
-								Go to Login
-							</button>
-						</>,
-						{ autoClose: 19000 }
+						<>Employee Registration successfully! <br />
+							Redirecting to Login...
+						</>
 					);
+					setVerifyDoj(false)
+					setVerifyDob(false)
+					setVerifyEmpID(false)
+					setFormData((prevData) => ({
+						...prevData,
+						empID: "",
+						fullname: "",
+						dob: "",
+						joiningDate: "",
+						password: "",
+						confirmpassword: "",
+					}));
 
 				} else {
 					console.error('Password Update Failed:', response);
@@ -303,7 +267,7 @@ const ForgotPassword = () => {
 			}
 		}
 		else {
-			toast.error("Password Do not Match");
+			setConfirmPasswordError("Password Do not Match");
 		}
 	};
 
@@ -313,7 +277,7 @@ const ForgotPassword = () => {
 			<PageBreadcrumb title="Forgot Password" />
 			<AuthLayout
 				authTitle="Forgot Password?"
-				helpText="Enter your Employee ID, Click Verify and then enter Password to forgot Password"
+				helpText="Enter your Employee ID, Verify and then enter Password to forgot Password"
 				bottomLinks={<BottomLink />}
 			>
 				<VerticalForm<UserData> onSubmit={onSubmit}>
@@ -326,23 +290,22 @@ const ForgotPassword = () => {
 								placeholder="Enter your Employee ID"
 								value={formData.empID}
 								onChange={handleInputChange}
-								containerClass="mb-3"
+								onBlur={() => {
+									toast.dismiss();
+									if (formData.empID) {
+										fetchEmployeeDetails(formData.empID);
+									}
+								}}
+								className={empIdError ? "mb-3 input-border" : " mb-3  "}
 								required
 							/>
-							{formData.empID ?
-								<div
-									className="position-absolute signup-verify fs-11"
-									onClick={() => {
-										toast.dismiss();
-										if (formData.empID) {
-											fetchEmployeeDetails(formData.empID);
-										}
-									}}
-									style={{ borderLeft: 'none', cursor: 'pointer' }}
-								>
-									{verifyEmpID ? <i className="ri-checkbox-circle-fill fs-15 text-success "></i> : 'Verify'}
-								</div> : null
-							}
+
+							<div className="position-absolute signup-verify fs-11" style={{ borderLeft: 'none', cursor: 'pointer' }} >
+								{verifyEmpID ? <i className="ri-checkbox-circle-fill fs-15 text-success "></i> : null}
+							</div>
+							<small className="text-danger signup-error">{empIdError}</small>
+
+
 						</Col>
 						<Col>
 							<FormInput
@@ -353,7 +316,6 @@ const ForgotPassword = () => {
 								value={formData.fullname}
 								onChange={handleInputChange}
 								containerClass="mb-3"
-
 								readOnly
 								disabled
 							/>
@@ -361,6 +323,7 @@ const ForgotPassword = () => {
 					</Row>
 
 					<Row>
+
 						<Col lg={6} className="position-relative">
 							<Form.Group controlId="joiningDate" className="mb-3">
 								<Form.Label>Date of Joining</Form.Label>
@@ -369,40 +332,33 @@ const ForgotPassword = () => {
 									onChange={([date]) => {
 										if (date) {
 											const formattedDate = date.toLocaleDateString('en-CA');
-											setFormData({
-												...formData,
-												joiningDate: formattedDate,
-											});
+											setFormData({ ...formData, joiningDate: formattedDate });
+											if (formData.empID) {
+												verifyDOJ(formData.empID, formattedDate);
+											} else {
+												setDateOJError('Please enter Employee ID before verifying');
+											}
 										}
 									}}
 									options={{
 										enableTime: false,
-										dateFormat: "Y-m-d ",
+										dateFormat: 'Y-m-d',
 									}}
 									placeholder="yyyy-MM-dd"
-									className="form-control"
+									className={dateOJError ? "form-control input-border" : " form-control  "}
 									required
 								/>
 							</Form.Group>
 
 
-							{formData.joiningDate ?
-								<div
-									className="position-absolute signup-verify fs-11"
-									onClick={() => {
-										toast.dismiss();
-										if (!formData.empID) {
-											toast.error("Please enter Employee ID before verifying");
-										} else {
-											verifyDOJ(formData.empID, formData.joiningDate);
-										}
-									}}
-									style={{ borderLeft: 'none', cursor: 'pointer' }}
-								>
-									{verifyDoj ? <i className="ri-checkbox-circle-fill fs-15 text-success "></i> : 'Verify'}
-								</div> : null
-							}
+							<div className="position-absolute signup-verify fs-11" style={{ borderLeft: 'none', cursor: 'pointer' }} >
+								{verifyDoj ? (
+									<i className="ri-checkbox-circle-fill fs-15 text-success"></i>
+								) : null}
+							</div>
+							<small className="text-danger signup-error">{dateOJError}</small>
 						</Col>
+
 
 						<Col lg={6} className='position-relative'>
 							<Form.Group controlId="dob" className="mb-3">
@@ -416,42 +372,39 @@ const ForgotPassword = () => {
 												...formData,
 												dob: formattedDate,
 											});
+
+											if (formData.empID) {
+												verifyDOB(formData.empID, formattedDate);
+											} else {
+												setDateOBError('Please enter Employee ID before verifying');
+											}
 										}
 									}}
+
 									options={{
 										enableTime: false,
-										dateFormat: "Y-m-d",
-										time_24hr: false,
+										dateFormat: 'Y-m-d',
 									}}
 									placeholder="yyyy-MM-dd"
-									className="form-control"
+									className={dateOBError ? "form-control input-border" : " form-control  "}
 									required
 								/>
 							</Form.Group>
-							{formData.dob ?
-								<div
-									className="position-absolute signup-verify fs-11"
-									onClick={() => {
-										toast.dismiss();
-										if (!formData.empID) {
-											toast.error("Please enter Employee ID before verifying");
-										} else {
-											verifyDOB(formData.empID, formData.dob);
-										}
-									}}
-									style={{ borderLeft: 'none', cursor: 'pointer' }}
-								>
-									{verifyDob ? <i className="ri-checkbox-circle-fill fs-15 text-success"></i> : 'Verify'}
-								</div> : null
-							}
+
+							<div className="position-absolute signup-verify fs-11" style={{ borderLeft: 'none', cursor: 'pointer' }} >
+								{verifyDob ? (
+									<i className="ri-checkbox-circle-fill fs-15 text-success"></i>
+								) : null}
+							</div>
+							<small className="text-danger signup-error">{dateOBError}</small>
 						</Col>
 					</Row>
 
 
 					<Row>
-						<Col lg={6}>
+						<Col lg={6} >
 							<Form.Group controlId="password" className="mb-3">
-								<Form.Label>New Password</Form.Label>
+								<Form.Label>Password</Form.Label>
 								<div className="input-group">
 									<Form.Control
 										type={showPassword ? "text" : "password"}
@@ -470,12 +423,22 @@ const ForgotPassword = () => {
 										{showPassword ? <i className="ri-eye-off-line"></i> : <i className="ri-eye-line"></i>}
 									</button>
 								</div>
+								{formData.password.length > 0 && validationMessages.length > 0 && (
+									<ul>
+										{validationMessages.map((msg, index) => (
+											<li key={index} className="text-danger">
+												{msg}
+											</li>
+										))}
+									</ul>
+								)}
+
 							</Form.Group>
 						</Col>
 
 
 
-						<Col lg={6}>
+						<Col lg={6} className='position-relative'>
 							<Form.Group controlId="confirmpassword" className="mb-3">
 								<Form.Label>Confirm Password</Form.Label>
 								<div className="input-group">
@@ -496,6 +459,7 @@ const ForgotPassword = () => {
 										{showCPassword ? <i className="ri-eye-off-line"></i> : <i className="ri-eye-line"></i>}
 									</button>
 								</div>
+								<small className="text-danger signup-error">{confirmPasswordError}</small>
 							</Form.Group>
 						</Col>
 					</Row>

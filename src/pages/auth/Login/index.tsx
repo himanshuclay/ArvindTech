@@ -1,5 +1,5 @@
 import { Button, Col, Row } from 'react-bootstrap'
-import { Navigate, Link, useLocation } from 'react-router-dom'
+import { Navigate, Link } from 'react-router-dom'
 import { yupResolver } from '@hookform/resolvers/yup'
 import * as yup from 'yup'
 import AuthLayout from '../AuthLayout'
@@ -47,16 +47,8 @@ const Login = () => {
 	const { loading, login, redirectUrl, isAuthenticated } = useLogin()
 
 	useEffect(() => {
-        localStorage.clear();
+		localStorage.removeItem('errorMessage');
 	}, []);
-
-
-	const location = useLocation();
-	useEffect(() => {
-		if (location.state?.successMessage) {
-			toast.success(location.state.successMessage);
-		}
-	}, [location.state]);
 
 
 	const blurfunction = async (emp: any) => {
@@ -74,11 +66,7 @@ const Login = () => {
 				}
 			} catch (error: any) {
 				toast.dismiss()
-				toast.error(
-					<>
-						<div style={{ marginBottom: "10px" }}>{error || 'Entered Wrong Emploee ID'}</div>
-					</>,
-				);
+				setEmployeeError(error || 'Something went wrong please try again')
 				console.error(error)
 			}
 		} else {
@@ -97,7 +85,7 @@ const Login = () => {
 
 			<AuthLayout
 				authTitle="Sign In"
-				helpText="Enter your Employee ID, Click Verify and then enter Password to access account"
+				helpText="Enter your Employee ID, and then enter Password to access account"
 				bottomLinks={<BottomLinks />}
 				hasThirdPartyLogin
 			>
@@ -111,9 +99,9 @@ const Login = () => {
 						type="text"
 						name="email"
 						placeholder="Enter Your Employee ID"
-						containerClass={verifyEmpID ? "mb-3 " : "mb-3 input-border"}
 						required
 						onBlur={(e) => blurfunction(e.target.value)}
+						containerClass={!employeeError ? "mb-3 " : "mb-3 input-border"}
 
 					/>
 					<FormInput

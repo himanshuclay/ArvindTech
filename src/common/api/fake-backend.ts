@@ -46,7 +46,7 @@ export default function configureFakeBackend() {
           token: TOKEN,
         };
 
-        localStorage.clear();
+        localStorage.removeItem('errorMessage');
         return { status: 200, data: userWithToken };
       } else {
         toast.error(message || 'Email or password is incorrect');
