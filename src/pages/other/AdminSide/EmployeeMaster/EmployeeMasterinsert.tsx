@@ -162,7 +162,7 @@ const EmployeeMasterInsert = () => {
     const [searchPin, setSearchPin] = useState('');
     const [searchDistrict, setSearchDistrict] = useState('');
 
-
+    const [isMobileVerified, setIsMobileVerified] = useState(false);
 
     const dateOfLeavingRef = useRef<any>(null);
     useEffect(() => {
@@ -373,7 +373,10 @@ const EmployeeMasterInsert = () => {
 
     const handleChange = (e: ChangeEvent<any> | null, name?: string, value?: any) => {
         const validateMobileNumber = (fieldName: string, fieldValue: string) => {
-            if (!/^\d{0,10}$/.test(fieldValue)) return false; // Allow only numeric input up to 10 digits
+            if (!/^\d{0,10}$/.test(fieldValue)) {
+
+                return false;
+            }
 
             setEmployee((prevData) => ({
                 ...prevData,
@@ -383,8 +386,11 @@ const EmployeeMasterInsert = () => {
             if (fieldValue.length === 10) {
                 if (!/^[6-9]/.test(fieldValue)) {
                     toast.error("Mobile number should start with a digit between 6 and 9.");
+                    setIsMobileVerified(true);
                     return false;
                 }
+            } else {
+                setIsMobileVerified(false);
             }
 
             return true;
@@ -504,6 +510,10 @@ const EmployeeMasterInsert = () => {
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         toast.dismiss()
+        if (isMobileVerified) {
+            toast.error("Please verify your mobile number before submitting the form.");
+            return;
+        }
 
         if (employee.empStatus === 'Former' && !employee.dateOfLeaving) {
             dateOfLeavingRef.current?.flatpickr.open(); // Focus and open the Flatpickr field
