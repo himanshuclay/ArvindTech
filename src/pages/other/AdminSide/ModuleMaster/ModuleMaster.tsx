@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { useState, useEffect, ChangeEvent } from 'react';
+import { useState, useEffect } from 'react';
 import { Button, Pagination, Table, Container, Row, Col, Alert, Form, ButtonGroup } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
@@ -16,7 +16,7 @@ interface Module {
     fmsType: string;
     moduleID: string;
     misExempt: string;
-    statusID: number;
+    status: string;
     userUpdatedMobileNumber: number;
     moduleOwnerID: string;
     moduleOwnerName: string;
@@ -43,7 +43,6 @@ const ModuleMaster = () => {
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
     const [moduleList, setModuleList] = useState<Module[]>([]);
-    const [searchQuery, setSearchQuery] = useState('');
     const [downloadCsv, setDownloadCsv] = useState<Module[]>([]);
     const [moduleDisplayName, setModuleDisplayName] = useState('');
 
@@ -85,7 +84,7 @@ const ModuleMaster = () => {
         { id: 'moduleDisplayName', label: 'Module Display Name', visible: true },
         { id: 'fmsType', label: 'Fms Types', visible: true },
         { id: 'misExempt', label: 'Mis Exempt ID', visible: true },
-        { id: 'statusID', label: 'Status', visible: true },
+        { id: 'status', label: 'Status', visible: true },
 
     ]);
 
@@ -171,12 +170,6 @@ const ModuleMaster = () => {
     };
 
 
-    const filteredModules = modules.filter(module =>
-        module.moduleDisplayName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        module.moduleID.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        module.fmsType.toLowerCase().includes(searchQuery.toLowerCase())
-    );
-
 
     const convertToCSV = (data: Module[]) => {
         const csvRows = [
@@ -187,7 +180,7 @@ const ModuleMaster = () => {
                 mod.fmsType,
                 mod.moduleID,
                 mod.misExempt,
-                mod.statusID,
+                mod.status,
                 mod.moduleOwnerName,
                 mod.createdBy,
                 mod.updatedBy,
@@ -216,16 +209,14 @@ const ModuleMaster = () => {
     };
 
 
-    const handleSearchcurrent = (e: ChangeEvent<HTMLInputElement>) => {
-        setSearchQuery(e.target.value);
-        setCurrentPage(1); // Reset to first page on search
-    };
-
     return (
         <>
             <div className="d-flex bg-white p-2 my-2 justify-content-between align-items-center fs-20">
                 <span><i className="ri-file-list-line me-2"></i><span className='fw-bold test-nowrap'>Modules List</span></span>
                 <div className="d-flex">
+                    <Button variant="primary" onClick={downloadCSV} className="me-2">
+                        Download CSV
+                    </Button>
                     <Link to='/pages/ModuleMasterinsert'>
                         <Button variant="primary">
                             Add Modules
@@ -298,23 +289,9 @@ const ModuleMaster = () => {
                                     <Row className='mt-3'>
                                         <div className="d-flex justify-content-end bg-light p-1">
                                             <div className="app-search d-none d-lg-block me-4">
-                                                <form>
-                                                    <div className="input-group px300 ">
-                                                        <input
-                                                            type="search"
-                                                            className=" bg-white "
-                                                            placeholder="Search..."
-                                                            value={searchQuery}
-                                                            onChange={handleSearchcurrent}
-                                                        />
-                                                        <span className="ri-search-line search-icon text-muted" />
-                                                    </div>
-                                                </form>
                                             </div>
 
-                                            <Button variant="primary" onClick={downloadCSV} className="">
-                                                Download CSV
-                                            </Button>
+
                                         </div>
                                     </Row>
                                 </div>
@@ -360,36 +337,26 @@ const ModuleMaster = () => {
 
                                             </thead>
                                             <tbody>
-                                                {filteredModules.length > 0 ? (
-                                                    filteredModules.slice(0, 10).map((item, index) => (
+                                                {modules.length > 0 ? (
+                                                    modules.slice(0, 10).map((item, index) => (
                                                         <tr key={item.id}>
                                                             <td>{(currentPage - 1) * 10 + index + 1}</td>
                                                             {columns.filter(col => col.visible).map((col) => (
                                                                 <td key={col.id}
                                                                     className={
-                                                                        // Add class based on column id
                                                                         col.id === 'moduleOwnerName' ? 'fw-bold fs-14 text-dark' :
                                                                             col.id === 'moduleOwnerID' ? 'fw-bold fs-13  ' :
-                                                                                // Add class based on value (e.g., expired tasks)
-                                                                                (col.id === 'statusID' && item[col.id] === 2) ? 'task4' :
-                                                                                    (col.id === 'statusID' && item[col.id] === 1) ? 'task1' :
-                                                                                        (col.id === 'misExempt' && item[col.id] === 'ACTIVE') ? 'task1' :
-                                                                                            (col.id === 'misExempt' && item[col.id] === 'INACTIVE') ? 'task4' :
+                                                                                (col.id === 'status' && item[col.id] === "Active") ? 'task1' :
+                                                                                    (col.id === 'status' && item[col.id] === "Inactive") ? 'task4' :
+                                                                                        (col.id === 'misExempt' && item[col.id] === 'Active') ? 'task1' :
+                                                                                            (col.id === 'misExempt' && item[col.id] === 'Inactive') ? 'task4' :
                                                                                                 ''
                                                                     }
                                                                 >
                                                                     <div>
-
-
-                                                                        {col.id === 'statusID' ? (
-                                                                            <td>
-                                                                                {item.statusID === 1 ? 'ACTIVE' : 'INACTIVE'}
-                                                                            </td>
-                                                                        ) :
-
-                                                                            (
-                                                                                <td>{item[col.id as keyof Module]}</td>
-                                                                            )}
+                                                                        {(
+                                                                            <td>{item[col.id as keyof Module]}</td>
+                                                                        )}
 
 
                                                                     </div>

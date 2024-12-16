@@ -425,7 +425,7 @@ const EmployeeMaster = () => {
 
                                     <Col lg={4} className="mt-2">
                                         <Form.Group controlId="searchEmployee">
-                                            <Form.Label>Employee Name:</Form.Label>
+                                            <Form.Label>Employee Name</Form.Label>
                                             <Select
                                                 name="searchEmployee"
                                                 value={employeeList.find(emp => emp.employeeName === searchEmployee) || null} // handle null
@@ -466,7 +466,7 @@ const EmployeeMaster = () => {
                                                 options={optionsAppAccesLevel}
                                                 value={optionsAppAccesLevel.find(option => option.value === searchAppAccessLevel) || null}
                                                 onChange={(selectedOption) => setSearchAppAccessLevel(selectedOption?.value || '')}
-                                                placeholder="Select App Access"
+                                                placeholder="Select App Access Level"
                                             />
                                         </Form.Group>
                                     </Col>
@@ -478,7 +478,7 @@ const EmployeeMaster = () => {
                                                 options={optionsDataAccesLevel}
                                                 value={optionsDataAccesLevel.find(option => option.value === searchDataAccessLevel) || null}
                                                 onChange={(selectedOption) => setSearchDataAccessLevel(selectedOption?.value || '')}
-                                                placeholder="Select App Access"
+                                                placeholder="Select App Access Level"
                                             />
                                         </Form.Group>
                                     </Col>

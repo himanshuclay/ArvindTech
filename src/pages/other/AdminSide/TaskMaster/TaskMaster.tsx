@@ -146,9 +146,9 @@ const TaskMaster: React.FC = () => {
                 </div>
 
             </div>
-            <div className="row m-0 align-items-end bg-white p-3  shadow">
+            <div className="row m-0 align-items-end bg-white pb-2 shadow">
                 <Form.Group className="col-md-4 my-1">
-                    <Form.Label>Select Module</Form.Label>
+                    <Form.Label>Module Name</Form.Label>
                     <Select
                         name="selectedModule"
                         value={modules.find(item => item.moduleName === selectedModule) || null}
@@ -167,7 +167,7 @@ const TaskMaster: React.FC = () => {
 
 
                 <Form.Group className="col-md-4 my-1">
-                    <Form.Label>Select Process</Form.Label>
+                    <Form.Label>Process Name</Form.Label>
                     <Select
                         name="selectedProcess"
                         value={processes.find(item => item.processID === selectedProcess) || null}
@@ -185,7 +185,7 @@ const TaskMaster: React.FC = () => {
 
             </div>
 
-            <div className="overflow-auto mt-2">
+            <div className="overflow-auto mt-2 ">
                 <DragDropContext onDragEnd={handleOnDragEnd}>
                     <Table hover className="bg-white">
                         <thead>
@@ -203,7 +203,7 @@ const TaskMaster: React.FC = () => {
 
                                                             <div ref={provided.innerRef as React.Ref<HTMLTableHeaderCellElement>}
                                                                 {...provided.draggableProps}
-                                                                {...provided.dragHandleProps}>
+                                                                {...provided.dragHandleProps} className='text-nowrap my-1'>
                                                                 {column.label}
                                                             </div>
                                                         </th>
@@ -211,6 +211,7 @@ const TaskMaster: React.FC = () => {
                                                 </Draggable>
                                             ))}
                                         {provided.placeholder}
+                                        <th>View</th>
                                         <th>Action</th>
                                     </tr>
                                 )}
@@ -229,7 +230,7 @@ const TaskMaster: React.FC = () => {
                                                     className={
                                                         col.id === 'moduleName' ? 'fw-bold fs-13 text-dark text-nowrap' :
                                                             col.id === 'taskName' ? 'fw-bold fs-13   text-wrap' :
-                                                                ''
+                                                                    ''
                                                     }
                                                 >
 

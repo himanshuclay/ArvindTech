@@ -341,7 +341,7 @@ const BankMaster = () => {
                                             getOptionLabel={(item) => item.bank || item.bankName}
                                             getOptionValue={(item) => item.bank || item.bankName}
                                             isSearchable={true}
-                                            placeholder="Select Bank"
+                                            placeholder="Select Bank Name"
                                             className="h45"
                                         />
                                     </Form.Group>

@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { useState, useEffect, ChangeEvent } from 'react';
+import { useState, useEffect } from 'react';
 import { Button, Pagination, Table, Container, Row, Col, Alert, Form, ButtonGroup } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
@@ -48,7 +48,6 @@ const MessMaster = () => {
     const [loading, setLoading] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
-    const [searchQuery, setSearchQuery] = useState('');
     const [downloadCsv, setDownloadCsv] = useState<Mess[]>([]);
     const [messList, setMessList] = useState<MessList[]>([]);
     const [projectList, setProjectList] = useState<ModuleProjectList[]>([])
@@ -235,30 +234,11 @@ const MessMaster = () => {
         }
     };
 
-    const handleSearchcurrent = (e: ChangeEvent<HTMLInputElement>) => {
-        setSearchQuery(e.target.value);
-        setCurrentPage(1);
-    };
-
 
     const optionsStatus = [
         { value: 'Active', label: 'Active' },
         { value: 'Inactive', label: 'Inactive' }
     ];
-
-
-
-    const filteredMesses = messes.filter(item =>
-        item.messName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        item.managerEmpID.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        item.managerName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        item.mobileNumber.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        item.projectName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        item.status.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        item.createdBy.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        item.updatedBy.toLowerCase().includes(searchQuery.toLowerCase())
-    );
-    
 
 
     return (
@@ -267,7 +247,9 @@ const MessMaster = () => {
                 <div className="d-flex bg-white p-2 my-2 justify-content-between align-items-center">
                     <span><i className="ri-file-list-line me-2 text-dark fs-16"></i><span className='fw-bold text-dark fs-15'>Mess List</span></span>
                     <div className="d-flex justify-content-end  ">
-
+                        <Button variant="primary" onClick={downloadCSV} className="me-2">
+                            Download CSV
+                        </Button>
                         <Link to='/pages/MessMasterinsert'>
                             <Button variant="primary" className="me-2">
                                 Add Mess
@@ -285,14 +267,12 @@ const MessMaster = () => {
                     </div>
                 ) : (<>
                     <div className='bg-white p-2 pb-2'>
-                        <Form
-                        // onSubmit={handleSearch}
-                        >
+                        <Form >
                             <Row>
 
                                 <Col lg={4}>
                                     <Form.Group controlId="searchMessName">
-                                        <Form.Label>Mess Name:</Form.Label>
+                                        <Form.Label>Mess Name</Form.Label>
 
                                         <Select
                                             name="searchMessName"
@@ -303,6 +283,22 @@ const MessMaster = () => {
                                             getOptionValue={(item) => item.messName}
                                             isSearchable={true}
                                             placeholder="Select Mess Name"
+                                            className="h45"
+                                        />
+                                    </Form.Group>
+                                </Col>
+                                <Col lg={4} className=''>
+                                    <Form.Group controlId="searchProjectName">
+                                        <Form.Label>Project Name</Form.Label>
+                                        <Select
+                                            name="searchProjectName"
+                                            value={projectList.find(item => item.projectName === searchProjectName) || null} // handle null
+                                            onChange={(selectedOption) => setSearchProjectName(selectedOption ? selectedOption.projectName : "")} // null check
+                                            options={projectList}
+                                            getOptionLabel={(item) => item.projectName}
+                                            getOptionValue={(item) => item.projectName}
+                                            isSearchable={true}
+                                            placeholder="Select Project Name "
                                             className="h45"
                                         />
                                     </Form.Group>
@@ -320,22 +316,7 @@ const MessMaster = () => {
                                         />
                                     </Form.Group>
                                 </Col>
-                                <Col lg={4} className=''>
-                                    <Form.Group controlId="searchProjectName">
-                                        <Form.Label>Project Name:</Form.Label>
-                                        <Select
-                                            name="searchProjectName"
-                                            value={projectList.find(item => item.projectName === searchProjectName) || null} // handle null
-                                            onChange={(selectedOption) => setSearchProjectName(selectedOption ? selectedOption.projectName : "")} // null check
-                                            options={projectList}
-                                            getOptionLabel={(item) => item.projectName}
-                                            getOptionValue={(item) => item.projectName}
-                                            isSearchable={true}
-                                            placeholder="Select Project "
-                                            className="h45"
-                                        />
-                                    </Form.Group>
-                                </Col>
+                          
 
                                 <Col></Col>
                                 <Col lg={3} className='align-items-end d-flex justify-content-end mt-3'>
@@ -355,29 +336,16 @@ const MessMaster = () => {
                         <Row className='mt-3'>
                             <div className="d-flex justify-content-end bg-light p-1">
                                 <div className="app-search d-none d-lg-block me-4">
-                                    <form>
-                                        <div className="input-group px300 ">
-                                            <input
-                                                type="search"
-                                                className=" bg-white"
-                                                placeholder="Search..."
-                                                value={searchQuery}
-                                                onChange={handleSearchcurrent}
-                                            />
-                                            <span className="ri-search-line search-icon text-muted" />
-                                        </div>
-                                    </form>
+
                                 </div>
 
-                                <Button variant="primary" onClick={downloadCSV} className="">
-                                    Download CSV
-                                </Button>
+
                             </div>
                         </Row>
                     </div>
 
                     <div className="overflow-auto text-nowrap">
-                        {!filteredMesses ? (
+                        {!messes ? (
                             <Container className="mt-5">
                                 <Row className="justify-content-center">
                                     <Col xs={12} md={8} lg={6}>
@@ -424,8 +392,8 @@ const MessMaster = () => {
                                         </Droppable>
                                     </thead>
                                     <tbody>
-                                        {filteredMesses.length > 0 ? (
-                                            filteredMesses.slice(0, 10).map((item, index) => (
+                                        {messes.length > 0 ? (
+                                            messes.slice(0, 10).map((item, index) => (
                                                 <tr key={item.id}>
                                                     <td>{(currentPage - 1) * 10 + index + 1}</td>
                                                     {columns.filter(col => col.visible).map((col) => (
@@ -433,10 +401,9 @@ const MessMaster = () => {
                                                             className={
                                                                 col.id === 'roleName' ? 'fw-bold fs-13 text-dark text-nowrap' :
                                                                     (col.id === 'status' && item[col.id] === 'Active') ? 'task1' :
-                                                                        (col.id === 'status' && item[col.id] === 'Blocked') ? 'task4' :
-                                                                            (col.id === 'status' && item[col.id] === 'ACTIVE') ? 'task1' :
-                                                                                (col.id === 'status' && item[col.id] === 'INACTIVE') ? 'task4' :
-                                                                                    ''
+                                                                        (col.id === 'status' && item[col.id] === 'Inactive') ? 'task4' :
+
+                                                                            ''
                                                             }>
                                                             <div> {col.id === 'managerName' ? (
                                                                 <div style={{ display: 'flex', alignItems: 'center' }}>

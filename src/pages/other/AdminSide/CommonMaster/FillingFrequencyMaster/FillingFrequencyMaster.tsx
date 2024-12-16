@@ -174,7 +174,7 @@ const ModuleMaster = () => {
 
     const convertToCSV = (data: FrequencyFill[]) => {
         const csvRows = [
-            ['ID', 'Frequency Filling','Status', 'Created By', 'Updated By', 'Created Date', 'Updated Date'],
+            ['ID', 'Frequency Filling', 'Status', 'Created By', 'Updated By', 'Created Date', 'Updated Date'],
             ...data.map(identifier => [
                 identifier.id.toString(),
                 identifier.name,
@@ -327,7 +327,9 @@ const ModuleMaster = () => {
                                                     {columns.filter(col => col.visible).map((col) => (
                                                         <td key={col.id}
                                                             className={
-                                                                col.id === 'name' ? 'fw-bold fs-13 text-dark text-nowrap' : ''
+                                                                col.id === 'name' ? 'fw-bold fs-13 text-dark text-nowrap' :
+                                                                    (col.id === 'status' && item[col.id] === "Enabled") ? 'task1' :
+                                                                        (col.id === 'status' && item[col.id] === "Disabled") ? 'task4' : ''
                                                             }>
                                                             <div>{item[col.id as keyof FrequencyFill]}</div>
                                                         </td>

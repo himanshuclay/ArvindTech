@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { useState, useEffect, ChangeEvent } from 'react';
+import { useState, useEffect } from 'react';
 import { Button, Pagination, Table, Container, Row, Col, Alert, Form, ButtonGroup, Modal, Badge } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
@@ -31,7 +31,6 @@ const ModuleMaster = () => {
     const [loading, setLoading] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
-    const [searchQuery, setSearchQuery] = useState('');
     const [downloadCsv, setDownloadCsv] = useState<Identifier[]>([]);
     const [identifierID, setIdentifierID] = useState('');
     const [identifierList, setIdentifierList] = useState<IdentifierList[]>([]);
@@ -59,14 +58,9 @@ const ModuleMaster = () => {
     };
     // both are required to make dragable column of table 
     const [columns, setColumns] = useState<Column[]>([
-        // { id: 'taskID', label: 'Task Number', visible: true },
         { id: 'identifierName', label: 'Identifier Name', visible: true },
         { id: 'identifierValue', label: 'Identifier Value', visible: true },
-        // { id: 'identifier1', label: 'Identifier 1', visible: true },
-        // { id: 'identifierValue1', label: 'Identifier Value 1', visible: true },
         { id: 'source', label: 'Source Type', visible: true },
-        // { id: 'empID', label: 'Employee ID ', visible: true },
-        // { id: 'employeeName', label: 'Employee Name', visible: true },
 
 
     ]);
@@ -94,10 +88,6 @@ const ModuleMaster = () => {
         let query = `?`;
         if (identifierID) query += `IdentifierName=${identifierID}&`;
         query += `PageIndex=${currentPage}`;
-
-        // Remove trailing '&' or '?' from the query string
-        // query = query.endsWith('&') ? query.slice(0, -1) : query;
-
         const apiUrl = `${config.API_URL_APPLICATION}/IdentifierMaster/SearchIdentifier${query}`;
 
         console.log(apiUrl)
@@ -210,17 +200,9 @@ const ModuleMaster = () => {
         }
     };
 
-    const handleSearchcurrent = (e: ChangeEvent<HTMLInputElement>) => {
-        setSearchQuery(e.target.value);
-        setCurrentPage(1);
-    };
 
 
 
-
-    const filteredIdentifiers = identifiers.filter(identifier =>
-        identifier.identifierValue.toLowerCase().includes(searchQuery.toLowerCase())
-    );
 
     return (
         <>
@@ -228,7 +210,9 @@ const ModuleMaster = () => {
                 <div className="d-flex bg-white p-2 my-2 justify-content-between align-items-center">
                     <span><i className="ri-file-list-line me-2 text-dark fs-16"></i><span className='fw-bold text-dark fs-15'>Identifier List</span></span>
                     <div className="d-flex justify-content-end  ">
-
+                        <Button variant="primary" onClick={downloadCSV} className="me-2">
+                            Download CSV
+                        </Button>
                         <Link to='/pages/Identifiermasterinsert'>
                             <Button variant="primary" className="me-2">
                                 Add Identifier
@@ -248,9 +232,9 @@ const ModuleMaster = () => {
                     <div className='bg-white p-2 pb-2'>
                         <Form onSubmit={handleSearch}>
                             <Row>
-                                <Col lg={3}>
+                                <Col lg={6}>
                                     <Form.Group controlId="identifierID">
-                                        <Form.Label>Identifier</Form.Label>
+                                        <Form.Label>Identifier Name</Form.Label>
 
                                         <Select
                                             name="identifierID"
@@ -260,7 +244,7 @@ const ModuleMaster = () => {
                                             getOptionLabel={(item) => item.identifier}
                                             getOptionValue={(item) => item.identifier}
                                             isSearchable={true}
-                                            placeholder="Select Identifier"
+                                            placeholder="Select Identifier Name"
                                             className="h45"
                                         />
                                     </Form.Group>
@@ -287,29 +271,15 @@ const ModuleMaster = () => {
                         <Row className='mt-3'>
                             <div className="d-flex justify-content-end bg-light p-1">
                                 <div className="app-search d-none d-lg-block me-4">
-                                    <form>
-                                        <div className="input-group px300 ">
-                                            <input
-                                                type="search"
-                                                className=" bg-white"
-                                                placeholder="Search..."
-                                                value={searchQuery}
-                                                onChange={handleSearchcurrent}
-                                            />
-                                            <span className="ri-search-line search-icon text-muted" />
-                                        </div>
-                                    </form>
                                 </div>
 
-                                <Button variant="primary" onClick={downloadCSV} className="">
-                                    Download CSV
-                                </Button>
+
                             </div>
                         </Row>
                     </div>
 
                     <div className="overflow-auto text-nowrap">
-                        {!filteredIdentifiers ? (
+                        {!identifiers ? (
                             <Container className="mt-5">
                                 <Row className="justify-content-center">
                                     <Col xs={12} md={8} lg={6}>
@@ -355,8 +325,8 @@ const ModuleMaster = () => {
                                         </Droppable>
                                     </thead>
                                     <tbody>
-                                        {filteredIdentifiers.length > 0 ? (
-                                            filteredIdentifiers.slice(0, 10).map((item, index) => (
+                                        {identifiers.length > 0 ? (
+                                            identifiers.slice(0, 10).map((item, index) => (
                                                 <tr key={item.id}>
                                                     <td>{(currentPage - 1) * 10 + index + 1}</td>
                                                     {columns.filter(col => col.visible).map((col) => (
@@ -391,7 +361,7 @@ const ModuleMaster = () => {
                                                             <Modal.Body>
                                                                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', marginBottom: '4px', marginTop: '4px' }}>
                                                                     {selectedRow.split(',').map(item => item.trim()).map((tag, index) => (
-                                                                        <Badge bg="primary" key={index} style={{ display: 'flex', alignItems: 'center', fontSize: '11px',padding:'5px 10px' }}>
+                                                                        <Badge bg="primary" key={index} style={{ display: 'flex', alignItems: 'center', fontSize: '11px', padding: '5px 10px' }}>
                                                                             {tag}
 
                                                                         </Badge>

@@ -288,7 +288,7 @@ const ProjectMaster = () => {
         ];
         return csvRows.map(row => row.join(',')).join('\n');
     };
-    
+
 
 
 
@@ -340,7 +340,7 @@ const ProjectMaster = () => {
 
                                     <Col lg={6} className="">
                                         <Form.Group controlId="searchProjectName">
-                                            <Form.Label>Project Name:</Form.Label>
+                                            <Form.Label>Project Name</Form.Label>
                                             <Select
                                                 name="searchProjectName"
                                                 value={projectList.find(item => item.projectName === searchProjectName) || null} // handle null
@@ -349,7 +349,7 @@ const ProjectMaster = () => {
                                                 getOptionLabel={(item) => item.projectName}
                                                 getOptionValue={(item) => item.projectName}
                                                 isSearchable={true}
-                                                placeholder="Search..."
+                                                placeholder="Select Project Name"
                                                 className="h45"
                                             />
                                         </Form.Group>
@@ -357,7 +357,7 @@ const ProjectMaster = () => {
 
                                     <Col lg={6}>
                                         <Form.Group controlId="searchProjectIncharge">
-                                            <Form.Label>Project Incharge:</Form.Label>
+                                            <Form.Label>Project Incharge</Form.Label>
                                             <Select
                                                 name="searchProjectIncharge"
                                                 value={employeeList.find(emp => emp.empId === searchProjectInchage) || null} // handle null
@@ -366,14 +366,14 @@ const ProjectMaster = () => {
                                                 getOptionLabel={(emp) => emp.employeeName}
                                                 getOptionValue={(emp) => emp.empId}
                                                 isSearchable={true}
-                                                placeholder="Search..."
+                                                placeholder="Select Porject Incharge"
                                                 className="h45"
                                             />
                                         </Form.Group>
                                     </Col>
                                     <Col lg={6} className="mt-2">
                                         <Form.Group controlId="searchProjectCoordinator">
-                                            <Form.Label>Project Coordinator:</Form.Label>
+                                            <Form.Label>Project Coordinator</Form.Label>
                                             <Select
                                                 name="searchProjectCoordinator"
                                                 value={employeeList.find(emp => emp.empId === searchProjectCoordinator) || null} // handle null
@@ -382,7 +382,7 @@ const ProjectMaster = () => {
                                                 getOptionLabel={(emp) => emp.employeeName}
                                                 getOptionValue={(emp) => emp.empId}
                                                 isSearchable={true}
-                                                placeholder="Search..."
+                                                placeholder="Select Project Coordinator "
                                                 className="h45"
                                             />
                                         </Form.Group>
@@ -399,7 +399,7 @@ const ProjectMaster = () => {
                                                 getOptionLabel={(task) => task.id == 1 ? "Ongoing" : 'Completed'}
                                                 getOptionValue={(task) => task.id == 1 ? "Ongoing" : 'Completed'}
                                                 isSearchable={true}
-                                                placeholder="Search..."
+                                                placeholder="Select Status"
                                                 className="h45"
                                             />
                                         </Form.Group>

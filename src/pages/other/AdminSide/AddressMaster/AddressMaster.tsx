@@ -356,7 +356,7 @@ const AddressMaster = () => {
                                             getOptionLabel={(item) => item.stateName}
                                             getOptionValue={(item) => item.stateName}
                                             isSearchable={true}
-                                            placeholder="Select State"
+                                            placeholder="Select State Name"
                                             className="h45"
                                         />
                                     </Form.Group>
@@ -373,7 +373,7 @@ const AddressMaster = () => {
                                             getOptionLabel={(item) => item.district}
                                             getOptionValue={(item) => item.district}
                                             isSearchable={true}
-                                            placeholder="Select District"
+                                            placeholder="Select District Name"
                                             className="h45"
 
                                         />
@@ -390,7 +390,7 @@ const AddressMaster = () => {
                                             getOptionLabel={(item) => item?.areaName || ''}  // Use optional chaining
                                             getOptionValue={(item) => item?.areaName || ''}  // Use optional chaining
                                             isSearchable={true}
-                                            placeholder="Select Area"
+                                            placeholder="Select Area Name"
                                             className="h45"
                                         />
                                     </Form.Group>

@@ -329,7 +329,9 @@ const ModuleMaster = () => {
                                                     {columns.filter(col => col.visible).map((col) => (
                                                         <td key={col.id}
                                                             className={
-                                                                col.id === 'identifier' ? 'fw-bold fs-13 text-dark text-nowrap' : ''
+                                                                col.id === 'name' ? 'fw-bold fs-13 text-dark text-nowrap' :
+                                                                    (col.id === 'status' && item[col.id] === "Enabled") ? 'task1' :
+                                                                        (col.id === 'status' && item[col.id] === "Disabled") ? 'task4' : ''
                                                             }>
                                                             <div>{item[col.id as keyof ManagementContracts]}</div>
                                                         </td>
