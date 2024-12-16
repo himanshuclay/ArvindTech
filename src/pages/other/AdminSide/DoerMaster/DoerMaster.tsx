@@ -372,11 +372,6 @@ const ModuleMaster = () => {
                                             />
                                         </Form.Group>
                                     </Col>
-
-
-
-
-
                                     <Col></Col>
 
                                     {/* Modal */}
