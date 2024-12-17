@@ -605,7 +605,7 @@ const EmployeeMaster = () => {
                                                         {columns.filter(col => col.visible).map((col) => (
                                                             <td key={col.id}
                                                                 className={
-                                                                    col.id === 'employeeName' ? 'fw-bold fs-13 text-dark' : ''
+                                                                    col.id === 'employeeName' ? 'fw-bold text-dark' : ''
                                                                 }
                                                             >
                                                                 {

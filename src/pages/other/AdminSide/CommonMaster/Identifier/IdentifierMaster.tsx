@@ -333,7 +333,7 @@ const ModuleMaster = () => {
                                                         <td key={col.id}>
                                                             {col.id === "identifierValue" ? (
                                                                 <div
-                                                                    className="fw-bold fs-13 text-dark ellipsis-text"
+                                                                    className="fw-bold text-dark ellipsis-text"
                                                                     style={{ cursor: "pointer" }}
                                                                     onClick={() => handleModalOpen(String(item.identifierValue))}
                                                                 >
@@ -361,7 +361,7 @@ const ModuleMaster = () => {
                                                             <Modal.Body>
                                                                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', marginBottom: '4px', marginTop: '4px' }}>
                                                                     {selectedRow.split(',').map(item => item.trim()).map((tag, index) => (
-                                                                        <Badge bg="primary" key={index} style={{ display: 'flex', alignItems: 'center', fontSize: '11px', padding: '5px 10px' }}>
+                                                                        <Badge bg="primary" key={index} style={{ display: 'flex', alignItems: 'center', fontSize: '13px', padding: '5px 10px' }}>
                                                                             {tag}
 
                                                                         </Badge>

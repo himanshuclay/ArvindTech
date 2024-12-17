@@ -454,9 +454,9 @@ const RequirementMaster = () => {
                                                             <td key={col.id}
                                                                 className={
                                                                     // Add class based on column id
-                                                                    col.id === 'empID' ? 'fw-bold fs-13 text-dark' :
-                                                                        col.id === 'taskID' ? 'fw-bold fs-13 text-dark' :
-                                                                            col.id === 'project' ? 'fw-bold fs-13 text-dark' :
+                                                                    col.id === 'empID' ? 'fw-bold  text-dark' :
+                                                                        col.id === 'taskID' ? 'fw-bold  text-dark' :
+                                                                            col.id === 'project' ? 'fw-bold  text-dark' :
                                                                                 // Add class based on value (e.g., expired tasks)
                                                                                 // (col.id === 'taskID' && item[col.id] === 'ACC.01.T1') ? 'task1' :
                                                                                 ''

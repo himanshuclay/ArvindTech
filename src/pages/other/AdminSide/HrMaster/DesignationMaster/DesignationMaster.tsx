@@ -375,7 +375,7 @@ const DesignationMaster = () => {
                                                             <td key={col.id}
                                                                 className={
                                                                     // Add class based on column id
-                                                                    col.id === 'department' ? 'fw-bold fs-13 text-dark task1' : ''
+                                                                    col.id === 'department' ? 'fw-bold  text-dark ' : ''
                                                                 }
                                                             >
                                                                 <div>{item[col.id as keyof Designation]}</div>

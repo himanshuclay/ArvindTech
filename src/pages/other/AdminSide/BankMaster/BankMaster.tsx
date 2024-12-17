@@ -429,7 +429,7 @@ const BankMaster = () => {
                                                             <td key={col.id}
                                                                 className={
                                                                     // Add class based on column id
-                                                                    col.id === 'bank' ? 'fw-bold fs-13 text-dark ' :
+                                                                    col.id === 'bank' ? 'fw-bold  text-dark ' :
                                                                         (col.id === 'status' && item[col.id] === "Enabled") ? 'task1' :
                                                                             (col.id === 'status' && item[col.id] === "Disabled") ? 'task4' :
                                                                                 ''

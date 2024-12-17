@@ -399,7 +399,7 @@ const MessMaster = () => {
                                                     {columns.filter(col => col.visible).map((col) => (
                                                         <td key={col.id}
                                                             className={
-                                                                col.id === 'roleName' ? 'fw-bold fs-13 text-dark text-nowrap' :
+                                                                col.id === 'managerName' ? 'fw-bold  text-dark text-nowrap' :
                                                                     (col.id === 'status' && item[col.id] === 'Active') ? 'task1' :
                                                                         (col.id === 'status' && item[col.id] === 'Inactive') ? 'task4' :
 

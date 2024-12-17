@@ -506,9 +506,9 @@ const ModuleMaster = () => {
                                                             <td key={col.id}
                                                                 className={
                                                                     // Add class based on column id
-                                                                    col.id === 'empID' ? 'fw-bold fs-13 text-dark' :
-                                                                        col.id === 'taskID' ? 'fw-bold fs-13 text-dark' :
-                                                                            col.id === 'empName' ? 'fw-bold fs-13 text-dark' :
+                                                                    col.id === 'empID' ? 'fw-bold text-dark' :
+                                                                        col.id === 'taskID' ? 'fw-bold text-dark' :
+                                                                            col.id === 'empName' ? 'fw-bold  text-dark' :
                                                                                 ''
                                                                 }
                                                             >

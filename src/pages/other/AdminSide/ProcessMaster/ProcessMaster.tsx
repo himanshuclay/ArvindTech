@@ -411,11 +411,12 @@ const ModuleMaster = () => {
                                                             {columns.filter(col => col.visible).map((col) => (
                                                                 <td key={col.id}
                                                                     className={
-                                                                        col.id === 'processOwnerName' ? 'fw-bold fs-13 text-dark text-nowrap' :
-                                                                            col.id === 'moduleName' ? 'fw-bold fs-13   text-nowrap' :
+                                                                        col.id === 'processOwnerName' ? 'fw-bold  text-dark text-nowrap' :
+                                                                            col.id === 'moduleName' ? 'fw-bold text-dark   text-nowrap' :
                                                                                 (col.id === 'status' && item[col.id] === "Active") ? 'task1' :
                                                                                     (col.id === 'status' && item[col.id] === "Inactive") ? 'task4' :
-                                                                                        ''
+                                                                                        col.id === 'processObjective' ? 'w-200px' :
+                                                                                            ''
                                                                     }
                                                                 >
                                                                     {col.id === 'processOwnerName' ? (

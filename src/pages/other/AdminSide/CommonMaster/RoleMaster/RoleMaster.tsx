@@ -326,7 +326,7 @@ const ModuleMaster = () => {
                                                     {columns.filter(col => col.visible).map((col) => (
                                                         <td key={col.id}
                                                             className={
-                                                                col.id === 'roleName' ? 'fw-bold fs-13 text-dark text-nowrap' : ''
+                                                                col.id === 'roleName' ? 'fw-bold  text-dark text-nowrap' : ''
                                                             }>
                                                             <div>{item[col.id as keyof Role]}</div>
                                                         </td>
