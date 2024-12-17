@@ -192,8 +192,9 @@ const AddressMaster = () => {
         };
 
         if (searchState) fetchDistrictsByState()
-            else{
-                setDistricts([]);};
+        else {
+            setDistricts([]);
+        };
     }, [searchState]);
 
 
@@ -472,7 +473,9 @@ const AddressMaster = () => {
                                                             <td key={col.id}
                                                                 className={
                                                                     // Add class based on column id
-                                                                    col.id === 'department' ? 'fw-bold fs-13 text-dark task1' : ''
+                                                                    col.id === 'department' ? 'fw-bold fs-13 text-dark task1' :
+                                                                        (col.id === 'status' && item[col.id] === "Enabled") ? 'task1' :
+                                                                            (col.id === 'status' && item[col.id] === "Disabled") ? 'task4' : ''
                                                                 }
                                                             >
                                                                 <div>{item[col.id as keyof Addresses]}</div>

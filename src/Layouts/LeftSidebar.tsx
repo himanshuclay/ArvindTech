@@ -335,7 +335,7 @@ const getFilteredMenuItems = () => {
       isTitle: false,
       icon: 'ri-settings-fill',
       children: [
-      
+
         {
           key: 'Account Masters',
           label: 'Account Masters',
@@ -414,29 +414,29 @@ const getFilteredMenuItems = () => {
 
   ];
 
-  if (role === 'Admin') {
-    return MENU_ITEMS.filter(item => {
-      return item.key !== 'CompletedTask' &&
-        item.key !== 'ExpireTask' &&
-        item.key !== 'TaskPlanned' &&
-        item.key !== 'Action' &&
-        item.key !== 'Notification';
-    });
+  if (role === 'Employee') {
+    return MENU_ITEMS.filter(item =>
+      item.key === 'CompletedTask' ||
+      item.key === 'ExpireTask' ||
+      item.key === 'TaskPlanned' ||
+      item.key === 'Action' ||
+      item.key === 'Notification'
+    );
   }
   return MENU_ITEMS.filter(item => {
-    if (role === 'Employee') {
-      return item.key !== 'Filtertask' &&
-        item.key !== 'TaskAdmin' &&
-        item.key !== 'Analytics' &&
-        item.key !== 'master' &&
-        item.key !== 'Modules-Master' &&
-        item.key !== 'Action' &&
-        item.key !== 'ChkLnMaster' &&
-        item.key !== 'systemmaster' &&
-        item.key !== 'Modules-Master' &&
-        item.key !== 'Process' &&
-        item.key !== 'ProcessDataMaster' &&
-        item.key !== 'Modules';
+    if (role === 'Admin') {
+      return item.key === 'Filtertask' ||
+        item.key === 'TaskAdmin' ||
+        item.key === 'Analytics' ||
+        item.key === 'master' ||
+        item.key === 'Modules-Master'||
+        item.key === 'Action' ||
+        item.key === 'ChkLnMaster' ||
+        item.key === 'systemmaster' ||
+        item.key === 'Modules-Master' ||
+        item.key === 'Process' ||
+        item.key === 'ProcessDataMaster' ||
+        item.key === 'Modules';
     }
 
     return true;

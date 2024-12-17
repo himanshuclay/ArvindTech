@@ -93,7 +93,6 @@ const ProjectInsert = () => {
 
     useEffect(() => {
         toast.dismiss()
-
         const storedEmpName = localStorage.getItem('EmpName');
         if (storedEmpName) {
             setEmpName(storedEmpName);
@@ -205,6 +204,7 @@ const ProjectInsert = () => {
             });
 
         } catch (error: any) {
+            toast.dismiss()
             toast.error(error)
         }
 

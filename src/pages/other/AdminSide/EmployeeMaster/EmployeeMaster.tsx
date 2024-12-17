@@ -478,7 +478,7 @@ const EmployeeMaster = () => {
                                                 options={optionsDataAccesLevel}
                                                 value={optionsDataAccesLevel.find(option => option.value === searchDataAccessLevel) || null}
                                                 onChange={(selectedOption) => setSearchDataAccessLevel(selectedOption?.value || '')}
-                                                placeholder="Select App Access Level"
+                                                placeholder="Select Data Access Level"
                                             />
                                         </Form.Group>
                                     </Col>

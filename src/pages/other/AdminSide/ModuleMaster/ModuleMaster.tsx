@@ -231,8 +231,8 @@ const ModuleMaster = () => {
                     <Row className="justify-content-center">
                         <Col xs={12} md={8} lg={6}>
                             <Alert variant="info" className="text-center">
-                                <h4>No Task Found</h4>
-                                <p>You currently don't have Completed tasks</p>
+                                <h4>No Data Found</h4>
+                                <p>You currently don't have any Data</p>
                             </Alert>
                         </Col>
                     </Row>
@@ -252,7 +252,7 @@ const ModuleMaster = () => {
                                         <Row>
                                             <Col lg={5}>
                                                 <Form.Group controlId="ModuleDisplayName">
-                                                    <Form.Label>Module Display Name:</Form.Label>
+                                                    <Form.Label>Module Display Name</Form.Label>
 
                                                     <Select
                                                         name="searchProjectName"
@@ -344,7 +344,7 @@ const ModuleMaster = () => {
                                                             {columns.filter(col => col.visible).map((col) => (
                                                                 <td key={col.id}
                                                                     className={
-                                                                        col.id === 'moduleOwnerName' ? 'fw-bold fs-14 text-dark' :
+                                                                        col.id === 'moduleOwnerName' ? 'fw-bold fs-14 text-dark' :   
                                                                             col.id === 'moduleOwnerID' ? 'fw-bold fs-13  ' :
                                                                                 (col.id === 'status' && item[col.id] === "Active") ? 'task1' :
                                                                                     (col.id === 'status' && item[col.id] === "Inactive") ? 'task4' :
@@ -377,8 +377,8 @@ const ModuleMaster = () => {
                                                                 <Row className="justify-content-center">
                                                                     <Col xs={12} md={8} lg={6}>
                                                                         <Alert variant="info" className="text-center">
-                                                                            <h4>No Task Found</h4>
-                                                                            <p>You currently don't have Completed tasks</p>
+                                                                            <h4>No Data Found</h4>
+                                                                            <p>You currently don't have any Data</p>
                                                                         </Alert>
                                                                     </Col>
                                                                 </Row>

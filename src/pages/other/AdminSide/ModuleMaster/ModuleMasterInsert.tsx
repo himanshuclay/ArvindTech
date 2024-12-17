@@ -12,7 +12,7 @@ interface Module {
     fmsType: string;
     misExempt: string;
     moduleID: string;
-    statusID: number;
+    status: string;
     createdBy: string;
     updatedBy: string;
 }
@@ -23,7 +23,7 @@ interface MISExempt {
 }
 interface Status {
     id: number;
-    name: boolean;
+    name: string;
 }
 
 const EmployeeInsert = () => {
@@ -39,7 +39,7 @@ const EmployeeInsert = () => {
         fmsType: '',
         misExempt: '',
         moduleID: '',
-        statusID: 0,
+        status: "",
         createdBy: '',
         updatedBy: ''
     });
@@ -247,15 +247,15 @@ const EmployeeInsert = () => {
                                     <Form.Label>Status</Form.Label>
                                     <Select
                                         name="statusID"
-                                        value={statusID.find((mod) => mod.id === module.statusID)}
+                                        value={statusID.find((mod) => mod.name === module.status)}
                                         onChange={(selectedOption) => {
                                             setModule({
                                                 ...module,
-                                                statusID: selectedOption?.id || 0,
+                                                status: selectedOption?.name || '',
                                             });
                                         }}
-                                        getOptionLabel={(mod) => mod.id === 1 ? 'ACTIVE' : "INACTIVE"}
-                                        getOptionValue={(mod) => mod.id === 1 ? 'ACTIVE' : "INACTIVE"}
+                                        getOptionLabel={(mod) => mod.name}
+                                        getOptionValue={(mod) => mod.name}
                                         options={statusID}
                                         isSearchable={true}
                                         placeholder="Select Status"

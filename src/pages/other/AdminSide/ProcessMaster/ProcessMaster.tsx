@@ -396,7 +396,7 @@ const ModuleMaster = () => {
                                                                     </Draggable>
                                                                 ))}
                                                             {provided.placeholder}
-                                                            <th><i className="ri-flow-chart "></i> Subprojects</th>
+                                                            <th><i className="ri-flow-chart "></i> Project/SubProject</th>
                                                             <th><i className="ri-task-line"></i> Tasks</th>
                                                             <th><i className="ri-tools-line"></i> Action</th>
                                                         </tr>

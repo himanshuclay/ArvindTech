@@ -6,7 +6,7 @@ import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import config from '@/config';
 import Select from 'react-select';
 import { useLocation, useNavigate } from 'react-router-dom';
-import CustomSuccessToast from '@/pages/other/Component/CustomSuccessToast';
+import { toast } from 'react-toastify';
 
 
 
@@ -39,33 +39,18 @@ const DesignationMaster = () => {
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
     const [departmentList, setDepartmentList] = useState<DepartmentList[]>([]);
-    const [searchDept, setSearchDept] = useState<number>();
-
-
+    const [searchDept, setSearchDept] = useState('');
+    const [searchStatus, setSearchStatus] = useState('');
 
     const location = useLocation();
     const navigate = useNavigate();
-    const [showToast, setShowToast] = useState(false);
-    const [toastMessage, setToastMessage] = useState('');
-    const [toastVariant, setToastVariant] = useState('');
     useEffect(() => {
-        if (location.state && location.state.showToast) {
-            setShowToast(true);
-            setToastMessage(location.state.toastMessage);
-            setToastVariant(location.state.toastVariant);
-
-            setTimeout(() => {
-                setShowToast(false);
-                navigate(location.pathname, { replace: true });
-            }, 5000);
+        if (location.state?.successMessage) {
+            toast.dismiss()
+            toast.success(location.state.successMessage);
+            navigate(location.pathname, { replace: true });
         }
-        return () => {
-            setShowToast(false);
-            setToastMessage('');
-            setToastVariant('');
-        };
     }, [location.state, navigate]);
-
 
 
     // both are required to make dragable column of table 
@@ -93,9 +78,6 @@ const DesignationMaster = () => {
     }, [currentPage]);
 
 
-
-
-
     const fetchStaffRequirements = async () => {
         setLoading(true);
         try {
@@ -116,31 +98,35 @@ const DesignationMaster = () => {
         }
     };
 
+    useEffect(() => {
+        if (searchDept || searchStatus) {
+            handleSearch();
+        } else {
+            fetchStaffRequirements();
+        }
+    }, [currentPage]);
 
+    const handleSearch = (e?: React.FormEvent) => {
+        if (e) e.preventDefault();
+        let query = `?`;
+        if (searchDept) query += `Name=${searchDept}&`;
+        if (searchStatus) query += `Status=${searchStatus}&`;
+        query += `PageIndex=${currentPage}`;
 
-
-    const fetchsingleDept = async (searchDept: number) => {
-        try {
-            const response = await axios.get(`${config.API_URL_APPLICATION}/DepartmentMaster/GetDepartment`, {
-                params: { id: searchDept }
+        query = query.endsWith('&') ? query.slice(0, -1) : query;
+        const apiUrl = `${config.API_URL_APPLICATION}/ProjectMaster/SearchProject${query}`;
+        console.log(apiUrl)
+        axios.get(apiUrl, { headers: { 'accept': '*/*' } })
+            .then((response) => {
+                console.log("search response ", response.data.projectMasterList);
+                setDesignations(response.data.projectMasterList)
+            })
+            .catch((error) => {
+                console.error('Error fetching data:', error);
             });
-            if (response.data.isSuccess) {
-                setDesignations(response.data.departments);
-            } else {
-                console.error(response.data.message);
-            }
-        } catch (error) {
-            console.error('Error fetching doers:', error);
-        }
-
     };
 
 
-    const handleSearch = () => {
-        if (searchDept) {
-            fetchsingleDept(searchDept);
-        }
-    };
 
     useEffect(() => {
         const fetchData = async (endpoint: string, setter: Function, listName: string) => {
@@ -164,7 +150,8 @@ const DesignationMaster = () => {
 
     const handleClear = () => {
         fetchStaffRequirements();
-        setSearchDept(undefined);
+        setSearchDept('');
+        setSearchStatus('')
     };
 
 
@@ -203,6 +190,11 @@ const DesignationMaster = () => {
     };
 
 
+    const optionsStatus = [
+        { value: 'Enabled', label: 'Enabled' },
+        { value: 'Disabled', label: 'Disabled' }
+    ];
+
 
     return (
         <>
@@ -234,13 +226,13 @@ const DesignationMaster = () => {
                     <>
                         <div className='bg-white p-2 pb-2'>
                             <Row>
-                                <Col lg={6}>
+                                <Col lg={4}>
                                     <Form.Group controlId="searchDept">
                                         <Form.Label>Department Name</Form.Label>
                                         <Select
                                             name="searchDept"
-                                            value={departmentList.find(item => item.id === searchDept) || null}
-                                            onChange={(selectedOption) => setSearchDept(selectedOption ? selectedOption.id : 0)}
+                                            value={departmentList.find(item => item.departmentName === searchDept) || null}
+                                            onChange={(selectedOption) => setSearchDept(selectedOption ? selectedOption.departmentName : '')}
                                             options={departmentList}
                                             getOptionLabel={(item) => item.departmentName}
                                             getOptionValue={(item) => item.departmentName}
@@ -250,9 +242,20 @@ const DesignationMaster = () => {
                                         />
                                     </Form.Group>
                                 </Col>
+                                <Col lg={4} className="">
+                                    <Form.Group controlId="searchStatus">
+                                        <Form.Label>Status</Form.Label>
+                                        <Select
+                                            name="searchStatus"
+                                            options={optionsStatus}
+                                            value={optionsStatus.find(option => option.value === searchStatus) || null}
+                                            onChange={(selectedOption) => setSearchStatus(selectedOption?.value || '')}
+                                            placeholder="Select Status"
+                                        />
+                                    </Form.Group>
+                                </Col>
 
-                                <Col ></Col>
-                                <Col lg={3} className="align-items-end d-flex justify-content-end mt-2">
+                                <Col lg={4} className="align-items-end d-flex justify-content-end mt-2">
                                     <ButtonGroup aria-label="Basic example" className="w-100">
                                         <Button type="button" variant="primary" onClick={handleClear}>
                                             <i className="ri-loop-left-line"></i>
@@ -378,12 +381,6 @@ const DesignationMaster = () => {
 
 
             </div >
-            <CustomSuccessToast
-                show={showToast}
-                toastMessage={toastMessage}
-                toastVariant={toastVariant}
-                onClose={() => setShowToast(false)}
-            />
         </>
     );
 };

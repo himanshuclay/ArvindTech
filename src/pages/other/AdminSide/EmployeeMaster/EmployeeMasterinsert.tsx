@@ -374,7 +374,6 @@ const EmployeeMasterInsert = () => {
     const handleChange = (e: ChangeEvent<any> | null, name?: string, value?: any) => {
         const validateMobileNumber = (fieldName: string, fieldValue: string) => {
             if (!/^\d{0,10}$/.test(fieldValue)) {
-
                 return false;
             }
 
@@ -392,7 +391,6 @@ const EmployeeMasterInsert = () => {
             } else {
                 setIsMobileVerified(false);
             }
-
             return true;
         };
 
