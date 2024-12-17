@@ -172,11 +172,11 @@ const ModuleMaster = () => {
     };
 
 
-  const formatDate = (dateString: string): string => {
-    // If your input is in a known string format, return it directly
-    // This ensures no changes to the date format
-    return dateString; 
-};
+    const formatDate = (dateString: string): string => {
+        // If your input is in a known string format, return it directly
+        // This ensures no changes to the date format
+        return dateString;
+    };
 
     const convertToCSV = (data: ProjectType[]) => {
         const csvRows = [
@@ -187,7 +187,7 @@ const ModuleMaster = () => {
                 identifier.status,
                 identifier.createdBy,
                 identifier.updatedBy,
-                formatDate(identifier.createdDate), 
+                formatDate(identifier.createdDate),
                 formatDate(identifier.updatedDate),
 
             ])
@@ -222,7 +222,7 @@ const ModuleMaster = () => {
                         </Button>
                         <Link to='/pages/ProjectTypeMasterinsert'>
                             <Button variant="primary" className="me-2">
-                                Add  ProjectType
+                                Add  Project Type
                             </Button>
                         </Link>
 
@@ -240,7 +240,7 @@ const ModuleMaster = () => {
                         <Row>
                             <Col lg={6} className="mt-2">
                                 <Form.Group controlId="searchRole">
-                                    <Form.Label>Project Type:</Form.Label>
+                                    <Form.Label>Project Type</Form.Label>
                                     <Select
                                         name="searchRole"
                                         value={managementContracts.find(item => item.id === searchRole) || null}
@@ -249,7 +249,7 @@ const ModuleMaster = () => {
                                         getOptionLabel={(item) => item.name}
                                         getOptionValue={(item) => item.name}
                                         isSearchable={true}
-                                        placeholder="Select Management Contracts"
+                                        placeholder="Select Project Type"
                                         className="h45"
                                     />
                                 </Form.Group>
@@ -334,7 +334,10 @@ const ModuleMaster = () => {
                                                     {columns.filter(col => col.visible).map((col) => (
                                                         <td key={col.id}
                                                             className={
-                                                                col.id === 'name' ? 'fw-bold fs-13 text-dark text-nowrap' : ''
+                                                                col.id === 'name' ? 'fw-bold fs-13 text-dark text-nowrap' :
+                                                                    (col.id === 'status' && item[col.id] === "Enabled") ? 'task1' :
+                                                                        (col.id === 'status' && item[col.id] === "Disabled") ? 'task4' :
+                                                                            ''
                                                             }>
                                                             <div>{item[col.id as keyof ProjectType]}</div>
                                                         </td>

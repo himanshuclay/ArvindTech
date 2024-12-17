@@ -237,7 +237,7 @@ const LnMaster: React.FC = () => {
               <Row>
                 <Col lg={3}>
                   <Form.Group controlId="ModuleName">
-                    <Form.Label>Module Name:</Form.Label>
+                    <Form.Label>Module Name</Form.Label>
                     <Select
                       name="ModuleName"
                       value={moduleList.find(item => item.moduleID === moduleID) || null}
@@ -257,7 +257,7 @@ const LnMaster: React.FC = () => {
                 </Col>
                 <Col lg={3}>
                   <Form.Group controlId="ModuleOwnerName">
-                    <Form.Label>Process Name:</Form.Label>
+                    <Form.Label>Process Name</Form.Label>
                     <Select
                       name="ModuleOwnerName"
                       value={processList.find(item => item.processID === ProcessName) || null}
@@ -275,7 +275,7 @@ const LnMaster: React.FC = () => {
 
                 <Col lg={3} className="">
                   <Form.Group controlId="searchTaskNumber">
-                    <Form.Label>Task Number:</Form.Label>
+                    <Form.Label>Task Number</Form.Label>
                     <Select
                       name="searchTaskNumber"
                       value={taskNumberList.find(item => item.taskID === taskNumberName) || null}
@@ -284,14 +284,14 @@ const LnMaster: React.FC = () => {
                       getOptionLabel={(item) => item.taskID}
                       getOptionValue={(item) => item.taskID}
                       isSearchable={true}
-                      placeholder="Select Module Name"
+                      placeholder="Select Task Number"
                       className="h45"
                     />
                   </Form.Group>
                 </Col>
                 <Col lg={3} className="">
                   <Form.Group controlId="searchDoerName">
-                    <Form.Label>Doer Name:</Form.Label>
+                    <Form.Label>Doer Name</Form.Label>
                     <Select
                       name="searchDoerName"
                       value={doerList.find(item => item.empID === doerName) || null}
@@ -300,7 +300,7 @@ const LnMaster: React.FC = () => {
                       getOptionLabel={(item) => item.empName}
                       getOptionValue={(item) => item.empID}
                       isSearchable={true}
-                      placeholder="Select Module Name"
+                      placeholder="Select Doer Name"
                       className="h45"
                     />
                   </Form.Group>

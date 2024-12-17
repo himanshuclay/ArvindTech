@@ -221,20 +221,22 @@ const ProjectInsert = () => {
                 <div className='bg-white p-2 rounded-3 border'>
                     <Form onSubmit={handleSubmit}>
                         <Row>
+                            {editMode ?
+                                <Col lg={6}>
+                                    <Form.Group controlId="subProjectID" className="mb-3">
+                                        <Form.Label>Sub Project ID </Form.Label>
+                                        <Form.Control
+                                            type="text"
+                                            name="subProjectID"
+                                            value={subProject.subProjectID}
+                                            placeholder='Sub Project ID'
+                                            disabled
+                                        />
+                                    </Form.Group>
+                                </Col>
+                                : null
+                            }
 
-                            <Col lg={6}>
-                                <Form.Group controlId="subProjectID" className="mb-3">
-                                    <Form.Label>Sub Project ID *</Form.Label>
-                                    <Form.Control
-                                        type="text"
-                                        name="subProjectID"
-                                        value={subProject.subProjectID}
-                                        onChange={handleChange}
-                                        required
-                                        placeholder='Enter Sub Project Name'
-                                    />
-                                </Form.Group>
-                            </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="projectName" className="mb-3">
                                     <Form.Label>Project Name *</Form.Label>
@@ -272,7 +274,7 @@ const ProjectInsert = () => {
 
                             <Col lg={6}>
                                 <Form.Group controlId="completionStatus" className="mb-3">
-                                    <Form.Label>Completion Status *:</Form.Label>
+                                    <Form.Label>Completion Status *</Form.Label>
                                     <Select
                                         name="completionStatus"
                                         value={completionStatus.find((mod) => mod.id === subProject.completionStatus)}
@@ -286,7 +288,7 @@ const ProjectInsert = () => {
                                         getOptionValue={(mod) => mod.id == 1 ? "Ongoing" : "Completed"}
                                         options={completionStatus}
                                         isSearchable={true}
-                                        placeholder="Select State Name"
+                                        placeholder="Select Completion Status"
                                         required
                                     />
                                 </Form.Group>
@@ -546,7 +548,7 @@ const ProjectInsert = () => {
 
 
                             <Col className='align-items-end d-flex justify-content-end mb-3'>
-                              
+
                                 <div>
                                     <Link to={'/pages/ProjectMaster'}>
                                         <Button variant="primary" >
@@ -558,7 +560,6 @@ const ProjectInsert = () => {
                                         {editMode ? 'Update Sub Project' : 'Add Sub Project'}
                                     </Button>
                                 </div>
-
                             </Col>
 
                         </Row>

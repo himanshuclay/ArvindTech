@@ -62,7 +62,7 @@ const DesignationMaster = () => {
                                 <tr>
 
                                     <td>3</td>
-                                    <td>ManagementContract Master</td>
+                                    <td>Management Contract Master</td>
                                     <td> <Link to='/pages/ManagementContractMaster'> <Button> <i className="ri-eye-line"></i>  </Button> </Link> </td>
                                     <td> <Link to='/pages/ManagementContractMasterinsert'> <Button> Add Data </Button> </Link> </td>
 
@@ -70,7 +70,7 @@ const DesignationMaster = () => {
                                 <tr>
 
                                     <td>4</td>
-                                    <td>ProjectType Master</td>
+                                    <td>Project Type Master</td>
                                     <td> <Link to='/pages/ProjectTypeMaster'> <Button> <i className="ri-eye-line"></i>  </Button> </Link> </td>
                                     <td> <Link to='/pages/ProjectTypeMasterinsert'> <Button> Add Data </Button> </Link> </td>
 

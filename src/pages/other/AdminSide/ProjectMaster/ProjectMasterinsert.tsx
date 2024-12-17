@@ -377,8 +377,6 @@ const ProjectInsert = () => {
                                 </Form.Group>
                             </Col>
 
-
-
                             <Col lg={6}>
                                 <Form.Group controlId="completionStatus" className="mb-3">
                                     <Form.Label>Completion Status *</Form.Label>
@@ -395,7 +393,7 @@ const ProjectInsert = () => {
                                         getOptionValue={(mod) => mod.id == 1 ? "Ongoing" : "Completed"}
                                         options={completionStatus}
                                         isSearchable={true}
-                                        placeholder="Select State Name"
+                                        placeholder="Select Completion Status"
                                         required
                                     />
                                 </Form.Group>

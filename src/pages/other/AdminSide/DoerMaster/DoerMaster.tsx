@@ -358,7 +358,7 @@ const ModuleMaster = () => {
 
                                     <Col lg={4} className="">
                                         <Form.Group controlId="searchIdentifier">
-                                            <Form.Label>Identifier</Form.Label>
+                                            <Form.Label>Identifier Name</Form.Label>
                                             <Select
                                                 name="searchIdentifier"
                                                 value={identifierList.find(item => item.identifier === searchIdentifier) || null} // handle null
@@ -367,7 +367,7 @@ const ModuleMaster = () => {
                                                 getOptionLabel={(item) => item.identifier}
                                                 getOptionValue={(item) => item.identifier}
                                                 isSearchable={true}
-                                                placeholder="Select Identifier"
+                                                placeholder="Select Identifier Name"
                                                 className="h45"
                                             />
                                         </Form.Group>

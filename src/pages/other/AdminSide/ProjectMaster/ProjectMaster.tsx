@@ -26,6 +26,8 @@ interface Project {
     completionStatus: number;
     nameOfWork: string;
     createdBy: string;
+    subProjectName: string;
+    subProjectID: string;
     updatedBy: string;
     projectTypeName: string;
     stateName: string;
@@ -228,20 +230,17 @@ const ProjectMaster = () => {
             document.body.removeChild(link);
         }
     };
-
     const convertToCSV = (data: Project[]) => {
         const csvRows = [
             [
                 'ID', 'Project Name', 'Project ID', 'State Name',
                 'Project Type Name', 'Management Contract Name',
-                'Project Incharge Name',
-                'Project Incharge Mobile Number', 'Project Coordinator',
-                 'Project Coordinator Mobile Number',
-                'Completion Status Name',
-                'Name of Work', 'Contractual Work Value',
-                'Executor Company', 'Next Value of Work Item for Team',
-                'Percentage of Work Done', 'Revised Contractual Work Value',
-                'Total Work Done Value Upto Previous Month',
+                'Project Incharge Name', 'Project Incharge Mobile Number',
+                'Project Coordinator Name', 'Project Coordinator Mobile Number',
+                'Completion Status Name', 'Sub Project ID', 'Sub Project Name',
+                'Name of Work', 'Contractual Work Value', 'Executor Company',
+                'Next Value of Work Item for Team', 'Percentage of Work Done',
+                'Revised Contractual Work Value', 'Total Work Done Value Upto Previous Month',
                 'Value of Work Done in This Month', 'Value of Work Done in This FY',
                 'Contractual Start Date', 'Contractual Completion Date',
                 'Expected Date of Earliest Project Completion',
@@ -259,9 +258,11 @@ const ProjectMaster = () => {
                 project.managementContractName,
                 `"${project.projectInchargeName}"`,
                 project.projectInchargeMobileNumber || '',
-                project.projectCoordinatorName,
+                project.projectCoordinatorName || '',
                 project.projectCoordinatorMobileNumber || '',
                 project.completionStatusName,
+                project.subProjectID || '',
+                project.subProjectName || '',
                 project.nameOfWork || '',
                 project.contractualWorkValue || '',
                 project.executorCompany || '',
@@ -287,6 +288,7 @@ const ProjectMaster = () => {
         ];
         return csvRows.map(row => row.join(',')).join('\n');
     };
+
 
 
 
@@ -338,7 +340,7 @@ const ProjectMaster = () => {
 
                                     <Col lg={6} className="">
                                         <Form.Group controlId="searchProjectName">
-                                            <Form.Label>Project Name:</Form.Label>
+                                            <Form.Label>Project Name</Form.Label>
                                             <Select
                                                 name="searchProjectName"
                                                 value={projectList.find(item => item.projectName === searchProjectName) || null} // handle null
@@ -347,7 +349,7 @@ const ProjectMaster = () => {
                                                 getOptionLabel={(item) => item.projectName}
                                                 getOptionValue={(item) => item.projectName}
                                                 isSearchable={true}
-                                                placeholder="Search..."
+                                                placeholder="Select Project Name"
                                                 className="h45"
                                             />
                                         </Form.Group>
@@ -355,7 +357,7 @@ const ProjectMaster = () => {
 
                                     <Col lg={6}>
                                         <Form.Group controlId="searchProjectIncharge">
-                                            <Form.Label>Project Incharge:</Form.Label>
+                                            <Form.Label>Project Incharge</Form.Label>
                                             <Select
                                                 name="searchProjectIncharge"
                                                 value={employeeList.find(emp => emp.empId === searchProjectInchage) || null} // handle null
@@ -364,14 +366,14 @@ const ProjectMaster = () => {
                                                 getOptionLabel={(emp) => emp.employeeName}
                                                 getOptionValue={(emp) => emp.empId}
                                                 isSearchable={true}
-                                                placeholder="Search..."
+                                                placeholder="Select Porject Incharge"
                                                 className="h45"
                                             />
                                         </Form.Group>
                                     </Col>
                                     <Col lg={6} className="mt-2">
                                         <Form.Group controlId="searchProjectCoordinator">
-                                            <Form.Label>Project Coordinator:</Form.Label>
+                                            <Form.Label>Project Coordinator</Form.Label>
                                             <Select
                                                 name="searchProjectCoordinator"
                                                 value={employeeList.find(emp => emp.empId === searchProjectCoordinator) || null} // handle null
@@ -380,7 +382,7 @@ const ProjectMaster = () => {
                                                 getOptionLabel={(emp) => emp.employeeName}
                                                 getOptionValue={(emp) => emp.empId}
                                                 isSearchable={true}
-                                                placeholder="Search..."
+                                                placeholder="Select Project Coordinator "
                                                 className="h45"
                                             />
                                         </Form.Group>
@@ -397,7 +399,7 @@ const ProjectMaster = () => {
                                                 getOptionLabel={(task) => task.id == 1 ? "Ongoing" : 'Completed'}
                                                 getOptionValue={(task) => task.id == 1 ? "Ongoing" : 'Completed'}
                                                 isSearchable={true}
-                                                placeholder="Search..."
+                                                placeholder="Select Status"
                                                 className="h45"
                                             />
                                         </Form.Group>

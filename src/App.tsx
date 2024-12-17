@@ -18,7 +18,7 @@ function App() {
         <ToastContainer
         className="toast-containers"
           position="top-right"
-          autoClose={30000}
+          autoClose={10000}
           hideProgressBar={false}
           newestOnTop={false}
           closeOnClick

@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { useState, useEffect, ChangeEvent } from 'react';
+import { useState, useEffect } from 'react';
 import { Button, Pagination, Table, Container, Row, Col, Alert, Form, ButtonGroup } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
@@ -47,7 +47,6 @@ const ModuleMaster = () => {
     const [moduleList, setModuleList] = useState<Process[]>([]);
     const [employeeList, setEmployeeList] = useState<Process[]>([]);
     const [processList, setProcessList] = useState<Process[]>([]);
-    const [searchQuery, setSearchQuery] = useState('');
     const [ModuleName, setModuleName] = useState('');
     const [ProcessName, setProcessName] = useState('');
     const [ProcessOwnerName, setProcessOwnerName] = useState('');
@@ -172,7 +171,7 @@ const ModuleMaster = () => {
         };
 
         fetchData('CommonDropdown/GetModuleList', setModuleList, 'moduleNameListResponses');
-        fetchData('CommonDropdown/GetEmployeeListWithId', setEmployeeList, 'employeeLists');
+        fetchData('CommonDropdown/GetProcessOwnerName', setEmployeeList, 'processOwnerNames');
     }, []);
 
 
@@ -202,19 +201,10 @@ const ModuleMaster = () => {
         fetchProcess();
     };
 
-    const filteredProcess = processes.filter(process =>
-        process.moduleName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        process.processDisplayName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        process.processOwnerName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        process.processObjective.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        process.userUpdatedMobileNumber.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        process.status.toLowerCase().includes(searchQuery.toLowerCase())
-    );
-
 
     const convertToCSV = (data: Process[]) => {
         const csvRows = [
-            ['ID', 'Module Name', 'Process ID', 'Process Display Name', 'Process Objective', 'Process Owner Name', 'User Updated Mobile Number', 'Created By', 'Updated By','Created Date','Updated Date'],
+            ['ID', 'Module Name', 'Process ID', 'Process Display Name', 'Process Objective', 'Process Owner Name', 'User Updated Mobile Number', 'Created By', 'Updated By', 'Created Date', 'Updated Date'],
             ...data.map(mod => [
                 mod.id,
                 mod.moduleName,
@@ -248,11 +238,6 @@ const ModuleMaster = () => {
         }
     };
 
-    const handleSearchcurrent = (e: ChangeEvent<HTMLInputElement>) => {
-        setSearchQuery(e.target.value);
-        setCurrentPage(1); // Reset to first page on search
-    };
-
 
     const handleShow = () => setShow(true);
 
@@ -274,6 +259,9 @@ const ModuleMaster = () => {
             <div className="d-flex bg-white p-2 my-2 justify-content-between align-items-center fs-20">
                 <span><i className="ri-file-list-line me-2"></i><span className='fw-bold test-nowrap'>Process List</span></span>
                 <div className="d-flex">
+                    <Button variant="primary" onClick={downloadCSV} className="me-2">
+                        Download CSV
+                    </Button>
                     <Link to='/pages/ProcessMasterinsert'>
                         <Button variant="primary">
                             Add Process
@@ -282,7 +270,7 @@ const ModuleMaster = () => {
 
                 </div>
             </div>
-            {!filteredProcess ? (
+            {!processes ? (
                 <Container className="mt-5">
                     <Row className="justify-content-center">
                         <Col xs={12} md={8} lg={6}>
@@ -308,7 +296,7 @@ const ModuleMaster = () => {
                                         <Row>
                                             <Col lg={4}>
                                                 <Form.Group controlId="ModuleName">
-                                                    <Form.Label>Module Name:</Form.Label>
+                                                    <Form.Label>Module Name</Form.Label>
 
                                                     <Select
                                                         name="ModuleName"
@@ -325,7 +313,7 @@ const ModuleMaster = () => {
                                             </Col>
                                             <Col lg={3}>
                                                 <Form.Group controlId="ModuleOwnerName">
-                                                    <Form.Label>Process Name:</Form.Label>
+                                                    <Form.Label>Process Name</Form.Label>
 
                                                     <Select
                                                         name="ModuleOwnerName"
@@ -344,16 +332,16 @@ const ModuleMaster = () => {
 
                                             <Col lg={3}>
                                                 <Form.Group controlId="ProcessOwnerName">
-                                                    <Form.Label>Process Owner Name:</Form.Label>
+                                                    <Form.Label>Process Owner Name</Form.Label>
                                                     <Select
                                                         name="ProcessOwnerName"
-                                                        value={employeeList.find(item => item.empId === ProcessOwnerName) || null} // handle null
-                                                        onChange={(selectedOption) => setProcessOwnerName(selectedOption ? selectedOption.empId : "")} // null check
+                                                        value={employeeList.find(item => item.processOwnerName === ProcessOwnerName) || null} // handle null
+                                                        onChange={(selectedOption) => setProcessOwnerName(selectedOption ? selectedOption.processOwnerName : "")} // null check
                                                         options={employeeList}
-                                                        getOptionLabel={(item) => item.employeeName.split('_')[0]}
-                                                        getOptionValue={(item) => item.empId}
+                                                        getOptionLabel={(item) => item.processOwnerName}
+                                                        getOptionValue={(item) => item.processOwnerName}
                                                         isSearchable={true}
-                                                        placeholder="Process Owner Name"
+                                                        placeholder="Select Process Owner Name"
                                                         className="h45"
                                                     />
                                                 </Form.Group>
@@ -372,23 +360,10 @@ const ModuleMaster = () => {
                                     <Row className='mt-3'>
                                         <div className="d-flex justify-content-end bg-light p-1">
                                             <div className="app-search d-none d-lg-block me-4">
-                                                <form>
-                                                    <div className="input-group px300 ">
-                                                        <input
-                                                            type="search"
-                                                            className=" bg-white"
-                                                            placeholder="Search Process..."
-                                                            value={searchQuery}
-                                                            onChange={handleSearchcurrent}
-                                                        />
-                                                        <span className="ri-search-line search-icon text-muted" />
-                                                    </div>
-                                                </form>
+
                                             </div>
 
-                                            <Button variant="primary" onClick={downloadCSV} className="">
-                                                Download CSV
-                                            </Button>
+
                                         </div>
                                     </Row>
                                 </div>
@@ -429,8 +404,8 @@ const ModuleMaster = () => {
                                                 </Droppable>
                                             </thead>
                                             <tbody>
-                                                {filteredProcess.length > 0 ? (
-                                                    filteredProcess.slice(0, 10).map((item, index) => (
+                                                {processes.length > 0 ? (
+                                                    processes.slice(0, 10).map((item, index) => (
                                                         <tr key={item.id}>
                                                             <td>{(currentPage - 1) * 10 + index + 1}</td>
                                                             {columns.filter(col => col.visible).map((col) => (
@@ -438,8 +413,8 @@ const ModuleMaster = () => {
                                                                     className={
                                                                         col.id === 'processOwnerName' ? 'fw-bold fs-13 text-dark text-nowrap' :
                                                                             col.id === 'moduleName' ? 'fw-bold fs-13   text-nowrap' :
-                                                                                (col.id === 'status' && item[col.id] === "ACTIVE") ? 'task1' :
-                                                                                    (col.id === 'status' && item[col.id] === "INACTIVE") ? 'task4' :
+                                                                                (col.id === 'status' && item[col.id] === "Active") ? 'task1' :
+                                                                                    (col.id === 'status' && item[col.id] === "Inactive") ? 'task4' :
                                                                                         ''
                                                                     }
                                                                 >

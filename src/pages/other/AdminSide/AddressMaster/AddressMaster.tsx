@@ -50,7 +50,7 @@ const AddressMaster = () => {
     const [totalPages, setTotalPages] = useState(1);
     const [stateList, setStateList] = useState<StateList[]>([]);
 
-    
+
     const location = useLocation();
     const navigate = useNavigate();
     useEffect(() => {
@@ -90,12 +90,10 @@ const AddressMaster = () => {
 
 
     useEffect(() => {
-        // If any search criteria is filled, run handleSearch; otherwise, fetch master data
         if (searchPinCode || searchAreaName || searchDistrict || searchState) {
             handleSearch();
         } else {
             fetchStaffRequirements();
-            // fetchModulesCsv
         }
     }, [currentPage]);
 
@@ -181,47 +179,91 @@ const AddressMaster = () => {
 
 
     useEffect(() => {
-        const fetchDistricts = async () => {
+        const fetchDistrictsByState = async () => {
             try {
-                const response = await axios.get(`${config.API_URL_APPLICATION}/AddressMaster/GetAddressData?PinCode=${searchPinCode}`);
-                setDistricts(response.data.addresses); // Assume the response contains districtList
+                const response = await axios.get(`${config.API_URL_APPLICATION}/AddressMaster/GetDistrictByState`, {
+                    params: { State: searchState }
+                });
+                setDistricts(response.data.getDistricts || []); // Safely access data
             } catch (error) {
                 console.error('Error fetching districts:', error);
                 setDistricts([]);
             }
         };
 
-        // Only call the API if searchPinCode has exactly 6 digits
-        if (searchPinCode.length === 6) {
-            fetchDistricts();
-        } else {
-            setDistricts([]);
-            setSearchDistrict(''); // Clear district if pin code is not 6 digits
-            setAreaData([]); // Clear area data if conditions are not met
-        }
-    }, [searchPinCode]);
+        if (searchState) fetchDistrictsByState()
+            else{
+                setDistricts([]);};
+    }, [searchState]);
+
 
     useEffect(() => {
-        const fetchAreaData = async () => {
+        const fetchAreaByStateAndDistrict = async () => {
             try {
-                const response = await axios.get(`${config.API_URL_APPLICATION}/AddressMaster/GetAddressData?PinCode=${searchPinCode}&District=${searchDistrict}`);
-                setAreaData(response.data.addresses); // Assume the response contains area data
+                const response = await axios.get(`${config.API_URL_APPLICATION}/AddressMaster/GetDistrictByState`, {
+                    params: { State: searchState, District: searchDistrict }
+                });
+                setAreaData(response.data.getDistricts || []); // Safely access data
             } catch (error) {
                 console.error('Error fetching area data:', error);
                 setAreaData([]);
             }
         };
 
-        // Only call the second API if both searchPinCode and selectedDistrict are valid
-        if (searchPinCode.length === 6 && searchDistrict) {
-            fetchAreaData();
+        if (searchState && searchDistrict) fetchAreaByStateAndDistrict();
+    }, [searchState && searchDistrict]);
+
+
+
+    useEffect(() => {
+        const fetchDataByPinCode = async () => {
+            try {
+                const response = await axios.get(`${config.API_URL_APPLICATION}/AddressMaster/GetAddressData`, {
+                    params: { PinCode: searchPinCode }
+                });
+                setDistricts(response.data.addresses || []);
+            } catch (error) {
+                console.error('Error fetching districts by pin code:', error);
+                setDistricts([]);
+            }
+        };
+
+        if (searchPinCode.length === 6) {
+            fetchDataByPinCode();
+        } else {
+            setDistricts([]);
+            setAreaData([]);
         }
-    }, [searchPinCode, searchDistrict]);
+    }, [searchPinCode]);
+
+    useEffect(() => {
+        const fetchAreaDataByPinCodeAndDistrict = async () => {
+            try {
+                const response = await axios.get(`${config.API_URL_APPLICATION}/AddressMaster/GetAddressData`, {
+                    params: { PinCode: searchPinCode, District: searchDistrict }
+                });
+                setAreaData(response.data.addresses || []);
+            } catch (error) {
+                console.error('Error fetching area data by pin code and district:', error);
+                setAreaData([]);
+            }
+        };
+
+        if (searchPinCode.length === 6 && searchDistrict) {
+            fetchAreaDataByPinCodeAndDistrict();
+        }
+    }, [searchPinCode && searchDistrict]);
+
+
+
+
 
     const handleClear = () => {
         fetchStaffRequirements();
         setSearchState('');
         setSearchPinCode('');
+        setSearchDistrict('');
+        setDistricts([]);
         setSearchAreaName('');
     };
 
@@ -257,7 +299,7 @@ const AddressMaster = () => {
         }
     };
 
- 
+
 
     return (
         <>
@@ -266,9 +308,9 @@ const AddressMaster = () => {
                     <span><i className="ri-file-list-line me-2 text-dark fs-16"></i><span className='fw-bold text-dark fs-15'>Address List</span></span>
                     <div className="d-flex justify-content-end  ">
 
-                    <Button variant="primary" onClick={downloadCSV} className="me-2">
-                                        Download CSV
-                                    </Button>
+                        <Button variant="primary" onClick={downloadCSV} className="me-2">
+                            Download CSV
+                        </Button>
                         <Link to='/pages/AddressMasterinsert'>
                             <Button variant="primary" className="me-2">
                                 Add Address
@@ -314,7 +356,7 @@ const AddressMaster = () => {
                                             getOptionLabel={(item) => item.stateName}
                                             getOptionValue={(item) => item.stateName}
                                             isSearchable={true}
-                                            placeholder="Select State"
+                                            placeholder="Select State Name"
                                             className="h45"
                                         />
                                     </Form.Group>
@@ -331,7 +373,7 @@ const AddressMaster = () => {
                                             getOptionLabel={(item) => item.district}
                                             getOptionValue={(item) => item.district}
                                             isSearchable={true}
-                                            placeholder="Select District"
+                                            placeholder="Select District Name"
                                             className="h45"
 
                                         />
@@ -348,7 +390,7 @@ const AddressMaster = () => {
                                             getOptionLabel={(item) => item?.areaName || ''}  // Use optional chaining
                                             getOptionValue={(item) => item?.areaName || ''}  // Use optional chaining
                                             isSearchable={true}
-                                            placeholder="Select Area"
+                                            placeholder="Select Area Name"
                                             className="h45"
                                         />
                                     </Form.Group>
@@ -373,10 +415,10 @@ const AddressMaster = () => {
                             <Row className='mt-3'>
                                 <div className="d-flex justify-content-end bg-light p-1">
                                     <div className="app-search d-none d-lg-block me-4">
-                                       
+
                                     </div>
 
-                                  
+
                                 </div>
                             </Row>
                         </div>

@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { useState, useEffect, ChangeEvent } from 'react';
+import { useState, useEffect } from 'react';
 import { Button, Pagination, Table, Container, Row, Col, Alert, Form, ButtonGroup } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
@@ -64,7 +64,6 @@ const RequirementMaster = () => {
     const [loading, setLoading] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
-    const [searchQuery, setSearchQuery] = useState('');
 
 
     const [employeeList, setEmployeeList] = useState<EmployeeList[]>([]);
@@ -193,7 +192,7 @@ const RequirementMaster = () => {
         fetchData('CommonDropdown/GetDepartment', setDepartmentList, 'getDepartments');
         fetchData('CommonDropdown/GetProjectList', setProjectList, 'projectListResponses');
 
-      
+
     }, []);
 
 
@@ -271,35 +270,18 @@ const RequirementMaster = () => {
         }
     };
 
-    const handleSearchcurrent = (e: ChangeEvent<HTMLInputElement>) => {
-        setSearchQuery(e.target.value);
-        setCurrentPage(1);
-    };
+  
 
-    const filteredRequirements = requirements.filter(requirement =>
-        requirement.entryDate.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        requirement.enteredBy.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        requirement.project.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        requirement.department.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        requirement.coreDesignation.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        requirement.specializedDesignation.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        requirement.source.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        requirement.recruiter.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        requirement.candidateIDsInterviewedWithNames.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        requirement.finalizedCandidateIDAndName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        requirement.deployedCandidateIDAndName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        requirement.transferEmployeeIDAndName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        requirement.deployedTransferredEmployeeIDAndName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        requirement.closureStatus.toLowerCase().includes(searchQuery.toLowerCase()) 
-    );
-    
+  
     return (
         <>
             <div className="container">
                 <div className="d-flex bg-white p-2 my-2 justify-content-between align-items-center">
                     <span><i className="ri-file-list-line me-2 text-dark fs-16"></i><span className='fw-bold text-dark fs-15'>Staff Requirement List</span></span>
                     <div className="d-flex justify-content-end  ">
-
+                        <Button variant="primary" onClick={downloadCSV} className="me-2">
+                            Download CSV
+                        </Button>
                         <Link to='/pages/RequirementMasterinsert'>
                             <Button variant="primary" className="me-2">
                                 Add Requirement
@@ -321,7 +303,7 @@ const RequirementMaster = () => {
                         <div className='bg-white p-2 pb-2'>
                             <Form onSubmit={handleSearch}>
                                 <Row>
-                                   
+
                                     <Col lg={4}>
                                         <Form.Group controlId="searchProject">
                                             <Form.Label>Project Name</Form.Label>
@@ -333,7 +315,7 @@ const RequirementMaster = () => {
                                                 getOptionLabel={(role) => role.projectName}
                                                 getOptionValue={(role) => role.projectName}
                                                 isSearchable={true}
-                                                placeholder="Search..."
+                                                placeholder="Select Project Name"
                                                 className="h45"
                                             />
                                         </Form.Group>
@@ -350,7 +332,7 @@ const RequirementMaster = () => {
                                                 getOptionLabel={(emp) => emp.employeeName}
                                                 getOptionValue={(emp) => emp.employeeName}
                                                 isSearchable={true}
-                                                placeholder="Search..."
+                                                placeholder="Select Recruiter Name"
                                                 className="h45"
                                             />
                                         </Form.Group>
@@ -362,8 +344,8 @@ const RequirementMaster = () => {
                                             <Form.Label>Deparment Name</Form.Label>
                                             <Select
                                                 name="searchDeptName"
-                                                value={departmentList.find(task => task.departmentName === searchDeptName) || null} 
-                                                onChange={(selectedOption) => setSearchDeptName(selectedOption ? selectedOption.departmentName : "")} 
+                                                value={departmentList.find(task => task.departmentName === searchDeptName) || null}
+                                                onChange={(selectedOption) => setSearchDeptName(selectedOption ? selectedOption.departmentName : "")}
                                                 options={departmentList}
                                                 getOptionLabel={(task) => task.departmentName}
                                                 getOptionValue={(task) => task.departmentName}
@@ -397,29 +379,16 @@ const RequirementMaster = () => {
                             <Row className='mt-3'>
                                 <div className="d-flex justify-content-end bg-light p-1">
                                     <div className="app-search d-none d-lg-block me-4">
-                                        <form>
-                                            <div className="input-group px300 ">
-                                                <input
-                                                    type="search"
-                                                    className=" bg-white"
-                                                    placeholder="Search..."
-                                                    value={searchQuery}
-                                                    onChange={handleSearchcurrent}
-                                                />
-                                                <span className="ri-search-line search-icon text-muted" />
-                                            </div>
-                                        </form>
+
                                     </div>
 
-                                    <Button variant="primary" onClick={downloadCSV} className="">
-                                        Download CSV
-                                    </Button>
+
                                 </div>
                             </Row>
                         </div>
 
                         <div className="overflow-auto text-nowrap">
-                            {!filteredRequirements ? (
+                            {!requirements ? (
                                 <Container className="mt-5">
                                     <Row className="justify-content-center">
                                         <Col xs={12} md={8} lg={6}>
@@ -477,8 +446,8 @@ const RequirementMaster = () => {
                                             </Droppable>
                                         </thead>
                                         <tbody>
-                                            {filteredRequirements.length > 0 ? (
-                                                filteredRequirements.slice(0, 10).map((item, index) => (
+                                            {requirements.length > 0 ? (
+                                                requirements.slice(0, 10).map((item, index) => (
                                                     <tr key={item.id}>
                                                         <td>{(currentPage - 1) * 10 + index + 1}</td>
                                                         {columns.filter(col => col.visible).map((col) => (

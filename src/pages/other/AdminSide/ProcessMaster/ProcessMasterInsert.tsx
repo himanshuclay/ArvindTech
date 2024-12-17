@@ -411,36 +411,7 @@ const EmployeeInsert = () => {
 
                                 </Form.Group>
                             </Col>
-                            {/* <Col lg={6}>
-                                <Form.Group controlId="processFlowchart" className="mb-3">
-                                    <Form.Label>Process Flowchart</Form.Label>
-                                    <div className='input-file-custom'>
-                                        <label htmlFor="processFlowchart" className="file-upload w-100">
-                                            <div className='d-flex justify-content-between align-items-center'>
-                                                <i className="ri-upload-cloud-2-line h1 text-muted m-0"></i>
-                                                <div>
-                                                    <h4>Drop files here or click to upload.</h4>
-                                                    <span className='fs-13 text-muted'>(.jpeg, .jpg, .png, .pdf Note: You can only select up to 5 files, each up to 10MB.)</span>
-                                                </div>
-                                            </div>
-                                        </label>
-                                        <input
-                                            id="processFlowchart"
-                                            type="file"
-                                            multiple
-                                            onChange={handleFileChange}
-                                            accept=".png,.jpeg,.jpg,.pdf"
-                                            style={{ display: 'none' }}
-                                        />
-                                        {error && <p style={{ color: 'red' }}>{error}</p>}
-                                        <ul>
-                                            {files.map((file, index) => (
-                                                <li key={index}>{file.name}</li>
-                                            ))}
-                                        </ul>
-                                    </div>
-                                </Form.Group>
-                            </Col> */}
+                   
                             <Col lg={12}>
                                 <Form.Group controlId="processFlowchart" className="mb-3">
                                     <Form.Label>Process Flowchart</Form.Label>

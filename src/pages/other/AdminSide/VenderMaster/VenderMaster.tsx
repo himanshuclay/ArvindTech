@@ -321,7 +321,7 @@ const TenderMaster = () => {
                                                 name="searchVenderCode"
                                                 value={searchVenderCode}
                                                 onChange={(e) => setSearchVenderCode(e.target.value)}
-                                                placeholder='Enter VendorCode'
+                                                placeholder='Enter Vendor Code'
                                             />
                                         </Form.Group>
                                     </Col>

@@ -142,7 +142,7 @@ const AddressMasterinsert = () => {
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
 
-
+        toast.dismiss()
 
         if (pinCodeError) {
             toast.error('Invalid PinCode')

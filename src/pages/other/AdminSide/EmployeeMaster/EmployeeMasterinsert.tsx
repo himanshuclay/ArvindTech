@@ -15,7 +15,6 @@ interface Employee {
     employeeName: string;
     fatherName: string;
     email: string;
-    role: string;
     dataAccessLevel: string;
     empStatus: string;
     hrUpdatedMobileNo: string;
@@ -104,7 +103,6 @@ const EmployeeMasterInsert = () => {
         employeeName: '',
         fatherName: '',
         email: '',
-        role: '',
         dataAccessLevel: '',
         empStatus: '',
         hrUpdatedMobileNo: '',
@@ -164,7 +162,7 @@ const EmployeeMasterInsert = () => {
     const [searchPin, setSearchPin] = useState('');
     const [searchDistrict, setSearchDistrict] = useState('');
 
-
+    const [isMobileVerified, setIsMobileVerified] = useState(false);
 
     const dateOfLeavingRef = useRef<any>(null);
     useEffect(() => {
@@ -184,7 +182,6 @@ const EmployeeMasterInsert = () => {
             setEditMode(false);
         }
     }, [id]);
-
 
 
     const fetchEmployeeById = async (id: string) => {
@@ -291,6 +288,7 @@ const EmployeeMasterInsert = () => {
         fetchData('CommonDropdown/GetModuleList', setModuleList, 'moduleNameListResponses');
     }, []);
 
+    console.log(searchDistrict)
     const fetchDistricts = async () => {
         try {
             // Clear previous errors
@@ -311,7 +309,7 @@ const EmployeeMasterInsert = () => {
 
                 const firstDistrict = fetchedDistricts[0].district;
                 const fetchedState = fetchedDistricts[0]?.state || '';
-
+                console.log('hi')
                 setSearchDistrict(firstDistrict);
                 setEmployee(prev => ({
                     ...prev,
@@ -375,7 +373,10 @@ const EmployeeMasterInsert = () => {
 
     const handleChange = (e: ChangeEvent<any> | null, name?: string, value?: any) => {
         const validateMobileNumber = (fieldName: string, fieldValue: string) => {
-            if (!/^\d{0,10}$/.test(fieldValue)) return false; // Allow only numeric input up to 10 digits
+            if (!/^\d{0,10}$/.test(fieldValue)) {
+
+                return false;
+            }
 
             setEmployee((prevData) => ({
                 ...prevData,
@@ -385,8 +386,11 @@ const EmployeeMasterInsert = () => {
             if (fieldValue.length === 10) {
                 if (!/^[6-9]/.test(fieldValue)) {
                     toast.error("Mobile number should start with a digit between 6 and 9.");
+                    setIsMobileVerified(true);
                     return false;
                 }
+            } else {
+                setIsMobileVerified(false);
             }
 
             return true;
@@ -425,8 +429,8 @@ const EmployeeMasterInsert = () => {
                                 updatedData.daL_Project = [];
                             }
                         }
-                        if(name === 'empStatus'){
-                            if(value !== 'Former'){
+                        if (name === 'empStatus') {
+                            if (value !== 'Former') {
                                 updatedData.dateOfLeaving = '';
                             }
                         }
@@ -455,8 +459,8 @@ const EmployeeMasterInsert = () => {
                     }
                 }
 
-                if(name === 'empStatus'){
-                    if(value !== 'Former'){
+                if (name === 'empStatus') {
+                    if (value !== 'Former') {
                         updatedData.dateOfLeaving = '';
                     }
                 }
@@ -492,7 +496,7 @@ const EmployeeMasterInsert = () => {
 
 
     const handleBankAccountNumberChange = (e: ChangeEvent<any>, accountType: string) => {
-        const { value } = e.target as HTMLInputElement; 
+        const { value } = e.target as HTMLInputElement;
 
         const validValue = value.replace(/[^0-9]/g, "");
 
@@ -505,6 +509,11 @@ const EmployeeMasterInsert = () => {
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
+        toast.dismiss()
+        if (isMobileVerified) {
+            toast.error("Please verify your mobile number before submitting the form.");
+            return;
+        }
 
         if (employee.empStatus === 'Former' && !employee.dateOfLeaving) {
             dateOfLeavingRef.current?.flatpickr.open(); // Focus and open the Flatpickr field
@@ -572,7 +581,6 @@ const EmployeeMasterInsert = () => {
         { value: 'Project', label: 'Project' }
     ];
 
-
     return (
         <div>
             <div className="container ">
@@ -588,7 +596,7 @@ const EmployeeMasterInsert = () => {
                                     <Form.Control
                                         type="text"
                                         name="empID"
-                                        value={employee.empID}
+                                        value={employee.empID || ''}
                                         onChange={handleChange}
                                         required
                                         placeholder='Enter Employee ID'
@@ -609,9 +617,6 @@ const EmployeeMasterInsert = () => {
                                     />
                                 </Form.Group>
                             </Col>
-
-
-
                             <Col lg={6}>
                                 <Form.Group controlId="departmentName" className="mb-3">
                                     <Form.Label>Department Name *</Form.Label>
@@ -633,8 +638,6 @@ const EmployeeMasterInsert = () => {
                                     />
                                 </Form.Group>
                             </Col>
-
-
                             <Col lg={6}>
                                 <Form.Group controlId="designation" className="mb-3">
                                     <Form.Label>Designation *</Form.Label>
@@ -648,7 +651,6 @@ const EmployeeMasterInsert = () => {
                                     />
                                 </Form.Group>
                             </Col>
-
                             <Col lg={6}>
                                 <Form.Group controlId="hrUpdatedMobileNo" className="mb-3">
                                     <Form.Label>HR Update Mobile Number  *</Form.Label>
@@ -663,7 +665,6 @@ const EmployeeMasterInsert = () => {
                                     />
                                 </Form.Group>
                             </Col>
-
                             <Col lg={6}>
                                 <Form.Group controlId="gender" className="mb-3">
                                     <Form.Label>Gender *</Form.Label>
@@ -685,7 +686,6 @@ const EmployeeMasterInsert = () => {
                                     />
                                 </Form.Group>
                             </Col>
-
                             <Col lg={6}>
                                 <Form.Group controlId="fatherName" className="mb-3">
                                     <Form.Label>Father Name *</Form.Label>
@@ -699,8 +699,6 @@ const EmployeeMasterInsert = () => {
                                     />
                                 </Form.Group>
                             </Col>
-
-
                             <Col lg={6}>
                                 <Form.Group controlId="dateOfBirth" className="mb-3">
                                     <Form.Label> Date of Birth *</Form.Label>
@@ -726,8 +724,6 @@ const EmployeeMasterInsert = () => {
                                     />
                                 </Form.Group>
                             </Col>
-
-
                             <Col lg={6}>
                                 <Form.Group controlId="dateOfJoining" className="mb-3">
                                     <Form.Label> Date of Joining *</Form.Label>
@@ -753,8 +749,6 @@ const EmployeeMasterInsert = () => {
                                     />
                                 </Form.Group>
                             </Col>
-
-
                             <Col lg={6}>
                                 <Form.Group controlId="currentProjectName" className="mb-3">
                                     <Form.Label>Current Project Name</Form.Label>
@@ -788,7 +782,6 @@ const EmployeeMasterInsert = () => {
                                     />
                                 </Form.Group>
                             </Col>
-
                             <Col lg={6}>
                                 <Form.Group controlId="appExempt" className="mb-3">
                                     <Form.Label>Exempt Status *</Form.Label>
@@ -802,7 +795,6 @@ const EmployeeMasterInsert = () => {
                                     />
                                 </Form.Group>
                             </Col>
-
                             <Col lg={6}>
                                 <Form.Group controlId="isPerformanceReview" className="mb-3">
                                     <Form.Label>Performance Review Applicability *</Form.Label>
@@ -855,8 +847,6 @@ const EmployeeMasterInsert = () => {
                                     />
                                 </Form.Group>
                             </Col>
-
-
                             <Col lg={6}>
                                 <Form.Group controlId="daL_Module" className="mb-3">
                                     <Form.Label> DAL Module {(employee.dataAccessLevel === 'Module' || employee.dataAccessLevel === 'ProjectModule') ? '*' : null} </Form.Label>
@@ -907,8 +897,6 @@ const EmployeeMasterInsert = () => {
                                     />
                                 </Form.Group>
                             </Col>
-
-
                             <Col lg={6}>
                                 <Form.Group controlId="isRegistered" className="mb-3">
                                     <Form.Label>Is Registered *</Form.Label>
@@ -920,7 +908,6 @@ const EmployeeMasterInsert = () => {
                                     />
                                 </Form.Group>
                             </Col>
-
                             <Col lg={6}>
                                 <Form.Group controlId="registrationDate" className="mb-3">
                                     <Form.Label>Registration Date *</Form.Label>
@@ -934,7 +921,6 @@ const EmployeeMasterInsert = () => {
                                     />
                                 </Form.Group>
                             </Col>
-
                             <Col lg={6}>
                                 <Form.Group controlId="userUpdatedMobileNo" className="mb-3">
                                     <Form.Label>User Updated Mobile Number </Form.Label>
@@ -947,8 +933,6 @@ const EmployeeMasterInsert = () => {
                                     />
                                 </Form.Group>
                             </Col>
-
-
                             <Col lg={6}>
                                 <Form.Group controlId="dateOfLeaving" className="mb-3">
                                     <Form.Label> Date of Leaving {employee.empStatus === 'Former' ? '*' : null}</Form.Label>
@@ -987,7 +971,7 @@ const EmployeeMasterInsert = () => {
                                         name="pin"
                                         value={employee.pin}
                                         onChange={(e) => {
-                                            setSearchPin(e.target.value);
+                                            setSearchPin(e.target.value || employee.pin);
                                             setEmployee(prev => ({ ...prev, pin: e.target.value }));
                                         }}
                                         onBlur={fetchDistricts}
@@ -1007,7 +991,6 @@ const EmployeeMasterInsert = () => {
                                         onChange={handleChange}
                                         placeholder='Enter State Name'
                                         readOnly
-                                        disabled={!searchPin}
                                     />
                                 </Form.Group>
                             </Col>
@@ -1016,7 +999,11 @@ const EmployeeMasterInsert = () => {
                                     <Form.Label>District </Form.Label>
                                     <Select
                                         name="district"
-                                        value={districts.find(item => item.district === employee.district) || null}
+                                        value={
+                                            districts.find(item => item.district === employee.district) ||
+                                            (employee.district && { district: employee.district }) ||
+                                            null
+                                        }
                                         onChange={(selectedOption) => {
                                             const district = selectedOption ? selectedOption.district : '';
                                             setSearchDistrict(district);
@@ -1029,8 +1016,8 @@ const EmployeeMasterInsert = () => {
                                         isSearchable={true}
                                         placeholder="Select District"
                                         className="h45"
-                                        isDisabled={!searchPin}
                                     />
+
                                 </Form.Group>
                             </Col>
                             <Col lg={6}>
@@ -1038,7 +1025,11 @@ const EmployeeMasterInsert = () => {
                                     <Form.Label>Area </Form.Label>
                                     <Select
                                         name="area"
-                                        value={areaData.find(item => item.areaName === employee.area) || null}
+                                        value={
+                                            areaData.find(item => item.areaName === employee.area) ||
+                                            (employee.area && { areaName: employee.area }) ||
+                                            null
+                                        }
                                         onChange={(selectedOption) => {
                                             const areaName = selectedOption ? selectedOption.areaName : '';
                                             setEmployee(prev => ({ ...prev, area: areaName })); // Update area in employee
@@ -1049,7 +1040,6 @@ const EmployeeMasterInsert = () => {
                                         isSearchable={true}
                                         placeholder="Select Area"
                                         className="h45"
-                                        isDisabled={!searchDistrict}
                                     />
                                 </Form.Group>
                             </Col>
@@ -1072,7 +1062,7 @@ const EmployeeMasterInsert = () => {
                             <h3>Salary Account Details</h3>
                             <Col lg={6}>
                                 <Form.Group controlId="salaryBankIfsc" className="mb-3">
-                                    <Form.Label>IFSC Code:</Form.Label>
+                                    <Form.Label>IFSC Code</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="salaryBankIfsc"
@@ -1087,7 +1077,7 @@ const EmployeeMasterInsert = () => {
 
                             <Col lg={6}>
                                 <Form.Group controlId="salaryBankName" className="mb-3">
-                                    <Form.Label>Bank Name:</Form.Label>
+                                    <Form.Label>Bank Name</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="salaryBankName"
@@ -1100,7 +1090,7 @@ const EmployeeMasterInsert = () => {
 
                             <Col lg={6}>
                                 <Form.Group controlId="salaryBranchName" className="mb-3">
-                                    <Form.Label>Branch  Name:</Form.Label>
+                                    <Form.Label>Branch  Name</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="salaryBranchName"
@@ -1115,7 +1105,7 @@ const EmployeeMasterInsert = () => {
 
                             <Col lg={6}>
                                 <Form.Group controlId="salaryBankAccountNumber" className="mb-3">
-                                    <Form.Label>Bank Account Number:</Form.Label>
+                                    <Form.Label>Bank Account Number</Form.Label>
                                     <Form.Control
                                         type="text" // Change to "text" to preserve leading zeroes
                                         name="salaryBankAccountNumber"
@@ -1129,7 +1119,7 @@ const EmployeeMasterInsert = () => {
                             <h3>Reimbursement Account Details</h3>
                             <Col lg={6}>
                                 <Form.Group controlId="reimbursementBankIfsc" className="mb-3">
-                                    <Form.Label>IFSC Code:</Form.Label>
+                                    <Form.Label>IFSC Code</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="reimbursementBankIfsc"
@@ -1145,7 +1135,7 @@ const EmployeeMasterInsert = () => {
 
                             <Col lg={6}>
                                 <Form.Group controlId="reimbursementBankName" className="mb-3">
-                                    <Form.Label>Bank Name:</Form.Label>
+                                    <Form.Label>Bank Name</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="reimbursementBankName"
@@ -1159,7 +1149,7 @@ const EmployeeMasterInsert = () => {
 
                             <Col lg={6}>
                                 <Form.Group controlId="reimbursementBranchName" className="mb-3">
-                                    <Form.Label>Branch  Name:</Form.Label>
+                                    <Form.Label>Branch  Name</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="reimbursementBranchName"
@@ -1175,7 +1165,7 @@ const EmployeeMasterInsert = () => {
 
                             <Col lg={6}>
                                 <Form.Group controlId="reimbursementBankAccountNumber" className="mb-3">
-                                    <Form.Label>Bank Account Number:</Form.Label>
+                                    <Form.Label>Bank Account Number</Form.Label>
                                     <Form.Control
                                         type="text" // Change to "text" to preserve leading zeroes
                                         name="reimbursementBankAccountNumber"

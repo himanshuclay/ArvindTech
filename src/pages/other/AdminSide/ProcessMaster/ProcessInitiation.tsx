@@ -211,7 +211,7 @@ const ProcessInitiation = () => {
                                         <Row>
                                             <Col lg={4}>
                                                 <Form.Group controlId="ModuleName">
-                                                    <Form.Label>Module Name:</Form.Label>
+                                                    <Form.Label>Module Name</Form.Label>
 
                                                     <Select
                                                         name="ModuleName"
@@ -228,7 +228,7 @@ const ProcessInitiation = () => {
                                             </Col>
                                             <Col lg={3}>
                                                 <Form.Group controlId="ModuleOwnerName">
-                                                    <Form.Label>Process Name:</Form.Label>
+                                                    <Form.Label>Process Name</Form.Label>
 
                                                     <Select
                                                         name="ModuleOwnerName"
@@ -247,7 +247,7 @@ const ProcessInitiation = () => {
 
                                             <Col lg={3}>
                                                 <Form.Group controlId="ProcessOwnerName">
-                                                    <Form.Label>Process Owner Name:</Form.Label>
+                                                    <Form.Label>Process Owner Name</Form.Label>
                                                     <Select
                                                         name="ProcessOwnerName"
                                                         value={employeeList.find(item => item.empId === ProcessOwnerName) || null} // handle null
@@ -256,7 +256,7 @@ const ProcessInitiation = () => {
                                                         getOptionLabel={(item) => item.employeeName.split('_')[0]}
                                                         getOptionValue={(item) => item.empId}
                                                         isSearchable={true}
-                                                        placeholder="Process Owner Name"
+                                                        placeholder="Select Process Owner Name"
                                                         className="h45"
                                                     />
                                                 </Form.Group>

@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { useState, useEffect, ChangeEvent } from 'react';
+import { useState, useEffect } from 'react';
 import { Button, Pagination, Table, Container, Row, Col, Alert, Form, ButtonGroup } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
@@ -29,7 +29,6 @@ const ModuleMaster = () => {
     const [loading, setLoading] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
-    const [searchQuery, setSearchQuery] = useState('');
     const [downloadCsv, setDownloadCsv] = useState<Role[]>([]);
     const [roleList, setRoleList] = useState<Role[]>([]);
     const [searchRole, setSearchRole] = useState<number>();
@@ -203,22 +202,16 @@ const ModuleMaster = () => {
         }
     };
 
-    const handleSearchcurrent = (e: ChangeEvent<HTMLInputElement>) => {
-        setSearchQuery(e.target.value);
-        setCurrentPage(1);
-    };
 
-
-    // const filteredDoers = roles.filter(role =>
-    //     role.roleName.toLowerCase().includes(searchQuery.toLowerCase())
-    // );
     return (
         <>
             <div className="container">
                 <div className="d-flex bg-white p-2 my-2 justify-content-between align-items-center">
                     <span><i className="ri-file-list-line me-2 text-dark fs-16"></i><span className='fw-bold text-dark fs-15'>Role List</span></span>
                     <div className="d-flex justify-content-end  ">
-
+                        <Button variant="primary" onClick={downloadCSV} className="me-2">
+                            Download CSV
+                        </Button>
                         <Link to='/pages/RoleMasterinsert'>
                             <Button variant="primary" className="me-2">
                                 Add Role
@@ -239,7 +232,7 @@ const ModuleMaster = () => {
                         <Row>
                             <Col lg={6} className="mt-2">
                                 <Form.Group controlId="searchRole">
-                                    <Form.Label>Roles:</Form.Label>
+                                    <Form.Label>Role Name</Form.Label>
                                     <Select
                                         name="searchRole"
                                         value={roleList.find(item => item.id === searchRole) || null}
@@ -248,7 +241,7 @@ const ModuleMaster = () => {
                                         getOptionLabel={(item) => item.roleName}
                                         getOptionValue={(item) => item.roleName}
                                         isSearchable={true}
-                                        placeholder="Select Role"
+                                        placeholder="Select Role Name"
                                         className="h45"
                                     />
                                 </Form.Group>
@@ -273,23 +266,10 @@ const ModuleMaster = () => {
                         <Row className='mt-3'>
                             <div className="d-flex justify-content-end bg-light p-1">
                                 <div className="app-search d-none d-lg-block me-4">
-                                    <form>
-                                        <div className="input-group px300 ">
-                                            <input
-                                                type="search"
-                                                className=" bg-white"
-                                                placeholder="Search..."
-                                                value={searchQuery}
-                                                onChange={handleSearchcurrent}
-                                            />
-                                            <span className="ri-search-line search-icon text-muted" />
-                                        </div>
-                                    </form>
+
                                 </div>
 
-                                <Button variant="primary" onClick={downloadCSV} className="">
-                                    Download CSV
-                                </Button>
+
                             </div>
                         </Row>
                     </div>

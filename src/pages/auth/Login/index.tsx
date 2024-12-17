@@ -1,5 +1,5 @@
 import { Button, Col, Row } from 'react-bootstrap'
-import { Navigate, Link, useLocation } from 'react-router-dom'
+import { Navigate, Link } from 'react-router-dom'
 import { yupResolver } from '@hookform/resolvers/yup'
 import * as yup from 'yup'
 import AuthLayout from '../AuthLayout'
@@ -42,45 +42,39 @@ const schemaResolver = yupResolver(
 	})
 )
 const Login = () => {
-	const [emp, setEmp] = useState<string>('')
+	const [employeeError, setEmployeeError] = useState<string>('')
 	const [verifyEmpID, setVerifyEmpID] = useState(false);
-
 	const { loading, login, redirectUrl, isAuthenticated } = useLogin()
 
-
-	const location = useLocation();
 	useEffect(() => {
-		if (location.state?.successMessage) {
-			toast.success(location.state.successMessage);
-		}
-	}, [location.state]);
+		localStorage.removeItem('errorMessage');
+	}, []);
 
-	const fetchEmployeeDetails = async (empID: string) => {
-		try {
-			const response = await axios.get(
-				`${config.API_URL_APPLICATION}/Login/GetEmployeeDetailsbyEmpId?Flag=2&EmpID=${empID}`
-			);
-			if (response.data.isSuccess) {
-				setVerifyEmpID(true)
-			} else {
-				toast.error(
-					<>
-						<div style={{ marginBottom: "10px" }}>{response.data.message || 'Entered Wrong Emploee ID'}</div>
-					</>,
-					{ autoClose: 30000 }
+
+	const blurfunction = async (emp: any) => {
+		if (emp.length > 0) {
+			try {
+				const response = await axios.get(
+					`${config.API_URL_APPLICATION}/Login/GetEmployeeDetailsbyEmpId?Flag=2&EmpID=${emp}`
 				);
+				if (response.data.isSuccess) {
+					setVerifyEmpID(true)
+					setEmployeeError('')
+				} else {
+					setEmployeeError(response.data.message || 'Entered Wrong Emploee ID')
+					setVerifyEmpID(false)
+				}
+			} catch (error: any) {
+				toast.dismiss()
+				setEmployeeError(error || 'Something went wrong please try again')
+				console.error(error)
 			}
-		} catch (error: any) {
-			toast.dismiss()
-			toast.error(
-				<>
-					<div style={{ marginBottom: "10px" }}>{error || 'Entered Wrong Emploee ID'}</div>
-				</>,
-				{ autoClose: 30000 }
-			);
-			console.error(error)
+		} else {
+			setEmployeeError('Please Enter Employee ID')
+			setVerifyEmpID(false)
 		}
-	};
+
+	}
 
 
 	return (
@@ -91,7 +85,7 @@ const Login = () => {
 
 			<AuthLayout
 				authTitle="Sign In"
-				helpText="Enter your Employee ID, Click Verify and then enter Password to access account"
+				helpText="Enter your Employee ID, and then enter Password to access account"
 				bottomLinks={<BottomLinks />}
 				hasThirdPartyLogin
 			>
@@ -105,12 +99,11 @@ const Login = () => {
 						type="text"
 						name="email"
 						placeholder="Enter Your Employee ID"
-						containerClass="mb-3"
 						required
-						onChange={(e) => setEmp(e.target.value)}
+						onBlur={(e) => blurfunction(e.target.value)}
+						containerClass={!employeeError ? "mb-3 " : "mb-3 input-border"}
+
 					/>
-
-
 					<FormInput
 						label="Password"
 						name="password"
@@ -118,11 +111,16 @@ const Login = () => {
 						required
 						id="password"
 						placeholder="Enter your password"
-						containerClass="mb-3"
+						containerClass="mb-3 position-relative"
 					>
+						<small className='text-danger  login-error'>{employeeError ? <div className="error-text fs-11">{employeeError}</div> : null} </small>
 						<Link to="/auth/forgot-password" className="text-muted float-end">
 							<small className='text-danger'>Forgot your Password?</small>
 						</Link>
+						<p className='password-error'>
+
+							{localStorage.getItem('errorMessage')}
+						</p>
 					</FormInput>
 
 					<Row className='d-flex jusify-content-between'>
@@ -158,20 +156,9 @@ const Login = () => {
 						</div>
 					}
 				</VerticalForm>
-				{emp ?
-					<div
-						className="position-absolute signup-login-verify fs-11"
-						onClick={() => {
-							toast.dismiss();
-							if (emp) {
-								fetchEmployeeDetails(emp);
-							}
-						}}
-						style={{ borderLeft: 'none', cursor: 'pointer' }}
-					>
-						{verifyEmpID ? <i className="ri-checkbox-circle-fill fs-15 text-success "></i> : 'Verify'}
-					</div> : null
-				}
+				<div className="position-absolute signup-login-verify fs-11" style={{ borderLeft: 'none', cursor: 'pointer' }} >
+					{verifyEmpID ? <i className="ri-checkbox-circle-fill fs-15 text-success "></i> : null}
+				</div>
 			</AuthLayout>
 
 		</>
