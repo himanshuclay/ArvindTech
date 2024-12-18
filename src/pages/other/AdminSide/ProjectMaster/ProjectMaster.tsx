@@ -262,7 +262,7 @@ const ProjectMaster = () => {
                 'Expected Date of Latest Project Completion',
                 'Refresh Work Date', 'Estimate Completion Date',
                 'Recorded Month', 'Recorded Year', 'Created By',
-                'Created Date', 'Updated By', 'Updated Date'
+                'Updated By', 'Created Date', 'Updated Date'
             ],
             ...data.map(project => [
                 project.id,
@@ -297,8 +297,8 @@ const ProjectMaster = () => {
                 project.recordedMonth || '',
                 project.recordedYear || '',
                 project.createdBy || '',
-                project.createdDate || '',
                 project.updatedBy || '',
+                project.createdDate || '',
                 project.updatedDate || ''
             ])
         ];

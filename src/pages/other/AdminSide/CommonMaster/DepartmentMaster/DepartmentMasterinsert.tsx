@@ -100,9 +100,9 @@ const DepartmentMasterinsert = () => {
             const apiUrl = `${config.API_URL_APPLICATION}/DepartmentMaster/${editMode ? 'InsertorUpdateDepartment' : 'InsertorUpdateDepartment'}`;
             const response = await axios.post(apiUrl, payload);
             if (response.status === 200) {
-                navigate('/pages/ProjectMaster', {
+                navigate('/pages/departmentMaster', {
                     state: {
-                        successMessage: editMode ? "Deparment Updated successfully!" : "Deparment Added successfully!",
+                        successMessage: editMode ? `${departments.departmentName}  Updated successfully!` :`${departments.departmentName}  added successfully!`,
                     },
                 });
             } else {

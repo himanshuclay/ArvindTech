@@ -4,12 +4,12 @@ import { Button, Col, Form, Row } from 'react-bootstrap';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import config from '@/config';
 import { toast } from 'react-toastify';
-
-
+import Select from 'react-select';
 
 interface Role {
     id: number;
     roleName: string;
+    status: string;
     createdBy: string;
     updatedBy: string;
 }
@@ -24,13 +24,14 @@ const EmployeeInsert = () => {
     const [roles, setRoles] = useState<Role>({
         id: 0,
         roleName: '',
+        status: '',
         createdBy: '',
         updatedBy: '',
 
     });
 
     useEffect(() => {
-    toast.dismiss()
+        toast.dismiss()
 
         const storedEmpName = localStorage.getItem('EmpName');
         if (storedEmpName) {
@@ -65,26 +66,31 @@ const EmployeeInsert = () => {
         }
     };
 
+    const handleChange = (e: ChangeEvent<any> | null, name?: string, value?: any) => {
+        if (e) {
+            const { name: eventName, type } = e.target;
 
-
-
-
-    const handleChange = (e: ChangeEvent<any>) => {
-        const { name, type } = e.target;
-        if (type === 'checkbox') {
-            const checked = (e.target as HTMLInputElement).checked;
-            setRoles({
-                ...roles,
-                [name]: checked
-            });
-        } else {
-            const value = (e.target as HTMLInputElement | HTMLSelectElement).value;
+            if (type === 'checkbox') {
+                const checked = (e.target as HTMLInputElement).checked;
+                setRoles({
+                    ...roles,
+                    [eventName]: checked
+                });
+            } else {
+                const inputValue = (e.target as HTMLInputElement | HTMLSelectElement).value;
+                setRoles({
+                    ...roles,
+                    [eventName]: inputValue
+                });
+            }
+        } else if (name) {
             setRoles({
                 ...roles,
                 [name]: value
             });
         }
     };
+
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -95,7 +101,7 @@ const EmployeeInsert = () => {
             updatedBy: editMode ? empName : '',
         };
 
-    
+
         try {
             const apiUrl = `${config.API_URL_APPLICATION}/RoleMaster/${editMode ? 'UpdateRole' : 'InsertRole'}`;
             const response = await axios.post(apiUrl, payload);
@@ -103,7 +109,7 @@ const EmployeeInsert = () => {
             if (response.status === 200) {
                 navigate('/pages/RoleMaster', {
                     state: {
-                        successMessage: editMode ? "Module updated successfully!" : "Module added successfully!",
+                        successMessage: editMode ? `${roles.roleName}  updated successfully!` : `${roles.roleName}  added successfully!`,
                     },
                 });
             } else {
@@ -115,6 +121,10 @@ const EmployeeInsert = () => {
         }
     };
 
+    const optionsAppAccess = [
+        { value: 'Enabled', label: 'Enabled' },
+        { value: 'Disabled', label: 'Disabled' }
+    ];
 
     return (
         <div>
@@ -138,10 +148,21 @@ const EmployeeInsert = () => {
                                     />
                                 </Form.Group>
                             </Col>
-                            <Col className='align-items-end d-flex justify-content-between mb-3'>
-                                <div>
-                                    <span className='fs-5 '>This field is required*</span>
-                                </div>
+                            <Col lg={6}>
+                                <Form.Group controlId="status" className="mb-3">
+                                    <Form.Label>Status *</Form.Label>
+                                    <Select
+                                        name="status"
+                                        options={optionsAppAccess}
+                                        value={optionsAppAccess.find(option => option.value === roles.status)}
+                                        onChange={selectedOption => handleChange(null, 'status', selectedOption?.value)}
+                                        placeholder="Select Status"
+                                        required
+                                    />
+                                </Form.Group>
+                            </Col>
+                            <Col className='align-items-end d-flex justify-content-end mb-3'>
+
                                 <div>
                                     <Link to={'/pages/RoleMaster'}>
                                         <Button variant="primary" >

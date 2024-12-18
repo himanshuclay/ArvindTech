@@ -72,7 +72,7 @@ const EmployeeInsert = () => {
 
 
     useEffect(() => {
-    toast.dismiss()
+        toast.dismiss()
 
         const storedEmpName = localStorage.getItem('EmpName');
         if (storedEmpName) {
@@ -161,35 +161,32 @@ const EmployeeInsert = () => {
     }, []);
 
 
-    // Handle form field changes
-    const handleChange = (e: ChangeEvent<any>) => {
-        const { name, type } = e.target;
-        if (type === 'checkbox') {
-            const checked = (e.target as HTMLInputElement).checked;
-            setProcess({
-                ...process,
-                [name]: checked
-            });
-        } else {
-            const value = (e.target as HTMLInputElement | HTMLSelectElement).value;
 
-            if (name === "link") {
-                // Validate URL if the field is "link"
+    const handleChange = (e: ChangeEvent<any> | null, name?: string, value?: any) => {
+        if (e) {
+            const { name: eventName, type } = e.target;
+
+            if (type === 'link') {
                 if (value && !isValidUrl(value)) {
                     setUrlError("Please enter a valid URL.");
                 } else {
                     setUrlError("");
                 }
+            } else {
+                const inputValue = (e.target as HTMLInputElement | HTMLSelectElement).value;
+                setProcess({
+                    ...process,
+                    [eventName]: inputValue
+                });
             }
-
+        } else if (name) {
             setProcess({
                 ...process,
                 [name]: value
             });
         }
-
-
     };
+
 
     const isValidUrl = (url: string) => {
         const urlPattern = /^(https?:\/\/)[\w.-]+(\.[\w.-]+)+[/#?]?.*$/;
@@ -251,6 +248,10 @@ const EmployeeInsert = () => {
         }
     };
 
+    const optionsAppAccess = [
+        { value: 'Enabled', label: 'Enabled' },
+        { value: 'Disabled', label: 'Disabled' }
+    ];
 
     return (
         <div>
@@ -309,7 +310,6 @@ const EmployeeInsert = () => {
                                         onChange={handleChange}
                                         required
                                         placeholder='Enter Process Name'
-                                        disabled={editMode}
 
                                     />
                                 </Form.Group>
@@ -318,7 +318,7 @@ const EmployeeInsert = () => {
                                 <Form.Group controlId="processObjective" className="mb-3">
                                     <Form.Label>Process Objective:</Form.Label>
                                     <Form.Control
-                                        type="text"
+                                        type="textarea"
                                         name="processObjective"
                                         value={process.processObjective}
                                         onChange={handleChange}
@@ -349,20 +349,12 @@ const EmployeeInsert = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="status" className="mb-3">
-                                    <Form.Label>Status:</Form.Label>
+                                    <Form.Label>Status *</Form.Label>
                                     <Select
                                         name="status"
-                                        value={misExempt.find((exempt) => exempt.name === process.status)}
-                                        onChange={(selectedOption) => {
-                                            setProcess({
-                                                ...process,
-                                                status: selectedOption?.name || '',
-                                            });
-                                        }}
-                                        getOptionLabel={(item) => item.name}
-                                        getOptionValue={(item) => item.name}
-                                        options={misExempt}
-                                        isSearchable={true}
+                                        options={optionsAppAccess}
+                                        value={optionsAppAccess.find(option => option.value === process.status)}
+                                        onChange={selectedOption => handleChange(null, 'status', selectedOption?.value)}
                                         placeholder="Select Status"
                                         required
                                     />
@@ -411,7 +403,7 @@ const EmployeeInsert = () => {
 
                                 </Form.Group>
                             </Col>
-                   
+
                             <Col lg={12}>
                                 <Form.Group controlId="processFlowchart" className="mb-3">
                                     <Form.Label>Process Flowchart</Form.Label>
@@ -436,7 +428,7 @@ const EmployeeInsert = () => {
 
 
                             <Col></Col>
-                            <Col lg={2} className='align-items-end d-flex justify-content-end mb-3'>
+                            <Col lg={3} className='align-items-end d-flex justify-content-end mb-3'>
                                 <ButtonGroup aria-label="Basic example" className='w-100'>
                                     <Link to={'/pages/ProcessMaster'} className="btn btn-primary">
                                         Back

@@ -32,7 +32,7 @@ const ModuleMaster = () => {
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
     const [downloadCsv, setDownloadCsv] = useState<FrequencyFill[]>([]);
-    const [managementContracts, setManagementContracts] = useState<FrequencyFill[]>([]);
+    const [fillingFrequency, setFillingFrequency] = useState<FrequencyFill[]>([]);
     const [searchRole, setSearchRole] = useState('');
     const [searchStatus, setSearchStatus] = useState('');
 
@@ -93,12 +93,12 @@ const ModuleMaster = () => {
         query += `PageIndex=${currentPage}`;
 
         query = query.endsWith('&') ? query.slice(0, -1) : query;
-        const apiUrl = `${config.API_URL_APPLICATION}/ProjectMaster/SearchProject${query}`;
-        console.log(apiUrl)
+        const apiUrl = `${config.API_URL_APPLICATION}/FillingFrequencyMaster/SearchFillingFrequency${query}`;
         axios.get(apiUrl, { headers: { 'accept': '*/*' } })
             .then((response) => {
-                console.log("search response ", response.data.projectMasterList);
-                setIdentifiers(response.data.projectMasterList)
+                console.log("search response ", response.data.fillingFrequencies);
+                setIdentifiers(response.data.fillingFrequencies)
+                setTotalPages(Math.ceil(response.data.totalCount / 10));
             })
             .catch((error) => {
                 console.error('Error fetching data:', error);
@@ -158,7 +158,7 @@ const ModuleMaster = () => {
             }
         };
 
-        fetchData('CommonDropdown/GetFillingFrequency', setManagementContracts, 'fillingFrequencyListResponses');
+        fetchData('CommonDropdown/GetFillingFrequency', setFillingFrequency, 'fillingFrequencyListResponses');
     }, []);
 
 
@@ -239,9 +239,9 @@ const ModuleMaster = () => {
                                     <Form.Label>Filling Frequency</Form.Label>
                                     <Select
                                         name="searchRole"
-                                        value={managementContracts.find(item => item.name === searchRole) || null}
+                                        value={fillingFrequency.find(item => item.name === searchRole) || null}
                                         onChange={(selectedOption) => setSearchRole(selectedOption ? selectedOption.name : '')}
-                                        options={managementContracts}
+                                        options={fillingFrequency}
                                         getOptionLabel={(item) => item.name}
                                         getOptionValue={(item) => item.name}
                                         isSearchable={true}

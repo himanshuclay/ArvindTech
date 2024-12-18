@@ -22,6 +22,8 @@ interface Bank {
     status: string;
     createdBy: string;
     updatedBy: string;
+    updatedDate: string;
+    createdDate: string;
 }
 
 interface Column {
@@ -49,8 +51,6 @@ const BankMaster = () => {
     const [totalPages, setTotalPages] = useState(1);
     const [stateList, setStateList] = useState<StateList[]>([]);
     const [bankList, setBankList] = useState<BankList[]>([]);
-    const [cityName, setCityName] = useState<StateList[]>([]);
-
 
     const location = useLocation();
     const navigate = useNavigate();
@@ -109,7 +109,6 @@ const BankMaster = () => {
 
 
     const [searchBank, setSearchBank] = useState('');
-    const [searcCity, setSearchCity] = useState('');
     const [searchIfsc, setSearchIfsc] = useState('');
     const [searchBranch, setSearchBranch] = useState('');
     const [searchState, setSearchState] = useState('');
@@ -133,7 +132,6 @@ const BankMaster = () => {
         if (searchIfsc) query += `Ifsc=${searchIfsc}&`;
         if (searchBranch) query += `Branch=${searchBranch}&`;
         if (searchState) query += `State=${searchState}&`;
-        if (searcCity) query += `City=${searcCity}&`;
         query += `PageIndex=${currentPage}`;
 
         query = query.endsWith('&') ? query.slice(0, -1) : query;
@@ -174,35 +172,6 @@ const BankMaster = () => {
 
 
 
-    useEffect(() => {
-        const fetchCity = async () => {
-            try {
-                const response = await axios.get(`${config.API_URL_APPLICATION}/BankMaster/GetCityNamebyState?state=${searchState}`);
-                setCityName(response.data.cityNames); // Assume the response contains area data
-            } catch (error) {
-                console.error('Error fetching area data:', error);
-                setCityName([]);
-            }
-        };
-        if (searchState) {
-            fetchCity();
-        }
-    }, [searchState]);
-
-    useEffect(() => {
-        const fetchBankBycity = async () => {
-            try {
-                const response = await axios.get(`${config.API_URL_APPLICATION}/BankMaster/GetBankNamebyCity?city=${searcCity}`);
-                const fetchBankBycityList = response.data.bankNamebyCities
-                setBankList(fetchBankBycityList);
-            } catch (error) {
-                console.error('Error fetching area data:', error);
-            }
-        };
-        if (searcCity) {
-            fetchBankBycity();
-        }
-    }, [searcCity]);
 
 
 
@@ -212,12 +181,11 @@ const BankMaster = () => {
         setSearchBranch('');
         setSearchIfsc('');
         setSearchBank('');
-        setSearchCity('');
     };
 
     const convertToCSV = (data: Bank[]) => {
         const csvRows = [
-            ['ID', 'Bank', 'IFSC', 'Branch', 'City 1', 'City 2', 'State', 'Created By', 'Updated By'],
+            ['ID', 'Bank', 'IFSC', 'Branch', 'City 1', 'City 2', 'State', 'Created By', 'Updated By', 'Created Date', 'Updated Date'],
             ...data.map(bank => [
                 bank.id,
                 bank.bank,
@@ -227,7 +195,9 @@ const BankMaster = () => {
                 bank.city2,
                 bank.state,
                 bank.createdBy,
-                bank.updatedBy
+                bank.updatedBy,
+                bank.createdDate,
+                bank.updatedDate,
             ])
         ];
         return csvRows.map(row => row.join(',')).join('\n');
@@ -284,7 +254,7 @@ const BankMaster = () => {
                     <>
                         <div className='bg-white p-2 pb-2'>
                             <Row>
-                                <Col lg={6} className=''>
+                                <Col lg={4} className=''>
                                     <Form.Group controlId="searchIfsc">
                                         <Form.Label>IFSC Code</Form.Label>
                                         <Form.Control
@@ -297,7 +267,7 @@ const BankMaster = () => {
                                         />
                                     </Form.Group>
                                 </Col>
-                                <Col lg={6} className=''>
+                                <Col lg={4} className=''>
                                     <Form.Group controlId="searchState">
                                         <Form.Label>State</Form.Label>
                                         <Select
@@ -314,23 +284,7 @@ const BankMaster = () => {
                                     </Form.Group>
                                 </Col>
 
-                                <Col lg={6} className='mt-2'>
-                                    <Form.Group controlId="searchBank">
-                                        <Form.Label>City1</Form.Label>
-                                        <Select
-                                            name="searchBank"
-                                            value={cityName.find(item => item.city === searcCity) || null}
-                                            onChange={(selectedOption) => setSearchCity(selectedOption ? selectedOption.city : '')}
-                                            options={cityName}
-                                            getOptionLabel={(item) => item.city}
-                                            getOptionValue={(item) => item.city}
-                                            isSearchable={true}
-                                            placeholder="Select City"
-                                            className="h45"
-                                        />
-                                    </Form.Group>
-                                </Col>
-                                <Col lg={6} className='mt-2'>
+                                <Col lg={4} className=''>
                                     <Form.Group controlId="searchBank">
                                         <Form.Label>Bank Name</Form.Label>
                                         <Select

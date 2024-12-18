@@ -102,7 +102,7 @@ const profileMenus: ProfileOption[] = [
 	// 	icon: 'mdi mdi-account-plus',
 	// 	redirectTo: '/pages/profile',
 	// },
-	
+
 	// {
 	// 	label: 'Settings',
 	// 	icon: 'ri-settings-4-line',
@@ -179,17 +179,20 @@ const Topbar = ({ toggleMenu, navOpen }: TopbarProps) => {
 			document.body.style.removeProperty('overflow')
 		}
 	}
-	const {  updateSidebar } = useThemeContext()
-// State to store the employee name
-const [empName, setEmpName] = useState<string | null>('Admin')
+	const { updateSidebar } = useThemeContext()
+	// State to store the employee name
+	const [empName, setEmpName] = useState<string | null>('Admin')
+	const [empID, setEmpID] =  useState<string | null>('Admin')
 
-// Fetch employee name from localStorage when component mounts
-useEffect(() => {
-	const storedEmpName = localStorage.getItem('EmpName')
-	if (storedEmpName) {
-		setEmpName(storedEmpName)
-	}
-}, [])
+	// Fetch employee name from localStorage when component mounts
+	useEffect(() => {
+		const storedEmpName = localStorage.getItem('EmpName')
+		const storedEmpID = localStorage.getItem('EmpId')
+		if (storedEmpName || storedEmpID) {
+			setEmpName(storedEmpName)
+			setEmpID(storedEmpID)
+		}
+	}, [])
 	/**
 	 * Toggle Dark Mode
 	 */
@@ -223,7 +226,7 @@ useEffect(() => {
 							{/* Logo Dark */}
 							<Link to="/" className="logo-dark">
 								<span className="logo-lg">
-									<img src={logoDark} alt="dark logo" style={{height: '50px'}} />
+									<img src={logoDark} alt="dark logo" style={{ height: '50px' }} />
 								</span>
 								<span className="logo-sm">
 									<img src={logoSm} alt="small logo" />
@@ -274,14 +277,15 @@ useEffect(() => {
 						<li className="dropdown notification-list">
 							<MessageDropdown messages={Messages} />
 						</li>
-					
-						
+
+
 						<li className="dropdown">
 							<ProfileDropdown
-							 menuItems={profileMenus} 
-							 userImage={profilePic}
-							 username={empName || 'Guest'} // Provide a fallback value
-							 />
+								menuItems={profileMenus}
+								userImage={profilePic}
+								username={empName || 'Guest'} // Provide a fallback value
+								userid={empID || 'Guest ID'} // Provide a fallback value
+							/>
 						</li>
 					</ul>
 				</div>

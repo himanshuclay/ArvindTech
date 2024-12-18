@@ -413,8 +413,8 @@ const ModuleMaster = () => {
                                                                     className={
                                                                         col.id === 'processOwnerName' ? 'fw-bold  text-dark text-nowrap' :
                                                                             col.id === 'moduleName' ? 'fw-bold text-dark   text-nowrap' :
-                                                                                (col.id === 'status' && item[col.id] === "Active") ? 'task1' :
-                                                                                    (col.id === 'status' && item[col.id] === "Inactive") ? 'task4' :
+                                                                                (col.id === 'status' && item[col.id] === "Enabled") ? 'task1' :
+                                                                                    (col.id === 'status' && item[col.id] === "Disabled") ? 'task4' :
                                                                                         col.id === 'processObjective' ? 'w-200px' :
                                                                                             ''
                                                                     }

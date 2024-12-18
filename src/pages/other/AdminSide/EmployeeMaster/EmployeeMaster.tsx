@@ -63,6 +63,9 @@ interface Employee {
     registrationDate: string;
     createdBy: string;
     updatedBy: string;
+    updatedDate: string;
+    createdDate: string;
+
 }
 
 interface Column {
@@ -110,18 +113,19 @@ const EmployeeMaster = () => {
     const [columns, setColumns] = useState<Column[]>([
         { id: 'empID', label: 'Employee ID ', visible: true },
         { id: 'employeeName', label: 'Employee Name ', visible: true },
-        { id: 'currentProjectName', label: 'Current Project Name', visible: true },
-        { id: 'dataAccessLevel', label: 'Data Access Level', visible: true },
         { id: 'appAccessLevel', label: 'App Access Level', visible: true },
         { id: 'appAccess', label: 'App Access', visible: true },
         { id: 'empStatus', label: 'Employee Status', visible: true },
+        { id: 'dataAccessLevel', label: 'Data Access Level', visible: true },
         { id: 'isRegistered', label: 'Is Registered', visible: true },
         { id: 'registrationDate', label: 'Registration Date', visible: true },
-        { id: 'daL_Module', label: 'DAL Module', visible: true },
-        { id: 'daL_Project', label: 'DAL Project', visible: true },
-        { id: 'designation', label: 'Designation', visible: true },
         { id: 'dateOfJoining', label: 'Date Of Joining', visible: true },
         { id: 'dateOfLeaving', label: 'Date Of Leaving', visible: true },
+        { id: 'departmentName', label: 'Department Name', visible: true },
+        { id: 'designation', label: 'Designation', visible: true },
+        { id: 'currentProjectName', label: 'Current Project Name', visible: true },
+        { id: 'daL_Module', label: 'DAL Module', visible: true },
+        { id: 'daL_Project', label: 'DAL Project', visible: true },
 
     ]);
 
@@ -277,7 +281,8 @@ const EmployeeMaster = () => {
                 'Expense Bank IFSC', 'Expense Branch Name',
                 'Excel DOB Value', 'Excel DOJ Value',
                 'Excel DOL Value', 'Is Registered', 'DAL Module', 'DAL Project',
-                'Registration Date', 'Created By', 'Updated By'
+                'Registration Date', 'Created By', 'Updated By',
+                'Created Date', 'Updated Date'
             ],
             ...data.map(employee => [
                 employee.id,
@@ -329,7 +334,9 @@ const EmployeeMaster = () => {
                 employee.daL_Project,
                 employee.registrationDate,
                 employee.createdBy,
-                employee.updatedBy
+                employee.updatedBy,
+                employee.createdDate,
+                employee.updatedDate,
             ])
         ];
         return csvRows.map(row => row.join(',')).join('\n');
@@ -397,14 +404,14 @@ const EmployeeMaster = () => {
                     <div className="d-flex justify-content-end  ">
                         <div >
 
-                        <Button variant="primary" onClick={downloadCSV} className="me-2">
-                            Download CSV
-                        </Button>
-                        <Link to='/pages/EmployeeMasterinsert'>
-                            <Button variant="primary" className="me-2">
-                                Add Employee
+                            <Button variant="primary" onClick={downloadCSV} className="me-2">
+                                Download CSV
                             </Button>
-                        </Link>
+                            <Link to='/pages/EmployeeMasterinsert'>
+                                <Button variant="primary" className="me-2">
+                                    Add Employee
+                                </Button>
+                            </Link>
                         </div>
 
                     </div>
@@ -605,7 +612,13 @@ const EmployeeMaster = () => {
                                                         {columns.filter(col => col.visible).map((col) => (
                                                             <td key={col.id}
                                                                 className={
-                                                                    col.id === 'employeeName' ? 'fw-bold text-dark' : ''
+                                                                    col.id === 'employeeName' ? 'fw-bold text-dark' :
+                                                                        (col.id === 'appAccess' && item[col.id] === "Enabled") ? 'task1' :
+                                                                            (col.id === 'appAccess' && item[col.id] === "Disabled") ? 'task4' :
+                                                                                (col.id === 'empStatus' && item[col.id] === "Current") ? 'task1' :
+                                                                                    (col.id === 'empStatus' && item[col.id] === "Absconding") ? 'task2' :
+                                                                                        (col.id === 'empStatus' && item[col.id] === "Former") ? 'task3' :
+                                                                                            ''
                                                                 }
                                                             >
                                                                 {
@@ -636,7 +649,7 @@ const EmployeeMaster = () => {
                                                                                 <p className='phone_user fw-normal m-0'><a href={`tel:${item.userUpdatedMobileNo}`}> <i className="ri-phone-fill"></i> {item.userUpdatedMobileNo}</a></p> : ""
                                                                             }
                                                                         </td>
-                                                                    ) : (<>{item[col.id as keyof Employee]}</>
+                                                                    ) : (<div>{item[col.id as keyof Employee]}</div>
                                                                     )}
                                                             </td>
                                                         ))}

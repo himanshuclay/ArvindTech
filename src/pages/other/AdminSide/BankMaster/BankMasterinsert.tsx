@@ -97,6 +97,8 @@ const BankMasterinsert = () => {
 
 
 
+    const [ifscError, setIfscError] = useState<string>(""); // State for IFSC error
+
     const handleChange = (e: ChangeEvent<any> | null, name?: string, value?: any) => {
         if (e) {
             const { name: eventName, type } = e.target;
@@ -105,19 +107,31 @@ const BankMasterinsert = () => {
                 const checked = (e.target as HTMLInputElement).checked;
                 setBanks({
                     ...banks,
-                    [eventName]: checked
+                    [eventName]: checked,
                 });
             } else {
                 const inputValue = (e.target as HTMLInputElement | HTMLSelectElement).value;
+
+                // Validate IFSC length if the field is "ifsc"
+                if (eventName === "ifsc") {
+                    if (inputValue.length < 11) {
+                        setIfscError("IFSC code must be 11 characters long.");
+                    } else if (inputValue.length > 11) {
+                        setIfscError("IFSC code cannot exceed 11 characters.");
+                    } else {
+                        setIfscError(""); // Clear error if valid
+                    }
+                }
+
                 setBanks({
                     ...banks,
-                    [eventName]: inputValue
+                    [eventName]: inputValue,
                 });
             }
         } else if (name) {
             setBanks({
                 ...banks,
-                [name]: value
+                [name]: value,
             });
         }
     };
@@ -127,6 +141,11 @@ const BankMasterinsert = () => {
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
+
+        if (ifscError) {
+            toast.error("Please verify your Ifsc code before submitting the form.");
+            return;
+        }
 
         const payload = {
             ...banks,
@@ -193,8 +212,10 @@ const BankMasterinsert = () => {
                                         value={banks.ifsc}
                                         onChange={handleChange}
                                         required
+                                        maxLength={11}
                                         placeholder='Enter IFSC code'
                                     />
+                                    {ifscError && <small className="text-danger">{ifscError}</small>}
                                 </Form.Group>
                             </Col>
                             <Col lg={6}>

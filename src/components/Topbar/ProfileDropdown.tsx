@@ -7,13 +7,17 @@ type ProfileDropdownProps = {
 	menuItems: Array<ProfileOption>
 	userImage: string
 	username: string
+	userid: string
 }
 const ProfileDropdown = ({
 	menuItems,
 	userImage,
 	username,
+	userid,
 }: ProfileDropdownProps) => {
 	const [isOpen, toggleDropdown] = useToggle()
+
+	console.log(userid)
 	return (
 		<Dropdown show={isOpen} onToggle={toggleDropdown}>
 			<Dropdown.Toggle
@@ -32,10 +36,14 @@ const ProfileDropdown = ({
 					/>
 				</span>
 				<span className="d-lg-block d-none">
-					<h5 className="my-0 fw-normal">
-						{username}{' '}
+					<h5 className="my-0 fw-normal d-flex align-items-center">
+						<div className='d-flex flex-column mr-2'>
+							{username} <br />
+							<small className='text-uppercase mt-1'>{userid}</small>
+						</div>{' '}
 						<i className="ri-arrow-down-s-line d-none d-sm-inline-block align-middle" />
 					</h5>
+
 				</span>
 			</Dropdown.Toggle>
 			<Dropdown.Menu

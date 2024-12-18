@@ -74,11 +74,11 @@ const DesignationMaster = () => {
     // ==============================================================
 
     useEffect(() => {
-        fetchStaffRequirements();
+        fetchData();
     }, [currentPage]);
 
 
-    const fetchStaffRequirements = async () => {
+    const fetchData = async () => {
         setLoading(true);
         try {
             const response = await axios.get(`${config.API_URL_APPLICATION}/DepartmentMaster/GetDepartment`, {
@@ -102,24 +102,24 @@ const DesignationMaster = () => {
         if (searchDept || searchStatus) {
             handleSearch();
         } else {
-            fetchStaffRequirements();
+            fetchData();
         }
     }, [currentPage]);
 
     const handleSearch = (e?: React.FormEvent) => {
         if (e) e.preventDefault();
         let query = `?`;
-        if (searchDept) query += `Name=${searchDept}&`;
+        if (searchDept) query += `DepartmentName=${searchDept}&`;
         if (searchStatus) query += `Status=${searchStatus}&`;
         query += `PageIndex=${currentPage}`;
 
         query = query.endsWith('&') ? query.slice(0, -1) : query;
-        const apiUrl = `${config.API_URL_APPLICATION}/ProjectMaster/SearchProject${query}`;
-        console.log(apiUrl)
+        const apiUrl = `${config.API_URL_APPLICATION}/DepartmentMaster/SearchDepartment${query}`;
         axios.get(apiUrl, { headers: { 'accept': '*/*' } })
             .then((response) => {
-                console.log("search response ", response.data.projectMasterList);
-                setDesignations(response.data.projectMasterList)
+                console.log("search response ", response.data.departments);
+                setDesignations(response.data.departments)
+                setTotalPages(Math.ceil(response.data.totalCount / 10));
             })
             .catch((error) => {
                 console.error('Error fetching data:', error);
@@ -144,12 +144,8 @@ const DesignationMaster = () => {
         fetchData('CommonDropdown/GetDepartment', setDepartmentList, 'getDepartments');
     }, []);
 
-
-
-
-
     const handleClear = () => {
-        fetchStaffRequirements();
+        fetchData();
         setSearchDept('');
         setSearchStatus('')
     };

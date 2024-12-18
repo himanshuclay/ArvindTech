@@ -231,7 +231,8 @@ const TenderMaster = () => {
                 'GSTIN', 'Filling Frequency',
                 'Vendor Contact Person',
                 'Creator Emp ID',
-                'Created By', 'Updated By'
+                'Created By', 'Updated By',
+                'Created Date', 'Updated Date'
             ],
             ...data.map(tender => [
                 tender.id,
@@ -255,6 +256,8 @@ const TenderMaster = () => {
                 tender.creatorEmpId,
                 tender.creatorName,
                 tender.creatorEmail,
+                tender.createdDate,
+                tender.updatedDate,
             ])
         ];
         return csvRows.map(row => row.join(',')).join('\n');

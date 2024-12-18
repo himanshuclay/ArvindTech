@@ -5,7 +5,6 @@ import { useEffect, useState } from "react";
 import Select from 'react-select';
 import { toast } from "react-toastify";
 
-
 interface ProcessCanvasProps {
     show: boolean;
     setShow: (show: boolean) => void;
@@ -19,6 +18,8 @@ interface AssignProjecttoProcess {
     projects: Array<{
         projectID: string;
         projectName: string;
+        subProjectID: string;
+        subProjectName: string;
     }>;
     createdBy: string;
     updatedBy: string;
@@ -27,11 +28,14 @@ interface Project {
     id: string;
     projectID: string;
     projectName: string;
+    subProjectID: string;
+    subProjectName: string;
 }
 
 const ProcessCanvas: React.FC<ProcessCanvasProps> = ({ show, setShow, manageId }) => {
     const [assignedProject, setAssignedProject] = useState<Project[]>([]);
     const [projectList, setProjectList] = useState<Project[]>([]);
+    const [subProjectList, setSubProjectList] = useState<Project[]>([]);
     const [moduleName, setModuleName] = useState<string>("");
     const [processId, setProcessId] = useState<string>("");
     const [empName, setEmpName] = useState<string | null>('');
@@ -45,6 +49,7 @@ const ProcessCanvas: React.FC<ProcessCanvasProps> = ({ show, setShow, manageId }
         updatedBy: empName || '',
     });
 
+    const [singleProject, setSingleProject] = useState('');
 
     useEffect(() => {
         const storedEmpName = localStorage.getItem('EmpName');
@@ -71,6 +76,9 @@ const ProcessCanvas: React.FC<ProcessCanvasProps> = ({ show, setShow, manageId }
         }
     }, [show, moduleName, processId]);
 
+
+
+
     useEffect(() => {
         const fetchProjectList = async () => {
             try {
@@ -87,6 +95,32 @@ const ProcessCanvas: React.FC<ProcessCanvasProps> = ({ show, setShow, manageId }
         };
         fetchProjectList();
     }, []);
+
+
+    useEffect(() => {
+        const fetchSubProjectList = async (singleProject: string) => {
+            try {
+                const response = await axios.get(`${config.API_URL_APPLICATION}/SubProjectMaster/GetSubProject`, {
+                    params: { ProjectName: singleProject }
+                });
+                if (response.data.isSuccess) {
+                    const subProjects = response.data.subProjects;
+                    console.log(subProjects)
+                    setSubProjectList(subProjects);
+                } else {
+                    console.error(response.data.message);
+                }
+            } catch (error) {
+                console.error('Error fetching project list:', error);
+            }
+        };
+        if (singleProject) {
+            fetchSubProjectList(singleProject);
+        }
+    }, [singleProject]);
+
+    console.log(singleProject)
+
 
     const fetchModuleById = async (id: string) => {
         try {
@@ -131,26 +165,22 @@ const ProcessCanvas: React.FC<ProcessCanvasProps> = ({ show, setShow, manageId }
     };
 
 
-    // Function to handle button click
     const handleButtonClick = (buttonName: string) => {
         setActiveButton(buttonName);
-        console.log(buttonName)
     };
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        try {
-            await axios.post(`${config.API_URL_APPLICATION}/AssignProjecttoProcess/AssignProjecttoProcess`, assignProject);
-            // Reset the projects in state
-            setAssignProject(prev => ({
-                ...prev,
-                projects: []
-            }));
-            fetchGetProject(moduleName, processId);
-            toast.success("Project assigned successfully!");
-        } catch (error) {
-            console.error('Error submitting project assignment:', error);
-        }
+
+        console.log(assignProject)
+        // try {
+        //     await axios.post(`${config.API_URL_APPLICATION}/AssignProjecttoProcess/AssignProjecttoProcess`, assignProject);
+        //     setAssignProject(prev => ({ ...prev, projects: [] }));
+        //     fetchGetProject(moduleName, processId);
+        //     toast.success("Project assigned successfully!");
+        // } catch (error) {
+        //     console.error('Error submitting project assignment:', error);
+        // }
     };
 
 
@@ -159,11 +189,7 @@ const ProcessCanvas: React.FC<ProcessCanvasProps> = ({ show, setShow, manageId }
             await axios.delete(
                 `${config.API_URL_APPLICATION}/AssignProjecttoProcess/DeleteProjectAssigntoProcess`,
                 {
-                    params: {
-                        id: id,
-                        ModuleName: moduleName,
-                        ProcessID: processId,
-                    },
+                    params: { id: id, ModuleName: moduleName, ProcessID: processId, },
                 }
             );
             fetchGetProject(moduleName, processId);
@@ -216,23 +242,43 @@ const ProcessCanvas: React.FC<ProcessCanvasProps> = ({ show, setShow, manageId }
                                     <Form.Label>Project Name</Form.Label>
                                     <Select
                                         name="projectName"
-                                        value={projectList.filter(project => assignProject.projects.some(ap => ap.projectID === project.id))}
+                                        value={projectList.filter(project =>
+                                            assignProject.projects.some(ap => ap.projectID === project.id)
+                                        )}
                                         onChange={(selectedOptions) => {
-                                            const selectedProjects = selectedOptions || [];
-                                            const projects = selectedProjects.map(option => ({
-                                                projectID: option.id,
-                                                projectName: option.projectName
-                                            }));
-                                            setAssignProject(prev => ({
-                                                ...prev,
-                                                projects
-                                            }));
+                                            if (activeButton === 'subProject') {
+                                                // Single select
+                                                const selectedProject = selectedOptions as Project;
+                                                setSingleProject(selectedProject.projectName);
+                                                setAssignProject(prev => ({
+                                                    ...prev,
+                                                    projects: [{
+                                                        projectID: selectedProject.id,
+                                                        projectName: selectedProject.projectName,
+                                                        subProjectID: "",
+                                                        subProjectName: ""
+                                                    }],
+                                                }));
+                                            } else {
+                                                // Multi select
+                                                const selectedProjects = (selectedOptions || []) as Project[];
+                                                const projects = selectedProjects.map((option: Project) => ({
+                                                    projectID: option.id,
+                                                    projectName: option.projectName,
+                                                    subProjectID: "",
+                                                    subProjectName: ""
+                                                }));
+                                                setAssignProject(prev => ({
+                                                    ...prev,
+                                                    projects,
+                                                }));
+                                            }
                                         }}
                                         getOptionLabel={(project) => project.projectName}
                                         getOptionValue={(project) => project.id}
                                         options={projectList}
                                         isSearchable={true}
-                                        isMulti={true}
+                                        isMulti={activeButton !== 'subProject'}
                                         placeholder="Select Projects"
                                         required
                                     />
@@ -241,25 +287,30 @@ const ProcessCanvas: React.FC<ProcessCanvasProps> = ({ show, setShow, manageId }
 
                             {activeButton === 'subProject' ?
                                 <Col lg={6}>
-                                    <Form.Group controlId="projectName" className="mb-3 mt-2">
+                                    <Form.Group controlId="subProjectName" className="mb-3 mt-2">
                                         <Form.Label>Sub Project Name</Form.Label>
                                         <Select
-                                            name="projectName"
-                                            value={projectList.filter(project => assignProject.projects.some(ap => ap.projectID === project.id))}
+                                            name="subProjectName"
+                                            value={subProjectList.filter(project =>
+                                                assignProject.projects.some(ap => ap.subProjectID === project.id)
+                                            )}
                                             onChange={(selectedOptions) => {
                                                 const selectedProjects = selectedOptions || [];
                                                 const projects = selectedProjects.map(option => ({
-                                                    projectID: option.id,
-                                                    projectName: option.projectName
+                                                    subProjectID: option.id,
+                                                    subProjectName: option.projectName,
                                                 }));
                                                 setAssignProject(prev => ({
                                                     ...prev,
-                                                    projects
+                                                    projects: prev.projects.map(ap => ({
+                                                        ...ap,
+                                                        ...projects.find(p => p.subProjectID === ap.subProjectID) || ap,
+                                                    })),
                                                 }));
                                             }}
                                             getOptionLabel={(project) => project.projectName}
                                             getOptionValue={(project) => project.id}
-                                            options={projectList}
+                                            options={subProjectList}
                                             isSearchable={true}
                                             isMulti={true}
                                             placeholder="Select Sub Projects"
@@ -275,6 +326,7 @@ const ProcessCanvas: React.FC<ProcessCanvasProps> = ({ show, setShow, manageId }
                             Submit
                         </Button>
                     </Form>
+
                 </Modal.Body>
             </Modal>
         </div>

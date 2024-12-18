@@ -212,7 +212,7 @@ const getFilteredMenuItems = () => {
         {
           key: 'RoleMaster',
           label: 'Role Master',
-          url: '/pages/roleMaster',
+          url: '/pages/RoleMaster',
           icon: 'ri-brain-line',
           parentKey: 'systemmaster',
         },
@@ -416,21 +416,23 @@ const getFilteredMenuItems = () => {
 
   if (role === 'Employee') {
     return MENU_ITEMS.filter(item =>
+      item.key === 'dashboard' ||
       item.key === 'CompletedTask' ||
       item.key === 'ExpireTask' ||
       item.key === 'TaskPlanned' ||
-      item.key === 'Action' ||
+      // item.key === 'Action' ||
       item.key === 'Notification'
     );
   }
   return MENU_ITEMS.filter(item => {
     if (role === 'Admin') {
-      return item.key === 'Filtertask' ||
+      return item.key === 'dashboard' ||
+        item.key === 'Filtertask' ||
         item.key === 'TaskAdmin' ||
         item.key === 'Analytics' ||
         item.key === 'master' ||
-        item.key === 'Modules-Master'||
-        item.key === 'Action' ||
+        item.key === 'Modules-Master' ||
+        // item.key === 'Action' ||
         item.key === 'ChkLnMaster' ||
         item.key === 'systemmaster' ||
         item.key === 'Modules-Master' ||
@@ -465,7 +467,7 @@ const LeftSidebar = () => {
             <img src={logoSm} alt="small logo" />
           </span>
         </Link>
-        <a href="ModuleMaster" className="logo logo-dark">
+        <a href="/" className="logo logo-dark">
           <span className="logo-lg">
             <img src={logoDark} alt="dark logo" style={{ height: '50px' }} />
           </span>
