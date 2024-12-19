@@ -199,6 +199,7 @@ const EmployeeInsert = () => {
                                         required
                                         placeholder='Enter Module ID'
                                         disabled={editMode}
+                                        maxLength={15}
                                     />
                                 </Form.Group>
                             </Col>

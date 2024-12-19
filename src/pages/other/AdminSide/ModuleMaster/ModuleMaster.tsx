@@ -354,6 +354,8 @@ const ModuleMaster = () => {
                                                                                     (col.id === 'status' && item[col.id] === "Disabled") ? 'task4' :
                                                                                         (col.id === 'misExempt' && item[col.id] === 'Active') ? 'task1' :
                                                                                             (col.id === 'misExempt' && item[col.id] === 'Inactive') ? 'task4' :
+                                                                                        (col.id === 'misExempt' && item[col.id] === 'Yes') ? 'task1' :
+                                                                                            (col.id === 'misExempt' && item[col.id] === 'No') ? 'task4' :
                                                                                                 ''
                                                                     }
                                                                 >
