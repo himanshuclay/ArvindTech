@@ -27,9 +27,10 @@ interface Process {
     updatedDate: string;
     processName: string;
     userUpdatedMobileNumber: string;
-    status: string;
     empId: string;
     employeeName: string;
+    status: string;
+    misExempt: string;
     manageId: number;
 }
 
@@ -204,15 +205,21 @@ const ModuleMaster = () => {
 
     const convertToCSV = (data: Process[]) => {
         const csvRows = [
-            ['ID', 'Module Name', 'Process ID', 'Process Display Name', 'Process Objective', 'Process Owner Name', 'User Updated Mobile Number', 'Created By', 'Updated By', 'Created Date', 'Updated Date'],
+            ['ID', 'Module Name', 'Module ID', 'Process ID', 'Process Display Name',
+                'Process Objective', 'Process Owner Name',
+                'User Updated Mobile Number', 'Mis Exempt', 'Status',
+                'Created By', 'Updated By', 'Created Date', 'Updated Date'],
             ...data.map(mod => [
                 mod.id,
                 mod.moduleName,
+                mod.moduleID,
                 mod.processID,
                 mod.processDisplayName,
                 `"${mod.processObjective}"`,
                 mod.processOwnerName || '',
                 mod.userUpdatedMobileNumber || '',
+                mod.misExempt || '',
+                mod.status || '',
                 mod.createdBy,
                 mod.updatedBy,
                 mod.createdDate,

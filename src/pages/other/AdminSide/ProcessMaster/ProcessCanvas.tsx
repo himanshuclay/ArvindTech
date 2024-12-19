@@ -18,8 +18,6 @@ interface AssignProjecttoProcess {
     projects: Array<{
         projectID: string;
         projectName: string;
-        subProjectID: string;
-        subProjectName: string;
     }>;
     createdBy: string;
     updatedBy: string;
@@ -28,14 +26,18 @@ interface Project {
     id: string;
     projectID: string;
     projectName: string;
+
+}
+interface SubProject {
+    id: string;
     subProjectID: string;
-    subProjectName: string;
+    name: string;
 }
 
 const ProcessCanvas: React.FC<ProcessCanvasProps> = ({ show, setShow, manageId }) => {
     const [assignedProject, setAssignedProject] = useState<Project[]>([]);
     const [projectList, setProjectList] = useState<Project[]>([]);
-    const [subProjectList, setSubProjectList] = useState<Project[]>([]);
+    const [subProjectList, setSubProjectList] = useState<SubProject[]>([]);
     const [moduleName, setModuleName] = useState<string>("");
     const [processId, setProcessId] = useState<string>("");
     const [empName, setEmpName] = useState<string | null>('');
@@ -48,8 +50,6 @@ const ProcessCanvas: React.FC<ProcessCanvasProps> = ({ show, setShow, manageId }
         createdBy: '',
         updatedBy: empName || '',
     });
-
-    const [singleProject, setSingleProject] = useState('');
 
     useEffect(() => {
         const storedEmpName = localStorage.getItem('EmpName');
@@ -79,47 +79,24 @@ const ProcessCanvas: React.FC<ProcessCanvasProps> = ({ show, setShow, manageId }
 
 
 
+
+
     useEffect(() => {
-        const fetchProjectList = async () => {
+        const fetchData = async (endpoint: string, setter: Function, listName: string) => {
             try {
-                const response = await axios.get(`${config.API_URL_APPLICATION}/CommonDropdown/GetProjectList`);
+                const response = await axios.get(`${config.API_URL_APPLICATION}/${endpoint}`);
                 if (response.data.isSuccess) {
-                    const projects = response.data.projectListResponses;
-                    setProjectList(projects);
+                    setter(response.data[listName]);
                 } else {
                     console.error(response.data.message);
                 }
             } catch (error) {
-                console.error('Error fetching project list:', error);
+                console.error(`Error fetching data from ${endpoint}:`, error);
             }
         };
-        fetchProjectList();
+        fetchData('CommonDropdown/GetProjectList', setProjectList, 'projectListResponses');
+        fetchData('CommonDropdown/GetSubProjectList', setSubProjectList, 'subProjectLists');
     }, []);
-
-
-    useEffect(() => {
-        const fetchSubProjectList = async (singleProject: string) => {
-            try {
-                const response = await axios.get(`${config.API_URL_APPLICATION}/SubProjectMaster/GetSubProject`, {
-                    params: { ProjectName: singleProject }
-                });
-                if (response.data.isSuccess) {
-                    const subProjects = response.data.subProjects;
-                    console.log(subProjects)
-                    setSubProjectList(subProjects);
-                } else {
-                    console.error(response.data.message);
-                }
-            } catch (error) {
-                console.error('Error fetching project list:', error);
-            }
-        };
-        if (singleProject) {
-            fetchSubProjectList(singleProject);
-        }
-    }, [singleProject]);
-
-    console.log(singleProject)
 
 
     const fetchModuleById = async (id: string) => {
@@ -167,20 +144,29 @@ const ProcessCanvas: React.FC<ProcessCanvasProps> = ({ show, setShow, manageId }
 
     const handleButtonClick = (buttonName: string) => {
         setActiveButton(buttonName);
+        setAssignProject({
+            id: 0,
+            moduleName: assignProject.moduleName,
+            processId:assignProject.processId,
+            projects: [],
+            createdBy: '',
+            updatedBy: empName || '',
+        });
     };
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
 
         console.log(assignProject)
-        // try {
-        //     await axios.post(`${config.API_URL_APPLICATION}/AssignProjecttoProcess/AssignProjecttoProcess`, assignProject);
-        //     setAssignProject(prev => ({ ...prev, projects: [] }));
-        //     fetchGetProject(moduleName, processId);
-        //     toast.success("Project assigned successfully!");
-        // } catch (error) {
-        //     console.error('Error submitting project assignment:', error);
-        // }
+        try {
+            await axios.post(`${config.API_URL_APPLICATION}/AssignProjecttoProcess/AssignProjecttoProcess`, assignProject);
+            setAssignProject(prev => ({ ...prev, projects: [] }));
+            fetchGetProject(moduleName, processId);
+            toast.dismiss()
+            toast.success("Project assigned successfully!");
+        } catch (error) {
+            console.error('Error submitting project assignment:', error);
+        }
     };
 
 
@@ -193,6 +179,7 @@ const ProcessCanvas: React.FC<ProcessCanvasProps> = ({ show, setShow, manageId }
                 }
             );
             fetchGetProject(moduleName, processId);
+            toast.dismiss()
             toast.warn("Project deleted successfully!")
         } catch (error: any) {
             toast.error(error)
@@ -237,90 +224,68 @@ const ProcessCanvas: React.FC<ProcessCanvasProps> = ({ show, setShow, manageId }
 
                     <Form onSubmit={handleSubmit}>
                         <Row>
-                            <Col lg={activeButton === 'subProject' ? 6 : 12}>
-                                <Form.Group controlId="moduleName" className="mb-3 mt-2">
-                                    <Form.Label>Project Name</Form.Label>
-                                    <Select
-                                        name="projectName"
-                                        value={projectList.filter(project =>
-                                            assignProject.projects.some(ap => ap.projectID === project.id)
-                                        )}
-                                        onChange={(selectedOptions) => {
-                                            if (activeButton === 'subProject') {
-                                                // Single select
-                                                const selectedProject = selectedOptions as Project;
-                                                setSingleProject(selectedProject.projectName);
-                                                setAssignProject(prev => ({
-                                                    ...prev,
-                                                    projects: [{
-                                                        projectID: selectedProject.id,
-                                                        projectName: selectedProject.projectName,
-                                                        subProjectID: "",
-                                                        subProjectName: ""
-                                                    }],
+                            {activeButton === 'project' && (
+                                <Col lg={12}>
+                                    <Form.Group controlId="moduleName" className="mb-3 mt-2">
+                                        <Form.Label>Project Name</Form.Label>
+                                        <Select
+                                            name="projectName"
+                                            value={projectList.filter(project =>
+                                                assignProject.projects.some(ap => ap.projectID === project.id)
+                                            )}
+                                            onChange={(selectedOption) => {
+                                                const selectedProjects = (selectedOption || []) as Project[];
+                                                const updatedProjects = selectedProjects.map(project => ({
+                                                    projectID: project.id,
+                                                    projectName: project.projectName,
                                                 }));
-                                            } else {
-                                                // Multi select
-                                                const selectedProjects = (selectedOptions || []) as Project[];
-                                                const projects = selectedProjects.map((option: Project) => ({
-                                                    projectID: option.id,
-                                                    projectName: option.projectName,
-                                                    subProjectID: "",
-                                                    subProjectName: ""
-                                                }));
-                                                setAssignProject(prev => ({
-                                                    ...prev,
-                                                    projects,
-                                                }));
-                                            }
-                                        }}
-                                        getOptionLabel={(project) => project.projectName}
-                                        getOptionValue={(project) => project.id}
-                                        options={projectList}
-                                        isSearchable={true}
-                                        isMulti={activeButton !== 'subProject'}
-                                        placeholder="Select Projects"
-                                        required
-                                    />
-                                </Form.Group>
-                            </Col>
-
-                            {activeButton === 'subProject' ?
-                                <Col lg={6}>
+                                                setAssignProject({
+                                                    ...assignProject,
+                                                    projects: updatedProjects,
+                                                });
+                                            }}
+                                            getOptionLabel={(project) => project.projectName}
+                                            getOptionValue={(project) => project.id}
+                                            options={projectList}
+                                            isSearchable={true}
+                                            isMulti={true}
+                                            placeholder="Select Projects"
+                                            required
+                                        />
+                                    </Form.Group>
+                                </Col>
+                            )}
+                            {activeButton === 'subProject' && (
+                                <Col lg={12}>
                                     <Form.Group controlId="subProjectName" className="mb-3 mt-2">
                                         <Form.Label>Sub Project Name</Form.Label>
                                         <Select
                                             name="subProjectName"
-                                            value={subProjectList.filter(project =>
-                                                assignProject.projects.some(ap => ap.subProjectID === project.id)
-                                            )}
                                             onChange={(selectedOptions) => {
-                                                const selectedProjects = selectedOptions || [];
-                                                const projects = selectedProjects.map(option => ({
-                                                    subProjectID: option.id,
-                                                    subProjectName: option.projectName,
+                                                const selectedSubProjects = (selectedOptions || []) as SubProject[];
+                                                const newSubProjectArray = selectedSubProjects.map(subProject => ({
+                                                    projectID: subProject.id,
+                                                    projectName: subProject.name,
                                                 }));
-                                                setAssignProject(prev => ({
-                                                    ...prev,
-                                                    projects: prev.projects.map(ap => ({
-                                                        ...ap,
-                                                        ...projects.find(p => p.subProjectID === ap.subProjectID) || ap,
-                                                    })),
-                                                }));
+
+                                                setAssignProject({
+                                                    ...assignProject,
+                                                    projects: newSubProjectArray,
+                                                });
                                             }}
-                                            getOptionLabel={(project) => project.projectName}
-                                            getOptionValue={(project) => project.id}
+                                            getOptionLabel={(subProject) => subProject.name}
+                                            getOptionValue={(subProject) => subProject.id}
                                             options={subProjectList}
                                             isSearchable={true}
-                                            isMulti={true}
+                                            isMulti={true} // Sub-projects are always multi-select
                                             placeholder="Select Sub Projects"
                                             required
                                         />
                                     </Form.Group>
                                 </Col>
-                                : null
-                            }
+                            )}
                         </Row>
+
 
                         <Button variant="primary" type="submit">
                             Submit
