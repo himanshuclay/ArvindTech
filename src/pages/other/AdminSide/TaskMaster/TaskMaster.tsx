@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { Button, Form, Table, Alert, Container, Row, Col } from 'react-bootstrap';
+import { Button, Form, Table, Alert, Container, Row, Col, Modal } from 'react-bootstrap';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import { Link } from 'react-router-dom';
 import config from '@/config';
@@ -16,6 +16,7 @@ interface Task {
     task_Number: string;
     roleName: string;
     task_Json: string;
+
 }
 
 interface Module {
@@ -45,6 +46,22 @@ const TaskMaster: React.FC = () => {
     const [show, setShow] = useState(false);
     const [selectedJson, setSelectedJson] = useState<string>(''); // State for JSON display
     const [showJsonModal, setShowJsonModal] = useState(false); // State to show/hide JSON modal
+    const [showModal, setShowModal] = useState(false);
+    const [taskIdToEdit, setTaskIdToEdit] = useState<number | null>(null);
+    const [problemSolver, setProblemSolver] = useState('');
+
+    const handleShowModal = (taskId: number) => {
+        setTaskIdToEdit(taskId);
+        setShowModal(true);
+    };
+
+    const handleCloseModal = () => {
+        setShowModal(false);
+    };
+
+    const handleProblemSolverChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+        setProblemSolver(e.target.value);
+    };
 
 
 
@@ -52,6 +69,7 @@ const TaskMaster: React.FC = () => {
     const [columns, setColumns] = useState<Column[]>([
         { id: 'moduleName', label: 'Module', visible: true },
         { id: 'processName', label: 'Process', visible: true },
+        { id: 'problem_Solver', label: 'Problem Solver', visible: true },
         { id: 'task_Number', label: 'Task Number', visible: true },
         { id: 'roleName', label: 'Role Name', visible: true },
         { id: 'task_Name', label: 'Task Name', visible: true },
@@ -108,7 +126,9 @@ const TaskMaster: React.FC = () => {
                 if (response.data.isSuccess) {
                     setTasks(response.data.getProcessTaskByIds);
                 }
+                console.log(tasks)
             })
+
             .catch((error) => console.error('Error fetching tasks:', error));
     }, [selectedModuleId && selectedProcess]);
 
@@ -132,6 +152,35 @@ const TaskMaster: React.FC = () => {
     };
 
     console.log(selectedJson)
+
+    const editTask = async (taskId: number, problemSolver: string) => {
+        try {
+          // Prepare data with only the problem_Solver field updated
+          const taskData = {
+            id: taskId,
+            problem_Solver: problemSolver,  // Only updating problem_Solver
+          };
+      
+          // Make API request
+          const response = await axios.post(
+            'https://arvindo-api.clay.in/api/ProcessTaskMaster/InsertUpdateProcessTaskandDoer',
+            taskData,
+            {
+              headers: {
+                'accept': '*/*',
+                'Content-Type': 'application/json'
+              }
+            }
+          );
+
+          console.log(taskData)
+      
+          // Handle successful response
+          console.log('Task updated:', response.data);
+        } catch (error) {
+          console.error('Error updating task:', error);
+        }
+      };
 
 
 
@@ -230,7 +279,7 @@ const TaskMaster: React.FC = () => {
                                                     className={
                                                         col.id === 'moduleName' ? 'fw-bold fs-13 text-dark text-nowrap' :
                                                             col.id === 'taskName' ? 'fw-bold fs-13   text-wrap' :
-                                                                    ''
+                                                                ''
                                                     }
                                                 >
 
@@ -251,6 +300,54 @@ const TaskMaster: React.FC = () => {
                                             >
                                                 View Task
                                             </Button>
+                                        </td>
+                                        <td>
+                                            <Button
+                                                variant="primary"
+                                                onClick={() => handleShowModal(task.id)}
+                                                className="text-nowrap"
+                                            >
+                                                Edit Task
+                                            </Button>
+
+                                            <Modal show={showModal} onHide={handleCloseModal}>
+                                                <Modal.Header closeButton>
+                                                    <Modal.Title>Edit Task</Modal.Title>
+                                                </Modal.Header>
+                                                <Modal.Body>
+                                                    <Form>
+                                                        <Form.Group controlId="problemSolver">
+                                                            <Form.Label>Problem Solver</Form.Label>
+                                                            <Form.Control
+                                                                as="select"
+                                                                value={problemSolver}
+                                                                onChange={handleProblemSolverChange}
+                                                            >
+                                                                <option value="">Select Solver</option>
+                                                                <option value="Solver1">Solver 1</option>
+                                                                <option value="Solver2">Solver 2</option>
+                                                                <option value="Solver3">Solver 3</option>
+                                                            </Form.Control>
+                                                        </Form.Group>
+                                                    </Form>
+                                                </Modal.Body>
+                                                <Modal.Footer>
+                                                    <Button variant="secondary" onClick={handleCloseModal}>
+                                                        Close
+                                                    </Button>
+                                                    <Button
+                                                        variant="primary"
+                                                        onClick={() => {
+                                                            if (taskIdToEdit && problemSolver) {
+                                                                editTask(taskIdToEdit, problemSolver);
+                                                                handleCloseModal();
+                                                            }
+                                                        }}
+                                                    >
+                                                        Save Changes
+                                                    </Button>
+                                                </Modal.Footer>
+                                            </Modal>
                                         </td>
                                         <td>
                                             <Button variant="primary" onClick={() => handleCondition(task.id)}>Conditions</Button>

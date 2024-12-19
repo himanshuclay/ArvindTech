@@ -81,14 +81,16 @@ const ProcessViewPopup: React.FC<ProcessCanvasProps> = ({ showView, setShowView,
         }
     };
 
-    const GetProcessTaskByIds = async (moduleName: string, processId: string) => {
+    const GetProcessTaskByIds = async (moduleID: string, processId: string) => {
         try {
             const response = await axios.get(`${config.API_URL_ACCOUNT}/ProcessTaskMaster/GetProcessTaskByIds`, {
-                params: { Flag: 3, ModuleID: moduleName, ProcessID: processId }
+                params: { Flag: 2, ModuleID: moduleID, ProcessID: processId }
             });
+            console.log(response)
             if (response.data.isSuccess) {
                 const fetchedProject = response.data.getProcessTaskByIds;
                 setPreData(fetchedProject);
+                console.log(preData)
             } else {
                 console.error(response.data.message);
             }
@@ -198,8 +200,8 @@ const ProcessViewPopup: React.FC<ProcessCanvasProps> = ({ showView, setShowView,
                                 <Row className="justify-content-center">
                                     <Col xs={12} md={8} lg={10}>
                                         <Alert variant="info" className="text-center">
-                                            <h4>No Project Found</h4>
-                                            <p>You currently don't have Assigned Project</p>
+                                            <h4>No Data Found</h4>
+                                            <p>You currently don't have any Data</p>
                                         </Alert>
                                     </Col>
                                 </Row>
