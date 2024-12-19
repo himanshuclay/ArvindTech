@@ -92,7 +92,7 @@ const HrResumeMaster = () => {
         { id: 'timesFinalized', label: 'Times Finalized', visible: true },
         { id: 'status', label: 'Status', visible: true },
     ]);
-    
+
 
 
     const handleOnDragEnd = (result: any) => {
@@ -185,7 +185,7 @@ const HrResumeMaster = () => {
 
     const filteredmaster = hrCandidates.filter(input =>
         input.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        input.mobileNumber.toLowerCase().includes(searchQuery.toLowerCase()) 
+        input.mobileNumber.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
 
@@ -206,7 +206,7 @@ const HrResumeMaster = () => {
         ];
         return csvRows.map(row => row.join(',')).join('\n');
     };
-    
+
 
 
     const downloadCSV = () => {
@@ -388,11 +388,12 @@ const HrResumeMaster = () => {
                                                             {columns.filter(col => col.visible).map((col) => (
                                                                 <td key={col.id}
                                                                     className={
-                                                                        col.id === 'moduleOwnerName' ? 'fw-bold fs-14 text-dark' :
-                                                                            col.id === 'moduleOwnerID' ? 'fw-bold fs-13  ' :
-                                                                                // (col.id === 'status' && item[col.id] === 'INACTIVE') ? 'task4' :
-                                                                                //     (col.id === 'status' && item[col.id] === 'ACTIVE') ? 'task1' :
-                                                                                ''
+                                                                        col.id === 'name' ? 'fw-bold  text-dark' :
+                                                                            col.id === 'moduleOwnerName' ? 'fw-bold  text-dark' :
+                                                                                col.id === 'moduleOwnerID' ? 'fw-bold  ' :
+                                                                                    // (col.id === 'status' && item[col.id] === 'INACTIVE') ? 'task4' :
+                                                                                    //     (col.id === 'status' && item[col.id] === 'ACTIVE') ? 'task1' :
+                                                                                    ''
                                                                     }
                                                                 >
                                                                     <>

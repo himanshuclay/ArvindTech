@@ -82,8 +82,8 @@ const TenderMaster = () => {
         { id: 'trade', label: 'Trade', visible: true },
         { id: 'vendorContactPerson', label: 'Vendor Contact Person', visible: true },
         { id: 'contactNo', label: 'Vendor Contact No', visible: true },
-        { id: 'creatorEmpId', label: 'Creator Emp ID', visible: true },
         { id: 'creatorName', label: 'Creator Name', visible: true },
+        { id: 'creatorEmpId', label: 'Creator Emp ID', visible: true },
         { id: 'creatorEmail', label: 'Creator Email', visible: true },
         { id: 'email', label: 'Email', visible: true },
         { id: 'district', label: 'District', visible: true },
@@ -231,7 +231,8 @@ const TenderMaster = () => {
                 'GSTIN', 'Filling Frequency',
                 'Vendor Contact Person',
                 'Creator Emp ID',
-                'Created By', 'Updated By'
+                'Created By', 'Updated By',
+                'Created Date', 'Updated Date'
             ],
             ...data.map(tender => [
                 tender.id,
@@ -255,6 +256,8 @@ const TenderMaster = () => {
                 tender.creatorEmpId,
                 tender.creatorName,
                 tender.creatorEmail,
+                tender.createdDate,
+                tender.updatedDate,
             ])
         ];
         return csvRows.map(row => row.join(',')).join('\n');
@@ -383,18 +386,6 @@ const TenderMaster = () => {
                             <Row className='mt-3'>
                                 <div className="d-flex justify-content-end bg-light p-1">
                                     <div className="app-search d-none d-lg-block me-4">
-                                        {/* <form>
-                                            <div className="input-group px300 ">
-                                                <input
-                                                    type="search"
-                                                    className=" bg-white"
-                                                    placeholder="Search..."
-                                                    value={searchQuery}
-                                                    onChange={handleSearchcurrent}
-                                                />
-                                                <span className="ri-search-line search-icon text-muted" />
-                                            </div>
-                                        </form> */}
                                     </div>
 
 
@@ -469,7 +460,10 @@ const TenderMaster = () => {
                                                         {columns.filter(col => col.visible).map((col) => (
                                                             <td key={col.id}
                                                                 className={
-                                                                    col.id === 'addressLine1' ? 'w-200px' : ''
+                                                                    col.id === 'addressLine1' ? 'w-200px' :
+                                                                        col.id === 'creatorName' ? 'text-dark fw-bold' :
+                                                                            col.id === 'vendorContactPerson' ? 'text-dark fw-bold' :
+                                                                                ''
                                                                 }
                                                             >
                                                                 {col.id === 'creatorName' && item.creatorName ? (
@@ -477,11 +471,17 @@ const TenderMaster = () => {
                                                                         <IconWithLetter letter={item.creatorName.charAt(0)} />
                                                                         {item.creatorName.split('_')[0]}
                                                                     </div>
-                                                                ) : (
-                                                                    <div>
-                                                                        {item[col.id as keyof Vender]}
+                                                                ) : col.id === 'vendorContactPerson' && item.vendorContactPerson ? (
+                                                                    <div className="d-flex align-items-center">
+                                                                        <IconWithLetter letter={item.vendorContactPerson.charAt(0)} />
+                                                                        {item.vendorContactPerson.split('_')[0]}
                                                                     </div>
-                                                                )
+                                                                ) :
+                                                                    (
+                                                                        <div>
+                                                                            {item[col.id as keyof Vender]}
+                                                                        </div>
+                                                                    )
                                                                 }
 
                                                             </td>

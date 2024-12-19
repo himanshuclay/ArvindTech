@@ -1,12 +1,10 @@
-
-
 import axios from 'axios';
 import { useEffect, useState, ChangeEvent } from 'react';
 import { Button, Col, Form, Row } from 'react-bootstrap';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import config from '@/config';
-import CustomSuccessToast from '@/pages/other/Component/CustomSuccessToast';
 import Select from 'react-select';
+import { toast } from 'react-toastify';
 
 
 
@@ -21,9 +19,6 @@ interface Department {
 const DepartmentMasterinsert = () => {
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
-    const [showToast, setShowToast] = useState(false);
-    const [toastMessage, setToastMessage] = useState("");
-    const [toastVariant, setToastVariant] = useState('');
     const [editMode, setEditMode] = useState<boolean>(false);
     const [empName, setEmpName] = useState<string | null>()
     const [departments, setDepartments] = useState<Department>({
@@ -68,7 +63,6 @@ const DepartmentMasterinsert = () => {
         }
     };
 
-
     const handleChange = (e: ChangeEvent<any> | null, name?: string, value?: any) => {
         if (e) {
             const { name: eventName, type } = e.target;
@@ -96,7 +90,6 @@ const DepartmentMasterinsert = () => {
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-
         const payload = {
             ...departments,
             createdBy: editMode ? departments.createdBy : empName,
@@ -104,29 +97,20 @@ const DepartmentMasterinsert = () => {
         };
         console.log(payload)
         try {
-            if (editMode) {
-                await axios.post(`${config.API_URL_APPLICATION}/DepartmentMaster/InsertorUpdateDepartment`, payload);
-                navigate('/pages/DepartmentMaster', {
+            const apiUrl = `${config.API_URL_APPLICATION}/DepartmentMaster/${editMode ? 'InsertorUpdateDepartment' : 'InsertorUpdateDepartment'}`;
+            const response = await axios.post(apiUrl, payload);
+            if (response.status === 200) {
+                navigate('/pages/departmentMaster', {
                     state: {
-                        showToast: true,
-                        toastMessage: "HrResume Updated successfully!",
-                        toastVariant: "rgb(28 175 85)"
-                    }
+                        successMessage: editMode ? `${departments.departmentName}  Updated successfully!` :`${departments.departmentName}  added successfully!`,
+                    },
                 });
             } else {
-                await axios.post(`${config.API_URL_APPLICATION}/DepartmentMaster/InsertorUpdateDepartment`, payload);
-                navigate('/pages/DepartmentMaster', {
-                    state: {
-                        showToast: true,
-                        toastMessage: "HrResume Updated successfully!",
-                        toastVariant: "rgb(28 175 85)"
-                    }
-                });
+                toast.error(response.data.message || "Failed to process request")
             }
-        } catch (error) {
-            setToastMessage("Error Adding/Updating");
-            setToastVariant("rgb(213 18 18)");
-            setShowToast(true);
+        } catch (error: any) {
+            toast.dismiss()
+            toast.error(error)
             console.error('Error submitting module:', error);
         }
     };
@@ -158,7 +142,7 @@ const DepartmentMasterinsert = () => {
                                     />
                                 </Form.Group>
                             </Col>
-                            
+
                             <Col lg={6}>
                                 <Form.Group controlId="status" className="mb-3">
                                     <Form.Label>Status *</Form.Label>
@@ -191,8 +175,6 @@ const DepartmentMasterinsert = () => {
                     </Form>
                 </div>
             </div>
-            <CustomSuccessToast show={showToast} toastMessage={toastMessage} toastVariant={toastVariant} onClose={() => setShowToast(false)} />
-
         </div>
     );
 };

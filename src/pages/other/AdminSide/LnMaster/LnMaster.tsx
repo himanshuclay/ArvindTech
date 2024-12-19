@@ -391,8 +391,8 @@ const LnMaster: React.FC = () => {
                             {columns.filter(col => col.visible).map((col) => (
                               <td key={col.id}
                                 className={
-                                  col.id === 'moduleName' ? 'fw-bold fs-13 text-dark ' :
-                                    col.id === 'task_Number' ? 'fw-bold fs-13 text-dark p-2' :
+                                  col.id === 'moduleName' ? 'fw-bold  text-dark ' :
+                                    col.id === 'task_Number' ? 'fw-bold  text-dark p-2' :
                                       ''
                                 }
                               >
@@ -435,7 +435,7 @@ const LnMaster: React.FC = () => {
                                     <Row>
                                       <Col lg={4}>
                                         <p className='mb-1'>Task Name</p>
-                                        <h5 className='text-primary'>{item.taskName}</h5>
+                                        <h5 className='text-primary text-wrap'>{item.taskName}</h5>
                                       </Col>
                                       <Col lg={4}>
                                         <p className='mb-1'>Role Name</p>

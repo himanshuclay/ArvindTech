@@ -9,8 +9,6 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 
 
-
-
 interface Addresses {
     id: number;
     pinCode: number;
@@ -20,6 +18,8 @@ interface Addresses {
     status: string;
     createdBy: string;
     updatedBy: string;
+    updatedDate: string;
+    createdDate: string;
 }
 
 interface Column {
@@ -35,13 +35,6 @@ interface StateList {
 }
 
 
-interface District {
-    district: string;
-}
-
-interface AreaData {
-    areaName: string;
-}
 
 const AddressMaster = () => {
     const [addresses, setAddresses] = useState<Addresses[]>([]);
@@ -49,6 +42,7 @@ const AddressMaster = () => {
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
     const [stateList, setStateList] = useState<StateList[]>([]);
+    const [downloadCsv, setDownloadCsv] = useState<Addresses[]>([]);
 
 
     const location = useLocation();
@@ -90,7 +84,7 @@ const AddressMaster = () => {
 
 
     useEffect(() => {
-        if (searchPinCode || searchAreaName || searchDistrict || searchState) {
+        if (searchPinCode || searchState) {
             handleSearch();
         } else {
             fetchStaffRequirements();
@@ -98,35 +92,8 @@ const AddressMaster = () => {
     }, [currentPage]);
 
 
-    const fetchStaffRequirements = async () => {
-        setLoading(true);
-        try {
-            const response = await axios.get(`${config.API_URL_APPLICATION}/AddressMaster/GetAddress`, {
-                params: { PageIndex: currentPage }
-            });
-            if (response.data.isSuccess) {
-                setAddresses(response.data.addresses);
-                setTotalPages(Math.ceil(response.data.totalCount / 10));
-            } else {
-                console.error(response.data.message);
-            }
-        } catch (error) {
-            console.error('Error fetching doers:', error);
-        }
-        finally {
-            setLoading(false);
-        }
-    };
-
-
-    const [districts, setDistricts] = useState<District[]>([]);
-    const [areaData, setAreaData] = useState<AreaData[]>([]);
-
-
 
     const [searchPinCode, setSearchPinCode] = useState('');
-    const [searchAreaName, setSearchAreaName] = useState('');
-    const [searchDistrict, setSearchDistrict] = useState('');
     const [searchState, setSearchState] = useState('');
 
 
@@ -136,8 +103,6 @@ const AddressMaster = () => {
 
         let query = `?`;
         if (searchPinCode) query += `PinCode=${searchPinCode}&`;
-        if (searchAreaName) query += `AreaName=${searchAreaName}&`;
-        if (searchDistrict) query += `District=${searchDistrict}&`;
         if (searchState) query += `State=${searchState}&`;
         query += `PageIndex=${currentPage}`;
 
@@ -161,6 +126,28 @@ const AddressMaster = () => {
             });
     };
 
+    const fetchStaffRequirements = async () => {
+        setLoading(true);
+        try {
+            const response = await axios.get(`${config.API_URL_APPLICATION}/AddressMaster/GetAddress`, {
+                params: { PageIndex: currentPage }
+            });
+            if (response.data.isSuccess) {
+                setAddresses(response.data.addresses);
+                setTotalPages(Math.ceil(response.data.totalCount / 10));
+            } else {
+                console.error(response.data.message);
+            }
+        } catch (error) {
+            console.error('Error fetching doers:', error);
+        }
+        finally {
+            setLoading(false);
+        }
+    };
+
+
+
     useEffect(() => {
         const fetchData = async (endpoint: string, setter: Function, listName: string) => {
             try {
@@ -175,109 +162,29 @@ const AddressMaster = () => {
             }
         };
         fetchData('CommonDropdown/GetStateList', setStateList, 'stateListResponses');
+        fetchData('AddressMaster/GetAddress', setDownloadCsv, 'addresses');
     }, []);
-
-
-    useEffect(() => {
-        const fetchDistrictsByState = async () => {
-            try {
-                const response = await axios.get(`${config.API_URL_APPLICATION}/AddressMaster/GetDistrictByState`, {
-                    params: { State: searchState }
-                });
-                setDistricts(response.data.getDistricts || []); // Safely access data
-            } catch (error) {
-                console.error('Error fetching districts:', error);
-                setDistricts([]);
-            }
-        };
-
-        if (searchState) fetchDistrictsByState()
-            else{
-                setDistricts([]);};
-    }, [searchState]);
-
-
-    useEffect(() => {
-        const fetchAreaByStateAndDistrict = async () => {
-            try {
-                const response = await axios.get(`${config.API_URL_APPLICATION}/AddressMaster/GetDistrictByState`, {
-                    params: { State: searchState, District: searchDistrict }
-                });
-                setAreaData(response.data.getDistricts || []); // Safely access data
-            } catch (error) {
-                console.error('Error fetching area data:', error);
-                setAreaData([]);
-            }
-        };
-
-        if (searchState && searchDistrict) fetchAreaByStateAndDistrict();
-    }, [searchState && searchDistrict]);
-
-
-
-    useEffect(() => {
-        const fetchDataByPinCode = async () => {
-            try {
-                const response = await axios.get(`${config.API_URL_APPLICATION}/AddressMaster/GetAddressData`, {
-                    params: { PinCode: searchPinCode }
-                });
-                setDistricts(response.data.addresses || []);
-            } catch (error) {
-                console.error('Error fetching districts by pin code:', error);
-                setDistricts([]);
-            }
-        };
-
-        if (searchPinCode.length === 6) {
-            fetchDataByPinCode();
-        } else {
-            setDistricts([]);
-            setAreaData([]);
-        }
-    }, [searchPinCode]);
-
-    useEffect(() => {
-        const fetchAreaDataByPinCodeAndDistrict = async () => {
-            try {
-                const response = await axios.get(`${config.API_URL_APPLICATION}/AddressMaster/GetAddressData`, {
-                    params: { PinCode: searchPinCode, District: searchDistrict }
-                });
-                setAreaData(response.data.addresses || []);
-            } catch (error) {
-                console.error('Error fetching area data by pin code and district:', error);
-                setAreaData([]);
-            }
-        };
-
-        if (searchPinCode.length === 6 && searchDistrict) {
-            fetchAreaDataByPinCodeAndDistrict();
-        }
-    }, [searchPinCode && searchDistrict]);
-
-
-
 
 
     const handleClear = () => {
         fetchStaffRequirements();
         setSearchState('');
         setSearchPinCode('');
-        setSearchDistrict('');
-        setDistricts([]);
-        setSearchAreaName('');
     };
 
 
     const convertToCSV = (data: Addresses[]) => {
         const csvRows = [
-            ['Pincode', 'Area Name', 'District', 'State', 'Created By', 'Updated By'],
+            ['Pincode', 'Area Name', 'District', 'State', 'Created By', 'Updated By', 'Created Date', 'Updated Date'],
             ...data.map(address => [
                 address.pinCode,
                 address.areaName,
                 address.district,
                 address.state,
                 address.createdBy,
-                address.updatedBy
+                address.updatedBy,
+                address.createdDate,
+                address.updatedDate,
             ])
         ];
         return csvRows.map(row => row.join(',')).join('\n');
@@ -285,13 +192,13 @@ const AddressMaster = () => {
 
 
     const downloadCSV = () => {
-        const csvData = convertToCSV(addresses);
+        const csvData = convertToCSV(downloadCsv);
         const blob = new Blob([csvData], { type: 'text/csv;charset=utf-8;' });
         const link = document.createElement('a');
         if (link.download !== undefined) {
             const url = URL.createObjectURL(blob);
             link.setAttribute('href', url);
-            link.setAttribute('download', 'Doers.csv');
+            link.setAttribute('download', 'Address Master.csv');
             link.style.visibility = 'hidden';
             document.body.appendChild(link);
             link.click();
@@ -331,7 +238,7 @@ const AddressMaster = () => {
                     <>
                         <div className='bg-white p-2 pb-2'>
                             <Row>
-                                <Col lg={6} className=''>
+                                <Col lg={4} className=''>
                                     <Form.Group controlId="searchPinCode">
                                         <Form.Label>Pincode</Form.Label>
                                         <Form.Control
@@ -342,10 +249,9 @@ const AddressMaster = () => {
                                             required
                                             placeholder='Enter Pincode'
                                         />
-
                                     </Form.Group>
                                 </Col>
-                                <Col lg={6} className=''>
+                                <Col lg={4} className=''>
                                     <Form.Group controlId="searchState">
                                         <Form.Label>State</Form.Label>
                                         <Select
@@ -361,43 +267,7 @@ const AddressMaster = () => {
                                         />
                                     </Form.Group>
                                 </Col>
-
-                                <Col lg={6} className='mt-2'>
-                                    <Form.Group controlId="searchDistrict">
-                                        <Form.Label>District</Form.Label>
-                                        <Select
-                                            name="searchDistrict"
-                                            value={districts && districts.find(item => item.district === searchDistrict) || null}
-                                            onChange={(selectedOption) => setSearchDistrict(selectedOption ? selectedOption.district : '')}
-                                            options={districts || []}  // Provide empty array if addressData is null
-                                            getOptionLabel={(item) => item.district}
-                                            getOptionValue={(item) => item.district}
-                                            isSearchable={true}
-                                            placeholder="Select District Name"
-                                            className="h45"
-
-                                        />
-                                    </Form.Group>
-                                </Col>
-                                <Col lg={6} className='mt-2'>
-                                    <Form.Group controlId="searchAreaName">
-                                        <Form.Label>Area Name</Form.Label>
-                                        <Select
-                                            name="searchAreaName"
-                                            value={areaData && areaData.find(item => item.areaName === searchAreaName) || null}
-                                            onChange={(selectedOption) => setSearchAreaName(selectedOption ? selectedOption.areaName : '')}
-                                            options={areaData || []}
-                                            getOptionLabel={(item) => item?.areaName || ''}  // Use optional chaining
-                                            getOptionValue={(item) => item?.areaName || ''}  // Use optional chaining
-                                            isSearchable={true}
-                                            placeholder="Select Area Name"
-                                            className="h45"
-                                        />
-                                    </Form.Group>
-                                </Col>
-
-                                <Col ></Col>
-                                <Col lg={3} className="align-items-end d-flex justify-content-end mt-2">
+                                <Col lg={4} className="align-items-end d-flex justify-content-end mt-2">
                                     <ButtonGroup aria-label="Basic example" className="w-100">
                                         <Button type="button" variant="primary" onClick={handleClear}>
                                             <i className="ri-loop-left-line"></i>
@@ -472,7 +342,9 @@ const AddressMaster = () => {
                                                             <td key={col.id}
                                                                 className={
                                                                     // Add class based on column id
-                                                                    col.id === 'department' ? 'fw-bold fs-13 text-dark task1' : ''
+                                                                    col.id === 'department' ? 'fw-bold fs-13 text-dark task1' :
+                                                                        (col.id === 'status' && item[col.id] === "Enabled") ? 'task1' :
+                                                                            (col.id === 'status' && item[col.id] === "Disabled") ? 'task4' : ''
                                                                 }
                                                             >
                                                                 <div>{item[col.id as keyof Addresses]}</div>

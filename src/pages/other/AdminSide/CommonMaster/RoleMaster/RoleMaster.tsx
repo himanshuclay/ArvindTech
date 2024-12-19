@@ -13,6 +13,7 @@ import { toast } from 'react-toastify';
 interface Role {
     id: number;
     roleName: string;
+    status: string;
     createdBy: string;
     updatedBy: string;
     updatedDate: string;
@@ -31,7 +32,9 @@ const ModuleMaster = () => {
     const [totalPages, setTotalPages] = useState(1);
     const [downloadCsv, setDownloadCsv] = useState<Role[]>([]);
     const [roleList, setRoleList] = useState<Role[]>([]);
-    const [searchRole, setSearchRole] = useState<number>();
+    const [searchRole, setSearchRole] = useState('');
+    const [searchStatus, setSearchStatus] = useState('');
+
 
 
     const location = useLocation();
@@ -45,10 +48,10 @@ const ModuleMaster = () => {
     }, [location.state, navigate]);
 
 
-
     // both are required to make dragable column of table 
     const [columns, setColumns] = useState<Column[]>([
         { id: 'roleName', label: 'Role Name', visible: true },
+        { id: 'status', label: 'Status', visible: true },
         { id: 'createdBy', label: 'Created By', visible: true },
         { id: 'updatedBy', label: 'Updated By', visible: true },
         { id: 'createdDate', label: 'Created Date ', visible: true },
@@ -66,19 +69,34 @@ const ModuleMaster = () => {
     };
     // ==============================================================
 
+
     useEffect(() => {
-        fetchRoles();
-        fetchRolesCsv();
+        if (searchRole || searchStatus) {
+            handleSearch();
+        } else {
+            fetchRoles();
+        }
     }, [currentPage]);
 
+    const handleSearch = (e?: React.FormEvent) => {
+        if (e) e.preventDefault();
+        let query = `?`;
+        if (searchRole) query += `RoleName=${searchRole}&`;
+        if (searchStatus) query += `Status=${searchStatus}&`;
+        query += `PageIndex=${currentPage}`;
 
-
-    const handleSearch = () => {
-        if (searchRole) {
-            fetchsinglerole(searchRole);
-        }
+        query = query.endsWith('&') ? query.slice(0, -1) : query;
+        const apiUrl = `${config.API_URL_APPLICATION}/RoleMaster/SearchRole${query}`;
+        axios.get(apiUrl, { headers: { 'accept': '*/*' } })
+            .then((response) => {
+                console.log("search response ", response.data.roleMasterListResponses);
+                setRoles(response.data.roleMasterListResponses)
+                setTotalPages(Math.ceil(response.data.totalCount / 10));
+            })
+            .catch((error) => {
+                console.error('Error fetching data:', error);
+            });
     };
-
 
 
     const fetchRoles = async () => {
@@ -102,39 +120,6 @@ const ModuleMaster = () => {
     };
 
 
-
-    const fetchsinglerole = async (searchRole: number) => {
-        try {
-            const response = await axios.get(`${config.API_URL_APPLICATION}/RoleMaster/GetRole`, {
-                params: { id: searchRole }
-            });
-            if (response.data.isSuccess) {
-                setRoles(response.data.roleMasterListResponses);
-            } else {
-                console.error(response.data.message);
-            }
-        } catch (error) {
-            console.error('Error fetching doers:', error);
-        }
-
-    };
-
-    const fetchRolesCsv = async () => {
-        try {
-            const response = await axios.get(`${config.API_URL_APPLICATION}/RoleMaster/GetRole`);
-            if (response.data.isSuccess) {
-                setDownloadCsv(response.data.roleMasterListResponses);
-            } else {
-                console.error(response.data.message);
-            }
-        } catch (error) {
-            console.error('Error fetching doers:', error);
-        }
-
-    };
-
-
-
     useEffect(() => {
         const fetchData = async (endpoint: string, setter: Function, listName: string) => {
             try {
@@ -150,12 +135,14 @@ const ModuleMaster = () => {
         };
 
         fetchData('CommonDropdown/GetRoleMasterList', setRoleList, 'roleMasterLists');
+        fetchData('RoleMaster/GetRole', setDownloadCsv, 'roleMasterListResponses');
     }, []);
 
 
     const handleClear = () => {
         fetchRoles();
-        setSearchRole(undefined);
+        setSearchRole('');
+        setSearchStatus('');
     };
 
     const formatDate = (date: string | Date) => {
@@ -173,10 +160,11 @@ const ModuleMaster = () => {
 
     const convertToCSV = (data: Role[]) => {
         const csvRows = [
-            ['Role ID', 'Role Name', 'Created By', 'Updated By', 'Created Date', 'Updated Date'],
+            ['Role ID', 'Role Name', 'Status', 'Created By', 'Updated By', 'Created Date', 'Updated Date'],
             ...data.map(role => [
                 role.id,
                 role.roleName,
+                role.status,
                 role.createdBy,
                 role.updatedBy,
                 `"${formatDate(role.createdDate)}"`,
@@ -201,6 +189,11 @@ const ModuleMaster = () => {
             document.body.removeChild(link);
         }
     };
+
+    const optionsStatus = [
+        { value: 'Enabled', label: 'Enabled' },
+        { value: 'Disabled', label: 'Disabled' }
+    ];
 
 
     return (
@@ -230,13 +223,13 @@ const ModuleMaster = () => {
                 ) : (<>
                     <div className='bg-white p-2 pb-2'>
                         <Row>
-                            <Col lg={6} className="mt-2">
+                            <Col lg={4} className="">
                                 <Form.Group controlId="searchRole">
                                     <Form.Label>Role Name</Form.Label>
                                     <Select
                                         name="searchRole"
-                                        value={roleList.find(item => item.id === searchRole) || null}
-                                        onChange={(selectedOption) => setSearchRole(selectedOption ? selectedOption.id : 0)}
+                                        value={roleList.find(item => item.roleName === searchRole) || null}
+                                        onChange={(selectedOption) => setSearchRole(selectedOption ? selectedOption.roleName : '')}
                                         options={roleList}
                                         getOptionLabel={(item) => item.roleName}
                                         getOptionValue={(item) => item.roleName}
@@ -247,8 +240,19 @@ const ModuleMaster = () => {
                                 </Form.Group>
                             </Col>
 
-                            <Col></Col>
-                            <Col lg={3} className="align-items-end d-flex justify-content-end mt-2">
+                            <Col lg={4} className="">
+                                <Form.Group controlId="searchStatus">
+                                    <Form.Label>Status</Form.Label>
+                                    <Select
+                                        name="searchStatus"
+                                        options={optionsStatus}
+                                        value={optionsStatus.find(option => option.value === searchStatus) || null}
+                                        onChange={(selectedOption) => setSearchStatus(selectedOption?.value || '')}
+                                        placeholder="Select Status"
+                                    />
+                                </Form.Group>
+                            </Col>
+                            <Col lg={4} className="align-items-end d-flex justify-content-end mt-2">
                                 <ButtonGroup aria-label="Basic example" className="w-100">
                                     <Button type="button" variant="primary" onClick={handleClear}>
                                         <i className="ri-loop-left-line"></i>
@@ -326,7 +330,9 @@ const ModuleMaster = () => {
                                                     {columns.filter(col => col.visible).map((col) => (
                                                         <td key={col.id}
                                                             className={
-                                                                col.id === 'roleName' ? 'fw-bold fs-13 text-dark text-nowrap' : ''
+                                                                col.id === 'roleName' ? 'fw-bold  text-dark text-nowrap' :
+                                                                    (col.id === 'status' && item[col.id] === "Enabled") ? 'task1' :
+                                                                        (col.id === 'status' && item[col.id] === "Disabled") ? 'task4' : ''
                                                             }>
                                                             <div>{item[col.id as keyof Role]}</div>
                                                         </td>

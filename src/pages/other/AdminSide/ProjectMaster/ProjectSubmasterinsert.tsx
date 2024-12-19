@@ -93,7 +93,6 @@ const ProjectInsert = () => {
 
     useEffect(() => {
         toast.dismiss()
-
         const storedEmpName = localStorage.getItem('EmpName');
         if (storedEmpName) {
             setEmpName(storedEmpName);
@@ -205,6 +204,7 @@ const ProjectInsert = () => {
             });
 
         } catch (error: any) {
+            toast.dismiss()
             toast.error(error)
         }
 
@@ -277,15 +277,15 @@ const ProjectInsert = () => {
                                     <Form.Label>Completion Status *</Form.Label>
                                     <Select
                                         name="completionStatus"
-                                        value={completionStatus.find((mod) => mod.id === subProject.completionStatus)}
+                                        value={completionStatus.find((mod) => mod.name === subProject.completionStatus)}
                                         onChange={(selectedOption) => {
                                             setSubProject({
                                                 ...subProject,
-                                                completionStatus: selectedOption?.id || 0,
+                                                completionStatus: selectedOption?.name || '',
                                             });
                                         }}
-                                        getOptionLabel={(mod) => mod.id == 1 ? "Ongoing" : "Completed"}
-                                        getOptionValue={(mod) => mod.id == 1 ? "Ongoing" : "Completed"}
+                                        getOptionLabel={(mod) => mod.name}
+                                        getOptionValue={(mod) => mod.name}
                                         options={completionStatus}
                                         isSearchable={true}
                                         placeholder="Select Completion Status"

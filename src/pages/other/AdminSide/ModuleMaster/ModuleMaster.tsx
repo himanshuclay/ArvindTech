@@ -45,6 +45,8 @@ const ModuleMaster = () => {
     const [moduleList, setModuleList] = useState<Module[]>([]);
     const [downloadCsv, setDownloadCsv] = useState<Module[]>([]);
     const [moduleDisplayName, setModuleDisplayName] = useState('');
+    const [searchStatus, setSearchStatus] = useState('');
+
 
 
     const location = useLocation();
@@ -59,10 +61,13 @@ const ModuleMaster = () => {
 
 
 
+
+
     const handleSearch = (e: any) => {
         e.preventDefault();
         let query = `?`;
         if (moduleDisplayName) query += `ModuleDisplayName=${moduleDisplayName}&`;
+        if (searchStatus) query += `status=${searchStatus}&`;
         query += `PageIndex=${currentPage}`;
         query = query.endsWith('&') ? query.slice(0, -1) : query;
 
@@ -70,6 +75,7 @@ const ModuleMaster = () => {
         axios.get(apiUrl, { headers: { 'accept': '*/*' } })
             .then((response) => {
                 setModules(response.data.moduleMasterListResponses)
+                setTotalPages(Math.ceil(response.data.totalCount / 10));
             })
             .catch((error) => {
                 console.error('Error fetching data:', error);
@@ -102,10 +108,8 @@ const ModuleMaster = () => {
 
 
 
-    // Fetch the department list on component mount
     useEffect(() => {
         fetchModules();
-        fetchModulesCsv()
     }, [currentPage]);
 
     const fetchModules = async () => {
@@ -128,20 +132,6 @@ const ModuleMaster = () => {
         }
     };
 
-    const fetchModulesCsv = async () => {
-        try {
-            const response = await axios.get(`${config.API_URL_APPLICATION}/ModuleMaster/GetModule`);
-            if (response.data.isSuccess) {
-                setDownloadCsv(response.data.moduleMasterList);
-            } else {
-                console.error(response.data.message);
-            }
-        } catch (error) {
-            console.error('Error fetching modules:', error);
-        }
-
-    };
-
 
     useEffect(() => {
         const fetchData = async (endpoint: string, setter: Function, listName: string) => {
@@ -157,6 +147,7 @@ const ModuleMaster = () => {
             }
         };
         fetchData('CommonDropdown/GetModuleList', setModuleList, 'moduleNameListResponses');
+        fetchData('ModuleMaster/GetModule', setDownloadCsv, 'moduleMasterList');
     }, []);
 
 
@@ -166,6 +157,7 @@ const ModuleMaster = () => {
 
     const handleClear = () => {
         setModuleDisplayName('');
+        setSearchStatus('');
         fetchModules();
     };
 
@@ -207,6 +199,10 @@ const ModuleMaster = () => {
             document.body.removeChild(link);
         }
     };
+    const optionsStatus = [
+        { value: 'Enabled', label: 'Enabled' },
+        { value: 'Disabled', label: 'Disabled' }
+    ];
 
 
     return (
@@ -231,8 +227,8 @@ const ModuleMaster = () => {
                     <Row className="justify-content-center">
                         <Col xs={12} md={8} lg={6}>
                             <Alert variant="info" className="text-center">
-                                <h4>No Task Found</h4>
-                                <p>You currently don't have Completed tasks</p>
+                                <h4>No Data Found</h4>
+                                <p>You currently don't have any Data</p>
                             </Alert>
                         </Col>
                     </Row>
@@ -250,9 +246,9 @@ const ModuleMaster = () => {
                                 <div className='bg-white p-2 pb-2'>
                                     <Form onSubmit={handleSearch}>
                                         <Row>
-                                            <Col lg={5}>
+                                            <Col lg={4}>
                                                 <Form.Group controlId="ModuleDisplayName">
-                                                    <Form.Label>Module Display Name:</Form.Label>
+                                                    <Form.Label>Module Display Name</Form.Label>
 
                                                     <Select
                                                         name="searchProjectName"
@@ -268,10 +264,19 @@ const ModuleMaster = () => {
                                                 </Form.Group>
                                             </Col>
 
-
-
-                                            <Col ></Col>
-                                            <Col lg={3} className='align-items-end d-flex justify-content-end'>
+                                            <Col lg={4} className="">
+                                                <Form.Group controlId="searchStatus">
+                                                    <Form.Label>Status</Form.Label>
+                                                    <Select
+                                                        name="searchStatus"
+                                                        options={optionsStatus}
+                                                        value={optionsStatus.find(option => option.value === searchStatus) || null}
+                                                        onChange={(selectedOption) => setSearchStatus(selectedOption?.value || '')}
+                                                        placeholder="Select Status"
+                                                    />
+                                                </Form.Group>
+                                            </Col>
+                                            <Col lg={4} className='align-items-end d-flex justify-content-end'>
 
                                                 <ButtonGroup aria-label="Basic example" className='w-100'>
                                                     <Button type="button" variant="primary" onClick={handleClear}>
@@ -316,7 +321,6 @@ const ModuleMaster = () => {
                                                                                     {column.id === 'moduleOwnerID' && (<i className="ri-settings-2-fill"></i>)}
                                                                                     {column.id === 'moduleID' && (<i className="ri-settings-2-fill"></i>)}
                                                                                     {column.id === 'moduleDisplayName' && (<i className="ri-user-settings-fill"></i>)}
-                                                                                    {/* {column.id === 'userUpdatedMobileNumber' && (<i className="ri-phone-fill"></i>)} */}
                                                                                     {column.id === 'moduleOwnerName' && (<i className="ri-user-fill"></i>)}
                                                                                     {column.id === 'identifier' && (<i className="ri-price-tag-3-fill"></i>)}
                                                                                     {column.id === 'input' && (<i className="ri-pencil-fill"></i>)}
@@ -346,8 +350,8 @@ const ModuleMaster = () => {
                                                                     className={
                                                                         col.id === 'moduleOwnerName' ? 'fw-bold fs-14 text-dark' :
                                                                             col.id === 'moduleOwnerID' ? 'fw-bold fs-13  ' :
-                                                                                (col.id === 'status' && item[col.id] === "Active") ? 'task1' :
-                                                                                    (col.id === 'status' && item[col.id] === "Inactive") ? 'task4' :
+                                                                                (col.id === 'status' && item[col.id] === "Enabled") ? 'task1' :
+                                                                                    (col.id === 'status' && item[col.id] === "Disabled") ? 'task4' :
                                                                                         (col.id === 'misExempt' && item[col.id] === 'Active') ? 'task1' :
                                                                                             (col.id === 'misExempt' && item[col.id] === 'Inactive') ? 'task4' :
                                                                                                 ''
@@ -377,8 +381,8 @@ const ModuleMaster = () => {
                                                                 <Row className="justify-content-center">
                                                                     <Col xs={12} md={8} lg={6}>
                                                                         <Alert variant="info" className="text-center">
-                                                                            <h4>No Task Found</h4>
-                                                                            <p>You currently don't have Completed tasks</p>
+                                                                            <h4>No Data Found</h4>
+                                                                            <p>You currently don't have any Data</p>
                                                                         </Alert>
                                                                     </Col>
                                                                 </Row>

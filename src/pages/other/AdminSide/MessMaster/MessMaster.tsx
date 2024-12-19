@@ -22,6 +22,8 @@ interface Mess {
     status: string;
     createdBy: string;
     updatedBy: string;
+    updatedDate: string;
+    createdDate: string;
 
 }
 
@@ -70,7 +72,6 @@ const MessMaster = () => {
     const [columns, setColumns] = useState<Column[]>([
         { id: 'messID', label: 'Mess ID', visible: true },
         { id: 'messName', label: 'Mess Name', visible: true },
-        { id: 'managerEmpID', label: 'Manager EmpID', visible: true },
         { id: 'managerName', label: 'Manager Name', visible: true },
         { id: 'projectName', label: 'Project Name', visible: true },
         { id: 'mobileNumber', label: 'Mess Contact No', visible: true },
@@ -200,7 +201,9 @@ const MessMaster = () => {
 
     const convertToCSV = (data: Mess[]) => {
         const csvRows = [
-            ['Mess ID', 'Mess Name', 'Manager Emp ID', 'Manager Name', 'Mess Contact No', 'Project Name', 'Status', 'Created By', 'Updated By'],
+            ['Mess ID', 'Mess Name', 'Manager Emp ID', 'Manager Name', 
+                'Mess Contact No', 'Project Name', 'Status',
+                 'Created By', 'Updated By', 'Created Date', 'Updated Date'],
             ...data.map(mess => [
                 mess.messID.toString(),
                 mess.messName,
@@ -211,6 +214,8 @@ const MessMaster = () => {
                 mess.status,
                 mess.createdBy,
                 mess.updatedBy,
+                mess.createdDate,
+                mess.updatedDate,
 
             ])
         ];
@@ -316,7 +321,7 @@ const MessMaster = () => {
                                         />
                                     </Form.Group>
                                 </Col>
-                          
+
 
                                 <Col></Col>
                                 <Col lg={3} className='align-items-end d-flex justify-content-end mt-3'>
@@ -399,7 +404,7 @@ const MessMaster = () => {
                                                     {columns.filter(col => col.visible).map((col) => (
                                                         <td key={col.id}
                                                             className={
-                                                                col.id === 'roleName' ? 'fw-bold fs-13 text-dark text-nowrap' :
+                                                                col.id === 'managerName' ? 'fw-bold  text-dark text-nowrap' :
                                                                     (col.id === 'status' && item[col.id] === 'Active') ? 'task1' :
                                                                         (col.id === 'status' && item[col.id] === 'Inactive') ? 'task4' :
 

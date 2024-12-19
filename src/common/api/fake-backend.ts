@@ -36,7 +36,7 @@ export default function configureFakeBackend() {
           user = getEmployeeDetailsbyEmpId;
         }
 
-        localStorage.setItem('EmpId', user.email || user.empID);
+        localStorage.setItem('EmpId', user.empID);
         localStorage.setItem('role', user.role);
         localStorage.setItem('EmpName', user.employeeName);
         localStorage.setItem('token', token);

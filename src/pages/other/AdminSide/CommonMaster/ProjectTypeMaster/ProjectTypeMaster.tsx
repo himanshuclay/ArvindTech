@@ -6,8 +6,7 @@ import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import config from '@/config';
 import Select from 'react-select';
 import { useLocation, useNavigate } from 'react-router-dom';
-import CustomSuccessToast from '@/pages/other/Component/CustomSuccessToast';
-
+import { toast } from 'react-toastify';
 
 
 
@@ -33,29 +32,20 @@ const ModuleMaster = () => {
     const [totalPages, setTotalPages] = useState(1);
     const [downloadCsv, setDownloadCsv] = useState<ProjectType[]>([]);
     const [managementContracts, setManagementContracts] = useState<ProjectType[]>([]);
-    const [searchRole, setSearchRole] = useState<number>();
+    const [searchRole, setSearchRole] = useState('');
+    const [searchStatus, setSearchStatus] = useState('');
+
+
+
 
     const location = useLocation();
     const navigate = useNavigate();
-    const [showToast, setShowToast] = useState(false);
-    const [toastMessage, setToastMessage] = useState('');
-    const [toastVariant, setToastVariant] = useState('');
     useEffect(() => {
-        if (location.state && location.state.showToast) {
-            setShowToast(true);
-            setToastMessage(location.state.toastMessage);
-            setToastVariant(location.state.toastVariant);
-
-            setTimeout(() => {
-                setShowToast(false);
-                navigate(location.pathname, { replace: true });
-            }, 5000);
+        if (location.state?.successMessage) {
+            toast.dismiss()
+            toast.success(location.state.successMessage);
+            navigate(location.pathname, { replace: true });
         }
-        return () => {
-            setShowToast(false);
-            setToastMessage('');
-            setToastVariant('');
-        };
     }, [location.state, navigate]);
 
     // both are required to make dragable column of table 
@@ -81,16 +71,38 @@ const ModuleMaster = () => {
 
     useEffect(() => {
         fetchRoles();
-        fetchRolesCsv();
     }, [currentPage]);
 
 
 
-    const handleSearch = () => {
-        if (searchRole) {
-            fetchsinglerole(searchRole);
+
+    useEffect(() => {
+        if (searchRole || searchStatus) {
+            handleSearch();
+        } else {
+            fetchRoles();
         }
+    }, [currentPage]);
+
+    const handleSearch = (e?: React.FormEvent) => {
+        if (e) e.preventDefault();
+        let query = `?`;
+        if (searchRole) query += `Name=${searchRole}&`;
+        if (searchStatus) query += `Status=${searchStatus}&`;
+        query += `PageIndex=${currentPage}`;
+        query = query.endsWith('&') ? query.slice(0, -1) : query;
+        const apiUrl = `${config.API_URL_APPLICATION}/ProjectTypeMaster/SearchProjectType${query}`;
+        console.log(apiUrl)
+        axios.get(apiUrl, { headers: { 'accept': '*/*' } })
+            .then((response) => {
+                setIdentifiers(response.data.projectTypes)
+                setTotalPages(Math.ceil(response.data.totalCount / 10));
+            })
+            .catch((error) => {
+                console.error('Error fetching data:', error);
+            });
     };
+
 
 
 
@@ -116,38 +128,6 @@ const ModuleMaster = () => {
 
 
 
-    const fetchsinglerole = async (searchRole: number) => {
-        try {
-            const response = await axios.get(`${config.API_URL_APPLICATION}/ProjectTypeMaster/GetProjectType`, {
-                params: { id: searchRole }
-            });
-            if (response.data.isSuccess) {
-                setIdentifiers(response.data.projectTypes);
-            } else {
-                console.error(response.data.message);
-            }
-        } catch (error) {
-            console.error('Error fetching doers:', error);
-        }
-
-    };
-
-    const fetchRolesCsv = async () => {
-        try {
-            const response = await axios.get(`${config.API_URL_APPLICATION}/ProjectTypeMaster/GetProjectType`);
-            if (response.data.isSuccess) {
-                setDownloadCsv(response.data.projectTypes);
-            } else {
-                console.error(response.data.message);
-            }
-        } catch (error) {
-            console.error('Error fetching doers:', error);
-        }
-
-    };
-
-
-
     useEffect(() => {
         const fetchData = async (endpoint: string, setter: Function, listName: string) => {
             try {
@@ -163,20 +143,16 @@ const ModuleMaster = () => {
         };
 
         fetchData('CommonDropdown/GetProjectType', setManagementContracts, 'projectTypeListResponses');
+        fetchData('ProjectTypeMaster/GetProjectType', setDownloadCsv, 'projectTypes');
     }, []);
 
 
     const handleClear = () => {
         fetchRoles();
-        setSearchRole(undefined);
+        setSearchRole('');
     };
 
 
-    const formatDate = (dateString: string): string => {
-        // If your input is in a known string format, return it directly
-        // This ensures no changes to the date format
-        return dateString;
-    };
 
     const convertToCSV = (data: ProjectType[]) => {
         const csvRows = [
@@ -187,8 +163,8 @@ const ModuleMaster = () => {
                 identifier.status,
                 identifier.createdBy,
                 identifier.updatedBy,
-                formatDate(identifier.createdDate),
-                formatDate(identifier.updatedDate),
+                identifier.createdDate,
+                identifier.updatedDate
 
             ])
         ];
@@ -210,6 +186,11 @@ const ModuleMaster = () => {
             document.body.removeChild(link);
         }
     };
+
+    const optionsStatus = [
+        { value: 'Enabled', label: 'Enabled' },
+        { value: 'Disabled', label: 'Disabled' }
+    ];
 
     return (
         <>
@@ -238,13 +219,13 @@ const ModuleMaster = () => {
                 ) : (<>
                     <div className='bg-white p-2 pb-2'>
                         <Row>
-                            <Col lg={6} className="mt-2">
+                            <Col lg={4} className="">
                                 <Form.Group controlId="searchRole">
                                     <Form.Label>Project Type</Form.Label>
                                     <Select
                                         name="searchRole"
-                                        value={managementContracts.find(item => item.id === searchRole) || null}
-                                        onChange={(selectedOption) => setSearchRole(selectedOption ? selectedOption.id : 0)}
+                                        value={managementContracts.find(item => item.name === searchRole) || null}
+                                        onChange={(selectedOption) => setSearchRole(selectedOption ? selectedOption.name : '')}
                                         options={managementContracts}
                                         getOptionLabel={(item) => item.name}
                                         getOptionValue={(item) => item.name}
@@ -255,8 +236,19 @@ const ModuleMaster = () => {
                                 </Form.Group>
                             </Col>
 
-                            <Col></Col>
-                            <Col lg={3} className="align-items-end d-flex justify-content-end mt-2">
+                            <Col lg={4} className="">
+                                <Form.Group controlId="searchStatus">
+                                    <Form.Label>Status</Form.Label>
+                                    <Select
+                                        name="searchStatus"
+                                        options={optionsStatus}
+                                        value={optionsStatus.find(option => option.value === searchStatus) || null}
+                                        onChange={(selectedOption) => setSearchStatus(selectedOption?.value || '')}
+                                        placeholder="Select Status"
+                                    />
+                                </Form.Group>
+                            </Col>
+                            <Col lg={4} className="align-items-end d-flex justify-content-end mt-2">
                                 <ButtonGroup aria-label="Basic example" className="w-100">
                                     <Button type="button" variant="primary" onClick={handleClear}>
                                         <i className="ri-loop-left-line"></i>
@@ -334,7 +326,7 @@ const ModuleMaster = () => {
                                                     {columns.filter(col => col.visible).map((col) => (
                                                         <td key={col.id}
                                                             className={
-                                                                col.id === 'name' ? 'fw-bold fs-13 text-dark text-nowrap' :
+                                                                col.id === 'name' ? 'fw-bold  text-dark text-nowrap' :
                                                                     (col.id === 'status' && item[col.id] === "Enabled") ? 'task1' :
                                                                         (col.id === 'status' && item[col.id] === "Disabled") ? 'task4' :
                                                                             ''
@@ -384,12 +376,6 @@ const ModuleMaster = () => {
 
 
             </div >
-            <CustomSuccessToast
-                show={showToast}
-                toastMessage={toastMessage}
-                toastVariant={toastVariant}
-                onClose={() => setShowToast(false)}
-            />
         </>
     );
 };

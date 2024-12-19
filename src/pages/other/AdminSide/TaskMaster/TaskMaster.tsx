@@ -277,9 +277,9 @@ const TaskMaster: React.FC = () => {
                                             .map((col) => (
                                                 <td key={col.id}
                                                     className={
-                                                        col.id === 'moduleName' ? 'fw-bold fs-13 text-dark text-nowrap' :
-                                                            col.id === 'taskName' ? 'fw-bold fs-13   text-wrap' :
-                                                                ''
+                                                        col.id === 'moduleName' ? 'fw-bold  text-dark text-nowrap' :
+                                                            col.id === 'taskName' ? 'fw-bold    text-wrap' :
+                                                                    ''
                                                     }
                                                 >
 

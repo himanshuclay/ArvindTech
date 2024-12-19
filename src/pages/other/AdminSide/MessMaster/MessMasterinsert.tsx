@@ -42,21 +42,23 @@ const EmployeeInsert = () => {
     const [statusList, setStatusList] = useState<Status[]>([])
     const [employeeList, setEmployeeList] = useState<EmployeeList[]>([])
     const [messes, setMesses] = useState<Mess>({
-            id: 0,
-            messID: '',
-            messName: '',
-            managerEmpID: '',
-            managerName: '',
-            projectName: '',
-            mobileNumber: '',
-            status: '',
-            createdBy: '',
-            updatedBy: ''
-        }
+        id: 0,
+        messID: '',
+        messName: '',
+        managerEmpID: '',
+        managerName: '',
+        projectName: '',
+        mobileNumber: '',
+        status: '',
+        createdBy: '',
+        updatedBy: ''
+    }
     );
 
+    const [isMobileVerified, setIsMobileVerified] = useState(false);
+
     useEffect(() => {
-    toast.dismiss()
+        toast.dismiss()
 
         const storedEmpName = localStorage.getItem('EmpName');
         if (storedEmpName) {
@@ -111,31 +113,114 @@ const EmployeeInsert = () => {
 
 
 
-    const handleChange = (e: ChangeEvent<any>) => {
-        const { name, type } = e.target;
-        if (type === 'checkbox') {
-            const checked = (e.target as HTMLInputElement).checked;
-            setMesses({
-                ...messes,
-                [name]: checked
-            });
-        } else {
-            const value = (e.target as HTMLInputElement | HTMLSelectElement).value;
-            setMesses({
-                ...messes,
-                [name]: value
-            });
+    // const handleChange = (e: ChangeEvent<any>) => {
+    //     const { name, type } = e.target;
+
+
+    //     const validateMobileNumber = (fieldName: string, fieldValue: string) => {
+    //         if (!/^\d{0,10}$/.test(fieldValue)) {
+    //             return false;
+    //         }
+
+    //         setMesses((prevData) => ({
+    //             ...prevData,
+    //             [fieldName]: fieldValue,
+    //         }));
+
+    //         if (fieldValue.length === 10) {
+    //             if (!/^[6-9]/.test(fieldValue)) {
+    //                 toast.error("Mobile number should start with a digit between 6 and 9.");
+    //                 setIsMobileVerified(true);
+    //                 return false;
+    //             }
+    //         } else {
+    //             setIsMobileVerified(false);
+    //         }
+    //         return true;
+    //     };
+
+
+
+
+    //     if (type === 'checkbox') {
+    //         const checked = (e.target as HTMLInputElement).checked;
+    //         setMesses({
+    //             ...messes,
+    //             [name]: checked
+    //         });
+    //     } else {
+    //         const value = (e.target as HTMLInputElement | HTMLSelectElement).value;
+    //         setMesses({
+    //             ...messes,
+    //             [name]: value
+    //         });
+    //     }
+    // };
+
+
+
+    const handleChange = (e: ChangeEvent<any> | null, name?: string, value?: any) => {
+        const validateMobileNumber = (fieldName: string, fieldValue: string) => {
+            if (!/^\d{0,10}$/.test(fieldValue)) {
+                return false;
+            }
+
+            setMesses((prevData) => ({
+                ...prevData,
+                [fieldName]: fieldValue,
+            }));
+
+            if (fieldValue.length === 10) {
+                if (!/^[6-9]/.test(fieldValue)) {
+                    toast.error("Mobile number should start with a digit between 6 and 9.");
+                    setIsMobileVerified(true);
+                    return false;
+                }
+            } else {
+                setIsMobileVerified(false);
+            }
+            return true;
+        };
+        if (e) {
+            const { name: eventName, type } = e.target;
+            if (type === 'checkbox') {
+                const checked = (e.target as HTMLInputElement).checked;
+                setMesses((prevData) => ({
+                    ...prevData,
+                    [eventName]: checked,
+                }));
+            } else {
+                const inputValue = (e.target as HTMLInputElement | HTMLSelectElement).value;
+                if (eventName === "mobileNumber") {
+                    validateMobileNumber(eventName, inputValue);
+                } else {
+                    setMesses((prevData) => {
+                        const updatedData = { ...prevData, [eventName]: inputValue };
+                        return updatedData;
+                    });
+                }
+            }
         }
+
     };
+
+
+
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
 
+
+        if (isMobileVerified) {
+            toast.error("Please verify your mobile number before submitting the form.");
+            return;
+        }
         const payload = {
             ...messes,
             createdBy: editMode ? messes.createdBy : empName,
             updatedBy: editMode ? empName : '',
         };
+        console.log(payload)
         try {
             if (editMode) {
                 await axios.post(`${config.API_URL_APPLICATION}/MessMaster/UpdateMess`, payload);
@@ -152,7 +237,7 @@ const EmployeeInsert = () => {
                     }
                 });
             }
-        } catch (error:any) {
+        } catch (error: any) {
             const errorMessage = error instanceof Error ? error.message : 'Error Adding/Updating';
             toast.error(errorMessage);
         }

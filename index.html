@@ -5,6 +5,8 @@
   <meta charset="UTF-8" />
   <link rel="/favicon.ico" type="image/svg+xml" href="/logo.svg" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <title>ArvindTechno</title>
   <style>
     #splash-screen {
@@ -46,24 +48,24 @@
   <script type="module" src="/src/main.tsx"></script>
   <script>
     document.addEventListener('DOMContentLoaded', () => {
-        const targetNode = document.querySelector('#root');
-        if (!targetNode) return;
+      const targetNode = document.querySelector('#root');
+      if (!targetNode) return;
 
-        const config = { childList: true, subtree: true };
+      const config = { childList: true, subtree: true };
 
-        const callback = function(mutationsList, observer) {
-            for (let mutation of mutationsList) {
-                if (mutation.type === 'childList') {
-                    document.querySelector('#splash-screen')?.classList.add('remove');
-                    break;
-                }
-            }
-        };
+      const callback = function (mutationsList, observer) {
+        for (let mutation of mutationsList) {
+          if (mutation.type === 'childList') {
+            document.querySelector('#splash-screen')?.classList.add('remove');
+            break;
+          }
+        }
+      };
 
-        const observer = new MutationObserver(callback);
-        observer.observe(targetNode, config);
+      const observer = new MutationObserver(callback);
+      observer.observe(targetNode, config);
     });
-</script>
+  </script>
 </body>
 
 </html>

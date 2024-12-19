@@ -12,7 +12,7 @@ interface Module {
     fmsType: string;
     misExempt: string;
     moduleID: string;
-    statusID: number;
+    status: string;
     createdBy: string;
     updatedBy: string;
 }
@@ -21,17 +21,12 @@ interface MISExempt {
     id: number;
     name: string;
 }
-interface Status {
-    id: number;
-    name: boolean;
-}
 
 const EmployeeInsert = () => {
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
     const [editMode, setEditMode] = useState<boolean>(false);
     const [misExempt, setMisExempt] = useState<MISExempt[]>([]);
-    const [statusID, setStatusID] = useState<Status[]>([]);
     const [empName, setEmpName] = useState<string | null>('')
     const [module, setModule] = useState<Module>({
         id: 0,
@@ -39,12 +34,12 @@ const EmployeeInsert = () => {
         fmsType: '',
         misExempt: '',
         moduleID: '',
-        statusID: 0,
+        status: "",
         createdBy: '',
         updatedBy: ''
     });
     useEffect(() => {
-    toast.dismiss()
+        toast.dismiss()
 
         const storedEmpName = localStorage.getItem('EmpName');
         if (storedEmpName) {
@@ -92,7 +87,6 @@ const EmployeeInsert = () => {
             }
         };
 
-        fetchData('CommonDropdown/GetStatus', setStatusID, 'statusListResponses');
         fetchData('CommonDropdown/GetMISExempt', setMisExempt, 'mISExemptListResponses');
     }, []);
 
@@ -131,6 +125,7 @@ const EmployeeInsert = () => {
             createdBy: editMode ? module.createdBy : empName,
             updatedBy: editMode ? empName : '',
         };
+        console.log(payload)
 
         try {
             const apiUrl = `${config.API_URL_APPLICATION}/ModuleMaster/${editMode ? 'UpdateModule' : 'InsertModule'}`;
@@ -139,7 +134,7 @@ const EmployeeInsert = () => {
             if (response.status === 200) {
                 navigate('/pages/ModuleMaster', {
                     state: {
-                        successMessage: editMode ? "Module updated successfully!" : "Module added successfully!",
+                        successMessage: editMode ? `${module.moduleDisplayName}  updated successfully!` : `${module.moduleDisplayName}  added successfully!`,
                     },
                 });
             } else {
@@ -158,6 +153,12 @@ const EmployeeInsert = () => {
         { value: 'CHK', label: 'CHK' },
         { value: 'MOD', label: 'MOD' }
     ];
+
+    const optionsAppAccess = [
+        { value: 'Enabled', label: 'Enabled' },
+        { value: 'Disabled', label: 'Disabled' }
+    ];
+
     return (
         <div>
             <div className="container">
@@ -242,22 +243,13 @@ const EmployeeInsert = () => {
                             </Col>
 
                             <Col lg={6}>
-
-                                <Form.Group controlId="statusID" className="mb-3">
-                                    <Form.Label>Status</Form.Label>
+                                <Form.Group controlId="status" className="mb-3">
+                                    <Form.Label>Status *</Form.Label>
                                     <Select
-                                        name="statusID"
-                                        value={statusID.find((mod) => mod.id === module.statusID)}
-                                        onChange={(selectedOption) => {
-                                            setModule({
-                                                ...module,
-                                                statusID: selectedOption?.id || 0,
-                                            });
-                                        }}
-                                        getOptionLabel={(mod) => mod.id === 1 ? 'ACTIVE' : "INACTIVE"}
-                                        getOptionValue={(mod) => mod.id === 1 ? 'ACTIVE' : "INACTIVE"}
-                                        options={statusID}
-                                        isSearchable={true}
+                                        name="status"
+                                        options={optionsAppAccess}
+                                        value={optionsAppAccess.find(option => option.value === module.status)}
+                                        onChange={selectedOption => handleChange(null, 'status', selectedOption?.value)}
                                         placeholder="Select Status"
                                         required
                                     />
@@ -266,7 +258,7 @@ const EmployeeInsert = () => {
 
 
                             <Col></Col>
-                            <Col lg={2} className='align-items-end d-flex justify-content-end mb-3'>
+                            <Col lg={3} className='align-items-end d-flex justify-content-end mb-3'>
                                 <ButtonGroup aria-label="Basic example" className='w-100'>
                                     <Link to={'/pages/ModuleMaster'} className="btn btn-primary">
                                         Back

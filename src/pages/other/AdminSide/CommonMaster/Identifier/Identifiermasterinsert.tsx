@@ -189,7 +189,7 @@ const EmployeeInsert = () => {
 
                                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', marginBottom: '4px', marginTop: '4px' }}>
                                     {tags.map((tag, index) => (
-                                        <Badge bg="primary" key={index} style={{ display: 'flex', alignItems: 'center', fontSize: '11px' }}>
+                                        <Badge bg="primary" key={index} style={{ display: 'flex', alignItems: 'center', fontSize: '13px' }}>
                                             {tag}
                                             <CloseButton
                                                 onClick={() => removeTag(index)}

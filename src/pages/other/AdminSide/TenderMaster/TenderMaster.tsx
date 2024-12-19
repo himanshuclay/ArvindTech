@@ -374,7 +374,7 @@ const TenderMaster = () => {
                         <div className='bg-white p-2 pb-2'>
                             <Form onSubmit={handleSearch}>
                                 <Row>
-                                    <Col lg={6}>
+                                    <Col lg={4}>
                                         <Form.Group controlId="searchStatusValue">
                                             <Form.Label>Status </Form.Label>
                                             <Select
@@ -390,7 +390,7 @@ const TenderMaster = () => {
                                             />
                                         </Form.Group>
                                     </Col>
-                                    <Col lg={6}>
+                                    <Col lg={4}>
                                         <Form.Group controlId="searchCoreDesignation">
                                             <Form.Label>Type of Tender</Form.Label>
                                             <Select
@@ -402,12 +402,6 @@ const TenderMaster = () => {
                                             />
                                         </Form.Group>
                                     </Col>
-
-
-
-
-                                    <Col lg={4} className="mt-2"></Col>
-                                    <Col lg={4} className="mt-2"></Col>
 
                                     <Col lg={4} className="align-items-end d-flex justify-content-end mt-2">
                                         <ButtonGroup aria-label="Basic example" className="w-100">

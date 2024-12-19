@@ -551,18 +551,6 @@ const DepartmentMasterinsert = () => {
                                 </Form.Group>
                             </Col>
                             <Col lg={6}>
-                                <Form.Group controlId="contactNo" className="mb-3">
-                                    <Form.Label>Contact No</Form.Label>
-                                    <Form.Control
-                                        type="number"
-                                        name="contactNo"
-                                        value={venders.contactNo}
-                                        onChange={handleChange}
-                                        placeholder="Enter Contact No"
-                                    />
-                                </Form.Group>
-                            </Col>
-                            <Col lg={6}>
                                 <Form.Group controlId="ifsc" className="mb-3">
                                     <Form.Label>IFSC Code:</Form.Label>
                                     <Form.Control

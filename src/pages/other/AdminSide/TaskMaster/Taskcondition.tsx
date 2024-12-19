@@ -414,6 +414,7 @@ const TaskCondition: React.FC<ProcessCanvasProps> = ({ show, setShow, taskID }) 
             const apiUrl = `${config.API_URL_ACCOUNT}/ProcessTaskMaster/InsertUpdateProcessTaskandDoer`;
             const response = await axios.post(apiUrl, payload);
 
+            console.log(payload)
             if (response.status === 200) {
                 const conditionData = parseConditionJson(singleData);
                 setParseConditionData(conditionData);
@@ -467,7 +468,12 @@ const TaskCondition: React.FC<ProcessCanvasProps> = ({ show, setShow, taskID }) 
         <div>
             <Modal size="xl" className="p-2" show={show} placement="end" onHide={handleClose}>
                 <Modal.Header closeButton>
-                    <Modal.Title className="text-dark">Condition Data Overview</Modal.Title>
+                    <Modal.Title className="text-dark d-flex justify-content-between w-100">
+                        Condition Data Overview
+                        <Button variant="primary" className=" mr-2" onClick={() => setShowNestedModal((prev) => !prev)} >
+                            {parseConditionData ? 'Edit Conditions' : 'Set Conditions'}
+                        </Button>
+                    </Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
                     <Col lg={12} className="">
@@ -475,14 +481,7 @@ const TaskCondition: React.FC<ProcessCanvasProps> = ({ show, setShow, taskID }) 
                             <ul className="list-group">
                                 <li className="list-group-item py-1 d-flex justify-content-between align-items-center w-100">
                                     <span><strong>Is Expirable:</strong> {parseConditionData && parseConditionData[0]?.isExpirable === 1 ? "Yes" : "No"}</span>
-                                    <Button
-                                        variant="primary"
-                                        className="m-0"
-                                        onClick={() => setShowNestedModal((prev) => !prev)}
-                                    >
-                                        {parseConditionData ? 'Edit Conditions' : 'Set Conditions'}
 
-                                    </Button>
                                 </li>
                                 {parseConditionData[0]?.isExpirable === 1 && (
                                     <li className="list-group-item">

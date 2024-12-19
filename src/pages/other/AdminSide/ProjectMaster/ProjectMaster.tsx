@@ -23,7 +23,8 @@ interface Project {
     projectInchargeName: string;
     projectCoordinator: number;
     projectCoordinatorName: number;
-    completionStatus: number;
+    completionStatus: string;
+    status: string;
     nameOfWork: string;
     createdBy: string;
     subProjectName: string;
@@ -88,6 +89,7 @@ const ProjectMaster = () => {
     const [searchProjectInchage, setSearchProjectInchage] = useState('');
     const [searchProjectCoordinator, setSearchProjectCoordinator] = useState('');
     const [searchProjectName, setSearchProjectName] = useState('');
+    const [searchAppAccess, setSearchAppAccess] = useState('');
     const [searchCompletionStatus, setSearchCompletionStatus] = useState<number>();
     const [downloadCsv, setDownloadCsv] = useState<Project[]>([]);
 
@@ -112,7 +114,8 @@ const ProjectMaster = () => {
         { id: 'managementContractName', label: 'Management Contract', visible: true },
         { id: 'projectInchargeName', label: 'Project Incharge', visible: true },
         { id: 'projectCoordinatorName', label: 'Project Coordinator ', visible: true },
-        { id: 'completionStatusName', label: 'Completion Status', visible: true }
+        { id: 'completionStatusName', label: 'Completion Status', visible: true },
+        { id: 'status', label: 'Project Status', visible: true }
     ]);
 
     const handleOnDragEnd = (result: any) => {
@@ -128,23 +131,35 @@ const ProjectMaster = () => {
         setSearchProjectInchage('')
         setSearchProjectCoordinator('')
         setSearchProjectName('')
+        setSearchAppAccess('')
         setSearchCompletionStatus(0)
         fetchProjects();
     };
 
-    const handleSearch = (e: any) => {
-        e.preventDefault();
+    useEffect(() => {
+        if (searchProjectInchage || searchProjectCoordinator || searchProjectName || searchCompletionStatus || searchAppAccess) {
+            handleSearch();
+        } else {
+            fetchProjects();
+        }
+    }, [currentPage]);
 
+    const handleSearch = (e?: React.FormEvent) => {
+        if (e) e.preventDefault();
         let query = `?`;
+
+
         if (searchProjectInchage) query += `ProjectIncharge=${searchProjectInchage}&`;
         if (searchProjectCoordinator) query += `ProjectCoordinator=${searchProjectCoordinator}&`;
         if (searchProjectName) query += `ProjectName=${searchProjectName}&`;
         if (searchCompletionStatus) query += `CompletionStatus=${searchCompletionStatus}&`;
+        if (searchAppAccess) query += `Status=${searchAppAccess}&`;
         query += `PageIndex=${currentPage}`;
 
         query = query.endsWith('&') ? query.slice(0, -1) : query;
 
         const apiUrl = `${config.API_URL_APPLICATION}/ProjectMaster/SearchProject${query}`;
+        console.log(apiUrl)
         axios.get(apiUrl, { headers: { 'accept': '*/*' } })
             .then((response) => {
                 console.log("search response ", response.data.projectMasterList);
@@ -237,7 +252,7 @@ const ProjectMaster = () => {
                 'Project Type Name', 'Management Contract Name',
                 'Project Incharge Name', 'Project Incharge Mobile Number',
                 'Project Coordinator Name', 'Project Coordinator Mobile Number',
-                'Completion Status Name', 'Sub Project ID', 'Sub Project Name',
+                'Completion Status Name', 'Project Status', 'Sub Project ID', 'Sub Project Name',
                 'Name of Work', 'Contractual Work Value', 'Executor Company',
                 'Next Value of Work Item for Team', 'Percentage of Work Done',
                 'Revised Contractual Work Value', 'Total Work Done Value Upto Previous Month',
@@ -247,7 +262,7 @@ const ProjectMaster = () => {
                 'Expected Date of Latest Project Completion',
                 'Refresh Work Date', 'Estimate Completion Date',
                 'Recorded Month', 'Recorded Year', 'Created By',
-                'Created Date', 'Updated By', 'Updated Date'
+                'Updated By', 'Created Date', 'Updated Date'
             ],
             ...data.map(project => [
                 project.id,
@@ -261,6 +276,7 @@ const ProjectMaster = () => {
                 project.projectCoordinatorName || '',
                 project.projectCoordinatorMobileNumber || '',
                 project.completionStatusName,
+                project.status,
                 project.subProjectID || '',
                 project.subProjectName || '',
                 project.nameOfWork || '',
@@ -281,8 +297,8 @@ const ProjectMaster = () => {
                 project.recordedMonth || '',
                 project.recordedYear || '',
                 project.createdBy || '',
-                project.createdDate || '',
                 project.updatedBy || '',
+                project.createdDate || '',
                 project.updatedDate || ''
             ])
         ];
@@ -301,14 +317,18 @@ const ProjectMaster = () => {
 
     };
 
+
+    const optionsAppAccess = [
+        { value: 'Enabled', label: 'Enabled' },
+        { value: 'Disabled', label: 'Disabled' }
+    ];
+
     return (
         <>
             <div className="container">
                 <div className="d-flex bg-white p-2 my-2 justify-content-between align-items-center">
                     <span><i className="ri-file-list-line me-2 text-dark fs-16"></i><span className='fw-bold text-dark fs-15'>Project List</span></span>
                     <div className="d-flex justify-content-end  ">
-
-
                         <Button variant="primary" onClick={downloadCSV} className="me-2">
                             Download CSV
                         </Button>
@@ -338,7 +358,7 @@ const ProjectMaster = () => {
                             <Form onSubmit={handleSearch}>
                                 <Row>
 
-                                    <Col lg={6} className="">
+                                    <Col lg={4} className="">
                                         <Form.Group controlId="searchProjectName">
                                             <Form.Label>Project Name</Form.Label>
                                             <Select
@@ -355,7 +375,7 @@ const ProjectMaster = () => {
                                         </Form.Group>
                                     </Col>
 
-                                    <Col lg={6}>
+                                    <Col lg={4}>
                                         <Form.Group controlId="searchProjectIncharge">
                                             <Form.Label>Project Incharge</Form.Label>
                                             <Select
@@ -371,7 +391,7 @@ const ProjectMaster = () => {
                                             />
                                         </Form.Group>
                                     </Col>
-                                    <Col lg={6} className="mt-2">
+                                    <Col lg={4} className="">
                                         <Form.Group controlId="searchProjectCoordinator">
                                             <Form.Label>Project Coordinator</Form.Label>
                                             <Select
@@ -388,25 +408,36 @@ const ProjectMaster = () => {
                                         </Form.Group>
                                     </Col>
 
-                                    <Col lg={6} className="mt-2">
+                                    <Col lg={4} className="mt-2">
                                         <Form.Group controlId="searchCompletionStatus">
                                             <Form.Label>Completion Status</Form.Label>
                                             <Select
                                                 name="searchCompletionStatus"
-                                                value={completionStatus.find(task => task.id === searchCompletionStatus)}
-                                                onChange={(selectedOption) => setSearchCompletionStatus(selectedOption ? selectedOption.id : 0)}
+                                                value={completionStatus.find(task => task.name === searchCompletionStatus)}
+                                                onChange={(selectedOption) => setSearchCompletionStatus(selectedOption ? selectedOption.name : '')}
                                                 options={completionStatus}
-                                                getOptionLabel={(task) => task.id == 1 ? "Ongoing" : 'Completed'}
-                                                getOptionValue={(task) => task.id == 1 ? "Ongoing" : 'Completed'}
+                                                getOptionLabel={(task) => task.name}
+                                                getOptionValue={(task) => task.name}
                                                 isSearchable={true}
-                                                placeholder="Select Status"
+                                                placeholder="Select Completion Status"
                                                 className="h45"
                                             />
                                         </Form.Group>
                                     </Col>
+                                    <Col lg={4} className="mt-2">
+                                        <Form.Group controlId="searchAppAccess">
+                                            <Form.Label>Project Status</Form.Label>
+                                            <Select
+                                                name="searchAppAccess"
+                                                options={optionsAppAccess}
+                                                value={optionsAppAccess.find(option => option.value === searchAppAccess) || null}
+                                                onChange={(selectedOption) => setSearchAppAccess(selectedOption?.value || '')}
+                                                placeholder="Select Project Status"
+                                            />
+                                        </Form.Group>
+                                    </Col>
 
-                                    <Col></Col>
-                                    <Col lg={4} className="align-items-end d-flex justify-content-end mt-3">
+                                    <Col lg={4} className="align-items-end d-flex justify-content-end mt-2">
                                         <ButtonGroup aria-label="Basic example" className="w-100">
                                             <Button type="button" variant="primary" onClick={handleClear}>
                                                 <i className="ri-loop-left-line"></i>
@@ -464,6 +495,7 @@ const ProjectMaster = () => {
                                                                             {column.id === 'projectInchargeName' && (<i className="ri-user-settings-line"></i>)}
                                                                             {column.id === 'projectCoordinatorName' && (<i className="ri-group-line"></i>)}
                                                                             {column.id === 'completionStatusName' && (<i className="ri-check-line"></i>)}
+                                                                            {column.id === 'status' && (<i className="ri-check-line"></i>)}
                                                                             {column.id === 'nameOfWork' && (<i className="ri-pencil-ruler-2-line"></i>)}
 
 
@@ -486,7 +518,13 @@ const ProjectMaster = () => {
                                                     <tr key={item.id}>
                                                         <td>{(currentPage - 1) * 10 + index + 1}</td>
                                                         {columns.filter(col => col.visible).map((col) => (
-                                                            <td key={col.id}>
+                                                            <td key={col.id}
+                                                                className={
+                                                                    (col.id === 'status' && item[col.id] === "Enabled") ? 'task1' :
+                                                                        (col.id === 'status' && item[col.id] === "Disabled") ? 'task4' :
+                                                                            ''
+                                                                }
+                                                            >
                                                                 <div>
 
                                                                     {col.id === 'projectInchargeName' ? (

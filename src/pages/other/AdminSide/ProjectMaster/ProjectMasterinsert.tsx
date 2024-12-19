@@ -20,7 +20,8 @@ interface Project {
     projectInchargeName: string[];
     projectCoordinator: string;
     projectCoordinatorName: string;
-    completionStatus: number;
+    completionStatus: string;
+    status: string;
     nameOfWork: string;
     createdBy: string;
     updatedBy: string;
@@ -85,7 +86,8 @@ const ProjectInsert = () => {
         projectInchargeName: [],
         projectCoordinator: '',
         projectCoordinatorName: '',
-        completionStatus: 0,
+        completionStatus: '',
+        status: '',
         nameOfWork: '',
         createdBy: '',
         updatedBy: '',
@@ -171,16 +173,24 @@ const ProjectInsert = () => {
 
 
 
-    const handleChange = (e: ChangeEvent<any>) => {
-        const { name, type } = e.target;
-        if (type === 'checkbox') {
-            const checked = (e.target as HTMLInputElement).checked;
-            setProject({
-                ...project,
-                [name]: checked
-            });
-        } else {
-            const value = (e.target as HTMLInputElement | HTMLSelectElement).value;
+    const handleChange = (e: ChangeEvent<any> | null, name?: string, value?: any) => {
+        if (e) {
+            const { name: eventName, type } = e.target;
+
+            if (type === 'checkbox') {
+                const checked = (e.target as HTMLInputElement).checked;
+                setProject({
+                    ...project,
+                    [eventName]: checked
+                });
+            } else {
+                const inputValue = (e.target as HTMLInputElement | HTMLSelectElement).value;
+                setProject({
+                    ...project,
+                    [eventName]: inputValue
+                });
+            }
+        } else if (name) {
             setProject({
                 ...project,
                 [name]: value
@@ -216,6 +226,12 @@ const ProjectInsert = () => {
             console.error('Error submitting module:', error);
         }
     };
+
+
+    const optionsAppAccess = [
+        { value: 'Enabled', label: 'Enabled' },
+        { value: 'Disabled', label: 'Disabled' }
+    ];
 
 
     return (
@@ -360,7 +376,7 @@ const ProjectInsert = () => {
                                     <Form.Label>Project Coordinator </Form.Label>
                                     <Select
                                         name="coordinator"
-                                        value={employeeList.find((emp) => emp.employeeName === project.projectCoordinator)}
+                                        value={employeeList.find((emp) => emp.employeeName === project.projectCoordinatorName)}
                                         onChange={(selectedOption) => {
                                             setProject({
                                                 ...project,
@@ -382,15 +398,15 @@ const ProjectInsert = () => {
                                     <Form.Label>Completion Status *</Form.Label>
                                     <Select
                                         name="completionStatus"
-                                        value={completionStatus.find((mod) => mod.id === project.completionStatus)}
+                                        value={completionStatus.find((mod) => mod.name === project.completionStatus)}
                                         onChange={(selectedOption) => {
                                             setProject({
                                                 ...project,
-                                                completionStatus: selectedOption?.id || 0,
+                                                completionStatus: selectedOption?.name || '',
                                             });
                                         }}
-                                        getOptionLabel={(mod) => mod.id == 1 ? "Ongoing" : "Completed"}
-                                        getOptionValue={(mod) => mod.id == 1 ? "Ongoing" : "Completed"}
+                                        getOptionLabel={(mod) => mod.name}
+                                        getOptionValue={(mod) => mod.name}
                                         options={completionStatus}
                                         isSearchable={true}
                                         placeholder="Select Completion Status"
@@ -399,8 +415,21 @@ const ProjectInsert = () => {
                                 </Form.Group>
                             </Col>
 
-                            {id && <>
+                            <Col lg={6}>
+                                <Form.Group controlId="status" className="mb-3">
+                                    <Form.Label>Project Status *</Form.Label>
+                                    <Select
+                                        name="status"
+                                        options={optionsAppAccess}
+                                        value={optionsAppAccess.find(option => option.value === project.status)}
+                                        onChange={selectedOption => handleChange(null, 'status', selectedOption?.value)}
+                                        placeholder="Select Project Status"
+                                        required
+                                    />
+                                </Form.Group>
+                            </Col>
 
+                            {id && <>
 
                                 <Col lg={6}>
                                     <Form.Group controlId="contractualWorkValue" className="mb-3">

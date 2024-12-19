@@ -75,7 +75,7 @@ interface ModuleProjectList {
 
 interface Department {
     id: number;
-    departmentName: string;
+    name: string;
     department: string;
 }
 interface District {
@@ -237,12 +237,8 @@ const EmployeeMasterInsert = () => {
         const ifscField = `${accountType.toLowerCase()}BankIfsc` as keyof Employee;
         const bankNameField = `${accountType.toLowerCase()}BankName` as keyof Employee;
         const branchNameField = `${accountType.toLowerCase()}BranchName` as keyof Employee;
-
         const ifsc = employee[ifscField];
-
-        // Check if IFSC is valid
         if (typeof ifsc !== 'string' || ifsc.length !== 11) {
-            // Reset bank details if IFSC is invalid
             setEmployee((prevState) => ({
                 ...prevState,
                 [bankNameField]: '',
@@ -256,12 +252,10 @@ const EmployeeMasterInsert = () => {
 
             return;
         }
-
         setIfscError((prevState) => ({
             ...prevState,
             [accountType.toLowerCase()]: ''
         }));
-        // Fetch bank details if IFSC is valid
         await fetchBankByIFSC(ifsc, accountType);
     };
 
@@ -284,7 +278,7 @@ const EmployeeMasterInsert = () => {
 
         fetchData('CommonDropdown/GetGender', setGenderList, 'genderListResponses');
         fetchData('CommonDropdown/GetProjectList', setProjectList, 'projectListResponses');
-        fetchData('CommonDropdown/GetDepartment', setDepartmentList, 'getDepartments');
+        fetchData('CommonDropdown/GetCommonList?flag=1', setDepartmentList, 'commonLists');
         fetchData('CommonDropdown/GetModuleList', setModuleList, 'moduleNameListResponses');
     }, []);
 
@@ -306,7 +300,6 @@ const EmployeeMasterInsert = () => {
 
             if (fetchedDistricts.length > 0) {
                 setDistricts(fetchedDistricts);
-
                 const firstDistrict = fetchedDistricts[0].district;
                 const fetchedState = fetchedDistricts[0]?.state || '';
                 console.log('hi')
@@ -317,10 +310,8 @@ const EmployeeMasterInsert = () => {
                     state: fetchedState,
                 }));
 
-                // Fetch area data for the default district
                 await fetchAreaData(searchPin, firstDistrict);
             } else {
-                // Handle invalid pincode
                 setDistricts([]);
                 setSearchDistrict('');
                 setAreaData([]);
@@ -374,7 +365,6 @@ const EmployeeMasterInsert = () => {
     const handleChange = (e: ChangeEvent<any> | null, name?: string, value?: any) => {
         const validateMobileNumber = (fieldName: string, fieldValue: string) => {
             if (!/^\d{0,10}$/.test(fieldValue)) {
-
                 return false;
             }
 
@@ -392,7 +382,6 @@ const EmployeeMasterInsert = () => {
             } else {
                 setIsMobileVerified(false);
             }
-
             return true;
         };
 
@@ -422,7 +411,7 @@ const EmployeeMasterInsert = () => {
                                 updatedData.daL_Module = [];
                             } else if (inputValue === "ProjectModule") {
                                 if (!updatedData.daL_Project?.length || !updatedData.daL_Module?.length) {
-                                    toast.error("Both DAL Project and DAL Module are required for ProjectModule.");
+                                    // toast.error("Both DAL Project and DAL Module are required for ProjectModule.");
                                 }
                             } else {
                                 updatedData.daL_Module = [];
@@ -443,7 +432,6 @@ const EmployeeMasterInsert = () => {
             setEmployee((prevData) => {
                 const updatedData = { ...prevData, [name]: value };
 
-                // Clear corresponding fields based on dataAccessLevel
                 if (name === "dataAccessLevel") {
                     if (value === "Module") {
                         updatedData.daL_Project = [];
@@ -451,7 +439,7 @@ const EmployeeMasterInsert = () => {
                         updatedData.daL_Module = [];
                     } else if (value === "ProjectModule") {
                         if (!updatedData.daL_Project?.length || !updatedData.daL_Module?.length) {
-                            toast.error("Both DAL Project and DAL Module are required for ProjectModule.");
+                            // toast.error("Both DAL Project and DAL Module are required for ProjectModule.");
                         }
                     } else {
                         updatedData.daL_Module = [];
@@ -516,7 +504,7 @@ const EmployeeMasterInsert = () => {
         }
 
         if (employee.empStatus === 'Former' && !employee.dateOfLeaving) {
-            dateOfLeavingRef.current?.flatpickr.open(); // Focus and open the Flatpickr field
+            dateOfLeavingRef.current?.flatpickr.open(); 
             return;
         }
 
@@ -622,15 +610,15 @@ const EmployeeMasterInsert = () => {
                                     <Form.Label>Department Name *</Form.Label>
                                     <Select
                                         name="departmentName"
-                                        value={departmentList.find((emp) => emp.departmentName === employee.departmentName)}
+                                        value={departmentList.find((emp) => emp.name === employee.departmentName)}
                                         onChange={(selectedOption) => {
                                             setEmployee({
                                                 ...employee,
-                                                departmentName: selectedOption?.departmentName || "",
+                                                departmentName: selectedOption?.name || "",
                                             });
                                         }}
-                                        getOptionLabel={(emp) => emp.departmentName}
-                                        getOptionValue={(emp) => emp.departmentName}
+                                        getOptionLabel={(emp) => emp.name}
+                                        getOptionValue={(emp) => emp.name}
                                         options={departmentList}
                                         isSearchable={true}
                                         placeholder="Select Department Name"
@@ -868,10 +856,13 @@ const EmployeeMasterInsert = () => {
                                         isSearchable={true}
                                         isMulti={true}
                                         required={employee.dataAccessLevel === 'Module' || employee.dataAccessLevel === 'ProjectModule'}
+                                        isDisabled={employee.dataAccessLevel !== 'Module' && employee.dataAccessLevel !== 'ProjectModule'}
+
                                         placeholder="Select Module"
                                     />
                                 </Form.Group>
                             </Col>
+
                             <Col lg={6}>
                                 <Form.Group controlId="daL_Project" className="mb-3">
                                     <Form.Label> DAL Project {(employee.dataAccessLevel === 'Project' || employee.dataAccessLevel === 'ProjectModule') ? '*' : null} </Form.Label>
@@ -893,10 +884,12 @@ const EmployeeMasterInsert = () => {
                                         isSearchable={true}
                                         isMulti={true}
                                         required={employee.dataAccessLevel === 'Project' || employee.dataAccessLevel === 'ProjectModule'}
+                                        isDisabled={employee.dataAccessLevel !== 'Project' && employee.dataAccessLevel !== 'ProjectModule'}
                                         placeholder="Select Projects"
                                     />
                                 </Form.Group>
                             </Col>
+
                             <Col lg={6}>
                                 <Form.Group controlId="isRegistered" className="mb-3">
                                     <Form.Label>Is Registered *</Form.Label>
@@ -1105,13 +1098,14 @@ const EmployeeMasterInsert = () => {
 
                             <Col lg={6}>
                                 <Form.Group controlId="salaryBankAccountNumber" className="mb-3">
-                                    <Form.Label>Bank Account Number</Form.Label>
+                                    <Form.Label>Bank Account Number {employee.salaryBankIfsc.length > 0 ? '*' : ''}</Form.Label>
                                     <Form.Control
                                         type="text" // Change to "text" to preserve leading zeroes
                                         name="salaryBankAccountNumber"
                                         value={employee.salaryBankAccountNumber}
                                         onChange={(e) => handleBankAccountNumberChange(e, 'salary')}
                                         placeholder="Enter Bank Account Number"
+                                        required={employee.salaryBankIfsc.length > 0}
                                     />
                                 </Form.Group>
                             </Col>
@@ -1165,13 +1159,14 @@ const EmployeeMasterInsert = () => {
 
                             <Col lg={6}>
                                 <Form.Group controlId="reimbursementBankAccountNumber" className="mb-3">
-                                    <Form.Label>Bank Account Number</Form.Label>
+                                    <Form.Label>Bank Account Number {employee.reimbursementBankIfsc.length > 0 ? '*' : ''}</Form.Label>
                                     <Form.Control
                                         type="text" // Change to "text" to preserve leading zeroes
                                         name="reimbursementBankAccountNumber"
                                         value={employee.reimbursementBankAccountNumber}
                                         onChange={(e) => handleBankAccountNumberChange(e, 'reimbursement')}
                                         placeholder="Enter Bank Account Number"
+                                        required={employee.reimbursementBankIfsc.length > 0}
                                     />
                                 </Form.Group>
                             </Col>
@@ -1179,7 +1174,7 @@ const EmployeeMasterInsert = () => {
                             <h3>Expense Account Details</h3>
                             <Col lg={6}>
                                 <Form.Group controlId="expenseBankIfsc" className="mb-3">
-                                    <Form.Label>IFSC Code:</Form.Label>
+                                    <Form.Label>IFSC Code</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="expenseBankIfsc"
@@ -1194,7 +1189,7 @@ const EmployeeMasterInsert = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="expenseBankName" className="mb-3">
-                                    <Form.Label>Bank Name:</Form.Label>
+                                    <Form.Label>Bank Name</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="expenseBankName"
@@ -1208,7 +1203,7 @@ const EmployeeMasterInsert = () => {
 
                             <Col lg={6}>
                                 <Form.Group controlId="expenseBranchName" className="mb-3">
-                                    <Form.Label>Branch  Name:</Form.Label>
+                                    <Form.Label>Branch  Name</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="expenseBranchName"
@@ -1224,22 +1219,21 @@ const EmployeeMasterInsert = () => {
 
                             <Col lg={6}>
                                 <Form.Group controlId="expenseBankAccountNumber" className="mb-3">
-                                    <Form.Label>Bank Account Number:</Form.Label>
+                                    <Form.Label>Bank Account Number {employee.expenseBankIfsc.length > 0 ? '*' : ''}</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="expenseBankAccountNumber"
                                         value={employee.expenseBankAccountNumber}
                                         onChange={(e) => handleBankAccountNumberChange(e, 'expense')}
                                         placeholder='Enter Bank Account Number'
+                                        required={employee.expenseBankIfsc.length > 0}
+
                                     />
                                 </Form.Group>
                             </Col>
 
 
-                            <Col className='align-items-end d-flex justify-content-between mb-3'>
-                                <div>
-                                    <span className='fs-5 '>All fields are required*</span>
-                                </div>
+                            <Col className='align-items-end d-flex justify-content-end mb-3'>
                                 <div>
                                     <Link to={'/pages/EmployeeMaster'}>
                                         <Button variant="primary" >
