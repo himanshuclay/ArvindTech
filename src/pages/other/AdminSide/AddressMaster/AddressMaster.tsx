@@ -255,7 +255,6 @@ const AddressMaster = () => {
                                             name="searchPinCode"
                                             value={searchPinCode}
                                             onChange={(e) => setSearchPinCode(e.target.value)}
-                                            required
                                             maxLength={6}
                                             placeholder='Enter Pincode'
                                         />
