@@ -167,6 +167,7 @@ const AddressMaster = () => {
         setSearchState('');
         setCurrentPage(1);
         setSearchPinCode('');
+        setSearchStatus('');
     };
 
 
