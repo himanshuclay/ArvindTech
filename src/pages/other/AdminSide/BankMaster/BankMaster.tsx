@@ -227,33 +227,40 @@ const BankMaster = () => {
 
     return (
         <>
-                <div className="d-flex bg-white p-2 my-2 justify-content-between align-items-center">
-                    <span><i className="ri-file-list-line me-2 text-dark fs-16"></i><span className='fw-bold text-dark fs-15'>Bank List</span></span>
-                    <div className="d-flex justify-content-end  ">
-                        <div>
-                            <Button variant="primary" onClick={downloadCSV} className="me-2">
-                                Download CSV
+            <div className="d-flex bg-white p-2 my-2 justify-content-between align-items-center">
+                <span><i className="ri-file-list-line me-2 text-dark fs-16"></i><span className='fw-bold text-dark fs-15'>Bank List</span></span>
+                <div className="d-flex justify-content-end  ">
+                    <div>
+                        <Button variant="primary" onClick={downloadCSV} className="me-2">
+                            Download CSV
+                        </Button>
+                        <Link to='/pages/BankMasterinsert'>
+                            <Button variant="primary" className="">
+                                Add Bank
                             </Button>
-                            <Link to='/pages/BankMasterinsert'>
-                                <Button variant="primary" className="">
-                                    Add Bank
-                                </Button>
-                            </Link>
-                        </div>
+                        </Link>
                     </div>
                 </div>
+            </div>
 
 
 
-                {loading ? (
-                    <div className='loader-container'>
-                        <div className="loader"></div>
-                        <div className='mt-2'>Please Wait!</div>
-                    </div>
-                ) : (
+            {loading ? (
+                <div className='loader-container'>
+                    <div className="loader"></div>
+                    <div className='mt-2'>Please Wait!</div>
+                </div>
+            ) : (
 
-                    <>
-                        <div className='bg-white p-2 pb-2'>
+                <>
+                    <div className='bg-white p-2 pb-2'>
+                        <Form
+                            onSubmit={(e) => {
+                                e.preventDefault();
+                                setCurrentPage(1);
+                                handleSearch();
+                            }}
+                        >
                             <Row>
                                 <Col lg={6} className=''>
                                     <Form.Group controlId="searchIfsc">
@@ -330,124 +337,125 @@ const BankMaster = () => {
                                     </ButtonGroup>
                                 </Col>
                             </Row>
+                        </Form>
 
-                            <Row className='mt-3'>
-                                <div className="d-flex justify-content-end bg-light p-1">
-                                    <div className="app-search d-none d-lg-block me-4">
-
-                                    </div>
-
+                        <Row className='mt-3'>
+                            <div className="d-flex justify-content-end bg-light p-1">
+                                <div className="app-search d-none d-lg-block me-4">
 
                                 </div>
-                            </Row>
-                        </div>
 
-                        <div className="overflow-auto text-nowrap">
-                            {!banks ? (
-                                <Container className="mt-5">
-                                    <Row className="justify-content-center">
-                                        <Col xs={12} md={8} lg={6}>
-                                            <Alert variant="info" className="text-center">
-                                                <h4>No Data Found</h4>
-                                                <p>You currently don't have Data</p>
-                                            </Alert>
-                                        </Col>
-                                    </Row>
-                                </Container>
-                            ) : (
-                                <DragDropContext onDragEnd={handleOnDragEnd}>
-                                    <Table hover className='bg-white '>
-                                        <thead>
-                                            <Droppable droppableId="columns" direction="horizontal">
-                                                {(provided) => (
-                                                    <tr {...provided.droppableProps} ref={provided.innerRef as React.Ref<HTMLTableRowElement>}>
-                                                        <th><i className="ri-list-ordered-2"></i>  Sr. No</th>
-                                                        {columns.filter(col => col.visible).map((column, index) => (
-                                                            <Draggable key={column.id} draggableId={column.id} index={index}>
-                                                                {(provided) => (
-                                                                    <th>
-                                                                        <div ref={provided.innerRef}
-                                                                            {...provided.draggableProps}
-                                                                            {...provided.dragHandleProps}>
-                                                                            {column.id === 'bank' && (<i className="ri-bank-fill"></i>)}
-                                                                            {column.id === 'ifsc' && (<i className="ri-barcode-box-line"></i>)}
-                                                                            {column.id === 'branch' && (<i className="ri-building-2-line"></i>)}
-                                                                            {column.id === 'city1' && (<i className="ri-map-pin-line"></i>)}
-                                                                            {column.id === 'city2' && (<i className="ri-map-pin-line"></i>)}
-                                                                            {column.id === 'state' && (<i className="ri-map-line"></i>)}
 
-                                                                            &nbsp; {column.label}
-                                                                        </div>
-                                                                    </th>
-                                                                )}
-                                                            </Draggable>
-                                                        ))}
-                                                        {provided.placeholder}
-                                                        <th>Action</th>
-                                                    </tr>
-                                                )}
-                                            </Droppable>
-                                        </thead>
-                                        <tbody>
-                                            {banks.length > 0 ? (
-                                                banks.slice(0, 10).map((item, index) => (
-                                                    <tr key={item.id}>
-                                                        <td>{(currentPage - 1) * 10 + index + 1}</td>
-                                                        {columns.filter(col => col.visible).map((col) => (
-                                                            <td key={col.id}
-                                                                className={
-                                                                    // Add class based on column id
-                                                                    col.id === 'bank' ? 'fw-bold  text-dark ' :
-                                                                        (col.id === 'status' && item[col.id] === "Enabled") ? 'task1' :
-                                                                            (col.id === 'status' && item[col.id] === "Disabled") ? 'task4' :
-                                                                                ''
-                                                                }
-                                                            >
-                                                                <div>{item[col.id as keyof Bank]}</div>
-                                                            </td>
-                                                        ))}
+                            </div>
+                        </Row>
+                    </div>
 
-                                                        <td><Link to={`/pages/BankMasterinsert/${item.id}`}>
-                                                            <Button variant='primary' className='p-0 text-white'>
-                                                                <i className='btn ri-edit-line text-white' ></i>
-                                                            </Button>
-                                                        </Link>
-                                                        </td>
-                                                    </tr>
-                                                ))
-                                            ) : (
-                                                <tr>
-                                                    <td colSpan={12}>
-                                                        <Container className="mt-5">
-                                                            <Row className="justify-content-center">
-                                                                <Col xs={12} md={8} lg={6}>
-                                                                    <Alert variant="info" className="text-center">
-                                                                        <h4>No Data Found</h4>
-                                                                        <p>You currently don't have Data</p>
-                                                                    </Alert>
-                                                                </Col>
-                                                            </Row>
-                                                        </Container>
-                                                    </td>
+                    <div className="overflow-auto text-nowrap">
+                        {!banks ? (
+                            <Container className="mt-5">
+                                <Row className="justify-content-center">
+                                    <Col xs={12} md={8} lg={6}>
+                                        <Alert variant="info" className="text-center">
+                                            <h4>No Data Found</h4>
+                                            <p>You currently don't have Data</p>
+                                        </Alert>
+                                    </Col>
+                                </Row>
+                            </Container>
+                        ) : (
+                            <DragDropContext onDragEnd={handleOnDragEnd}>
+                                <Table hover className='bg-white '>
+                                    <thead>
+                                        <Droppable droppableId="columns" direction="horizontal">
+                                            {(provided) => (
+                                                <tr {...provided.droppableProps} ref={provided.innerRef as React.Ref<HTMLTableRowElement>}>
+                                                    <th><i className="ri-list-ordered-2"></i>  Sr. No</th>
+                                                    {columns.filter(col => col.visible).map((column, index) => (
+                                                        <Draggable key={column.id} draggableId={column.id} index={index}>
+                                                            {(provided) => (
+                                                                <th>
+                                                                    <div ref={provided.innerRef}
+                                                                        {...provided.draggableProps}
+                                                                        {...provided.dragHandleProps}>
+                                                                        {column.id === 'bank' && (<i className="ri-bank-fill"></i>)}
+                                                                        {column.id === 'ifsc' && (<i className="ri-barcode-box-line"></i>)}
+                                                                        {column.id === 'branch' && (<i className="ri-building-2-line"></i>)}
+                                                                        {column.id === 'city1' && (<i className="ri-map-pin-line"></i>)}
+                                                                        {column.id === 'city2' && (<i className="ri-map-pin-line"></i>)}
+                                                                        {column.id === 'state' && (<i className="ri-map-line"></i>)}
+
+                                                                        &nbsp; {column.label}
+                                                                    </div>
+                                                                </th>
+                                                            )}
+                                                        </Draggable>
+                                                    ))}
+                                                    {provided.placeholder}
+                                                    <th>Action</th>
                                                 </tr>
                                             )}
-                                        </tbody>
-                                    </Table>
-                                </DragDropContext>
-                            )}
-                        </div>
-                    </>
-                )}
+                                        </Droppable>
+                                    </thead>
+                                    <tbody>
+                                        {banks.length > 0 ? (
+                                            banks.slice(0, 10).map((item, index) => (
+                                                <tr key={item.id}>
+                                                    <td>{(currentPage - 1) * 10 + index + 1}</td>
+                                                    {columns.filter(col => col.visible).map((col) => (
+                                                        <td key={col.id}
+                                                            className={
+                                                                // Add class based on column id
+                                                                col.id === 'bank' ? 'fw-bold  text-dark ' :
+                                                                    (col.id === 'status' && item[col.id] === "Enabled") ? 'task1' :
+                                                                        (col.id === 'status' && item[col.id] === "Disabled") ? 'task4' :
+                                                                            ''
+                                                            }
+                                                        >
+                                                            <div>{item[col.id as keyof Bank]}</div>
+                                                        </td>
+                                                    ))}
 
-                <div className="d-flex justify-content-center align-items-center bg-white w-20 rounded-5 m-auto py-1 pb-1 my-2 pagination-rounded">
-                    <Pagination >
-                        <Pagination.First onClick={() => setCurrentPage(1)} disabled={currentPage === 1} />
-                        <Pagination.Prev onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))} disabled={currentPage === 1} />
-                        <Pagination.Item active>{currentPage}</Pagination.Item>
-                        <Pagination.Next onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))} disabled={currentPage === totalPages} />
-                        <Pagination.Last onClick={() => setCurrentPage(totalPages)} disabled={currentPage === totalPages} />
-                    </Pagination>
-                </div>
+                                                    <td><Link to={`/pages/BankMasterinsert/${item.id}`}>
+                                                        <Button variant='primary' className='p-0 text-white'>
+                                                            <i className='btn ri-edit-line text-white' ></i>
+                                                        </Button>
+                                                    </Link>
+                                                    </td>
+                                                </tr>
+                                            ))
+                                        ) : (
+                                            <tr>
+                                                <td colSpan={12}>
+                                                    <Container className="mt-5">
+                                                        <Row className="justify-content-center">
+                                                            <Col xs={12} md={8} lg={6}>
+                                                                <Alert variant="info" className="text-center">
+                                                                    <h4>No Data Found</h4>
+                                                                    <p>You currently don't have Data</p>
+                                                                </Alert>
+                                                            </Col>
+                                                        </Row>
+                                                    </Container>
+                                                </td>
+                                            </tr>
+                                        )}
+                                    </tbody>
+                                </Table>
+                            </DragDropContext>
+                        )}
+                    </div>
+                </>
+            )}
+
+            <div className="d-flex justify-content-center align-items-center bg-white w-20 rounded-5 m-auto py-1 pb-1 my-2 pagination-rounded">
+                <Pagination >
+                    <Pagination.First onClick={() => setCurrentPage(1)} disabled={currentPage === 1} />
+                    <Pagination.Prev onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))} disabled={currentPage === 1} />
+                    <Pagination.Item active>{currentPage}</Pagination.Item>
+                    <Pagination.Next onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))} disabled={currentPage === totalPages} />
+                    <Pagination.Last onClick={() => setCurrentPage(totalPages)} disabled={currentPage === totalPages} />
+                </Pagination>
+            </div>
 
 
         </>

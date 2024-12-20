@@ -237,70 +237,80 @@ const AddressMaster = () => {
 
                 <>
                     <div className='bg-white p-2 pb-2'>
-                        <Row>
-                            <Col lg={4} className=''>
-                                <Form.Group controlId="searchPinCode">
-                                    <Form.Label>Pincode</Form.Label>
-                                    <Form.Control
-                                        type="text"
-                                        name="searchPinCode"
-                                        value={searchPinCode}
-                                        onChange={(e) => setSearchPinCode(e.target.value)}
-                                        required
-                                        maxLength={6}
-                                        placeholder='Enter Pincode'
-                                    />
-                                </Form.Group>
-                            </Col>
-                            <Col lg={4} className=''>
-                                <Form.Group controlId="searchState">
-                                    <Form.Label>State</Form.Label>
-                                    <Select
-                                        name="searchState"
-                                        value={stateList.find(item => item.stateName === searchState)}
-                                        onChange={(selectedOption) => setSearchState(selectedOption ? selectedOption.stateName : '')}
-                                        options={stateList}
-                                        getOptionLabel={(item) => item.stateName}
-                                        getOptionValue={(item) => item.stateName}
-                                        isSearchable={true}
-                                        placeholder="Select State Name"
-                                        className="h45"
-                                    />
-                                </Form.Group>
-                            </Col>
-                            <Col lg={4} className="">
-                                <Form.Group controlId="searchStatus">
-                                    <Form.Label>Status</Form.Label>
-                                    <Select
-                                        name="searchStatus"
-                                        options={optionsStatus}
-                                        value={optionsStatus.find(option => option.value === searchStatus) || null}
-                                        onChange={(selectedOption) => setSearchStatus(selectedOption?.value || '')}
-                                        placeholder="Select Status"
-                                    />
-                                </Form.Group>
-                            </Col>
-                            <Col></Col>
-                            <Col lg={4} className="align-items-end d-flex justify-content-end mt-2">
-                                <ButtonGroup aria-label="Basic example" className="w-100">
-                                    <Button type="button" variant="primary" onClick={handleClear}>
-                                        <i className="ri-loop-left-line"></i>
-                                    </Button>
-                                    &nbsp;
-                                    <Button
-                                        type="submit"
-                                        variant="primary"
-                                        onClick={() => {
-                                            setCurrentPage(1);
-                                            handleSearch();
-                                        }}
-                                    >
-                                        Search
-                                    </Button>
-                                </ButtonGroup>
-                            </Col>
 
-                        </Row>
+                        <Form
+                            onSubmit={(e) => {
+                                e.preventDefault();
+                                setCurrentPage(1);
+                                handleSearch();
+                            }}
+                        >
+
+                            <Row>
+                                <Col lg={4} className=''>
+                                    <Form.Group controlId="searchPinCode">
+                                        <Form.Label>Pincode</Form.Label>
+                                        <Form.Control
+                                            type="text"
+                                            name="searchPinCode"
+                                            value={searchPinCode}
+                                            onChange={(e) => setSearchPinCode(e.target.value)}
+                                            required
+                                            maxLength={6}
+                                            placeholder='Enter Pincode'
+                                        />
+                                    </Form.Group>
+                                </Col>
+                                <Col lg={4} className=''>
+                                    <Form.Group controlId="searchState">
+                                        <Form.Label>State</Form.Label>
+                                        <Select
+                                            name="searchState"
+                                            value={stateList.find(item => item.stateName === searchState)}
+                                            onChange={(selectedOption) => setSearchState(selectedOption ? selectedOption.stateName : '')}
+                                            options={stateList}
+                                            getOptionLabel={(item) => item.stateName}
+                                            getOptionValue={(item) => item.stateName}
+                                            isSearchable={true}
+                                            placeholder="Select State Name"
+                                            className="h45"
+                                        />
+                                    </Form.Group>
+                                </Col>
+                                <Col lg={4} className="">
+                                    <Form.Group controlId="searchStatus">
+                                        <Form.Label>Status</Form.Label>
+                                        <Select
+                                            name="searchStatus"
+                                            options={optionsStatus}
+                                            value={optionsStatus.find(option => option.value === searchStatus) || null}
+                                            onChange={(selectedOption) => setSearchStatus(selectedOption?.value || '')}
+                                            placeholder="Select Status"
+                                        />
+                                    </Form.Group>
+                                </Col>
+                                <Col></Col>
+                                <Col lg={4} className="align-items-end d-flex justify-content-end mt-2">
+                                    <ButtonGroup aria-label="Basic example" className="w-100">
+                                        <Button type="button" variant="primary" onClick={handleClear}>
+                                            <i className="ri-loop-left-line"></i>
+                                        </Button>
+                                        &nbsp;
+                                        <Button
+                                            type="submit"
+                                            variant="primary"
+                                            onClick={() => {
+                                                setCurrentPage(1);
+                                                handleSearch();
+                                            }}
+                                        >
+                                            Search
+                                        </Button>
+                                    </ButtonGroup>
+                                </Col>
+
+                            </Row>
+                        </Form>
 
 
 
