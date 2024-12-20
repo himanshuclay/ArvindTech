@@ -6,7 +6,6 @@ import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import config from '@/config';
 import Select from 'react-select';
 import { useLocation, useNavigate } from 'react-router-dom';
-import IconWithLetter from '@/pages/ui/IconWithLetter';
 import { toast } from 'react-toastify';
 
 
@@ -283,7 +282,6 @@ const TenderMaster = () => {
 
     return (
         <>
-            <div className="container">
                 <div className="d-flex bg-white p-2 my-2 justify-content-between align-items-center">
                     <span><i className="ri-file-list-line me-2 text-dark fs-16"></i><span className='fw-bold text-dark fs-15'>Vendor List</span></span>
                     <div className="d-flex justify-content-end  ">
@@ -462,19 +460,16 @@ const TenderMaster = () => {
                                                                 className={
                                                                     col.id === 'addressLine1' ? 'w-200px' :
                                                                         col.id === 'creatorName' ? 'text-dark fw-bold' :
-                                                                            col.id === 'vendorContactPerson' ? 'text-dark fw-bold' :
                                                                                 ''
                                                                 }
                                                             >
                                                                 {col.id === 'creatorName' && item.creatorName ? (
                                                                     <div className="d-flex align-items-center">
-                                                                        <IconWithLetter letter={item.creatorName.charAt(0)} />
-                                                                        {item.creatorName.split('_')[0]}
+                                                                        {item.creatorName}
                                                                     </div>
                                                                 ) : col.id === 'vendorContactPerson' && item.vendorContactPerson ? (
                                                                     <div className="d-flex align-items-center">
-                                                                        <IconWithLetter letter={item.vendorContactPerson.charAt(0)} />
-                                                                        {item.vendorContactPerson.split('_')[0]}
+                                                                        {item.vendorContactPerson}
                                                                     </div>
                                                                 ) :
                                                                     (
@@ -530,7 +525,6 @@ const TenderMaster = () => {
                 </div>
 
 
-            </div >
         </>
     );
 };

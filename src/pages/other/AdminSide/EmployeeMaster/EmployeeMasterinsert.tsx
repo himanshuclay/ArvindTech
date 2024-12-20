@@ -97,6 +97,7 @@ const EmployeeMasterInsert = () => {
     const [projectList, setProjectList] = useState<ModuleProjectList[]>([])
     const [moduleList, setModuleList] = useState<ModuleProjectList[]>([])
     const [departmentList, setDepartmentList] = useState<Department[]>([]);
+    
     const [employee, setEmployee] = useState<Employee>({
         id: 0,
         empID: '',
@@ -166,12 +167,15 @@ const EmployeeMasterInsert = () => {
 
     const dateOfLeavingRef = useRef<any>(null);
     useEffect(() => {
-        toast.dismiss()
+        toast.dismiss();
+
         const storedEmpName = localStorage.getItem('EmpName');
-        if (storedEmpName) {
-            setEmpName(storedEmpName);
+        const storedEmpID = localStorage.getItem('EmpId');
+        if (storedEmpName || storedEmpID) {
+            setEmpName(`${storedEmpName} - ${storedEmpID}`);
         }
     }, []);
+
 
 
     useEffect(() => {
@@ -504,7 +508,7 @@ const EmployeeMasterInsert = () => {
         }
 
         if (employee.empStatus === 'Former' && !employee.dateOfLeaving) {
-            dateOfLeavingRef.current?.flatpickr.open(); 
+            dateOfLeavingRef.current?.flatpickr.open();
             return;
         }
 
@@ -943,6 +947,7 @@ const EmployeeMasterInsert = () => {
                                         placeholder=" Date of Leaving "
                                         className="form-control"
                                         required={employee.empStatus === 'Former'}
+                                        disabled={employee.empStatus !== 'Former'}
 
                                     />
 
@@ -969,6 +974,7 @@ const EmployeeMasterInsert = () => {
                                         }}
                                         onBlur={fetchDistricts}
                                         required
+                                        maxLength={6}
                                         placeholder="Enter Pincode"
                                     />
                                     {errorMessage && <div className="text-danger mt-1">{errorMessage}</div>}

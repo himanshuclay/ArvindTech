@@ -31,14 +31,17 @@ const EmployeeInsert = () => {
     });
 
     useEffect(() => {
-        toast.dismiss()
+        toast.dismiss();
 
         const storedEmpName = localStorage.getItem('EmpName');
-        if (storedEmpName) {
-            setEmpName(storedEmpName);
+        const storedEmpID = localStorage.getItem('EmpId');
+        if (storedEmpName || storedEmpID) {
+            setEmpName(`${storedEmpName} - ${storedEmpID}`);
         }
     }, []);
 
+
+    console.log(empName)
 
     useEffect(() => {
         if (id) {
@@ -100,7 +103,7 @@ const EmployeeInsert = () => {
             createdBy: editMode ? roles.createdBy : empName,
             updatedBy: editMode ? empName : '',
         };
-
+        console.log(payload)
 
         try {
             const apiUrl = `${config.API_URL_APPLICATION}/RoleMaster/${editMode ? 'UpdateRole' : 'InsertRole'}`;
@@ -109,13 +112,14 @@ const EmployeeInsert = () => {
             if (response.status === 200) {
                 navigate('/pages/RoleMaster', {
                     state: {
-                        successMessage: editMode ? `${roles.roleName}  updated successfully!` : `${roles.roleName}  added successfully!`,
+                        successMessage: editMode ? `Record updated successfully!` : `Record  added successfully!`,
                     },
                 });
             } else {
                 toast.error(response.data.message || "Failed to process request");
             }
         } catch (error: any) {
+            toast.dismiss()
             toast.error(error);
             console.error('Error submitting module:', error);
         }

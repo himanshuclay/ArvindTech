@@ -6,7 +6,6 @@ import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import config from '@/config';
 import EmployeeBankPopup from './EmployeeBankPopup';
 import Select from 'react-select';
-import IconWithLetter from '@/pages/ui/IconWithLetter';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 
@@ -148,15 +147,20 @@ const EmployeeMaster = () => {
     const [searchEmpstatus, setSearchEmpstatus] = useState('');
 
 
+
     useEffect(() => {
-        fetchEmployee();
-        fetchRolesCsv();
+        if (searchEmployee || searchProject || searchAppAccessLevel || searchDataAccessLevel || searchAppAccess || searchEmpstatus) {
+            handleSearch();
+        } else {
+            fetchEmployee();
+        }
     }, [currentPage]);
 
-    const handleSearch = (e: any) => {
-        e.preventDefault();
 
+    const handleSearch = (e?: React.FormEvent) => {
+        if (e) e.preventDefault();
         let query = `?`;
+
         if (searchEmployee) query += `EmployeeName=${searchEmployee}&`;
         if (searchProject) query += `CurrentProjectName=${searchProject}&`;
         if (searchAppAccessLevel) query += `AppAccessLevel=${searchAppAccessLevel}&`;
@@ -192,6 +196,7 @@ const EmployeeMaster = () => {
         setSearchDataAccessLevel('');
         setSearchAppAccess('');
         setSearchEmpstatus('');
+        setCurrentPage(1);
         fetchEmployee();
     };
 
@@ -237,61 +242,77 @@ const EmployeeMaster = () => {
 
         fetchData('CommonDropdown/GetEmployeeListWithId', setEmployeeList, 'employeeLists');
         fetchData('CommonDropdown/GetProjectList', setProjectList, 'projectListResponses');
+        fetchData('EmployeeMaster/GetEmployee', setDownloadCsv, 'employeeMasterList');
 
     }, []);
 
 
-    const fetchRolesCsv = async () => {
-        try {
-            const response = await axios.get(`${config.API_URL_APPLICATION}/EmployeeMaster/GetEmployee`);
-            if (response.data.isSuccess) {
-                setDownloadCsv(response.data.employeeMasterList);
-            } else {
-                console.error(response.data.message);
-            }
-        } catch (error) {
-            console.error('Error fetching doers:', error);
-        }
-
-    };
 
     const convertToCSV = (data: Employee[]) => {
         const csvRows = [
+            // Column headers
             [
                 'ID',
-                'Employee ID', 'Employee Name',
-                'Father Name', 'Email',
+                'Employee ID',
+                'Employee Name',
+                'Father Name',
+                'Gender',
+                'Date of Birth',
+                'Date of Joining',
+                'Date of Leaving',
+                'Email',
+                'HR Updated Mobile No',
+                'User Updated Mobile No',
+                'State',
+                'District',
+                'Area',
+                'Pin',
+                'Address',
+                'Photo',
+                'Employee Status',
                 'Data Access Level',
-                'Employee Status', 'HR Updated Mobile No',
-                'User Updated Mobile No', 'State',
-                'District', 'Area', 'Pin', 'Address',
-                'Photo', 'Gender', 'Date of Birth',
-                'Date of Joining', 'Date of Leaving',
-                'Department Name', 'Designation',
-                'App Exempt', 'Is Performance Review',
-                'App Access Level', 'App Access',
-                'Current Project Name', 'Salary Bank Account Type',
-                'Salary Bank Account Number', 'Salary Bank Name',
-                'Salary Bank IFSC', 'Salary Branch Name',
-                'Reimbursement Bank Account Type',
+                'App Access Level',
+                'App Access',
+                'App Exempt',
+                'Is Performance Review',
+                'Is Registered',
+                'DAL Module',
+                'DAL Project',
+                'Registration Date',
+                'Department Name',
+                'Designation',
+                'Current Project Name',
+                'Salary Bank Account Number',
+                'Salary Bank Name',
+                'Salary Bank IFSC',
+                'Salary Branch Name',
                 'Reimbursement Bank Account Number',
-                'Reimbursement Bank Name', 'Reimbursement Bank IFSC',
-                'Reimbursement Branch Name', 'Expense Bank Account Type',
-                'Expense Bank Account Number', 'Expense Bank Name',
-                'Expense Bank IFSC', 'Expense Branch Name',
-                'Excel DOB Value', 'Excel DOJ Value',
-                'Excel DOL Value', 'Is Registered', 'DAL Module', 'DAL Project',
-                'Registration Date', 'Created By', 'Updated By',
-                'Created Date', 'Updated Date'
+                'Reimbursement Bank Name',
+                'Reimbursement Bank IFSC',
+                'Reimbursement Branch Name',
+                'Expense Bank Account Number',
+                'Expense Bank Name',
+                'Expense Bank IFSC',
+                'Expense Branch Name',
+                'Excel DOB Value',
+                'Excel DOJ Value',
+                'Excel DOL Value',
+                'Created By',
+                'Updated By',
+                'Created Date',
+                'Updated Date'
             ],
+            // Data rows
             ...data.map(employee => [
                 employee.id,
                 employee.empID,
                 employee.employeeName,
                 employee.fatherName,
+                employee.gender,
+                employee.dateOfBirth,
+                employee.dateOfJoining,
+                employee.dateOfLeaving,
                 employee.email,
-                employee.dataAccessLevel,
-                employee.empStatus,
                 employee.hrUpdatedMobileNo,
                 employee.userUpdatedMobileNo,
                 employee.state,
@@ -300,45 +321,41 @@ const EmployeeMaster = () => {
                 employee.pin,
                 employee.address,
                 employee.photo,
-                employee.gender,
-                employee.dateOfBirth,
-                employee.dateOfJoining,
-                employee.dateOfLeaving,
-                employee.departmentName,
-                employee.designation,
-                employee.appExempt,
-                employee.isPerformanceReview,
+                employee.empStatus,
+                employee.dataAccessLevel,
                 employee.appAccessLevel,
                 employee.appAccess,
+                employee.appExempt,
+                employee.isPerformanceReview,
+                employee.isRegistered,
+                `"${employee.daL_Module}"`,
+                `"${employee.daL_Project}"`,
+                employee.registrationDate,
+                employee.departmentName,
+                employee.designation,
                 employee.currentProjectName,
-                employee.salaryBankAccountType,
-                employee.salaryBankAccountNumber,
+                `",${employee.salaryBankAccountNumber}"`,
                 employee.salaryBankName,
                 employee.salaryBankIfsc,
-                employee.salaryBranchName,
-                employee.reimbursementBankAccountType,
-                employee.reimbursementBankAccountNumber,
+                `"${employee.salaryBranchName}"`,
+                `",${employee.reimbursementBankAccountNumber}"`,
                 employee.reimbursementBankName,
                 employee.reimbursementBankIfsc,
-                employee.reimbursementBranchName,
-                employee.expenseBankAccountType,
-                employee.expenseBankAccountNumber,
+                `"${employee.reimbursementBranchName}"`,
+                `",${employee.expenseBankAccountNumber}"`,
                 employee.expenseBankName,
                 employee.expenseBankIfsc,
-                employee.expenseBranchName,
+                `"${employee.expenseBranchName}"`,
                 employee.excelDobValue,
                 employee.excelDojValue,
                 employee.excelDolValue,
-                employee.isRegistered,
-                employee.daL_Module,
-                employee.daL_Project,
-                employee.registrationDate,
                 employee.createdBy,
                 employee.updatedBy,
                 employee.createdDate,
-                employee.updatedDate,
+                employee.updatedDate
             ])
         ];
+
         return csvRows.map(row => row.join(',')).join('\n');
     };
 
@@ -398,7 +415,6 @@ const EmployeeMaster = () => {
 
     return (
         <>
-            <div className="container">
                 <div className="d-flex bg-white p-2 my-2 justify-content-between align-items-center">
                     <span><i className="ri-file-list-line me-2 text-dark fs-16"></i><span className='fw-bold text-dark fs-15'>Employee List</span></span>
                     <div className="d-flex justify-content-end  ">
@@ -426,10 +442,15 @@ const EmployeeMaster = () => {
                 ) : (
                     <>
                         <div className='bg-white p-2 pb-2'>
-                            <Form onSubmit={handleSearch}>
+                            <Form
+                                onSubmit={(e) => {
+                                    e.preventDefault();
+                                    setCurrentPage(1);
+                                    handleSearch();
+                                }}
+                            >
+
                                 <Row>
-
-
                                     <Col lg={4} className="mt-2">
                                         <Form.Group controlId="searchEmployee">
                                             <Form.Label>Employee Name</Form.Label>
@@ -612,7 +633,7 @@ const EmployeeMaster = () => {
                                                         {columns.filter(col => col.visible).map((col) => (
                                                             <td key={col.id}
                                                                 className={
-                                                                    col.id === 'employeeName' ? 'fw-bold text-dark' :
+                                                                    // col.id === 'employeeName' ? 'fw-bold text-dark' :
                                                                         (col.id === 'appAccess' && item[col.id] === "Enabled") ? 'task1' :
                                                                             (col.id === 'appAccess' && item[col.id] === "Disabled") ? 'task4' :
                                                                                 (col.id === 'empStatus' && item[col.id] === "Current") ? 'task1' :
@@ -642,11 +663,10 @@ const EmployeeMaster = () => {
                                                                     ) : col.id === 'employeeName' ? (
                                                                         <td>
                                                                             <div className='d-flex align-items-center'>
-                                                                                <IconWithLetter letter={item.employeeName.charAt(0)} />
                                                                                 {item.employeeName.split('_')[0]}
                                                                             </div>
                                                                             {item.userUpdatedMobileNo ?
-                                                                                <p className='phone_user fw-normal m-0'><a href={`tel:${item.userUpdatedMobileNo}`}> <i className="ri-phone-fill"></i> {item.userUpdatedMobileNo}</a></p> : ""
+                                                                                <p className='fw-normal m-0'><a href={`tel:${item.userUpdatedMobileNo}`}> <i className="ri-phone-fill"></i> {item.userUpdatedMobileNo}</a></p> : ""
                                                                             }
                                                                         </td>
                                                                     ) : (<div>{item[col.id as keyof Employee]}</div>
@@ -698,7 +718,6 @@ const EmployeeMaster = () => {
                     </Pagination>
                 </div>
                 <EmployeeBankPopup showView={showView} setShowView={setShowView} id={manageId} />
-            </div>
         </>
     );
 };

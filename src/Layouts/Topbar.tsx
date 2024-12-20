@@ -95,7 +95,7 @@ const profileMenus: ProfileOption[] = [
 	{
 		label: 'MyProfile',
 		icon: 'ri-customer-service-2-line',
-		redirectTo: '/pages/faq',
+		redirectTo: '/pages/profile',
 	},
 	// {
 	// 	label: 'My Account',

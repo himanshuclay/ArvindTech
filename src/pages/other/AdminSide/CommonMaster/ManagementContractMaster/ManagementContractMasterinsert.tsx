@@ -6,6 +6,7 @@ import config from '@/config';
 import CustomSuccessToast from '@/pages/other/Component/CustomSuccessToast';
 
 import Select from 'react-select';
+import { toast } from 'react-toastify';
 
 
 interface Management {
@@ -35,10 +36,14 @@ const EmployeeInsert = () => {
 
     });
 
+
     useEffect(() => {
+        toast.dismiss();
+
         const storedEmpName = localStorage.getItem('EmpName');
-        if (storedEmpName) {
-            setEmpName(storedEmpName);
+        const storedEmpID = localStorage.getItem('EmpId');
+        if (storedEmpName || storedEmpID) {
+            setEmpName(`${storedEmpName} - ${storedEmpID}`);
         }
     }, []);
 

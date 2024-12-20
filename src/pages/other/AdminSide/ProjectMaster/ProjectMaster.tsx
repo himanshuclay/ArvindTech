@@ -163,6 +163,7 @@ const ProjectMaster = () => {
         axios.get(apiUrl, { headers: { 'accept': '*/*' } })
             .then((response) => {
                 console.log("search response ", response.data.projectMasterList);
+                setTotalPages(Math.ceil(response.data.totalCount / 10));
                 setProject(response.data.projectMasterList)
             })
             .catch((error) => {
@@ -325,7 +326,6 @@ const ProjectMaster = () => {
 
     return (
         <>
-            <div className="container">
                 <div className="d-flex bg-white p-2 my-2 justify-content-between align-items-center">
                     <span><i className="ri-file-list-line me-2 text-dark fs-16"></i><span className='fw-bold text-dark fs-15'>Project List</span></span>
                     <div className="d-flex justify-content-end  ">
@@ -386,7 +386,7 @@ const ProjectMaster = () => {
                                                 getOptionLabel={(emp) => emp.employeeName}
                                                 getOptionValue={(emp) => emp.empId}
                                                 isSearchable={true}
-                                                placeholder="Select Porject Incharge"
+                                                placeholder="Select Employee"
                                                 className="h45"
                                             />
                                         </Form.Group>
@@ -402,7 +402,7 @@ const ProjectMaster = () => {
                                                 getOptionLabel={(emp) => emp.employeeName}
                                                 getOptionValue={(emp) => emp.empId}
                                                 isSearchable={true}
-                                                placeholder="Select Project Coordinator "
+                                                placeholder="Select Employee "
                                                 className="h45"
                                             />
                                         </Form.Group>
@@ -529,10 +529,25 @@ const ProjectMaster = () => {
 
                                                                     {col.id === 'projectInchargeName' ? (
                                                                         <td>
-                                                                            {item.projectInchargeName.split(",")
-                                                                                .map((incharge: any, index: any) => (
-                                                                                    <div key={index}>{incharge.trim()}</div> // Display each on a new line
-                                                                                ))}
+                                                                            <div className='d-flex align-items-center'>
+                                                                                {item.projectInchargeName}
+                                                                            </div>
+                                                                            {item.projectInchargeMobileNumber ?
+                                                                                <p className='fw-normal m-0'><a href={`tel:${item.projectInchargeMobileNumber}`}>
+                                                                                    <i className="ri-phone-fill"></i> {item.projectInchargeMobileNumber}</a></p> : ""
+                                                                            }
+                                                                        </td>
+                                                                    ) : col.id === 'projectCoordinatorName' ? (
+
+
+                                                                        <td>
+                                                                            <div className='d-flex align-items-center'>
+                                                                                {item.projectCoordinatorName}
+                                                                            </div>
+                                                                            {item.projectCoordinatorMobileNumber ?
+                                                                                <p className='fw-normal m-0'><a href={`tel:${item.projectCoordinatorMobileNumber}`}>
+                                                                                    <i className="ri-phone-fill"></i> {item.projectCoordinatorMobileNumber}</a></p> : ""
+                                                                            }
                                                                         </td>
                                                                     ) : (
                                                                         <td>{item[col.id as keyof Project]}</td>
@@ -591,7 +606,6 @@ const ProjectMaster = () => {
 
                 <ProjectViewPopup showView={showView} setShowView={setShowView} projectName={manageId} />
 
-            </div>
 
         </>
     );

@@ -3,7 +3,6 @@ import { useState, useEffect } from 'react';
 import { Button, Pagination, Table, Container, Row, Col, Alert, Form, ButtonGroup } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
-import IconWithLetter from '@/pages/ui/IconWithLetter';
 import config from '@/config';
 import ProcessCanvas from './ProcessCanvas';
 import ProcessViewPopup from './ProcessViewPopup';
@@ -53,9 +52,9 @@ const ModuleMaster = () => {
     const [ProcessOwnerName, setProcessOwnerName] = useState('');
     const [manageId, setManageID] = useState<number>();
     const [downloadCsv, setDownloadCsv] = useState<Process[]>([]);
-
     const [show, setShow] = useState(false);
     const [showView, setShowView] = useState(false);
+    const [searchStatus, setSearchStatus] = useState('');
 
     const location = useLocation();
     const navigate = useNavigate();
@@ -68,16 +67,24 @@ const ModuleMaster = () => {
     }, [location.state, navigate]);
 
 
+    useEffect(() => {
+        if (ProcessName || ModuleName || ProcessOwnerName) {
+            handleSearch();
+        } else {
+            fetchProcess();
+        }
+    }, [currentPage]);
 
-    const handleSearch = (e: any) => {
-        e.preventDefault();
+
+    const handleSearch = (e?: React.FormEvent) => {
+        if (e) e.preventDefault();
 
         let query = `?`;
         if (ProcessName) query += `ProcessName=${ProcessName}&`;
         if (ModuleName) query += `ModuleName=${ModuleName}&`;
         if (ProcessOwnerName) query += `ProcessOwnerName=${ProcessOwnerName}&`;
-
-        // Remove trailing '&' or '?' from the query string
+        if (searchStatus) query += `Status=${searchStatus}&`;
+        query += `PageIndex=${currentPage}`;
         query = query.endsWith('&') ? query.slice(0, -1) : query;
 
         const apiUrl = `${config.API_URL_APPLICATION}/ProcessMaster/SearchProcessList${query}`;
@@ -90,6 +97,7 @@ const ModuleMaster = () => {
         })
             .then((response) => {
                 setProcesses(response.data.processMasterListResponses)
+                setTotalPages(Math.ceil(response.data.totalCount / 10));
             })
             .catch((error) => {
                 console.error('Error fetching data:', error);
@@ -115,10 +123,6 @@ const ModuleMaster = () => {
     };
     // ==============================================================
 
-    useEffect(() => {
-        fetchProcess();
-        fetchProcessCsv()
-    }, [currentPage]);
 
 
     const fetchProcess = async () => {
@@ -143,18 +147,6 @@ const ModuleMaster = () => {
         }
     };
 
-    const fetchProcessCsv = async () => {
-        try {
-            const response = await axios.get(`${config.API_URL_APPLICATION}/ProcessMaster/GetProcess`);
-            if (response.data.isSuccess) {
-                setDownloadCsv(response.data.processMasterList);
-            } else {
-                console.error(response.data.message);
-            }
-        } catch (error) {
-            console.error('Error fetching modules:', error);
-        }
-    };
 
 
     useEffect(() => {
@@ -173,6 +165,7 @@ const ModuleMaster = () => {
 
         fetchData('CommonDropdown/GetModuleList', setModuleList, 'moduleNameListResponses');
         fetchData('CommonDropdown/GetProcessOwnerName', setEmployeeList, 'processOwnerNames');
+        fetchData('ProcessMaster/GetProcess', setDownloadCsv, 'processMasterList');
     }, []);
 
 
@@ -199,6 +192,8 @@ const ModuleMaster = () => {
         setModuleName('');
         setProcessName('');
         setProcessOwnerName('');
+        setSearchStatus('');
+        setCurrentPage(1);
         fetchProcess();
     };
 
@@ -260,6 +255,11 @@ const ModuleMaster = () => {
         setManageID(id)
 
     };
+    const optionsStatus = [
+        { value: 'Enabled', label: 'Enabled' },
+        { value: 'Disabled', label: 'Disabled' }
+    ];
+
 
     return (
         <>
@@ -299,9 +299,15 @@ const ModuleMaster = () => {
                         ) : (
                             <>
                                 <div className='bg-white p-2 pb-1'>
-                                    <Form onSubmit={handleSearch}>
+                                    <Form
+                                        onSubmit={(e) => {
+                                            e.preventDefault();
+                                            setCurrentPage(1);
+                                            handleSearch();
+                                        }}
+                                    >
                                         <Row>
-                                            <Col lg={4}>
+                                            <Col lg={6}>
                                                 <Form.Group controlId="ModuleName">
                                                     <Form.Label>Module Name</Form.Label>
 
@@ -318,7 +324,7 @@ const ModuleMaster = () => {
                                                     />
                                                 </Form.Group>
                                             </Col>
-                                            <Col lg={3}>
+                                            <Col lg={6}>
                                                 <Form.Group controlId="ModuleOwnerName">
                                                     <Form.Label>Process Name</Form.Label>
 
@@ -337,7 +343,7 @@ const ModuleMaster = () => {
                                                 </Form.Group>
                                             </Col>
 
-                                            <Col lg={3}>
+                                            <Col lg={6} className='mt-2'>
                                                 <Form.Group controlId="ProcessOwnerName">
                                                     <Form.Label>Process Owner Name</Form.Label>
                                                     <Select
@@ -353,7 +359,20 @@ const ModuleMaster = () => {
                                                     />
                                                 </Form.Group>
                                             </Col>
-                                            <Col className='align-items-end d-flex justify-content-end'>
+                                            <Col lg={6} className="mt-2">
+                                                <Form.Group controlId="searchStatus">
+                                                    <Form.Label>Status</Form.Label>
+                                                    <Select
+                                                        name="searchStatus"
+                                                        options={optionsStatus}
+                                                        value={optionsStatus.find(option => option.value === searchStatus) || null}
+                                                        onChange={(selectedOption) => setSearchStatus(selectedOption?.value || '')}
+                                                        placeholder="Select Status"
+                                                    />
+                                                </Form.Group>
+                                            </Col>
+                                            <Col></Col>
+                                            <Col lg={4} className='align-items-end d-flex justify-content-end mt-3'>
                                                 <ButtonGroup aria-label="Basic example" className='w-100'>
                                                     <Button type="button" variant="primary" onClick={handleClear}>
                                                         <i className="ri-loop-left-line"></i>
@@ -418,18 +437,17 @@ const ModuleMaster = () => {
                                                             {columns.filter(col => col.visible).map((col) => (
                                                                 <td key={col.id}
                                                                     className={
-                                                                        col.id === 'processOwnerName' ? 'fw-bold  text-dark text-nowrap' :
-                                                                            col.id === 'moduleName' ? 'fw-bold text-dark   text-nowrap' :
-                                                                                (col.id === 'status' && item[col.id] === "Enabled") ? 'task1' :
-                                                                                    (col.id === 'status' && item[col.id] === "Disabled") ? 'task4' :
-                                                                                        col.id === 'processObjective' ? 'w-200px' :
-                                                                                            ''
+                                                                        col.id === 'processOwnerName' ? ' text-nowrap' :
+                                                                            // col.id === 'moduleName' ? 'fw-bold text-dark   text-nowrap' :
+                                                                            (col.id === 'status' && item[col.id] === "Enabled") ? 'task1' :
+                                                                                (col.id === 'status' && item[col.id] === "Disabled") ? 'task4' :
+                                                                                    col.id === 'processObjective' ? 'w-200px' :
+                                                                                        ''
                                                                     }
                                                                 >
                                                                     {col.id === 'processOwnerName' ? (
                                                                         <td>
                                                                             <div className='d-flex align-items-center'>
-                                                                                <IconWithLetter letter={item.processOwnerName.charAt(0)} />
                                                                                 {item.processOwnerName.split('_')[0]}
                                                                             </div>
                                                                             {item.userUpdatedMobileNumber ?

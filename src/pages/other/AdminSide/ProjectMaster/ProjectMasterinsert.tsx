@@ -16,11 +16,12 @@ interface Project {
     stateId: number;
     projectType: number;
     managementContract: number;
-    projectIncharge: string[];
-    projectInchargeName: string[];
+    projectIncharge: string;
+    projectInchargeName: string;
     projectCoordinator: string;
     projectCoordinatorName: string;
     completionStatus: string;
+    completionStatusName: string;
     status: string;
     nameOfWork: string;
     createdBy: string;
@@ -82,11 +83,12 @@ const ProjectInsert = () => {
         stateId: 0,
         projectType: 0,
         managementContract: 0,
-        projectIncharge: [],
-        projectInchargeName: [],
+        projectIncharge: '',
+        projectInchargeName: '',
         projectCoordinator: '',
         projectCoordinatorName: '',
         completionStatus: '',
+        completionStatusName: '',
         status: '',
         nameOfWork: '',
         createdBy: '',
@@ -166,8 +168,8 @@ const ProjectInsert = () => {
         fetchData('CommonDropdown/GetStateList', setStateList, 'stateListResponses');
         fetchData('CommonDropdown/GetCompletionStatus', setCompletionStatus, 'completionStatusListResponses');
         fetchData('CommonDropdown/GetEmployeeListWithId', setEmployeeList, 'employeeLists');
-        fetchData('CommonDropdown/GetProjectType', setProjectTypeList, 'projectTypeListResponses');
-        fetchData('CommonDropdown/GetManagementContract', setManagementContractList, 'managementContractListResponses');
+        fetchData('CommonDropdown/GetCommonList?flag=4', setProjectTypeList, 'commonLists');
+        fetchData('CommonDropdown/GetCommonList?flag=3', setManagementContractList, 'commonLists');
 
     }, []);
 
@@ -341,32 +343,27 @@ const ProjectInsert = () => {
                                 </Form.Group>
                             </Col>
 
-
-
-
                             <Col lg={6}>
                                 <Form.Group controlId="incharges" className="mb-3">
                                     <Form.Label>Project Incharge</Form.Label>
                                     <Select
                                         name="incharges"
-                                        value={employeeList.filter(emp =>
-                                            project.projectIncharge.includes(emp.empId)
-                                        )}
-                                        onChange={(selectedOptions) => {
-                                            const projectIncharge = (selectedOptions || []).map(option => option.empId);
-                                            const projectInchargeName = (selectedOptions || []).map(option => option.employeeName);
-                                            setProject(prev => ({
-                                                ...prev,
-                                                projectIncharge, projectInchargeName
-                                            }));
+
+                                        value={employeeList.find((emp) => emp.employeeName === project.projectInchargeName)}
+                                        onChange={(selectedOption) => {
+                                            setProject({
+                                                ...project,
+                                                projectIncharge: selectedOption?.empId || '',
+                                                projectInchargeName: selectedOption?.employeeName || '',
+                                            });
                                         }}
                                         getOptionLabel={(emp) => emp.employeeName}
                                         getOptionValue={(emp) => emp.empId}
                                         options={employeeList}
-                                        isSearchable={true}
-                                        isMulti={true}
+                                        isSearchable
                                         placeholder="Select Employee"
                                     />
+
                                 </Form.Group>
                             </Col>
 
@@ -380,15 +377,15 @@ const ProjectInsert = () => {
                                         onChange={(selectedOption) => {
                                             setProject({
                                                 ...project,
-                                                projectCoordinator: selectedOption?.empId || "",
-                                                projectCoordinatorName: selectedOption?.employeeName || "",
+                                                projectCoordinator: selectedOption?.empId || '',
+                                                projectCoordinatorName: selectedOption?.employeeName || '',
                                             });
                                         }}
                                         getOptionLabel={(emp) => emp.employeeName}
                                         getOptionValue={(emp) => emp.empId}
                                         options={employeeList}
                                         isSearchable={true}
-                                        placeholder="Select Project Coordinator"
+                                        placeholder="Select Employee"
                                     />
                                 </Form.Group>
                             </Col>

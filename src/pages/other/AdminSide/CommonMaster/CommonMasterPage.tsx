@@ -15,7 +15,6 @@ const DesignationMaster = () => {
 
     return (
         <>
-            <div className="container">
                 <div className="d-flex bg-white p-2 my-2 justify-content-between align-items-center">
                     <span><i className="ri-file-list-line me-2 text-dark fs-16"></i><span className='fw-bold text-dark fs-15'>Common Master List</span></span>
 
@@ -83,7 +82,6 @@ const DesignationMaster = () => {
                 </>
 
 
-            </div >
         </>
     );
 };

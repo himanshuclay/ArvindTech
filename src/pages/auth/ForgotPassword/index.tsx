@@ -240,7 +240,7 @@ const ForgotPassword = () => {
 
 					toast.dismiss()
 					toast.success(
-						<>Employee Registration successfully! <br />
+						<>Password Updated successfully! <br />
 							Redirecting to Login...
 						</>
 					);

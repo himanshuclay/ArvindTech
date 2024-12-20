@@ -238,8 +238,7 @@ const EmployeeInsert = () => {
                 });
             }
         } catch (error: any) {
-            const errorMessage = error instanceof Error ? error.message : 'Error Adding/Updating';
-            toast.error(errorMessage);
+            toast.error(error || 'Error Adding/Updating');
         }
 
     };
@@ -253,28 +252,49 @@ const EmployeeInsert = () => {
                     <Form onSubmit={handleSubmit}>
                         <Row>
                             <Col lg={6}>
+                                <Form.Group controlId="projectName" className="mb-3">
+                                    <Form.Label>Project Name</Form.Label>
+                                    <Select
+                                        name="projectName"
+                                        value={projectList.find((mod) => mod.projectName === messes.projectName)}
+                                        onChange={(selectedOption) => {
+                                            setMesses({
+                                                ...messes,
+                                                projectName: selectedOption?.projectName || '',
+                                            });
+                                        }}
+                                        getOptionLabel={(mod) => mod.projectName}
+                                        getOptionValue={(mod) => mod.projectName}
+                                        options={projectList}
+                                        isSearchable={true}
+                                        placeholder="Select Project Name"
+                                        required
+                                    />
+                                </Form.Group>
+                            </Col>
+                            <Col lg={6}>
                                 <Form.Group controlId="messID" className="mb-3">
-                                    <Form.Label>Mess ID:</Form.Label>
+                                    <Form.Label>Mess ID</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="messID"
                                         value={messes.messID}
                                         onChange={handleChange}
                                         required
-                                        placeholder='Enter Role Name'
+                                        placeholder='Enter Mess Id'
                                     />
                                 </Form.Group>
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="messName" className="mb-3">
-                                    <Form.Label>Mess Name:</Form.Label>
+                                    <Form.Label>Mess Name</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="messName"
                                         value={messes.messName}
                                         onChange={handleChange}
                                         required
-                                        placeholder='Enter Role Name'
+                                        placeholder='Enter Mess Name'
                                     />
                                 </Form.Group>
                             </Col>
@@ -295,7 +315,7 @@ const EmployeeInsert = () => {
                                         getOptionValue={(mod) => mod.name}
                                         options={statusList}
                                         isSearchable={true}
-                                        placeholder="Select Module Name"
+                                        placeholder="Select Status"
                                         required
                                     />
                                 </Form.Group>
@@ -319,7 +339,7 @@ const EmployeeInsert = () => {
                                         getOptionValue={(mod) => mod.employeeName}
                                         options={employeeList}
                                         isSearchable={true}
-                                        placeholder="Select Module Name"
+                                        placeholder="Select Employee"
                                         required
                                     />
                                 </Form.Group>
@@ -339,27 +359,7 @@ const EmployeeInsert = () => {
                                 </Form.Group>
                             </Col>
 
-                            <Col lg={6}>
-                                <Form.Group controlId="projectName" className="mb-3">
-                                    <Form.Label>Project Name</Form.Label>
-                                    <Select
-                                        name="projectName"
-                                        value={projectList.find((mod) => mod.projectName === messes.projectName)}
-                                        onChange={(selectedOption) => {
-                                            setMesses({
-                                                ...messes,
-                                                projectName: selectedOption?.projectName || '',
-                                            });
-                                        }}
-                                        getOptionLabel={(mod) => mod.projectName}
-                                        getOptionValue={(mod) => mod.projectName}
-                                        options={projectList}
-                                        isSearchable={true}
-                                        placeholder="Select Module Name"
-                                        required
-                                    />
-                                </Form.Group>
-                            </Col>
+
 
 
                             <Col className='align-items-end d-flex justify-content-between mb-3'>

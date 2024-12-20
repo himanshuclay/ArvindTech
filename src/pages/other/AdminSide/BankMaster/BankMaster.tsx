@@ -111,17 +111,16 @@ const BankMaster = () => {
     const [searchBank, setSearchBank] = useState('');
     const [searchIfsc, setSearchIfsc] = useState('');
     const [searchBranch, setSearchBranch] = useState('');
+    const [searchStatus, setSearchStatus] = useState('');
     const [searchState, setSearchState] = useState('');
 
     useEffect(() => {
-        // If any search criteria is filled, run handleSearch; otherwise, fetch master data
         if (searchBank || searchIfsc || searchBranch || searchState) {
             handleSearch();
         } else {
             fetchStaffRequirements();
-            // fetchModulesCsv
         }
-    }, [currentPage]); // Run this effect when currentPage changes
+    }, [currentPage]);
 
     const handleSearch = (e?: React.FormEvent) => {
         if (e) e.preventDefault();
@@ -132,6 +131,7 @@ const BankMaster = () => {
         if (searchIfsc) query += `Ifsc=${searchIfsc}&`;
         if (searchBranch) query += `Branch=${searchBranch}&`;
         if (searchState) query += `State=${searchState}&`;
+        if (searchStatus) query += `Status=${searchStatus}&`;
         query += `PageIndex=${currentPage}`;
 
         query = query.endsWith('&') ? query.slice(0, -1) : query;
@@ -172,15 +172,14 @@ const BankMaster = () => {
 
 
 
-
-
-
     const handleClear = () => {
+        setCurrentPage(1);
         fetchStaffRequirements();
         setSearchState('');
         setSearchBranch('');
         setSearchIfsc('');
         setSearchBank('');
+        setSearchStatus('');
     };
 
     const convertToCSV = (data: Bank[]) => {
@@ -220,28 +219,30 @@ const BankMaster = () => {
     };
 
 
+    const optionsStatus = [
+        { value: 'Enabled', label: 'Enabled' },
+        { value: 'Disabled', label: 'Disabled' }
+    ];
+
+
     return (
         <>
-            <div className="container">
                 <div className="d-flex bg-white p-2 my-2 justify-content-between align-items-center">
                     <span><i className="ri-file-list-line me-2 text-dark fs-16"></i><span className='fw-bold text-dark fs-15'>Bank List</span></span>
                     <div className="d-flex justify-content-end  ">
                         <div>
-
                             <Button variant="primary" onClick={downloadCSV} className="me-2">
                                 Download CSV
                             </Button>
-
                             <Link to='/pages/BankMasterinsert'>
                                 <Button variant="primary" className="">
                                     Add Bank
                                 </Button>
                             </Link>
-
                         </div>
-
                     </div>
                 </div>
+
 
 
                 {loading ? (
@@ -254,7 +255,7 @@ const BankMaster = () => {
                     <>
                         <div className='bg-white p-2 pb-2'>
                             <Row>
-                                <Col lg={4} className=''>
+                                <Col lg={6} className=''>
                                     <Form.Group controlId="searchIfsc">
                                         <Form.Label>IFSC Code</Form.Label>
                                         <Form.Control
@@ -267,7 +268,7 @@ const BankMaster = () => {
                                         />
                                     </Form.Group>
                                 </Col>
-                                <Col lg={4} className=''>
+                                <Col lg={6} className=''>
                                     <Form.Group controlId="searchState">
                                         <Form.Label>State</Form.Label>
                                         <Select
@@ -284,7 +285,7 @@ const BankMaster = () => {
                                     </Form.Group>
                                 </Col>
 
-                                <Col lg={4} className=''>
+                                <Col lg={6} className='mt-2'>
                                     <Form.Group controlId="searchBank">
                                         <Form.Label>Bank Name</Form.Label>
                                         <Select
@@ -300,22 +301,35 @@ const BankMaster = () => {
                                         />
                                     </Form.Group>
                                 </Col>
-
-                                <Col> </Col>
+                                <Col lg={6} className="mt-2">
+                                    <Form.Group controlId="searchStatus">
+                                        <Form.Label>Status</Form.Label>
+                                        <Select
+                                            name="searchStatus"
+                                            options={optionsStatus}
+                                            value={optionsStatus.find(option => option.value === searchStatus) || null}
+                                            onChange={(selectedOption) => setSearchStatus(selectedOption?.value || '')}
+                                            placeholder="Select Status"
+                                        />
+                                    </Form.Group>
+                                </Col>
+                                <Col></Col>
                                 <Col lg={4} className="align-items-end d-flex justify-content-end mt-3">
                                     <ButtonGroup aria-label="Basic example" className="w-100">
                                         <Button type="button" variant="primary" onClick={handleClear}>
                                             <i className="ri-loop-left-line"></i>
                                         </Button>
                                         &nbsp;
-                                        <Button type="submit" variant="primary" onClick={handleSearch}>
+                                        <Button type="submit" variant="primary"
+                                            onClick={() => {
+                                                setCurrentPage(1);
+                                                handleSearch();
+                                            }}>
                                             Search
                                         </Button>
                                     </ButtonGroup>
                                 </Col>
                             </Row>
-
-
 
                             <Row className='mt-3'>
                                 <div className="d-flex justify-content-end bg-light p-1">
@@ -436,7 +450,6 @@ const BankMaster = () => {
                 </div>
 
 
-            </div >
         </>
     );
 };

@@ -5,7 +5,6 @@ import { Link } from 'react-router-dom';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import config from '@/config';
 import Select from 'react-select';
-import IconWithLetter from '@/pages/ui/IconWithLetter';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 
@@ -76,9 +75,6 @@ const MessMaster = () => {
         { id: 'projectName', label: 'Project Name', visible: true },
         { id: 'mobileNumber', label: 'Mess Contact No', visible: true },
         { id: 'status', label: 'Status', visible: true },
-
-
-
     ]);
 
     const handleOnDragEnd = (result: any) => {
@@ -90,38 +86,35 @@ const MessMaster = () => {
     };
     // ==============================================================
 
-    useEffect(() => {
-        fetchRoles();
-        fetchRolesCsv();
-    }, [currentPage]);
 
+
+    useEffect(() => {
+        if (searchMessName || searchStatus || searchProjectName) {
+            handleSearch();
+        } else {
+            fetchRoles();
+        }
+    }, [currentPage]);
 
 
     const [searchMessName, setSearchMessName] = useState('')
     const [searchStatus, setSearchStatus] = useState('')
     const [searchProjectName, setSearchProjectName] = useState('')
 
-    const handleSearch = (e: any) => {
-        e.preventDefault();
 
+    const handleSearch = (e?: React.FormEvent) => {
+        if (e) e.preventDefault();
         let query = `?`;
         if (searchMessName) query += `MessName=${searchMessName}&`;
         if (searchStatus) query += `Status=${searchStatus}&`;
         if (searchProjectName) query += `ProjectName=${searchProjectName}&`;
         query += `PageIndex=${currentPage}`;
 
-        // Remove trailing '&' or '?' from the query string
         query = query.endsWith('&') ? query.slice(0, -1) : query;
-
         const apiUrl = `${config.API_URL_APPLICATION}/MessMaster/SearchMess${query}`;
-
-        console.log(apiUrl)
-        axios.get(apiUrl, {
-            headers: {
-                'accept': '*/*'
-            }
-        })
+        axios.get(apiUrl, { headers: { 'accept': '*/*' } })
             .then((response) => {
+                console.log("search response ", response.data.departments);
                 setMesses(response.data.messMasterList)
                 setTotalPages(Math.ceil(response.data.totalCount / 10));
             })
@@ -129,7 +122,6 @@ const MessMaster = () => {
                 console.error('Error fetching data:', error);
             });
     };
-
 
     const fetchRoles = async () => {
         setLoading(true);
@@ -154,23 +146,6 @@ const MessMaster = () => {
 
 
 
-
-    const fetchRolesCsv = async () => {
-        try {
-            const response = await axios.get(`${config.API_URL_APPLICATION}/MessMaster/GetMess`);
-            if (response.data.isSuccess) {
-                setDownloadCsv(response.data.messMasterList);
-            } else {
-                console.error(response.data.message);
-            }
-        } catch (error) {
-            console.error('Error fetching doers:', error);
-        }
-
-    };
-
-
-
     useEffect(() => {
         const fetchData = async (endpoint: string, setter: Function, listName: string) => {
             try {
@@ -187,6 +162,7 @@ const MessMaster = () => {
 
         fetchData('MessMaster/GetMess', setMessList, 'messMasterList');
         fetchData('CommonDropdown/GetProjectList', setProjectList, 'projectListResponses');
+        fetchData('MessMaster/GetMess', setDownloadCsv, 'messMasterList');
 
     }, []);
 
@@ -194,16 +170,17 @@ const MessMaster = () => {
     const handleClear = () => {
         setSearchMessName('')
         setSearchProjectName('')
-        setSearchStatus('')
+        setSearchStatus('');
+        setCurrentPage(1);
         fetchRoles();
     };
 
 
     const convertToCSV = (data: Mess[]) => {
         const csvRows = [
-            ['Mess ID', 'Mess Name', 'Manager Emp ID', 'Manager Name', 
+            ['Mess ID', 'Mess Name', 'Manager Emp ID', 'Manager Name',
                 'Mess Contact No', 'Project Name', 'Status',
-                 'Created By', 'Updated By', 'Created Date', 'Updated Date'],
+                'Created By', 'Updated By', 'Created Date', 'Updated Date'],
             ...data.map(mess => [
                 mess.messID.toString(),
                 mess.messName,
@@ -241,14 +218,13 @@ const MessMaster = () => {
 
 
     const optionsStatus = [
-        { value: 'Active', label: 'Active' },
-        { value: 'Inactive', label: 'Inactive' }
+        { value: 'Enabled', label: 'Enabled' },
+        { value: 'Disabled', label: 'Disabled' }
     ];
 
 
     return (
         <>
-            <div className="container">
                 <div className="d-flex bg-white p-2 my-2 justify-content-between align-items-center">
                     <span><i className="ri-file-list-line me-2 text-dark fs-16"></i><span className='fw-bold text-dark fs-15'>Mess List</span></span>
                     <div className="d-flex justify-content-end  ">
@@ -272,69 +248,75 @@ const MessMaster = () => {
                     </div>
                 ) : (<>
                     <div className='bg-white p-2 pb-2'>
-                        <Form >
-                            <Row>
+                        <Row>
+                            <Col lg={4}>
+                                <Form.Group controlId="searchMessName">
+                                    <Form.Label>Mess Name</Form.Label>
 
-                                <Col lg={4}>
-                                    <Form.Group controlId="searchMessName">
-                                        <Form.Label>Mess Name</Form.Label>
+                                    <Select
+                                        name="searchMessName"
+                                        value={messList.find(item => item.messName === searchMessName) || null} // handle null
+                                        onChange={(selectedOption) => setSearchMessName(selectedOption ? selectedOption.messName : "")} // null check
+                                        options={messList}
+                                        getOptionLabel={(item) => item.messName}
+                                        getOptionValue={(item) => item.messName}
+                                        isSearchable={true}
+                                        placeholder="Select Mess Name"
+                                        className="h45"
+                                    />
+                                </Form.Group>
+                            </Col>
+                            <Col lg={4} className=''>
+                                <Form.Group controlId="searchProjectName">
+                                    <Form.Label>Project Name</Form.Label>
+                                    <Select
+                                        name="searchProjectName"
+                                        value={projectList.find(item => item.projectName === searchProjectName) || null} // handle null
+                                        onChange={(selectedOption) => setSearchProjectName(selectedOption ? selectedOption.projectName : "")} // null check
+                                        options={projectList}
+                                        getOptionLabel={(item) => item.projectName}
+                                        getOptionValue={(item) => item.projectName}
+                                        isSearchable={true}
+                                        placeholder="Select Project Name "
+                                        className="h45"
+                                    />
+                                </Form.Group>
+                            </Col>
 
-                                        <Select
-                                            name="searchMessName"
-                                            value={messList.find(item => item.messName === searchMessName) || null} // handle null
-                                            onChange={(selectedOption) => setSearchMessName(selectedOption ? selectedOption.messName : "")} // null check
-                                            options={messList}
-                                            getOptionLabel={(item) => item.messName}
-                                            getOptionValue={(item) => item.messName}
-                                            isSearchable={true}
-                                            placeholder="Select Mess Name"
-                                            className="h45"
-                                        />
-                                    </Form.Group>
-                                </Col>
-                                <Col lg={4} className=''>
-                                    <Form.Group controlId="searchProjectName">
-                                        <Form.Label>Project Name</Form.Label>
-                                        <Select
-                                            name="searchProjectName"
-                                            value={projectList.find(item => item.projectName === searchProjectName) || null} // handle null
-                                            onChange={(selectedOption) => setSearchProjectName(selectedOption ? selectedOption.projectName : "")} // null check
-                                            options={projectList}
-                                            getOptionLabel={(item) => item.projectName}
-                                            getOptionValue={(item) => item.projectName}
-                                            isSearchable={true}
-                                            placeholder="Select Project Name "
-                                            className="h45"
-                                        />
-                                    </Form.Group>
-                                </Col>
-
-                                <Col lg={4}>
-                                    <Form.Group controlId="searchStatus">
-                                        <Form.Label>Mess Status</Form.Label>
-                                        <Select
-                                            name="searchStatus"
-                                            options={optionsStatus}
-                                            value={optionsStatus.find(option => option.value === searchStatus) || null}
-                                            onChange={(selectedOption) => setSearchStatus(selectedOption?.value || '')}
-                                            placeholder="Select Status"
-                                        />
-                                    </Form.Group>
-                                </Col>
+                            <Col lg={4}>
+                                <Form.Group controlId="searchStatus">
+                                    <Form.Label>Mess Status</Form.Label>
+                                    <Select
+                                        name="searchStatus"
+                                        options={optionsStatus}
+                                        value={optionsStatus.find(option => option.value === searchStatus) || null}
+                                        onChange={(selectedOption) => setSearchStatus(selectedOption?.value || '')}
+                                        placeholder="Select Status"
+                                    />
+                                </Form.Group>
+                            </Col>
 
 
-                                <Col></Col>
-                                <Col lg={3} className='align-items-end d-flex justify-content-end mt-3'>
-                                    <ButtonGroup aria-label="Basic example" className='w-100'>
-                                        <Button type="button" variant="primary" onClick={handleClear}>
-                                            <i className="ri-loop-left-line"></i>
-                                        </Button>
-                                        &nbsp;
-                                        <Button type="submit" variant="primary" onClick={handleSearch}>Search</Button>
-                                    </ButtonGroup>
-                                </Col>
-                            </Row>
-                        </Form>
+                            <Col></Col>
+                            <Col lg={4} className="align-items-end d-flex justify-content-end mt-2">
+                                <ButtonGroup aria-label="Basic example" className="w-100">
+                                    <Button type="button" variant="primary" onClick={handleClear}>
+                                        <i className="ri-loop-left-line"></i>
+                                    </Button>
+                                    &nbsp;
+                                    <Button
+                                        type="submit"
+                                        variant="primary"
+                                        onClick={() => {
+                                            setCurrentPage(1);
+                                            handleSearch();
+                                        }}
+                                    >
+                                        Search
+                                    </Button>
+                                </ButtonGroup>
+                            </Col>
+                        </Row>
 
 
 
@@ -404,16 +386,14 @@ const MessMaster = () => {
                                                     {columns.filter(col => col.visible).map((col) => (
                                                         <td key={col.id}
                                                             className={
-                                                                col.id === 'managerName' ? 'fw-bold  text-dark text-nowrap' :
-                                                                    (col.id === 'status' && item[col.id] === 'Active') ? 'task1' :
-                                                                        (col.id === 'status' && item[col.id] === 'Inactive') ? 'task4' :
+                                                                (col.id === 'status' && item[col.id] === 'Enabled') ? 'task1' :
+                                                                    (col.id === 'status' && item[col.id] === 'Disabled') ? 'task4' :
 
-                                                                            ''
+                                                                        ''
                                                             }>
                                                             <div> {col.id === 'managerName' ? (
                                                                 <div style={{ display: 'flex', alignItems: 'center' }}>
-                                                                    <IconWithLetter letter={item.managerName.charAt(0)} />
-                                                                    {item.managerName.split('_')[0]}
+                                                                    {item.managerName}
                                                                 </div>
                                                             ) : (
                                                                 <>
@@ -467,7 +447,6 @@ const MessMaster = () => {
                 </div>
 
 
-            </div >
         </>
     );
 };

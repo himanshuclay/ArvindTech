@@ -42,15 +42,16 @@ const BankMasterinsert = () => {
         updatedBy: ''
     });
 
-
     useEffect(() => {
-        toast.dismiss()
+        toast.dismiss();
 
         const storedEmpName = localStorage.getItem('EmpName');
-        if (storedEmpName) {
-            setEmpName(storedEmpName);
+        const storedEmpID = localStorage.getItem('EmpId');
+        if (storedEmpName || storedEmpID) {
+            setEmpName(`${storedEmpName} - ${storedEmpID}`);
         }
     }, []);
+
 
 
     useEffect(() => {

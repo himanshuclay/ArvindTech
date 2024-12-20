@@ -145,6 +145,7 @@ const DesignationMaster = () => {
     }, []);
 
     const handleClear = () => {
+        setCurrentPage(1);
         fetchData();
         setSearchDept('');
         setSearchStatus('')
@@ -194,7 +195,6 @@ const DesignationMaster = () => {
 
     return (
         <>
-            <div className="container">
                 <div className="d-flex bg-white p-2 my-2 justify-content-between align-items-center">
                     <span><i className="ri-file-list-line me-2 text-dark fs-16"></i><span className='fw-bold text-dark fs-15'>Department List</span></span>
                     <div className="d-flex justify-content-end  ">
@@ -257,7 +257,12 @@ const DesignationMaster = () => {
                                             <i className="ri-loop-left-line"></i>
                                         </Button>
                                         &nbsp;
-                                        <Button type="submit" variant="primary" onClick={handleSearch}>
+                                        <Button type="submit" variant="primary"
+                                            onClick={() => {
+                                                handleSearch();
+                                                setCurrentPage(1);
+                                            }}
+                                        >
                                             Search
                                         </Button>
                                     </ButtonGroup>
@@ -376,7 +381,6 @@ const DesignationMaster = () => {
                 </div>
 
 
-            </div >
         </>
     );
 };

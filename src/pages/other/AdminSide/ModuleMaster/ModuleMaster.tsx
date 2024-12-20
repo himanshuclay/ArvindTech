@@ -61,10 +61,17 @@ const ModuleMaster = () => {
 
 
 
+    useEffect(() => {
+        if (moduleDisplayName || searchStatus) {
+            handleSearch();
+        } else {
+            fetchModules();
+        }
+    }, [currentPage]);
 
 
-    const handleSearch = (e: any) => {
-        e.preventDefault();
+    const handleSearch = (e?: React.FormEvent) => {
+        if (e) e.preventDefault();
         let query = `?`;
         if (moduleDisplayName) query += `ModuleDisplayName=${moduleDisplayName}&`;
         if (searchStatus) query += `status=${searchStatus}&`;
@@ -72,8 +79,10 @@ const ModuleMaster = () => {
         query = query.endsWith('&') ? query.slice(0, -1) : query;
 
         const apiUrl = `${config.API_URL_APPLICATION}/ModuleMaster/SearchModuleList${query}`;
+        console.log(apiUrl)
         axios.get(apiUrl, { headers: { 'accept': '*/*' } })
             .then((response) => {
+                console.log(response.data.moduleMasterListResponses)
                 setModules(response.data.moduleMasterListResponses)
                 setTotalPages(Math.ceil(response.data.totalCount / 10));
             })
@@ -108,9 +117,7 @@ const ModuleMaster = () => {
 
 
 
-    useEffect(() => {
-        fetchModules();
-    }, [currentPage]);
+
 
     const fetchModules = async () => {
         setLoading(true);
@@ -158,6 +165,7 @@ const ModuleMaster = () => {
     const handleClear = () => {
         setModuleDisplayName('');
         setSearchStatus('');
+        setCurrentPage(1);
         fetchModules();
     };
 
@@ -244,7 +252,11 @@ const ModuleMaster = () => {
                         ) : (
                             <>
                                 <div className='bg-white p-2 pb-2'>
-                                    <Form onSubmit={handleSearch}>
+                                    <Form onSubmit={(e) => {
+                                        e.preventDefault();
+                                        handleSearch();
+                                        setCurrentPage(1);
+                                    }}>
                                         <Row>
                                             <Col lg={4}>
                                                 <Form.Group controlId="ModuleDisplayName">
@@ -276,7 +288,7 @@ const ModuleMaster = () => {
                                                     />
                                                 </Form.Group>
                                             </Col>
-                                            <Col lg={4} className='align-items-end d-flex justify-content-end'>
+                                            <Col lg={4} className='align-items-end d-flex justify-content-end mt-3'>
 
                                                 <ButtonGroup aria-label="Basic example" className='w-100'>
                                                     <Button type="button" variant="primary" onClick={handleClear}>
@@ -354,9 +366,9 @@ const ModuleMaster = () => {
                                                                                     (col.id === 'status' && item[col.id] === "Disabled") ? 'task4' :
                                                                                         (col.id === 'misExempt' && item[col.id] === 'Active') ? 'task1' :
                                                                                             (col.id === 'misExempt' && item[col.id] === 'Inactive') ? 'task4' :
-                                                                                        (col.id === 'misExempt' && item[col.id] === 'Yes') ? 'task1' :
-                                                                                            (col.id === 'misExempt' && item[col.id] === 'No') ? 'task4' :
-                                                                                                ''
+                                                                                                (col.id === 'misExempt' && item[col.id] === 'Yes') ? 'task1' :
+                                                                                                    (col.id === 'misExempt' && item[col.id] === 'No') ? 'task4' :
+                                                                                                        ''
                                                                     }
                                                                 >
                                                                     <div>

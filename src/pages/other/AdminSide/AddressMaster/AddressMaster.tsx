@@ -43,7 +43,7 @@ const AddressMaster = () => {
     const [totalPages, setTotalPages] = useState(1);
     const [stateList, setStateList] = useState<StateList[]>([]);
     const [downloadCsv, setDownloadCsv] = useState<Addresses[]>([]);
-
+    const [searchStatus, setSearchStatus] = useState('');
 
     const location = useLocation();
     const navigate = useNavigate();
@@ -78,9 +78,6 @@ const AddressMaster = () => {
     };
     // ==============================================================
 
-    useEffect(() => {
-        fetchStaffRequirements();
-    }, [currentPage]);
 
 
     useEffect(() => {
@@ -96,14 +93,13 @@ const AddressMaster = () => {
     const [searchPinCode, setSearchPinCode] = useState('');
     const [searchState, setSearchState] = useState('');
 
-
-
     const handleSearch = (e?: React.FormEvent) => {
         if (e) e.preventDefault();
 
         let query = `?`;
         if (searchPinCode) query += `PinCode=${searchPinCode}&`;
         if (searchState) query += `State=${searchState}&`;
+        if (searchStatus) query += `Status=${searchStatus}&`;
         query += `PageIndex=${currentPage}`;
 
 
@@ -169,6 +165,7 @@ const AddressMaster = () => {
     const handleClear = () => {
         fetchStaffRequirements();
         setSearchState('');
+        setCurrentPage(1);
         setSearchPinCode('');
     };
 
@@ -206,11 +203,14 @@ const AddressMaster = () => {
         }
     };
 
+    const optionsStatus = [
+        { value: 'Enabled', label: 'Enabled' },
+        { value: 'Disabled', label: 'Disabled' }
+    ];
 
 
     return (
         <>
-            <div className="container">
                 <div className="d-flex bg-white p-2 my-2 justify-content-between align-items-center">
                     <span><i className="ri-file-list-line me-2 text-dark fs-16"></i><span className='fw-bold text-dark fs-15'>Address List</span></span>
                     <div className="d-flex justify-content-end  ">
@@ -247,6 +247,7 @@ const AddressMaster = () => {
                                             value={searchPinCode}
                                             onChange={(e) => setSearchPinCode(e.target.value)}
                                             required
+                                            maxLength={6}
                                             placeholder='Enter Pincode'
                                         />
                                     </Form.Group>
@@ -267,17 +268,38 @@ const AddressMaster = () => {
                                         />
                                     </Form.Group>
                                 </Col>
+                                <Col lg={4} className="">
+                                    <Form.Group controlId="searchStatus">
+                                        <Form.Label>Status</Form.Label>
+                                        <Select
+                                            name="searchStatus"
+                                            options={optionsStatus}
+                                            value={optionsStatus.find(option => option.value === searchStatus) || null}
+                                            onChange={(selectedOption) => setSearchStatus(selectedOption?.value || '')}
+                                            placeholder="Select Status"
+                                        />
+                                    </Form.Group>
+                                </Col>
+<Col></Col>
                                 <Col lg={4} className="align-items-end d-flex justify-content-end mt-2">
                                     <ButtonGroup aria-label="Basic example" className="w-100">
                                         <Button type="button" variant="primary" onClick={handleClear}>
                                             <i className="ri-loop-left-line"></i>
                                         </Button>
                                         &nbsp;
-                                        <Button type="submit" variant="primary" onClick={handleSearch}>
+                                        <Button
+                                            type="submit"
+                                            variant="primary"
+                                            onClick={() => {
+                                                setCurrentPage(1);
+                                                handleSearch();
+                                            }}
+                                        >
                                             Search
                                         </Button>
                                     </ButtonGroup>
                                 </Col>
+
                             </Row>
 
 
@@ -394,7 +416,6 @@ const AddressMaster = () => {
                 </div>
 
 
-            </div >
         </>
     );
 };
