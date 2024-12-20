@@ -249,6 +249,22 @@ const MessMaster = () => {
                 ) : (<>
                     <div className='bg-white p-2 pb-2'>
                         <Row>
+                        <Col lg={4} className=''>
+                                <Form.Group controlId="searchProjectName">
+                                    <Form.Label>Project Name</Form.Label>
+                                    <Select
+                                        name="searchProjectName"
+                                        value={projectList.find(item => item.projectName === searchProjectName) || null} // handle null
+                                        onChange={(selectedOption) => setSearchProjectName(selectedOption ? selectedOption.projectName : "")} // null check
+                                        options={projectList}
+                                        getOptionLabel={(item) => item.projectName}
+                                        getOptionValue={(item) => item.projectName}
+                                        isSearchable={true}
+                                        placeholder="Select Project Name "
+                                        className="h45"
+                                    />
+                                </Form.Group>
+                            </Col>
                             <Col lg={4}>
                                 <Form.Group controlId="searchMessName">
                                     <Form.Label>Mess Name</Form.Label>
@@ -266,22 +282,7 @@ const MessMaster = () => {
                                     />
                                 </Form.Group>
                             </Col>
-                            <Col lg={4} className=''>
-                                <Form.Group controlId="searchProjectName">
-                                    <Form.Label>Project Name</Form.Label>
-                                    <Select
-                                        name="searchProjectName"
-                                        value={projectList.find(item => item.projectName === searchProjectName) || null} // handle null
-                                        onChange={(selectedOption) => setSearchProjectName(selectedOption ? selectedOption.projectName : "")} // null check
-                                        options={projectList}
-                                        getOptionLabel={(item) => item.projectName}
-                                        getOptionValue={(item) => item.projectName}
-                                        isSearchable={true}
-                                        placeholder="Select Project Name "
-                                        className="h45"
-                                    />
-                                </Form.Group>
-                            </Col>
+                         
 
                             <Col lg={4}>
                                 <Form.Group controlId="searchStatus">

@@ -55,8 +55,8 @@ interface Employee {
     excelDojValue: string;
     excelDolValue: string;
     isRegistered: string;
-    daL_Module: string[];
-    daL_Project: string[];
+    daL_Module: string | string[];
+    daL_Project: string | string[];
     registrationDate: string;
     createdBy: string;
     updatedBy: string;
@@ -97,7 +97,7 @@ const EmployeeMasterInsert = () => {
     const [projectList, setProjectList] = useState<ModuleProjectList[]>([])
     const [moduleList, setModuleList] = useState<ModuleProjectList[]>([])
     const [departmentList, setDepartmentList] = useState<Department[]>([]);
-    
+
     const [employee, setEmployee] = useState<Employee>({
         id: 0,
         empID: '',
@@ -842,10 +842,12 @@ const EmployeeMasterInsert = () => {
                             <Col lg={6}>
                                 <Form.Group controlId="daL_Module" className="mb-3">
                                     <Form.Label> DAL Module {(employee.dataAccessLevel === 'Module' || employee.dataAccessLevel === 'ProjectModule') ? '*' : null} </Form.Label>
-
                                     <Select
                                         name="daL_Module"
-                                        value={moduleList.filter(emp => employee.daL_Module.includes(emp.moduleName)
+                                        value={moduleList.filter((emp) =>
+                                            Array.isArray(employee.daL_Module)
+                                                ? employee.daL_Module.includes(emp.moduleName) // When it's an array
+                                                : employee.daL_Module.split(',').includes(emp.moduleName) // When it's a string
                                         )}
                                         onChange={(selectedOptions) => {
                                             const daL_Module = (selectedOptions || []).map(option => option.moduleName);
@@ -861,7 +863,6 @@ const EmployeeMasterInsert = () => {
                                         isMulti={true}
                                         required={employee.dataAccessLevel === 'Module' || employee.dataAccessLevel === 'ProjectModule'}
                                         isDisabled={employee.dataAccessLevel !== 'Module' && employee.dataAccessLevel !== 'ProjectModule'}
-
                                         placeholder="Select Module"
                                     />
                                 </Form.Group>
@@ -873,7 +874,10 @@ const EmployeeMasterInsert = () => {
 
                                     <Select
                                         name="daL_Project"
-                                        value={projectList.filter(emp => employee.daL_Project.includes(emp.projectName)
+                                        value={projectList.filter((emp) =>
+                                            Array.isArray(employee.daL_Project)
+                                                ? employee.daL_Project.includes(emp.projectName) // When it's an array
+                                                : employee.daL_Project.split(',').includes(emp.projectName) // When it's a string
                                         )}
                                         onChange={(selectedOptions) => {
                                             const daL_Project = (selectedOptions || []).map(option => option.projectName);

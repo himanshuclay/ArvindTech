@@ -282,6 +282,7 @@ const EmployeeInsert = () => {
                                         onChange={handleChange}
                                         required
                                         placeholder='Enter Mess Id'
+                                        disabled={editMode}
                                     />
                                 </Form.Group>
                             </Col>

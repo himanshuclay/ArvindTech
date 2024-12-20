@@ -53,6 +53,11 @@ const ProcessCanvas: React.FC<ProcessCanvasProps> = ({ show, setShow, manageId }
         updatedBy: empName || '',
     });
 
+    const [process, setProcess] = useState({
+        source: '',
+
+    });
+
     useEffect(() => {
         const storedEmpName = localStorage.getItem('EmpName');
         if (storedEmpName) {
@@ -64,6 +69,7 @@ const ProcessCanvas: React.FC<ProcessCanvasProps> = ({ show, setShow, manageId }
         const fetchData = async () => {
             if (manageId) {
                 await fetchModuleById(manageId);
+                await fetchProcessByid(manageId);
             }
         };
         fetchData();
@@ -79,9 +85,6 @@ const ProcessCanvas: React.FC<ProcessCanvasProps> = ({ show, setShow, manageId }
     }, [show, moduleName, processId]);
 
 
-
-
-    console.log(assignedProject)
 
     useEffect(() => {
         const fetchData = async (endpoint: string, setter: Function, listName: string) => {
@@ -100,6 +103,24 @@ const ProcessCanvas: React.FC<ProcessCanvasProps> = ({ show, setShow, manageId }
         fetchData('CommonDropdown/GetSubProjectList', setSubProjectList, 'subProjectLists');
     }, []);
 
+
+
+
+    const fetchProcessByid = async (id: string) => {
+        try {
+            const response = await axios.get(`${config.API_URL_APPLICATION}/ProcessMaster/GetProcess`, {
+                params: { id: id }
+            });
+            if (response.data.isSuccess) {
+                const fetchedModule = response.data.processMasterList[0];
+                setProcess(fetchedModule);
+            } else {
+                console.error(response.data.message);
+            }
+        } catch (error) {
+            console.error('Error fetching module:', error);
+        }
+    };
 
     const fetchModuleById = async (id: string) => {
         try {
@@ -158,23 +179,36 @@ const ProcessCanvas: React.FC<ProcessCanvasProps> = ({ show, setShow, manageId }
         });
     };
 
-    console.log(activeButton)
+
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+
+        const filteredData = assignedProject.map(item => ({
+            projectID: item.projectID,
+            projectName: item.projectName
+        }));
         const payload = {
             ...assignProject,
             type: activeButton,
 
         };
-        e.preventDefault();
-        console.log(payload)
+
+        const payloadUpdate = {
+            ...process,
+            source: JSON.stringify(filteredData)
+        };
         try {
             const apiUrl = `${config.API_URL_APPLICATION}/AssignProjecttoProcess/AssignProjecttoProcess`;
             const response = await axios.post(apiUrl, payload);
 
             if (response.data.isSuccess) {
                 setAssignProject(prev => ({ ...prev, projects: [] }));
-                fetchGetProject(moduleName, processId);
+                await fetchGetProject(moduleName, processId);
+                await axios.post(
+                    `${config.API_URL_APPLICATION}/ProcessMaster/UpdateProcess`,
+                    payloadUpdate
+                );
                 toast.dismiss()
                 toast.success("Project assigned successfully!");
 
@@ -190,23 +224,40 @@ const ProcessCanvas: React.FC<ProcessCanvasProps> = ({ show, setShow, manageId }
     };
 
 
+
+
     const handleDelete = async (id: any) => {
+
+        const filteredData = assignedProject.map(item => ({
+            projectID: item.projectID,
+            projectName: item.projectName
+        }));
+        const payloadUpdate = {
+            source: JSON.stringify(filteredData)
+        };
         try {
             await axios.delete(
                 `${config.API_URL_APPLICATION}/AssignProjecttoProcess/DeleteProjectAssigntoProcess`,
-                {
-                    params: { id: id, ModuleName: moduleName, ProcessID: processId, },
-                }
+                { params: { id, ModuleName: moduleName, ProcessID: processId }, }
             );
-            fetchGetProject(moduleName, processId);
-            toast.dismiss()
-            toast.warn("Project deleted successfully!")
+            await fetchGetProject(moduleName, processId);
+            await axios.post(
+                `${config.API_URL_APPLICATION}/ProcessMaster/UpdateProcess`,
+                payloadUpdate
+            );
+
+            toast.dismiss();
+            toast.warn("Project deleted successfully!");
         } catch (error: any) {
-            toast.error(error)
+            const errorMessage = error.response?.data?.message || error.message || "An error occurred.";
+            toast.error(errorMessage);
             console.error("Error deleting project assignment:", error);
         }
     };
 
+
+
+    console.log(assignedProject)
 
     return (
         <div>
@@ -232,14 +283,12 @@ const ProcessCanvas: React.FC<ProcessCanvasProps> = ({ show, setShow, manageId }
                             <Button type="button"
                                 variant={activeButton === 'project' ? 'primary' : 'outline-primary'}
                                 onClick={() => handleButtonClick('project')}
-                                disabled={assignProject.type === "subProject"}
                             >
                                 Project
                             </Button>
                             <Button type="button"
                                 variant={activeButton === 'subProject' ? 'primary' : 'outline-primary'}
                                 onClick={() => handleButtonClick('subProject')}
-                                disabled={assignProject.type === "project"}
                             >Sub Project</Button>
                         </ButtonGroup>
                     </Col>
@@ -304,7 +353,7 @@ const ProcessCanvas: React.FC<ProcessCanvasProps> = ({ show, setShow, manageId }
                                             getOptionValue={(subProject) => subProject.id}
                                             options={subProjectList}
                                             isSearchable={true}
-                                            isMulti={true} // Sub-projects are always multi-select
+                                            isMulti={true}
                                             placeholder="Select Sub Projects"
                                             required
                                         />

@@ -90,7 +90,7 @@ const ProjectMaster = () => {
     const [searchProjectCoordinator, setSearchProjectCoordinator] = useState('');
     const [searchProjectName, setSearchProjectName] = useState('');
     const [searchAppAccess, setSearchAppAccess] = useState('');
-    const [searchCompletionStatus, setSearchCompletionStatus] = useState<number>();
+    const [searchCompletionStatus, setSearchCompletionStatus] = useState<any>();
     const [downloadCsv, setDownloadCsv] = useState<Project[]>([]);
 
 
@@ -128,6 +128,7 @@ const ProjectMaster = () => {
     // ==============================================================
 
     const handleClear = () => {
+        setCurrentPage(1);
         setSearchProjectInchage('')
         setSearchProjectCoordinator('')
         setSearchProjectName('')
@@ -326,285 +327,291 @@ const ProjectMaster = () => {
 
     return (
         <>
-                <div className="d-flex bg-white p-2 my-2 justify-content-between align-items-center">
-                    <span><i className="ri-file-list-line me-2 text-dark fs-16"></i><span className='fw-bold text-dark fs-15'>Project List</span></span>
-                    <div className="d-flex justify-content-end  ">
-                        <Button variant="primary" onClick={downloadCSV} className="me-2">
-                            Download CSV
+            <div className="d-flex bg-white p-2 my-2 justify-content-between align-items-center">
+                <span><i className="ri-file-list-line me-2 text-dark fs-16"></i><span className='fw-bold text-dark fs-15'>Project List</span></span>
+                <div className="d-flex justify-content-end  ">
+                    <Button variant="primary" onClick={downloadCSV} className="me-2">
+                        Download CSV
+                    </Button>
+                    <Link to='/pages/ProjectMasterinsert'>
+                        <Button variant="primary" className="me-2">
+                            Add Project
                         </Button>
-                        <Link to='/pages/ProjectMasterinsert'>
-                            <Button variant="primary" className="me-2">
-                                Add Project
-                            </Button>
-                        </Link>
-                        <Link to='/pages/ProjectSubmasterinsert'>
-                            <Button variant="primary" className="me-2">
-                                Add Sub Project
-                            </Button>
-                        </Link>
+                    </Link>
+                    <Link to='/pages/ProjectSubmasterinsert'>
+                        <Button variant="primary" className="me-2">
+                            Add Sub Project
+                        </Button>
+                    </Link>
 
-                    </div>
                 </div>
+            </div>
 
 
-                {loading ? (
-                    <div className='loader-container'>
-                        <div className="loader"></div>
-                        <div className='mt-2'>Please Wait!</div>
-                    </div>
-                ) : (
-                    <>
-                        <div className='bg-white p-2 pb-2'>
-                            <Form onSubmit={handleSearch}>
-                                <Row>
+            {loading ? (
+                <div className='loader-container'>
+                    <div className="loader"></div>
+                    <div className='mt-2'>Please Wait!</div>
+                </div>
+            ) : (
+                <>
+                    <div className='bg-white p-2 pb-2'>
+                        <Form
+                            onSubmit={(e) => {
+                                e.preventDefault();
+                                setCurrentPage(1);
+                                handleSearch();
+                            }}
+                        >
+                            <Row>
 
-                                    <Col lg={4} className="">
-                                        <Form.Group controlId="searchProjectName">
-                                            <Form.Label>Project Name</Form.Label>
-                                            <Select
-                                                name="searchProjectName"
-                                                value={projectList.find(item => item.projectName === searchProjectName) || null} // handle null
-                                                onChange={(selectedOption) => setSearchProjectName(selectedOption ? selectedOption.projectName : "")} // null check
-                                                options={projectList}
-                                                getOptionLabel={(item) => item.projectName}
-                                                getOptionValue={(item) => item.projectName}
-                                                isSearchable={true}
-                                                placeholder="Select Project Name"
-                                                className="h45"
-                                            />
-                                        </Form.Group>
-                                    </Col>
+                                <Col lg={4} className="">
+                                    <Form.Group controlId="searchProjectName">
+                                        <Form.Label>Project Name</Form.Label>
+                                        <Select
+                                            name="searchProjectName"
+                                            value={projectList.find(item => item.projectName === searchProjectName) || null} // handle null
+                                            onChange={(selectedOption) => setSearchProjectName(selectedOption ? selectedOption.projectName : "")} // null check
+                                            options={projectList}
+                                            getOptionLabel={(item) => item.projectName}
+                                            getOptionValue={(item) => item.projectName}
+                                            isSearchable={true}
+                                            placeholder="Select Project Name"
+                                            className="h45"
+                                        />
+                                    </Form.Group>
+                                </Col>
 
-                                    <Col lg={4}>
-                                        <Form.Group controlId="searchProjectIncharge">
-                                            <Form.Label>Project Incharge</Form.Label>
-                                            <Select
-                                                name="searchProjectIncharge"
-                                                value={employeeList.find(emp => emp.empId === searchProjectInchage) || null} // handle null
-                                                onChange={(selectedOption) => setSearchProjectInchage(selectedOption ? selectedOption.empId : "")} // null check
-                                                options={employeeList}
-                                                getOptionLabel={(emp) => emp.employeeName}
-                                                getOptionValue={(emp) => emp.empId}
-                                                isSearchable={true}
-                                                placeholder="Select Employee"
-                                                className="h45"
-                                            />
-                                        </Form.Group>
-                                    </Col>
-                                    <Col lg={4} className="">
-                                        <Form.Group controlId="searchProjectCoordinator">
-                                            <Form.Label>Project Coordinator</Form.Label>
-                                            <Select
-                                                name="searchProjectCoordinator"
-                                                value={employeeList.find(emp => emp.empId === searchProjectCoordinator) || null} // handle null
-                                                onChange={(selectedOption) => setSearchProjectCoordinator(selectedOption ? selectedOption.empId : "")} // null check
-                                                options={employeeList}
-                                                getOptionLabel={(emp) => emp.employeeName}
-                                                getOptionValue={(emp) => emp.empId}
-                                                isSearchable={true}
-                                                placeholder="Select Employee "
-                                                className="h45"
-                                            />
-                                        </Form.Group>
-                                    </Col>
+                                <Col lg={4}>
+                                    <Form.Group controlId="searchProjectIncharge">
+                                        <Form.Label>Project Incharge</Form.Label>
+                                        <Select
+                                            name="searchProjectIncharge"
+                                            value={employeeList.find(emp => emp.empId === searchProjectInchage) || null} // handle null
+                                            onChange={(selectedOption) => setSearchProjectInchage(selectedOption ? selectedOption.empId : "")} // null check
+                                            options={employeeList}
+                                            getOptionLabel={(emp) => emp.employeeName}
+                                            getOptionValue={(emp) => emp.empId}
+                                            isSearchable={true}
+                                            placeholder="Select Employee"
+                                            className="h45"
+                                        />
+                                    </Form.Group>
+                                </Col>
+                                <Col lg={4} className="">
+                                    <Form.Group controlId="searchProjectCoordinator">
+                                        <Form.Label>Project Coordinator</Form.Label>
+                                        <Select
+                                            name="searchProjectCoordinator"
+                                            value={employeeList.find(emp => emp.empId === searchProjectCoordinator) || null} // handle null
+                                            onChange={(selectedOption) => setSearchProjectCoordinator(selectedOption ? selectedOption.empId : "")} // null check
+                                            options={employeeList}
+                                            getOptionLabel={(emp) => emp.employeeName}
+                                            getOptionValue={(emp) => emp.empId}
+                                            isSearchable={true}
+                                            placeholder="Select Employee "
+                                            className="h45"
+                                        />
+                                    </Form.Group>
+                                </Col>
 
-                                    <Col lg={4} className="mt-2">
-                                        <Form.Group controlId="searchCompletionStatus">
-                                            <Form.Label>Completion Status</Form.Label>
-                                            <Select
-                                                name="searchCompletionStatus"
-                                                value={completionStatus.find(task => task.name === searchCompletionStatus)}
-                                                onChange={(selectedOption) => setSearchCompletionStatus(selectedOption ? selectedOption.name : '')}
-                                                options={completionStatus}
-                                                getOptionLabel={(task) => task.name}
-                                                getOptionValue={(task) => task.name}
-                                                isSearchable={true}
-                                                placeholder="Select Completion Status"
-                                                className="h45"
-                                            />
-                                        </Form.Group>
-                                    </Col>
-                                    <Col lg={4} className="mt-2">
-                                        <Form.Group controlId="searchAppAccess">
-                                            <Form.Label>Project Status</Form.Label>
-                                            <Select
-                                                name="searchAppAccess"
-                                                options={optionsAppAccess}
-                                                value={optionsAppAccess.find(option => option.value === searchAppAccess) || null}
-                                                onChange={(selectedOption) => setSearchAppAccess(selectedOption?.value || '')}
-                                                placeholder="Select Project Status"
-                                            />
-                                        </Form.Group>
-                                    </Col>
+                                <Col lg={4} className="mt-2">
+                                    <Form.Group controlId="searchCompletionStatus">
+                                        <Form.Label>Completion Status</Form.Label>
+                                        <Select
+                                            name="searchCompletionStatus"
+                                            value={completionStatus.find(task => task.id === searchCompletionStatus || null)}
+                                            onChange={(selectedOption) => setSearchCompletionStatus(selectedOption ? selectedOption.id : 0)}
+                                            options={completionStatus}
+                                            getOptionLabel={(task) => task.name}
+                                            getOptionValue={(task) => String(task.id)}
+                                            isSearchable={true}
+                                            placeholder="Select Completion Status"
+                                            className="h45"
+                                        />
+                                    </Form.Group>
+                                </Col>
+                                <Col lg={4} className="mt-2">
+                                    <Form.Group controlId="searchAppAccess">
+                                        <Form.Label>Project Status</Form.Label>
+                                        <Select
+                                            name="searchAppAccess"
+                                            options={optionsAppAccess}
+                                            value={optionsAppAccess.find(option => option.value === searchAppAccess) || null}
+                                            onChange={(selectedOption) => setSearchAppAccess(selectedOption?.value || '')}
+                                            placeholder="Select Project Status"
+                                        />
+                                    </Form.Group>
+                                </Col>
 
-                                    <Col lg={4} className="align-items-end d-flex justify-content-end mt-2">
-                                        <ButtonGroup aria-label="Basic example" className="w-100">
-                                            <Button type="button" variant="primary" onClick={handleClear}>
-                                                <i className="ri-loop-left-line"></i>
-                                            </Button>
-                                            &nbsp;
-                                            <Button type="submit" variant="primary">
-                                                Search
-                                            </Button>
-                                        </ButtonGroup>
-                                    </Col>
-                                </Row>
-                            </Form>
+                                <Col lg={4} className="align-items-end d-flex justify-content-end mt-2">
+                                    <ButtonGroup aria-label="Basic example" className="w-100">
+                                        <Button type="button" variant="primary" onClick={handleClear}>
+                                            <i className="ri-loop-left-line"></i>
+                                        </Button>
+                                        &nbsp;
+                                        <Button type="submit" variant="primary">
+                                            Search
+                                        </Button>
+                                    </ButtonGroup>
+                                </Col>
+                            </Row>
+                        </Form>
 
-                            <Row className='mt-3'>
-                                <div className="d-flex justify-content-end bg-light p-1">
-                                    <div className="app-search d-none d-lg-block me-4">
-
-                                    </div>
+                        <Row className='mt-3'>
+                            <div className="d-flex justify-content-end bg-light p-1">
+                                <div className="app-search d-none d-lg-block me-4">
 
                                 </div>
-                            </Row>
-                        </div>
-                        <div className="overflow-auto text-nowrap ">
-                            {!project ? (
-                                <Container className="mt-5">
-                                    <Row className="justify-content-center">
-                                        <Col xs={12} md={8} lg={6}>
-                                            <Alert variant="info" className="text-center">
-                                                <h4>No Data Found</h4>
-                                                <p>You currently don't have any Data</p>
-                                            </Alert>
-                                        </Col>
-                                    </Row>
-                                </Container>
-                            ) : (
-                                <DragDropContext onDragEnd={handleOnDragEnd}>
-                                    <Table hover className='bg-white'>
-                                        <thead>
-                                            <Droppable droppableId="columns" direction="horizontal">
-                                                {(provided) => (
-                                                    <tr {...provided.droppableProps} ref={provided.innerRef as React.Ref<HTMLTableRowElement>}>
-                                                        <th><i className="ri-list-ordered-2"></i>  Sr. No</th>
-                                                        {columns.filter(col => col.visible).map((column, index) => (
-                                                            <Draggable key={column.id} draggableId={column.id} index={index}>
-                                                                {(provided) => (
-                                                                    <th>
-                                                                        <div ref={provided.innerRef}
-                                                                            {...provided.draggableProps}
-                                                                            {...provided.dragHandleProps}>
-                                                                            {column.id === 'projectName' && (<i className="ri-file-list-line"></i>)}
-                                                                            {column.id === 'projectID' && (<i className="ri-barcode-box-line"></i>)}
-                                                                            {column.id === 'stateName' && (<i className="ri-map-pin-line"></i>)}
-                                                                            {column.id === 'projectTypeName' && (<i className="ri-treasure-map-line"></i>)}
-                                                                            {column.id === 'managementContractName' && (<i className="ri-briefcase-line"></i>)}
-                                                                            {column.id === 'projectInchargeName' && (<i className="ri-user-settings-line"></i>)}
-                                                                            {column.id === 'projectCoordinatorName' && (<i className="ri-group-line"></i>)}
-                                                                            {column.id === 'completionStatusName' && (<i className="ri-check-line"></i>)}
-                                                                            {column.id === 'status' && (<i className="ri-check-line"></i>)}
-                                                                            {column.id === 'nameOfWork' && (<i className="ri-pencil-ruler-2-line"></i>)}
+
+                            </div>
+                        </Row>
+                    </div>
+                    <div className="overflow-auto text-nowrap ">
+                        {!project ? (
+                            <Container className="mt-5">
+                                <Row className="justify-content-center">
+                                    <Col xs={12} md={8} lg={6}>
+                                        <Alert variant="info" className="text-center">
+                                            <h4>No Data Found</h4>
+                                            <p>You currently don't have any Data</p>
+                                        </Alert>
+                                    </Col>
+                                </Row>
+                            </Container>
+                        ) : (
+                            <DragDropContext onDragEnd={handleOnDragEnd}>
+                                <Table hover className='bg-white'>
+                                    <thead>
+                                        <Droppable droppableId="columns" direction="horizontal">
+                                            {(provided) => (
+                                                <tr {...provided.droppableProps} ref={provided.innerRef as React.Ref<HTMLTableRowElement>}>
+                                                    <th><i className="ri-list-ordered-2"></i>  Sr. No</th>
+                                                    {columns.filter(col => col.visible).map((column, index) => (
+                                                        <Draggable key={column.id} draggableId={column.id} index={index}>
+                                                            {(provided) => (
+                                                                <th>
+                                                                    <div ref={provided.innerRef}
+                                                                        {...provided.draggableProps}
+                                                                        {...provided.dragHandleProps}>
+                                                                        {column.id === 'projectName' && (<i className="ri-file-list-line"></i>)}
+                                                                        {column.id === 'projectID' && (<i className="ri-barcode-box-line"></i>)}
+                                                                        {column.id === 'stateName' && (<i className="ri-map-pin-line"></i>)}
+                                                                        {column.id === 'projectTypeName' && (<i className="ri-treasure-map-line"></i>)}
+                                                                        {column.id === 'managementContractName' && (<i className="ri-briefcase-line"></i>)}
+                                                                        {column.id === 'projectInchargeName' && (<i className="ri-user-settings-line"></i>)}
+                                                                        {column.id === 'projectCoordinatorName' && (<i className="ri-group-line"></i>)}
+                                                                        {column.id === 'completionStatusName' && (<i className="ri-check-line"></i>)}
+                                                                        {column.id === 'status' && (<i className="ri-check-line"></i>)}
+                                                                        {column.id === 'nameOfWork' && (<i className="ri-pencil-ruler-2-line"></i>)}
 
 
-                                                                            &nbsp; {column.label}
-                                                                        </div>
-                                                                    </th>
-                                                                )}
-                                                            </Draggable>
-                                                        ))}
-                                                        {provided.placeholder}
-                                                        <th>Sub Project</th>
-                                                        <th>Action</th>
-                                                    </tr>
-                                                )}
-                                            </Droppable>
-                                        </thead>
-                                        <tbody>
-                                            {project.length > 0 ? (
-                                                project.slice(0, 10).map((item, index) => (
-                                                    <tr key={item.id}>
-                                                        <td>{(currentPage - 1) * 10 + index + 1}</td>
-                                                        {columns.filter(col => col.visible).map((col) => (
-                                                            <td key={col.id}
-                                                                className={
-                                                                    (col.id === 'status' && item[col.id] === "Enabled") ? 'task1' :
-                                                                        (col.id === 'status' && item[col.id] === "Disabled") ? 'task4' :
-                                                                            ''
-                                                                }
-                                                            >
-                                                                <div>
-
-                                                                    {col.id === 'projectInchargeName' ? (
-                                                                        <td>
-                                                                            <div className='d-flex align-items-center'>
-                                                                                {item.projectInchargeName}
-                                                                            </div>
-                                                                            {item.projectInchargeMobileNumber ?
-                                                                                <p className='fw-normal m-0'><a href={`tel:${item.projectInchargeMobileNumber}`}>
-                                                                                    <i className="ri-phone-fill"></i> {item.projectInchargeMobileNumber}</a></p> : ""
-                                                                            }
-                                                                        </td>
-                                                                    ) : col.id === 'projectCoordinatorName' ? (
-
-
-                                                                        <td>
-                                                                            <div className='d-flex align-items-center'>
-                                                                                {item.projectCoordinatorName}
-                                                                            </div>
-                                                                            {item.projectCoordinatorMobileNumber ?
-                                                                                <p className='fw-normal m-0'><a href={`tel:${item.projectCoordinatorMobileNumber}`}>
-                                                                                    <i className="ri-phone-fill"></i> {item.projectCoordinatorMobileNumber}</a></p> : ""
-                                                                            }
-                                                                        </td>
-                                                                    ) : (
-                                                                        <td>{item[col.id as keyof Project]}</td>
-                                                                    )}
-
-                                                                </div>
-                                                            </td>
-
-
-
-                                                        ))}
-                                                        {/* Action Button */}
-                                                        <td><Button variant='primary' className='px-3 text-white' onClick={() => handleViewEdit(item.projectName)}>  <i className="ri-eye-line fs-4"></i></Button></td>
-                                                        <td><Link to={`/pages/ProjectMasterinsert/${item.id}`}>
-                                                            <Button variant='primary' className='p-0 text-white'>
-                                                                <i className='btn ri-edit-line text-white' ></i>
-                                                            </Button>
-                                                        </Link>
-                                                        </td>
-                                                    </tr>
-                                                ))
-                                            ) : (
-                                                <tr>
-                                                    <td colSpan={12}>
-                                                        <Container className="mt-5">
-                                                            <Row className="justify-content-center">
-                                                                <Col xs={12} md={8} lg={6}>
-                                                                    <Alert variant="info" className="text-center">
-                                                                        <h4>No Data Found</h4>
-                                                                        <p>You currently don't have any Data</p>
-                                                                    </Alert>
-                                                                </Col>
-                                                            </Row>
-                                                        </Container>
-                                                    </td>
+                                                                        &nbsp; {column.label}
+                                                                    </div>
+                                                                </th>
+                                                            )}
+                                                        </Draggable>
+                                                    ))}
+                                                    {provided.placeholder}
+                                                    <th>Sub Project</th>
+                                                    <th>Action</th>
                                                 </tr>
                                             )}
-                                        </tbody>
-                                    </Table>
-                                </DragDropContext>
-                            )}
-                        </div>
-                    </>
+                                        </Droppable>
+                                    </thead>
+                                    <tbody>
+                                        {project.length > 0 ? (
+                                            project.slice(0, 10).map((item, index) => (
+                                                <tr key={item.id}>
+                                                    <td>{(currentPage - 1) * 10 + index + 1}</td>
+                                                    {columns.filter(col => col.visible).map((col) => (
+                                                        <td key={col.id}
+                                                            className={
+                                                                (col.id === 'status' && item[col.id] === "Enabled") ? 'task1' :
+                                                                    (col.id === 'status' && item[col.id] === "Disabled") ? 'task4' :
+                                                                        ''
+                                                            }
+                                                        >
+                                                            <div>
 
-                )}
+                                                                {col.id === 'projectInchargeName' ? (
+                                                                    <td>
+                                                                        <div className='d-flex align-items-center'>
+                                                                            {item.projectInchargeName}
+                                                                        </div>
+                                                                        {item.projectInchargeMobileNumber ?
+                                                                            <p className='fw-normal m-0'><a href={`tel:${item.projectInchargeMobileNumber}`}>
+                                                                                <i className="ri-phone-fill"></i> {item.projectInchargeMobileNumber}</a></p> : ""
+                                                                        }
+                                                                    </td>
+                                                                ) : col.id === 'projectCoordinatorName' ? (
 
-                <div className="d-flex justify-content-center align-items-center bg-white w-20 rounded-5 m-auto py-1 pb-1 my-2 pagination-rounded">
-                    <Pagination >
-                        <Pagination.First onClick={() => setCurrentPage(1)} disabled={currentPage === 1} />
-                        <Pagination.Prev onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))} disabled={currentPage === 1} />
-                        <Pagination.Item active>{currentPage}</Pagination.Item>
-                        <Pagination.Next onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))} disabled={currentPage === totalPages} />
-                        <Pagination.Last onClick={() => setCurrentPage(totalPages)} disabled={currentPage === totalPages} />
-                    </Pagination>
-                </div>
 
-                <ProjectViewPopup showView={showView} setShowView={setShowView} projectName={manageId} />
+                                                                    <td>
+                                                                        <div className='d-flex align-items-center'>
+                                                                            {item.projectCoordinatorName}
+                                                                        </div>
+                                                                        {item.projectCoordinatorMobileNumber ?
+                                                                            <p className='fw-normal m-0'><a href={`tel:${item.projectCoordinatorMobileNumber}`}>
+                                                                                <i className="ri-phone-fill"></i> {item.projectCoordinatorMobileNumber}</a></p> : ""
+                                                                        }
+                                                                    </td>
+                                                                ) : (
+                                                                    <td>{item[col.id as keyof Project]}</td>
+                                                                )}
+
+                                                            </div>
+                                                        </td>
+
+
+
+                                                    ))}
+                                                    {/* Action Button */}
+                                                    <td><Button variant='primary' className='px-3 text-white' onClick={() => handleViewEdit(item.projectName)}>  <i className="ri-eye-line fs-4"></i></Button></td>
+                                                    <td><Link to={`/pages/ProjectMasterinsert/${item.id}`}>
+                                                        <Button variant='primary' className='p-0 text-white'>
+                                                            <i className='btn ri-edit-line text-white' ></i>
+                                                        </Button>
+                                                    </Link>
+                                                    </td>
+                                                </tr>
+                                            ))
+                                        ) : (
+                                            <tr>
+                                                <td colSpan={12}>
+                                                    <Container className="mt-5">
+                                                        <Row className="justify-content-center">
+                                                            <Col xs={12} md={8} lg={6}>
+                                                                <Alert variant="info" className="text-center">
+                                                                    <h4>No Data Found</h4>
+                                                                    <p>You currently don't have any Data</p>
+                                                                </Alert>
+                                                            </Col>
+                                                        </Row>
+                                                    </Container>
+                                                </td>
+                                            </tr>
+                                        )}
+                                    </tbody>
+                                </Table>
+                            </DragDropContext>
+                        )}
+                    </div>
+                </>
+
+            )}
+
+            <div className="d-flex justify-content-center align-items-center bg-white w-20 rounded-5 m-auto py-1 pb-1 my-2 pagination-rounded">
+                <Pagination >
+                    <Pagination.First onClick={() => setCurrentPage(1)} disabled={currentPage === 1} />
+                    <Pagination.Prev onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))} disabled={currentPage === 1} />
+                    <Pagination.Item active>{currentPage}</Pagination.Item>
+                    <Pagination.Next onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))} disabled={currentPage === totalPages} />
+                    <Pagination.Last onClick={() => setCurrentPage(totalPages)} disabled={currentPage === totalPages} />
+                </Pagination>
+            </div>
+
+            <ProjectViewPopup showView={showView} setShowView={setShowView} projectName={manageId} />
 
 
         </>
