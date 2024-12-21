@@ -97,6 +97,7 @@ const EmployeeMasterInsert = () => {
     const [projectList, setProjectList] = useState<ModuleProjectList[]>([])
     const [moduleList, setModuleList] = useState<ModuleProjectList[]>([])
     const [departmentList, setDepartmentList] = useState<Department[]>([]);
+    const [validationErrors, setValidationErrors] = useState<{ [key: string]: string }>({});
 
     const [employee, setEmployee] = useState<Employee>({
         id: 0,
@@ -221,7 +222,6 @@ const EmployeeMasterInsert = () => {
                     [`${accountType.toLowerCase()}BranchName`]: fetchedBankDetails.branch
                 }));
             } else {
-                // Handle no bank details found
                 setIfscError((prevState) => ({
                     ...prevState,
                     [accountType.toLowerCase()]: 'Bank details not found for the given IFSC code.'
@@ -334,7 +334,6 @@ const EmployeeMasterInsert = () => {
         }
     };
 
-
     const fetchAreaData = async (pin: string, district: string) => {
         try {
             const response = await axios.get(`${config.API_URL_APPLICATION}/AddressMaster/GetAddressData?PinCode=${pin}&District=${district}`);
@@ -364,11 +363,10 @@ const EmployeeMasterInsert = () => {
         }
     };
 
-
-
     const handleChange = (e: ChangeEvent<any> | null, name?: string, value?: any) => {
         const validateMobileNumber = (fieldName: string, fieldValue: string) => {
             if (!/^\d{0,10}$/.test(fieldValue)) {
+                toast.error("Please verify your mobile number before submitting the form.");
                 return false;
             }
 
@@ -377,17 +375,19 @@ const EmployeeMasterInsert = () => {
                 [fieldName]: fieldValue,
             }));
 
-            if (fieldValue.length === 10) {
-                if (!/^[6-9]/.test(fieldValue)) {
-                    toast.error("Mobile number should start with a digit between 6 and 9.");
-                    setIsMobileVerified(true);
-                    return false;
-                }
-            } else {
-                setIsMobileVerified(false);
+
+
+            if (!/^[6-9]/.test(fieldValue)) {
+                toast.dismiss()
+                toast.error("Mobile number should start with a digit between 6 and 9.");
+                setIsMobileVerified(true);
+                return false;
             }
+
+            setIsMobileVerified(true);
             return true;
         };
+
 
         if (e) {
             const { name: eventName, type } = e.target;
@@ -463,7 +463,6 @@ const EmployeeMasterInsert = () => {
 
     };
 
-
     const handleIfscChange = (e: ChangeEvent<any>, accountType: string) => {
         const { value } = e.target;
         const capitalizedValue = value.charAt(0).toUpperCase() + value.slice(1);
@@ -486,7 +485,6 @@ const EmployeeMasterInsert = () => {
         }
     };
 
-
     const handleBankAccountNumberChange = (e: ChangeEvent<any>, accountType: string) => {
         const { value } = e.target as HTMLInputElement;
 
@@ -499,13 +497,72 @@ const EmployeeMasterInsert = () => {
     };
 
 
+    const validateFields = (): boolean => {
+        const errors: { [key: string]: string } = {};
+
+        console.log('Data Access Level:', employee.dataAccessLevel);
+        // Check required fields based on the Employee interface
+        if (!employee.empID) { errors.empID = 'Employee ID is required'; }
+        if (!employee.employeeName) { errors.employeeName = 'Employee Name is required'; }
+        if (!employee.fatherName) { errors.fatherName = 'Father Name is required'; }
+        if (!employee.dataAccessLevel) { errors.dataAccessLevel = 'Data Access Level is required'; }
+        if (!employee.empStatus) { errors.empStatus = 'Employee Status is required'; }
+        if (!employee.hrUpdatedMobileNo) { errors.hrUpdatedMobileNo = 'Mobile No is required'; }
+        if (!employee.pin) { errors.pin = 'Pin is required'; }
+        if (!employee.address) { errors.address = 'Address is required'; }
+        if (!employee.gender) { errors.gender = 'Gender is required'; }
+        if (!employee.dateOfBirth) { errors.dateOfBirth = 'Date of Birth is required'; }
+        if (!employee.dateOfJoining) { errors.dateOfJoining = 'Date of Joining is required'; }
+        if (!employee.departmentName) { errors.departmentName = 'Department Name is required'; }
+        if (!employee.designation) { errors.designation = 'Designation is required'; }
+        if (!employee.appExempt) { errors.appExempt = 'App Exempt is required'; }
+        if (!employee.isPerformanceReview) { errors.isPerformanceReview = 'Performance Review status is required'; }
+        if (!employee.appAccessLevel) { errors.appAccessLevel = 'App Access Level is required'; }
+        if (!employee.appAccess) { errors.appAccess = 'App Access is required'; }
+        if (employee.salaryBankIfsc && !employee.salaryBankAccountNumber) { errors.salaryBankAccountNumber = 'Salary Bank Account Number is required'; }
+        if (employee.expenseBankIfsc && !employee.expenseBankAccountNumber) { errors.expenseBankAccountNumber = 'Expense Bank Account Number is required'; }
+        if (employee.reimbursementBankIfsc && !employee.reimbursementBankAccountNumber) { errors.reimbursementBankAccountNumber = 'Reimbursement Bank Account Number is required'; }
+
+
+        if (employee.dataAccessLevel === 'ProjectModule') {
+            if (!employee.daL_Module) { errors.daL_Module = 'Module is required'; }
+            if (!employee.daL_Project) { errors.daL_Project = 'Project is required'; }
+        }
+        if (employee.dataAccessLevel === 'Module') {
+            if (!employee.daL_Module) { errors.daL_Module = 'Module is required'; }
+        }
+        if (employee.dataAccessLevel === 'Project') {
+            if (!employee.daL_Project) { errors.daL_Project = 'Project is required'; }
+        }
+
+
+        setValidationErrors(errors);
+        return Object.keys(errors).length === 0;
+    };
+
+
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         toast.dismiss()
+
+
+        if (!validateFields()) {
+            toast.dismiss()
+            toast.error('Please fill in all required fields.');
+            return;
+        }
+        if (employee.hrUpdatedMobileNo.length !== 10) {
+            toast.dismiss()
+            toast.error("Mobile number should be exactly 10 digits long.");
+            setIsMobileVerified(true);
+            return false;
+        }
         if (isMobileVerified) {
+            toast.dismiss()
             toast.error("Please verify your mobile number before submitting the form.");
             return;
         }
+
 
         if (employee.empStatus === 'Former' && !employee.dateOfLeaving) {
             dateOfLeavingRef.current?.flatpickr.open();
@@ -590,10 +647,13 @@ const EmployeeMasterInsert = () => {
                                         name="empID"
                                         value={employee.empID || ''}
                                         onChange={handleChange}
-                                        required
                                         placeholder='Enter Employee ID'
                                         disabled={editMode}
+                                        className={validationErrors.empID ? " input-border" : "  "}
                                     />
+                                    {validationErrors.empID && (
+                                        <small className="text-danger">{validationErrors.empID}</small>
+                                    )}
                                 </Form.Group>
                             </Col>
                             <Col lg={6}>
@@ -604,9 +664,12 @@ const EmployeeMasterInsert = () => {
                                         name="employeeName"
                                         value={employee.employeeName}
                                         onChange={handleChange}
-                                        required
                                         placeholder='Enter Employee Name'
+                                        className={validationErrors.employeeName ? " input-border" : "  "}
                                     />
+                                    {validationErrors.employeeName && (
+                                        <small className="text-danger">{validationErrors.employeeName}</small>
+                                    )}
                                 </Form.Group>
                             </Col>
                             <Col lg={6}>
@@ -626,8 +689,11 @@ const EmployeeMasterInsert = () => {
                                         options={departmentList}
                                         isSearchable={true}
                                         placeholder="Select Department Name"
-                                        required
+                                        className={validationErrors.departmentName ? " input-border" : "  "}
                                     />
+                                    {validationErrors.departmentName && (
+                                        <small className="text-danger">{validationErrors.departmentName}</small>
+                                    )}
                                 </Form.Group>
                             </Col>
                             <Col lg={6}>
@@ -638,9 +704,12 @@ const EmployeeMasterInsert = () => {
                                         name="designation"
                                         value={employee.designation}
                                         onChange={handleChange}
-                                        required
                                         placeholder='Enter Designation Name'
+                                        className={validationErrors.designation ? " input-border" : "  "}
                                     />
+                                    {validationErrors.designation && (
+                                        <small className="text-danger">{validationErrors.designation}</small>
+                                    )}
                                 </Form.Group>
                             </Col>
                             <Col lg={6}>
@@ -651,10 +720,13 @@ const EmployeeMasterInsert = () => {
                                         name="hrUpdatedMobileNo"
                                         value={employee.hrUpdatedMobileNo}
                                         onChange={handleChange}
-                                        required
                                         placeholder='Enter Mobile Number'
 
+                                        className={validationErrors.hrUpdatedMobileNo ? " input-border" : "  "}
                                     />
+                                    {validationErrors.hrUpdatedMobileNo && (
+                                        <small className="text-danger">{validationErrors.hrUpdatedMobileNo}</small>
+                                    )}
                                 </Form.Group>
                             </Col>
                             <Col lg={6}>
@@ -674,8 +746,11 @@ const EmployeeMasterInsert = () => {
                                         options={genderList}
                                         isSearchable={true}
                                         placeholder="Select Gender"
-                                        required
+                                        className={validationErrors.gender ? " input-border" : "  "}
                                     />
+                                    {validationErrors.gender && (
+                                        <small className="text-danger">{validationErrors.gender}</small>
+                                    )}
                                 </Form.Group>
                             </Col>
                             <Col lg={6}>
@@ -686,9 +761,12 @@ const EmployeeMasterInsert = () => {
                                         name="fatherName"
                                         value={employee.fatherName}
                                         onChange={handleChange}
-                                        required
                                         placeholder='Father Name'
+                                        className={validationErrors.fatherName ? " input-border" : "  "}
                                     />
+                                    {validationErrors.fatherName && (
+                                        <small className="text-danger">{validationErrors.fatherName}</small>
+                                    )}
                                 </Form.Group>
                             </Col>
                             <Col lg={6}>
@@ -711,9 +789,11 @@ const EmployeeMasterInsert = () => {
                                             time_24hr: false,
                                         }}
                                         placeholder=" Date of Birth "
-                                        className="form-control"
-                                        required
+                                        className={validationErrors.dateOfBirth ? " input-border form-control" : " form-control "}
                                     />
+                                    {validationErrors.dateOfBirth && (
+                                        <small className="text-danger">{validationErrors.dateOfBirth}</small>
+                                    )}
                                 </Form.Group>
                             </Col>
                             <Col lg={6}>
@@ -736,9 +816,11 @@ const EmployeeMasterInsert = () => {
                                             time_24hr: false,
                                         }}
                                         placeholder=" Date of Joining "
-                                        className="form-control"
-                                        required
+                                        className={validationErrors.dateOfJoining ? " input-border form-control" : " form-control "}
                                     />
+                                    {validationErrors.dateOfJoining && (
+                                        <small className="text-danger">{validationErrors.dateOfJoining}</small>
+                                    )}
                                 </Form.Group>
                             </Col>
                             <Col lg={6}>
@@ -770,8 +852,11 @@ const EmployeeMasterInsert = () => {
                                         value={optionsAppAccess.find(option => option.value === employee.appAccess)}
                                         onChange={selectedOption => handleChange(null, 'appAccess', selectedOption?.value)}
                                         placeholder="Select App Access"
-                                        required
+                                        className={validationErrors.appAccess ? " input-border" : "  "}
                                     />
+                                    {validationErrors.appAccess && (
+                                        <small className="text-danger">{validationErrors.appAccess}</small>
+                                    )}
                                 </Form.Group>
                             </Col>
                             <Col lg={6}>
@@ -783,8 +868,11 @@ const EmployeeMasterInsert = () => {
                                         value={optionsAppExempt.find(option => option.value === employee.appExempt)}
                                         onChange={selectedOption => handleChange(null, 'appExempt', selectedOption?.value)}
                                         placeholder="Select Exempt Status"
-                                        required
+                                        className={validationErrors.appExempt ? " input-border" : "  "}
                                     />
+                                    {validationErrors.appExempt && (
+                                        <small className="text-danger">{validationErrors.appExempt}</small>
+                                    )}
                                 </Form.Group>
                             </Col>
                             <Col lg={6}>
@@ -796,8 +884,11 @@ const EmployeeMasterInsert = () => {
                                         value={optionsAppExempt.find(option => option.value === employee.isPerformanceReview)}
                                         onChange={selectedOption => handleChange(null, 'isPerformanceReview', selectedOption?.value)}
                                         placeholder="Select Performance Review Applicability"
-                                        required
+                                        className={validationErrors.isPerformanceReview ? " input-border" : "  "}
                                     />
+                                    {validationErrors.isPerformanceReview && (
+                                        <small className="text-danger">{validationErrors.isPerformanceReview}</small>
+                                    )}
                                 </Form.Group>
                             </Col>
                             <Col lg={6}>
@@ -809,8 +900,11 @@ const EmployeeMasterInsert = () => {
                                         value={optionsDataAccesLevel.find(option => option.value === employee.dataAccessLevel)}
                                         onChange={selectedOption => handleChange(null, 'dataAccessLevel', selectedOption?.value)}
                                         placeholder="Select Data Access Level"
-                                        required
+                                        className={validationErrors.dataAccessLevel ? " input-border" : "  "}
                                     />
+                                    {validationErrors.dataAccessLevel && (
+                                        <small className="text-danger">{validationErrors.dataAccessLevel}</small>
+                                    )}
                                 </Form.Group>
                             </Col>
                             <Col lg={6}>
@@ -822,8 +916,11 @@ const EmployeeMasterInsert = () => {
                                         value={optionsAppAccesLevel.find(option => option.value === employee.appAccessLevel)}
                                         onChange={selectedOption => handleChange(null, 'appAccessLevel', selectedOption?.value)}
                                         placeholder="Select App Access Level"
-                                        required
+                                        className={validationErrors.appAccessLevel ? " input-border" : "  "}
                                     />
+                                    {validationErrors.appAccessLevel && (
+                                        <small className="text-danger">{validationErrors.appAccessLevel}</small>
+                                    )}
                                 </Form.Group>
                             </Col>
                             <Col lg={6}>
@@ -835,8 +932,11 @@ const EmployeeMasterInsert = () => {
                                         value={optionsEmpStatus.find(option => option.value === employee.empStatus)}
                                         onChange={selectedOption => handleChange(null, 'empStatus', selectedOption?.value)}
                                         placeholder="Select Employee Status"
-                                        required
+                                        className={validationErrors.empStatus ? " input-border" : "  "}
                                     />
+                                    {validationErrors.empStatus && (
+                                        <small className="text-danger">{validationErrors.empStatus}</small>
+                                    )}
                                 </Form.Group>
                             </Col>
                             <Col lg={6}>
@@ -846,8 +946,8 @@ const EmployeeMasterInsert = () => {
                                         name="daL_Module"
                                         value={moduleList.filter((emp) =>
                                             Array.isArray(employee.daL_Module)
-                                                ? employee.daL_Module.includes(emp.moduleName) // When it's an array
-                                                : employee.daL_Module.split(',').includes(emp.moduleName) // When it's a string
+                                                ? employee.daL_Module.includes(emp.moduleName)
+                                                : employee.daL_Module.split(',').includes(emp.moduleName)
                                         )}
                                         onChange={(selectedOptions) => {
                                             const daL_Module = (selectedOptions || []).map(option => option.moduleName);
@@ -861,23 +961,25 @@ const EmployeeMasterInsert = () => {
                                         options={moduleList}
                                         isSearchable={true}
                                         isMulti={true}
-                                        required={employee.dataAccessLevel === 'Module' || employee.dataAccessLevel === 'ProjectModule'}
                                         isDisabled={employee.dataAccessLevel !== 'Module' && employee.dataAccessLevel !== 'ProjectModule'}
                                         placeholder="Select Module"
+                                        className={validationErrors.daL_Module ? " input-border" : "  "}
                                     />
+                                    {validationErrors.daL_Module && (
+                                        <small className="text-danger">{validationErrors.daL_Module}</small>
+                                    )}
                                 </Form.Group>
                             </Col>
 
                             <Col lg={6}>
                                 <Form.Group controlId="daL_Project" className="mb-3">
                                     <Form.Label> DAL Project {(employee.dataAccessLevel === 'Project' || employee.dataAccessLevel === 'ProjectModule') ? '*' : null} </Form.Label>
-
                                     <Select
                                         name="daL_Project"
                                         value={projectList.filter((emp) =>
                                             Array.isArray(employee.daL_Project)
-                                                ? employee.daL_Project.includes(emp.projectName) // When it's an array
-                                                : employee.daL_Project.split(',').includes(emp.projectName) // When it's a string
+                                                ? employee.daL_Project.includes(emp.projectName)
+                                                : employee.daL_Project.split(',').includes(emp.projectName) 
                                         )}
                                         onChange={(selectedOptions) => {
                                             const daL_Project = (selectedOptions || []).map(option => option.projectName);
@@ -891,10 +993,13 @@ const EmployeeMasterInsert = () => {
                                         options={projectList}
                                         isSearchable={true}
                                         isMulti={true}
-                                        required={employee.dataAccessLevel === 'Project' || employee.dataAccessLevel === 'ProjectModule'}
                                         isDisabled={employee.dataAccessLevel !== 'Project' && employee.dataAccessLevel !== 'ProjectModule'}
                                         placeholder="Select Projects"
+                                        className={validationErrors.daL_Project ? " input-border" : "  "}
                                     />
+                                    {validationErrors.daL_Project && (
+                                        <small className="text-danger">{validationErrors.daL_Project}</small>
+                                    )}
                                 </Form.Group>
                             </Col>
 
@@ -977,11 +1082,17 @@ const EmployeeMasterInsert = () => {
                                             setEmployee(prev => ({ ...prev, pin: e.target.value }));
                                         }}
                                         onBlur={fetchDistricts}
-                                        required
                                         maxLength={6}
                                         placeholder="Enter Pincode"
+                                        className={validationErrors.pin ? " input-border" : "  "}
                                     />
                                     {errorMessage && <div className="text-danger mt-1">{errorMessage}</div>}
+
+
+
+                                    {validationErrors.pin && (
+                                        <small className="text-danger">{validationErrors.pin}</small>
+                                    )}
                                 </Form.Group>
                             </Col>
                             <Col lg={6}>
@@ -1056,7 +1167,6 @@ const EmployeeMasterInsert = () => {
                                         rows={3}
                                         onChange={handleChange}
                                         placeholder='Enter Your Full Address'
-                                        required
                                     />
                                 </Form.Group>
                             </Col>
@@ -1115,8 +1225,13 @@ const EmployeeMasterInsert = () => {
                                         value={employee.salaryBankAccountNumber}
                                         onChange={(e) => handleBankAccountNumberChange(e, 'salary')}
                                         placeholder="Enter Bank Account Number"
-                                        required={employee.salaryBankIfsc.length > 0}
+                                        disabled={employee.salaryBankIfsc.length <= 0}
+                                        className={validationErrors.salaryBankAccountNumber ? " input-border" : "  "}
+
                                     />
+                                    {validationErrors.salaryBankAccountNumber && (
+                                        <small className="text-danger">{validationErrors.salaryBankAccountNumber}</small>
+                                    )}
                                 </Form.Group>
                             </Col>
 
@@ -1176,8 +1291,13 @@ const EmployeeMasterInsert = () => {
                                         value={employee.reimbursementBankAccountNumber}
                                         onChange={(e) => handleBankAccountNumberChange(e, 'reimbursement')}
                                         placeholder="Enter Bank Account Number"
-                                        required={employee.reimbursementBankIfsc.length > 0}
+                                        disabled={employee.reimbursementBankIfsc.length <= 0}
+                                        className={validationErrors.reimbursementBankAccountNumber ? " input-border" : "  "}
+
                                     />
+                                    {validationErrors.reimbursementBankAccountNumber && (
+                                        <small className="text-danger">{validationErrors.reimbursementBankAccountNumber}</small>
+                                    )}
                                 </Form.Group>
                             </Col>
 
@@ -1236,9 +1356,13 @@ const EmployeeMasterInsert = () => {
                                         value={employee.expenseBankAccountNumber}
                                         onChange={(e) => handleBankAccountNumberChange(e, 'expense')}
                                         placeholder='Enter Bank Account Number'
-                                        required={employee.expenseBankIfsc.length > 0}
+                                        disabled={employee.expenseBankIfsc.length <= 0}
+                                        className={validationErrors.expenseBankAccountNumber ? " input-border" : "  "}
 
                                     />
+                                    {validationErrors.expenseBankAccountNumber && (
+                                        <small className="text-danger">{validationErrors.expenseBankAccountNumber}</small>
+                                    )}
                                 </Form.Group>
                             </Col>
 

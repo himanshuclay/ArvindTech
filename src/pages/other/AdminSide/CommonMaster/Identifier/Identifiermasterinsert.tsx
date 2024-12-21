@@ -17,7 +17,7 @@ interface Identifier {
 
 
 const EmployeeInsert = () => {
-    toast.dismiss()
+
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
     const [editMode, setEditMode] = useState<boolean>(false);
@@ -33,8 +33,9 @@ const EmployeeInsert = () => {
         updatedBy: '',
     });
 
-
+    const [validationErrors, setValidationErrors] = useState<{ [key: string]: string }>({});
     useEffect(() => {
+        toast.dismiss()
         const storedEmpName = localStorage.getItem('EmpName');
         if (storedEmpName) {
             setEmpName(storedEmpName);
@@ -121,8 +122,25 @@ const EmployeeInsert = () => {
         }
     };
 
+    const validateFields = (): boolean => {
+        const errors: { [key: string]: string } = {};
+
+        if (!identifiers.identifierName) { errors.identifierName = 'Module Display Name is required'; }
+        if (!identifiers.identifierValue) { errors.identifierValue = 'Status is required'; }
+
+        setValidationErrors(errors);
+        return Object.keys(errors).length === 0;
+    };
+
+
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
+
+        if (!validateFields()) {
+            toast.dismiss()
+            toast.error('Please fill in all required fields.');
+            return;
+        }
         const payload = {
             ...identifiers,
             identifierValue: Array.isArray(tags) ? JSON.stringify(tags) : String(tags),
@@ -130,7 +148,6 @@ const EmployeeInsert = () => {
             updatedBy: editMode ? empName : '',
         };
 
-        console.log(payload)
 
 
         try {
@@ -164,15 +181,17 @@ const EmployeeInsert = () => {
                                         name="identifierName"
                                         value={identifiers.identifierName}
                                         onChange={handleChange}
-                                        required
                                         placeholder='Enter identifier name'
+                                        className={validationErrors.identifierName ? " input-border" : "  "}
                                     />
+                                    {validationErrors.identifierName && (
+                                        <small className="text-danger">{validationErrors.identifierName}</small>
+                                    )}
                                 </Form.Group>
                             </Col>
                             <Col lg={6} className='position-relative'>
-                                <Form.Label>Identifier Value</Form.Label>
-                                <div style={{ border: '1px solid #ced4da', borderRadius: '4px' }}>
-
+                                <Form.Group controlId="inputValue" className="mb-3">
+                                    <Form.Label>Identifier Value</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name='inputValue'
@@ -180,25 +199,28 @@ const EmployeeInsert = () => {
                                         value={inputValue}
                                         onChange={handleInputChange}
                                         onKeyDown={handleKeyDown}
-                                        style={{ border: 'none', outline: 'none' }}
+                                        className={validationErrors.identifierValue ? " input-border" : "  "}
                                     />
-                                </div>
-                                <div onClick={clearAllTags} style={{ position: 'absolute', top: '33px', right: '15px', cursor: 'pointer', }}>
-                                    <i className="ri-close-line fs-18 "></i>
-                                </div>
+                                    <div onClick={clearAllTags} style={{ position: 'absolute', top: '33px', right: '15px', cursor: 'pointer', }}>
+                                        <i className="ri-close-line fs-18 "></i>
+                                    </div>
+                                    {validationErrors.identifierValue && (
+                                        <small className="text-danger">{validationErrors.identifierValue}</small>
+                                    )}
 
-                                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', marginBottom: '4px', marginTop: '4px' }}>
-                                    {tags.map((tag, index) => (
-                                        <Badge bg="primary" key={index} style={{ display: 'flex', alignItems: 'center', fontSize: '13px' }}>
-                                            {tag}
-                                            <CloseButton
-                                                onClick={() => removeTag(index)}
-                                                style={{ marginLeft: '8px', fontSize: "8px", }}
-                                                variant="white"
-                                            />
-                                        </Badge>
-                                    ))}
-                                </div>
+                                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', marginBottom: '4px', marginTop: '4px' }}>
+                                        {tags.map((tag, index) => (
+                                            <Badge bg="primary" key={index} style={{ display: 'flex', alignItems: 'center', fontSize: '13px' }}>
+                                                {tag}
+                                                <CloseButton
+                                                    onClick={() => removeTag(index)}
+                                                    style={{ marginLeft: '8px', fontSize: "8px", }}
+                                                    variant="white"
+                                                />
+                                            </Badge>
+                                        ))}
+                                    </div>
+                                </Form.Group>
                             </Col>
 
                             <Col></Col>

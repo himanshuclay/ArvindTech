@@ -220,7 +220,7 @@ const ModuleMaster = () => {
                 mod.link || '',
                 mod.processFlowchart || '',
                 mod.misExempt || '',
-               `"${mod.projectName.replace(/"/g, '""')}"`,
+                `"${mod.projectName.replace(/"/g, '""')}"`,
                 mod.createdBy,
                 mod.updatedBy,
                 mod.createdDate,

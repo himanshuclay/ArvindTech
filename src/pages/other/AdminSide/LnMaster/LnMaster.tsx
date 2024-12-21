@@ -451,7 +451,6 @@ const LnMaster: React.FC = () => {
                                       <Col lg={4}>
                                         <p className='mb-1'>Problem Solver</p>
                                         <h5 className='d-flex align-items-center text-primary m-0' >
-                                          <span className="icon-circle me-1">{item.problemSolver.charAt(0).toUpperCase()}</span>
                                           {item.problemSolver}
                                         </h5>
                                         {item.problemSolverMobileNumber ?

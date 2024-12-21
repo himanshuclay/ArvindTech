@@ -765,6 +765,10 @@ input.numInput.cur-year:hover {
 .input-border {
   border-color: #DC4C64 !important;
 }
+.input-border .css-13cymwt-control,
+.input-border {
+  border-color: #DC4C64 !important;
+}
 
 
 .password-error {
@@ -784,4 +788,8 @@ input.numInput.cur-year:hover {
 .nav-link.active {
   background-color: #e7e7e7 !important;
   border-radius: 5px;
+}
+
+.border-danger {
+  border: 1px solid #dc3545 !important;
 }

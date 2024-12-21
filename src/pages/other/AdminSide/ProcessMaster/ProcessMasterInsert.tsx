@@ -69,6 +69,7 @@ const EmployeeInsert = () => {
         createdBy: '',
         updatedBy: ''
     });
+    const [validationErrors, setValidationErrors] = useState<{ [key: string]: string }>({});
 
 
     useEffect(() => {
@@ -161,6 +162,21 @@ const EmployeeInsert = () => {
     }, []);
 
 
+    const validateFields = (): boolean => {
+        const errors: { [key: string]: string } = {};
+
+        if (!process.moduleName) { errors.moduleName = 'Module Name is required'; }
+        if (!process.processID) { errors.processID = 'Process ID is required'; }
+        if (!process.processDisplayName) { errors.processDisplayName = 'Process Display Name is required'; }
+        if (!process.misExempt) { errors.misExempt = 'MIS Exempt is required'; }
+        if (!process.processObjective) { errors.processObjective = 'Process Objective is required'; }
+        if (!process.processOwnerName) { errors.processOwnerName = 'Process Owner Name is required'; }
+        if (!process.status) { errors.status = 'Status is required'; }
+
+        setValidationErrors(errors);
+        return Object.keys(errors).length === 0;
+    };
+
 
     const handleChange = (e: ChangeEvent<any> | null, name?: string, value?: any) => {
         if (e) {
@@ -207,8 +223,6 @@ const EmployeeInsert = () => {
             setUrlError("Only YouTube links are supported for embedding.");
         }
     };
-
-    // Extract YouTube video ID from a URL
     const getYouTubeVideoId = (url: string) => {
         const regex = /(?:youtube\.com.*(?:\?v=|\/embed\/|\/v\/|\/.*\/)|youtu\.be\/)([^#&?]*).*/;
         const match = url.match(regex);
@@ -219,9 +233,14 @@ const EmployeeInsert = () => {
         setShowLink(false)
     }
 
-    // Handle form submission
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
+
+        if (!validateFields()) {
+            toast.dismiss()
+            toast.error('Please fill in all required fields.');
+            return;
+        }
 
         const payload = {
             ...process,
@@ -264,7 +283,7 @@ const EmployeeInsert = () => {
                         <Row>
                             <Col lg={6}>
                                 <Form.Group controlId="moduleName" className="mb-3">
-                                    <Form.Label>Module Name</Form.Label>
+                                    <Form.Label>Module Name  <span className='text-danger'>*</span></Form.Label>
                                     <Select
                                         name="moduleName"
                                         value={moduleDisplayName.find((mod) => mod.moduleName === process.moduleName)}
@@ -280,55 +299,67 @@ const EmployeeInsert = () => {
                                         options={moduleDisplayName}
                                         isSearchable={true}
                                         placeholder="Select Module Name"
-                                        required
                                         isDisabled={editMode}
+                                        className={validationErrors.moduleName ? " input-border" : "  "}
                                     />
+                                    {validationErrors.moduleName && (
+                                        <small className="text-danger">{validationErrors.moduleName}</small>
+                                    )}
                                 </Form.Group>
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="processID" className="mb-3">
-                                    <Form.Label>Process  ID</Form.Label>
+                                    <Form.Label>Process  Id  <span className='text-danger'>*</span></Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="processID"
                                         value={process.processID.toLocaleUpperCase()}
                                         onChange={handleChange}
-                                        required
-                                        placeholder='Enter Process ID'
+                                        placeholder='Enter Process Id'
                                         disabled={editMode}
-
+                                        className={validationErrors.processID ? " input-border" : "  "}
                                     />
+                                    {validationErrors.processID && (
+                                        <small className="text-danger">{validationErrors.processID}</small>
+                                    )}
                                 </Form.Group>
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="processDisplayName" className="mb-3">
-                                    <Form.Label>Process  Name</Form.Label>
+                                    <Form.Label>Process  Name  <span className='text-danger'>*</span></Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="processDisplayName"
                                         value={process.processDisplayName}
                                         onChange={handleChange}
-                                        required
                                         placeholder='Enter Process Name'
+                                        className={validationErrors.processDisplayName ? " input-border" : "  "}
 
                                     />
+                                    {validationErrors.processDisplayName && (
+                                        <small className="text-danger">{validationErrors.processDisplayName}</small>
+                                    )}
                                 </Form.Group>
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="processObjective" className="mb-3">
-                                    <Form.Label>Process Objective:</Form.Label>
+                                    <Form.Label>Process Objective  <span className='text-danger'>*</span></Form.Label>
                                     <Form.Control
                                         type="textarea"
                                         name="processObjective"
                                         value={process.processObjective}
                                         onChange={handleChange}
                                         placeholder='Enter Process Objective'
+                                        className={validationErrors.processObjective ? " input-border" : "  "}
                                     />
+                                    {validationErrors.processObjective && (
+                                        <small className="text-danger">{validationErrors.processObjective}</small>
+                                    )}
                                 </Form.Group>
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="misExempt" className="mb-3">
-                                    <Form.Label>MIS Exempt:</Form.Label>
+                                    <Form.Label>MIS Exempt  <span className='text-danger'>*</span></Form.Label>
                                     <Select
                                         name="misExempt"
                                         value={misExempt.find((exempt) => exempt.name === process.misExempt)}
@@ -343,26 +374,32 @@ const EmployeeInsert = () => {
                                         options={misExempt}
                                         isSearchable={true}
                                         placeholder="Select MIS Exempt"
-                                        required
+                                        className={validationErrors.misExempt ? " input-border" : "  "}
                                     />
+                                    {validationErrors.misExempt && (
+                                        <small className="text-danger">{validationErrors.misExempt}</small>
+                                    )}
                                 </Form.Group>
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="status" className="mb-3">
-                                    <Form.Label>Status *</Form.Label>
+                                    <Form.Label>Status  <span className='text-danger'>*</span></Form.Label>
                                     <Select
                                         name="status"
                                         options={optionsAppAccess}
                                         value={optionsAppAccess.find(option => option.value === process.status)}
                                         onChange={selectedOption => handleChange(null, 'status', selectedOption?.value)}
                                         placeholder="Select Status"
-                                        required
+                                        className={validationErrors.status ? " input-border" : "  "}
                                     />
+                                    {validationErrors.status && (
+                                        <small className="text-danger">{validationErrors.status}</small>
+                                    )}
                                 </Form.Group>
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="processOwnerName" className="mb-3">
-                                    <Form.Label>Process Owner Name</Form.Label>
+                                    <Form.Label>Process Owner Name  <span className='text-danger'>*</span></Form.Label>
                                     <Select
                                         name="processOwnerName"
                                         value={processOwnerName.find(
@@ -380,8 +417,11 @@ const EmployeeInsert = () => {
                                         options={processOwnerName}
                                         isSearchable={true}
                                         placeholder="Select Process Owner Name"
-                                        required
+                                        className={validationErrors.processOwnerName ? " input-border" : "  "}
                                     />
+                                    {validationErrors.processOwnerName && (
+                                        <small className="text-danger">{validationErrors.processOwnerName}</small>
+                                    )}
                                 </Form.Group>
                             </Col>
                             <Col lg={6}>

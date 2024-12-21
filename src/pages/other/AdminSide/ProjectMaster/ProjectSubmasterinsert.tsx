@@ -89,7 +89,7 @@ const ProjectInsert = () => {
         recordedYear: '',
     });
 
-
+    const [validationErrors, setValidationErrors] = useState<{ [key: string]: string }>({});
 
     useEffect(() => {
         toast.dismiss()
@@ -170,7 +170,26 @@ const ProjectInsert = () => {
         }
     };
 
+    const validateFields = (): boolean => {
+        const errors: { [key: string]: string } = {};
+
+        if (!subProject.subProjectName) { errors.subProjectName = 'Project Id is required'; }
+        if (!subProject.projectName) { errors.projectName = 'Project Name is required'; }
+        if (!subProject.completionStatus) { errors.completionStatus = 'Completion Status is required'; }
+
+        setValidationErrors(errors);
+        return Object.keys(errors).length === 0;
+    };
+
+
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+
+        if (!validateFields()) {
+            toast.dismiss()
+            toast.error('Please fill in all required fields.');
+            return;
+        }
 
         const payloadInsert = {
             subProjectID: subProject.subProjectID,
@@ -184,9 +203,6 @@ const ProjectInsert = () => {
             createdBy: editMode ? subProject.createdBy : empName,
             updatedBy: editMode ? empName : '',
         };
-        console.log(payloadUpdate)
-        console.log(payloadInsert)
-        e.preventDefault();
 
         try {
             if (editMode) {
@@ -211,6 +227,8 @@ const ProjectInsert = () => {
 
     };
 
+    console.log(projectList)
+    console.log(subProject)
 
     return (
         <div>
@@ -239,7 +257,7 @@ const ProjectInsert = () => {
 
                             <Col lg={6}>
                                 <Form.Group controlId="projectName" className="mb-3">
-                                    <Form.Label>Project Name *</Form.Label>
+                                    <Form.Label>Project Name  <span className='text-danger'>*</span></Form.Label>
                                     <Select
                                         name="projectName"
                                         value={projectList.find((mod) => mod.projectName === subProject.projectName)}
@@ -254,50 +272,62 @@ const ProjectInsert = () => {
                                         options={projectList}
                                         isSearchable={true}
                                         placeholder="Select Project Name"
-                                        required
+                                        className={validationErrors.projectName ? " input-border" : "  "}
                                     />
+                                    {validationErrors.projectName && (
+                                        <small className="text-danger">{validationErrors.projectName}</small>
+                                    )}
                                 </Form.Group>
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="subProjectName" className="mb-3">
-                                    <Form.Label>Sub Project Name *</Form.Label>
+                                    <Form.Label>Sub Project Name  <span className='text-danger'>*</span></Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="subProjectName"
                                         value={subProject.subProjectName}
                                         onChange={handleChange}
-                                        required
                                         placeholder='Enter Sub Project Name'
+                                        className={validationErrors.subProjectName ? " input-border" : "  "}
                                     />
+                                    {validationErrors.subProjectName && (
+                                        <small className="text-danger">{validationErrors.subProjectName}</small>
+                                    )}
                                 </Form.Group>
                             </Col>
 
+
                             <Col lg={6}>
                                 <Form.Group controlId="completionStatus" className="mb-3">
-                                    <Form.Label>Completion Status *</Form.Label>
+                                    <Form.Label>
+                                        Completion Status <span className="text-danger">*</span>
+                                    </Form.Label>
                                     <Select
                                         name="completionStatus"
-                                        value={completionStatus.find((mod) => mod.name === subProject.completionStatus)}
+                                        value={completionStatus.find((mod) => mod.id === subProject.completionStatus) || null}
                                         onChange={(selectedOption) => {
                                             setSubProject({
                                                 ...subProject,
-                                                completionStatus: selectedOption?.name || '',
+                                                completionStatus: selectedOption?.id || 0,
                                             });
                                         }}
                                         getOptionLabel={(mod) => mod.name}
-                                        getOptionValue={(mod) => mod.name}
+                                        getOptionValue={(mod) => mod.id.toString()} // Convert id to string
                                         options={completionStatus}
                                         isSearchable={true}
                                         placeholder="Select Completion Status"
-                                        required
+                                        className={validationErrors.completionStatus ? " input-border" : ""}
                                     />
+                                    {validationErrors.completionStatus && (
+                                        <small className="text-danger">{validationErrors.completionStatus}</small>
+                                    )}
                                 </Form.Group>
                             </Col>
 
                             {id && <>
                                 <Col lg={6}>
                                     <Form.Group controlId="contractualWorkValue" className="mb-3">
-                                        <Form.Label>Contractual Work Value :</Form.Label>
+                                        <Form.Label>Contractual Work Value </Form.Label>
                                         <Form.Control
                                             type="text"
                                             name="contractualWorkValue"
@@ -309,7 +339,7 @@ const ProjectInsert = () => {
 
                                 <Col lg={6}>
                                     <Form.Group controlId="executorCompany" className="mb-3">
-                                        <Form.Label>Executor Company :</Form.Label>
+                                        <Form.Label>Executor Company </Form.Label>
                                         <Form.Control
                                             type="text"
                                             name="executorCompany"
@@ -321,7 +351,7 @@ const ProjectInsert = () => {
 
                                 <Col lg={6}>
                                     <Form.Group controlId="nextValueofWorkItemForTeam" className="mb-3">
-                                        <Form.Label>Next Value Of Work Item For Team :</Form.Label>
+                                        <Form.Label>Next Value Of Work Item For Team </Form.Label>
                                         <Form.Control
                                             type="text"
                                             name="nextValueofWorkItemForTeam"
@@ -333,7 +363,7 @@ const ProjectInsert = () => {
 
                                 <Col lg={6}>
                                     <Form.Group controlId="percentageofWorkDone" className="mb-3">
-                                        <Form.Label>Percentage Of Work Done :</Form.Label>
+                                        <Form.Label>Percentage Of Work Done </Form.Label>
                                         <Form.Control
                                             type="text"
                                             name="percentageofWorkDone"
@@ -345,7 +375,7 @@ const ProjectInsert = () => {
 
                                 <Col lg={6}>
                                     <Form.Group controlId="revisedContractualWorkValue" className="mb-3">
-                                        <Form.Label>Revised Contractual Work Value:</Form.Label>
+                                        <Form.Label>Revised Contractual Work Value</Form.Label>
                                         <Form.Control
                                             type="text"
                                             name="revisedContractualWorkValue"
@@ -358,7 +388,7 @@ const ProjectInsert = () => {
 
                                 <Col lg={6}>
                                     <Form.Group controlId="totalWorkDoneValueuptoPreviousMonth" className="mb-3">
-                                        <Form.Label>Total Work Done Value Upto Previous Month:</Form.Label>
+                                        <Form.Label>Total Work Done Value Upto Previous Month</Form.Label>
                                         <Form.Control
                                             type="text"
                                             name="totalWorkDoneValueuptoPreviousMonth"
@@ -370,7 +400,7 @@ const ProjectInsert = () => {
 
                                 <Col lg={6}>
                                     <Form.Group controlId="valueofWorkDoneinthisMonth" className="mb-3">
-                                        <Form.Label>Value Of Work Done In This Month:</Form.Label>
+                                        <Form.Label>Value Of Work Done In This Month</Form.Label>
                                         <Form.Control
                                             type="text"
                                             name="valueofWorkDoneinthisMonth"
@@ -382,7 +412,7 @@ const ProjectInsert = () => {
 
                                 <Col lg={6}>
                                     <Form.Group controlId="valueofWorkDoneinthisFY" className="mb-3">
-                                        <Form.Label>Value Of Work Done In This FY:</Form.Label>
+                                        <Form.Label>Value Of Work Done In This FY</Form.Label>
                                         <Form.Control
                                             type="text"
                                             name="valueofWorkDoneinthisFY"
@@ -394,7 +424,7 @@ const ProjectInsert = () => {
 
                                 <Col lg={6}>
                                     <Form.Group controlId="contractualStartDate" className="mb-3">
-                                        <Form.Label>Contractual Start Date:</Form.Label>
+                                        <Form.Label>Contractual Start Date</Form.Label>
                                         <Flatpickr
                                             value={subProject.contractualStartDate}
                                             onChange={([date]) => setSubProject({
@@ -416,7 +446,7 @@ const ProjectInsert = () => {
 
                                 <Col lg={6}>
                                     <Form.Group controlId="contractualCompletionDate" className="mb-3">
-                                        <Form.Label>Contractual Completion Date:</Form.Label>
+                                        <Form.Label>Contractual Completion Date</Form.Label>
                                         <Flatpickr
                                             value={subProject.contractualCompletionDate}
                                             onChange={([date]) => setSubProject({
@@ -437,7 +467,7 @@ const ProjectInsert = () => {
 
                                 <Col lg={6}>
                                     <Form.Group controlId="expectedDateofEarliestProjectCompletion" className="mb-3">
-                                        <Form.Label>Expected Date Of Earliest Project Completion:</Form.Label>
+                                        <Form.Label>Expected Date Of Earliest Project Completion</Form.Label>
                                         <Flatpickr
                                             value={subProject.expectedDateofEarliestProjectCompletion}
                                             onChange={([date]) => setSubProject({
@@ -458,7 +488,7 @@ const ProjectInsert = () => {
 
                                 <Col lg={6}>
                                     <Form.Group controlId="expectedDateofLatestProjectCompletion" className="mb-3">
-                                        <Form.Label>Expected Date Of Latest Project Completion:</Form.Label>
+                                        <Form.Label>Expected Date Of Latest Project Completion</Form.Label>
 
                                         <Flatpickr
                                             value={subProject.expectedDateofLatestProjectCompletion}
@@ -480,7 +510,7 @@ const ProjectInsert = () => {
 
                                 <Col lg={6}>
                                     <Form.Group controlId="refreshWorkDate" className="mb-3">
-                                        <Form.Label>Refresh Work Date:</Form.Label>
+                                        <Form.Label>Refresh Work Date</Form.Label>
                                         <Flatpickr
                                             value={subProject.refreshWorkDate}
                                             onChange={([date]) => setSubProject({
@@ -501,7 +531,7 @@ const ProjectInsert = () => {
 
                                 <Col lg={6}>
                                     <Form.Group controlId="estimateCompletionDate" className="mb-3">
-                                        <Form.Label>Estimate Completion Date:</Form.Label>
+                                        <Form.Label>Estimate Completion Date</Form.Label>
                                         <Flatpickr
                                             value={subProject.estimateCompletionDate}
                                             onChange={([date]) => setSubProject({
@@ -522,7 +552,7 @@ const ProjectInsert = () => {
 
                                 <Col lg={6}>
                                     <Form.Group controlId="recordedMonth" className="mb-3">
-                                        <Form.Label>Recorded Month:</Form.Label>
+                                        <Form.Label>Recorded Month</Form.Label>
                                         <Form.Control
                                             type="text"
                                             name="recordedMonth"
@@ -534,7 +564,7 @@ const ProjectInsert = () => {
 
                                 <Col lg={6}>
                                     <Form.Group controlId="recordedYear" className="mb-3">
-                                        <Form.Label>Recorded Year:</Form.Label>
+                                        <Form.Label>Recorded Year</Form.Label>
                                         <Form.Control
                                             type="text"
                                             name="recordedYear"
