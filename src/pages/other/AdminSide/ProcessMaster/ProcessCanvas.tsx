@@ -4,7 +4,6 @@ import config from "@/config";
 import { useEffect, useState } from "react";
 import Select from 'react-select';
 import { toast } from "react-toastify";
-import { create } from "domain";
 
 interface ProcessCanvasProps {
     show: boolean;

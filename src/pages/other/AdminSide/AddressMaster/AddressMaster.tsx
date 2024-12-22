@@ -163,9 +163,9 @@ const AddressMaster = () => {
 
 
     const handleClear = () => {
+        setCurrentPage(1);
         fetchStaffRequirements();
         setSearchState('');
-        setCurrentPage(1);
         setSearchPinCode('');
         setSearchStatus('');
     };
