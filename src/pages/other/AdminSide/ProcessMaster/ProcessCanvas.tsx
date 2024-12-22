@@ -4,6 +4,7 @@ import config from "@/config";
 import { useEffect, useState } from "react";
 import Select from 'react-select';
 import { toast } from "react-toastify";
+import { create } from "domain";
 
 interface ProcessCanvasProps {
     show: boolean;
@@ -58,10 +59,15 @@ const ProcessCanvas: React.FC<ProcessCanvasProps> = ({ show, setShow, manageId }
 
     });
 
+
+
     useEffect(() => {
+        toast.dismiss();
+
         const storedEmpName = localStorage.getItem('EmpName');
-        if (storedEmpName) {
-            setEmpName(storedEmpName);
+        const storedEmpID = localStorage.getItem('EmpId');
+        if (storedEmpName || storedEmpID) {
+            setEmpName(`${storedEmpName} - ${storedEmpID}`);
         }
     }, []);
 
@@ -196,6 +202,7 @@ const ProcessCanvas: React.FC<ProcessCanvasProps> = ({ show, setShow, manageId }
 
         const payloadUpdate = {
             ...process,
+            updatedBy: empName || '',
             source: JSON.stringify(filteredData)
         };
         try {
