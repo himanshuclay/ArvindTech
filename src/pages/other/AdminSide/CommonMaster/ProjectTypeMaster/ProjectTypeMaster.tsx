@@ -34,6 +34,7 @@ const ModuleMaster = () => {
     const [managementContracts, setManagementContracts] = useState<ProjectType[]>([]);
     const [searchRole, setSearchRole] = useState('');
     const [searchStatus, setSearchStatus] = useState('');
+    const [searchTriggered, setSearchTriggered] = useState(false);
 
 
 
@@ -69,20 +70,15 @@ const ModuleMaster = () => {
     };
     // ==============================================================
 
-    useEffect(() => {
-        fetchRoles();
-    }, [currentPage]);
-
-
-
 
     useEffect(() => {
-        if (searchRole || searchStatus) {
+        if (searchTriggered || currentPage) {
             handleSearch();
+            setSearchTriggered(false);
         } else {
             fetchRoles();
         }
-    }, [currentPage]);
+    }, [currentPage, searchTriggered]);
 
     const handleSearch = (e?: React.FormEvent) => {
         if (e) e.preventDefault();
@@ -219,52 +215,57 @@ const ModuleMaster = () => {
                 </div>
             ) : (<>
                 <div className='bg-white p-2 pb-2'>
-                    <Row>
-                        <Col lg={4} className="">
-                            <Form.Group controlId="searchRole">
-                                <Form.Label>Project Type</Form.Label>
-                                <Select
-                                    name="searchRole"
-                                    value={managementContracts.find(item => item.name === searchRole) || null}
-                                    onChange={(selectedOption) => setSearchRole(selectedOption ? selectedOption.name : '')}
-                                    options={managementContracts}
-                                    getOptionLabel={(item) => item.name}
-                                    getOptionValue={(item) => item.name}
-                                    isSearchable={true}
-                                    placeholder="Select Project Type"
-                                    className="h45"
-                                />
-                            </Form.Group>
-                        </Col>
 
-                        <Col lg={4} className="">
-                            <Form.Group controlId="searchStatus">
-                                <Form.Label>Status</Form.Label>
-                                <Select
-                                    name="searchStatus"
-                                    options={optionsStatus}
-                                    value={optionsStatus.find(option => option.value === searchStatus) || null}
-                                    onChange={(selectedOption) => setSearchStatus(selectedOption?.value || '')}
-                                    placeholder="Select Status"
-                                />
-                            </Form.Group>
-                        </Col>
-                        <Col lg={4} className="align-items-end d-flex justify-content-end mt-2">
-                            <ButtonGroup aria-label="Basic example" className="w-100">
-                                <Button type="button" variant="primary" onClick={handleClear}>
-                                    <i className="ri-loop-left-line"></i>
-                                </Button>
-                                &nbsp;
-                                <Button type="submit" variant="primary" onClick={() => {
-                                    handleSearch();
-                                    setCurrentPage(1);
-                                }}
-                                >
-                                    Search
-                                </Button>
-                            </ButtonGroup>
-                        </Col>
-                    </Row>
+                    <Form
+                        onSubmit={(e) => {
+                            e.preventDefault();
+                            setCurrentPage(1);
+                            setSearchTriggered(true);
+                        }}
+                    >
+                        <Row>
+                            <Col lg={4} className="">
+                                <Form.Group controlId="searchRole">
+                                    <Form.Label>Project Type</Form.Label>
+                                    <Select
+                                        name="searchRole"
+                                        value={managementContracts.find(item => item.name === searchRole) || null}
+                                        onChange={(selectedOption) => setSearchRole(selectedOption ? selectedOption.name : '')}
+                                        options={managementContracts}
+                                        getOptionLabel={(item) => item.name}
+                                        getOptionValue={(item) => item.name}
+                                        isSearchable={true}
+                                        placeholder="Select Project Type"
+                                        className="h45"
+                                    />
+                                </Form.Group>
+                            </Col>
+
+                            <Col lg={4} className="">
+                                <Form.Group controlId="searchStatus">
+                                    <Form.Label>Status</Form.Label>
+                                    <Select
+                                        name="searchStatus"
+                                        options={optionsStatus}
+                                        value={optionsStatus.find(option => option.value === searchStatus) || null}
+                                        onChange={(selectedOption) => setSearchStatus(selectedOption?.value || '')}
+                                        placeholder="Select Status"
+                                    />
+                                </Form.Group>
+                            </Col>
+                            <Col lg={4} className="align-items-end d-flex justify-content-end mt-2">
+                                <ButtonGroup aria-label="Basic example" className="w-100">
+                                    <Button type="button" variant="primary" onClick={handleClear}>
+                                        <i className="ri-loop-left-line"></i>
+                                    </Button>
+                                    &nbsp;
+                                    <Button type="submit" variant="primary">
+                                        Search
+                                    </Button>
+                                </ButtonGroup>
+                            </Col>
+                        </Row>
+                    </Form>
 
                     <Row className='mt-3'>
                         <div className="d-flex justify-content-end bg-light p-1">

@@ -220,6 +220,7 @@ const EmployeeInsert = () => {
         }
 
         if (isMobileVerified) {
+            toast.dismiss()
             toast.error("Please verify your mobile number before submitting the form.");
             return;
         }
@@ -228,7 +229,6 @@ const EmployeeInsert = () => {
             createdBy: editMode ? messes.createdBy : empName,
             updatedBy: editMode ? empName : '',
         };
-        console.log(payload)
         try {
             if (editMode) {
                 await axios.post(`${config.API_URL_APPLICATION}/MessMaster/UpdateMess`, payload);

@@ -34,6 +34,8 @@ const ModuleMaster = () => {
     const [downloadCsv, setDownloadCsv] = useState<Identifier[]>([]);
     const [identifierID, setIdentifierID] = useState('');
     const [identifierList, setIdentifierList] = useState<IdentifierList[]>([]);
+    const [searchTriggered, setSearchTriggered] = useState(false);
+    const [selectedRow, setSelectedRow] = useState<string | null>(null);
 
     const location = useLocation();
     const navigate = useNavigate();
@@ -47,7 +49,6 @@ const ModuleMaster = () => {
 
 
 
-    const [selectedRow, setSelectedRow] = useState<string | null>(null);
 
     const handleModalOpen = (identifierValue: string) => {
         setSelectedRow(identifierValue); // Set the identifier value of the selected row
@@ -74,16 +75,22 @@ const ModuleMaster = () => {
     };
     // ==============================================================
 
+
+
+
     useEffect(() => {
-        fetchRoles();
-        fetchRolesCsv();
-    }, [currentPage]);
+        if (searchTriggered || currentPage) {
+            handleSearch();
+            setSearchTriggered(false);
+        } else {
+            fetchRoles();
+        }
+    }, [currentPage, searchTriggered]);
 
 
+    const handleSearch = (e?: React.FormEvent) => {
+        if (e) e.preventDefault();
 
-    const handleSearch = (e: any) => {
-
-        e.preventDefault();
 
         let query = `?`;
         if (identifierID) query += `IdentifierName=${identifierID}&`;
@@ -130,22 +137,6 @@ const ModuleMaster = () => {
 
 
 
-    const fetchRolesCsv = async () => {
-        try {
-            const response = await axios.get(`${config.API_URL_APPLICATION}/IdentifierMaster/GetIdentifier`);
-            if (response.data.isSuccess) {
-                setDownloadCsv(response.data.identifierLists);
-            } else {
-                console.error(response.data.message);
-            }
-        } catch (error) {
-            console.error('Error fetching doers:', error);
-        }
-
-    };
-
-
-
     useEffect(() => {
         const fetchData = async (endpoint: string, setter: Function, listName: string) => {
             try {
@@ -160,6 +151,7 @@ const ModuleMaster = () => {
             }
         };
         fetchData('CommonDropdown/GetIdentifier', setIdentifierList, 'identifierList');
+        fetchData('IdentifierMaster/GetIdentifier', setDownloadCsv, 'identifierLists');
     }, []);
 
 
@@ -229,7 +221,13 @@ const ModuleMaster = () => {
                 </div>
             ) : (<>
                 <div className='bg-white p-2 pb-2'>
-                    <Form onSubmit={handleSearch}>
+                    <Form
+                        onSubmit={(e) => {
+                            e.preventDefault();
+                            setCurrentPage(1);
+                            setSearchTriggered(true);
+                        }}
+                    >
                         <Row>
                             <Col lg={6}>
                                 <Form.Group controlId="identifierID">

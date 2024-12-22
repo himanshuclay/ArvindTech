@@ -58,6 +58,7 @@ const ModuleMaster = () => {
     const [show, setShow] = useState(false);
     const [showView, setShowView] = useState(false);
     const [searchStatus, setSearchStatus] = useState('');
+    const [searchTriggered, setSearchTriggered] = useState(false);
 
     const location = useLocation();
     const navigate = useNavigate();
@@ -71,12 +72,13 @@ const ModuleMaster = () => {
 
 
     useEffect(() => {
-        if (ProcessName || ModuleName || ProcessOwnerName) {
+        if (searchTriggered || currentPage) {
             handleSearch();
+            setSearchTriggered(false);
         } else {
             fetchProcess();
         }
-    }, [currentPage]);
+    }, [currentPage, searchTriggered]);
 
 
     const handleSearch = (e?: React.FormEvent) => {
@@ -310,7 +312,7 @@ const ModuleMaster = () => {
                                         onSubmit={(e) => {
                                             e.preventDefault();
                                             setCurrentPage(1);
-                                            handleSearch();
+                                            setSearchTriggered(true);
                                         }}
                                     >
                                         <Row>

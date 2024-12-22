@@ -45,7 +45,7 @@ const ProcessInitiation = () => {
     const [ModuleName, setModuleName] = useState('');
     const [ProcessName, setProcessName] = useState('');
     const [ProcessOwnerName, setProcessOwnerName] = useState('');
-
+    const [searchTriggered, setSearchTriggered] = useState(false);
 
 
     const location = useLocation();
@@ -59,13 +59,17 @@ const ProcessInitiation = () => {
     }, [location.state, navigate]);
 
 
+
+
+
     useEffect(() => {
-        if (ProcessName || ModuleName || ProcessOwnerName) {
+        if (searchTriggered || currentPage) {
             handleSearch();
+            setSearchTriggered(false);
         } else {
             fetchProcess();
         }
-    }, [currentPage]);
+    }, [currentPage, searchTriggered]);
 
 
     const handleSearch = (e?: React.FormEvent) => {
@@ -213,11 +217,11 @@ const ProcessInitiation = () => {
                         ) : (
                             <>
                                 <div className='bg-white p-2 pb-1'>
-                                <Form
+                                    <Form
                                         onSubmit={(e) => {
                                             e.preventDefault();
                                             setCurrentPage(1);
-                                            handleSearch();
+                                            setSearchTriggered(true);
                                         }}
                                     >
                                         <Row>
@@ -333,9 +337,9 @@ const ProcessInitiation = () => {
                                                                     className={
                                                                         col.id === 'processOwnerName' ? 'text-nowrap' :
                                                                             // col.id === 'moduleName' ? 'fw-bold text-dark   text-nowrap' :
-                                                                                (col.id === 'status' && item[col.id] === "ACTIVE") ? 'task1' :
-                                                                                    (col.id === 'status' && item[col.id] === "INACTIVE") ? 'task4' :
-                                                                                        ''
+                                                                            (col.id === 'status' && item[col.id] === "ACTIVE") ? 'task1' :
+                                                                                (col.id === 'status' && item[col.id] === "INACTIVE") ? 'task4' :
+                                                                                    ''
                                                                     }
                                                                 >
                                                                     {col.id === 'processOwnerName' ? (
@@ -344,7 +348,7 @@ const ProcessInitiation = () => {
                                                                                 {item.processOwnerName.split('_')[0]}
                                                                             </div>
                                                                             {item.userUpdatedMobileNumber ?
-                                                                                <p className='phone_user fw-normal m-0'><a href={`tel:${item.userUpdatedMobileNumber}`}> <i className="ri-phone-fill"></i> {item.userUpdatedMobileNumber}</a></p> : ""
+                                                                                <p className=' fw-normal m-0'><a href={`tel:${item.userUpdatedMobileNumber}`}> <i className="ri-phone-fill"></i> {item.userUpdatedMobileNumber}</a></p> : ""
                                                                             }
                                                                         </td>
                                                                     ) : (

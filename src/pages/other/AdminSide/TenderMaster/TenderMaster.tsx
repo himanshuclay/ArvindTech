@@ -78,7 +78,9 @@ const TenderMaster = () => {
     const [totalPages, setTotalPages] = useState(1);
     const [downloadCsv, setDownloadCsv] = useState<Tender[]>([]);
     const [statusList, setStatusList] = useState<StatusList[]>([]);
-
+    const [searchTriggered, setSearchTriggered] = useState(false);
+    const [searchStatusValue, setSearchStatusValue] = useState('');
+    const [searchTypeofTender, setSearchTypeofTender] = useState('');
 
     const location = useLocation();
     const navigate = useNavigate();
@@ -148,18 +150,21 @@ const TenderMaster = () => {
     };
     // ==============================================================
 
+
+
     useEffect(() => {
-        fetchMaster();
-        fetchModulesCsv()
-    }, [currentPage]);
+        if (searchTriggered || currentPage) {
+            handleSearch();
+            setSearchTriggered(false);
+        } else {
+            fetchMaster();
+        }
+    }, [currentPage, searchTriggered]);
 
 
 
-    const [searchStatusValue, setSearchStatusValue] = useState('');
-    const [searchTypeofTender, setSearchTypeofTender] = useState('');
-
-    const handleSearch = (e: any) => {
-        e.preventDefault();
+    const handleSearch = (e?: React.FormEvent) => {
+        if (e) e.preventDefault();
 
         let query = `?`;
 
@@ -177,7 +182,6 @@ const TenderMaster = () => {
             }
         })
             .then((response) => {
-                // console.log("search response ", response.data.tenders);
                 setTenders(response.data.tenders)
             })
             .catch((error) => {
@@ -208,19 +212,7 @@ const TenderMaster = () => {
     };
 
 
-    const fetchModulesCsv = async () => {
-        try {
-            const response = await axios.get(`${config.API_URL_APPLICATION}/TenderMaster/GetTender`);
-            if (response.data.isSuccess) {
-                setDownloadCsv(response.data.tenders);
-            } else {
-                console.error(response.data.message);
-            }
-        } catch (error) {
-            console.error('Error fetching hrDoers:', error);
-        }
 
-    };
 
     useEffect(() => {
         const fetchData = async (endpoint: string, setter: Function, listName: string) => {
@@ -237,6 +229,7 @@ const TenderMaster = () => {
         };
 
         fetchData('CommonDropdown/GetStatus', setStatusList, 'statusListResponses');
+        fetchData('TenderMaster/GetTender', setDownloadCsv, 'tenders');
     }, []);
 
 
@@ -346,230 +339,236 @@ const TenderMaster = () => {
     ];
     return (
         <>
-                <div className="d-flex bg-white p-2 my-2 justify-content-between align-items-center">
-                    <span><i className="ri-file-list-line me-2 text-dark fs-16"></i><span className='fw-bold text-dark fs-15'>Tender List</span></span>
-                    <div className="d-flex justify-content-end  ">
-                        <Button variant="primary" onClick={downloadCSV} className="me-2">
-                            Download CSV
+            <div className="d-flex bg-white p-2 my-2 justify-content-between align-items-center">
+                <span><i className="ri-file-list-line me-2 text-dark fs-16"></i><span className='fw-bold text-dark fs-15'>Tender List</span></span>
+                <div className="d-flex justify-content-end  ">
+                    <Button variant="primary" onClick={downloadCSV} className="me-2">
+                        Download CSV
+                    </Button>
+                    <Link to='/pages/TenderMasterinsert'>
+                        <Button variant="primary" className="me-2">
+                            Add Tender
                         </Button>
-                        <Link to='/pages/TenderMasterinsert'>
-                            <Button variant="primary" className="me-2">
-                                Add Tender
-                            </Button>
-                        </Link>
+                    </Link>
 
-                    </div>
                 </div>
+            </div>
 
 
-                {loading ? (
-                    <div className='loader-container'>
-                        <div className="loader"></div>
-                        <div className='mt-2'>Please Wait!</div>
+            {loading ? (
+                <div className='loader-container'>
+                    <div className="loader"></div>
+                    <div className='mt-2'>Please Wait!</div>
+                </div>
+            ) : (
+
+                <>
+                    <div className='bg-white p-2 pb-2'>
+                        <Form
+                            onSubmit={(e) => {
+                                e.preventDefault();
+                                setCurrentPage(1);
+                                setSearchTriggered(true);
+                            }}
+                        >
+                            <Row>
+                                <Col lg={4}>
+                                    <Form.Group controlId="searchStatusValue">
+                                        <Form.Label>Status </Form.Label>
+                                        <Select
+                                            name="searchStatusValue"
+                                            value={statusList.find(emp => emp.name === searchStatusValue) || null}
+                                            onChange={(selectedOption) => setSearchStatusValue(selectedOption ? selectedOption.name : "")}
+                                            options={statusList}
+                                            getOptionLabel={(emp) => emp.name}
+                                            getOptionValue={(emp) => emp.name}
+                                            isSearchable={true}
+                                            placeholder="Select Status"
+                                            className="h45"
+                                        />
+                                    </Form.Group>
+                                </Col>
+                                <Col lg={4}>
+                                    <Form.Group controlId="searchCoreDesignation">
+                                        <Form.Label>Type of Tender</Form.Label>
+                                        <Select
+                                            name="searchTypeofTender"
+                                            options={options}
+                                            value={options.find(option => option.value === searchTypeofTender)}
+                                            onChange={selectedOption => setSearchTypeofTender(selectedOption?.value || '')}
+                                            placeholder="Type of Tender"
+                                        />
+                                    </Form.Group>
+                                </Col>
+
+                                <Col lg={4} className="align-items-end d-flex justify-content-end mt-2">
+                                    <ButtonGroup aria-label="Basic example" className="w-100">
+                                        <Button type="button" variant="primary" onClick={handleClear}>
+                                            <i className="ri-loop-left-line"></i>
+                                        </Button>
+                                        &nbsp;
+                                        <Button type="submit" variant="primary">
+                                            Search
+                                        </Button>
+                                    </ButtonGroup>
+                                </Col>
+                            </Row>
+                        </Form>
+
+
+
+                        <Row className='mt-3'>
+                            <div className="d-flex justify-content-end bg-light p-1">
+                                <div className="app-search d-none d-lg-block me-4">
+                                </div>
+
+
+                            </div>
+                        </Row>
                     </div>
-                ) : (
 
-                    <>
-                        <div className='bg-white p-2 pb-2'>
-                            <Form onSubmit={handleSearch}>
-                                <Row>
-                                    <Col lg={4}>
-                                        <Form.Group controlId="searchStatusValue">
-                                            <Form.Label>Status </Form.Label>
-                                            <Select
-                                                name="searchStatusValue"
-                                                value={statusList.find(emp => emp.name === searchStatusValue) || null}
-                                                onChange={(selectedOption) => setSearchStatusValue(selectedOption ? selectedOption.name : "")}
-                                                options={statusList}
-                                                getOptionLabel={(emp) => emp.name}
-                                                getOptionValue={(emp) => emp.name}
-                                                isSearchable={true}
-                                                placeholder="Select Status"
-                                                className="h45"
-                                            />
-                                        </Form.Group>
-                                    </Col>
-                                    <Col lg={4}>
-                                        <Form.Group controlId="searchCoreDesignation">
-                                            <Form.Label>Type of Tender</Form.Label>
-                                            <Select
-                                                name="searchTypeofTender"
-                                                options={options}
-                                                value={options.find(option => option.value === searchTypeofTender)}
-                                                onChange={selectedOption => setSearchTypeofTender(selectedOption?.value || '')}
-                                                placeholder="Type of Tender"
-                                            />
-                                        </Form.Group>
-                                    </Col>
-
-                                    <Col lg={4} className="align-items-end d-flex justify-content-end mt-2">
-                                        <ButtonGroup aria-label="Basic example" className="w-100">
-                                            <Button type="button" variant="primary" onClick={handleClear}>
-                                                <i className="ri-loop-left-line"></i>
-                                            </Button>
-                                            &nbsp;
-                                            <Button type="submit" variant="primary">
-                                                Search
-                                            </Button>
-                                        </ButtonGroup>
+                    <div className="overflow-auto text-nowrap">
+                        {!tenders ? (
+                            <Container className="mt-5">
+                                <Row className="justify-content-center">
+                                    <Col xs={12} md={8} lg={6}>
+                                        <Alert variant="info" className="text-center">
+                                            <h4>No Task Found</h4>
+                                            <p>You currently don't have Completed tasks</p>
+                                        </Alert>
                                     </Col>
                                 </Row>
-                            </Form>
+                            </Container>
+                        ) : (
+                            <DragDropContext onDragEnd={handleOnDragEnd}>
+                                <Table hover className='bg-white '>
+                                    <thead>
+                                        <Droppable droppableId="columns" direction="horizontal">
+                                            {(provided) => (
+                                                <tr {...provided.droppableProps} ref={provided.innerRef as React.Ref<HTMLTableRowElement>}>
+                                                    <th><i className="ri-list-ordered-2"></i>  Sr. No</th>
+                                                    {columns.filter(col => col.visible).map((column, index) => (
+                                                        <Draggable key={column.id} draggableId={column.id} index={index}>
+                                                            {(provided) => (
+                                                                <th>
+                                                                    <div ref={provided.innerRef}
+                                                                        {...provided.draggableProps}
+                                                                        {...provided.dragHandleProps}>
 
-
-
-                            <Row className='mt-3'>
-                                <div className="d-flex justify-content-end bg-light p-1">
-                                    <div className="app-search d-none d-lg-block me-4">
-                                    </div>
-
-
-                                </div>
-                            </Row>
-                        </div>
-
-                        <div className="overflow-auto text-nowrap">
-                            {!tenders ? (
-                                <Container className="mt-5">
-                                    <Row className="justify-content-center">
-                                        <Col xs={12} md={8} lg={6}>
-                                            <Alert variant="info" className="text-center">
-                                                <h4>No Task Found</h4>
-                                                <p>You currently don't have Completed tasks</p>
-                                            </Alert>
-                                        </Col>
-                                    </Row>
-                                </Container>
-                            ) : (
-                                <DragDropContext onDragEnd={handleOnDragEnd}>
-                                    <Table hover className='bg-white '>
-                                        <thead>
-                                            <Droppable droppableId="columns" direction="horizontal">
-                                                {(provided) => (
-                                                    <tr {...provided.droppableProps} ref={provided.innerRef as React.Ref<HTMLTableRowElement>}>
-                                                        <th><i className="ri-list-ordered-2"></i>  Sr. No</th>
-                                                        {columns.filter(col => col.visible).map((column, index) => (
-                                                            <Draggable key={column.id} draggableId={column.id} index={index}>
-                                                                {(provided) => (
-                                                                    <th>
-                                                                        <div ref={provided.innerRef}
-                                                                            {...provided.draggableProps}
-                                                                            {...provided.dragHandleProps}>
-
-                                                                            {column.id === 'id' && (<i className="ri-id-card-fill"></i>)}
-                                                                            {column.id === 'tenderStatus' && (<i className="ri-information-line"></i>)}
-                                                                            {column.id === 'executorCompany' && (<i className="ri-building-line"></i>)}
-                                                                            {column.id === 'country' && (<i className="ri-earth-fill"></i>)}
-                                                                            {column.id === 'state' && (<i className="ri-map-pin-fill"></i>)}
-                                                                            {column.id === 'workName' && (<i className="ri-file-text-fill"></i>)}
-                                                                            {column.id === 'notificationDate' && (<i className="ri-calendar-line"></i>)}
-                                                                            {column.id === 'tenderLink' && (<i className="ri-links-line"></i>)}
-                                                                            {column.id === 'deptPrincipleEmployerID' && (<i className="ri-user-settings-line"></i>)}
-                                                                            {column.id === 'deptPrincipleEmployerName' && (<i className="ri-user-fill"></i>)}
-                                                                            {column.id === 'contractType' && (<i className="ri-briefcase-line"></i>)}
-                                                                            {column.id === 'estimatedCost' && (<i className="ri-money-dollar-circle-line"></i>)}
-                                                                            {column.id === 'docPurchaseDeadline' && (<i className="ri-timer-line"></i>)}
-                                                                            {column.id === 'initialBidSubmitDate' && (<i className="ri-file-list-3-line"></i>)}
-                                                                            {column.id === 'latestBidSubmissionDate' && (<i className="ri-calendar-check-line"></i>)}
-                                                                            {column.id === 'completionPeriod' && (<i className="ri-timer-flash-line"></i>)}
-                                                                            {column.id === 'notificationFilePath' && (<i className="ri-file-list-line"></i>)}
-                                                                            {column.id === 'notificationFileURL' && (<i className="ri-link"></i>)}
-                                                                            {column.id === 'referredBy' && (<i className="ri-user-heart-line"></i>)}
-                                                                            {column.id === 'enteredByEmpID' && (<i className="ri-user-line"></i>)}
-                                                                            {column.id === 'enteredByEmpName' && (<i className="ri-user-3-line"></i>)}
-                                                                            {column.id === 'entryDate' && (<i className="ri-calendar-event-line"></i>)}
-                                                                            {column.id === 'handlingType' && (<i className="ri-hand-coin-line"></i>)}
-                                                                            {column.id === 'boqDeliveryDate' && (<i className="ri-calendar-todo-line"></i>)}
-                                                                            {column.id === 'executionModel' && (<i className="ri-bar-chart-box-line"></i>)}
-                                                                            {column.id === 'client_JVID' && (<i className="ri-user-line"></i>)}
-                                                                            {column.id === 'client_JVName' && (<i className="ri-user-line"></i>)}
-                                                                            {column.id === 'ddcVendorCode' && (<i className="ri-building-2-line"></i>)}
-                                                                            {column.id === 'ddcVendorName' && (<i className="ri-user-2-line"></i>)}
-                                                                            {column.id === 'technicalBidResultDate' && (<i className="ri-calendar-line"></i>)}
-                                                                            {column.id === 'financialBidOpeningDate' && (<i className="ri-calendar-check-line"></i>)}
-                                                                            {column.id === 'statusLastUpdatedDate' && (<i className="ri-calendar-event-line"></i>)}
-                                                                            {column.id === 'atBid' && (<i className="ri-money-dollar-circle-line"></i>)}
-                                                                            {column.id === 'l1BidderCode' && (<i className="ri-barcode-box-line"></i>)}
-                                                                            {column.id === 'l1BidderName' && (<i className="ri-user-star-line"></i>)}
-                                                                            {column.id === 'l1Bid' && (<i className="ri-money-dollar-circle-fill"></i>)}
-                                                                            {column.id === 'loiDate' && (<i className="ri-calendar-star-line"></i>)}
-                                                                            {column.id === 'loiStatus' && (<i className="ri-file-shield-2-line"></i>)}
-                                                                            {column.id === 'agreementSigned' && (<i className="ri-handshake-line"></i>)}
-                                                                            {column.id === 'pbgSubmissionRequired' && (<i className="ri-secure-payment-line"></i>)}
-                                                                            {column.id === 'pbgSubmissionDate' && (<i className="ri-calendar-check-fill"></i>)}
-                                                                            {column.id === 'lostTenderReviewRequired' && (<i className="ri-eye-line"></i>)}
-                                                                            {column.id === 'tenderComparisionReportPath' && (<i className="ri-file-search-line"></i>)}
-                                                                            {column.id === 'tenderComparisionReportURL' && (<i className="ri-links-line"></i>)}
-                                                                            &nbsp; {column.label}
-                                                                        </div>
-                                                                    </th>
-                                                                )}
-                                                            </Draggable>
-                                                        ))}
-                                                        {provided.placeholder}
-                                                        <th>Action</th>
-                                                    </tr>
-                                                )}
-                                            </Droppable>
-                                        </thead>
-                                        <tbody>
-                                            {tenders.length > 0 ? (
-                                                tenders.slice(0, 10).map((item, index) => (
-                                                    <tr key={item.tenderID}>
-                                                        <td>{(currentPage - 1) * 10 + index + 1}</td>
-                                                        {columns.filter(col => col.visible).map((col) => (
-                                                            <td key={col.id}
-                                                                className={
-                                                                    (col.id === 'tenderStatus' && item[col.id] === 'INACTIVE') ? 'task4' :
-                                                                        (col.id === 'tenderStatus' && item[col.id] === 'ACTIVE') ? 'task1' :
-                                                                            ''
-                                                                }
-                                                            >
-                                                                <div>{item[col.id as keyof Tender]}</div>
-                                                            </td>
-                                                        ))}
-
-                                                        <td><Link to={`/pages/TenderMasterinsert/${item.tenderID}`}>
-                                                            <Button variant='primary' className='p-0 text-white'>
-                                                                <i className='btn ri-edit-line text-white' ></i>
-                                                            </Button>
-                                                        </Link>
-                                                        </td>
-                                                    </tr>
-                                                ))
-                                            ) : (
-                                                <tr>
-                                                    <td colSpan={12}>
-                                                        <Container className="mt-5">
-                                                            <Row className="justify-content-center">
-                                                                <Col xs={12} md={8} lg={6}>
-                                                                    <Alert variant="info" className="text-center">
-                                                                        <h4>No Data  Found</h4>
-                                                                        <p>You currently don't have any Data</p>
-                                                                    </Alert>
-                                                                </Col>
-                                                            </Row>
-                                                        </Container>
-                                                    </td>
+                                                                        {column.id === 'id' && (<i className="ri-id-card-fill"></i>)}
+                                                                        {column.id === 'tenderStatus' && (<i className="ri-information-line"></i>)}
+                                                                        {column.id === 'executorCompany' && (<i className="ri-building-line"></i>)}
+                                                                        {column.id === 'country' && (<i className="ri-earth-fill"></i>)}
+                                                                        {column.id === 'state' && (<i className="ri-map-pin-fill"></i>)}
+                                                                        {column.id === 'workName' && (<i className="ri-file-text-fill"></i>)}
+                                                                        {column.id === 'notificationDate' && (<i className="ri-calendar-line"></i>)}
+                                                                        {column.id === 'tenderLink' && (<i className="ri-links-line"></i>)}
+                                                                        {column.id === 'deptPrincipleEmployerID' && (<i className="ri-user-settings-line"></i>)}
+                                                                        {column.id === 'deptPrincipleEmployerName' && (<i className="ri-user-fill"></i>)}
+                                                                        {column.id === 'contractType' && (<i className="ri-briefcase-line"></i>)}
+                                                                        {column.id === 'estimatedCost' && (<i className="ri-money-dollar-circle-line"></i>)}
+                                                                        {column.id === 'docPurchaseDeadline' && (<i className="ri-timer-line"></i>)}
+                                                                        {column.id === 'initialBidSubmitDate' && (<i className="ri-file-list-3-line"></i>)}
+                                                                        {column.id === 'latestBidSubmissionDate' && (<i className="ri-calendar-check-line"></i>)}
+                                                                        {column.id === 'completionPeriod' && (<i className="ri-timer-flash-line"></i>)}
+                                                                        {column.id === 'notificationFilePath' && (<i className="ri-file-list-line"></i>)}
+                                                                        {column.id === 'notificationFileURL' && (<i className="ri-link"></i>)}
+                                                                        {column.id === 'referredBy' && (<i className="ri-user-heart-line"></i>)}
+                                                                        {column.id === 'enteredByEmpID' && (<i className="ri-user-line"></i>)}
+                                                                        {column.id === 'enteredByEmpName' && (<i className="ri-user-3-line"></i>)}
+                                                                        {column.id === 'entryDate' && (<i className="ri-calendar-event-line"></i>)}
+                                                                        {column.id === 'handlingType' && (<i className="ri-hand-coin-line"></i>)}
+                                                                        {column.id === 'boqDeliveryDate' && (<i className="ri-calendar-todo-line"></i>)}
+                                                                        {column.id === 'executionModel' && (<i className="ri-bar-chart-box-line"></i>)}
+                                                                        {column.id === 'client_JVID' && (<i className="ri-user-line"></i>)}
+                                                                        {column.id === 'client_JVName' && (<i className="ri-user-line"></i>)}
+                                                                        {column.id === 'ddcVendorCode' && (<i className="ri-building-2-line"></i>)}
+                                                                        {column.id === 'ddcVendorName' && (<i className="ri-user-2-line"></i>)}
+                                                                        {column.id === 'technicalBidResultDate' && (<i className="ri-calendar-line"></i>)}
+                                                                        {column.id === 'financialBidOpeningDate' && (<i className="ri-calendar-check-line"></i>)}
+                                                                        {column.id === 'statusLastUpdatedDate' && (<i className="ri-calendar-event-line"></i>)}
+                                                                        {column.id === 'atBid' && (<i className="ri-money-dollar-circle-line"></i>)}
+                                                                        {column.id === 'l1BidderCode' && (<i className="ri-barcode-box-line"></i>)}
+                                                                        {column.id === 'l1BidderName' && (<i className="ri-user-star-line"></i>)}
+                                                                        {column.id === 'l1Bid' && (<i className="ri-money-dollar-circle-fill"></i>)}
+                                                                        {column.id === 'loiDate' && (<i className="ri-calendar-star-line"></i>)}
+                                                                        {column.id === 'loiStatus' && (<i className="ri-file-shield-2-line"></i>)}
+                                                                        {column.id === 'agreementSigned' && (<i className="ri-handshake-line"></i>)}
+                                                                        {column.id === 'pbgSubmissionRequired' && (<i className="ri-secure-payment-line"></i>)}
+                                                                        {column.id === 'pbgSubmissionDate' && (<i className="ri-calendar-check-fill"></i>)}
+                                                                        {column.id === 'lostTenderReviewRequired' && (<i className="ri-eye-line"></i>)}
+                                                                        {column.id === 'tenderComparisionReportPath' && (<i className="ri-file-search-line"></i>)}
+                                                                        {column.id === 'tenderComparisionReportURL' && (<i className="ri-links-line"></i>)}
+                                                                        &nbsp; {column.label}
+                                                                    </div>
+                                                                </th>
+                                                            )}
+                                                        </Draggable>
+                                                    ))}
+                                                    {provided.placeholder}
+                                                    <th>Action</th>
                                                 </tr>
                                             )}
-                                        </tbody>
-                                    </Table>
-                                </DragDropContext>
-                            )}
-                        </div>
-                    </>
-                )}
+                                        </Droppable>
+                                    </thead>
+                                    <tbody>
+                                        {tenders.length > 0 ? (
+                                            tenders.slice(0, 10).map((item, index) => (
+                                                <tr key={item.tenderID}>
+                                                    <td>{(currentPage - 1) * 10 + index + 1}</td>
+                                                    {columns.filter(col => col.visible).map((col) => (
+                                                        <td key={col.id}
+                                                            className={
+                                                                (col.id === 'tenderStatus' && item[col.id] === 'INACTIVE') ? 'task4' :
+                                                                    (col.id === 'tenderStatus' && item[col.id] === 'ACTIVE') ? 'task1' :
+                                                                        ''
+                                                            }
+                                                        >
+                                                            <div>{item[col.id as keyof Tender]}</div>
+                                                        </td>
+                                                    ))}
 
-                <div className="d-flex justify-content-center align-items-center bg-white w-20 rounded-5 m-auto py-1 pb-1 my-2 pagination-rounded">
-                    <Pagination >
-                        <Pagination.First onClick={() => setCurrentPage(1)} disabled={currentPage === 1} />
-                        <Pagination.Prev onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))} disabled={currentPage === 1} />
-                        <Pagination.Item active>{currentPage}</Pagination.Item>
-                        <Pagination.Next onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))} disabled={currentPage === totalPages} />
-                        <Pagination.Last onClick={() => setCurrentPage(totalPages)} disabled={currentPage === totalPages} />
-                    </Pagination>
-                </div>
+                                                    <td><Link to={`/pages/TenderMasterinsert/${item.tenderID}`}>
+                                                        <Button variant='primary' className='p-0 text-white'>
+                                                            <i className='btn ri-edit-line text-white' ></i>
+                                                        </Button>
+                                                    </Link>
+                                                    </td>
+                                                </tr>
+                                            ))
+                                        ) : (
+                                            <tr>
+                                                <td colSpan={12}>
+                                                    <Container className="mt-5">
+                                                        <Row className="justify-content-center">
+                                                            <Col xs={12} md={8} lg={6}>
+                                                                <Alert variant="info" className="text-center">
+                                                                    <h4>No Data  Found</h4>
+                                                                    <p>You currently don't have any Data</p>
+                                                                </Alert>
+                                                            </Col>
+                                                        </Row>
+                                                    </Container>
+                                                </td>
+                                            </tr>
+                                        )}
+                                    </tbody>
+                                </Table>
+                            </DragDropContext>
+                        )}
+                    </div>
+                </>
+            )}
+
+            <div className="d-flex justify-content-center align-items-center bg-white w-20 rounded-5 m-auto py-1 pb-1 my-2 pagination-rounded">
+                <Pagination >
+                    <Pagination.First onClick={() => setCurrentPage(1)} disabled={currentPage === 1} />
+                    <Pagination.Prev onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))} disabled={currentPage === 1} />
+                    <Pagination.Item active>{currentPage}</Pagination.Item>
+                    <Pagination.Next onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))} disabled={currentPage === totalPages} />
+                    <Pagination.Last onClick={() => setCurrentPage(totalPages)} disabled={currentPage === totalPages} />
+                </Pagination>
+            </div>
 
 
         </>

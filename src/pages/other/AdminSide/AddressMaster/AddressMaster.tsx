@@ -80,14 +80,16 @@ const AddressMaster = () => {
 
 
 
+    const [searchTriggered, setSearchTriggered] = useState(false);
+
     useEffect(() => {
-        if (searchPinCode || searchState) {
+        if (searchTriggered || currentPage) {
             handleSearch();
+            setSearchTriggered(false);
         } else {
             fetchStaffRequirements();
         }
-    }, [currentPage]);
-
+    }, [currentPage, searchTriggered]);
 
 
     const [searchPinCode, setSearchPinCode] = useState('');
@@ -105,7 +107,7 @@ const AddressMaster = () => {
 
         query = query.endsWith('&') ? query.slice(0, -1) : query;
         const apiUrl = `${config.API_URL_APPLICATION}/AddressMaster/SearchAddress${query}`;
-
+        setLoading(true);
         console.log(apiUrl)
         axios.get(apiUrl, {
             headers: {
@@ -119,7 +121,7 @@ const AddressMaster = () => {
             })
             .catch((error) => {
                 console.error('Error fetching data:', error);
-            });
+            }).finally(() => setLoading(false));
     };
 
     const fetchStaffRequirements = async () => {
@@ -162,14 +164,17 @@ const AddressMaster = () => {
     }, []);
 
 
-    const handleClear = () => {
+    const handleClear = async () => {
         setCurrentPage(1);
-        fetchStaffRequirements();
         setSearchState('');
         setSearchPinCode('');
         setSearchStatus('');
+        try {
+            await fetchStaffRequirements();
+        } catch (error) {
+            console.error('Error fetching staff requirements:', error);
+        }
     };
-
 
     const convertToCSV = (data: Addresses[]) => {
         const csvRows = [
@@ -243,7 +248,7 @@ const AddressMaster = () => {
                             onSubmit={(e) => {
                                 e.preventDefault();
                                 setCurrentPage(1);
-                                handleSearch();
+                                setSearchTriggered(true);
                             }}
                         >
 
@@ -299,10 +304,6 @@ const AddressMaster = () => {
                                         <Button
                                             type="submit"
                                             variant="primary"
-                                            onClick={() => {
-                                                setCurrentPage(1);
-                                                handleSearch();
-                                            }}
                                         >
                                             Search
                                         </Button>

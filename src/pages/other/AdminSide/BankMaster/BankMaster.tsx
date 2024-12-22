@@ -114,13 +114,17 @@ const BankMaster = () => {
     const [searchStatus, setSearchStatus] = useState('');
     const [searchState, setSearchState] = useState('');
 
+    const [searchTriggered, setSearchTriggered] = useState(false);
+
     useEffect(() => {
-        if (searchBank || searchIfsc || searchBranch || searchState) {
+        if (searchTriggered || currentPage) {
             handleSearch();
+            setSearchTriggered(false);
         } else {
             fetchStaffRequirements();
         }
-    }, [currentPage]);
+    }, [currentPage, searchTriggered]);
+
 
     const handleSearch = (e?: React.FormEvent) => {
         if (e) e.preventDefault();
@@ -136,7 +140,7 @@ const BankMaster = () => {
 
         query = query.endsWith('&') ? query.slice(0, -1) : query;
         const apiUrl = `${config.API_URL_APPLICATION}/BankMaster/SearchBank${query}`;
-
+        setLoading(true);
         console.log(apiUrl)
         axios.get(apiUrl, {
             headers: {
@@ -145,11 +149,12 @@ const BankMaster = () => {
         })
             .then((response) => {
                 setBanks(response.data.bankMasterListResponses)
+                console.log(response.data.bankMasterListResponses)
                 setTotalPages(Math.ceil(response.data.totalCount / 10));
             })
             .catch((error) => {
                 console.error('Error fetching data:', error);
-            });
+            }).finally(() => setLoading(false));
     };
 
     useEffect(() => {
@@ -258,7 +263,7 @@ const BankMaster = () => {
                             onSubmit={(e) => {
                                 e.preventDefault();
                                 setCurrentPage(1);
-                                handleSearch();
+                                setSearchTriggered(true);
                             }}
                         >
                             <Row>
@@ -270,7 +275,6 @@ const BankMaster = () => {
                                             name="searchIfsc"
                                             value={searchIfsc}
                                             onChange={(e) => setSearchIfsc(e.target.value)}
-                                            required
                                             placeholder='Enter ISFC Code'
                                         />
                                     </Form.Group>
@@ -328,10 +332,8 @@ const BankMaster = () => {
                                         </Button>
                                         &nbsp;
                                         <Button type="submit" variant="primary"
-                                            onClick={() => {
-                                                setCurrentPage(1);
-                                                handleSearch();
-                                            }}>
+
+                                        >
                                             Search
                                         </Button>
                                     </ButtonGroup>

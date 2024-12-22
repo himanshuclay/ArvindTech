@@ -94,6 +94,7 @@ const EmployeeMaster = () => {
     const [employeeList, setEmployeeList] = useState<EmployeeList[]>([]);
     const [downloadCsv, setDownloadCsv] = useState<Employee[]>([]);
     const [projectList, setProjectList] = useState<ModuleProjectList[]>([])
+    const [searchTriggered, setSearchTriggered] = useState(false);
 
 
     const location = useLocation();
@@ -148,14 +149,15 @@ const EmployeeMaster = () => {
 
 
 
+
     useEffect(() => {
-        if (searchEmployee || searchProject || searchAppAccessLevel || searchDataAccessLevel || searchAppAccess || searchEmpstatus) {
+        if (searchTriggered || currentPage) {
             handleSearch();
+            setSearchTriggered(false);
         } else {
             fetchEmployee();
         }
-    }, [currentPage]);
-
+    }, [currentPage, searchTriggered]);
 
     const handleSearch = (e?: React.FormEvent) => {
         if (e) e.preventDefault();
@@ -189,15 +191,15 @@ const EmployeeMaster = () => {
             });
     };
 
-    const handleClear = () => {
+    const handleClear = async () => {
+        setCurrentPage(1);
         setSearchEmployee('');
         setSearchProject('');
         setSearchAppAccessLevel('');
         setSearchDataAccessLevel('');
         setSearchAppAccess('');
         setSearchEmpstatus('');
-        fetchEmployee();
-        setCurrentPage(1);
+        await fetchEmployee();
     };
 
 
@@ -445,7 +447,7 @@ const EmployeeMaster = () => {
                             onSubmit={(e) => {
                                 e.preventDefault();
                                 setCurrentPage(1);
-                                handleSearch();
+                                setSearchTriggered(true);
                             }}
                         >
 
@@ -544,10 +546,7 @@ const EmployeeMaster = () => {
                                         </Button>
                                         &nbsp;
                                         <Button type="submit" variant="primary"
-                                            onClick={(e) => {
-                                                setCurrentPage(1);
-                                                handleSearch();
-                                            }}>
+                                        >
                                             Search
                                         </Button>
                                     </ButtonGroup>

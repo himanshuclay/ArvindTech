@@ -35,6 +35,7 @@ const ModuleMaster = () => {
     const [fillingFrequency, setFillingFrequency] = useState<FrequencyFill[]>([]);
     const [searchRole, setSearchRole] = useState('');
     const [searchStatus, setSearchStatus] = useState('');
+    const [searchTriggered, setSearchTriggered] = useState(false);
 
 
 
@@ -70,20 +71,15 @@ const ModuleMaster = () => {
     };
     // ==============================================================
 
-    useEffect(() => {
-        fetchRoles();
-        fetchRolesCsv();
-    }, [currentPage]);
-
-
 
     useEffect(() => {
-        if (searchRole || searchStatus) {
+        if (searchTriggered || currentPage) {
             handleSearch();
+            setSearchTriggered(false);
         } else {
             fetchRoles();
         }
-    }, [currentPage]);
+    }, [currentPage, searchTriggered]);
 
     const handleSearch = (e?: React.FormEvent) => {
         if (e) e.preventDefault();
@@ -128,21 +124,6 @@ const ModuleMaster = () => {
 
 
 
-    const fetchRolesCsv = async () => {
-        try {
-            const response = await axios.get(`${config.API_URL_APPLICATION}/FillingFrequencyMaster/GetFillingFrequency`);
-            if (response.data.isSuccess) {
-                setDownloadCsv(response.data.fillingFrequencies);
-            } else {
-                console.error(response.data.message);
-            }
-        } catch (error) {
-            console.error('Error fetching doers:', error);
-        }
-
-    };
-
-
 
     useEffect(() => {
         const fetchData = async (endpoint: string, setter: Function, listName: string) => {
@@ -159,14 +140,15 @@ const ModuleMaster = () => {
         };
 
         fetchData('CommonDropdown/GetFillingFrequency', setFillingFrequency, 'fillingFrequencyListResponses');
+        fetchData('FillingFrequencyMaster/GetFillingFrequency', setDownloadCsv, 'fillingFrequencies');
     }, []);
 
 
-    const handleClear = () => {
+    const handleClear = async () => {
         setCurrentPage(1);
-        fetchRoles();
         setSearchRole('');
         setSearchStatus('');
+        await fetchRoles();
     };
 
 
@@ -233,56 +215,58 @@ const ModuleMaster = () => {
                 </div>
             ) : (<>
                 <div className='bg-white p-2 pb-2'>
-                    <Row>
-                        <Col lg={4} className="">
-                            <Form.Group controlId="searchRole">
-                                <Form.Label>Filling Frequency</Form.Label>
-                                <Select
-                                    name="searchRole"
-                                    value={fillingFrequency.find(item => item.name === searchRole) || null}
-                                    onChange={(selectedOption) => setSearchRole(selectedOption ? selectedOption.name : '')}
-                                    options={fillingFrequency}
-                                    getOptionLabel={(item) => item.name}
-                                    getOptionValue={(item) => item.name}
-                                    isSearchable={true}
-                                    placeholder="Select Filling Frequency"
-                                    className="h45"
-                                />
-                            </Form.Group>
-                        </Col>
 
-                        <Col lg={4} className="">
-                            <Form.Group controlId="searchStatus">
-                                <Form.Label>Status</Form.Label>
-                                <Select
-                                    name="searchStatus"
-                                    options={optionsStatus}
-                                    value={optionsStatus.find(option => option.value === searchStatus) || null}
-                                    onChange={(selectedOption) => setSearchStatus(selectedOption?.value || '')}
-                                    placeholder="Select Status"
-                                />
-                            </Form.Group>
-                        </Col>
+                    <Form
+                        onSubmit={(e) => {
+                            e.preventDefault();
+                            setCurrentPage(1);
+                            setSearchTriggered(true);
+                        }}
+                    >
+                        <Row>
+                            <Col lg={4} className="">
+                                <Form.Group controlId="searchRole">
+                                    <Form.Label>Filling Frequency</Form.Label>
+                                    <Select
+                                        name="searchRole"
+                                        value={fillingFrequency.find(item => item.name === searchRole) || null}
+                                        onChange={(selectedOption) => setSearchRole(selectedOption ? selectedOption.name : '')}
+                                        options={fillingFrequency}
+                                        getOptionLabel={(item) => item.name}
+                                        getOptionValue={(item) => item.name}
+                                        isSearchable={true}
+                                        placeholder="Select Filling Frequency"
+                                        className="h45"
+                                    />
+                                </Form.Group>
+                            </Col>
 
-                        <Col lg={4} className="align-items-end d-flex justify-content-end mt-2">
-                            <ButtonGroup aria-label="Basic example" className="w-100">
-                                <Button type="button" variant="primary" onClick={handleClear}>
-                                    <i className="ri-loop-left-line"></i>
-                                </Button>
-                                &nbsp;
-                                <Button type="submit" variant="primary"
+                            <Col lg={4} className="">
+                                <Form.Group controlId="searchStatus">
+                                    <Form.Label>Status</Form.Label>
+                                    <Select
+                                        name="searchStatus"
+                                        options={optionsStatus}
+                                        value={optionsStatus.find(option => option.value === searchStatus) || null}
+                                        onChange={(selectedOption) => setSearchStatus(selectedOption?.value || '')}
+                                        placeholder="Select Status"
+                                    />
+                                </Form.Group>
+                            </Col>
 
-                                    onClick={() => {
-                                        handleSearch();
-                                        setCurrentPage(1);
-                                    }}
-
-                                >
-                                    Search
-                                </Button>
-                            </ButtonGroup>
-                        </Col>
-                    </Row>
+                            <Col lg={4} className="align-items-end d-flex justify-content-end mt-2">
+                                <ButtonGroup aria-label="Basic example" className="w-100">
+                                    <Button type="button" variant="primary" onClick={handleClear}>
+                                        <i className="ri-loop-left-line"></i>
+                                    </Button>
+                                    &nbsp;
+                                    <Button type="submit" variant="primary">
+                                        Search
+                                    </Button>
+                                </ButtonGroup>
+                            </Col>
+                        </Row>
+                    </Form>
 
 
 

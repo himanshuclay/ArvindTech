@@ -92,6 +92,7 @@ const ProjectMaster = () => {
     const [searchAppAccess, setSearchAppAccess] = useState('');
     const [searchCompletionStatus, setSearchCompletionStatus] = useState<any>();
     const [downloadCsv, setDownloadCsv] = useState<Project[]>([]);
+    const [searchTriggered, setSearchTriggered] = useState(false);
 
 
     const location = useLocation();
@@ -137,16 +138,20 @@ const ProjectMaster = () => {
         fetchProjects();
     };
 
+
     useEffect(() => {
-        if (searchProjectInchage || searchProjectCoordinator || searchProjectName || searchCompletionStatus || searchAppAccess) {
+        if (searchTriggered || currentPage) {
             handleSearch();
+            setSearchTriggered(false);
         } else {
             fetchProjects();
         }
-    }, [currentPage]);
+    }, [currentPage, searchTriggered]);
+
 
     const handleSearch = (e?: React.FormEvent) => {
         if (e) e.preventDefault();
+
         let query = `?`;
 
 
@@ -360,7 +365,7 @@ const ProjectMaster = () => {
                             onSubmit={(e) => {
                                 e.preventDefault();
                                 setCurrentPage(1);
-                                handleSearch();
+                                setSearchTriggered(true);
                             }}
                         >
                             <Row>
