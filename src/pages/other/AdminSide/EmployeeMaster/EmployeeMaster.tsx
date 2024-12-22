@@ -151,7 +151,7 @@ const EmployeeMaster = () => {
 
 
     useEffect(() => {
-        if (searchTriggered || currentPage) {
+        if (searchTriggered) {
             handleSearch();
             setSearchTriggered(false);
         } else {

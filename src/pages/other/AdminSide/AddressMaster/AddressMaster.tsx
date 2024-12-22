@@ -83,7 +83,7 @@ const AddressMaster = () => {
     const [searchTriggered, setSearchTriggered] = useState(false);
 
     useEffect(() => {
-        if (searchTriggered || currentPage) {
+        if (searchTriggered) {
             handleSearch();
             setSearchTriggered(false);
         } else {

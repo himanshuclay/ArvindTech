@@ -117,7 +117,7 @@ const BankMaster = () => {
     const [searchTriggered, setSearchTriggered] = useState(false);
 
     useEffect(() => {
-        if (searchTriggered || currentPage) {
+        if (searchTriggered) {
             handleSearch();
             setSearchTriggered(false);
         } else {
@@ -177,14 +177,14 @@ const BankMaster = () => {
 
 
 
-    const handleClear = () => {
+    const handleClear = async () => {
         setCurrentPage(1);
-        fetchStaffRequirements();
         setSearchState('');
         setSearchBranch('');
         setSearchIfsc('');
         setSearchBank('');
         setSearchStatus('');
+        await fetchStaffRequirements();
     };
 
     const convertToCSV = (data: Bank[]) => {
