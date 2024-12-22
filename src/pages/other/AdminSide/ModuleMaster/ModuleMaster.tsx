@@ -173,7 +173,7 @@ const ModuleMaster = () => {
 
     const convertToCSV = (data: Module[]) => {
         const csvRows = [
-            ['ID', 'Module Display Name', 'FMS Type', 'Module ID', 'MIS Exempt ID', 'Status ID', 'Module Owner Name ID', 'Created By', 'Updated By', 'Created Date', 'Updated Date'],
+            ['ID', 'Module Display Name', 'FMS Type', 'Module ID', 'MIS Exempt', 'Status', 'Module Owner Name ID', 'Created By', 'Updated By', 'Created Date', 'Updated Date'],
             ...data.map(mod => [
                 mod.id,
                 mod.moduleDisplayName,
