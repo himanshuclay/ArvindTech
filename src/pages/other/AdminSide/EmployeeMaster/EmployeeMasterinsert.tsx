@@ -157,7 +157,7 @@ const EmployeeMasterInsert = () => {
         expense: ''
     });
     const [errorMessage, setErrorMessage] = useState('');
-
+    // const [isSubmitted, setIsSubmitted] = useState(false);
 
     const [districts, setDistricts] = useState<District[]>([]);
     const [areaData, setAreaData] = useState<AreaData[]>([]);
@@ -167,6 +167,7 @@ const EmployeeMasterInsert = () => {
     const [isMobileVerified, setIsMobileVerified] = useState(false);
 
     const dateOfLeavingRef = useRef<any>(null);
+
     useEffect(() => {
         toast.dismiss();
 
@@ -366,7 +367,6 @@ const EmployeeMasterInsert = () => {
     const handleChange = (e: ChangeEvent<any> | null, name?: string, value?: any) => {
         const validateMobileNumber = (fieldName: string, fieldValue: string) => {
             if (!/^\d{0,10}$/.test(fieldValue)) {
-                toast.error("Please verify your mobile number before submitting the form.");
                 return false;
             }
 
@@ -375,19 +375,17 @@ const EmployeeMasterInsert = () => {
                 [fieldName]: fieldValue,
             }));
 
-
-
-            if (!/^[6-9]/.test(fieldValue)) {
-                toast.dismiss()
-                toast.error("Mobile number should start with a digit between 6 and 9.");
-                setIsMobileVerified(true);
-                return false;
+            if (fieldValue.length === 10) {
+                if (!/^[6-9]/.test(fieldValue)) {
+                    toast.error("Mobile number should start with a digit between 6 and 9.");
+                    setIsMobileVerified(true);
+                    return false;
+                }
+            } else {
+                setIsMobileVerified(false);
             }
-
-            setIsMobileVerified(true);
             return true;
         };
-
 
         if (e) {
             const { name: eventName, type } = e.target;
@@ -500,8 +498,6 @@ const EmployeeMasterInsert = () => {
     const validateFields = (): boolean => {
         const errors: { [key: string]: string } = {};
 
-        console.log('Data Access Level:', employee.dataAccessLevel);
-        // Check required fields based on the Employee interface
         if (!employee.empID) { errors.empID = 'Employee ID is required'; }
         if (!employee.employeeName) { errors.employeeName = 'Employee Name is required'; }
         if (!employee.fatherName) { errors.fatherName = 'Father Name is required'; }
@@ -525,26 +521,59 @@ const EmployeeMasterInsert = () => {
 
 
         if (employee.dataAccessLevel === 'ProjectModule') {
-            if (!employee.daL_Module) { errors.daL_Module = 'Module is required'; }
-            if (!employee.daL_Project) { errors.daL_Project = 'Project is required'; }
+            if (!employee.daL_Module ||
+                (typeof employee.daL_Module === 'string' && employee.daL_Module.trim() === '') ||
+                (Array.isArray(employee.daL_Module) && employee.daL_Module.length === 0)
+            ) { errors.daL_Module = 'Module is required'; }
+            if (
+                !employee.daL_Project ||
+                (typeof employee.daL_Project === 'string' && employee.daL_Project.trim() === '') ||
+                (Array.isArray(employee.daL_Project) && employee.daL_Project.length === 0)
+            ) { errors.daL_Project = 'Project is required'; }
         }
+
+
         if (employee.dataAccessLevel === 'Module') {
-            if (!employee.daL_Module) { errors.daL_Module = 'Module is required'; }
+            if (!employee.daL_Module ||
+                (typeof employee.daL_Module === 'string' && employee.daL_Module.trim() === '') ||
+                (Array.isArray(employee.daL_Module) && employee.daL_Module.length === 0)
+            ) { errors.daL_Module = 'Module is required'; }
         }
         if (employee.dataAccessLevel === 'Project') {
-            if (!employee.daL_Project) { errors.daL_Project = 'Project is required'; }
+            if (
+                !employee.daL_Project ||
+                (typeof employee.daL_Project === 'string' && employee.daL_Project.trim() === '') ||
+                (Array.isArray(employee.daL_Project) && employee.daL_Project.length === 0)
+            ) { errors.daL_Project = 'Project is required'; }
+        }
+        if (employee.empStatus === 'Former') {
+            if (
+                !employee.dateOfLeaving ||
+                (typeof employee.dateOfLeaving === 'string' && employee.dateOfLeaving.trim() === '') ||
+                (Array.isArray(employee.dateOfLeaving) && employee.dateOfLeaving.length === 0)
+            ) { errors.dateOfLeaving = 'Date of Leaving  is required'; }
         }
 
 
+        console.log(errors)
         setValidationErrors(errors);
         return Object.keys(errors).length === 0;
     };
+
+
+    // useEffect(() => {
+    //     if (isSubmitted) {
+    //         validateFields();
+    //     }
+    // }, [employee, isSubmitted]);
+
 
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         toast.dismiss()
 
+        // setIsSubmitted(true);
 
         if (!validateFields()) {
             toast.dismiss()
@@ -973,13 +1002,13 @@ const EmployeeMasterInsert = () => {
 
                             <Col lg={6}>
                                 <Form.Group controlId="daL_Project" className="mb-3">
-                                    <Form.Label> DAL Project {(employee.dataAccessLevel === 'Project' || employee.dataAccessLevel === 'ProjectModule') ? '*' : null} </Form.Label>
+                                    <Form.Label> DAL Project </Form.Label>
                                     <Select
                                         name="daL_Project"
                                         value={projectList.filter((emp) =>
                                             Array.isArray(employee.daL_Project)
                                                 ? employee.daL_Project.includes(emp.projectName)
-                                                : employee.daL_Project.split(',').includes(emp.projectName) 
+                                                : employee.daL_Project.split(',').includes(emp.projectName)
                                         )}
                                         onChange={(selectedOptions) => {
                                             const daL_Project = (selectedOptions || []).map(option => option.projectName);
@@ -1054,9 +1083,8 @@ const EmployeeMasterInsert = () => {
                                             time_24hr: false,
                                         }}
                                         placeholder=" Date of Leaving "
-                                        className="form-control"
-                                        required={employee.empStatus === 'Former'}
                                         disabled={employee.empStatus !== 'Former'}
+                                        className={validationErrors.empStatus ? " input-border form-control" : "form-control  "}
 
                                     />
 

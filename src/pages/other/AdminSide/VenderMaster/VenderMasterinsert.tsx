@@ -99,10 +99,11 @@ const DepartmentMasterinsert = () => {
     useEffect(() => {
         toast.dismiss();
         const storedEmpName = localStorage.getItem('EmpName');
-        if (storedEmpName && storedEmpName.trim().length > 0) {
+        const storedEmpID = localStorage.getItem('EmpId');
+        if (storedEmpName && storedEmpName.trim().length > 0 || storedEmpID) {
             setVenders((prevState) => ({
                 ...prevState,
-                creatorName: storedEmpName,
+                creatorName: `${storedEmpName} - ${storedEmpID}`,
             }));
         }
     }, []);

@@ -220,6 +220,7 @@ const ModuleMaster = () => {
                 mod.link || '',
                 mod.processFlowchart || '',
                 mod.misExempt || '',
+                mod.status || '',
                 `"${mod.projectName.replace(/"/g, '""')}"`,
                 mod.createdBy,
                 mod.updatedBy,
@@ -457,7 +458,7 @@ const ModuleMaster = () => {
                                                                                 {item.processOwnerName.split('_')[0]}
                                                                             </div>
                                                                             {item.userUpdatedMobileNumber ?
-                                                                                <p className='phone_user fw-normal m-0'><a href={`tel:${item.userUpdatedMobileNumber}`}> <i className="ri-phone-fill"></i> {item.userUpdatedMobileNumber}</a></p> : ""
+                                                                                <p className=' fw-normal m-0'><a href={`tel:${item.userUpdatedMobileNumber}`}> <i className="ri-phone-fill"></i> {item.userUpdatedMobileNumber}</a></p> : ""
                                                                             }
                                                                         </td>
                                                                     ) : (

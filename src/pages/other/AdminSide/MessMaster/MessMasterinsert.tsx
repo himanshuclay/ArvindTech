@@ -58,13 +58,15 @@ const EmployeeInsert = () => {
     const [isMobileVerified, setIsMobileVerified] = useState(false);
 
     useEffect(() => {
-        toast.dismiss()
+        toast.dismiss();
 
         const storedEmpName = localStorage.getItem('EmpName');
-        if (storedEmpName) {
-            setEmpName(storedEmpName);
+        const storedEmpID = localStorage.getItem('EmpId');
+        if (storedEmpName || storedEmpID) {
+            setEmpName(`${storedEmpName} - ${storedEmpID}`);
         }
     }, []);
+
 
 
     useEffect(() => {
@@ -210,6 +212,12 @@ const EmployeeInsert = () => {
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
 
+        if (messes.mobileNumber.length !== 10) {
+            toast.dismiss()
+            toast.error("Mobile number should be exactly 10 digits long.");
+            setIsMobileVerified(true);
+            return false;
+        }
 
         if (isMobileVerified) {
             toast.error("Please verify your mobile number before submitting the form.");
