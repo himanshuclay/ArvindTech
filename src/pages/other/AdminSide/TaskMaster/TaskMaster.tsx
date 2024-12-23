@@ -11,13 +11,33 @@ import DynamicForm from '../../Component/DynamicForm';
 // Interfaces for the data
 interface Task {
     id: number;
+    moduleID: string;
     moduleName: string;
+    processID: string;
     processName: string;
-    task_Number: string;
+    roleId: string;
     roleName: string;
     task_Json: string;
-
+    task_Number: string;
+    task_Status: number;
+    taskType: string;
+    problem_Solver: string;
+    finishPoint: number;
+    condition_Json: string;
+    isExpired: number;
+    template_Json: string;
+    condition_Template_Json: string;
+    approval_Console: string;
+    approvalConsoleDoerID: string;
+    approvalConsoleDoerName: string;
+    approvalConsoleInputID: number;
+    createdBy: string;
+    createdDate: string;
+    updatedBy: string;
+    updatedDate: string;
+    task_Name: string;
 }
+
 
 interface Module {
     moduleID: string;
@@ -46,22 +66,169 @@ const TaskMaster: React.FC = () => {
     const [show, setShow] = useState(false);
     const [selectedJson, setSelectedJson] = useState<string>(''); // State for JSON display
     const [showJsonModal, setShowJsonModal] = useState(false); // State to show/hide JSON modal
-    const [showModal, setShowModal] = useState(false);
-    const [taskIdToEdit, setTaskIdToEdit] = useState<number | null>(null);
-    const [problemSolver, setProblemSolver] = useState('');
+    const [taskIdToEdit, setTaskIdToEdit] = useState<any | null>(null);
+    const [problemSolver, setProblemSolver] = useState<string>('');
+    const [employeeList, setEmployeeList] = useState([]);
+    // const [selectedProblemSolver, setSelectedProblemSolver] = useState('');
 
-    const handleShowModal = (taskId: number) => {
-        setTaskIdToEdit(taskId);
-        setShowModal(true);
+    // const [taskName, setTaskName] = useState<string | null>(null);
+    // const handleTaskNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    //     setTaskName(e.target.value);
+    // };
+
+    // const [showModal, setShowModal] = useState<boolean>(false);
+
+    const handleShowModal = (taskId: number, solver: string) => {
+        setTaskIdToEdit(taskId);         // Set the task ID that is being edited
+        setProblemSolver(solver);        // Set the solver for the task
     };
 
     const handleCloseModal = () => {
-        setShowModal(false);
+        setTaskIdToEdit(null);           // Close modal by clearing taskIdToEdit
+        setProblemSolver('');
+        // setTaskName('');
     };
 
     const handleProblemSolverChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
         setProblemSolver(e.target.value);
     };
+
+
+
+    const [taskData, setTaskData] = useState<any>(null);
+    const [updatedFields, setUpdatedFields] = useState<any>({});
+
+    // Fetch the task data when taskIdToEdit changes
+
+    // Function to fetch task data by ID
+
+
+    // Function to handle field updates
+    const handleFieldChange = (inputId: string, field: string, value: string | boolean) => {
+        setUpdatedFields((prevFields: any) => ({
+            ...prevFields,
+            [inputId]: {
+                ...prevFields[inputId],
+                [field]: value,
+            },
+        }));
+    };
+
+    // Function to save the updated task data
+    const handleSaveTask = async () => {
+        if (!taskIdToEdit || !taskData) {
+            alert('Please provide values to update.');
+            return;
+        }
+
+        try {
+            // Parse the task_Json to update the inputs
+            const parsedTaskJson = JSON.parse(taskData.task_Json);
+
+            // Ensure parsedTaskJson has inputs, then update them
+            if (Array.isArray(parsedTaskJson.inputs)) {
+                const updatedInputs = parsedTaskJson.inputs.map((input: any) => ({
+                    ...input,
+                    ...updatedFields[input.inputId], // Apply the updated values from the form
+                }));
+
+                // Update the task data with the new inputs
+                const updatedTaskData = {
+                    ...taskData,
+                    task_Json: JSON.stringify({
+                        ...parsedTaskJson,
+                        inputs: updatedInputs, // Update the inputs with new values
+                    }),
+                    updatedBy: "YourNameHere",
+                    updatedDate: new Date().toISOString(),
+                };
+
+                // Send the updated task data to the API
+                const response = await axios.post(
+                    'https://arvindo-api.clay.in/api/ProcessTaskMaster/InsertUpdateProcessTaskandDoer',
+                    updatedTaskData,
+                    {
+                        headers: {
+                            accept: '*/*',
+                            'Content-Type': 'application/json',
+                        },
+                    }
+                );
+                console.log(updatedTaskData)
+
+                console.log('Task updated:', response.data);
+                alert('Task updated successfully');
+            } else {
+                console.error('task_Json does not contain valid inputs');
+                alert('Error: task_Json is invalid or missing inputs');
+            }
+        } catch (error) {
+            console.error('Error updating task:', error);
+            alert('Error updating task');
+        }
+    };
+
+    useEffect(() => {
+        if (taskIdToEdit !== null && problemSolver) {
+            console.log('Updated taskIdToEdit:', taskIdToEdit);
+            console.log('Updated problemSolver:', problemSolver);
+
+            const fetchTaskData = async (taskIdToEdit: number) => {
+                try {
+                    const { data } = await axios.get(
+                        `https://arvindo-api.clay.in/api/ProcessTaskMaster/GetProcessTaskByIds?Flag=3&ID=${taskIdToEdit}`
+                    );
+                    const task = data.getProcessTaskByIds[0];
+                    console.log(task)
+
+                    // Check if task and task.inputs are defined before proceeding
+                    if (task && task.task_Json) {
+                        try {
+                            // Parse the task_Json string if it's a stringified JSON object
+                            const parsedTaskJson = typeof task.task_Json === 'string' ? JSON.parse(task.task_Json) : task.task_Json;
+
+                            // Ensure inputs is an array
+                            if (Array.isArray(parsedTaskJson.inputs)) {
+                                setTaskData(task); // Store the fetched task data in state
+                                console.log(task);
+
+                                // Initialize updatedFields to keep track of the updated values
+                                const initialUpdatedFields = parsedTaskJson.inputs.reduce((acc: any, input: any) => {
+                                    acc[input.inputId] = {
+                                        label: input.label,
+                                        placeholder: input.placeholder,
+                                        visibility: input.visibility,
+                                    };
+                                    return acc;
+                                }, {});
+
+                                // Set initial updated fields
+                                setUpdatedFields(initialUpdatedFields);
+
+                                console.log(updatedFields)
+                            } else {
+                                console.error('Task data "inputs" is missing or is not an array.');
+                            }
+                        } catch (error) {
+                            console.error('Error parsing task_Json:', error);
+                        }
+                    } else {
+                        console.error('Task data is missing "task_Json".');
+                    }
+
+                } catch (error) {
+                    console.error('Error fetching task data:', error);
+                }
+            };
+
+            fetchTaskData(taskIdToEdit);
+        }
+    }, [taskIdToEdit, problemSolver]);
+
+
+
+
+
 
 
 
@@ -83,6 +250,19 @@ const TaskMaster: React.FC = () => {
         reorderedColumns.splice(result.destination.index, 0, movedColumn);
         setColumns(reorderedColumns);
     };
+
+    useEffect(() => {
+        axios
+            .get('https://arvindo-api2.clay.in/api/CommonDropdown/GetEmployeeListWithId')
+            .then((response) => {
+                if (response.data.isSuccess) {
+                    setEmployeeList(response.data.employeeLists);
+                }
+            })
+            .catch((error) => {
+                console.error('Error fetching employee list:', error);
+            });
+    }, []);
 
 
     // Fetch Modules
@@ -151,36 +331,7 @@ const TaskMaster: React.FC = () => {
         setShowJsonModal(true)
     };
 
-    console.log(selectedJson)
 
-    const editTask = async (taskId: number, problemSolver: string) => {
-        try {
-          // Prepare data with only the problem_Solver field updated
-          const taskData = {
-            id: taskId,
-            problem_Solver: problemSolver,  // Only updating problem_Solver
-          };
-      
-          // Make API request
-          const response = await axios.post(
-            'https://arvindo-api.clay.in/api/ProcessTaskMaster/InsertUpdateProcessTaskandDoer',
-            taskData,
-            {
-              headers: {
-                'accept': '*/*',
-                'Content-Type': 'application/json'
-              }
-            }
-          );
-
-          console.log(taskData)
-      
-          // Handle successful response
-          console.log('Task updated:', response.data);
-        } catch (error) {
-          console.error('Error updating task:', error);
-        }
-      };
 
 
 
@@ -279,7 +430,7 @@ const TaskMaster: React.FC = () => {
                                                     className={
                                                         col.id === 'moduleName' ? 'fw-bold  text-dark text-nowrap' :
                                                             col.id === 'taskName' ? 'fw-bold    text-wrap' :
-                                                                    ''
+                                                                ''
                                                     }
                                                 >
 
@@ -304,50 +455,11 @@ const TaskMaster: React.FC = () => {
                                         <td>
                                             <Button
                                                 variant="primary"
-                                                onClick={() => handleShowModal(task.id)}
+                                                onClick={() => handleShowModal(task.id, task.problem_Solver)}
                                                 className="text-nowrap"
                                             >
                                                 Edit Task
                                             </Button>
-
-                                            <Modal show={showModal} onHide={handleCloseModal}>
-                                                <Modal.Header closeButton>
-                                                    <Modal.Title>Edit Task</Modal.Title>
-                                                </Modal.Header>
-                                                <Modal.Body>
-                                                    <Form>
-                                                        <Form.Group controlId="problemSolver">
-                                                            <Form.Label>Problem Solver</Form.Label>
-                                                            <Form.Control
-                                                                as="select"
-                                                                value={problemSolver}
-                                                                onChange={handleProblemSolverChange}
-                                                            >
-                                                                <option value="">Select Solver</option>
-                                                                <option value="Solver1">Solver 1</option>
-                                                                <option value="Solver2">Solver 2</option>
-                                                                <option value="Solver3">Solver 3</option>
-                                                            </Form.Control>
-                                                        </Form.Group>
-                                                    </Form>
-                                                </Modal.Body>
-                                                <Modal.Footer>
-                                                    <Button variant="secondary" onClick={handleCloseModal}>
-                                                        Close
-                                                    </Button>
-                                                    <Button
-                                                        variant="primary"
-                                                        onClick={() => {
-                                                            if (taskIdToEdit && problemSolver) {
-                                                                editTask(taskIdToEdit, problemSolver);
-                                                                handleCloseModal();
-                                                            }
-                                                        }}
-                                                    >
-                                                        Save Changes
-                                                    </Button>
-                                                </Modal.Footer>
-                                            </Modal>
                                         </td>
                                         <td>
                                             <Button variant="primary" onClick={() => handleCondition(task.id)}>Conditions</Button>
@@ -372,6 +484,168 @@ const TaskMaster: React.FC = () => {
                             )}
                         </tbody>
                     </Table>
+                    {tasks.map((task) => (
+                        <div key={task.id}>
+
+                            {/* Show only one modal at a time for the specific task */}
+                            {taskIdToEdit === task.id && (
+                                <Modal
+                                    show={taskIdToEdit === task.id}
+                                    onHide={handleCloseModal}
+                                    backdrop="static" // Prevent closing when clicking outside the modal
+                                    size='xl'
+                                >
+                                    <Modal.Header closeButton>
+                                        <Modal.Title>Edit Task for {task.task_Number}</Modal.Title>
+                                    </Modal.Header>
+                                    <Modal.Body>
+                                        <Form>
+                                            {/* Input for Problem Solver */}
+                                            <Form.Group controlId="problemSolver">
+                                                <Form.Label>Problem Solver</Form.Label>
+                                                <Form.Control
+                                                    as="select"
+                                                    value={problemSolver || ''}
+                                                    onChange={handleProblemSolverChange}
+                                                >
+                                                    <option value="">{task.problem_Solver}</option>
+                                                    {employeeList.map((employee) => (
+                                                        <option key={employee.empId} value={employee.empId}>
+                                                            {employee.employeeName}
+                                                        </option>
+                                                    ))}
+                                                </Form.Control>
+                                            </Form.Group>
+                                            {/* <Form.Group controlId="taskName">
+                                                <Form.Label>Task Name</Form.Label>
+                                                <Form.Control
+                                                    type="text"
+                                                    value={taskName || task.task_Name || ''}
+                                                    onChange={handleTaskNameChange}
+                                                    placeholder="Enter Task Name"
+                                                />
+                                            </Form.Group> */}
+                                        </Form>
+                                        {taskData && taskData.task_Json && (
+                                            <div className="container mt-4 row">
+                                                {/* Parse task_Json if it's a string */}
+                                                {(() => {
+                                                    const parsedTaskJson = typeof taskData.task_Json === 'string'
+                                                        ? JSON.parse(taskData.task_Json)
+                                                        : taskData.task_Json;
+
+                                                    if (parsedTaskJson && Array.isArray(parsedTaskJson.inputs)) {
+                                                        return parsedTaskJson.inputs.map((input: any) => {
+                                                            // Exclude inputIds 100, 102, 103 and handle inputId 99 differently
+                                                            if (['100', '102', '103'].includes(input.inputId)) {
+                                                                return null; // Skip this input
+                                                            }
+
+                                                            return (
+                                                                <div key={input.inputId} className="col-6 card mb-3">
+                                                                    <div className="card-header">
+                                                                        <h5> <span className='text-primary'>Input Name -</span> {input.label}</h5>
+                                                                    </div>
+                                                                    <div className="card-body row m-0">
+                                                                        {/* Only allow label to be edited for inputId 99 */}
+                                                                        {input.inputId === '99' ? (
+                                                                            <div className="form-group">
+                                                                                <label htmlFor={`label-${input.inputId}`}>Task Name</label>
+                                                                                <input
+                                                                                    id={`label-${input.inputId}`}
+                                                                                    type="text"
+                                                                                    className="form-control"
+                                                                                    value={updatedFields[input.inputId]?.label || ''}
+                                                                                    onChange={(e) =>
+                                                                                        handleFieldChange(input.inputId, 'label', e.target.value)
+                                                                                    }
+                                                                                />
+                                                                            </div>
+                                                                        ) : (
+                                                                            <>
+                                                                                {/* Label input */}
+                                                                                <div className="form-group col-6">
+                                                                                    <label htmlFor={`label-${input.inputId}`}>Label</label>
+                                                                                    <input
+                                                                                        id={`label-${input.inputId}`}
+                                                                                        type="text"
+                                                                                        className="form-control"
+                                                                                        value={updatedFields[input.inputId]?.label || ''}
+                                                                                        onChange={(e) =>
+                                                                                            handleFieldChange(input.inputId, 'label', e.target.value)
+                                                                                        }
+                                                                                    />
+                                                                                </div>
+
+                                                                                {/* Placeholder input */}
+                                                                                <div className="form-group col-6">
+                                                                                    <label htmlFor={`placeholder-${input.inputId}`}>Placeholder</label>
+                                                                                    <input
+                                                                                        id={`placeholder-${input.inputId}`}
+                                                                                        type="text"
+                                                                                        className="form-control"
+                                                                                        value={updatedFields[input.inputId]?.placeholder || ''}
+                                                                                        onChange={(e) =>
+                                                                                            handleFieldChange(input.inputId, 'placeholder', e.target.value)
+                                                                                        }
+                                                                                    />
+                                                                                </div>
+
+                                                                                {/* Visibility toggle button */}
+                                                                                <div className="form-group form-switch col-6 mt-2 ps-0">
+                                                                                    <label htmlFor={`visibility-${input.inputId}`} className="toggle-label">
+                                                                                        Visibility
+                                                                                    </label>
+                                                                                    <div
+                                                                                        className={`toggle-switch ${updatedFields[input.inputId]?.visibility ? 'active' : ''}`}
+                                                                                        onClick={() =>
+                                                                                            handleFieldChange(input.inputId, 'visibility', !updatedFields[input.inputId]?.visibility)
+                                                                                        }
+                                                                                    >
+                                                                                        <div className="toggle-circle"></div>
+                                                                                        <span className="toggle-text">
+                                                                                            {updatedFields[input.inputId]?.visibility ? 'Show' : 'Hide'}
+                                                                                        </span>
+                                                                                    </div>
+                                                                                    <div></div>
+                                                                                </div>
+
+
+
+                                                                            </>
+                                                                        )}
+                                                                    </div>
+                                                                </div>
+
+                                                            );
+                                                        });
+                                                    } else {
+                                                        console.error('Inputs not found or not an array');
+                                                        return null;
+                                                    }
+                                                })()}
+
+                                                <div className="text-center mt-4">
+                                                    <button className="btn btn-primary" onClick={handleSaveTask}>Save Task</button>
+                                                </div>
+                                            </div>
+                                        )}
+
+
+
+                                    </Modal.Body>
+                                    <Modal.Footer>
+                                        <Button variant="secondary" onClick={handleCloseModal}>
+                                            Close
+                                        </Button>
+                                        <Button variant="primary" onClick={handleSaveTask}>
+                                            Save Changes
+                                        </Button>
+                                    </Modal.Footer>
+                                </Modal>
+                            )}
+                        </div>
+                    ))}
                 </DragDropContext>
             </div>
             <TaskCondition show={show} setShow={setShow} taskID={taskID} />

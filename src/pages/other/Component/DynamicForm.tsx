@@ -113,7 +113,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
 
     const navigate = useNavigate()
 
-    
+
 
     // useEffect(() => {
 
@@ -531,14 +531,14 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
 
     const [approvalStatus, setApprovalStatus] = useState<OptionType | null>(null);
 
-   console.log("this is my condition",parsedCondition)
+    console.log("this is my condition", parsedCondition)
 
     // Handle change in input values
     const handleChange = (inputId: string, value: string | boolean | string[]) => {
         // Prevent default behavior (if needed)
         // event.preventDefault(); 
 
-        const excludedInputIds = [ '99', '100', '102', '103'];
+        const excludedInputIds = ['99', '100', '102', '103'];
         const input = formData.inputs.find(input => String(input.inputId) === String(inputId));
 
         let updatedValue = value;
@@ -554,38 +554,40 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
         // Handle select and CustomSelect input types
         if (input && (input.type === 'select' || input.type === 'CustomSelect')) {
             const selectedOption = input.options?.find(option => option.label === value);
-        
-        
+
+
             if (selectedOption) {
                 updatedValue = selectedOption.id;
                 selectedLabel = selectedOption.label;
-        
-        
+
+
                 if (Array.isArray(parsedCondition)) {
                     const flattenedCondition = parsedCondition.flat();
                     flattenedCondition.forEach((condition) => {
                         if (Array.isArray(condition.taskSelections)) {
-                
+
                             const filteredTaskSelections = condition.taskSelections.filter(
                                 (taskSelection: any) => String(taskSelection.inputId) === String(updatedValue)
                             );
-                
-                            if (filteredTaskSelections.length > 0) {
-                                setSelectedCondition({  ...condition, taskSelections: filteredTaskSelections  });
 
-                            } else { console.warn('No matching task found for updatedValue:', updatedValue);
+                            if (filteredTaskSelections.length > 0) {
+                                setSelectedCondition({ ...condition, taskSelections: filteredTaskSelections });
+
+                            } else {
+                                console.warn('No matching task found for updatedValue:', updatedValue);
                             }
-                        } else { console.error('taskSelections is not an array or undefined:', condition.taskSelections);
+                        } else {
+                            console.error('taskSelections is not an array or undefined:', condition.taskSelections);
                         }
                     });
-                } else { console.error('parsedCondition is not an array:', parsedCondition);}
+                } else { console.error('parsedCondition is not an array:', parsedCondition); }
 
                 setShowMessManagerSelect(selectedOption.id === '11-1');
             } else {
                 console.warn(`No option found for the value: ${value}`);
             }
         }
-        
+
 
         // Handle multiselect input type
         if (input && input.type === 'multiselect') {
@@ -709,7 +711,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                 taskStatus: taskStatus, // Ensure taskStatus is available
                 updatedBy: role, // Use role for updatedBy
             };
-            
+
 
             try {
                 const response = await fetch(`${config.API_URL_ACCOUNT}/ProcessInitiation/UpdateDoerTaskss`, {
@@ -987,7 +989,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                 {location.pathname != '/pages/ApprovalConsole' && (
                     <div className='px-3'>
 
-                      
+
                         {location.pathname !== '/pages/ApprovalConsole' && (
                             <div className="d-flex flex-wrap mx-3">
                                 {/* {preData && preData.length > 0 && preData.map((task: { taskNumber: string; messName: string; messTaskNumber: string; messManager: string; managerNumber: string; inputs: { label: string; value: string }[] }, index: number) => (
@@ -1175,18 +1177,18 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                                     <div className="my-task">
                                         {formData.inputs.map((input: Input) => (
                                             (fromComponent === 'TaskMaster' && 'PendingTask' || shouldDisplayInput(input)) && (
-                                                <div className='form-group' key={input.inputId} style={{ marginBottom: '1rem' }}>
+                                                <div className={input.visibility === false ? 'd-none' : 'form-group'} key={input.inputId} style={{ marginBottom: '1rem' }}>
                                                     <label className='label'>{input.label}</label>
-                                                    {input.type === 'text' && (
+                                                    {input.type === 'text' && input.visibility !== false && (
                                                         <input
                                                             type="text"
-                                                            className='form-control'
+                                                            className="form-control"
                                                             placeholder={input.placeholder}
-                                                            value={formState[input.inputId]}
+                                                            value={formState[input.inputId] || ''}
                                                             onChange={e => handleChange(input.inputId, e.target.value)}
                                                         />
                                                     )}
-                                                    {input.type === 'number' && (
+                                                    {input.type === 'number' && input.visibility !== false && (
                                                         <input
                                                             type="number"
                                                             className='form-control'

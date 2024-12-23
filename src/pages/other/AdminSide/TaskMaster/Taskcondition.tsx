@@ -533,8 +533,6 @@ const TaskCondition: React.FC<ProcessCanvasProps> = ({ show, setShow, taskID }) 
                         </Card.Body>
                     </Col>
 
-
-
                     {showNestedModal && (
                         <Form onSubmit={handleSubmit} className="mt-3" style={{ border: "1px solid #ccc", borderRadius: "5px" }}>
                             <Row className=" mx-1 ">
@@ -855,6 +853,8 @@ const TaskCondition: React.FC<ProcessCanvasProps> = ({ show, setShow, taskID }) 
                                 )
 
                             }
+
+                            <button type="button" className="btn btn-outline-primary">Add Successor</button>
 
                             {/* Submit Button */}
                             <Button type="submit" className="m-2">Submit</Button>

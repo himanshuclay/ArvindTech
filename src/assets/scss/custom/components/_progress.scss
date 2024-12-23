@@ -780,3 +780,64 @@ input.numInput.cur-year:hover {
   font-size: 11px;
 }
 
+.toggle-label {
+  margin-bottom: 4px;
+  display: block;
+}
+
+.toggle-switch {
+  width: 68px;
+  height: 24px;
+  background-color: #ccc;
+  border-radius: 15px;
+  position: relative;
+  cursor: pointer;
+  display: inline-block;
+  transition: background-color 0.3s ease;
+}
+
+.toggle-switch.active {
+  background-color: #1f1d56;
+}
+
+.active .toggle-circle
+{
+  background-color: white;
+}
+
+.toggle-circle {
+  width: 20px;
+  height: 20px;
+  background-color: #707070;
+  border-radius: 50%;
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  transition: left 0.3s ease;
+}
+
+.toggle-switch.active .toggle-circle {
+  left: 45px;
+}
+
+.toggle-text {
+  position: absolute;
+  top: 50%;
+  font-size: 12px;
+  font-weight: bold;
+  color: #707070;
+  transform: translateY(-50%);
+  transition: left 0.3s ease;
+  font-weight: 400;
+}
+
+.toggle-switch .toggle-text {
+  left: 35px;
+}
+
+.toggle-switch.active .toggle-text {
+  left: 8px;
+  color: #ffff;
+}
+
+
