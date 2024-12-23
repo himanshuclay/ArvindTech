@@ -99,14 +99,21 @@ const DesignationMaster = () => {
         }
     };
 
+
+
+
     useEffect(() => {
-        if (searchTriggered || currentPage) {
+        if (searchTriggered && (searchDept || searchStatus)) {
             handleSearch();
-            setSearchTriggered(false);
         } else {
             fetchData();
         }
-    }, [currentPage, searchTriggered]);
+    }, [searchTriggered, currentPage]);
+
+
+
+
+
 
 
     const handleSearch = (e?: React.FormEvent) => {
@@ -229,6 +236,7 @@ const DesignationMaster = () => {
                             onSubmit={(e) => {
                                 e.preventDefault();
                                 setCurrentPage(1);
+                                handleSearch()
                                 setSearchTriggered(true);
                             }}
                         >

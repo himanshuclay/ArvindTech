@@ -84,6 +84,7 @@ interface ModuleProjectList {
     moduleName: string
 }
 
+
 const EmployeeMaster = () => {
     const [employee, setEmployee] = useState<Employee[]>([]);
     const [loading, setLoading] = useState(false);
@@ -151,45 +152,48 @@ const EmployeeMaster = () => {
 
 
     useEffect(() => {
-        if (searchTriggered) {
+        if (searchTriggered && (searchEmployee || searchProject || searchAppAccessLevel || searchDataAccessLevel || searchAppAccess || searchEmpstatus)) {
             handleSearch();
-            setSearchTriggered(false);
         } else {
             fetchEmployee();
         }
-    }, [currentPage, searchTriggered]);
+    }, [currentPage || searchTriggered]);
 
-    const handleSearch = (e?: React.FormEvent) => {
-        if (e) e.preventDefault();
-        let query = `?`;
+    const handleSearch = async () => {
+        try {
+            let query = `?`;
 
-        if (searchEmployee) query += `EmployeeName=${searchEmployee}&`;
-        if (searchProject) query += `CurrentProjectName=${searchProject}&`;
-        if (searchAppAccessLevel) query += `AppAccessLevel=${searchAppAccessLevel}&`;
-        if (searchDataAccessLevel) query += `DataAccessLevel=${searchDataAccessLevel}&`;
-        if (searchAppAccess) query += `AppAccess=${searchAppAccess}&`;
-        if (searchEmpstatus) query += `EmpStatus=${searchEmpstatus}&`;
-        query += `PageIndex=${currentPage}`;
+            if (searchEmployee) query += `EmployeeName=${searchEmployee}&`;
+            if (searchProject) query += `CurrentProjectName=${searchProject}&`;
+            if (searchAppAccessLevel) query += `AppAccessLevel=${searchAppAccessLevel}&`;
+            if (searchDataAccessLevel) query += `DataAccessLevel=${searchDataAccessLevel}&`;
+            if (searchAppAccess) query += `AppAccess=${searchAppAccess}&`;
+            if (searchEmpstatus) query += `EmpStatus=${searchEmpstatus}&`;
+            query += `PageIndex=${currentPage}`;
+            query = query.endsWith('&') ? query.slice(0, -1) : query;
 
+            const apiUrl = `${config.API_URL_APPLICATION}/EmployeeMaster/SearchEmployee${query}`;
+            console.log("API URL:", apiUrl);
 
-        query = query.endsWith('&') ? query.slice(0, -1) : query;
-        const apiUrl = `${config.API_URL_APPLICATION}/EmployeeMaster/SearchEmployee${query}`;
+            setLoading(true);
 
-        console.log(apiUrl)
-        axios.get(apiUrl, {
-            headers: {
-                'accept': '*/*'
+            const { data } = await axios.get(apiUrl, { headers: { accept: '*/*' } });
+
+            if (data.isSuccess) {  // Ensure successful response
+                setEmployee(data.employeeMasterList);
+                setTotalPages(Math.ceil(data.totalCount / 10));
+                console.log("Search Response:", data.employeeMasterList);
+            } else {
+                console.log("Error in API response:", data.message);  // Handle error message if needed
             }
-        })
-            .then((response) => {
-                console.log("search response ", response.data.employeeMasterList);
-                setEmployee(response.data.employeeMasterList)
-                setTotalPages(Math.ceil(response.data.totalCount / 10));
-            })
-            .catch((error) => {
-                console.error('Error fetching data:', error);
-            });
+        } catch (error) {
+            console.error('Error fetching data:', error);
+        } finally {
+            setLoading(false);
+        }
     };
+
+
 
     const handleClear = async () => {
         setCurrentPage(1);
@@ -199,10 +203,9 @@ const EmployeeMaster = () => {
         setSearchDataAccessLevel('');
         setSearchAppAccess('');
         setSearchEmpstatus('');
+        setSearchTriggered(false);
         await fetchEmployee();
     };
-
-
 
 
     const fetchEmployee = async () => {
@@ -443,14 +446,15 @@ const EmployeeMaster = () => {
             ) : (
                 <>
                     <div className='bg-white p-2 pb-2'>
+
                         <Form
                             onSubmit={(e) => {
                                 e.preventDefault();
                                 setCurrentPage(1);
+                                handleSearch();
                                 setSearchTriggered(true);
                             }}
                         >
-
                             <Row>
                                 <Col lg={4} className="mt-2">
                                     <Form.Group controlId="searchEmployee">
@@ -546,6 +550,7 @@ const EmployeeMaster = () => {
                                         </Button>
                                         &nbsp;
                                         <Button type="submit" variant="primary"
+
                                         >
                                             Search
                                         </Button>

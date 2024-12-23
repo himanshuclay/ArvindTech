@@ -246,14 +246,14 @@ const ProcessCanvas: React.FC<ProcessCanvasProps> = ({ show, setShow, manageId }
                 `${config.API_URL_APPLICATION}/AssignProjecttoProcess/DeleteProjectAssigntoProcess`,
                 { params: { id, ModuleName: moduleName, ProcessID: processId }, }
             );
+            toast.dismiss();
+            toast.warn("Project deleted successfully!");
             await fetchGetProject(moduleName, processId);
             await axios.post(
                 `${config.API_URL_APPLICATION}/ProcessMaster/UpdateProcess`,
                 payloadUpdate
             );
 
-            toast.dismiss();
-            toast.warn("Project deleted successfully!");
         } catch (error: any) {
             const errorMessage = error.response?.data?.message || error.message || "An error occurred.";
             toast.error(errorMessage);
@@ -273,7 +273,7 @@ const ProcessCanvas: React.FC<ProcessCanvasProps> = ({ show, setShow, manageId }
                 </Modal.Header>
                 <Modal.Body>
                     <div className="">
-                        {assignedProject.map((project, index) => (
+                        {assignedProject?.map((project, index) => (
                             <div key={project.projectID} className="my-1 p-1 bg-light rounded-1 border d-flex justify-content-between">
                                 <> {index + 1}. {project.projectName} - {project.projectID}</>
                                 <div className="cursor-pointer">

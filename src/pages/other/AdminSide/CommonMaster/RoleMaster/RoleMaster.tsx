@@ -34,7 +34,7 @@ const ModuleMaster = () => {
     const [roleList, setRoleList] = useState<Role[]>([]);
     const [searchRole, setSearchRole] = useState('');
     const [searchStatus, setSearchStatus] = useState('');
-
+    const [searchTriggered, setSearchTriggered] = useState(false);
 
 
     const location = useLocation();
@@ -76,10 +76,11 @@ const ModuleMaster = () => {
         } else {
             fetchRoles();
         }
-    }, [currentPage]);
+    }, [currentPage, searchTriggered])
 
-    const handleSearch = (e?: React.FormEvent) => {
+    const handleSearch = async (e?: React.FormEvent) => {
         if (e) e.preventDefault();
+
         let query = `?`;
         if (searchRole) query += `RoleName=${searchRole}&`;
         if (searchStatus) query += `Status=${searchStatus}&`;
@@ -87,15 +88,25 @@ const ModuleMaster = () => {
 
         query = query.endsWith('&') ? query.slice(0, -1) : query;
         const apiUrl = `${config.API_URL_APPLICATION}/RoleMaster/SearchRole${query}`;
-        axios.get(apiUrl, { headers: { 'accept': '*/*' } })
-            .then((response) => {
-                console.log("search response ", response.data.roleMasterListResponses);
-                setRoles(response.data.roleMasterListResponses)
-                setTotalPages(Math.ceil(response.data.totalCount / 10));
-            })
-            .catch((error) => {
-                console.error('Error fetching data:', error);
-            });
+
+        setLoading(true);
+        console.log("API URL:", apiUrl);
+
+        try {
+            const { data } = await axios.get(apiUrl, { headers: { 'accept': '*/*' } });
+
+            if (data.isSuccess) {  // Check if the response is successful
+                setRoles(data.roleMasterListResponses);
+                setTotalPages(Math.ceil(data.totalCount / 10));
+                console.log("Search Response:", data.roleMasterListResponses);
+            } else {
+                console.log("Error in API response:", data.message);  // Handle error message if needed
+            }
+        } catch (error) {
+            console.error('Error fetching data:', error);
+        } finally {
+            setLoading(false);
+        }
     };
 
 
@@ -139,11 +150,12 @@ const ModuleMaster = () => {
     }, []);
 
 
-    const handleClear = () => {
-        setCurrentPage(1);
-        fetchRoles();
+    const handleClear = async () => {
         setSearchRole('');
         setSearchStatus('');
+        setCurrentPage(1);
+        setSearchTriggered(true);
+        await fetchRoles();
     };
 
 
@@ -248,8 +260,9 @@ const ModuleMaster = () => {
                                 </Button>
                                 &nbsp;
                                 <Button type="submit" variant="primary" onClick={() => {
-                                    handleSearch();
                                     setCurrentPage(1);
+                                    handleSearch();
+                                    setSearchTriggered(true);
                                 }}>
                                     Search
                                 </Button>

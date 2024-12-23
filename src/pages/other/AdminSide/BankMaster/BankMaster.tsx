@@ -117,19 +117,19 @@ const BankMaster = () => {
     const [searchTriggered, setSearchTriggered] = useState(false);
 
     useEffect(() => {
-        if (searchTriggered) {
+        if (searchTriggered && (searchBank || searchIfsc || searchBranch || searchState || searchStatus)) {
             handleSearch();
-            setSearchTriggered(false);
+
         } else {
             fetchStaffRequirements();
         }
     }, [currentPage, searchTriggered]);
 
 
-    const handleSearch = (e?: React.FormEvent) => {
+    const handleSearch = async (e?: React.FormEvent) => {
         if (e) e.preventDefault();
-        let query = `?`;
 
+        let query = `?`;
 
         if (searchBank) query += `Bank=${searchBank}&`;
         if (searchIfsc) query += `Ifsc=${searchIfsc}&`;
@@ -140,22 +140,29 @@ const BankMaster = () => {
 
         query = query.endsWith('&') ? query.slice(0, -1) : query;
         const apiUrl = `${config.API_URL_APPLICATION}/BankMaster/SearchBank${query}`;
+
         setLoading(true);
-        console.log(apiUrl)
-        axios.get(apiUrl, {
-            headers: {
-                'accept': '*/*'
+        console.log("API URL:", apiUrl);
+
+        try {
+            const { data } = await axios.get(apiUrl, {
+                headers: { 'accept': '*/*' }
+            });
+
+            if (data.isSuccess) {  // Ensure successful response
+                setBanks(data.bankMasterListResponses);
+                setTotalPages(Math.ceil(data.totalCount / 10));
+                console.log("Search Response:", data.bankMasterListResponses);
+            } else {
+                console.log("Error in API response:", data.message);  // Handle error message if needed
             }
-        })
-            .then((response) => {
-                setBanks(response.data.bankMasterListResponses)
-                console.log(response.data.bankMasterListResponses)
-                setTotalPages(Math.ceil(response.data.totalCount / 10));
-            })
-            .catch((error) => {
-                console.error('Error fetching data:', error);
-            }).finally(() => setLoading(false));
+        } catch (error) {
+            console.error('Error fetching data:', error);
+        } finally {
+            setLoading(false);
+        }
     };
+
 
     useEffect(() => {
         const fetchData = async (endpoint: string, setter: Function, listName: string) => {
@@ -184,6 +191,7 @@ const BankMaster = () => {
         setSearchIfsc('');
         setSearchBank('');
         setSearchStatus('');
+        setSearchTriggered(false);
         await fetchStaffRequirements();
     };
 
@@ -263,6 +271,7 @@ const BankMaster = () => {
                             onSubmit={(e) => {
                                 e.preventDefault();
                                 setCurrentPage(1);
+                                handleSearch();
                                 setSearchTriggered(true);
                             }}
                         >

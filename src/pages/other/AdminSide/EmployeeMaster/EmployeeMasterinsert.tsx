@@ -670,7 +670,7 @@ const EmployeeMasterInsert = () => {
                         <Row>
                             <Col lg={6}>
                                 <Form.Group controlId="empID" className="mb-3">
-                                    <Form.Label>Employee ID *</Form.Label>
+                                    <Form.Label>Employee ID  <span className='text-danger'>*</span></Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="empID"
@@ -687,7 +687,7 @@ const EmployeeMasterInsert = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="employeeName" className="mb-3">
-                                    <Form.Label>Employee Name *</Form.Label>
+                                    <Form.Label>Employee Name <span className='text-danger'>*</span></Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="employeeName"
@@ -703,7 +703,7 @@ const EmployeeMasterInsert = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="departmentName" className="mb-3">
-                                    <Form.Label>Department Name *</Form.Label>
+                                    <Form.Label>Department Name  <span className='text-danger'>*</span></Form.Label>
                                     <Select
                                         name="departmentName"
                                         value={departmentList.find((emp) => emp.name === employee.departmentName)}
@@ -727,7 +727,7 @@ const EmployeeMasterInsert = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="designation" className="mb-3">
-                                    <Form.Label>Designation *</Form.Label>
+                                    <Form.Label>Designation  <span className='text-danger'>*</span></Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="designation"
@@ -743,7 +743,7 @@ const EmployeeMasterInsert = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="hrUpdatedMobileNo" className="mb-3">
-                                    <Form.Label>HR Update Mobile Number  *</Form.Label>
+                                    <Form.Label>HR Update Mobile Number  <span className='text-danger'>*</span></Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="hrUpdatedMobileNo"
@@ -760,7 +760,7 @@ const EmployeeMasterInsert = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="gender" className="mb-3">
-                                    <Form.Label>Gender *</Form.Label>
+                                    <Form.Label>Gender  <span className='text-danger'>*</span></Form.Label>
                                     <Select
                                         name="gender"
                                         value={genderList.find((emp) => emp.name === employee.gender)}
@@ -784,7 +784,7 @@ const EmployeeMasterInsert = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="fatherName" className="mb-3">
-                                    <Form.Label>Father Name *</Form.Label>
+                                    <Form.Label>Father Name  <span className='text-danger'>*</span></Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="fatherName"
@@ -800,7 +800,7 @@ const EmployeeMasterInsert = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="dateOfBirth" className="mb-3">
-                                    <Form.Label> Date of Birth *</Form.Label>
+                                    <Form.Label> Date of Birth <span className='text-danger'>*</span></Form.Label>
                                     <Flatpickr
                                         value={employee.dateOfBirth}
                                         onChange={([date]) => {
@@ -827,7 +827,7 @@ const EmployeeMasterInsert = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="dateOfJoining" className="mb-3">
-                                    <Form.Label> Date of Joining *</Form.Label>
+                                    <Form.Label> Date of Joining  <span className='text-danger'>*</span></Form.Label>
                                     <Flatpickr
                                         value={employee.dateOfJoining}
                                         onChange={([date]) => {
@@ -874,7 +874,7 @@ const EmployeeMasterInsert = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="appAccess" className="mb-3">
-                                    <Form.Label>App Access *</Form.Label>
+                                    <Form.Label>App Access  <span className='text-danger'>*</span></Form.Label>
                                     <Select
                                         name="appAccess"
                                         options={optionsAppAccess}
@@ -890,7 +890,7 @@ const EmployeeMasterInsert = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="appExempt" className="mb-3">
-                                    <Form.Label>Exempt Status *</Form.Label>
+                                    <Form.Label>Exempt Status  <span className='text-danger'>*</span></Form.Label>
                                     <Select
                                         name="appExempt"
                                         options={optionsAppExempt}
@@ -906,7 +906,7 @@ const EmployeeMasterInsert = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="isPerformanceReview" className="mb-3">
-                                    <Form.Label>Performance Review Applicability *</Form.Label>
+                                    <Form.Label>Performance Review Applicability  <span className='text-danger'>*</span></Form.Label>
                                     <Select
                                         name="isPerformanceReview"
                                         options={optionsAppExempt}
@@ -922,7 +922,7 @@ const EmployeeMasterInsert = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="dataAccessLevel" className="mb-3">
-                                    <Form.Label>Data Access Level *</Form.Label>
+                                    <Form.Label>Data Access Level  <span className='text-danger'>*</span></Form.Label>
                                     <Select
                                         name="dataAccessLevel"
                                         options={optionsDataAccesLevel}
@@ -938,7 +938,7 @@ const EmployeeMasterInsert = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="appAccessLevel" className="mb-3">
-                                    <Form.Label>App Access Level *</Form.Label>
+                                    <Form.Label>App Access Level  <span className='text-danger'>*</span></Form.Label>
                                     <Select
                                         name="appAccessLevel"
                                         options={optionsAppAccesLevel}
@@ -954,7 +954,7 @@ const EmployeeMasterInsert = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="empStatus" className="mb-3">
-                                    <Form.Label>Employee Status *</Form.Label>
+                                    <Form.Label>Employee Status  <span className='text-danger'>*</span></Form.Label>
                                     <Select
                                         name="empStatus"
                                         options={optionsEmpStatus}
@@ -970,7 +970,9 @@ const EmployeeMasterInsert = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="daL_Module" className="mb-3">
-                                    <Form.Label> DAL Module {(employee.dataAccessLevel === 'Module' || employee.dataAccessLevel === 'ProjectModule') ? '*' : null} </Form.Label>
+                                    <Form.Label> DAL Module {(employee.dataAccessLevel === 'Module' || employee.dataAccessLevel === 'ProjectModule') ? (
+                                        <span className='text-danger'>*</span>
+                                    ) : null} </Form.Label>
                                     <Select
                                         name="daL_Module"
                                         value={moduleList.filter((emp) =>
@@ -1002,7 +1004,11 @@ const EmployeeMasterInsert = () => {
 
                             <Col lg={6}>
                                 <Form.Group controlId="daL_Project" className="mb-3">
-                                    <Form.Label> DAL Project </Form.Label>
+                                    <Form.Label> DAL Project {(employee.dataAccessLevel === 'Project' || employee.dataAccessLevel === 'ProjectModule') ?
+                                        (
+                                            <span className='text-danger'>*</span>
+                                        )
+                                        : null} </Form.Label>
                                     <Select
                                         name="daL_Project"
                                         value={projectList.filter((emp) =>
@@ -1034,7 +1040,7 @@ const EmployeeMasterInsert = () => {
 
                             <Col lg={6}>
                                 <Form.Group controlId="isRegistered" className="mb-3">
-                                    <Form.Label>Is Registered *</Form.Label>
+                                    <Form.Label>Is Registered  <span className='text-danger'>*</span></Form.Label>
                                     <Form.Control
                                         name="isRegistered"
                                         value={employee.isRegistered}
@@ -1045,7 +1051,7 @@ const EmployeeMasterInsert = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="registrationDate" className="mb-3">
-                                    <Form.Label>Registration Date *</Form.Label>
+                                    <Form.Label>Registration Date  <span className='text-danger'>*</span></Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="registrationDate"
@@ -1070,7 +1076,9 @@ const EmployeeMasterInsert = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="dateOfLeaving" className="mb-3">
-                                    <Form.Label> Date of Leaving {employee.empStatus === 'Former' ? '*' : null}</Form.Label>
+                                    <Form.Label> Date of Leaving {employee.empStatus === 'Former' ? (
+                                        <span className='text-danger'>*</span>
+                                    ) : null}</Form.Label>
                                     <Flatpickr
                                         value={employee.dateOfLeaving}
                                         onChange={([date]) => setEmployee({

@@ -83,9 +83,9 @@ const AddressMaster = () => {
     const [searchTriggered, setSearchTriggered] = useState(false);
 
     useEffect(() => {
-        if (searchTriggered) {
+        if (searchTriggered && (searchPinCode || searchState || searchStatus)) {
             handleSearch();
-            setSearchTriggered(false);
+
         } else {
             fetchStaffRequirements();
         }
@@ -95,7 +95,7 @@ const AddressMaster = () => {
     const [searchPinCode, setSearchPinCode] = useState('');
     const [searchState, setSearchState] = useState('');
 
-    const handleSearch = (e?: React.FormEvent) => {
+    const handleSearch = async (e?: React.FormEvent) => {
         if (e) e.preventDefault();
 
         let query = `?`;
@@ -104,25 +104,31 @@ const AddressMaster = () => {
         if (searchStatus) query += `Status=${searchStatus}&`;
         query += `PageIndex=${currentPage}`;
 
-
         query = query.endsWith('&') ? query.slice(0, -1) : query;
         const apiUrl = `${config.API_URL_APPLICATION}/AddressMaster/SearchAddress${query}`;
+
         setLoading(true);
-        console.log(apiUrl)
-        axios.get(apiUrl, {
-            headers: {
-                'accept': '*/*'
+        console.log("API URL:", apiUrl);
+
+        try {
+            const { data } = await axios.get(apiUrl, {
+                headers: { 'accept': '*/*' }
+            });
+
+            if (data.isSuccess) {  // Check if the response is successful
+                setAddresses(data.addresses);
+                setTotalPages(Math.ceil(data.totalCount / 10));
+                console.log("Search Response:", data.addresses);
+            } else {
+                console.log("Error in API response:", data.message);  // Handle error message if needed
             }
-        })
-            .then((response) => {
-                console.log("search response ", response.data.addresses);
-                setAddresses(response.data.addresses)
-                setTotalPages(Math.ceil(response.data.totalCount / 10));
-            })
-            .catch((error) => {
-                console.error('Error fetching data:', error);
-            }).finally(() => setLoading(false));
+        } catch (error) {
+            console.error('Error fetching data:', error);
+        } finally {
+            setLoading(false);
+        }
     };
+
 
     const fetchStaffRequirements = async () => {
         setLoading(true);
@@ -169,11 +175,9 @@ const AddressMaster = () => {
         setSearchState('');
         setSearchPinCode('');
         setSearchStatus('');
-        try {
-            await fetchStaffRequirements();
-        } catch (error) {
-            console.error('Error fetching staff requirements:', error);
-        }
+        setSearchTriggered(false);
+        await fetchStaffRequirements();
+
     };
 
     const convertToCSV = (data: Addresses[]) => {
@@ -244,12 +248,12 @@ const AddressMaster = () => {
                 <>
                     <div className='bg-white p-2 pb-2'>
 
-                        <Form
-                            onSubmit={(e) => {
-                                e.preventDefault();
-                                setCurrentPage(1);
-                                setSearchTriggered(true);
-                            }}
+                        <Form onSubmit={(e) => {
+                            e.preventDefault();
+                            setCurrentPage(1);
+                            handleSearch();
+                            setSearchTriggered(true);
+                        }}
                         >
 
                             <Row>
