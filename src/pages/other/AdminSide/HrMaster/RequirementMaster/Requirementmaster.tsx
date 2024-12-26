@@ -3,7 +3,6 @@ import { useState, useEffect } from 'react';
 import { Button, Pagination, Table, Container, Row, Col, Alert, Form, ButtonGroup } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
-import IconWithLetter from '@/pages/ui/IconWithLetter';
 import config from '@/config';
 import Select from 'react-select';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -270,9 +269,9 @@ const RequirementMaster = () => {
         }
     };
 
-  
 
-  
+
+
     return (
         <>
             <div className="container">
@@ -453,25 +452,19 @@ const RequirementMaster = () => {
                                                         {columns.filter(col => col.visible).map((col) => (
                                                             <td key={col.id}
                                                                 className={
-                                                                    // Add class based on column id
-                                                                    col.id === 'empID' ? 'fw-bold  text-dark' :
-                                                                        col.id === 'taskID' ? 'fw-bold  text-dark' :
-                                                                            col.id === 'project' ? 'fw-bold  text-dark' :
-                                                                                // Add class based on value (e.g., expired tasks)
-                                                                                // (col.id === 'taskID' && item[col.id] === 'ACC.01.T1') ? 'task1' :
-                                                                                ''
+                                                                    col.id === 'taskID' ? 'fw-bold  text-dark' :
+                                                                        col.id === 'project' ? 'fw-bold  text-dark' :
+                                                                            ''
                                                                 }
                                                             >
                                                                 <div>
                                                                     {col.id === 'enteredBy' ? (
                                                                         <div style={{ display: 'flex', alignItems: 'center' }}>
-                                                                            <IconWithLetter letter={item.enteredBy.charAt(0)} />
-                                                                            {item.enteredBy.split('_')[0]}
+                                                                            {item.enteredBy}
                                                                         </div>
                                                                     ) : col.id === 'recruiter' ? (
                                                                         <div style={{ display: 'flex', alignItems: 'center' }}>
-                                                                            <IconWithLetter letter={item.recruiter.charAt(0)} />
-                                                                            {item.recruiter.split('_')[0]}
+                                                                            {item.recruiter}
                                                                         </div>
                                                                     ) : col.id === 'entryDate' || col.id === 'dateOfJoining' || col.id === 'transferDate' ? (
                                                                         <div style={{ display: 'flex', alignItems: 'center' }}>

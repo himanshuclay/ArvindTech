@@ -82,7 +82,6 @@ const ProcessCanvas: React.FC<ProcessCanvasProps> = ({ show, setShow, manageId }
             let taskJsonArray: any[] = [];
   
             try {
-              // Parse task_Json and check its structure
               taskJsonArray = JSON.parse(task.task_Json);
               console.log("Parsed taskJsonArray:", taskJsonArray);
             } catch (error) {
@@ -90,15 +89,12 @@ const ProcessCanvas: React.FC<ProcessCanvasProps> = ({ show, setShow, manageId }
               return []; // Return an empty array if parsing fails
             }
   
-            // If taskJsonArray is not an array, log and handle accordingly
             if (!Array.isArray(taskJsonArray)) {
               console.error("taskJsonArray is not an array:", taskJsonArray);
               console.log("task_Json is not in the expected array format:", task.task_Json);
               
-              // Handle taskJsonArray as an object if it's an object
               if (typeof taskJsonArray === "object" && taskJsonArray !== null) {
                 console.log("task_Json is an object:", taskJsonArray);
-                // Transform the object into an array for processing
                 taskJsonArray = [taskJsonArray]; // Wrap the object in an array
               } else {
                 return []; // If not an object or array, return an empty array

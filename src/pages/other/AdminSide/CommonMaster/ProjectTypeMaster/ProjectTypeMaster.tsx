@@ -34,6 +34,7 @@ const ModuleMaster = () => {
     const [managementContracts, setManagementContracts] = useState<ProjectType[]>([]);
     const [searchRole, setSearchRole] = useState('');
     const [searchStatus, setSearchStatus] = useState('');
+    const [searchTriggered, setSearchTriggered] = useState(false);
 
 
 
@@ -69,20 +70,15 @@ const ModuleMaster = () => {
     };
     // ==============================================================
 
-    useEffect(() => {
-        fetchRoles();
-    }, [currentPage]);
-
-
-
 
     useEffect(() => {
-        if (searchRole || searchStatus) {
+        if (searchTriggered || currentPage) {
             handleSearch();
+            setSearchTriggered(false);
         } else {
             fetchRoles();
         }
-    }, [currentPage]);
+    }, [currentPage, searchTriggered]);
 
     const handleSearch = (e?: React.FormEvent) => {
         if (e) e.preventDefault();
@@ -148,7 +144,9 @@ const ModuleMaster = () => {
 
 
     const handleClear = () => {
+        setCurrentPage(1);
         fetchRoles();
+        setSearchStatus('');
         setSearchRole('');
     };
 
@@ -194,30 +192,37 @@ const ModuleMaster = () => {
 
     return (
         <>
-            <div className="container">
-                <div className="d-flex bg-white p-2 my-2 justify-content-between align-items-center">
-                    <span><i className="ri-file-list-line me-2 text-dark fs-16"></i><span className='fw-bold text-dark fs-15'>Project Type List</span></span>
-                    <div className="d-flex justify-content-end  ">
-                        <Button variant="primary" onClick={downloadCSV} className="me-2">
-                            Download CSV
+            <div className="d-flex bg-white p-2 my-2 justify-content-between align-items-center">
+                <span><i className="ri-file-list-line me-2 text-dark fs-16"></i><span className='fw-bold text-dark fs-15'>Project Type List</span></span>
+                <div className="d-flex justify-content-end  ">
+                    <Button variant="primary" onClick={downloadCSV} className="me-2">
+                        Download CSV
+                    </Button>
+                    <Link to='/pages/ProjectTypeMasterinsert'>
+                        <Button variant="primary" className="me-2">
+                            Add  Project Type
                         </Button>
-                        <Link to='/pages/ProjectTypeMasterinsert'>
-                            <Button variant="primary" className="me-2">
-                                Add  Project Type
-                            </Button>
-                        </Link>
+                    </Link>
 
-                    </div>
                 </div>
+            </div>
 
 
-                {loading ? (
-                    <div className='loader-container'>
-                        <div className="loader"></div>
-                        <div className='mt-2'>Please Wait!</div>
-                    </div>
-                ) : (<>
-                    <div className='bg-white p-2 pb-2'>
+            {loading ? (
+                <div className='loader-container'>
+                    <div className="loader"></div>
+                    <div className='mt-2'>Please Wait!</div>
+                </div>
+            ) : (<>
+                <div className='bg-white p-2 pb-2'>
+
+                    <Form
+                        onSubmit={(e) => {
+                            e.preventDefault();
+                            setCurrentPage(1);
+                            setSearchTriggered(true);
+                        }}
+                    >
                         <Row>
                             <Col lg={4} className="">
                                 <Form.Group controlId="searchRole">
@@ -254,128 +259,124 @@ const ModuleMaster = () => {
                                         <i className="ri-loop-left-line"></i>
                                     </Button>
                                     &nbsp;
-                                    <Button type="submit" variant="primary" onClick={handleSearch}>
+                                    <Button type="submit" variant="primary">
                                         Search
                                     </Button>
                                 </ButtonGroup>
                             </Col>
                         </Row>
+                    </Form>
 
-
-
-                        <Row className='mt-3'>
-                            <div className="d-flex justify-content-end bg-light p-1">
-                                <div className="app-search d-none d-lg-block me-4">
-
-                                </div>
-
+                    <Row className='mt-3'>
+                        <div className="d-flex justify-content-end bg-light p-1">
+                            <div className="app-search d-none d-lg-block me-4">
 
                             </div>
-                        </Row>
-                    </div>
 
-                    <div className="overflow-auto text-nowrap">
-                        {!identifiers ? (
-                            <Container className="mt-5">
-                                <Row className="justify-content-center">
-                                    <Col xs={12} md={8} lg={6}>
-                                        <Alert variant="info" className="text-center">
-                                            <h4>No Identifier Found</h4>
-                                            <p>You currently don't have Identifier</p>
-                                        </Alert>
-                                    </Col>
-                                </Row>
-                            </Container>
-                        ) : (
-                            <DragDropContext onDragEnd={handleOnDragEnd}>
-                                <Table hover className='bg-white '>
-                                    <thead>
-                                        <Droppable droppableId="columns" direction="horizontal">
-                                            {(provided) => (
-                                                <tr {...provided.droppableProps} ref={provided.innerRef as React.Ref<HTMLTableRowElement>}>
-                                                    <th><i className="ri-list-ordered-2"></i>  Sr. No</th>
-                                                    {columns.filter(col => col.visible).map((column, index) => (
-                                                        <Draggable key={column.id} draggableId={column.id} index={index}>
-                                                            {(provided) => (
-                                                                <th>
-                                                                    <div ref={provided.innerRef}
-                                                                        {...provided.draggableProps}
-                                                                        {...provided.dragHandleProps}>
-                                                                        {column.id === 'createdBy' && (<i className="ri-user-add-line"></i>)}
-                                                                        {column.id === 'updatedBy' && (<i className="ri-user-edit-line"></i>)}
-                                                                        {column.id === 'name' && (<i className="ri-user-3-line"></i>)}
-                                                                        {column.id === 'createdDate' && (<i className="ri-calendar-line"></i>)}
-                                                                        {column.id === 'updatedDate' && (<i className="ri-time-line"></i>)}
-                                                                        &nbsp; {column.label}
-                                                                    </div>
-                                                                </th>
-                                                            )}
-                                                        </Draggable>
-                                                    ))}
-                                                    {provided.placeholder}
-                                                    <th>Action</th>
-                                                </tr>
-                                            )}
-                                        </Droppable>
-                                    </thead>
-                                    <tbody>
-                                        {identifiers.length > 0 ? (
-                                            identifiers.slice(0, 10).map((item, index) => (
-                                                <tr key={item.id}>
-                                                    <td>{(currentPage - 1) * 10 + index + 1}</td>
-                                                    {columns.filter(col => col.visible).map((col) => (
-                                                        <td key={col.id}
-                                                            className={
-                                                                col.id === 'name' ? 'fw-bold  text-dark text-nowrap' :
-                                                                    (col.id === 'status' && item[col.id] === "Enabled") ? 'task1' :
-                                                                        (col.id === 'status' && item[col.id] === "Disabled") ? 'task4' :
-                                                                            ''
-                                                            }>
-                                                            <div>{item[col.id as keyof ProjectType]}</div>
-                                                        </td>
-                                                    ))}
-                                                    <td><Link to={`/pages/ProjectTypeMasterinsert/${item.id}`}>
-                                                        <Button variant='primary' className='p-0 text-white'>
-                                                            <i className='btn ri-edit-line text-white' ></i>
-                                                        </Button>
-                                                    </Link>
-                                                    </td>
-                                                </tr>
-                                            ))
-                                        ) : (
-                                            <tr>
-                                                <td colSpan={12}><Container className="mt-5">
-                                                    <Row className="justify-content-center">
-                                                        <Col xs={12} md={8} lg={6}>
-                                                            <Alert variant="info" className="text-center">
-                                                                <h4>No Data Found</h4>
-                                                                <p>You currently don't have Data</p>
-                                                            </Alert>
-                                                        </Col>
-                                                    </Row>
-                                                </Container></td>
-                                            </tr>
-                                        )}
-                                    </tbody>
-                                </Table>
-                            </DragDropContext>
-                        )}
-                    </div>
-                </>
-                )}
 
-                <div className="d-flex justify-content-center align-items-center bg-white w-20 rounded-5 m-auto py-1 pb-1 my-2 pagination-rounded">
-                    <Pagination >
-                        <Pagination.First onClick={() => setCurrentPage(1)} disabled={currentPage === 1} />
-                        <Pagination.Prev onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))} disabled={currentPage === 1} />
-                        <Pagination.Item active>{currentPage}</Pagination.Item>
-                        <Pagination.Next onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))} disabled={currentPage === totalPages} />
-                        <Pagination.Last onClick={() => setCurrentPage(totalPages)} disabled={currentPage === totalPages} />
-                    </Pagination>
+                        </div>
+                    </Row>
                 </div>
 
+                <div className="overflow-auto text-nowrap">
+                    {!identifiers ? (
+                        <Container className="mt-5">
+                            <Row className="justify-content-center">
+                                <Col xs={12} md={8} lg={6}>
+                                    <Alert variant="info" className="text-center">
+                                        <h4>No Identifier Found</h4>
+                                        <p>You currently don't have Identifier</p>
+                                    </Alert>
+                                </Col>
+                            </Row>
+                        </Container>
+                    ) : (
+                        <DragDropContext onDragEnd={handleOnDragEnd}>
+                            <Table hover className='bg-white '>
+                                <thead>
+                                    <Droppable droppableId="columns" direction="horizontal">
+                                        {(provided) => (
+                                            <tr {...provided.droppableProps} ref={provided.innerRef as React.Ref<HTMLTableRowElement>}>
+                                                <th><i className="ri-list-ordered-2"></i>  Sr. No</th>
+                                                {columns.filter(col => col.visible).map((column, index) => (
+                                                    <Draggable key={column.id} draggableId={column.id} index={index}>
+                                                        {(provided) => (
+                                                            <th>
+                                                                <div ref={provided.innerRef}
+                                                                    {...provided.draggableProps}
+                                                                    {...provided.dragHandleProps}>
+                                                                    {column.id === 'createdBy' && (<i className="ri-user-add-line"></i>)}
+                                                                    {column.id === 'updatedBy' && (<i className="ri-user-edit-line"></i>)}
+                                                                    {column.id === 'name' && (<i className="ri-user-3-line"></i>)}
+                                                                    {column.id === 'createdDate' && (<i className="ri-calendar-line"></i>)}
+                                                                    {column.id === 'updatedDate' && (<i className="ri-time-line"></i>)}
+                                                                    &nbsp; {column.label}
+                                                                </div>
+                                                            </th>
+                                                        )}
+                                                    </Draggable>
+                                                ))}
+                                                {provided.placeholder}
+                                                <th>Action</th>
+                                            </tr>
+                                        )}
+                                    </Droppable>
+                                </thead>
+                                <tbody>
+                                    {identifiers.length > 0 ? (
+                                        identifiers.slice(0, 10).map((item, index) => (
+                                            <tr key={item.id}>
+                                                <td>{(currentPage - 1) * 10 + index + 1}</td>
+                                                {columns.filter(col => col.visible).map((col) => (
+                                                    <td key={col.id}
+                                                        className={
+                                                            col.id === 'name' ? 'fw-bold  text-dark text-nowrap' :
+                                                                (col.id === 'status' && item[col.id] === "Enabled") ? 'task1' :
+                                                                    (col.id === 'status' && item[col.id] === "Disabled") ? 'task4' :
+                                                                        ''
+                                                        }>
+                                                        <div>{item[col.id as keyof ProjectType]}</div>
+                                                    </td>
+                                                ))}
+                                                <td><Link to={`/pages/ProjectTypeMasterinsert/${item.id}`}>
+                                                    <Button variant='primary' className='p-0 text-white'>
+                                                        <i className='btn ri-edit-line text-white' ></i>
+                                                    </Button>
+                                                </Link>
+                                                </td>
+                                            </tr>
+                                        ))
+                                    ) : (
+                                        <tr>
+                                            <td colSpan={12}><Container className="mt-5">
+                                                <Row className="justify-content-center">
+                                                    <Col xs={12} md={8} lg={6}>
+                                                        <Alert variant="info" className="text-center">
+                                                            <h4>No Data Found</h4>
+                                                            <p>You currently don't have Data</p>
+                                                        </Alert>
+                                                    </Col>
+                                                </Row>
+                                            </Container></td>
+                                        </tr>
+                                    )}
+                                </tbody>
+                            </Table>
+                        </DragDropContext>
+                    )}
+                </div>
+            </>
+            )}
 
-            </div >
+            <div className="d-flex justify-content-center align-items-center bg-white w-20 rounded-5 m-auto py-1 pb-1 my-2 pagination-rounded">
+                <Pagination >
+                    <Pagination.First onClick={() => setCurrentPage(1)} disabled={currentPage === 1} />
+                    <Pagination.Prev onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))} disabled={currentPage === 1} />
+                    <Pagination.Item active>{currentPage}</Pagination.Item>
+                    <Pagination.Next onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))} disabled={currentPage === totalPages} />
+                    <Pagination.Last onClick={() => setCurrentPage(totalPages)} disabled={currentPage === totalPages} />
+                </Pagination>
+            </div>
         </>
     );
 };

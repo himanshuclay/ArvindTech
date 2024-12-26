@@ -5,7 +5,6 @@ import { Link } from 'react-router-dom';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import config from '@/config';
 import Select from 'react-select';
-import IconWithLetter from '@/pages/ui/IconWithLetter';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 
@@ -53,6 +52,7 @@ const MessMaster = () => {
     const [downloadCsv, setDownloadCsv] = useState<Mess[]>([]);
     const [messList, setMessList] = useState<MessList[]>([]);
     const [projectList, setProjectList] = useState<ModuleProjectList[]>([])
+    const [searchTriggered, setSearchTriggered] = useState(false);
 
 
 
@@ -76,9 +76,6 @@ const MessMaster = () => {
         { id: 'projectName', label: 'Project Name', visible: true },
         { id: 'mobileNumber', label: 'Mess Contact No', visible: true },
         { id: 'status', label: 'Status', visible: true },
-
-
-
     ]);
 
     const handleOnDragEnd = (result: any) => {
@@ -90,38 +87,37 @@ const MessMaster = () => {
     };
     // ==============================================================
 
-    useEffect(() => {
-        fetchRoles();
-        fetchRolesCsv();
-    }, [currentPage]);
 
+
+
+    useEffect(() => {
+        if (searchTriggered || currentPage) {
+            handleSearch();
+        } else {
+            fetchRoles();
+        }
+    }, [currentPage, searchTriggered]);
 
 
     const [searchMessName, setSearchMessName] = useState('')
     const [searchStatus, setSearchStatus] = useState('')
     const [searchProjectName, setSearchProjectName] = useState('')
 
-    const handleSearch = (e: any) => {
-        e.preventDefault();
 
+    const handleSearch = (e?: React.FormEvent) => {
+        if (e) e.preventDefault();
         let query = `?`;
         if (searchMessName) query += `MessName=${searchMessName}&`;
         if (searchStatus) query += `Status=${searchStatus}&`;
         if (searchProjectName) query += `ProjectName=${searchProjectName}&`;
         query += `PageIndex=${currentPage}`;
 
-        // Remove trailing '&' or '?' from the query string
         query = query.endsWith('&') ? query.slice(0, -1) : query;
-
         const apiUrl = `${config.API_URL_APPLICATION}/MessMaster/SearchMess${query}`;
-
         console.log(apiUrl)
-        axios.get(apiUrl, {
-            headers: {
-                'accept': '*/*'
-            }
-        })
+        axios.get(apiUrl, { headers: { 'accept': '*/*' } })
             .then((response) => {
+                console.log("search response ", response.data.messMasterList);
                 setMesses(response.data.messMasterList)
                 setTotalPages(Math.ceil(response.data.totalCount / 10));
             })
@@ -129,7 +125,6 @@ const MessMaster = () => {
                 console.error('Error fetching data:', error);
             });
     };
-
 
     const fetchRoles = async () => {
         setLoading(true);
@@ -154,23 +149,6 @@ const MessMaster = () => {
 
 
 
-
-    const fetchRolesCsv = async () => {
-        try {
-            const response = await axios.get(`${config.API_URL_APPLICATION}/MessMaster/GetMess`);
-            if (response.data.isSuccess) {
-                setDownloadCsv(response.data.messMasterList);
-            } else {
-                console.error(response.data.message);
-            }
-        } catch (error) {
-            console.error('Error fetching doers:', error);
-        }
-
-    };
-
-
-
     useEffect(() => {
         const fetchData = async (endpoint: string, setter: Function, listName: string) => {
             try {
@@ -187,23 +165,26 @@ const MessMaster = () => {
 
         fetchData('MessMaster/GetMess', setMessList, 'messMasterList');
         fetchData('CommonDropdown/GetProjectList', setProjectList, 'projectListResponses');
+        fetchData('MessMaster/GetMess', setDownloadCsv, 'messMasterList');
 
     }, []);
 
 
-    const handleClear = () => {
+    const handleClear = async () => {
         setSearchMessName('')
         setSearchProjectName('')
-        setSearchStatus('')
-        fetchRoles();
+        setSearchStatus('');
+        setCurrentPage(1);
+        setSearchTriggered(false);
+        await fetchRoles();
     };
 
 
     const convertToCSV = (data: Mess[]) => {
         const csvRows = [
-            ['Mess ID', 'Mess Name', 'Manager Emp ID', 'Manager Name', 
+            ['Mess ID', 'Mess Name', 'Manager Emp ID', 'Manager Name',
                 'Mess Contact No', 'Project Name', 'Status',
-                 'Created By', 'Updated By', 'Created Date', 'Updated Date'],
+                'Created By', 'Updated By', 'Created Date', 'Updated Date'],
             ...data.map(mess => [
                 mess.messID.toString(),
                 mess.messName,
@@ -241,233 +222,241 @@ const MessMaster = () => {
 
 
     const optionsStatus = [
-        { value: 'Active', label: 'Active' },
-        { value: 'Inactive', label: 'Inactive' }
+        { value: 'Enabled', label: 'Enabled' },
+        { value: 'Disabled', label: 'Disabled' }
     ];
 
 
     return (
         <>
-            <div className="container">
-                <div className="d-flex bg-white p-2 my-2 justify-content-between align-items-center">
-                    <span><i className="ri-file-list-line me-2 text-dark fs-16"></i><span className='fw-bold text-dark fs-15'>Mess List</span></span>
-                    <div className="d-flex justify-content-end  ">
-                        <Button variant="primary" onClick={downloadCSV} className="me-2">
-                            Download CSV
+            <div className="d-flex bg-white p-2 my-2 justify-content-between align-items-center">
+                <span><i className="ri-file-list-line me-2 text-dark fs-16"></i><span className='fw-bold text-dark fs-15'>Mess List</span></span>
+                <div className="d-flex justify-content-end  ">
+                    <Button variant="primary" onClick={downloadCSV} className="me-2">
+                        Download CSV
+                    </Button>
+                    <Link to='/pages/MessMasterinsert'>
+                        <Button variant="primary" className="me-2">
+                            Add Mess
                         </Button>
-                        <Link to='/pages/MessMasterinsert'>
-                            <Button variant="primary" className="me-2">
-                                Add Mess
-                            </Button>
-                        </Link>
+                    </Link>
 
-                    </div>
                 </div>
+            </div>
+
+            <div className='bg-white p-2 pb-2'>
+                <Form
+                    onSubmit={(e) => {
+                        e.preventDefault();
+                        setCurrentPage(1);
+                        setSearchTriggered(true);
+                    }}
+                >
+
+                    <Row>
+                        <Col lg={4} className=''>
+                            <Form.Group controlId="searchProjectName">
+                                <Form.Label>Project Name</Form.Label>
+                                <Select
+                                    name="searchProjectName"
+                                    value={projectList.find(item => item.projectName === searchProjectName) || null} // handle null
+                                    onChange={(selectedOption) => setSearchProjectName(selectedOption ? selectedOption.projectName : "")} // null check
+                                    options={projectList}
+                                    getOptionLabel={(item) => item.projectName}
+                                    getOptionValue={(item) => item.projectName}
+                                    isSearchable={true}
+                                    placeholder="Select Project Name "
+                                    className="h45"
+                                />
+                            </Form.Group>
+                        </Col>
+                        <Col lg={4}>
+                            <Form.Group controlId="searchMessName">
+                                <Form.Label>Mess Name</Form.Label>
+
+                                <Select
+                                    name="searchMessName"
+                                    value={messList.find(item => item.messName === searchMessName) || null} // handle null
+                                    onChange={(selectedOption) => setSearchMessName(selectedOption ? selectedOption.messName : "")} // null check
+                                    options={messList}
+                                    getOptionLabel={(item) => item.messName}
+                                    getOptionValue={(item) => item.messName}
+                                    isSearchable={true}
+                                    placeholder="Select Mess Name"
+                                    className="h45"
+                                />
+                            </Form.Group>
+                        </Col>
 
 
-                {loading ? (
-                    <div className='loader-container'>
-                        <div className="loader"></div>
-                        <div className='mt-2'>Please Wait!</div>
+                        <Col lg={4}>
+                            <Form.Group controlId="searchStatus">
+                                <Form.Label>Mess Status</Form.Label>
+                                <Select
+                                    name="searchStatus"
+                                    options={optionsStatus}
+                                    value={optionsStatus.find(option => option.value === searchStatus) || null}
+                                    onChange={(selectedOption) => setSearchStatus(selectedOption?.value || '')}
+                                    placeholder="Select Status"
+                                />
+                            </Form.Group>
+                        </Col>
+
+
+                        <Col></Col>
+                        <Col lg={4} className="align-items-end d-flex justify-content-end mt-2">
+                            <ButtonGroup aria-label="Basic example" className="w-100">
+                                <Button type="button" variant="primary" onClick={handleClear}>
+                                    <i className="ri-loop-left-line"></i>
+                                </Button>
+                                &nbsp;
+                                <Button
+                                    type="submit"
+                                    variant="primary"
+                                >
+                                    Search
+                                </Button>
+                            </ButtonGroup>
+                        </Col>
+                    </Row>
+                </Form>
+
+
+
+                <Row className='mt-3'>
+                    <div className="d-flex justify-content-end bg-light p-1">
+                        <div className="app-search d-none d-lg-block me-4">
+
+                        </div>
+
+
                     </div>
-                ) : (<>
-                    <div className='bg-white p-2 pb-2'>
-                        <Form >
-                            <Row>
-
-                                <Col lg={4}>
-                                    <Form.Group controlId="searchMessName">
-                                        <Form.Label>Mess Name</Form.Label>
-
-                                        <Select
-                                            name="searchMessName"
-                                            value={messList.find(item => item.messName === searchMessName) || null} // handle null
-                                            onChange={(selectedOption) => setSearchMessName(selectedOption ? selectedOption.messName : "")} // null check
-                                            options={messList}
-                                            getOptionLabel={(item) => item.messName}
-                                            getOptionValue={(item) => item.messName}
-                                            isSearchable={true}
-                                            placeholder="Select Mess Name"
-                                            className="h45"
-                                        />
-                                    </Form.Group>
-                                </Col>
-                                <Col lg={4} className=''>
-                                    <Form.Group controlId="searchProjectName">
-                                        <Form.Label>Project Name</Form.Label>
-                                        <Select
-                                            name="searchProjectName"
-                                            value={projectList.find(item => item.projectName === searchProjectName) || null} // handle null
-                                            onChange={(selectedOption) => setSearchProjectName(selectedOption ? selectedOption.projectName : "")} // null check
-                                            options={projectList}
-                                            getOptionLabel={(item) => item.projectName}
-                                            getOptionValue={(item) => item.projectName}
-                                            isSearchable={true}
-                                            placeholder="Select Project Name "
-                                            className="h45"
-                                        />
-                                    </Form.Group>
-                                </Col>
-
-                                <Col lg={4}>
-                                    <Form.Group controlId="searchStatus">
-                                        <Form.Label>Mess Status</Form.Label>
-                                        <Select
-                                            name="searchStatus"
-                                            options={optionsStatus}
-                                            value={optionsStatus.find(option => option.value === searchStatus) || null}
-                                            onChange={(selectedOption) => setSearchStatus(selectedOption?.value || '')}
-                                            placeholder="Select Status"
-                                        />
-                                    </Form.Group>
-                                </Col>
+                </Row>
+            </div>
+            {loading ? (
+                <div className='loader-container'>
+                    <div className="loader"></div>
+                    <div className='mt-2'>Please Wait!</div>
+                </div>
+            ) : (<>
 
 
-                                <Col></Col>
-                                <Col lg={3} className='align-items-end d-flex justify-content-end mt-3'>
-                                    <ButtonGroup aria-label="Basic example" className='w-100'>
-                                        <Button type="button" variant="primary" onClick={handleClear}>
-                                            <i className="ri-loop-left-line"></i>
-                                        </Button>
-                                        &nbsp;
-                                        <Button type="submit" variant="primary" onClick={handleSearch}>Search</Button>
-                                    </ButtonGroup>
+                <div className="overflow-auto text-nowrap">
+                    {!messes ? (
+                        <Container className="mt-5">
+                            <Row className="justify-content-center">
+                                <Col xs={12} md={8} lg={6}>
+                                    <Alert variant="info" className="text-center">
+                                        <h4>No Task Found</h4>
+                                        <p>You currently don't have Completed tasks</p>
+                                    </Alert>
                                 </Col>
                             </Row>
-                        </Form>
+                        </Container>
+                    ) : (
+                        <DragDropContext onDragEnd={handleOnDragEnd}>
+                            <Table hover className='bg-white '>
+                                <thead>
+                                    <Droppable droppableId="columns" direction="horizontal">
+                                        {(provided) => (
+                                            <tr {...provided.droppableProps} ref={provided.innerRef as React.Ref<HTMLTableRowElement>}>
+                                                <th><i className="ri-list-ordered-2"></i>  Sr. No</th>
+                                                {columns.filter(col => col.visible).map((column, index) => (
+                                                    <Draggable key={column.id} draggableId={column.id} index={index}>
+                                                        {(provided) => (
+                                                            <th>
+                                                                <div ref={provided.innerRef}
+                                                                    {...provided.draggableProps}
+                                                                    {...provided.dragHandleProps}>
+                                                                    {column.id === 'messID' && (<i className="ri-user-add-line"></i>)}
+                                                                    {column.id === 'messName' && (<i className="ri-building-line"></i>)}
+                                                                    {column.id === 'managerEmpID' && (<i className="ri-user-3-line"></i>)}
+                                                                    {column.id === 'managerName' && (<i className="ri-user-2-line"></i>)}
+                                                                    {column.id === 'projectName' && (<i className="ri-folder-line"></i>)}
+                                                                    {column.id === 'status' && (<i className="ri-time-line"></i>)}
 
 
-
-                        <Row className='mt-3'>
-                            <div className="d-flex justify-content-end bg-light p-1">
-                                <div className="app-search d-none d-lg-block me-4">
-
-                                </div>
-
-
-                            </div>
-                        </Row>
-                    </div>
-
-                    <div className="overflow-auto text-nowrap">
-                        {!messes ? (
-                            <Container className="mt-5">
-                                <Row className="justify-content-center">
-                                    <Col xs={12} md={8} lg={6}>
-                                        <Alert variant="info" className="text-center">
-                                            <h4>No Task Found</h4>
-                                            <p>You currently don't have Completed tasks</p>
-                                        </Alert>
-                                    </Col>
-                                </Row>
-                            </Container>
-                        ) : (
-                            <DragDropContext onDragEnd={handleOnDragEnd}>
-                                <Table hover className='bg-white '>
-                                    <thead>
-                                        <Droppable droppableId="columns" direction="horizontal">
-                                            {(provided) => (
-                                                <tr {...provided.droppableProps} ref={provided.innerRef as React.Ref<HTMLTableRowElement>}>
-                                                    <th><i className="ri-list-ordered-2"></i>  Sr. No</th>
-                                                    {columns.filter(col => col.visible).map((column, index) => (
-                                                        <Draggable key={column.id} draggableId={column.id} index={index}>
-                                                            {(provided) => (
-                                                                <th>
-                                                                    <div ref={provided.innerRef}
-                                                                        {...provided.draggableProps}
-                                                                        {...provided.dragHandleProps}>
-                                                                        {column.id === 'messID' && (<i className="ri-user-add-line"></i>)}
-                                                                        {column.id === 'messName' && (<i className="ri-building-line"></i>)}
-                                                                        {column.id === 'managerEmpID' && (<i className="ri-user-3-line"></i>)}
-                                                                        {column.id === 'managerName' && (<i className="ri-user-2-line"></i>)}
-                                                                        {column.id === 'projectName' && (<i className="ri-folder-line"></i>)}
-                                                                        {column.id === 'status' && (<i className="ri-time-line"></i>)}
-
-
-                                                                        &nbsp; {column.label}
-                                                                    </div>
-                                                                </th>
-                                                            )}
-                                                        </Draggable>
-                                                    ))}
-                                                    {provided.placeholder}
-                                                    <th>Action</th>
-                                                </tr>
-                                            )}
-                                        </Droppable>
-                                    </thead>
-                                    <tbody>
-                                        {messes.length > 0 ? (
-                                            messes.slice(0, 10).map((item, index) => (
-                                                <tr key={item.id}>
-                                                    <td>{(currentPage - 1) * 10 + index + 1}</td>
-                                                    {columns.filter(col => col.visible).map((col) => (
-                                                        <td key={col.id}
-                                                            className={
-                                                                col.id === 'managerName' ? 'fw-bold  text-dark text-nowrap' :
-                                                                    (col.id === 'status' && item[col.id] === 'Active') ? 'task1' :
-                                                                        (col.id === 'status' && item[col.id] === 'Inactive') ? 'task4' :
-
-                                                                            ''
-                                                            }>
-                                                            <div> {col.id === 'managerName' ? (
-                                                                <div style={{ display: 'flex', alignItems: 'center' }}>
-                                                                    <IconWithLetter letter={item.managerName.charAt(0)} />
-                                                                    {item.managerName.split('_')[0]}
+                                                                    &nbsp; {column.label}
                                                                 </div>
-                                                            ) : (
-                                                                <>
-                                                                    {item[col.id as keyof Mess]}
-                                                                </>
-                                                            )}</div>
-
-                                                        </td>
-                                                    ))}
-
-                                                    <td><Link to={`/pages/MessMasterinsert/${item.id}`}>
-                                                        <Button variant='primary' className='p-0 text-white'>
-                                                            <i className='btn ri-edit-line text-white' ></i>
-                                                        </Button>
-                                                    </Link>
-                                                    </td>
-                                                </tr>
-                                            ))
-                                        ) : (
-                                            <tr>
-                                                <td colSpan={12}>
-                                                    <Container className="mt-5">
-                                                        <Row className="justify-content-center">
-                                                            <Col xs={12} md={8} lg={6}>
-                                                                <Alert variant="info" className="text-center">
-                                                                    <h4>No Data Found</h4>
-                                                                    <p>You currently don't have any Data</p>
-                                                                </Alert>
-                                                            </Col>
-                                                        </Row>
-                                                    </Container>
-                                                </td>
+                                                            </th>
+                                                        )}
+                                                    </Draggable>
+                                                ))}
+                                                {provided.placeholder}
+                                                <th>Action</th>
                                             </tr>
                                         )}
-                                    </tbody>
-                                </Table>
-                            </DragDropContext>
-                        )}
-                    </div>
-                </>
-                )}
+                                    </Droppable>
+                                </thead>
+                                <tbody>
+                                    {messes.length > 0 ? (
+                                        messes.slice(0, 10).map((item, index) => (
+                                            <tr key={item.id}>
+                                                <td>{(currentPage - 1) * 10 + index + 1}</td>
+                                                {columns.filter(col => col.visible).map((col) => (
+                                                    <td key={col.id}
+                                                        className={
+                                                            (col.id === 'status' && item[col.id] === 'Enabled') ? 'task1' :
+                                                                (col.id === 'status' && item[col.id] === 'Disabled') ? 'task4' :
 
-                <div className="d-flex justify-content-center align-items-center bg-white w-20 rounded-5 m-auto py-1 pb-1 my-2 pagination-rounded">
-                    <Pagination >
-                        <Pagination.First onClick={() => setCurrentPage(1)} disabled={currentPage === 1} />
-                        <Pagination.Prev onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))} disabled={currentPage === 1} />
-                        <Pagination.Item active>{currentPage}</Pagination.Item>
-                        <Pagination.Next onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))} disabled={currentPage === totalPages} />
-                        <Pagination.Last onClick={() => setCurrentPage(totalPages)} disabled={currentPage === totalPages} />
-                    </Pagination>
+                                                                    ''
+                                                        }>
+                                                        <div> {col.id === 'managerName' ? (
+                                                            <div style={{ display: 'flex', alignItems: 'center' }}>
+                                                                {item.managerName}
+                                                            </div>
+                                                        ) : (
+                                                            <>
+                                                                {item[col.id as keyof Mess]}
+                                                            </>
+                                                        )}</div>
+
+                                                    </td>
+                                                ))}
+
+                                                <td><Link to={`/pages/MessMasterinsert/${item.id}`}>
+                                                    <Button variant='primary' className='p-0 text-white'>
+                                                        <i className='btn ri-edit-line text-white' ></i>
+                                                    </Button>
+                                                </Link>
+                                                </td>
+                                            </tr>
+                                        ))
+                                    ) : (
+                                        <tr>
+                                            <td colSpan={12}>
+                                                <Container className="mt-5">
+                                                    <Row className="justify-content-center">
+                                                        <Col xs={12} md={8} lg={6}>
+                                                            <Alert variant="info" className="text-center">
+                                                                <h4>No Data Found</h4>
+                                                                <p>You currently don't have any Data</p>
+                                                            </Alert>
+                                                        </Col>
+                                                    </Row>
+                                                </Container>
+                                            </td>
+                                        </tr>
+                                    )}
+                                </tbody>
+                            </Table>
+                        </DragDropContext>
+                    )}
                 </div>
+            </>
+            )}
+
+            <div className="d-flex justify-content-center align-items-center bg-white w-20 rounded-5 m-auto py-1 pb-1 my-2 pagination-rounded">
+                <Pagination >
+                    <Pagination.First onClick={() => setCurrentPage(1)} disabled={currentPage === 1} />
+                    <Pagination.Prev onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))} disabled={currentPage === 1} />
+                    <Pagination.Item active>{currentPage}</Pagination.Item>
+                    <Pagination.Next onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))} disabled={currentPage === totalPages} />
+                    <Pagination.Last onClick={() => setCurrentPage(totalPages)} disabled={currentPage === totalPages} />
+                </Pagination>
+            </div>
 
 
-            </div >
         </>
     );
 };

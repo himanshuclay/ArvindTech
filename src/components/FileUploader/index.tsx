@@ -13,12 +13,9 @@ interface FileUploaderProps extends ChildrenProps {
 	onFileUpload?: (files: FileType[]) => void;
 	showPreview?: boolean;
 	additionalData: {
-		ModuleID: string;
+		moduleName: any;
+		processName: any;
 		CreatedBy: string;
-		TaskCommonID: number;
-		Task_Number: string;
-		ProcessInitiationID: number;
-		ProcessID: string;
 		UpdatedBy: string;
 	};
 }
@@ -28,6 +25,7 @@ type ChildrenProps = {
 	text?: string;
 	textClass?: string;
 	extraText?: string;
+	endPoint?: any;
 };
 
 const FileUploader = ({
@@ -37,6 +35,7 @@ const FileUploader = ({
 	extraText,
 	text,
 	additionalData,
+	endPoint
 }: FileUploaderProps) => {
 	const { selectedFiles, handleAcceptedFiles, removeFile } = useFileUploader(showPreview);
 	const [successMessage, setSuccessMessage] = useState<string | null>(null);
@@ -49,16 +48,13 @@ const FileUploader = ({
 		return file;
 	};
 
-	// Define the uploadFiles function
 	const uploadFiles = async (files: FileType[], additionalData: object) => {
 		const formData = new FormData();
 
-		// Append each file to FormData
 		files.forEach((file) => {
 			formData.append('FileDetails', file);
 		});
 
-		// Append additional data to FormData
 		Object.entries(additionalData).forEach(([key, value]) => {
 			formData.append(`fileUploadRequest.${key}`, value);
 		});
@@ -66,7 +62,7 @@ const FileUploader = ({
 		formData.append('FileType', 'pdf');
 
 		try {
-			const response = await fetch('https://arvindo-api.clay.in/api/FileUpload/UploadFiles', {
+			const response = await fetch(endPoint, {
 				method: 'POST',
 				body: formData,
 			});

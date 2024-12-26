@@ -94,15 +94,16 @@ const DepartmentMasterinsert = () => {
     const [gstinError, setGstinError] = useState<string | null>(null);
 
     const [errorMessage, setErrorMessage] = useState('');
-
+    const [isMobileVerified, setIsMobileVerified] = useState(false);
 
     useEffect(() => {
         toast.dismiss();
         const storedEmpName = localStorage.getItem('EmpName');
-        if (storedEmpName && storedEmpName.trim().length > 0) {
+        const storedEmpID = localStorage.getItem('EmpId');
+        if (storedEmpName && storedEmpName.trim().length > 0 || storedEmpID) {
             setVenders((prevState) => ({
                 ...prevState,
-                creatorName: storedEmpName,
+                creatorName: `${storedEmpName} - ${storedEmpID}`,
             }));
         }
     }, []);
@@ -217,6 +218,29 @@ const DepartmentMasterinsert = () => {
 
 
     const handleChange = (e: ChangeEvent<any> | null, name?: string, value?: any) => {
+        const validateMobileNumber = (fieldName: string, fieldValue: string) => {
+            if (!/^\d{0,10}$/.test(fieldValue)) {
+                return false;
+            }
+
+            setVenders((prevData) => ({
+                ...prevData,
+                [fieldName]: fieldValue,
+            }));
+
+            if (fieldValue.length === 10) {
+                if (!/^[6-9]/.test(fieldValue)) {
+                    toast.error("Mobile number should start with a digit between 6 and 9.");
+                    setIsMobileVerified(true);
+                    return false;
+                }
+            } else {
+                setIsMobileVerified(false);
+            }
+            return true;
+        };
+
+
         if (e) {
             const { name: eventName, type } = e.target;
 
@@ -225,7 +249,15 @@ const DepartmentMasterinsert = () => {
                 setVenders({ ...venders, [eventName]: checked });
             } else {
                 const inputValue = (e.target as HTMLInputElement | HTMLSelectElement).value;
-                setVenders({ ...venders, [eventName]: inputValue });
+                // setVenders({ ...venders, [eventName]: inputValue });
+                if (eventName === "contactNo") {
+                    validateMobileNumber(eventName, inputValue);
+                } else {
+                    setVenders((prevData) => {
+                        const updatedData = { ...prevData, [eventName]: inputValue };
+                        return updatedData;
+                    });
+                }
             }
         } else if (name) {
             setVenders({
@@ -261,14 +293,13 @@ const DepartmentMasterinsert = () => {
 
     const fetchDistricts = async () => {
         try {
-            // Clear previous errors
             setErrorMessage('');
             if (!searchPin.trim()) {
                 setDistricts([]);
                 setSearchDistrict('');
                 setAreaData([]);
                 setVenders(prev => ({ ...prev, district: '', area: '', state: '' }));
-                return; // Stop execution if the pincode is blank
+                return;
             }
 
             const response = await axios.get(`${config.API_URL_APPLICATION}/AddressMaster/GetAddressData?PinCode=${searchPin}`);
@@ -339,42 +370,23 @@ const DepartmentMasterinsert = () => {
         }
     };
 
-    const handleIndianTelephonicChange = (e: ChangeEvent<HTMLInputElement>) => {
-        const { name, value } = e.target;
-
-        // Remove any non-digit characters (except for the "+" sign)
-        let numericValue = value.replace(/[^\d+]/g, '');
-
-        // If the value starts with +91, apply formatting for the Indian number with country code
-        if (numericValue.startsWith('+91')) {
-            numericValue = numericValue
-                .replace(/^(\+91)(\d{5})(\d{0,5}).*/, '$1 $2 $3')
-                .trim();
-        } else {
-            // For local numbers (without the +91 country code), format as XXXXX-XXXXX
-            numericValue = numericValue
-                .replace(/^(\d{5})(\d{0,5}).*/, '$1 $2')
-                .trim();
-        }
-
-        // Check if the user is backspacing and ensure the value is valid
-        if (value === '') {
-            setVenders((prevState) => ({
-                ...prevState,
-                [name]: '',
-            }));
-        } else {
-            setVenders((prevState) => ({
-                ...prevState,
-                [name]: numericValue,
-            }));
-        }
-    };
-
 
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
+
+        if (venders.contactNo.length !== 10) {
+            toast.dismiss()
+            toast.error("Mobile number should be exactly 10 digits long.");
+            setIsMobileVerified(true);
+            return false;
+        }
+
+        if (isMobileVerified) {
+            toast.dismiss()
+            toast.error("Please verify your mobile number before submitting the form.");
+            return;
+        }
 
         if (!gstinRegex.test(gstin)) {
             setGstinError('Please enter a valid GSTIN.');
@@ -619,8 +631,8 @@ const DepartmentMasterinsert = () => {
                                         type="text"
                                         name="gstin"
                                         value={venders.gstin}
-                                        onChange={handleGSTINChange} // Update value as user types
-                                        onBlur={handleGSTINBlur} // Validate when focus leaves the input
+                                        onChange={handleGSTINChange}
+                                        onBlur={handleGSTINBlur}
                                         placeholder="Enter GSTIN"
                                     />
                                     {gstinError && <div className="text-danger mt-2">{gstinError}</div>}
@@ -646,7 +658,7 @@ const DepartmentMasterinsert = () => {
                                         type="text"
                                         name="contactNo"
                                         value={venders.contactNo}
-                                        onChange={handleIndianTelephonicChange}
+                                        onChange={handleChange}
                                         placeholder="Enter Vendor Contact No."
                                     />
                                 </Form.Group>
@@ -747,7 +759,6 @@ const DepartmentMasterinsert = () => {
                                         value={optionsAppAccess.find(option => option.value === venders.status)}
                                         onChange={selectedOption => handleChange(null, 'status', selectedOption?.value)}
                                         placeholder="Select Status"
-                                        required
                                     />
                                 </Form.Group>
                             </Col>

@@ -6,7 +6,6 @@ import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import config from '@/config';
 import Select from 'react-select';
 import { useLocation, useNavigate } from 'react-router-dom';
-import IconWithLetter from '@/pages/ui/IconWithLetter';
 import { toast } from 'react-toastify';
 
 
@@ -58,6 +57,7 @@ const TenderMaster = () => {
     const [totalPages, setTotalPages] = useState(1);
     const [downloadCsv, setDownloadCsv] = useState<Vender[]>([]);
     const [employeeList, setEmployeeList] = useState<EmployeeList[]>([]);
+    const [searchTriggered, setSearchTriggered] = useState(false);
 
 
     const location = useLocation();
@@ -118,15 +118,13 @@ const TenderMaster = () => {
 
 
     useEffect(() => {
-        // If any search criteria is filled, run handleSearch; otherwise, fetch master data
-        if (searchVenderCode || searchVendorContactPerson || searchCreatorName) {
+        if (searchTriggered || currentPage) {
             handleSearch();
+
         } else {
             fetchMaster();
-            fetchModulesCsv
         }
-    }, [currentPage]); // Run this effect when currentPage changes
-
+    }, [currentPage, searchTriggered]);
 
     const handleSearch = (e?: React.FormEvent) => {
         if (e) e.preventDefault();
@@ -176,19 +174,6 @@ const TenderMaster = () => {
     };
 
 
-    const fetchModulesCsv = async () => {
-        try {
-            const response = await axios.get(`${config.API_URL_APPLICATION}/VendorMaster/GetVendor`);
-            if (response.data.isSuccess) {
-                setDownloadCsv(response.data.vendorMasterList);
-            } else {
-                console.error(response.data.message);
-            }
-        } catch (error) {
-            console.error('Error fetching hrDoers:', error);
-        }
-
-    };
 
     useEffect(() => {
         const fetchData = async (endpoint: string, setter: Function, listName: string) => {
@@ -205,16 +190,18 @@ const TenderMaster = () => {
         };
 
         fetchData('CommonDropdown/GetEmployeeListWithId', setEmployeeList, 'employeeLists');
+        fetchData('VendorMaster/GetVendor', setDownloadCsv, 'vendorMasterList');
 
     }, []);
 
 
 
-    const handleClear = () => {
+    const handleClear = async () => {
         setSearchCreatorName('')
         setSearchVendorContactPerson('')
         setSearchVenderCode('')
-        fetchMaster();
+        setSearchTriggered(false);
+        await fetchMaster();
     };
 
 
@@ -283,254 +270,255 @@ const TenderMaster = () => {
 
     return (
         <>
-            <div className="container">
-                <div className="d-flex bg-white p-2 my-2 justify-content-between align-items-center">
-                    <span><i className="ri-file-list-line me-2 text-dark fs-16"></i><span className='fw-bold text-dark fs-15'>Vendor List</span></span>
-                    <div className="d-flex justify-content-end  ">
-                        <div>
-                            <Button variant="primary" onClick={downloadCSV} className="me-2">
-                                Download CSV
+            <div className="d-flex bg-white p-2 my-2 justify-content-between align-items-center">
+                <span><i className="ri-file-list-line me-2 text-dark fs-16"></i><span className='fw-bold text-dark fs-15'>Vendor List</span></span>
+                <div className="d-flex justify-content-end  ">
+                    <div>
+                        <Button variant="primary" onClick={downloadCSV} className="me-2">
+                            Download CSV
+                        </Button>
+                        <Link to='/pages/VendorMasterinsert'>
+                            <Button variant="primary" className="">
+                                Add Vendor
                             </Button>
-                            <Link to='/pages/VendorMasterinsert'>
-                                <Button variant="primary" className="">
-                                    Add Vendor
-                                </Button>
-                            </Link>
-
-
-                        </div>
+                        </Link>
 
 
                     </div>
+
+
                 </div>
+            </div>
+            <div className='bg-white p-2 pb-2'>
+                <Form
+                    onSubmit={(e) => {
+                        e.preventDefault();
+                        setCurrentPage(1);
+                        setSearchTriggered(true);
+                    }}
+                >
+                    <Row>
+                        <Col lg={4}>
+                            <Form.Group controlId="searchVenderCode">
+                                <Form.Label>Vendor Code </Form.Label>
+                                <Form.Control
+                                    type="text"
+                                    name="searchVenderCode"
+                                    value={searchVenderCode}
+                                    onChange={(e) => setSearchVenderCode(e.target.value)}
+                                    placeholder='Enter Vendor Code'
+                                />
+                            </Form.Group>
+                        </Col>
+                        <Col lg={4}>
+                            <Form.Group controlId="searchVendorContactPerson">
+                                <Form.Label>Vendor Contact Person </Form.Label>
+                                <Form.Control
+                                    type="text"
+                                    name="searchVendorContactPerson"
+                                    value={searchVendorContactPerson}
+                                    onChange={(e) => setSearchVendorContactPerson(e.target.value)}
+                                    placeholder='Enter Vendor Contact Person'
+                                />
+                            </Form.Group>
+                        </Col>
 
-
-                {loading ? (
-                    <div className='loader-container'>
-                        <div className="loader"></div>
-                        <div className='mt-2'>Please Wait!</div>
-                    </div>
-                ) : (
-
-                    <>
-                        <div className='bg-white p-2 pb-2'>
-                            <Form onSubmit={handleSearch}>
-                                <Row>
-                                    <Col lg={4}>
-                                        <Form.Group controlId="searchVenderCode">
-                                            <Form.Label>Vendor Code </Form.Label>
-                                            <Form.Control
-                                                type="text"
-                                                name="searchVenderCode"
-                                                value={searchVenderCode}
-                                                onChange={(e) => setSearchVenderCode(e.target.value)}
-                                                placeholder='Enter Vendor Code'
-                                            />
-                                        </Form.Group>
-                                    </Col>
-                                    <Col lg={4}>
-                                        <Form.Group controlId="searchVendorContactPerson">
-                                            <Form.Label>Vendor Contact Person </Form.Label>
-                                            <Form.Control
-                                                type="text"
-                                                name="searchVendorContactPerson"
-                                                value={searchVendorContactPerson}
-                                                onChange={(e) => setSearchVendorContactPerson(e.target.value)}
-                                                placeholder='Enter Vendor Contact Person'
-                                            />
-                                        </Form.Group>
-                                    </Col>
-
-                                    <Col lg={4}>
-                                        <Form.Group controlId="searchCreatorName">
-                                            <Form.Label>Creator Name</Form.Label>
-                                            <Select
-                                                name="searchCreatorName"
-                                                value={employeeList.find(emp => emp.employeeName === searchCreatorName) || null} // handle null
-                                                onChange={(selectedOption) => setSearchCreatorName(selectedOption ? selectedOption.employeeName : "")} // null check
-                                                options={employeeList}
-                                                getOptionLabel={(emp) => emp.employeeName}
-                                                getOptionValue={(emp) => emp.employeeName}
-                                                isSearchable={true}
-                                                placeholder="Select Creator Name"
-                                                className="h45"
-                                            />
-                                        </Form.Group>
-                                    </Col>
+                        <Col lg={4}>
+                            <Form.Group controlId="searchCreatorName">
+                                <Form.Label>Creator Name</Form.Label>
+                                <Select
+                                    name="searchCreatorName"
+                                    value={employeeList.find(emp => emp.employeeName === searchCreatorName) || null} // handle null
+                                    onChange={(selectedOption) => setSearchCreatorName(selectedOption ? selectedOption.employeeName : "")} // null check
+                                    options={employeeList}
+                                    getOptionLabel={(emp) => emp.employeeName}
+                                    getOptionValue={(emp) => emp.employeeName}
+                                    isSearchable={true}
+                                    placeholder="Select Creator Name"
+                                    className="h45"
+                                />
+                            </Form.Group>
+                        </Col>
 
 
 
-                                    <Col lg={4} className="mt-2"></Col>
-                                    <Col lg={4} className="mt-2"></Col>
+                        <Col lg={4} className="mt-2"></Col>
+                        <Col lg={4} className="mt-2"></Col>
 
-                                    <Col lg={4} className="align-items-end d-flex justify-content-end mt-2">
-                                        <ButtonGroup aria-label="Basic example" className="w-100">
-                                            <Button type="button" variant="primary" onClick={handleClear}>
-                                                <i className="ri-loop-left-line"></i>
-                                            </Button>
-                                            &nbsp;
-                                            <Button type="submit" variant="primary">
-                                                Search
-                                            </Button>
-                                        </ButtonGroup>
-                                    </Col>
+                        <Col lg={4} className="align-items-end d-flex justify-content-end mt-2">
+                            <ButtonGroup aria-label="Basic example" className="w-100">
+                                <Button type="button" variant="primary" onClick={handleClear}>
+                                    <i className="ri-loop-left-line"></i>
+                                </Button>
+                                &nbsp;
+                                <Button type="submit" variant="primary">
+                                    Search
+                                </Button>
+                            </ButtonGroup>
+                        </Col>
 
-                                    {/* <h4>search filter will be introduce here</h4> */}
+                        {/* <h4>search filter will be introduce here</h4> */}
 
-                                </Row>
+                    </Row>
 
-                            </Form>
-
-
-
-                            <Row className='mt-3'>
-                                <div className="d-flex justify-content-end bg-light p-1">
-                                    <div className="app-search d-none d-lg-block me-4">
-                                    </div>
+                </Form>
 
 
-                                </div>
-                            </Row>
+
+                <Row className='mt-3'>
+                    <div className="d-flex justify-content-end bg-light p-1">
+                        <div className="app-search d-none d-lg-block me-4">
                         </div>
 
-                        <div className="overflow-auto text-nowrap">
-                            {!venders ? (
-                                <Container className="mt-5">
-                                    <Row className="justify-content-center">
-                                        <Col xs={12} md={8} lg={6}>
-                                            <Alert variant="info" className="text-center">
-                                                <h4>No Data Found</h4>
-                                                <p>You currently don't have any Data</p>
-                                            </Alert>
-                                        </Col>
-                                    </Row>
-                                </Container>
-                            ) : (
-                                <DragDropContext onDragEnd={handleOnDragEnd}>
-                                    <Table hover className='bg-white '>
-                                        <thead>
-                                            <Droppable droppableId="columns" direction="horizontal">
-                                                {(provided) => (
-                                                    <tr {...provided.droppableProps} ref={provided.innerRef as React.Ref<HTMLTableRowElement>}>
-                                                        <th><i className="ri-list-ordered-2"></i>  Sr. No</th>
-                                                        {columns.filter(col => col.visible).map((column, index) => (
-                                                            <Draggable key={column.id} draggableId={column.id} index={index}>
-                                                                {(provided) => (
-                                                                    <th>
-                                                                        <div ref={provided.innerRef}
-                                                                            {...provided.draggableProps}
-                                                                            {...provided.dragHandleProps}>
-                                                                            {column.id === 'vendorCode' && (<i className="ri-barcode-line"></i>)}
-                                                                            {column.id === 'category' && (<i className="ri-folder-fill"></i>)}
-                                                                            {column.id === 'name' && (<i className="ri-user-line"></i>)}
-                                                                            {column.id === 'addressLine1' && (<i className="ri-home-4-line"></i>)}
-                                                                            {column.id === 'district' && (<i className="ri-map-pin-2-line"></i>)}
-                                                                            {column.id === 'state' && (<i className="ri-map-pin-fill"></i>)}
-                                                                            {column.id === 'area' && (<i className="ri-map-pin-range-line"></i>)}
-                                                                            {column.id === 'pin' && (<i className="ri-pushpin-2-line"></i>)}
-                                                                            {column.id === 'email' && (<i className="ri-mail-line"></i>)}
-                                                                            {column.id === 'contactNo' && (<i className="ri-phone-line"></i>)}
-                                                                            {column.id === 'bankAccountNumber' && (<i className="ri-bank-card-line"></i>)}
-                                                                            {column.id === 'bankName' && (<i className="ri-bank-line"></i>)}
-                                                                            {column.id === 'ifsc' && (<i className="ri-secure-payment-line"></i>)}
-                                                                            {column.id === 'branch' && (<i className="ri-branch-line"></i>)}
-                                                                            {column.id === 'gstin' && (<i className="ri-money-cny-circle-line"></i>)}
-                                                                            {column.id === 'fillingFrequency' && (<i className="ri-calendar-2-line"></i>)}
-                                                                            {column.id === 'vendorContactPerson' && (<i className="ri-user-star-line"></i>)}
-                                                                            {column.id === 'creatorEmpId' && (<i className="ri-user-3-line"></i>)}
-                                                                            {column.id === 'creatorName' && (<i className="ri-user-smile-line"></i>)}
-                                                                            {column.id === 'creatorEmail' && (<i className="ri-mail-open-line"></i>)}
-                                                                            &nbsp; {column.label}
-                                                                        </div>
-                                                                    </th>
-                                                                )}
-                                                            </Draggable>
-                                                        ))}
-                                                        {provided.placeholder}
-                                                        <th>Action</th>
-                                                    </tr>
-                                                )}
-                                            </Droppable>
-                                        </thead>
-                                        <tbody>
-                                            {venders.length > 0 ? (
-                                                venders.slice(0, 10).map((item, index) => (
-                                                    <tr key={item.id}>
-                                                        <td>{(currentPage - 1) * 10 + index + 1}</td>
-                                                        {columns.filter(col => col.visible).map((col) => (
-                                                            <td key={col.id}
-                                                                className={
-                                                                    col.id === 'addressLine1' ? 'w-200px' :
-                                                                        col.id === 'creatorName' ? 'text-dark fw-bold' :
-                                                                            col.id === 'vendorContactPerson' ? 'text-dark fw-bold' :
-                                                                                ''
-                                                                }
-                                                            >
-                                                                {col.id === 'creatorName' && item.creatorName ? (
-                                                                    <div className="d-flex align-items-center">
-                                                                        <IconWithLetter letter={item.creatorName.charAt(0)} />
-                                                                        {item.creatorName.split('_')[0]}
-                                                                    </div>
-                                                                ) : col.id === 'vendorContactPerson' && item.vendorContactPerson ? (
-                                                                    <div className="d-flex align-items-center">
-                                                                        <IconWithLetter letter={item.vendorContactPerson.charAt(0)} />
-                                                                        {item.vendorContactPerson.split('_')[0]}
-                                                                    </div>
-                                                                ) :
-                                                                    (
-                                                                        <div>
-                                                                            {item[col.id as keyof Vender]}
-                                                                        </div>
-                                                                    )
-                                                                }
 
-                                                            </td>
-                                                        ))}
+                    </div>
+                </Row>
+            </div>
 
-                                                        <td><Link to={`/pages/VendorMasterinsert/${item.id}`}>
-                                                            <Button variant='primary' className='p-0 text-white'>
-                                                                <i className='btn ri-edit-line text-white' ></i>
-                                                            </Button>
-                                                        </Link>
-                                                        </td>
-                                                    </tr>
-                                                ))
-                                            ) : (
-                                                <tr>
-                                                    <td colSpan={12}>
-                                                        <Container className="mt-5">
-                                                            <Row className="justify-content-center">
-                                                                <Col xs={12} md={8} lg={6}>
-                                                                    <Alert variant="info" className="text-center">
-                                                                        <h4>No Data  Found</h4>
-                                                                        <p>You currently don't have any Data</p>
-                                                                    </Alert>
-                                                                </Col>
-                                                            </Row>
-                                                        </Container>
-                                                    </td>
+
+            {loading ? (
+                <div className='loader-container'>
+                    <div className="loader"></div>
+                    <div className='mt-2'>Please Wait!</div>
+                </div>
+            ) : (
+
+                <>
+
+                    <div className="overflow-auto text-nowrap">
+                        {!venders ? (
+                            <Container className="mt-5">
+                                <Row className="justify-content-center">
+                                    <Col xs={12} md={8} lg={6}>
+                                        <Alert variant="info" className="text-center">
+                                            <h4>No Data Found</h4>
+                                            <p>You currently don't have any Data</p>
+                                        </Alert>
+                                    </Col>
+                                </Row>
+                            </Container>
+                        ) : (
+                            <DragDropContext onDragEnd={handleOnDragEnd}>
+                                <Table hover className='bg-white '>
+                                    <thead>
+                                        <Droppable droppableId="columns" direction="horizontal">
+                                            {(provided) => (
+                                                <tr {...provided.droppableProps} ref={provided.innerRef as React.Ref<HTMLTableRowElement>}>
+                                                    <th><i className="ri-list-ordered-2"></i>  Sr. No</th>
+                                                    {columns.filter(col => col.visible).map((column, index) => (
+                                                        <Draggable key={column.id} draggableId={column.id} index={index}>
+                                                            {(provided) => (
+                                                                <th>
+                                                                    <div ref={provided.innerRef}
+                                                                        {...provided.draggableProps}
+                                                                        {...provided.dragHandleProps}>
+                                                                        {column.id === 'vendorCode' && (<i className="ri-barcode-line"></i>)}
+                                                                        {column.id === 'category' && (<i className="ri-folder-fill"></i>)}
+                                                                        {column.id === 'name' && (<i className="ri-user-line"></i>)}
+                                                                        {column.id === 'addressLine1' && (<i className="ri-home-4-line"></i>)}
+                                                                        {column.id === 'district' && (<i className="ri-map-pin-2-line"></i>)}
+                                                                        {column.id === 'state' && (<i className="ri-map-pin-fill"></i>)}
+                                                                        {column.id === 'area' && (<i className="ri-map-pin-range-line"></i>)}
+                                                                        {column.id === 'pin' && (<i className="ri-pushpin-2-line"></i>)}
+                                                                        {column.id === 'email' && (<i className="ri-mail-line"></i>)}
+                                                                        {column.id === 'contactNo' && (<i className="ri-phone-line"></i>)}
+                                                                        {column.id === 'bankAccountNumber' && (<i className="ri-bank-card-line"></i>)}
+                                                                        {column.id === 'bankName' && (<i className="ri-bank-line"></i>)}
+                                                                        {column.id === 'ifsc' && (<i className="ri-secure-payment-line"></i>)}
+                                                                        {column.id === 'branch' && (<i className="ri-branch-line"></i>)}
+                                                                        {column.id === 'gstin' && (<i className="ri-money-cny-circle-line"></i>)}
+                                                                        {column.id === 'fillingFrequency' && (<i className="ri-calendar-2-line"></i>)}
+                                                                        {column.id === 'vendorContactPerson' && (<i className="ri-user-star-line"></i>)}
+                                                                        {column.id === 'creatorEmpId' && (<i className="ri-user-3-line"></i>)}
+                                                                        {column.id === 'creatorName' && (<i className="ri-user-smile-line"></i>)}
+                                                                        {column.id === 'creatorEmail' && (<i className="ri-mail-open-line"></i>)}
+                                                                        &nbsp; {column.label}
+                                                                    </div>
+                                                                </th>
+                                                            )}
+                                                        </Draggable>
+                                                    ))}
+                                                    {provided.placeholder}
+                                                    <th>Action</th>
                                                 </tr>
                                             )}
-                                        </tbody>
-                                    </Table>
-                                </DragDropContext>
-                            )}
-                        </div>
-                    </>
-                )}
+                                        </Droppable>
+                                    </thead>
+                                    <tbody>
+                                        {venders.length > 0 ? (
+                                            venders.slice(0, 10).map((item, index) => (
+                                                <tr key={item.id}>
+                                                    <td>{(currentPage - 1) * 10 + index + 1}</td>
+                                                    {columns.filter(col => col.visible).map((col) => (
+                                                        <td key={col.id}
+                                                            className={
+                                                                col.id === 'addressLine1' ? 'w-200px' :
+                                                                    col.id === 'creatorName' ? 'text-dark fw-bold' :
+                                                                        ''
+                                                            }
+                                                        >
+                                                            {col.id === 'creatorName' && item.creatorName ? (
+                                                                <div className="d-flex align-items-center">
+                                                                    {item.creatorName}
+                                                                </div>
+                                                            ) : col.id === 'vendorContactPerson' && item.vendorContactPerson ? (
+                                                                <div className="d-flex align-items-center">
+                                                                    {item.vendorContactPerson}
+                                                                </div>
+                                                            ) :
+                                                                (
+                                                                    <div>
+                                                                        {item[col.id as keyof Vender]}
+                                                                    </div>
+                                                                )
+                                                            }
 
-                <div className="d-flex justify-content-center align-items-center bg-white w-20 rounded-5 m-auto py-1 pb-1 my-2 pagination-rounded">
-                    <Pagination >
-                        <Pagination.First onClick={() => setCurrentPage(1)} disabled={currentPage === 1} />
-                        <Pagination.Prev onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))} disabled={currentPage === 1} />
-                        <Pagination.Item active>{currentPage}</Pagination.Item>
-                        <Pagination.Next onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))} disabled={currentPage === totalPages} />
-                        <Pagination.Last onClick={() => setCurrentPage(totalPages)} disabled={currentPage === totalPages} />
-                    </Pagination>
-                </div>
+                                                        </td>
+                                                    ))}
+
+                                                    <td><Link to={`/pages/VendorMasterinsert/${item.id}`}>
+                                                        <Button variant='primary' className='p-0 text-white'>
+                                                            <i className='btn ri-edit-line text-white' ></i>
+                                                        </Button>
+                                                    </Link>
+                                                    </td>
+                                                </tr>
+                                            ))
+                                        ) : (
+                                            <tr>
+                                                <td colSpan={12}>
+                                                    <Container className="mt-5">
+                                                        <Row className="justify-content-center">
+                                                            <Col xs={12} md={8} lg={6}>
+                                                                <Alert variant="info" className="text-center">
+                                                                    <h4>No Data  Found</h4>
+                                                                    <p>You currently don't have any Data</p>
+                                                                </Alert>
+                                                            </Col>
+                                                        </Row>
+                                                    </Container>
+                                                </td>
+                                            </tr>
+                                        )}
+                                    </tbody>
+                                </Table>
+                            </DragDropContext>
+                        )}
+                    </div>
+                </>
+            )}
+
+            <div className="d-flex justify-content-center align-items-center bg-white w-20 rounded-5 m-auto py-1 pb-1 my-2 pagination-rounded">
+                <Pagination >
+                    <Pagination.First onClick={() => setCurrentPage(1)} disabled={currentPage === 1} />
+                    <Pagination.Prev onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))} disabled={currentPage === 1} />
+                    <Pagination.Item active>{currentPage}</Pagination.Item>
+                    <Pagination.Next onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))} disabled={currentPage === totalPages} />
+                    <Pagination.Last onClick={() => setCurrentPage(totalPages)} disabled={currentPage === totalPages} />
+                </Pagination>
+            </div>
 
 
-            </div >
         </>
     );
 };

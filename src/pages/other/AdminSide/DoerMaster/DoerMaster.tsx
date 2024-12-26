@@ -3,7 +3,6 @@ import { useState, useEffect } from 'react';
 import { Button, Pagination, Table, Container, Row, Col, Alert, Form, ButtonGroup, Modal } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
-import IconWithLetter from '@/pages/ui/IconWithLetter';
 import config from '@/config';
 import Select from 'react-select';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -245,6 +244,7 @@ const ModuleMaster = () => {
 
 
     const handleClear = () => {
+        setCurrentPage(1);
         setSearchEmployeeName('');
         setSearchIdentifier('');
         setSearchTaskId('');
@@ -291,7 +291,6 @@ const ModuleMaster = () => {
 
     return (
         <>
-            <div className="container">
                 <div className="d-flex bg-white p-2 my-2 justify-content-between align-items-center">
                     <span><i className="ri-file-list-line me-2 text-dark fs-16"></i><span className='fw-bold text-dark fs-15'>Doers List</span></span>
                     <div className="d-flex justify-content-end  ">
@@ -319,7 +318,14 @@ const ModuleMaster = () => {
 
                     <>
                         <div className='bg-white p-2 pb-2'>
-                            <Form onSubmit={handleSearch}>
+                            <Form
+                                onSubmit={(e) => {
+                                    e.preventDefault();
+                                    setCurrentPage(1);
+                                    handleSearch();
+                                }}
+
+                            >
                                 <Row>
                                     <Col lg={4}>
                                         <Form.Group controlId="searchEmployeeName">
@@ -502,9 +508,7 @@ const ModuleMaster = () => {
                                                             <td key={col.id}
                                                                 className={
                                                                     // Add class based on column id
-                                                                    col.id === 'empID' ? 'fw-bold text-dark' :
                                                                         col.id === 'taskID' ? 'fw-bold text-dark' :
-                                                                            col.id === 'empName' ? 'fw-bold  text-dark' :
                                                                                 ''
                                                                 }
                                                             >
@@ -512,12 +516,9 @@ const ModuleMaster = () => {
                                                                     {col.id === 'empName' ? (
                                                                         <div style={{ display: 'flex', alignItems: 'center', }}>
                                                                             {item.empName ? (
-                                                                                <>
-                                                                                    <IconWithLetter letter={item.empName.charAt(0)} />
-                                                                                    {item.empName.split('_')[0]}
-                                                                                </>
+                                                                                <>{item.empName} </>
                                                                             ) : (
-                                                                                <span>< i className="ri-user-search-fill text-secondary fs-2 me-2"></i>No Doer Assigned</span>
+                                                                                <span>< i className="ri-user-search-fill text-secondary fs-16 me-2"></i>No Doer Assigned</span>
                                                                             )}
                                                                         </div>
                                                                     ) : (
@@ -576,7 +577,6 @@ const ModuleMaster = () => {
                 </div>
 
 
-            </div >
         </>
     );
 };

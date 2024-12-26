@@ -3,8 +3,8 @@ import { useEffect, useState, ChangeEvent } from 'react';
 import { Button, Col, Form, Row } from 'react-bootstrap';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import config from '@/config';
-import CustomSuccessToast from '@/pages/other/Component/CustomSuccessToast';
 import Select from 'react-select';
+import { toast } from 'react-toastify';
 
 
 
@@ -23,9 +23,6 @@ const ProjectTypeInsert = () => {
     const navigate = useNavigate();
     const [editMode, setEditMode] = useState<boolean>(false);
     const [empName, setEmpName] = useState<string | null>('')
-    const [showToast, setShowToast] = useState(false);
-    const [toastMessage, setToastMessage] = useState("");
-    const [toastVariant, setToastVariant] = useState('');
     const [projectTypes, setprojectTypes] = useState<ProjectType>({
         id: 0,
         name: '',
@@ -35,10 +32,15 @@ const ProjectTypeInsert = () => {
 
     });
 
+    const [validationErrors, setValidationErrors] = useState<{ [key: string]: string }>({});
+
     useEffect(() => {
+        toast.dismiss();
+
         const storedEmpName = localStorage.getItem('EmpName');
-        if (storedEmpName) {
-            setEmpName(storedEmpName);
+        const storedEmpID = localStorage.getItem('EmpId');
+        if (storedEmpName || storedEmpID) {
+            setEmpName(`${storedEmpName} - ${storedEmpID}`);
         }
     }, []);
 
@@ -97,9 +99,25 @@ const ProjectTypeInsert = () => {
     };
 
 
+    const validateFields = (): boolean => {
+        const errors: { [key: string]: string } = {};
+
+        if (!projectTypes.name) { errors.name = 'Project Type Name is required'; }
+        if (!projectTypes.status) { errors.status = 'Status is required'; }
+
+        setValidationErrors(errors);
+        return Object.keys(errors).length === 0;
+    };
+
+
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
 
+        if (!validateFields()) {
+            toast.dismiss()
+            toast.error('Please fill in all required fields.');
+            return;
+        }
         const payload = {
             ...projectTypes,
             createdBy: editMode ? projectTypes.createdBy : empName,
@@ -111,30 +129,24 @@ const ProjectTypeInsert = () => {
                 await axios.post(`${config.API_URL_APPLICATION}/ProjectTypeMaster/InsertorUpdateProjectType`, payload);
                 navigate('/pages/ProjectTypeMaster', {
                     state: {
-                        showToast: true,
-                        toastMessage: "Project Type Updated successfully!",
-                        toastVariant: "rgb(28 175 85)"
+                        successMessage: "Project Type Updated successfully!",
                     }
                 });
             } else {
                 await axios.post(`${config.API_URL_APPLICATION}/ProjectTypeMaster/InsertorUpdateProjectType`, payload);
                 navigate('/pages/ProjectTypeMaster', {
                     state: {
-                        showToast: true,
-                        toastMessage: "Project Type  Updated successfully!",
-                        toastVariant: "rgb(28 175 85)"
+                        successMessage: "Project Type  Updated successfully!",
                     }
                 });
             }
-        } catch (error) {
-            setToastMessage("Error Adding/Updating");
-            setToastVariant("rgb(213 18 18)");
-            setShowToast(true);
+        } catch (error: any) {
+            toast.error(error || 'Error submitting module');
             console.error('Error submitting module:', error);
         }
     };
 
- const optionsAppAccess = [
+    const optionsAppAccess = [
         { value: 'Enabled', label: 'Enabled' },
         { value: 'Disabled', label: 'Disabled' }
     ];
@@ -157,9 +169,12 @@ const ProjectTypeInsert = () => {
                                         name="name"
                                         value={projectTypes.name}
                                         onChange={handleChange}
-                                        required
                                         placeholder='Enter Project Type Name'
+                                        className={validationErrors.name ? " input-border" : "  "}
                                     />
+                                    {validationErrors.name && (
+                                        <small className="text-danger">{validationErrors.name}</small>
+                                    )}
                                 </Form.Group>
                             </Col>
 
@@ -172,14 +187,14 @@ const ProjectTypeInsert = () => {
                                         value={optionsAppAccess.find(option => option.value === projectTypes.status)}
                                         onChange={selectedOption => handleChange(null, 'status', selectedOption?.value)}
                                         placeholder="Select Status"
-                                        required
+                                        className={validationErrors.status ? " input-border" : "  "}
                                     />
+                                    {validationErrors.status && (
+                                        <small className="text-danger">{validationErrors.status}</small>
+                                    )}
                                 </Form.Group>
                             </Col>
-                            <Col className='align-items-end d-flex justify-content-between mb-3'>
-                                <div>
-                                    <span className='fs-5 '>This field is required*</span>
-                                </div>
+                            <Col className='align-items-end d-flex justify-content-end mb-3'>
                                 <div>
                                     <Link to={'/pages/ProjectTypeMaster'}>
                                         <Button variant="primary" >
@@ -196,8 +211,6 @@ const ProjectTypeInsert = () => {
                     </Form>
                 </div>
             </div>
-            <CustomSuccessToast show={showToast} toastMessage={toastMessage} toastVariant={toastVariant} onClose={() => setShowToast(false)} />
-
         </div>
     );
 };

@@ -15,11 +15,10 @@ interface AssignProjecttoProcess {
     id: number;
     moduleName: string;
     processId: string;
+    type: string;
     projects: Array<{
         projectID: string;
         projectName: string;
-        subProjectID: string;
-        subProjectName: string;
     }>;
     createdBy: string;
     updatedBy: string;
@@ -28,14 +27,19 @@ interface Project {
     id: string;
     projectID: string;
     projectName: string;
+    type: string;
+
+}
+interface SubProject {
+    id: string;
     subProjectID: string;
-    subProjectName: string;
+    name: string;
 }
 
 const ProcessCanvas: React.FC<ProcessCanvasProps> = ({ show, setShow, manageId }) => {
     const [assignedProject, setAssignedProject] = useState<Project[]>([]);
     const [projectList, setProjectList] = useState<Project[]>([]);
-    const [subProjectList, setSubProjectList] = useState<Project[]>([]);
+    const [subProjectList, setSubProjectList] = useState<SubProject[]>([]);
     const [moduleName, setModuleName] = useState<string>("");
     const [processId, setProcessId] = useState<string>("");
     const [empName, setEmpName] = useState<string | null>('');
@@ -44,17 +48,26 @@ const ProcessCanvas: React.FC<ProcessCanvasProps> = ({ show, setShow, manageId }
         id: 0,
         moduleName: '',
         processId: '',
+        type: '',
         projects: [],
         createdBy: '',
         updatedBy: empName || '',
     });
 
-    const [singleProject, setSingleProject] = useState('');
+    const [process, setProcess] = useState({
+        source: '',
+
+    });
+
+
 
     useEffect(() => {
+        toast.dismiss();
+
         const storedEmpName = localStorage.getItem('EmpName');
-        if (storedEmpName) {
-            setEmpName(storedEmpName);
+        const storedEmpID = localStorage.getItem('EmpId');
+        if (storedEmpName || storedEmpID) {
+            setEmpName(`${storedEmpName} - ${storedEmpID}`);
         }
     }, []);
 
@@ -62,6 +75,7 @@ const ProcessCanvas: React.FC<ProcessCanvasProps> = ({ show, setShow, manageId }
         const fetchData = async () => {
             if (manageId) {
                 await fetchModuleById(manageId);
+                await fetchProcessByid(manageId);
             }
         };
         fetchData();
@@ -78,49 +92,41 @@ const ProcessCanvas: React.FC<ProcessCanvasProps> = ({ show, setShow, manageId }
 
 
 
-
     useEffect(() => {
-        const fetchProjectList = async () => {
+        const fetchData = async (endpoint: string, setter: Function, listName: string) => {
             try {
-                const response = await axios.get(`${config.API_URL_APPLICATION}/CommonDropdown/GetProjectList`);
+                const response = await axios.get(`${config.API_URL_APPLICATION}/${endpoint}`);
                 if (response.data.isSuccess) {
-                    const projects = response.data.projectListResponses;
-                    setProjectList(projects);
+                    setter(response.data[listName]);
                 } else {
                     console.error(response.data.message);
                 }
             } catch (error) {
-                console.error('Error fetching project list:', error);
+                console.error(`Error fetching data from ${endpoint}:`, error);
             }
         };
-        fetchProjectList();
+        fetchData('CommonDropdown/GetProjectList', setProjectList, 'projectListResponses');
+        fetchData('CommonDropdown/GetSubProjectList', setSubProjectList, 'subProjectLists');
     }, []);
 
 
-    useEffect(() => {
-        const fetchSubProjectList = async (singleProject: string) => {
-            try {
-                const response = await axios.get(`${config.API_URL_APPLICATION}/SubProjectMaster/GetSubProject`, {
-                    params: { ProjectName: singleProject }
-                });
-                if (response.data.isSuccess) {
-                    const subProjects = response.data.subProjects;
-                    console.log(subProjects)
-                    setSubProjectList(subProjects);
-                } else {
-                    console.error(response.data.message);
-                }
-            } catch (error) {
-                console.error('Error fetching project list:', error);
+
+
+    const fetchProcessByid = async (id: string) => {
+        try {
+            const response = await axios.get(`${config.API_URL_APPLICATION}/ProcessMaster/GetProcess`, {
+                params: { id: id }
+            });
+            if (response.data.isSuccess) {
+                const fetchedModule = response.data.processMasterList[0];
+                setProcess(fetchedModule);
+            } else {
+                console.error(response.data.message);
             }
-        };
-        if (singleProject) {
-            fetchSubProjectList(singleProject);
+        } catch (error) {
+            console.error('Error fetching module:', error);
         }
-    }, [singleProject]);
-
-    console.log(singleProject)
-
+    };
 
     const fetchModuleById = async (id: string) => {
         try {
@@ -136,6 +142,7 @@ const ProcessCanvas: React.FC<ProcessCanvasProps> = ({ show, setShow, manageId }
                     moduleName: fetchedModule.moduleName,
                     processId: fetchedModule.processID
                 }));
+
             } else {
                 console.error(response.data.message);
             }
@@ -152,6 +159,7 @@ const ProcessCanvas: React.FC<ProcessCanvasProps> = ({ show, setShow, manageId }
             if (response.data.isSuccess) {
                 const fetchedProject = response.data.getProjectAssignListbyIDs;
                 setAssignedProject(fetchedProject);
+                setActiveButton(fetchedProject[0]?.type);
             } else {
                 console.error(response.data.message);
             }
@@ -167,38 +175,146 @@ const ProcessCanvas: React.FC<ProcessCanvasProps> = ({ show, setShow, manageId }
 
     const handleButtonClick = (buttonName: string) => {
         setActiveButton(buttonName);
+
+        setAssignProject({
+            id: 0,
+            moduleName: assignProject.moduleName,
+            processId: assignProject.processId,
+            type: activeButton,
+            projects: [],
+            createdBy: '',
+            updatedBy: empName || '',
+        });
     };
+
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
 
-        console.log(assignProject)
-        // try {
-        //     await axios.post(`${config.API_URL_APPLICATION}/AssignProjecttoProcess/AssignProjecttoProcess`, assignProject);
-        //     setAssignProject(prev => ({ ...prev, projects: [] }));
-        //     fetchGetProject(moduleName, processId);
-        //     toast.success("Project assigned successfully!");
-        // } catch (error) {
-        //     console.error('Error submitting project assignment:', error);
-        // }
-    };
+        const payload = {
+            ...assignProject,
+            type: activeButton,
+        };
+        console.log("Initial Payload:", payload);
 
+        try {
+            const apiUrl = `${config.API_URL_APPLICATION}/AssignProjecttoProcess/AssignProjecttoProcess`;
+            const response = await axios.post(apiUrl, payload);
+
+            if (response.data.isSuccess) {
+                toast.dismiss();
+                toast.success("Project assigned successfully!");
+
+                try {
+                    const fetchUrl = `${config.API_URL_APPLICATION}/AssignProjecttoProcess/GetProjectAssignListbyIDs`;
+                    const fetchResponse = await axios.get(fetchUrl, {
+                        params: { ModuleName: moduleName, ProcessId: processId },
+                    });
+
+                    if (fetchResponse.data.isSuccess) {
+                        const fetchedProject = fetchResponse.data.getProjectAssignListbyIDs;
+                        setAssignedProject(fetchedProject);
+                        const updatedFilteredData = fetchedProject.map((item: Project) => ({
+                            projectID: item.projectID,
+                            projectName: item.projectName,
+                        }));
+
+                        const updatedPayloadUpdate = {
+                            ...process,
+                            updatedBy: empName || '',
+                            source: JSON.stringify(updatedFilteredData),
+                        };
+
+                        try {
+                            await axios.post(
+                                `${config.API_URL_APPLICATION}/ProcessMaster/UpdateProcess`,
+                                updatedPayloadUpdate
+                            );
+                            await setAssignProject(prev => ({ ...prev, projects: [] }));
+                        } catch (updateError: any) {
+                            toast.error("Failed to update process master.");
+                            console.error("Error updating process master:", updateError);
+                        }
+                    } else {
+                        console.error(fetchResponse.data.message || "Failed to fetch assigned projects.");
+                    }
+                } catch (fetchError) {
+                    toast.error("Error fetching updated project data.");
+                    console.error("Error fetching project:", fetchError);
+                }
+            } else {
+                toast.dismiss();
+                toast.error(response.data.message || "Failed to assign project.");
+            }
+        } catch (error: any) {
+            toast.error(error.response?.data?.message || "An error occurred.");
+            console.error("Error in handleSubmit:", error);
+        }
+    };
 
     const handleDelete = async (id: any) => {
         try {
-            await axios.delete(
-                `${config.API_URL_APPLICATION}/AssignProjecttoProcess/DeleteProjectAssigntoProcess`,
-                {
-                    params: { id: id, ModuleName: moduleName, ProcessID: processId, },
+            const apiUrl = `${config.API_URL_APPLICATION}/AssignProjecttoProcess/DeleteProjectAssigntoProcess`;
+            const deleteResponse = await axios.delete(apiUrl, {
+                params: { id, ModuleName: moduleName, ProcessID: processId },
+            });
+
+            if (deleteResponse.data.isSuccess) {
+                toast.dismiss();
+                toast.warn("Project deleted successfully!");
+                try {
+                    const fetchUrl = `${config.API_URL_APPLICATION}/AssignProjecttoProcess/GetProjectAssignListbyIDs`;
+                    const fetchResponse = await axios.get(fetchUrl, {
+                        params: { ModuleName: moduleName, ProcessId: processId },
+                    });
+
+                    if (fetchResponse.data.isSuccess) {
+                        const fetchedProjects = fetchResponse.data.getProjectAssignListbyIDs;
+                        setAssignedProject(fetchedProjects);
+                        const updatedFilteredData = fetchedProjects.map((item: Project) => ({
+                            projectID: item.projectID,
+                            projectName: item.projectName,
+                        }));
+
+                        const updatedPayload = {
+                            ...process,
+                            updatedBy: empName || '',
+                            source: JSON.stringify(updatedFilteredData),
+                        };
+
+                        try {
+                            await axios.post(
+                                `${config.API_URL_APPLICATION}/ProcessMaster/UpdateProcess`,
+                                updatedPayload
+                            );
+                            setAssignProject((prev) => ({ ...prev, projects: [] }));
+                        } catch (updateError: any) {
+                            toast.error("Failed to update the process master.");
+                            console.error("Error updating process master:", updateError);
+                        }
+                    } else {
+                        const fetchMessage = fetchResponse.data.message || "Failed to fetch updated assigned projects.";
+                        toast.error(fetchMessage);
+                        console.error(fetchMessage);
+                    }
+                } catch (fetchError: any) {
+                    const fetchErrorMessage =
+                        fetchError.response?.data?.message || "Error fetching updated project data.";
+                    toast.error(fetchErrorMessage);
+                    console.error("Error fetching updated project:", fetchError);
                 }
-            );
-            fetchGetProject(moduleName, processId);
-            toast.warn("Project deleted successfully!")
+            } else {
+                const deleteMessage = deleteResponse.data.message || "Failed to delete the project assignment.";
+                toast.error(deleteMessage);
+                console.error(deleteMessage);
+            }
         } catch (error: any) {
-            toast.error(error)
+            const errorMessage = error.response?.data?.message || error.message || "An error occurred.";
+            toast.error(errorMessage);
             console.error("Error deleting project assignment:", error);
         }
     };
+
 
 
     return (
@@ -209,7 +325,7 @@ const ProcessCanvas: React.FC<ProcessCanvasProps> = ({ show, setShow, manageId }
                 </Modal.Header>
                 <Modal.Body>
                     <div className="">
-                        {assignedProject.map((project, index) => (
+                        {assignedProject?.map((project, index) => (
                             <div key={project.projectID} className="my-1 p-1 bg-light rounded-1 border d-flex justify-content-between">
                                 <> {index + 1}. {project.projectName} - {project.projectID}</>
                                 <div className="cursor-pointer">
@@ -225,91 +341,76 @@ const ProcessCanvas: React.FC<ProcessCanvasProps> = ({ show, setShow, manageId }
                             <Button type="button"
                                 variant={activeButton === 'project' ? 'primary' : 'outline-primary'}
                                 onClick={() => handleButtonClick('project')}
+                                disabled={assignedProject[0]?.type === 'subProject'}
                             >
                                 Project
                             </Button>
                             <Button type="button"
                                 variant={activeButton === 'subProject' ? 'primary' : 'outline-primary'}
-                                onClick={() => handleButtonClick('subProject')} >Sub Project</Button>
+                                onClick={() => handleButtonClick('subProject')}
+                                disabled={assignedProject[0]?.type === 'project'}
+                            >Sub Project</Button>
                         </ButtonGroup>
                     </Col>
 
 
                     <Form onSubmit={handleSubmit}>
                         <Row>
-                            <Col lg={activeButton === 'subProject' ? 6 : 12}>
-                                <Form.Group controlId="moduleName" className="mb-3 mt-2">
-                                    <Form.Label>Project Name</Form.Label>
-                                    <Select
-                                        name="projectName"
-                                        value={projectList.filter(project =>
-                                            assignProject.projects.some(ap => ap.projectID === project.id)
-                                        )}
-                                        onChange={(selectedOptions) => {
-                                            if (activeButton === 'subProject') {
-                                                // Single select
-                                                const selectedProject = selectedOptions as Project;
-                                                setSingleProject(selectedProject.projectName);
-                                                setAssignProject(prev => ({
-                                                    ...prev,
-                                                    projects: [{
-                                                        projectID: selectedProject.id,
-                                                        projectName: selectedProject.projectName,
-                                                        subProjectID: "",
-                                                        subProjectName: ""
-                                                    }],
+                            {activeButton === 'project' && (
+                                <Col lg={12}>
+                                    <Form.Group controlId="moduleName" className="mb-3 mt-2">
+                                        <Form.Label>Project Name</Form.Label>
+                                        <Select
+                                            name="projectName"
+                                            value={projectList.filter(project =>
+                                                assignProject.projects.some(ap => ap.projectID === project.id)
+                                            )}
+                                            onChange={(selectedOption) => {
+                                                const selectedProjects = (selectedOption || []) as Project[];
+                                                const updatedProjects = selectedProjects.map(project => ({
+                                                    projectID: project.id,
+                                                    projectName: project.projectName,
                                                 }));
-                                            } else {
-                                                // Multi select
-                                                const selectedProjects = (selectedOptions || []) as Project[];
-                                                const projects = selectedProjects.map((option: Project) => ({
-                                                    projectID: option.id,
-                                                    projectName: option.projectName,
-                                                    subProjectID: "",
-                                                    subProjectName: ""
-                                                }));
-                                                setAssignProject(prev => ({
-                                                    ...prev,
-                                                    projects,
-                                                }));
-                                            }
-                                        }}
-                                        getOptionLabel={(project) => project.projectName}
-                                        getOptionValue={(project) => project.id}
-                                        options={projectList}
-                                        isSearchable={true}
-                                        isMulti={activeButton !== 'subProject'}
-                                        placeholder="Select Projects"
-                                        required
-                                    />
-                                </Form.Group>
-                            </Col>
-
-                            {activeButton === 'subProject' ?
-                                <Col lg={6}>
+                                                setAssignProject({
+                                                    ...assignProject,
+                                                    projects: updatedProjects,
+                                                });
+                                            }}
+                                            getOptionLabel={(project) => project.projectName}
+                                            getOptionValue={(project) => project.id}
+                                            options={projectList}
+                                            isSearchable={true}
+                                            isMulti={true}
+                                            placeholder="Select Projects"
+                                            required
+                                        />
+                                    </Form.Group>
+                                </Col>
+                            )}
+                            {activeButton === 'subProject' && (
+                                <Col lg={12}>
                                     <Form.Group controlId="subProjectName" className="mb-3 mt-2">
                                         <Form.Label>Sub Project Name</Form.Label>
                                         <Select
                                             name="subProjectName"
-                                            value={subProjectList.filter(project =>
-                                                assignProject.projects.some(ap => ap.subProjectID === project.id)
+                                            value={subProjectList.filter(subProject =>
+                                                assignProject.projects.some(ap => ap.projectID === subProject.id)
                                             )}
+
                                             onChange={(selectedOptions) => {
-                                                const selectedProjects = selectedOptions || [];
-                                                const projects = selectedProjects.map(option => ({
-                                                    subProjectID: option.id,
-                                                    subProjectName: option.projectName,
+                                                const selectedSubProjects = (selectedOptions || []) as SubProject[];
+                                                const newSubProjectArray = selectedSubProjects.map(subProject => ({
+                                                    projectID: subProject.id,
+                                                    projectName: subProject.name,
                                                 }));
-                                                setAssignProject(prev => ({
-                                                    ...prev,
-                                                    projects: prev.projects.map(ap => ({
-                                                        ...ap,
-                                                        ...projects.find(p => p.subProjectID === ap.subProjectID) || ap,
-                                                    })),
-                                                }));
+
+                                                setAssignProject({
+                                                    ...assignProject,
+                                                    projects: newSubProjectArray,
+                                                });
                                             }}
-                                            getOptionLabel={(project) => project.projectName}
-                                            getOptionValue={(project) => project.id}
+                                            getOptionLabel={(subProject) => subProject.name}
+                                            getOptionValue={(subProject) => subProject.id}
                                             options={subProjectList}
                                             isSearchable={true}
                                             isMulti={true}
@@ -318,11 +419,11 @@ const ProcessCanvas: React.FC<ProcessCanvasProps> = ({ show, setShow, manageId }
                                         />
                                     </Form.Group>
                                 </Col>
-                                : null
-                            }
+                            )}
                         </Row>
 
-                        <Button variant="primary" type="submit">
+
+                        <Button variant="primary" type="submit" className="mt-2">
                             Submit
                         </Button>
                     </Form>

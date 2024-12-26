@@ -29,16 +29,19 @@ const EmployeeInsert = () => {
         updatedBy: '',
 
     });
-
+    const [validationErrors, setValidationErrors] = useState<{ [key: string]: string }>({});
     useEffect(() => {
-        toast.dismiss()
+        toast.dismiss();
 
         const storedEmpName = localStorage.getItem('EmpName');
-        if (storedEmpName) {
-            setEmpName(storedEmpName);
+        const storedEmpID = localStorage.getItem('EmpId');
+        if (storedEmpName || storedEmpID) {
+            setEmpName(`${storedEmpName} - ${storedEmpID}`);
         }
     }, []);
 
+
+    console.log(empName)
 
     useEffect(() => {
         if (id) {
@@ -91,16 +94,31 @@ const EmployeeInsert = () => {
         }
     };
 
+    const validateFields = (): boolean => {
+        const errors: { [key: string]: string } = {};
+
+        if (!roles.roleName) { errors.roleName = 'Module Display Name is required'; }
+        if (!roles.status) { errors.status = 'Status is required'; }
+
+        setValidationErrors(errors);
+        return Object.keys(errors).length === 0;
+    };
+
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
 
+        if (!validateFields()) {
+            toast.dismiss()
+            toast.error('Please fill in all required fields.');
+            return;
+        }
         const payload = {
             ...roles,
             createdBy: editMode ? roles.createdBy : empName,
             updatedBy: editMode ? empName : '',
         };
-
+        console.log(payload)
 
         try {
             const apiUrl = `${config.API_URL_APPLICATION}/RoleMaster/${editMode ? 'UpdateRole' : 'InsertRole'}`;
@@ -109,13 +127,14 @@ const EmployeeInsert = () => {
             if (response.status === 200) {
                 navigate('/pages/RoleMaster', {
                     state: {
-                        successMessage: editMode ? `${roles.roleName}  updated successfully!` : `${roles.roleName}  added successfully!`,
+                        successMessage: editMode ? `Record updated successfully!` : `Record  added successfully!`,
                     },
                 });
             } else {
                 toast.error(response.data.message || "Failed to process request");
             }
         } catch (error: any) {
+            toast.dismiss()
             toast.error(error);
             console.error('Error submitting module:', error);
         }
@@ -137,28 +156,34 @@ const EmployeeInsert = () => {
                         <Row>
                             <Col lg={6}>
                                 <Form.Group controlId="roleName" className="mb-3">
-                                    <Form.Label>Role Name:</Form.Label>
+                                    <Form.Label>Role Name <span className='text-danger'>*</span></Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="roleName"
                                         value={roles.roleName}
                                         onChange={handleChange}
-                                        required
                                         placeholder='Enter Role Name'
+                                        className={validationErrors.roleName ? " input-border" : "  "}
                                     />
+                                    {validationErrors.roleName && (
+                                        <small className="text-danger">{validationErrors.roleName}</small>
+                                    )}
                                 </Form.Group>
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="status" className="mb-3">
-                                    <Form.Label>Status *</Form.Label>
+                                    <Form.Label>Status  <span className='text-danger'>*</span></Form.Label>
                                     <Select
                                         name="status"
                                         options={optionsAppAccess}
                                         value={optionsAppAccess.find(option => option.value === roles.status)}
                                         onChange={selectedOption => handleChange(null, 'status', selectedOption?.value)}
                                         placeholder="Select Status"
-                                        required
+                                        className={validationErrors.status ? " input-border" : "  "}
                                     />
+                                    {validationErrors.status && (
+                                        <small className="text-danger">{validationErrors.status}</small>
+                                    )}
                                 </Form.Group>
                             </Col>
                             <Col className='align-items-end d-flex justify-content-end mb-3'>

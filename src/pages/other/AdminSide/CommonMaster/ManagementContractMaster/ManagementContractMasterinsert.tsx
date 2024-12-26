@@ -6,6 +6,7 @@ import config from '@/config';
 import CustomSuccessToast from '@/pages/other/Component/CustomSuccessToast';
 
 import Select from 'react-select';
+import { toast } from 'react-toastify';
 
 
 interface Management {
@@ -35,10 +36,15 @@ const EmployeeInsert = () => {
 
     });
 
+    const [validationErrors, setValidationErrors] = useState<{ [key: string]: string }>({});
+
     useEffect(() => {
+        toast.dismiss();
+
         const storedEmpName = localStorage.getItem('EmpName');
-        if (storedEmpName) {
-            setEmpName(storedEmpName);
+        const storedEmpID = localStorage.getItem('EmpId');
+        if (storedEmpName || storedEmpID) {
+            setEmpName(`${storedEmpName} - ${storedEmpID}`);
         }
     }, []);
 
@@ -96,9 +102,25 @@ const EmployeeInsert = () => {
         }
     };
 
+    const validateFields = (): boolean => {
+        const errors: { [key: string]: string } = {};
+
+        if (!managements.name) { errors.name = 'Management Contract Name is required'; }
+        if (!managements.status) { errors.status = 'Status is required'; }
+
+        setValidationErrors(errors);
+        return Object.keys(errors).length === 0;
+    };
+
+
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
 
+        if (!validateFields()) {
+            toast.dismiss()
+            toast.error('Please fill in all required fields.');
+            return;
+        }
         const payload = {
             ...managements,
             createdBy: editMode ? managements.createdBy : empName,
@@ -156,12 +178,15 @@ const EmployeeInsert = () => {
                                         name="name"
                                         value={managements.name}
                                         onChange={handleChange}
-                                        required
                                         placeholder='Enter Management Name'
+                                        className={validationErrors.name ? " input-border" : "  "}
                                     />
+                                    {validationErrors.name && (
+                                        <small className="text-danger">{validationErrors.name}</small>
+                                    )}
                                 </Form.Group>
                             </Col>
-                                        
+
                             <Col lg={6}>
                                 <Form.Group controlId="status" className="mb-3">
                                     <Form.Label>Status *</Form.Label>
@@ -171,14 +196,15 @@ const EmployeeInsert = () => {
                                         value={optionsAppAccess.find(option => option.value === managements.status)}
                                         onChange={selectedOption => handleChange(null, 'status', selectedOption?.value)}
                                         placeholder="Select Status"
-                                        required
+                                        className={validationErrors.status ? " input-border" : "  "}
                                     />
+                                    {validationErrors.status && (
+                                        <small className="text-danger">{validationErrors.status}</small>
+                                    )}
                                 </Form.Group>
                             </Col>
-                            <Col className='align-items-end d-flex justify-content-between mb-3'>
-                                <div>
-                                    <span className='fs-5 '>This field is required*</span>
-                                </div>
+                            <Col className='align-items-end d-flex justify-content-end mb-3'>
+
                                 <div>
                                     <Link to={'/pages/ManagementContractMaster'}>
                                         <Button variant="primary" >

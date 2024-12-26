@@ -38,12 +38,15 @@ const EmployeeInsert = () => {
         createdBy: '',
         updatedBy: ''
     });
+    const [validationErrors, setValidationErrors] = useState<{ [key: string]: string }>({});
+
     useEffect(() => {
-        toast.dismiss()
+        toast.dismiss();
 
         const storedEmpName = localStorage.getItem('EmpName');
-        if (storedEmpName) {
-            setEmpName(storedEmpName);
+        const storedEmpID = localStorage.getItem('EmpId');
+        if (storedEmpName || storedEmpID) {
+            setEmpName(`${storedEmpName} - ${storedEmpID}`);
         }
     }, []);
 
@@ -86,29 +89,32 @@ const EmployeeInsert = () => {
                 console.error(`Error fetching data from ${endpoint}:`, error);
             }
         };
-
         fetchData('CommonDropdown/GetMISExempt', setMisExempt, 'mISExemptListResponses');
     }, []);
 
 
 
+    const validateFields = (): boolean => {
+        const errors: { [key: string]: string } = {};
+
+        if (!module.moduleDisplayName) { errors.moduleDisplayName = 'Module Display Name is required'; }
+        if (!module.moduleID) { errors.moduleID = 'Module ID is required'; }
+        if (!module.fmsType) { errors.fmsType = 'Type of Module is required'; }
+        if (!module.misExempt) { errors.misExempt = 'MIS Exempt is required'; }
+        if (!module.status) { errors.status = 'Status is required'; }
+
+        setValidationErrors(errors);
+        return Object.keys(errors).length === 0;
+    };
+
+
     const handleChange = (e: ChangeEvent<any> | null, name?: string, value?: any) => {
         if (e) {
-            const { name: eventName, type } = e.target;
-
-            if (type === 'checkbox') {
-                const checked = (e.target as HTMLInputElement).checked;
-                setModule({
-                    ...module,
-                    [eventName]: checked
-                });
-            } else {
-                const inputValue = (e.target as HTMLInputElement | HTMLSelectElement).value;
-                setModule({
-                    ...module,
-                    [eventName]: inputValue
-                });
-            }
+            const { name: eventName, value } = e.target;
+            setModule({
+                ...module,
+                [eventName]: value
+            });
         } else if (name) {
             setModule({
                 ...module,
@@ -117,9 +123,17 @@ const EmployeeInsert = () => {
         }
     };
 
+
     // Handle form submission
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
+
+        if (!validateFields()) {
+            toast.dismiss()
+            toast.error('Please fill in all required fields.');
+            return;
+        }
+
         const payload = {
             ...module,
             createdBy: editMode ? module.createdBy : empName,
@@ -133,9 +147,7 @@ const EmployeeInsert = () => {
 
             if (response.status === 200) {
                 navigate('/pages/ModuleMaster', {
-                    state: {
-                        successMessage: editMode ? `${module.moduleDisplayName}  updated successfully!` : `${module.moduleDisplayName}  added successfully!`,
-                    },
+                    state: { successMessage: editMode ? `Module  updated successfully!` : `Module  added successfully!`, },
                 });
             } else {
                 toast.dismiss()
@@ -167,92 +179,101 @@ const EmployeeInsert = () => {
                 </div>
                 <div className='bg-white p-2 rounded-3 border'>
                     <Form onSubmit={handleSubmit}>
-
-
                         <Row>
-
                             <Col lg={6}>
                                 <Form.Group controlId="moduleDisplayName" className="mb-3">
-                                    <Form.Label>Module Display Name</Form.Label>
+                                    <Form.Label>Module Display Name  <span className='text-danger'>*</span></Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="moduleDisplayName"
                                         value={module.moduleDisplayName}
                                         onChange={(e) => setModule({ ...module, moduleDisplayName: e.target.value })}
-                                        required
                                         placeholder='Enter Module Name'
                                         disabled={editMode}
+                                        className={validationErrors.moduleDisplayName ? " input-border" : "  "}
                                     />
-
-
+                                    {validationErrors.moduleDisplayName && (
+                                        <small className="text-danger">{validationErrors.moduleDisplayName}</small>
+                                    )}
                                 </Form.Group>
                             </Col>
 
                             <Col lg={6}>
                                 <Form.Group controlId="ModuleID" className="mb-3">
-                                    <Form.Label>ModuleID</Form.Label>
+                                    <Form.Label>ModuleID  <span className='text-danger'>*</span></Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="moduleID"
                                         value={module.moduleID}
                                         onChange={handleChange}
-                                        required
                                         placeholder='Enter Module ID'
                                         disabled={editMode}
+                                        maxLength={15}
+                                        className={validationErrors.moduleID ? " input-border" : "  "}
+
                                     />
+                                    {validationErrors.moduleID && (
+                                        <small className="text-danger">{validationErrors.moduleID}</small>
+                                    )}
+
                                 </Form.Group>
                             </Col>
 
                             <Col lg={6}>
                                 <Form.Group controlId="fmsType" className="mb-3">
-                                    <Form.Label>Type of Module</Form.Label>
+                                    <Form.Label>Type of Module  <span className='text-danger'>*</span></Form.Label>
                                     <Select
                                         name="fmsType"
                                         options={options}
                                         value={options.find(option => option.value === module.fmsType)}
                                         onChange={selectedOption => handleChange(null, 'fmsType', selectedOption?.value)}
                                         placeholder="Select Type of  Module"
-                                        required
                                         isDisabled={editMode}
+                                        className={validationErrors.fmsType ? " input-border" : "  "}
 
                                     />
+                                    {validationErrors.fmsType && (
+                                        <small className="text-danger">{validationErrors.fmsType}</small>
+                                    )}
+
                                 </Form.Group>
                             </Col>
                             <Col lg={6}>
-
                                 <Form.Group controlId="misExempt" className="mb-3">
-                                    <Form.Label>MIS Exempt</Form.Label>
-
+                                    <Form.Label>MIS Exempt  <span className='text-danger'>*</span></Form.Label>
                                     <Select
                                         name="statusID"
                                         value={misExempt.find((mod) => mod.name === module.misExempt)}
                                         onChange={(selectedOption) => {
-                                            setModule({
-                                                ...module,
-                                                misExempt: selectedOption?.name || '',
-                                            });
+                                            setModule({ ...module, misExempt: selectedOption?.name || '', });
                                         }}
                                         getOptionLabel={(mod) => mod.name}
                                         getOptionValue={(mod) => mod.name}
                                         options={misExempt}
                                         isSearchable={true}
                                         placeholder="Select Exempt"
-                                        required
+                                        className={validationErrors.misExempt ? " input-border" : "  "}
                                     />
+                                    {validationErrors.misExempt && (
+                                        <small className="text-danger">{validationErrors.misExempt}</small>
+                                    )}
                                 </Form.Group>
                             </Col>
 
                             <Col lg={6}>
                                 <Form.Group controlId="status" className="mb-3">
-                                    <Form.Label>Status *</Form.Label>
+                                    <Form.Label>Status  <span className='text-danger'>*</span></Form.Label>
                                     <Select
                                         name="status"
                                         options={optionsAppAccess}
                                         value={optionsAppAccess.find(option => option.value === module.status)}
                                         onChange={selectedOption => handleChange(null, 'status', selectedOption?.value)}
                                         placeholder="Select Status"
-                                        required
+                                        className={validationErrors.status ? " input-border" : "  "}
                                     />
+                                    {validationErrors.status && (
+                                        <small className="text-danger">{validationErrors.status}</small>
+                                    )}
                                 </Form.Group>
                             </Col>
 

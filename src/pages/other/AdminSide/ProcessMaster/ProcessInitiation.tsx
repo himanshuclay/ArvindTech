@@ -3,7 +3,6 @@ import { useState, useEffect } from 'react';
 import { Button, Pagination, Table, Container, Row, Col, Alert, Form, ButtonGroup } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
-import IconWithLetter from '@/pages/ui/IconWithLetter';
 import config from '@/config';
 import Select from 'react-select';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -46,7 +45,7 @@ const ProcessInitiation = () => {
     const [ModuleName, setModuleName] = useState('');
     const [ProcessName, setProcessName] = useState('');
     const [ProcessOwnerName, setProcessOwnerName] = useState('');
-
+    const [searchTriggered, setSearchTriggered] = useState(false);
 
 
     const location = useLocation();
@@ -60,14 +59,27 @@ const ProcessInitiation = () => {
     }, [location.state, navigate]);
 
 
-    const handleSearch = (e: any) => {
-        e.preventDefault();
+
+
+
+    useEffect(() => {
+        if (searchTriggered || currentPage) {
+            handleSearch();
+            setSearchTriggered(false);
+        } else {
+            fetchProcess();
+        }
+    }, [currentPage, searchTriggered]);
+
+
+    const handleSearch = (e?: React.FormEvent) => {
+        if (e) e.preventDefault();
 
         let query = `?`;
         if (ProcessName) query += `ProcessName=${ProcessName}&`;
         if (ModuleName) query += `ModuleName=${ModuleName}&`;
         if (ProcessOwnerName) query += `ProcessOwnerName=${ProcessOwnerName}&`;
-
+        query += `PageIndex=${currentPage}`;
         // Remove trailing '&' or '?' from the query string
         query = query.endsWith('&') ? query.slice(0, -1) : query;
 
@@ -81,6 +93,7 @@ const ProcessInitiation = () => {
         })
             .then((response) => {
                 setProcesses(response.data.processMasterListResponses)
+                setTotalPages(Math.ceil(response.data.totalCount / 10));
             })
             .catch((error) => {
                 console.error('Error fetching data:', error);
@@ -104,9 +117,6 @@ const ProcessInitiation = () => {
     };
     // ==============================================================
 
-    useEffect(() => {
-        fetchProcess();
-    }, [currentPage]);
 
 
     const fetchProcess = async () => {
@@ -148,7 +158,7 @@ const ProcessInitiation = () => {
         };
 
         fetchData('CommonDropdown/GetModuleList', setModuleList, 'moduleNameListResponses');
-        fetchData('CommonDropdown/GetEmployeeListWithId', setEmployeeList, 'employeeLists');
+        fetchData('CommonDropdown/GetProcessOwnerName', setEmployeeList, 'processOwnerNames');
     }, []);
 
 
@@ -175,9 +185,9 @@ const ProcessInitiation = () => {
         setModuleName('');
         setProcessName('');
         setProcessOwnerName('');
+        setCurrentPage(1);
         fetchProcess();
     };
-
 
     return (
         <>
@@ -207,7 +217,13 @@ const ProcessInitiation = () => {
                         ) : (
                             <>
                                 <div className='bg-white p-2 pb-1'>
-                                    <Form onSubmit={handleSearch}>
+                                    <Form
+                                        onSubmit={(e) => {
+                                            e.preventDefault();
+                                            setCurrentPage(1);
+                                            setSearchTriggered(true);
+                                        }}
+                                    >
                                         <Row>
                                             <Col lg={4}>
                                                 <Form.Group controlId="ModuleName">
@@ -250,11 +266,11 @@ const ProcessInitiation = () => {
                                                     <Form.Label>Process Owner Name</Form.Label>
                                                     <Select
                                                         name="ProcessOwnerName"
-                                                        value={employeeList.find(item => item.empId === ProcessOwnerName) || null} // handle null
-                                                        onChange={(selectedOption) => setProcessOwnerName(selectedOption ? selectedOption.empId : "")} // null check
+                                                        value={employeeList.find(item => item.processOwnerName === ProcessOwnerName) || null} // handle null
+                                                        onChange={(selectedOption) => setProcessOwnerName(selectedOption ? selectedOption.processOwnerName : "")} // null check
                                                         options={employeeList}
-                                                        getOptionLabel={(item) => item.employeeName.split('_')[0]}
-                                                        getOptionValue={(item) => item.empId}
+                                                        getOptionLabel={(item) => item.processOwnerName}
+                                                        getOptionValue={(item) => item.processOwnerName}
                                                         isSearchable={true}
                                                         placeholder="Select Process Owner Name"
                                                         className="h45"
@@ -319,21 +335,20 @@ const ProcessInitiation = () => {
                                                             {columns.filter(col => col.visible).map((col) => (
                                                                 <td key={col.id}
                                                                     className={
-                                                                        col.id === 'processOwnerName' ? 'fw-bold  text-dark text-nowrap' :
-                                                                            col.id === 'moduleName' ? 'fw-bold text-dark   text-nowrap' :
-                                                                                (col.id === 'status' && item[col.id] === "ACTIVE") ? 'task1' :
-                                                                                    (col.id === 'status' && item[col.id] === "INACTIVE") ? 'task4' :
-                                                                                        ''
+                                                                        col.id === 'processOwnerName' ? 'text-nowrap' :
+                                                                            // col.id === 'moduleName' ? 'fw-bold text-dark   text-nowrap' :
+                                                                            (col.id === 'status' && item[col.id] === "ACTIVE") ? 'task1' :
+                                                                                (col.id === 'status' && item[col.id] === "INACTIVE") ? 'task4' :
+                                                                                    ''
                                                                     }
                                                                 >
                                                                     {col.id === 'processOwnerName' ? (
                                                                         <td>
                                                                             <div className='d-flex align-items-center'>
-                                                                                <IconWithLetter letter={item.processOwnerName.charAt(0)} />
                                                                                 {item.processOwnerName.split('_')[0]}
                                                                             </div>
                                                                             {item.userUpdatedMobileNumber ?
-                                                                                <p className='phone_user fw-normal m-0'><a href={`tel:${item.userUpdatedMobileNumber}`}> <i className="ri-phone-fill"></i> {item.userUpdatedMobileNumber}</a></p> : ""
+                                                                                <p className=' fw-normal m-0'><a href={`tel:${item.userUpdatedMobileNumber}`}> <i className="ri-phone-fill"></i> {item.userUpdatedMobileNumber}</a></p> : ""
                                                                             }
                                                                         </td>
                                                                     ) : (

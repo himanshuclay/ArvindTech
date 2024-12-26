@@ -16,11 +16,12 @@ interface Project {
     stateId: number;
     projectType: number;
     managementContract: number;
-    projectIncharge: string[];
-    projectInchargeName: string[];
+    projectIncharge: string;
+    projectInchargeName: string;
     projectCoordinator: string;
     projectCoordinatorName: string;
-    completionStatus: string;
+    completionStatus: number;
+    completionStatusName: string;
     status: string;
     nameOfWork: string;
     createdBy: string;
@@ -82,11 +83,12 @@ const ProjectInsert = () => {
         stateId: 0,
         projectType: 0,
         managementContract: 0,
-        projectIncharge: [],
-        projectInchargeName: [],
+        projectIncharge: '',
+        projectInchargeName: '',
         projectCoordinator: '',
         projectCoordinatorName: '',
-        completionStatus: '',
+        completionStatus: 0,
+        completionStatusName: '',
         status: '',
         nameOfWork: '',
         createdBy: '',
@@ -108,16 +110,18 @@ const ProjectInsert = () => {
         recordedMonth: '',
         recordedYear: '',
     });
-
+    const [validationErrors, setValidationErrors] = useState<{ [key: string]: string }>({});
 
     useEffect(() => {
-        toast.dismiss()
+        toast.dismiss();
 
         const storedEmpName = localStorage.getItem('EmpName');
-        if (storedEmpName) {
-            setEmpName(storedEmpName);
+        const storedEmpID = localStorage.getItem('EmpId');
+        if (storedEmpName || storedEmpID) {
+            setEmpName(`${storedEmpName} - ${storedEmpID}`);
         }
     }, []);
+
 
 
     useEffect(() => {
@@ -166,8 +170,8 @@ const ProjectInsert = () => {
         fetchData('CommonDropdown/GetStateList', setStateList, 'stateListResponses');
         fetchData('CommonDropdown/GetCompletionStatus', setCompletionStatus, 'completionStatusListResponses');
         fetchData('CommonDropdown/GetEmployeeListWithId', setEmployeeList, 'employeeLists');
-        fetchData('CommonDropdown/GetProjectType', setProjectTypeList, 'projectTypeListResponses');
-        fetchData('CommonDropdown/GetManagementContract', setManagementContractList, 'managementContractListResponses');
+        fetchData('CommonDropdown/GetCommonList?flag=4', setProjectTypeList, 'commonLists');
+        fetchData('CommonDropdown/GetCommonList?flag=3', setManagementContractList, 'commonLists');
 
     }, []);
 
@@ -198,8 +202,30 @@ const ProjectInsert = () => {
         }
     };
 
+    const validateFields = (): boolean => {
+        const errors: { [key: string]: string } = {};
+
+        if (!project.projectID) { errors.projectID = 'Project Id is required'; }
+        if (!project.projectName) { errors.projectName = 'Project Name is required'; }
+        if (!project.stateId) { errors.stateId = 'State is required'; }
+        if (!project.projectType) { errors.projectType = 'Project Type is required'; }
+        if (!project.managementContract) { errors.managementContract = 'Management Contract is required'; }
+        if (!project.completionStatus) { errors.completionStatus = 'Completion Status is required'; }
+        if (!project.status) { errors.status = 'Status is required'; }
+
+        setValidationErrors(errors);
+        return Object.keys(errors).length === 0;
+    };
+
+
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
+
+        if (!validateFields()) {
+            toast.dismiss()
+            toast.error('Please fill in all required fields.');
+            return;
+        }
 
         const payload = {
             ...project,
@@ -223,7 +249,6 @@ const ProjectInsert = () => {
             }
         } catch (error: any) {
             toast.error(error)
-            console.error('Error submitting module:', error);
         }
     };
 
@@ -243,40 +268,42 @@ const ProjectInsert = () => {
                 <div className='bg-white p-2 rounded-3 border'>
                     <Form onSubmit={handleSubmit}>
                         <Row>
-
-
                             <Col lg={6}>
                                 <Form.Group controlId="projectID" className="mb-3">
-                                    <Form.Label>Project ID *</Form.Label>
+                                    <Form.Label>Project ID  <span className='text-danger'>*</span></Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="projectID"
                                         value={project.projectID}
                                         onChange={handleChange}
-                                        required
                                         placeholder='Enter Project ID'
                                         disabled={editMode}
-
+                                        className={validationErrors.projectID ? " input-border" : "  "}
                                     />
+                                    {validationErrors.projectID && (
+                                        <small className="text-danger">{validationErrors.projectID}</small>
+                                    )}
                                 </Form.Group>
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="projectName" className="mb-3">
-                                    <Form.Label>Project Name *</Form.Label>
+                                    <Form.Label>Project Name  <span className='text-danger'>*</span></Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="projectName"
                                         value={project.projectName}
                                         onChange={handleChange}
-                                        required
                                         placeholder='Enter Project Name'
-
+                                        className={validationErrors.projectName ? " input-border" : "  "}
                                     />
+                                    {validationErrors.projectName && (
+                                        <small className="text-danger">{validationErrors.projectName}</small>
+                                    )}
                                 </Form.Group>
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="stateName" className="mb-3">
-                                    <Form.Label>State Name *</Form.Label>
+                                    <Form.Label>State Name  <span className='text-danger'>*</span></Form.Label>
                                     <Select
                                         name="stateName"
                                         value={stateList.find((mod) => mod.id === project.stateId)}
@@ -291,14 +318,17 @@ const ProjectInsert = () => {
                                         options={stateList}
                                         isSearchable={true}
                                         placeholder="Select State Name"
-                                        required
+                                        className={validationErrors.stateId ? " input-border" : "  "}
                                     />
+                                    {validationErrors.stateId && (
+                                        <small className="text-danger">{validationErrors.stateId}</small>
+                                    )}
                                 </Form.Group>
                             </Col>
 
                             <Col lg={6}>
                                 <Form.Group controlId="projectTypeList" className="mb-3">
-                                    <Form.Label>Project Type *</Form.Label>
+                                    <Form.Label>Project Type  <span className='text-danger'>*</span></Form.Label>
                                     <Select
                                         name="projectTypeList"
                                         value={projectTypeList.find((mod) => mod.id === project.projectType)}
@@ -313,15 +343,18 @@ const ProjectInsert = () => {
                                         options={projectTypeList}
                                         isSearchable={true}
                                         placeholder="Select Project Type"
-                                        required
+                                        className={validationErrors.projectType ? " input-border" : "  "}
                                     />
+                                    {validationErrors.projectType && (
+                                        <small className="text-danger">{validationErrors.projectType}</small>
+                                    )}
                                 </Form.Group>
                             </Col>
 
 
                             <Col lg={6}>
                                 <Form.Group controlId="managementContractList" className="mb-3">
-                                    <Form.Label>Management Contract *</Form.Label>
+                                    <Form.Label>Management Contract  <span className='text-danger'>*</span></Form.Label>
                                     <Select
                                         name="managementContractList"
                                         value={managementContractList.find((mod) => mod.id === project.managementContract)}
@@ -336,11 +369,56 @@ const ProjectInsert = () => {
                                         options={managementContractList}
                                         isSearchable={true}
                                         placeholder="Select Management Contract"
-                                        required
+                                        className={validationErrors.managementContract ? " input-border" : "  "}
                                     />
+                                    {validationErrors.managementContract && (
+                                        <small className="text-danger">{validationErrors.managementContract}</small>
+                                    )}
+                                </Form.Group>
+                            </Col>
+                            <Col lg={6}>
+                                <Form.Group controlId="completionStatus" className="mb-3">
+                                    <Form.Label>
+                                        Completion Status <span className="text-danger">*</span>
+                                    </Form.Label>
+                                    <Select
+                                        name="completionStatus"
+                                        value={completionStatus.find((mod) => mod.id === project.completionStatus) || null}
+                                        onChange={(selectedOption) => {
+                                            setProject({
+                                                ...project,
+                                                completionStatus: selectedOption?.id || 0,
+                                            });
+                                        }}
+                                        getOptionLabel={(mod) => mod.name}
+                                        getOptionValue={(mod) => mod.id.toString()} // Convert id to string
+                                        options={completionStatus}
+                                        isSearchable={true}
+                                        placeholder="Select Completion Status"
+                                        className={validationErrors.completionStatus ? " input-border" : ""}
+                                    />
+                                    {validationErrors.completionStatus && (
+                                        <small className="text-danger">{validationErrors.completionStatus}</small>
+                                    )}
                                 </Form.Group>
                             </Col>
 
+                            <Col lg={6}>
+                                <Form.Group controlId="status" className="mb-3">
+                                    <Form.Label>Project Status  <span className='text-danger'>*</span></Form.Label>
+                                    <Select
+                                        name="status"
+                                        options={optionsAppAccess}
+                                        value={optionsAppAccess.find(option => option.value === project.status)}
+                                        onChange={selectedOption => handleChange(null, 'status', selectedOption?.value)}
+                                        placeholder="Select Project Status"
+                                        className={validationErrors.status ? " input-border" : "  "}
+                                    />
+                                    {validationErrors.status && (
+                                        <small className="text-danger">{validationErrors.status}</small>
+                                    )}
+                                </Form.Group>
+                            </Col>
 
 
 
@@ -349,24 +427,21 @@ const ProjectInsert = () => {
                                     <Form.Label>Project Incharge</Form.Label>
                                     <Select
                                         name="incharges"
-                                        value={employeeList.filter(emp =>
-                                            project.projectIncharge.includes(emp.empId)
-                                        )}
-                                        onChange={(selectedOptions) => {
-                                            const projectIncharge = (selectedOptions || []).map(option => option.empId);
-                                            const projectInchargeName = (selectedOptions || []).map(option => option.employeeName);
-                                            setProject(prev => ({
-                                                ...prev,
-                                                projectIncharge, projectInchargeName
-                                            }));
+                                        value={employeeList.find((emp) => emp.employeeName === project.projectInchargeName)}
+                                        onChange={(selectedOption) => {
+                                            setProject({
+                                                ...project,
+                                                projectIncharge: selectedOption?.empId || '',
+                                                projectInchargeName: selectedOption?.employeeName || '',
+                                            });
                                         }}
                                         getOptionLabel={(emp) => emp.employeeName}
                                         getOptionValue={(emp) => emp.empId}
                                         options={employeeList}
-                                        isSearchable={true}
-                                        isMulti={true}
+                                        isSearchable
                                         placeholder="Select Employee"
                                     />
+
                                 </Form.Group>
                             </Col>
 
@@ -380,54 +455,20 @@ const ProjectInsert = () => {
                                         onChange={(selectedOption) => {
                                             setProject({
                                                 ...project,
-                                                projectCoordinator: selectedOption?.empId || "",
-                                                projectCoordinatorName: selectedOption?.employeeName || "",
+                                                projectCoordinator: selectedOption?.empId || '',
+                                                projectCoordinatorName: selectedOption?.employeeName || '',
                                             });
                                         }}
                                         getOptionLabel={(emp) => emp.employeeName}
                                         getOptionValue={(emp) => emp.empId}
                                         options={employeeList}
                                         isSearchable={true}
-                                        placeholder="Select Project Coordinator"
+                                        placeholder="Select Employee"
                                     />
                                 </Form.Group>
                             </Col>
 
-                            <Col lg={6}>
-                                <Form.Group controlId="completionStatus" className="mb-3">
-                                    <Form.Label>Completion Status *</Form.Label>
-                                    <Select
-                                        name="completionStatus"
-                                        value={completionStatus.find((mod) => mod.name === project.completionStatus)}
-                                        onChange={(selectedOption) => {
-                                            setProject({
-                                                ...project,
-                                                completionStatus: selectedOption?.name || '',
-                                            });
-                                        }}
-                                        getOptionLabel={(mod) => mod.name}
-                                        getOptionValue={(mod) => mod.name}
-                                        options={completionStatus}
-                                        isSearchable={true}
-                                        placeholder="Select Completion Status"
-                                        required
-                                    />
-                                </Form.Group>
-                            </Col>
 
-                            <Col lg={6}>
-                                <Form.Group controlId="status" className="mb-3">
-                                    <Form.Label>Project Status *</Form.Label>
-                                    <Select
-                                        name="status"
-                                        options={optionsAppAccess}
-                                        value={optionsAppAccess.find(option => option.value === project.status)}
-                                        onChange={selectedOption => handleChange(null, 'status', selectedOption?.value)}
-                                        placeholder="Select Project Status"
-                                        required
-                                    />
-                                </Form.Group>
-                            </Col>
 
                             {id && <>
 

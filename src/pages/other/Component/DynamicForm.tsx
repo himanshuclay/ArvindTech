@@ -1175,14 +1175,12 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
 
                                 <div className="form-section" style={{ width: '90%', paddingLeft: '20px' }}>
                                     <div className="my-task">
-                                        {/* {formData.inputs.map((input: Input) => (
+                                         {formData.inputs.map((input: Input) => (
                                             (fromComponent === 'TaskMaster' && 'PendingTask' || shouldDisplayInput(input)) && (
-                                                <div className='form-group'
-                                                // className={input.visibility === false ? 'd-none' : 'form-group'} 
+                                                <div className={input.visibility === false ? 'd-none' : 'form-group'} 
                                                 key={input.inputId} style={{ marginBottom: '1rem' }}>
                                                     <label className='label'>{input.label}</label>
                                                     {input.type === 'text' 
-                                                    // && input.visibility !== false 
                                                     && 
                                                     (
                                                         <input
@@ -1196,165 +1194,6 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                                                     {input.type === 'number' &&
                                                     //  input.visibility !== false && 
                                                     (
-                                                        <input
-                                                            type="number"
-                                                            className='form-control'
-                                                            placeholder={input.placeholder}
-                                                            value={formState[input.inputId]}
-                                                            onChange={e => handleChange(input.inputId, e.target.value)}
-                                                        />
-                                                    )}
-                                                    {input.type === 'email' && (
-                                                        <input
-                                                            type="email"
-                                                            className='form-control'
-                                                            placeholder={input.placeholder}
-                                                            value={formState[input.inputId]}
-                                                            onChange={e => handleChange(input.inputId, e.target.value)}
-                                                        />
-                                                    )}
-                                                    {input.type === 'tel' && (
-                                                        <input
-                                                            type="tel"
-                                                            className='form-control'
-                                                            placeholder={input.placeholder}
-                                                            value={formState[input.inputId]}
-                                                            onChange={e => handleChange(input.inputId, e.target.value)}
-                                                        />
-                                                    )}
-                                                    {input.type === 'custom' && (
-                                                        <input
-                                                            type="text"
-                                                            placeholder={input.placeholder}
-                                                            value={formState[input.inputId]}
-                                                            onChange={e => handleChange(input.inputId, e.target.value)}
-                                                            style={{ display: 'block', width: '100%', padding: '0.5rem' }}
-                                                        />
-                                                    )}
-                                                    {input.type === 'select' && (
-                                                        <select
-                                                            id={input.inputId}
-                                                            className='form-select form-control'
-                                                            value={formState[input.inputId] || ''}
-                                                            onChange={e => handleChange(input.inputId, e.target.value)}
-                                                            style={{ display: 'block', width: '100%', padding: '0.5rem' }}
-                                                        >
-                                                            <option value="" disabled>Select an option</option>
-                                                            {input.options?.map(option => (
-                                                                <option key={option.id} value={option.label}>
-                                                                    {option.label}
-                                                                </option>
-                                                            ))}
-                                                        </select>
-                                                    )}
-
-                                                    {input.type === 'multiselect' && (
-                                                        <select
-                                                            className='form-select form-control'
-                                                            value={formState[input.inputId]}
-                                                            onChange={e => handleChange(input.inputId, e.target.value)}
-                                                            style={{ display: 'block', width: '100%', padding: '0.5rem' }}
-
-                                                        >
-                                                            <option value="" disabled>Select an option</option>
-                                                            {input.options?.map(option => (
-                                                                <option key={option.id} value={option.label}>
-                                                                    {option.label}
-                                                                </option>
-                                                            ))}
-                                                        </select>
-                                                    )}
-                                                    {input.type === 'CustomSelect' && (
-                                                        <select className='form-control'
-                                                            value={formState[input.inputId]}
-                                                            onChange={e => handleChange(input.inputId, e.target.value)}
-                                                            style={{ display: 'block', width: '100%', padding: '0.5rem' }}
-
-                                                        >
-                                                            <option value="" disabled>Select an option</option>
-                                                            {vendors.map((vendor, index) => (
-                                                                <option key={index} value={vendor.name}>
-                                                                    {vendor.name}
-                                                                </option>
-                                                            ))}
-                                                        </select>
-                                                    )}
-                                                    {input.type === 'file' && (
-                                                        <FileUploader
-                                                            icon="ri-upload-cloud-2-line"
-                                                            text="Drop files here or click to upload."
-                                                            additionalData={{
-                                                                ModuleID: moduleId,
-                                                                CreatedBy: 'yourUserID',
-                                                                TaskCommonID: taskCommonIDRow,
-                                                                Task_Number: taskNumber,
-                                                                ProcessInitiationID: ProcessInitiationID,
-                                                                ProcessID: processId,
-                                                                UpdatedBy: 'yourUpdatedBy',
-                                                            }}
-                                                            onFileUpload={(files) => {
-                                                                console.log('Files uploaded:', files);
-                                                            }}
-                                                        />
-                                                    )}
-
-
-                                                    {input.type === 'checkbox' && (
-
-                                                        <span className="form-check">
-                                                            <input className="form-check-input" type="checkbox"
-                                                                checked={formState[input.inputId]}
-                                                                onChange={e => handleChange(input.inputId, e.target.checked)} />
-                                                        </span>
-                                                    )}
-                                                    {input.type === 'radio' && (
-                                                        <input
-                                                            type="radio"
-                                                            checked={formState[input.inputId]}
-                                                            onChange={e => handleChange(input.inputId, e.target.checked)}
-                                                        />
-                                                    )}
-                                                    {input.type === 'status' && (
-                                                        <input
-                                                            type="text"
-                                                            checked={formState[input.inputId]}
-                                                            onChange={e => handleChange(input.inputId, e.target.checked)}
-                                                        />
-                                                    )}
-                                                    {input.type === 'successorTask' && (
-                                                        <input
-                                                            type="text"
-                                                            checked={formState[input.inputId]}
-                                                            onChange={e => handleChange(input.inputId, e.target.checked)}
-                                                        />
-                                                    )}
-                                                    {input.type === 'date' && (
-                                                        <input
-                                                            type="date"
-                                                            value={formState[input.inputId]}
-                                                            onChange={e => handleChange(input.inputId, e.target.value)}
-                                                            style={{ display: 'block', width: '100%', padding: '0.5rem' }}
-
-                                                        />
-                                                    )}
-                                                </div>
-                                            )
-
-                                        ))} */}
-                                        {formData.inputs.map((input: Input) => (
-                                            (fromComponent === 'TaskMaster' && 'PendingTask' || shouldDisplayInput(input)) && (
-                                                <div className='form-group' key={input.inputId} style={{ marginBottom: '1rem' }}>
-                                                    <label className='label'>{input.label}</label>
-                                                    {input.type === 'text' && (
-                                                        <input
-                                                            type="text"
-                                                            className='form-control'
-                                                            placeholder={input.placeholder}
-                                                            value={formState[input.inputId]}
-                                                            onChange={e => handleChange(input.inputId, e.target.value)}
-                                                        />
-                                                    )}
-                                                    {input.type === 'number' && (
                                                         <input
                                                             type="number"
                                                             className='form-control'

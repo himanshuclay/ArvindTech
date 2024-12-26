@@ -56,15 +56,18 @@ const EmployeeInsert = () => {
     );
 
     const [isMobileVerified, setIsMobileVerified] = useState(false);
+    const [validationErrors, setValidationErrors] = useState<{ [key: string]: string }>({});
 
     useEffect(() => {
-        toast.dismiss()
+        toast.dismiss();
 
         const storedEmpName = localStorage.getItem('EmpName');
-        if (storedEmpName) {
-            setEmpName(storedEmpName);
+        const storedEmpID = localStorage.getItem('EmpId');
+        if (storedEmpName || storedEmpID) {
+            setEmpName(`${storedEmpName} - ${storedEmpID}`);
         }
     }, []);
+
 
 
     useEffect(() => {
@@ -113,50 +116,20 @@ const EmployeeInsert = () => {
 
 
 
-    // const handleChange = (e: ChangeEvent<any>) => {
-    //     const { name, type } = e.target;
+    const validateFields = (): boolean => {
+        const errors: { [key: string]: string } = {};
+
+        if (!messes.projectName) { errors.projectName = 'Project Name is required'; }
+        if (!messes.messID) { errors.messID = 'Mess ID is required'; }
+        if (!messes.managerName) { errors.managerName = 'Manager Name is required'; }
+        if (!messes.messName) { errors.messName = 'Mess Name is required'; }
+        if (!messes.status) { errors.status = 'Status is required'; }
+        if (!messes.mobileNumber) { errors.mobileNumber = 'Mobile No. is required'; }
 
 
-    //     const validateMobileNumber = (fieldName: string, fieldValue: string) => {
-    //         if (!/^\d{0,10}$/.test(fieldValue)) {
-    //             return false;
-    //         }
-
-    //         setMesses((prevData) => ({
-    //             ...prevData,
-    //             [fieldName]: fieldValue,
-    //         }));
-
-    //         if (fieldValue.length === 10) {
-    //             if (!/^[6-9]/.test(fieldValue)) {
-    //                 toast.error("Mobile number should start with a digit between 6 and 9.");
-    //                 setIsMobileVerified(true);
-    //                 return false;
-    //             }
-    //         } else {
-    //             setIsMobileVerified(false);
-    //         }
-    //         return true;
-    //     };
-
-
-
-
-    //     if (type === 'checkbox') {
-    //         const checked = (e.target as HTMLInputElement).checked;
-    //         setMesses({
-    //             ...messes,
-    //             [name]: checked
-    //         });
-    //     } else {
-    //         const value = (e.target as HTMLInputElement | HTMLSelectElement).value;
-    //         setMesses({
-    //             ...messes,
-    //             [name]: value
-    //         });
-    //     }
-    // };
-
+        setValidationErrors(errors);
+        return Object.keys(errors).length === 0;
+    };
 
 
     const handleChange = (e: ChangeEvent<any> | null, name?: string, value?: any) => {
@@ -210,8 +183,22 @@ const EmployeeInsert = () => {
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
 
+        if (!validateFields()) {
+            toast.dismiss()
+            toast.error('Please fill in all required fields.');
+            return;
+        }
+
+
+        if (messes.mobileNumber.length !== 10) {
+            toast.dismiss()
+            toast.error("Mobile number should be exactly 10 digits long.");
+            setIsMobileVerified(true);
+            return false;
+        }
 
         if (isMobileVerified) {
+            toast.dismiss()
             toast.error("Please verify your mobile number before submitting the form.");
             return;
         }
@@ -220,7 +207,6 @@ const EmployeeInsert = () => {
             createdBy: editMode ? messes.createdBy : empName,
             updatedBy: editMode ? empName : '',
         };
-        console.log(payload)
         try {
             if (editMode) {
                 await axios.post(`${config.API_URL_APPLICATION}/MessMaster/UpdateMess`, payload);
@@ -238,8 +224,7 @@ const EmployeeInsert = () => {
                 });
             }
         } catch (error: any) {
-            const errorMessage = error instanceof Error ? error.message : 'Error Adding/Updating';
-            toast.error(errorMessage);
+            toast.error(error || 'Error Adding/Updating');
         }
 
     };
@@ -253,29 +238,60 @@ const EmployeeInsert = () => {
                     <Form onSubmit={handleSubmit}>
                         <Row>
                             <Col lg={6}>
+                                <Form.Group controlId="projectName" className="mb-3">
+                                    <Form.Label>Project Name</Form.Label>
+                                    <Select
+                                        name="projectName"
+                                        value={projectList.find((mod) => mod.projectName === messes.projectName)}
+                                        onChange={(selectedOption) => {
+                                            setMesses({
+                                                ...messes,
+                                                projectName: selectedOption?.projectName || '',
+                                            });
+                                        }}
+                                        getOptionLabel={(mod) => mod.projectName}
+                                        getOptionValue={(mod) => mod.projectName}
+                                        options={projectList}
+                                        isSearchable={true}
+                                        placeholder="Select Project Name"
+                                        className={validationErrors.projectName ? " input-border" : "  "}
+                                    />
+                                    {validationErrors.projectName && (
+                                        <small className="text-danger">{validationErrors.projectName}</small>
+                                    )}
+                                </Form.Group>
+                            </Col>
+                            <Col lg={6}>
                                 <Form.Group controlId="messID" className="mb-3">
-                                    <Form.Label>Mess ID:</Form.Label>
+                                    <Form.Label>Mess ID</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="messID"
                                         value={messes.messID}
                                         onChange={handleChange}
-                                        required
-                                        placeholder='Enter Role Name'
+                                        placeholder='Enter Mess Id'
+                                        disabled={editMode}
+                                        className={validationErrors.messID ? " input-border" : "  "}
                                     />
+                                    {validationErrors.messID && (
+                                        <small className="text-danger">{validationErrors.messID}</small>
+                                    )}
                                 </Form.Group>
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="messName" className="mb-3">
-                                    <Form.Label>Mess Name:</Form.Label>
+                                    <Form.Label>Mess Name</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="messName"
                                         value={messes.messName}
                                         onChange={handleChange}
-                                        required
-                                        placeholder='Enter Role Name'
+                                        placeholder='Enter Mess Name'
+                                        className={validationErrors.messName ? " input-border" : "  "}
                                     />
+                                    {validationErrors.messName && (
+                                        <small className="text-danger">{validationErrors.messName}</small>
+                                    )}
                                 </Form.Group>
                             </Col>
 
@@ -295,9 +311,12 @@ const EmployeeInsert = () => {
                                         getOptionValue={(mod) => mod.name}
                                         options={statusList}
                                         isSearchable={true}
-                                        placeholder="Select Module Name"
-                                        required
+                                        placeholder="Select Status"
+                                        className={validationErrors.status ? " input-border" : "  "}
                                     />
+                                    {validationErrors.status && (
+                                        <small className="text-danger">{validationErrors.status}</small>
+                                    )}
                                 </Form.Group>
                             </Col>
 
@@ -319,9 +338,12 @@ const EmployeeInsert = () => {
                                         getOptionValue={(mod) => mod.employeeName}
                                         options={employeeList}
                                         isSearchable={true}
-                                        placeholder="Select Module Name"
-                                        required
+                                        placeholder="Select Employee"
+                                        className={validationErrors.managerName ? " input-border" : "  "}
                                     />
+                                    {validationErrors.managerName && (
+                                        <small className="text-danger">{validationErrors.managerName}</small>
+                                    )}
                                 </Form.Group>
                             </Col>
 
@@ -333,33 +355,16 @@ const EmployeeInsert = () => {
                                         name="mobileNumber"
                                         value={messes.mobileNumber}
                                         onChange={handleChange}
-                                        required
                                         placeholder='Enter Mess Manager Contact'
+                                        className={validationErrors.mobileNumber ? " input-border" : "  "}
                                     />
+                                    {validationErrors.mobileNumber && (
+                                        <small className="text-danger">{validationErrors.mobileNumber}</small>
+                                    )}
                                 </Form.Group>
                             </Col>
 
-                            <Col lg={6}>
-                                <Form.Group controlId="projectName" className="mb-3">
-                                    <Form.Label>Project Name</Form.Label>
-                                    <Select
-                                        name="projectName"
-                                        value={projectList.find((mod) => mod.projectName === messes.projectName)}
-                                        onChange={(selectedOption) => {
-                                            setMesses({
-                                                ...messes,
-                                                projectName: selectedOption?.projectName || '',
-                                            });
-                                        }}
-                                        getOptionLabel={(mod) => mod.projectName}
-                                        getOptionValue={(mod) => mod.projectName}
-                                        options={projectList}
-                                        isSearchable={true}
-                                        placeholder="Select Module Name"
-                                        required
-                                    />
-                                </Form.Group>
-                            </Col>
+
 
 
                             <Col className='align-items-end d-flex justify-content-between mb-3'>

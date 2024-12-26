@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Button, Table, Collapse, Accordion } from 'react-bootstrap'; // Assuming DynamicForm is in the same directory
-import { FileUploader } from '@/components/FileUploader'
+// import { FileUploader } from '@/components/FileUploader'
 import config from "@/config";
 
 
@@ -358,7 +358,7 @@ const ProjectAssignTable: React.FC = () => {
                                 ))}
                               </select>
                             )}
-                            {input.type === 'file' && (
+                            {/* {input.type === 'file' && (
                               <FileUploader
                                 icon="ri-upload-cloud-2-line"
                                 text="Drop files here or click to upload."
@@ -376,7 +376,7 @@ const ProjectAssignTable: React.FC = () => {
                                   console.log('Files uploaded:', files);
                                 }}
                               />
-                            )}
+                            )} */}
 
                             {input.type === 'checkbox' && (
                               // <input

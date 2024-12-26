@@ -16,8 +16,6 @@ const ProfileDropdown = ({
 	userid,
 }: ProfileDropdownProps) => {
 	const [isOpen, toggleDropdown] = useToggle()
-
-	console.log(userid)
 	return (
 		<Dropdown show={isOpen} onToggle={toggleDropdown}>
 			<Dropdown.Toggle

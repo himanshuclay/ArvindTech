@@ -41,13 +41,15 @@ const AddressMasterinsert = () => {
 
 
     useEffect(() => {
-        toast.dismiss()
+        toast.dismiss();
 
         const storedEmpName = localStorage.getItem('EmpName');
-        if (storedEmpName) {
-            setEmpName(storedEmpName);
+        const storedEmpID = localStorage.getItem('EmpId');
+        if (storedEmpName || storedEmpID) {
+            setEmpName(`${storedEmpName} - ${storedEmpID}`);
         }
     }, []);
+
 
 
     useEffect(() => {
@@ -95,13 +97,14 @@ const AddressMasterinsert = () => {
     const handleBankAccountNumberChange = (e: ChangeEvent<any>) => {
         const { value } = e.target as HTMLInputElement;
 
-        // Keep only numeric characters
         const validValue = value.replace(/[^0-9]/g, "");
 
         if (validValue.length > 6) {
             setPinCodeError("Invalid pincode. Pincode cannot exceed 6 digits.");
+        } else if (validValue.length < 6) {
+            setPinCodeError("Invalid pincode. Pincode must be 6 digits.");
         } else {
-            setPinCodeError(null); // Clear the error if the value is valid
+            setPinCodeError(null); 
         }
 
         setAddress((prevState) => ({
@@ -123,6 +126,7 @@ const AddressMasterinsert = () => {
                 });
             } else {
                 const inputValue = (e.target as HTMLInputElement | HTMLSelectElement).value;
+
                 setAddress({
                     ...address,
                     [eventName]: inputValue
@@ -144,8 +148,9 @@ const AddressMasterinsert = () => {
 
         toast.dismiss()
 
+
         if (pinCodeError) {
-            toast.error('Invalid PinCode')
+            toast.error('Invalid pincode. Pincode must be  6 digits only.')
             return
         }
         const payload = {
@@ -201,8 +206,8 @@ const AddressMasterinsert = () => {
                                         value={address.pinCode}
                                         onChange={handleBankAccountNumberChange}
                                         required
-                                        maxLength={6}
                                         placeholder='Enter Pincode'
+                                        disabled={editMode}
                                     />
                                     {pinCodeError && (
                                         <Form.Text className="text-danger">
@@ -213,7 +218,7 @@ const AddressMasterinsert = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="areaName" className="mb-3">
-                                    <Form.Label>Area Name</Form.Label>
+                                    <Form.Label>Area Name *</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="areaName"
@@ -226,7 +231,7 @@ const AddressMasterinsert = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="district" className="mb-3">
-                                    <Form.Label>District Name</Form.Label>
+                                    <Form.Label>District Name *</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="district"

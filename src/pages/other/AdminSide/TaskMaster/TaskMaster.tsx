@@ -338,9 +338,6 @@ const TaskMaster: React.FC = () => {
     };
 
 
-
-
-
     return (
         <div>
             <div className="d-flex bg-white p-2 my-2 justify-content-between align-items-center fs-20">
