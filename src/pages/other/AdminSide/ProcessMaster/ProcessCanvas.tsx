@@ -27,6 +27,7 @@ interface Project {
     id: string;
     projectID: string;
     projectName: string;
+    type: string;
 
 }
 interface SubProject {
@@ -141,6 +142,7 @@ const ProcessCanvas: React.FC<ProcessCanvasProps> = ({ show, setShow, manageId }
                     moduleName: fetchedModule.moduleName,
                     processId: fetchedModule.processID
                 }));
+
             } else {
                 console.error(response.data.message);
             }
@@ -157,6 +159,7 @@ const ProcessCanvas: React.FC<ProcessCanvasProps> = ({ show, setShow, manageId }
             if (response.data.isSuccess) {
                 const fetchedProject = response.data.getProjectAssignListbyIDs;
                 setAssignedProject(fetchedProject);
+                setActiveButton(fetchedProject[0]?.type);
             } else {
                 console.error(response.data.message);
             }
@@ -185,75 +188,126 @@ const ProcessCanvas: React.FC<ProcessCanvasProps> = ({ show, setShow, manageId }
     };
 
 
-
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
 
-        const filteredData = assignedProject.map(item => ({
-            projectID: item.projectID,
-            projectName: item.projectName
-        }));
         const payload = {
             ...assignProject,
             type: activeButton,
-
         };
+        console.log("Initial Payload:", payload);
 
-        const payloadUpdate = {
-            ...process,
-            updatedBy: empName || '',
-            source: JSON.stringify(filteredData)
-        };
         try {
             const apiUrl = `${config.API_URL_APPLICATION}/AssignProjecttoProcess/AssignProjecttoProcess`;
             const response = await axios.post(apiUrl, payload);
 
             if (response.data.isSuccess) {
-                setAssignProject(prev => ({ ...prev, projects: [] }));
-                await fetchGetProject(moduleName, processId);
-                await axios.post(
-                    `${config.API_URL_APPLICATION}/ProcessMaster/UpdateProcess`,
-                    payloadUpdate
-                );
-                toast.dismiss()
+                toast.dismiss();
                 toast.success("Project assigned successfully!");
 
+                try {
+                    const fetchUrl = `${config.API_URL_APPLICATION}/AssignProjecttoProcess/GetProjectAssignListbyIDs`;
+                    const fetchResponse = await axios.get(fetchUrl, {
+                        params: { ModuleName: moduleName, ProcessId: processId },
+                    });
+
+                    if (fetchResponse.data.isSuccess) {
+                        const fetchedProject = fetchResponse.data.getProjectAssignListbyIDs;
+                        setAssignedProject(fetchedProject);
+                        const updatedFilteredData = fetchedProject.map((item: Project) => ({
+                            projectID: item.projectID,
+                            projectName: item.projectName,
+                        }));
+
+                        const updatedPayloadUpdate = {
+                            ...process,
+                            updatedBy: empName || '',
+                            source: JSON.stringify(updatedFilteredData),
+                        };
+
+                        try {
+                            await axios.post(
+                                `${config.API_URL_APPLICATION}/ProcessMaster/UpdateProcess`,
+                                updatedPayloadUpdate
+                            );
+                            await setAssignProject(prev => ({ ...prev, projects: [] }));
+                        } catch (updateError: any) {
+                            toast.error("Failed to update process master.");
+                            console.error("Error updating process master:", updateError);
+                        }
+                    } else {
+                        console.error(fetchResponse.data.message || "Failed to fetch assigned projects.");
+                    }
+                } catch (fetchError) {
+                    toast.error("Error fetching updated project data.");
+                    console.error("Error fetching project:", fetchError);
+                }
             } else {
-                toast.dismiss()
-                toast.error(response.data.message || "Failed to process request");
+                toast.dismiss();
+                toast.error(response.data.message || "Failed to assign project.");
             }
         } catch (error: any) {
-            toast.error(error)
+            toast.error(error.response?.data?.message || "An error occurred.");
+            console.error("Error in handleSubmit:", error);
         }
-
-
     };
 
-
-
-
     const handleDelete = async (id: any) => {
-
-        const filteredData = assignedProject.map(item => ({
-            projectID: item.projectID,
-            projectName: item.projectName
-        }));
-        const payloadUpdate = {
-            source: JSON.stringify(filteredData)
-        };
         try {
-            await axios.delete(
-                `${config.API_URL_APPLICATION}/AssignProjecttoProcess/DeleteProjectAssigntoProcess`,
-                { params: { id, ModuleName: moduleName, ProcessID: processId }, }
-            );
-            toast.dismiss();
-            toast.warn("Project deleted successfully!");
-            await fetchGetProject(moduleName, processId);
-            await axios.post(
-                `${config.API_URL_APPLICATION}/ProcessMaster/UpdateProcess`,
-                payloadUpdate
-            );
+            const apiUrl = `${config.API_URL_APPLICATION}/AssignProjecttoProcess/DeleteProjectAssigntoProcess`;
+            const deleteResponse = await axios.delete(apiUrl, {
+                params: { id, ModuleName: moduleName, ProcessID: processId },
+            });
 
+            if (deleteResponse.data.isSuccess) {
+                toast.dismiss();
+                toast.warn("Project deleted successfully!");
+                try {
+                    const fetchUrl = `${config.API_URL_APPLICATION}/AssignProjecttoProcess/GetProjectAssignListbyIDs`;
+                    const fetchResponse = await axios.get(fetchUrl, {
+                        params: { ModuleName: moduleName, ProcessId: processId },
+                    });
+
+                    if (fetchResponse.data.isSuccess) {
+                        const fetchedProjects = fetchResponse.data.getProjectAssignListbyIDs;
+                        setAssignedProject(fetchedProjects);
+                        const updatedFilteredData = fetchedProjects.map((item: Project) => ({
+                            projectID: item.projectID,
+                            projectName: item.projectName,
+                        }));
+
+                        const updatedPayload = {
+                            ...process,
+                            updatedBy: empName || '',
+                            source: JSON.stringify(updatedFilteredData),
+                        };
+
+                        try {
+                            await axios.post(
+                                `${config.API_URL_APPLICATION}/ProcessMaster/UpdateProcess`,
+                                updatedPayload
+                            );
+                            setAssignProject((prev) => ({ ...prev, projects: [] }));
+                        } catch (updateError: any) {
+                            toast.error("Failed to update the process master.");
+                            console.error("Error updating process master:", updateError);
+                        }
+                    } else {
+                        const fetchMessage = fetchResponse.data.message || "Failed to fetch updated assigned projects.";
+                        toast.error(fetchMessage);
+                        console.error(fetchMessage);
+                    }
+                } catch (fetchError: any) {
+                    const fetchErrorMessage =
+                        fetchError.response?.data?.message || "Error fetching updated project data.";
+                    toast.error(fetchErrorMessage);
+                    console.error("Error fetching updated project:", fetchError);
+                }
+            } else {
+                const deleteMessage = deleteResponse.data.message || "Failed to delete the project assignment.";
+                toast.error(deleteMessage);
+                console.error(deleteMessage);
+            }
         } catch (error: any) {
             const errorMessage = error.response?.data?.message || error.message || "An error occurred.";
             toast.error(errorMessage);
@@ -262,8 +316,6 @@ const ProcessCanvas: React.FC<ProcessCanvasProps> = ({ show, setShow, manageId }
     };
 
 
-
-    console.log(assignedProject)
 
     return (
         <div>
@@ -289,12 +341,14 @@ const ProcessCanvas: React.FC<ProcessCanvasProps> = ({ show, setShow, manageId }
                             <Button type="button"
                                 variant={activeButton === 'project' ? 'primary' : 'outline-primary'}
                                 onClick={() => handleButtonClick('project')}
+                                disabled={assignedProject[0]?.type === 'subProject'}
                             >
                                 Project
                             </Button>
                             <Button type="button"
                                 variant={activeButton === 'subProject' ? 'primary' : 'outline-primary'}
                                 onClick={() => handleButtonClick('subProject')}
+                                disabled={assignedProject[0]?.type === 'project'}
                             >Sub Project</Button>
                         </ButtonGroup>
                     </Col>
@@ -369,7 +423,7 @@ const ProcessCanvas: React.FC<ProcessCanvasProps> = ({ show, setShow, manageId }
                         </Row>
 
 
-                        <Button variant="primary" type="submit">
+                        <Button variant="primary" type="submit" className="mt-2">
                             Submit
                         </Button>
                     </Form>

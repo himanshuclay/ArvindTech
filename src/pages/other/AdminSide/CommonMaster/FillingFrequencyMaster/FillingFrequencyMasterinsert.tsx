@@ -31,6 +31,7 @@ const ProjectTypeInsert = () => {
         updatedBy: '',
 
     });
+    const [validationErrors, setValidationErrors] = useState<{ [key: string]: string }>({});
 
     useEffect(() => {
         toast.dismiss();
@@ -95,8 +96,26 @@ const ProjectTypeInsert = () => {
         }
     };
 
+    const validateFields = (): boolean => {
+        const errors: { [key: string]: string } = {};
+
+        if (!projectTypes.name) { errors.name = 'Filling Frequency Name is required'; }
+        if (!projectTypes.status) { errors.status = 'Status is required'; }
+
+        setValidationErrors(errors);
+        return Object.keys(errors).length === 0;
+    };
+
+
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
+
+        if (!validateFields()) {
+            toast.dismiss()
+            toast.error('Please fill in all required fields.');
+            return;
+        }
+
 
         const payload = {
             ...projectTypes,
@@ -150,9 +169,13 @@ const ProjectTypeInsert = () => {
                                         name="name"
                                         value={projectTypes.name}
                                         onChange={handleChange}
-                                        required
+
                                         placeholder='Enter Project Type Name'
+                                        className={validationErrors.name ? " input-border" : "  "}
                                     />
+                                    {validationErrors.name && (
+                                        <small className="text-danger">{validationErrors.name}</small>
+                                    )}
                                 </Form.Group>
                             </Col>
 
@@ -166,14 +189,15 @@ const ProjectTypeInsert = () => {
                                         value={optionsAppAccess.find(option => option.value === projectTypes.status)}
                                         onChange={selectedOption => handleChange(null, 'status', selectedOption?.value)}
                                         placeholder="Select Status"
-                                        required
+                                        className={validationErrors.status ? " input-border" : "  "}
                                     />
+                                    {validationErrors.status && (
+                                        <small className="text-danger">{validationErrors.status}</small>
+                                    )}
                                 </Form.Group>
                             </Col>
-                            <Col className='align-items-end d-flex justify-content-between mb-3'>
-                                <div>
-                                    <span className='fs-5 '>This field is required*</span>
-                                </div>
+                            <Col className='align-items-end d-flex justify-content-end mb-3'>
+                               
                                 <div>
                                     <Link to={'/pages/FillingFrequencyMaster'}>
                                         <Button variant="primary" >

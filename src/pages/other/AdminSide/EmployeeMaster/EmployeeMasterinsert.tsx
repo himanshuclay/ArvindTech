@@ -1040,7 +1040,7 @@ const EmployeeMasterInsert = () => {
 
                             <Col lg={6}>
                                 <Form.Group controlId="isRegistered" className="mb-3">
-                                    <Form.Label>Is Registered  <span className='text-danger'>*</span></Form.Label>
+                                    <Form.Label>Is Registered </Form.Label>
                                     <Form.Control
                                         name="isRegistered"
                                         value={employee.isRegistered}
@@ -1051,7 +1051,7 @@ const EmployeeMasterInsert = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="registrationDate" className="mb-3">
-                                    <Form.Label>Registration Date  <span className='text-danger'>*</span></Form.Label>
+                                    <Form.Label>Registration Date  </Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="registrationDate"

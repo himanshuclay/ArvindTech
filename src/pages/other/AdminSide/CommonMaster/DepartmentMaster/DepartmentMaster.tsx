@@ -103,12 +103,12 @@ const DesignationMaster = () => {
 
 
     useEffect(() => {
-        if (searchTriggered && (searchDept || searchStatus)) {
+        if (searchDept || searchStatus) {
             handleSearch();
         } else {
             fetchData();
         }
-    }, [searchTriggered, currentPage]);
+    }, [currentPage, searchDept, searchStatus, searchTriggered]);
 
 
 
@@ -158,6 +158,7 @@ const DesignationMaster = () => {
         setCurrentPage(1);
         setSearchDept('');
         setSearchStatus('')
+        await new Promise(resolve => setTimeout(resolve, 200));
         await fetchData();
     };
 
@@ -233,10 +234,9 @@ const DesignationMaster = () => {
                     <div className='bg-white p-2 pb-2'>
 
                         <Form
-                            onSubmit={(e) => {
+                            onSubmit={async (e) => {
                                 e.preventDefault();
                                 setCurrentPage(1);
-                                handleSearch()
                                 setSearchTriggered(true);
                             }}
                         >

@@ -81,7 +81,7 @@ const ModuleMaster = () => {
     useEffect(() => {
         if (searchTriggered || currentPage) {
             handleSearch();
-            setSearchTriggered(false);
+            
         } else {
             fetchRoles();
         }
@@ -155,9 +155,11 @@ const ModuleMaster = () => {
     }, []);
 
 
-    const handleClear = () => {
-        fetchRoles();
+    const handleClear = async () => {
+        setSearchTriggered(false);
         setIdentifierID('');
+        setCurrentPage(1);
+        await fetchRoles();
 
     };
 

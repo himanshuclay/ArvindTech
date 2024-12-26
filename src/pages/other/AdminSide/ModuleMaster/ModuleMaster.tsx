@@ -229,7 +229,67 @@ const ModuleMaster = () => {
 
                 </div>
             </div>
+            <div className='bg-white p-2 pb-2'>
+                <Form onSubmit={(e) => {
+                    e.preventDefault();
+                    handleSearch();
+                    setCurrentPage(1);
+                }}>
+                    <Row>
+                        <Col lg={4}>
+                            <Form.Group controlId="ModuleDisplayName">
+                                <Form.Label>Module Display Name</Form.Label>
 
+                                <Select
+                                    name="searchProjectName"
+                                    value={moduleList.find(item => item.moduleName === moduleDisplayName) || null} // handle null
+                                    onChange={(selectedOption) => setModuleDisplayName(selectedOption ? selectedOption.moduleName : "")} // null check
+                                    options={moduleList}
+                                    getOptionLabel={(item) => item.moduleName}
+                                    getOptionValue={(item) => item.moduleName}
+                                    isSearchable={true}
+                                    placeholder="Select Module Display Name"
+                                    className="h45"
+                                />
+                            </Form.Group>
+                        </Col>
+
+                        <Col lg={4} className="">
+                            <Form.Group controlId="searchStatus">
+                                <Form.Label>Status</Form.Label>
+                                <Select
+                                    name="searchStatus"
+                                    options={optionsStatus}
+                                    value={optionsStatus.find(option => option.value === searchStatus) || null}
+                                    onChange={(selectedOption) => setSearchStatus(selectedOption?.value || '')}
+                                    placeholder="Select Status"
+                                />
+                            </Form.Group>
+                        </Col>
+                        <Col lg={4} className='align-items-end d-flex justify-content-end mt-3'>
+
+                            <ButtonGroup aria-label="Basic example" className='w-100'>
+                                <Button type="button" variant="primary" onClick={handleClear}>
+                                    <i className="ri-loop-left-line"></i>
+                                </Button>
+                                &nbsp;
+                                <Button type="submit" variant="primary" >
+                                    Search
+                                </Button>
+                            </ButtonGroup>
+                        </Col>
+                    </Row>
+
+                </Form>
+                <Row className='mt-3'>
+                    <div className="d-flex justify-content-end bg-light p-1">
+                        <div className="app-search d-none d-lg-block me-4">
+                        </div>
+
+
+                    </div>
+                </Row>
+            </div>
             {!modules ? (
                 <Container className="mt-5">
                     <Row className="justify-content-center">
@@ -251,67 +311,7 @@ const ModuleMaster = () => {
                             </div>
                         ) : (
                             <>
-                                <div className='bg-white p-2 pb-2'>
-                                    <Form onSubmit={(e) => {
-                                        e.preventDefault();
-                                        handleSearch();
-                                        setCurrentPage(1);
-                                    }}>
-                                        <Row>
-                                            <Col lg={4}>
-                                                <Form.Group controlId="ModuleDisplayName">
-                                                    <Form.Label>Module Display Name</Form.Label>
 
-                                                    <Select
-                                                        name="searchProjectName"
-                                                        value={moduleList.find(item => item.moduleName === moduleDisplayName) || null} // handle null
-                                                        onChange={(selectedOption) => setModuleDisplayName(selectedOption ? selectedOption.moduleName : "")} // null check
-                                                        options={moduleList}
-                                                        getOptionLabel={(item) => item.moduleName}
-                                                        getOptionValue={(item) => item.moduleName}
-                                                        isSearchable={true}
-                                                        placeholder="Select Module Display Name"
-                                                        className="h45"
-                                                    />
-                                                </Form.Group>
-                                            </Col>
-
-                                            <Col lg={4} className="">
-                                                <Form.Group controlId="searchStatus">
-                                                    <Form.Label>Status</Form.Label>
-                                                    <Select
-                                                        name="searchStatus"
-                                                        options={optionsStatus}
-                                                        value={optionsStatus.find(option => option.value === searchStatus) || null}
-                                                        onChange={(selectedOption) => setSearchStatus(selectedOption?.value || '')}
-                                                        placeholder="Select Status"
-                                                    />
-                                                </Form.Group>
-                                            </Col>
-                                            <Col lg={4} className='align-items-end d-flex justify-content-end mt-3'>
-
-                                                <ButtonGroup aria-label="Basic example" className='w-100'>
-                                                    <Button type="button" variant="primary" onClick={handleClear}>
-                                                        <i className="ri-loop-left-line"></i>
-                                                    </Button>
-                                                    &nbsp;
-                                                    <Button type="submit" variant="primary" >
-                                                        Search
-                                                    </Button>
-                                                </ButtonGroup>
-                                            </Col>
-                                        </Row>
-
-                                    </Form>
-                                    <Row className='mt-3'>
-                                        <div className="d-flex justify-content-end bg-light p-1">
-                                            <div className="app-search d-none d-lg-block me-4">
-                                            </div>
-
-
-                                        </div>
-                                    </Row>
-                                </div>
                                 <div className="overflow-auto text-nowrap">
                                     <DragDropContext onDragEnd={handleOnDragEnd}>
                                         <Table hover className='bg-white '>

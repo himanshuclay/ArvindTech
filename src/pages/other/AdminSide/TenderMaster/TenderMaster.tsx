@@ -155,7 +155,6 @@ const TenderMaster = () => {
     useEffect(() => {
         if (searchTriggered || currentPage) {
             handleSearch();
-            setSearchTriggered(false);
         } else {
             fetchMaster();
         }
@@ -234,10 +233,11 @@ const TenderMaster = () => {
 
 
 
-    const handleClear = () => {
+    const handleClear = async () => {
         setSearchStatusValue('')
         setSearchTypeofTender('')
-        fetchMaster();
+        setSearchTriggered(false);
+        await fetchMaster();
     };
 
 
@@ -354,7 +354,69 @@ const TenderMaster = () => {
                 </div>
             </div>
 
+            <div className='bg-white p-2 pb-2'>
+                <Form
+                    onSubmit={(e) => {
+                        e.preventDefault();
+                        setCurrentPage(1);
+                        setSearchTriggered(true);
+                    }}
+                >
+                    <Row>
+                        <Col lg={4}>
+                            <Form.Group controlId="searchStatusValue">
+                                <Form.Label>Status </Form.Label>
+                                <Select
+                                    name="searchStatusValue"
+                                    value={statusList.find(emp => emp.name === searchStatusValue) || null}
+                                    onChange={(selectedOption) => setSearchStatusValue(selectedOption ? selectedOption.name : "")}
+                                    options={statusList}
+                                    getOptionLabel={(emp) => emp.name}
+                                    getOptionValue={(emp) => emp.name}
+                                    isSearchable={true}
+                                    placeholder="Select Status"
+                                    className="h45"
+                                />
+                            </Form.Group>
+                        </Col>
+                        <Col lg={4}>
+                            <Form.Group controlId="searchCoreDesignation">
+                                <Form.Label>Type of Tender</Form.Label>
+                                <Select
+                                    name="searchTypeofTender"
+                                    options={options}
+                                    value={options.find(option => option.value === searchTypeofTender)}
+                                    onChange={selectedOption => setSearchTypeofTender(selectedOption?.value || '')}
+                                    placeholder="Type of Tender"
+                                />
+                            </Form.Group>
+                        </Col>
 
+                        <Col lg={4} className="align-items-end d-flex justify-content-end mt-2">
+                            <ButtonGroup aria-label="Basic example" className="w-100">
+                                <Button type="button" variant="primary" onClick={handleClear}>
+                                    <i className="ri-loop-left-line"></i>
+                                </Button>
+                                &nbsp;
+                                <Button type="submit" variant="primary">
+                                    Search
+                                </Button>
+                            </ButtonGroup>
+                        </Col>
+                    </Row>
+                </Form>
+
+
+
+                <Row className='mt-3'>
+                    <div className="d-flex justify-content-end bg-light p-1">
+                        <div className="app-search d-none d-lg-block me-4">
+                        </div>
+
+
+                    </div>
+                </Row>
+            </div>
             {loading ? (
                 <div className='loader-container'>
                     <div className="loader"></div>
@@ -363,69 +425,7 @@ const TenderMaster = () => {
             ) : (
 
                 <>
-                    <div className='bg-white p-2 pb-2'>
-                        <Form
-                            onSubmit={(e) => {
-                                e.preventDefault();
-                                setCurrentPage(1);
-                                setSearchTriggered(true);
-                            }}
-                        >
-                            <Row>
-                                <Col lg={4}>
-                                    <Form.Group controlId="searchStatusValue">
-                                        <Form.Label>Status </Form.Label>
-                                        <Select
-                                            name="searchStatusValue"
-                                            value={statusList.find(emp => emp.name === searchStatusValue) || null}
-                                            onChange={(selectedOption) => setSearchStatusValue(selectedOption ? selectedOption.name : "")}
-                                            options={statusList}
-                                            getOptionLabel={(emp) => emp.name}
-                                            getOptionValue={(emp) => emp.name}
-                                            isSearchable={true}
-                                            placeholder="Select Status"
-                                            className="h45"
-                                        />
-                                    </Form.Group>
-                                </Col>
-                                <Col lg={4}>
-                                    <Form.Group controlId="searchCoreDesignation">
-                                        <Form.Label>Type of Tender</Form.Label>
-                                        <Select
-                                            name="searchTypeofTender"
-                                            options={options}
-                                            value={options.find(option => option.value === searchTypeofTender)}
-                                            onChange={selectedOption => setSearchTypeofTender(selectedOption?.value || '')}
-                                            placeholder="Type of Tender"
-                                        />
-                                    </Form.Group>
-                                </Col>
 
-                                <Col lg={4} className="align-items-end d-flex justify-content-end mt-2">
-                                    <ButtonGroup aria-label="Basic example" className="w-100">
-                                        <Button type="button" variant="primary" onClick={handleClear}>
-                                            <i className="ri-loop-left-line"></i>
-                                        </Button>
-                                        &nbsp;
-                                        <Button type="submit" variant="primary">
-                                            Search
-                                        </Button>
-                                    </ButtonGroup>
-                                </Col>
-                            </Row>
-                        </Form>
-
-
-
-                        <Row className='mt-3'>
-                            <div className="d-flex justify-content-end bg-light p-1">
-                                <div className="app-search d-none d-lg-block me-4">
-                                </div>
-
-
-                            </div>
-                        </Row>
-                    </div>
 
                     <div className="overflow-auto text-nowrap">
                         {!tenders ? (

@@ -74,7 +74,7 @@ const ModuleMaster = () => {
     useEffect(() => {
         if (searchTriggered || currentPage) {
             handleSearch();
-            setSearchTriggered(false);
+
         } else {
             fetchProcess();
         }
@@ -171,7 +171,7 @@ const ModuleMaster = () => {
         fetchData('CommonDropdown/GetModuleList', setModuleList, 'moduleNameListResponses');
         fetchData('CommonDropdown/GetProcessOwnerName', setEmployeeList, 'processOwnerNames');
         fetchData('ProcessMaster/GetProcess', setDownloadCsv, 'processMasterList');
-    }, []);
+    }, [show]);
 
 
 
@@ -193,13 +193,14 @@ const ModuleMaster = () => {
         }
     }, [ModuleName])
 
-    const handleClear = () => {
+    const handleClear = async () => {
         setModuleName('');
         setProcessName('');
         setProcessOwnerName('');
         setSearchStatus('');
         setCurrentPage(1);
-        fetchProcess();
+        setSearchTriggered(false);
+        await fetchProcess();
     };
 
 
@@ -286,6 +287,102 @@ const ModuleMaster = () => {
 
                 </div>
             </div>
+            <div className='bg-white p-2 pb-1'>
+                <Form
+                    onSubmit={(e) => {
+                        e.preventDefault();
+                        setCurrentPage(1);
+                        setSearchTriggered(true);
+                    }}
+                >
+                    <Row>
+                        <Col lg={6}>
+                            <Form.Group controlId="ModuleName">
+                                <Form.Label>Module Name</Form.Label>
+
+                                <Select
+                                    name="ModuleName"
+                                    value={moduleList.find(item => item.moduleName === ModuleName) || null} // handle null
+                                    onChange={(selectedOption) => setModuleName(selectedOption ? selectedOption.moduleName : "")} // null check
+                                    options={moduleList}
+                                    getOptionLabel={(item) => item.moduleName}
+                                    getOptionValue={(item) => item.moduleName}
+                                    isSearchable={true}
+                                    placeholder="Select Module Name"
+                                    className="h45"
+                                />
+                            </Form.Group>
+                        </Col>
+                        <Col lg={6}>
+                            <Form.Group controlId="ModuleOwnerName">
+                                <Form.Label>Process Name</Form.Label>
+
+                                <Select
+                                    name="ModuleOwnerName"
+                                    value={processList.find(item => item.processName === ProcessName) || null} // handle null
+                                    onChange={(selectedOption) => setProcessName(selectedOption ? selectedOption.processName : "")} // null check
+                                    options={processList}
+                                    getOptionLabel={(item) => item.processName}
+                                    getOptionValue={(item) => item.processName}
+                                    isSearchable={true}
+                                    placeholder="Select Process Name"
+                                    className="h45"
+                                    isDisabled={!ModuleName}
+                                />
+                            </Form.Group>
+                        </Col>
+
+                        <Col lg={6} className='mt-2'>
+                            <Form.Group controlId="ProcessOwnerName">
+                                <Form.Label>Process Owner Name</Form.Label>
+                                <Select
+                                    name="ProcessOwnerName"
+                                    value={employeeList.find(item => item.processOwnerName === ProcessOwnerName) || null} // handle null
+                                    onChange={(selectedOption) => setProcessOwnerName(selectedOption ? selectedOption.processOwnerName : "")} // null check
+                                    options={employeeList}
+                                    getOptionLabel={(item) => item.processOwnerName}
+                                    getOptionValue={(item) => item.processOwnerName}
+                                    isSearchable={true}
+                                    placeholder="Select Process Owner Name"
+                                    className="h45"
+                                />
+                            </Form.Group>
+                        </Col>
+                        <Col lg={6} className="mt-2">
+                            <Form.Group controlId="searchStatus">
+                                <Form.Label>Status</Form.Label>
+                                <Select
+                                    name="searchStatus"
+                                    options={optionsStatus}
+                                    value={optionsStatus.find(option => option.value === searchStatus) || null}
+                                    onChange={(selectedOption) => setSearchStatus(selectedOption?.value || '')}
+                                    placeholder="Select Status"
+                                />
+                            </Form.Group>
+                        </Col>
+                        <Col></Col>
+                        <Col lg={4} className='align-items-end d-flex justify-content-end mt-3'>
+                            <ButtonGroup aria-label="Basic example" className='w-100'>
+                                <Button type="button" variant="primary" onClick={handleClear}>
+                                    <i className="ri-loop-left-line"></i>
+                                </Button>
+                                &nbsp;
+                                <Button type="submit" variant="primary" >Search</Button>
+                            </ButtonGroup>
+                        </Col>
+                    </Row>
+                </Form>
+                <Row className='mt-3'>
+                    <div className="d-flex justify-content-end bg-light p-1">
+                        <div className="app-search d-none d-lg-block me-4">
+
+                        </div>
+
+
+                    </div>
+                </Row>
+            </div>
+            
             {!processes ? (
                 <Container className="mt-5">
                     <Row className="justify-content-center">
@@ -307,101 +404,7 @@ const ModuleMaster = () => {
                             </div>
                         ) : (
                             <>
-                                <div className='bg-white p-2 pb-1'>
-                                    <Form
-                                        onSubmit={(e) => {
-                                            e.preventDefault();
-                                            setCurrentPage(1);
-                                            setSearchTriggered(true);
-                                        }}
-                                    >
-                                        <Row>
-                                            <Col lg={6}>
-                                                <Form.Group controlId="ModuleName">
-                                                    <Form.Label>Module Name</Form.Label>
 
-                                                    <Select
-                                                        name="ModuleName"
-                                                        value={moduleList.find(item => item.moduleName === ModuleName) || null} // handle null
-                                                        onChange={(selectedOption) => setModuleName(selectedOption ? selectedOption.moduleName : "")} // null check
-                                                        options={moduleList}
-                                                        getOptionLabel={(item) => item.moduleName}
-                                                        getOptionValue={(item) => item.moduleName}
-                                                        isSearchable={true}
-                                                        placeholder="Select Module Name"
-                                                        className="h45"
-                                                    />
-                                                </Form.Group>
-                                            </Col>
-                                            <Col lg={6}>
-                                                <Form.Group controlId="ModuleOwnerName">
-                                                    <Form.Label>Process Name</Form.Label>
-
-                                                    <Select
-                                                        name="ModuleOwnerName"
-                                                        value={processList.find(item => item.processName === ProcessName) || null} // handle null
-                                                        onChange={(selectedOption) => setProcessName(selectedOption ? selectedOption.processName : "")} // null check
-                                                        options={processList}
-                                                        getOptionLabel={(item) => item.processName}
-                                                        getOptionValue={(item) => item.processName}
-                                                        isSearchable={true}
-                                                        placeholder="Select Process Name"
-                                                        className="h45"
-                                                        isDisabled={!ModuleName}
-                                                    />
-                                                </Form.Group>
-                                            </Col>
-
-                                            <Col lg={6} className='mt-2'>
-                                                <Form.Group controlId="ProcessOwnerName">
-                                                    <Form.Label>Process Owner Name</Form.Label>
-                                                    <Select
-                                                        name="ProcessOwnerName"
-                                                        value={employeeList.find(item => item.processOwnerName === ProcessOwnerName) || null} // handle null
-                                                        onChange={(selectedOption) => setProcessOwnerName(selectedOption ? selectedOption.processOwnerName : "")} // null check
-                                                        options={employeeList}
-                                                        getOptionLabel={(item) => item.processOwnerName}
-                                                        getOptionValue={(item) => item.processOwnerName}
-                                                        isSearchable={true}
-                                                        placeholder="Select Process Owner Name"
-                                                        className="h45"
-                                                    />
-                                                </Form.Group>
-                                            </Col>
-                                            <Col lg={6} className="mt-2">
-                                                <Form.Group controlId="searchStatus">
-                                                    <Form.Label>Status</Form.Label>
-                                                    <Select
-                                                        name="searchStatus"
-                                                        options={optionsStatus}
-                                                        value={optionsStatus.find(option => option.value === searchStatus) || null}
-                                                        onChange={(selectedOption) => setSearchStatus(selectedOption?.value || '')}
-                                                        placeholder="Select Status"
-                                                    />
-                                                </Form.Group>
-                                            </Col>
-                                            <Col></Col>
-                                            <Col lg={4} className='align-items-end d-flex justify-content-end mt-3'>
-                                                <ButtonGroup aria-label="Basic example" className='w-100'>
-                                                    <Button type="button" variant="primary" onClick={handleClear}>
-                                                        <i className="ri-loop-left-line"></i>
-                                                    </Button>
-                                                    &nbsp;
-                                                    <Button type="submit" variant="primary" >Search</Button>
-                                                </ButtonGroup>
-                                            </Col>
-                                        </Row>
-                                    </Form>
-                                    <Row className='mt-3'>
-                                        <div className="d-flex justify-content-end bg-light p-1">
-                                            <div className="app-search d-none d-lg-block me-4">
-
-                                            </div>
-
-
-                                        </div>
-                                    </Row>
-                                </div>
                                 <div className="overflow-auto ">
                                     <DragDropContext onDragEnd={handleOnDragEnd}>
                                         <Table hover className='bg-white '>

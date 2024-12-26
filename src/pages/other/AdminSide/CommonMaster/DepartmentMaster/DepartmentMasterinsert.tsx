@@ -29,6 +29,7 @@ const DepartmentMasterinsert = () => {
         updatedBy: ''
     });
 
+    const [validationErrors, setValidationErrors] = useState<{ [key: string]: string }>({});
 
     useEffect(() => {
         toast.dismiss();
@@ -66,6 +67,17 @@ const DepartmentMasterinsert = () => {
         }
     };
 
+    const validateFields = (): boolean => {
+        const errors: { [key: string]: string } = {};
+
+        if (!departments.departmentName) { errors.departmentName = 'Department Name is required'; }
+        if (!departments.status) { errors.status = 'Status is required'; }
+
+        setValidationErrors(errors);
+        return Object.keys(errors).length === 0;
+    };
+
+
     const handleChange = (e: ChangeEvent<any> | null, name?: string, value?: any) => {
         if (e) {
             const { name: eventName, type } = e.target;
@@ -93,19 +105,26 @@ const DepartmentMasterinsert = () => {
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
+
+
+        if (!validateFields()) {
+            toast.dismiss()
+            toast.error('Please fill in all required fields.');
+            return;
+        }
+
         const payload = {
             ...departments,
             createdBy: editMode ? departments.createdBy : empName,
             updatedBy: editMode ? empName : '',
         };
-        console.log(payload)
         try {
             const apiUrl = `${config.API_URL_APPLICATION}/DepartmentMaster/${editMode ? 'InsertorUpdateDepartment' : 'InsertorUpdateDepartment'}`;
             const response = await axios.post(apiUrl, payload);
             if (response.status === 200) {
                 navigate('/pages/departmentMaster', {
                     state: {
-                        successMessage: editMode ? `${departments.departmentName}  Updated successfully!` :`${departments.departmentName}  added successfully!`,
+                        successMessage: editMode ? `${departments.departmentName}  Updated successfully!` : `${departments.departmentName}  added successfully!`,
                     },
                 });
             } else {
@@ -140,9 +159,12 @@ const DepartmentMasterinsert = () => {
                                         name="departmentName"
                                         value={departments.departmentName}
                                         onChange={handleChange}
-                                        required
                                         placeholder='Enter Core Designation'
+                                        className={validationErrors.departmentName ? " input-border" : "  "}
                                     />
+                                    {validationErrors.departmentName && (
+                                        <small className="text-danger">{validationErrors.departmentName}</small>
+                                    )}
                                 </Form.Group>
                             </Col>
 
@@ -155,8 +177,11 @@ const DepartmentMasterinsert = () => {
                                         value={optionsAppAccess.find(option => option.value === departments.status)}
                                         onChange={selectedOption => handleChange(null, 'status', selectedOption?.value)}
                                         placeholder="Select Status"
-                                        required
+                                        className={validationErrors.status ? " input-border" : "  "}
                                     />
+                                    {validationErrors.status && (
+                                        <small className="text-danger">{validationErrors.status}</small>
+                                    )}
                                 </Form.Group>
                             </Col>
 

@@ -131,9 +131,6 @@ const TaskMaster: React.FC = () => {
         setShowJsonModal(true)
     };
 
-    console.log(selectedJson)
-
-
 
     return (
         <div>

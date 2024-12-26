@@ -56,6 +56,7 @@ const EmployeeInsert = () => {
     );
 
     const [isMobileVerified, setIsMobileVerified] = useState(false);
+    const [validationErrors, setValidationErrors] = useState<{ [key: string]: string }>({});
 
     useEffect(() => {
         toast.dismiss();
@@ -115,50 +116,20 @@ const EmployeeInsert = () => {
 
 
 
-    // const handleChange = (e: ChangeEvent<any>) => {
-    //     const { name, type } = e.target;
+    const validateFields = (): boolean => {
+        const errors: { [key: string]: string } = {};
+
+        if (!messes.projectName) { errors.projectName = 'Project Name is required'; }
+        if (!messes.messID) { errors.messID = 'Mess ID is required'; }
+        if (!messes.managerName) { errors.managerName = 'Manager Name is required'; }
+        if (!messes.messName) { errors.messName = 'Mess Name is required'; }
+        if (!messes.status) { errors.status = 'Status is required'; }
+        if (!messes.mobileNumber) { errors.mobileNumber = 'Mobile No. is required'; }
 
 
-    //     const validateMobileNumber = (fieldName: string, fieldValue: string) => {
-    //         if (!/^\d{0,10}$/.test(fieldValue)) {
-    //             return false;
-    //         }
-
-    //         setMesses((prevData) => ({
-    //             ...prevData,
-    //             [fieldName]: fieldValue,
-    //         }));
-
-    //         if (fieldValue.length === 10) {
-    //             if (!/^[6-9]/.test(fieldValue)) {
-    //                 toast.error("Mobile number should start with a digit between 6 and 9.");
-    //                 setIsMobileVerified(true);
-    //                 return false;
-    //             }
-    //         } else {
-    //             setIsMobileVerified(false);
-    //         }
-    //         return true;
-    //     };
-
-
-
-
-    //     if (type === 'checkbox') {
-    //         const checked = (e.target as HTMLInputElement).checked;
-    //         setMesses({
-    //             ...messes,
-    //             [name]: checked
-    //         });
-    //     } else {
-    //         const value = (e.target as HTMLInputElement | HTMLSelectElement).value;
-    //         setMesses({
-    //             ...messes,
-    //             [name]: value
-    //         });
-    //     }
-    // };
-
+        setValidationErrors(errors);
+        return Object.keys(errors).length === 0;
+    };
 
 
     const handleChange = (e: ChangeEvent<any> | null, name?: string, value?: any) => {
@@ -211,6 +182,13 @@ const EmployeeInsert = () => {
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
+
+        if (!validateFields()) {
+            toast.dismiss()
+            toast.error('Please fill in all required fields.');
+            return;
+        }
+
 
         if (messes.mobileNumber.length !== 10) {
             toast.dismiss()
@@ -276,8 +254,11 @@ const EmployeeInsert = () => {
                                         options={projectList}
                                         isSearchable={true}
                                         placeholder="Select Project Name"
-                                        required
+                                        className={validationErrors.projectName ? " input-border" : "  "}
                                     />
+                                    {validationErrors.projectName && (
+                                        <small className="text-danger">{validationErrors.projectName}</small>
+                                    )}
                                 </Form.Group>
                             </Col>
                             <Col lg={6}>
@@ -288,10 +269,13 @@ const EmployeeInsert = () => {
                                         name="messID"
                                         value={messes.messID}
                                         onChange={handleChange}
-                                        required
                                         placeholder='Enter Mess Id'
                                         disabled={editMode}
+                                        className={validationErrors.messID ? " input-border" : "  "}
                                     />
+                                    {validationErrors.messID && (
+                                        <small className="text-danger">{validationErrors.messID}</small>
+                                    )}
                                 </Form.Group>
                             </Col>
                             <Col lg={6}>
@@ -302,9 +286,12 @@ const EmployeeInsert = () => {
                                         name="messName"
                                         value={messes.messName}
                                         onChange={handleChange}
-                                        required
                                         placeholder='Enter Mess Name'
+                                        className={validationErrors.messName ? " input-border" : "  "}
                                     />
+                                    {validationErrors.messName && (
+                                        <small className="text-danger">{validationErrors.messName}</small>
+                                    )}
                                 </Form.Group>
                             </Col>
 
@@ -325,8 +312,11 @@ const EmployeeInsert = () => {
                                         options={statusList}
                                         isSearchable={true}
                                         placeholder="Select Status"
-                                        required
+                                        className={validationErrors.status ? " input-border" : "  "}
                                     />
+                                    {validationErrors.status && (
+                                        <small className="text-danger">{validationErrors.status}</small>
+                                    )}
                                 </Form.Group>
                             </Col>
 
@@ -349,8 +339,11 @@ const EmployeeInsert = () => {
                                         options={employeeList}
                                         isSearchable={true}
                                         placeholder="Select Employee"
-                                        required
+                                        className={validationErrors.managerName ? " input-border" : "  "}
                                     />
+                                    {validationErrors.managerName && (
+                                        <small className="text-danger">{validationErrors.managerName}</small>
+                                    )}
                                 </Form.Group>
                             </Col>
 
@@ -362,9 +355,12 @@ const EmployeeInsert = () => {
                                         name="mobileNumber"
                                         value={messes.mobileNumber}
                                         onChange={handleChange}
-                                        required
                                         placeholder='Enter Mess Manager Contact'
+                                        className={validationErrors.mobileNumber ? " input-border" : "  "}
                                     />
+                                    {validationErrors.mobileNumber && (
+                                        <small className="text-danger">{validationErrors.mobileNumber}</small>
+                                    )}
                                 </Form.Group>
                             </Col>
 

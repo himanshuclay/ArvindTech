@@ -150,14 +150,24 @@ const EmployeeMaster = () => {
 
 
 
-
     useEffect(() => {
-        if (searchTriggered && (searchEmployee || searchProject || searchAppAccessLevel || searchDataAccessLevel || searchAppAccess || searchEmpstatus)) {
-            handleSearch();
-        } else {
+        if (!searchTriggered) {
             fetchEmployee();
         }
-    }, [currentPage || searchTriggered]);
+    }, [currentPage]);
+
+    useEffect(() => {
+        if (searchTriggered) {
+            if (searchEmployee || searchProject || searchAppAccessLevel || searchDataAccessLevel || searchAppAccess || searchEmpstatus) {
+                (async () => {
+                    await handleSearch();
+                })();
+            } else {
+                fetchEmployee();
+            }
+        }
+    }, [searchTriggered, currentPage]);
+
 
     const handleSearch = async () => {
         try {
@@ -204,6 +214,7 @@ const EmployeeMaster = () => {
         setSearchAppAccess('');
         setSearchEmpstatus('');
         setSearchTriggered(false);
+        await new Promise(resolve => setTimeout(resolve, 200));
         await fetchEmployee();
     };
 
@@ -436,7 +447,127 @@ const EmployeeMaster = () => {
 
                 </div>
             </div>
+            <div className='bg-white p-2 pb-2'>
 
+                <Form
+                    onSubmit={async (e) => {
+                        e.preventDefault();
+                        setSearchTriggered(true);
+                        await setCurrentPage(1);
+
+                    }}
+                >
+                    <Row>
+                        <Col lg={4} className="mt-2">
+                            <Form.Group controlId="searchEmployee">
+                                <Form.Label>Employee Name</Form.Label>
+                                <Select
+                                    name="searchEmployee"
+                                    value={employeeList.find(emp => emp.employeeName === searchEmployee) || null} // handle null
+                                    onChange={(selectedOption) => setSearchEmployee(selectedOption ? selectedOption.employeeName : "")} // null check
+                                    options={employeeList}
+                                    getOptionLabel={(emp) => emp.employeeName}
+                                    getOptionValue={(emp) => emp.employeeName.split('-')[0].trim()}
+                                    isSearchable={true}
+                                    placeholder="Select Employee Name"
+                                    className="h45"
+                                />
+                            </Form.Group>
+                        </Col>
+
+
+
+                        <Col lg={4} className="mt-2">
+                            <Form.Group controlId="searchProject">
+                                <Form.Label>Project Name</Form.Label>
+                                <Select
+                                    name="searchProject"
+                                    value={projectList.find(item => item.projectName === searchProject)}
+                                    onChange={(selectedOption) => setSearchProject(selectedOption ? selectedOption.projectName : '')}
+                                    options={projectList}
+                                    getOptionLabel={(task) => task.projectName}
+                                    getOptionValue={(task) => task.projectName}
+                                    isSearchable={true}
+                                    placeholder="Select Project Name"
+                                    className="h45"
+                                />
+                            </Form.Group>
+                        </Col>
+                        <Col lg={4} className="mt-2">
+                            <Form.Group controlId="searchAppAccessLevel">
+                                <Form.Label>App Access Level</Form.Label>
+                                <Select
+                                    name="searchAppAccessLevel"
+                                    options={optionsAppAccesLevel}
+                                    value={optionsAppAccesLevel.find(option => option.value === searchAppAccessLevel) || null}
+                                    onChange={(selectedOption) => setSearchAppAccessLevel(selectedOption?.value || '')}
+                                    placeholder="Select App Access Level"
+                                />
+                            </Form.Group>
+                        </Col>
+                        <Col lg={4} className="mt-2">
+                            <Form.Group controlId="searchDataAccessLevel">
+                                <Form.Label>Data Access Level</Form.Label>
+                                <Select
+                                    name="searchDataAccessLevel"
+                                    options={optionsDataAccesLevel}
+                                    value={optionsDataAccesLevel.find(option => option.value === searchDataAccessLevel) || null}
+                                    onChange={(selectedOption) => setSearchDataAccessLevel(selectedOption?.value || '')}
+                                    placeholder="Select Data Access Level"
+                                />
+                            </Form.Group>
+                        </Col>
+                        <Col lg={4} className="mt-2">
+                            <Form.Group controlId="searchAppAccess">
+                                <Form.Label>App Access</Form.Label>
+                                <Select
+                                    name="searchAppAccess"
+                                    options={optionsAppAccess}
+                                    value={optionsAppAccess.find(option => option.value === searchAppAccess) || null}
+                                    onChange={(selectedOption) => setSearchAppAccess(selectedOption?.value || '')}
+                                    placeholder="Select App Access"
+                                />
+                            </Form.Group>
+                        </Col>
+
+                        <Col lg={4} className="mt-2">
+                            <Form.Group controlId="searchEmpstatus">
+                                <Form.Label>Employee Status</Form.Label>
+                                <Select
+                                    name="searchEmpstatus"
+                                    options={optionsEmpStatus}
+                                    value={optionsEmpStatus.find(option => option.value === searchEmpstatus) || null}
+                                    onChange={(selectedOption) => setSearchEmpstatus(selectedOption?.value || '')}
+                                    placeholder="Select Employee Status"
+                                />
+                            </Form.Group>
+                        </Col>
+
+                        <Col></Col>
+
+                        <Col lg={4} className="align-items-end d-flex justify-content-end mt-3">
+                            <ButtonGroup aria-label="Basic example" className="w-100">
+                                <Button type="button" variant="primary" onClick={handleClear}>
+                                    <i className="ri-loop-left-line"></i>
+                                </Button>
+                                &nbsp;
+                                <Button type="submit" variant="primary"
+
+                                >
+                                    Search
+                                </Button>
+                            </ButtonGroup>
+                        </Col>
+                    </Row>
+                </Form>
+
+                <Row className='mt-3'>
+                    <div className="d-flex justify-content-end bg-light p-1">
+                        <div className="app-search d-none d-lg-block me-4">
+                        </div>
+                    </div>
+                </Row>
+            </div>
 
             {loading ? (
                 <div className='loader-container'>
@@ -445,141 +576,7 @@ const EmployeeMaster = () => {
                 </div>
             ) : (
                 <>
-                    <div className='bg-white p-2 pb-2'>
 
-                        <Form
-                            onSubmit={(e) => {
-                                e.preventDefault();
-                                setCurrentPage(1);
-                                handleSearch();
-                                setSearchTriggered(true);
-                            }}
-                        >
-                            <Row>
-                                <Col lg={4} className="mt-2">
-                                    <Form.Group controlId="searchEmployee">
-                                        <Form.Label>Employee Name</Form.Label>
-                                        <Select
-                                            name="searchEmployee"
-                                            value={employeeList.find(emp => emp.employeeName === searchEmployee) || null} // handle null
-                                            onChange={(selectedOption) => setSearchEmployee(selectedOption ? selectedOption.employeeName : "")} // null check
-                                            options={employeeList}
-                                            getOptionLabel={(emp) => emp.employeeName}
-                                            getOptionValue={(emp) => emp.employeeName.split('-')[0].trim()}
-                                            isSearchable={true}
-                                            placeholder="Select Employee Name"
-                                            className="h45"
-                                        />
-                                    </Form.Group>
-                                </Col>
-
-
-
-                                <Col lg={4} className="mt-2">
-                                    <Form.Group controlId="searchProject">
-                                        <Form.Label>Project Name</Form.Label>
-                                        <Select
-                                            name="searchProject"
-                                            value={projectList.find(item => item.projectName === searchProject)}
-                                            onChange={(selectedOption) => setSearchProject(selectedOption ? selectedOption.projectName : '')}
-                                            options={projectList}
-                                            getOptionLabel={(task) => task.projectName}
-                                            getOptionValue={(task) => task.projectName}
-                                            isSearchable={true}
-                                            placeholder="Select Project Name"
-                                            className="h45"
-                                        />
-                                    </Form.Group>
-                                </Col>
-                                <Col lg={4} className="mt-2">
-                                    <Form.Group controlId="searchAppAccessLevel">
-                                        <Form.Label>App Access Level</Form.Label>
-                                        <Select
-                                            name="searchAppAccessLevel"
-                                            options={optionsAppAccesLevel}
-                                            value={optionsAppAccesLevel.find(option => option.value === searchAppAccessLevel) || null}
-                                            onChange={(selectedOption) => setSearchAppAccessLevel(selectedOption?.value || '')}
-                                            placeholder="Select App Access Level"
-                                        />
-                                    </Form.Group>
-                                </Col>
-                                <Col lg={4} className="mt-2">
-                                    <Form.Group controlId="searchDataAccessLevel">
-                                        <Form.Label>Data Access Level</Form.Label>
-                                        <Select
-                                            name="searchDataAccessLevel"
-                                            options={optionsDataAccesLevel}
-                                            value={optionsDataAccesLevel.find(option => option.value === searchDataAccessLevel) || null}
-                                            onChange={(selectedOption) => setSearchDataAccessLevel(selectedOption?.value || '')}
-                                            placeholder="Select Data Access Level"
-                                        />
-                                    </Form.Group>
-                                </Col>
-                                <Col lg={4} className="mt-2">
-                                    <Form.Group controlId="searchAppAccess">
-                                        <Form.Label>App Access</Form.Label>
-                                        <Select
-                                            name="searchAppAccess"
-                                            options={optionsAppAccess}
-                                            value={optionsAppAccess.find(option => option.value === searchAppAccess) || null}
-                                            onChange={(selectedOption) => setSearchAppAccess(selectedOption?.value || '')}
-                                            placeholder="Select App Access"
-                                        />
-                                    </Form.Group>
-                                </Col>
-
-                                <Col lg={4} className="mt-2">
-                                    <Form.Group controlId="searchEmpstatus">
-                                        <Form.Label>Employee Status</Form.Label>
-                                        <Select
-                                            name="searchEmpstatus"
-                                            options={optionsEmpStatus}
-                                            value={optionsEmpStatus.find(option => option.value === searchEmpstatus) || null}
-                                            onChange={(selectedOption) => setSearchEmpstatus(selectedOption?.value || '')}
-                                            placeholder="Select Employee Status"
-                                        />
-                                    </Form.Group>
-                                </Col>
-
-                                <Col></Col>
-
-                                <Col lg={4} className="align-items-end d-flex justify-content-end mt-3">
-                                    <ButtonGroup aria-label="Basic example" className="w-100">
-                                        <Button type="button" variant="primary" onClick={handleClear}>
-                                            <i className="ri-loop-left-line"></i>
-                                        </Button>
-                                        &nbsp;
-                                        <Button type="submit" variant="primary"
-
-                                        >
-                                            Search
-                                        </Button>
-                                    </ButtonGroup>
-                                </Col>
-                            </Row>
-                        </Form>
-
-                        <Row className='mt-3'>
-                            <div className="d-flex justify-content-end bg-light p-1">
-                                <div className="app-search d-none d-lg-block me-4">
-                                    {/* <form>
-                                            <div className="input-group px300 ">
-                                                <input
-                                                    type="search"
-                                                    className=" bg-white"
-                                                    placeholder="Search..."
-                                                    value={searchQuery}
-                                                    onChange={handleSearchcurrent}
-                                                />
-                                                <span className="ri-search-line search-icon text-muted" />
-                                            </div>
-                                        </form> */}
-                                </div>
-
-
-                            </div>
-                        </Row>
-                    </div>
                     <div className="overflow-auto text-nowrap ">
                         {!employee ? (
                             <Container className="mt-5">

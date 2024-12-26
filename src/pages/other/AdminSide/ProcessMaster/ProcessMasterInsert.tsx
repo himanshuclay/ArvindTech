@@ -6,6 +6,7 @@ import config from '@/config';
 import Select from 'react-select';
 import { FileUploader } from '@/components/FileUploader';
 import { toast } from 'react-toastify';
+// import FileUploader from './FileUploader';
 
 interface Process {
     id: number;
@@ -272,6 +273,7 @@ const EmployeeInsert = () => {
         { value: 'Disabled', label: 'Disabled' }
     ];
 
+
     return (
         <div>
             <div className="container">
@@ -426,7 +428,7 @@ const EmployeeInsert = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="link" className="mb-3 position-relative">
-                                    <Form.Label>Link</Form.Label>
+                                    <Form.Label>Youtube Link</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="link"
@@ -443,20 +445,17 @@ const EmployeeInsert = () => {
 
                                 </Form.Group>
                             </Col>
-
                             <Col lg={12}>
                                 <Form.Group controlId="processFlowchart" className="mb-3">
                                     <Form.Label>Process Flowchart</Form.Label>
                                     <FileUploader
                                         icon="ri-upload-cloud-2-line"
                                         text="Drop files here or click to upload."
+                                        endPoint={`${config.API_URL_APPLICATION}/FileUpload/UploadFiles`}
                                         additionalData={{
-                                            ModuleID: process.moduleID,
+                                            moduleName: process.moduleName,
+                                            processName: process.processDisplayName,
                                             CreatedBy: empName,
-                                            TaskCommonID: 1,
-                                            Task_Number: '',
-                                            ProcessInitiationID: 1,
-                                            ProcessID: process.processID,
                                             UpdatedBy: empName,
                                         }}
                                         onFileUpload={(files) => {
@@ -487,6 +486,9 @@ const EmployeeInsert = () => {
             </div>
 
             <Modal className="p-0" show={showLink} onHide={handleClose} size="xl">
+                <Modal.Header closeButton>
+                    <Modal.Title>Link Preview</Modal.Title>
+                </Modal.Header>
                 <Modal.Body>
                     {iframeUrl ? (
                         <div className="p-0 m-0">

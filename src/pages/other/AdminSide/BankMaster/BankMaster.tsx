@@ -86,25 +86,7 @@ const BankMaster = () => {
     };
     // ==============================================================
 
-    const fetchStaffRequirements = async () => {
-        setLoading(true);
-        try {
-            const response = await axios.get(`${config.API_URL_APPLICATION}/BankMaster/GetBankList`, {
-                params: { PageIndex: currentPage }
-            });
-            if (response.data.isSuccess) {
-                setBanks(response.data.bankMasterListResponses);
-                setTotalPages(Math.ceil(response.data.totalCount / 10));
-            } else {
-                console.error(response.data.message);
-            }
-        } catch (error) {
-            console.error('Error fetching doers:', error);
-        }
-        finally {
-            setLoading(false);
-        }
-    };
+
 
 
 
@@ -119,7 +101,6 @@ const BankMaster = () => {
     useEffect(() => {
         if (searchTriggered && (searchBank || searchIfsc || searchBranch || searchState || searchStatus)) {
             handleSearch();
-
         } else {
             fetchStaffRequirements();
         }
@@ -130,7 +111,6 @@ const BankMaster = () => {
         if (e) e.preventDefault();
 
         let query = `?`;
-
         if (searchBank) query += `Bank=${searchBank}&`;
         if (searchIfsc) query += `Ifsc=${searchIfsc}&`;
         if (searchBranch) query += `Branch=${searchBranch}&`;
@@ -149,16 +129,35 @@ const BankMaster = () => {
                 headers: { 'accept': '*/*' }
             });
 
-            if (data.isSuccess) {  // Ensure successful response
+            if (data.isSuccess) {
                 setBanks(data.bankMasterListResponses);
                 setTotalPages(Math.ceil(data.totalCount / 10));
                 console.log("Search Response:", data.bankMasterListResponses);
             } else {
-                console.log("Error in API response:", data.message);  // Handle error message if needed
+                console.log("Error in API response:", data.message);
             }
         } catch (error) {
             console.error('Error fetching data:', error);
         } finally {
+            setLoading(false);
+        }
+    };
+    const fetchStaffRequirements = async () => {
+        setLoading(true);
+        try {
+            const response = await axios.get(`${config.API_URL_APPLICATION}/BankMaster/GetBankList`, {
+                params: { PageIndex: currentPage }
+            });
+            if (response.data.isSuccess) {
+                setBanks(response.data.bankMasterListResponses);
+                setTotalPages(Math.ceil(response.data.totalCount / 10));
+            } else {
+                console.error(response.data.message);
+            }
+        } catch (error) {
+            console.error('Error fetching doers:', error);
+        }
+        finally {
             setLoading(false);
         }
     };
@@ -185,13 +184,14 @@ const BankMaster = () => {
 
 
     const handleClear = async () => {
-        setCurrentPage(1);
         setSearchState('');
         setSearchBranch('');
         setSearchIfsc('');
         setSearchBank('');
         setSearchStatus('');
         setSearchTriggered(false);
+        await new Promise(resolve => setTimeout(resolve, 200));
+        await setCurrentPage(1);
         await fetchStaffRequirements();
     };
 
@@ -255,7 +255,100 @@ const BankMaster = () => {
                     </div>
                 </div>
             </div>
+            <div className='bg-white p-2 pb-2'>
+                <Form
+                    onSubmit={async (e) => {
+                        e.preventDefault();
+                        setSearchTriggered(true);
+                        setCurrentPage(1);
+                    }}
+                >
 
+                    <Row>
+                        <Col lg={6} className=''>
+                            <Form.Group controlId="searchIfsc">
+                                <Form.Label>IFSC Code</Form.Label>
+                                <Form.Control
+                                    type="text"
+                                    name="searchIfsc"
+                                    value={searchIfsc}
+                                    onChange={(e) => setSearchIfsc(e.target.value)}
+                                    placeholder='Enter ISFC Code'
+                                />
+                            </Form.Group>
+                        </Col>
+                        <Col lg={6} className=''>
+                            <Form.Group controlId="searchState">
+                                <Form.Label>State</Form.Label>
+                                <Select
+                                    name="searchState"
+                                    value={stateList.find(item => item.stateName === searchState) || null}
+                                    onChange={(selectedOption) => setSearchState(selectedOption ? selectedOption.stateName : '')}
+                                    options={stateList}
+                                    getOptionLabel={(item) => item.stateName}
+                                    getOptionValue={(item) => item.stateName}
+                                    isSearchable={true}
+                                    placeholder="Select State"
+                                    className="h45"
+                                />
+                            </Form.Group>
+                        </Col>
+
+                        <Col lg={6} className='mt-2'>
+                            <Form.Group controlId="searchBank">
+                                <Form.Label>Bank Name</Form.Label>
+                                <Select
+                                    name="searchBank"
+                                    value={bankList.find(item => (item.bank || item.bankName) === searchBank) || null}
+                                    onChange={(selectedOption) => setSearchBank(selectedOption ? (selectedOption.bank || selectedOption.bankName) : '')}
+                                    options={bankList}
+                                    getOptionLabel={(item) => item.bank || item.bankName}
+                                    getOptionValue={(item) => item.bank || item.bankName}
+                                    isSearchable={true}
+                                    placeholder="Select Bank Name"
+                                    className="h45"
+                                />
+                            </Form.Group>
+                        </Col>
+                        <Col lg={6} className="mt-2">
+                            <Form.Group controlId="searchStatus">
+                                <Form.Label>Status</Form.Label>
+                                <Select
+                                    name="searchStatus"
+                                    options={optionsStatus}
+                                    value={optionsStatus.find(option => option.value === searchStatus) || null}
+                                    onChange={(selectedOption) => setSearchStatus(selectedOption?.value || '')}
+                                    placeholder="Select Status"
+                                />
+                            </Form.Group>
+                        </Col>
+                        <Col></Col>
+                        <Col lg={4} className="align-items-end d-flex justify-content-end mt-3">
+                            <ButtonGroup aria-label="Basic example" className="w-100">
+                                <Button type="button" variant="primary" onClick={handleClear}>
+                                    <i className="ri-loop-left-line"></i>
+                                </Button>
+                                &nbsp;
+                                <Button type="submit" variant="primary"
+
+                                >
+                                    Search
+                                </Button>
+                            </ButtonGroup>
+                        </Col>
+                    </Row>
+                </Form>
+
+                <Row className='mt-3'>
+                    <div className="d-flex justify-content-end bg-light p-1">
+                        <div className="app-search d-none d-lg-block me-4">
+
+                        </div>
+
+
+                    </div>
+                </Row>
+            </div>
 
 
             {loading ? (
@@ -266,100 +359,7 @@ const BankMaster = () => {
             ) : (
 
                 <>
-                    <div className='bg-white p-2 pb-2'>
-                        <Form
-                            onSubmit={(e) => {
-                                e.preventDefault();
-                                setCurrentPage(1);
-                                handleSearch();
-                                setSearchTriggered(true);
-                            }}
-                        >
-                            <Row>
-                                <Col lg={6} className=''>
-                                    <Form.Group controlId="searchIfsc">
-                                        <Form.Label>IFSC Code</Form.Label>
-                                        <Form.Control
-                                            type="text"
-                                            name="searchIfsc"
-                                            value={searchIfsc}
-                                            onChange={(e) => setSearchIfsc(e.target.value)}
-                                            placeholder='Enter ISFC Code'
-                                        />
-                                    </Form.Group>
-                                </Col>
-                                <Col lg={6} className=''>
-                                    <Form.Group controlId="searchState">
-                                        <Form.Label>State</Form.Label>
-                                        <Select
-                                            name="searchState"
-                                            value={stateList.find(item => item.stateName === searchState) || null}
-                                            onChange={(selectedOption) => setSearchState(selectedOption ? selectedOption.stateName : '')}
-                                            options={stateList}
-                                            getOptionLabel={(item) => item.stateName}
-                                            getOptionValue={(item) => item.stateName}
-                                            isSearchable={true}
-                                            placeholder="Select State"
-                                            className="h45"
-                                        />
-                                    </Form.Group>
-                                </Col>
 
-                                <Col lg={6} className='mt-2'>
-                                    <Form.Group controlId="searchBank">
-                                        <Form.Label>Bank Name</Form.Label>
-                                        <Select
-                                            name="searchBank"
-                                            value={bankList.find(item => (item.bank || item.bankName) === searchBank) || null}
-                                            onChange={(selectedOption) => setSearchBank(selectedOption ? (selectedOption.bank || selectedOption.bankName) : '')}
-                                            options={bankList}
-                                            getOptionLabel={(item) => item.bank || item.bankName}
-                                            getOptionValue={(item) => item.bank || item.bankName}
-                                            isSearchable={true}
-                                            placeholder="Select Bank Name"
-                                            className="h45"
-                                        />
-                                    </Form.Group>
-                                </Col>
-                                <Col lg={6} className="mt-2">
-                                    <Form.Group controlId="searchStatus">
-                                        <Form.Label>Status</Form.Label>
-                                        <Select
-                                            name="searchStatus"
-                                            options={optionsStatus}
-                                            value={optionsStatus.find(option => option.value === searchStatus) || null}
-                                            onChange={(selectedOption) => setSearchStatus(selectedOption?.value || '')}
-                                            placeholder="Select Status"
-                                        />
-                                    </Form.Group>
-                                </Col>
-                                <Col></Col>
-                                <Col lg={4} className="align-items-end d-flex justify-content-end mt-3">
-                                    <ButtonGroup aria-label="Basic example" className="w-100">
-                                        <Button type="button" variant="primary" onClick={handleClear}>
-                                            <i className="ri-loop-left-line"></i>
-                                        </Button>
-                                        &nbsp;
-                                        <Button type="submit" variant="primary"
-
-                                        >
-                                            Search
-                                        </Button>
-                                    </ButtonGroup>
-                                </Col>
-                            </Row>
-                        </Form>
-
-                        <Row className='mt-3'>
-                            <div className="d-flex justify-content-end bg-light p-1">
-                                <div className="app-search d-none d-lg-block me-4">
-
-                                </div>
-
-
-                            </div>
-                        </Row>
-                    </div>
 
                     <div className="overflow-auto text-nowrap">
                         {!banks ? (

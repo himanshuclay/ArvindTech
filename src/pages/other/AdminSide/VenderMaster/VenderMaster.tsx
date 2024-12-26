@@ -120,7 +120,7 @@ const TenderMaster = () => {
     useEffect(() => {
         if (searchTriggered || currentPage) {
             handleSearch();
-            setSearchTriggered(false);
+
         } else {
             fetchMaster();
         }
@@ -196,11 +196,12 @@ const TenderMaster = () => {
 
 
 
-    const handleClear = () => {
+    const handleClear = async () => {
         setSearchCreatorName('')
         setSearchVendorContactPerson('')
         setSearchVenderCode('')
-        fetchMaster();
+        setSearchTriggered(false);
+        await fetchMaster();
     };
 
 
@@ -288,6 +289,91 @@ const TenderMaster = () => {
 
                 </div>
             </div>
+            <div className='bg-white p-2 pb-2'>
+                <Form
+                    onSubmit={(e) => {
+                        e.preventDefault();
+                        setCurrentPage(1);
+                        setSearchTriggered(true);
+                    }}
+                >
+                    <Row>
+                        <Col lg={4}>
+                            <Form.Group controlId="searchVenderCode">
+                                <Form.Label>Vendor Code </Form.Label>
+                                <Form.Control
+                                    type="text"
+                                    name="searchVenderCode"
+                                    value={searchVenderCode}
+                                    onChange={(e) => setSearchVenderCode(e.target.value)}
+                                    placeholder='Enter Vendor Code'
+                                />
+                            </Form.Group>
+                        </Col>
+                        <Col lg={4}>
+                            <Form.Group controlId="searchVendorContactPerson">
+                                <Form.Label>Vendor Contact Person </Form.Label>
+                                <Form.Control
+                                    type="text"
+                                    name="searchVendorContactPerson"
+                                    value={searchVendorContactPerson}
+                                    onChange={(e) => setSearchVendorContactPerson(e.target.value)}
+                                    placeholder='Enter Vendor Contact Person'
+                                />
+                            </Form.Group>
+                        </Col>
+
+                        <Col lg={4}>
+                            <Form.Group controlId="searchCreatorName">
+                                <Form.Label>Creator Name</Form.Label>
+                                <Select
+                                    name="searchCreatorName"
+                                    value={employeeList.find(emp => emp.employeeName === searchCreatorName) || null} // handle null
+                                    onChange={(selectedOption) => setSearchCreatorName(selectedOption ? selectedOption.employeeName : "")} // null check
+                                    options={employeeList}
+                                    getOptionLabel={(emp) => emp.employeeName}
+                                    getOptionValue={(emp) => emp.employeeName}
+                                    isSearchable={true}
+                                    placeholder="Select Creator Name"
+                                    className="h45"
+                                />
+                            </Form.Group>
+                        </Col>
+
+
+
+                        <Col lg={4} className="mt-2"></Col>
+                        <Col lg={4} className="mt-2"></Col>
+
+                        <Col lg={4} className="align-items-end d-flex justify-content-end mt-2">
+                            <ButtonGroup aria-label="Basic example" className="w-100">
+                                <Button type="button" variant="primary" onClick={handleClear}>
+                                    <i className="ri-loop-left-line"></i>
+                                </Button>
+                                &nbsp;
+                                <Button type="submit" variant="primary">
+                                    Search
+                                </Button>
+                            </ButtonGroup>
+                        </Col>
+
+                        {/* <h4>search filter will be introduce here</h4> */}
+
+                    </Row>
+
+                </Form>
+
+
+
+                <Row className='mt-3'>
+                    <div className="d-flex justify-content-end bg-light p-1">
+                        <div className="app-search d-none d-lg-block me-4">
+                        </div>
+
+
+                    </div>
+                </Row>
+            </div>
 
 
             {loading ? (
@@ -298,91 +384,6 @@ const TenderMaster = () => {
             ) : (
 
                 <>
-                    <div className='bg-white p-2 pb-2'>
-                        <Form
-                            onSubmit={(e) => {
-                                e.preventDefault();
-                                setCurrentPage(1);
-                                setSearchTriggered(true);
-                            }}
-                        >
-                            <Row>
-                                <Col lg={4}>
-                                    <Form.Group controlId="searchVenderCode">
-                                        <Form.Label>Vendor Code </Form.Label>
-                                        <Form.Control
-                                            type="text"
-                                            name="searchVenderCode"
-                                            value={searchVenderCode}
-                                            onChange={(e) => setSearchVenderCode(e.target.value)}
-                                            placeholder='Enter Vendor Code'
-                                        />
-                                    </Form.Group>
-                                </Col>
-                                <Col lg={4}>
-                                    <Form.Group controlId="searchVendorContactPerson">
-                                        <Form.Label>Vendor Contact Person </Form.Label>
-                                        <Form.Control
-                                            type="text"
-                                            name="searchVendorContactPerson"
-                                            value={searchVendorContactPerson}
-                                            onChange={(e) => setSearchVendorContactPerson(e.target.value)}
-                                            placeholder='Enter Vendor Contact Person'
-                                        />
-                                    </Form.Group>
-                                </Col>
-
-                                <Col lg={4}>
-                                    <Form.Group controlId="searchCreatorName">
-                                        <Form.Label>Creator Name</Form.Label>
-                                        <Select
-                                            name="searchCreatorName"
-                                            value={employeeList.find(emp => emp.employeeName === searchCreatorName) || null} // handle null
-                                            onChange={(selectedOption) => setSearchCreatorName(selectedOption ? selectedOption.employeeName : "")} // null check
-                                            options={employeeList}
-                                            getOptionLabel={(emp) => emp.employeeName}
-                                            getOptionValue={(emp) => emp.employeeName}
-                                            isSearchable={true}
-                                            placeholder="Select Creator Name"
-                                            className="h45"
-                                        />
-                                    </Form.Group>
-                                </Col>
-
-
-
-                                <Col lg={4} className="mt-2"></Col>
-                                <Col lg={4} className="mt-2"></Col>
-
-                                <Col lg={4} className="align-items-end d-flex justify-content-end mt-2">
-                                    <ButtonGroup aria-label="Basic example" className="w-100">
-                                        <Button type="button" variant="primary" onClick={handleClear}>
-                                            <i className="ri-loop-left-line"></i>
-                                        </Button>
-                                        &nbsp;
-                                        <Button type="submit" variant="primary">
-                                            Search
-                                        </Button>
-                                    </ButtonGroup>
-                                </Col>
-
-                                {/* <h4>search filter will be introduce here</h4> */}
-
-                            </Row>
-
-                        </Form>
-
-
-
-                        <Row className='mt-3'>
-                            <div className="d-flex justify-content-end bg-light p-1">
-                                <div className="app-search d-none d-lg-block me-4">
-                                </div>
-
-
-                            </div>
-                        </Row>
-                    </div>
 
                     <div className="overflow-auto text-nowrap">
                         {!venders ? (

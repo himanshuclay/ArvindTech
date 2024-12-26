@@ -154,7 +154,7 @@ const ModuleMaster = () => {
         setSearchRole('');
         setSearchStatus('');
         setCurrentPage(1);
-        setSearchTriggered(true);
+        setSearchTriggered(false);
         await fetchRoles();
     };
 
@@ -214,7 +214,65 @@ const ModuleMaster = () => {
 
                 </div>
             </div>
+            <div className='bg-white p-2 pb-2'>
+                <Row>
+                    <Col lg={4} className="">
+                        <Form.Group controlId="searchRole">
+                            <Form.Label>Role Name</Form.Label>
+                            <Select
+                                name="searchRole"
+                                value={roleList.find(item => item.roleName === searchRole) || null}
+                                onChange={(selectedOption) => setSearchRole(selectedOption ? selectedOption.roleName : '')}
+                                options={roleList}
+                                getOptionLabel={(item) => item.roleName}
+                                getOptionValue={(item) => item.roleName}
+                                isSearchable={true}
+                                placeholder="Select Role Name"
+                                className="h45"
+                            />
+                        </Form.Group>
+                    </Col>
 
+                    <Col lg={4} className="">
+                        <Form.Group controlId="searchStatus">
+                            <Form.Label>Status</Form.Label>
+                            <Select
+                                name="searchStatus"
+                                options={optionsStatus}
+                                value={optionsStatus.find(option => option.value === searchStatus) || null}
+                                onChange={(selectedOption) => setSearchStatus(selectedOption?.value || '')}
+                                placeholder="Select Status"
+                            />
+                        </Form.Group>
+                    </Col>
+                    <Col lg={4} className="align-items-end d-flex justify-content-end mt-2">
+                        <ButtonGroup aria-label="Basic example" className="w-100">
+                            <Button type="button" variant="primary" onClick={handleClear}>
+                                <i className="ri-loop-left-line"></i>
+                            </Button>
+                            &nbsp;
+                            <Button type="submit" variant="primary" onClick={() => {
+                                setCurrentPage(1);
+                                setSearchTriggered(true);
+                            }}>
+                                Search
+                            </Button>
+                        </ButtonGroup>
+                    </Col>
+                </Row>
+
+
+
+                <Row className='mt-3'>
+                    <div className="d-flex justify-content-end bg-light p-1">
+                        <div className="app-search d-none d-lg-block me-4">
+
+                        </div>
+
+
+                    </div>
+                </Row>
+            </div>
 
             {loading ? (
                 <div className='loader-container'>
@@ -222,66 +280,7 @@ const ModuleMaster = () => {
                     <div className='mt-2'>Please Wait!</div>
                 </div>
             ) : (<>
-                <div className='bg-white p-2 pb-2'>
-                    <Row>
-                        <Col lg={4} className="">
-                            <Form.Group controlId="searchRole">
-                                <Form.Label>Role Name</Form.Label>
-                                <Select
-                                    name="searchRole"
-                                    value={roleList.find(item => item.roleName === searchRole) || null}
-                                    onChange={(selectedOption) => setSearchRole(selectedOption ? selectedOption.roleName : '')}
-                                    options={roleList}
-                                    getOptionLabel={(item) => item.roleName}
-                                    getOptionValue={(item) => item.roleName}
-                                    isSearchable={true}
-                                    placeholder="Select Role Name"
-                                    className="h45"
-                                />
-                            </Form.Group>
-                        </Col>
 
-                        <Col lg={4} className="">
-                            <Form.Group controlId="searchStatus">
-                                <Form.Label>Status</Form.Label>
-                                <Select
-                                    name="searchStatus"
-                                    options={optionsStatus}
-                                    value={optionsStatus.find(option => option.value === searchStatus) || null}
-                                    onChange={(selectedOption) => setSearchStatus(selectedOption?.value || '')}
-                                    placeholder="Select Status"
-                                />
-                            </Form.Group>
-                        </Col>
-                        <Col lg={4} className="align-items-end d-flex justify-content-end mt-2">
-                            <ButtonGroup aria-label="Basic example" className="w-100">
-                                <Button type="button" variant="primary" onClick={handleClear}>
-                                    <i className="ri-loop-left-line"></i>
-                                </Button>
-                                &nbsp;
-                                <Button type="submit" variant="primary" onClick={() => {
-                                    setCurrentPage(1);
-                                    handleSearch();
-                                    setSearchTriggered(true);
-                                }}>
-                                    Search
-                                </Button>
-                            </ButtonGroup>
-                        </Col>
-                    </Row>
-
-
-
-                    <Row className='mt-3'>
-                        <div className="d-flex justify-content-end bg-light p-1">
-                            <div className="app-search d-none d-lg-block me-4">
-
-                            </div>
-
-
-                        </div>
-                    </Row>
-                </div>
 
                 <div className="overflow-auto text-nowrap">
                     {!roles ? (

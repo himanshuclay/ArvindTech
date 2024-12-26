@@ -29,6 +29,7 @@ interface Project {
     createdBy: string;
     subProjectName: string;
     subProjectID: string;
+    subProjectStatus: string;
     updatedBy: string;
     projectTypeName: string;
     stateName: string;
@@ -72,7 +73,7 @@ interface ProjectList {
     projectName: string;
 }
 interface CompletionStatus {
-    id: number;
+    id: string;
     name: any;
 }
 
@@ -90,7 +91,7 @@ const ProjectMaster = () => {
     const [searchProjectCoordinator, setSearchProjectCoordinator] = useState('');
     const [searchProjectName, setSearchProjectName] = useState('');
     const [searchAppAccess, setSearchAppAccess] = useState('');
-    const [searchCompletionStatus, setSearchCompletionStatus] = useState<any>();
+    const [searchCompletionStatus, setSearchCompletionStatus] = useState('');
     const [downloadCsv, setDownloadCsv] = useState<Project[]>([]);
     const [searchTriggered, setSearchTriggered] = useState(false);
 
@@ -110,13 +111,13 @@ const ProjectMaster = () => {
     const [columns, setColumns] = useState<Column[]>([
         { id: 'projectName', label: 'Project Name', visible: true },
         { id: 'projectID', label: 'Project ID', visible: true },
-        { id: 'stateName', label: 'State Name', visible: true },
-        { id: 'projectTypeName', label: 'Project Type', visible: true },
-        { id: 'managementContractName', label: 'Management Contract', visible: true },
         { id: 'projectInchargeName', label: 'Project Incharge', visible: true },
         { id: 'projectCoordinatorName', label: 'Project Coordinator ', visible: true },
         { id: 'completionStatusName', label: 'Completion Status', visible: true },
-        { id: 'status', label: 'Project Status', visible: true }
+        { id: 'status', label: 'Project Status', visible: true },
+        { id: 'stateName', label: 'State Name', visible: true },
+        { id: 'projectTypeName', label: 'Project Type', visible: true },
+        { id: 'managementContractName', label: 'Management Contract', visible: true },
     ]);
 
     const handleOnDragEnd = (result: any) => {
@@ -128,21 +129,12 @@ const ProjectMaster = () => {
     };
     // ==============================================================
 
-    const handleClear = () => {
-        setCurrentPage(1);
-        setSearchProjectInchage('')
-        setSearchProjectCoordinator('')
-        setSearchProjectName('')
-        setSearchAppAccess('')
-        setSearchCompletionStatus(0)
-        fetchProjects();
-    };
 
 
     useEffect(() => {
         if (searchTriggered || currentPage) {
             handleSearch();
-            setSearchTriggered(false);
+
         } else {
             fetchProjects();
         }
@@ -259,7 +251,7 @@ const ProjectMaster = () => {
                 'Project Type Name', 'Management Contract Name',
                 'Project Incharge Name', 'Project Incharge Mobile Number',
                 'Project Coordinator Name', 'Project Coordinator Mobile Number',
-                'Completion Status Name', 'Project Status', 'Sub Project ID', 'Sub Project Name',
+                'Completion Status Name', 'Project Status', 'Sub Project ID', 'Sub Project Name', 'Sub Project Status',
                 'Name of Work', 'Contractual Work Value', 'Executor Company',
                 'Next Value of Work Item for Team', 'Percentage of Work Done',
                 'Revised Contractual Work Value', 'Total Work Done Value Upto Previous Month',
@@ -286,6 +278,7 @@ const ProjectMaster = () => {
                 project.status,
                 project.subProjectID || '',
                 project.subProjectName || '',
+                project.subProjectStatus || '',
                 project.nameOfWork || '',
                 project.contractualWorkValue || '',
                 project.executorCompany || '',
@@ -314,6 +307,16 @@ const ProjectMaster = () => {
 
 
 
+    const handleClear = async () => {
+        setCurrentPage(1);
+        setSearchProjectInchage('')
+        setSearchProjectCoordinator('')
+        setSearchProjectName('')
+        setSearchAppAccess('')
+        setSearchCompletionStatus('');
+        setSearchTriggered(false);
+        await fetchProjects();
+    };
 
 
 
@@ -351,6 +354,118 @@ const ProjectMaster = () => {
 
                 </div>
             </div>
+            <div className='bg-white p-2 pb-2'>
+                <Form
+                    onSubmit={(e) => {
+                        e.preventDefault();
+                        setCurrentPage(1);
+                        setSearchTriggered(true);
+                    }}
+                >
+                    <Row>
+
+                        <Col lg={4} className="">
+                            <Form.Group controlId="searchProjectName">
+                                <Form.Label>Project Name</Form.Label>
+                                <Select
+                                    name="searchProjectName"
+                                    value={projectList.find(item => item.projectName === searchProjectName) || null} // handle null
+                                    onChange={(selectedOption) => setSearchProjectName(selectedOption ? selectedOption.projectName : "")} // null check
+                                    options={projectList}
+                                    getOptionLabel={(item) => item.projectName}
+                                    getOptionValue={(item) => item.projectName}
+                                    isSearchable={true}
+                                    placeholder="Select Project Name"
+                                    className="h45"
+                                />
+                            </Form.Group>
+                        </Col>
+
+                        <Col lg={4}>
+                            <Form.Group controlId="searchProjectIncharge">
+                                <Form.Label>Project Incharge</Form.Label>
+                                <Select
+                                    name="searchProjectIncharge"
+                                    value={employeeList.find(emp => emp.empId === searchProjectInchage) || null} // handle null
+                                    onChange={(selectedOption) => setSearchProjectInchage(selectedOption ? selectedOption.empId : "")} // null check
+                                    options={employeeList}
+                                    getOptionLabel={(emp) => emp.employeeName}
+                                    getOptionValue={(emp) => emp.empId}
+                                    isSearchable={true}
+                                    placeholder="Select Employee"
+                                    className="h45"
+                                />
+                            </Form.Group>
+                        </Col>
+                        <Col lg={4} className="">
+                            <Form.Group controlId="searchProjectCoordinator">
+                                <Form.Label>Project Coordinator</Form.Label>
+                                <Select
+                                    name="searchProjectCoordinator"
+                                    value={employeeList.find(emp => emp.empId === searchProjectCoordinator) || null} // handle null
+                                    onChange={(selectedOption) => setSearchProjectCoordinator(selectedOption ? selectedOption.empId : "")} // null check
+                                    options={employeeList}
+                                    getOptionLabel={(emp) => emp.employeeName}
+                                    getOptionValue={(emp) => emp.empId}
+                                    isSearchable={true}
+                                    placeholder="Select Employee "
+                                    className="h45"
+                                />
+                            </Form.Group>
+                        </Col>
+
+                        <Col lg={4} className="mt-2">
+                            <Form.Group controlId="searchCompletionStatus">
+                                <Form.Label>Completion Status</Form.Label>
+                                <Select
+                                    name="searchCompletionStatus"
+                                    value={completionStatus.find(task => task.id === searchCompletionStatus) || null}
+                                    onChange={(selectedOption) => setSearchCompletionStatus(selectedOption ? selectedOption.id : "")}
+                                    options={completionStatus}
+                                    getOptionLabel={(task) => task.name}
+                                    getOptionValue={(task) => task.id}
+                                    isSearchable={true}
+                                    placeholder="Select Completion Status"
+                                    className="h45"
+                                />
+                            </Form.Group>
+                        </Col>
+                        <Col lg={4} className="mt-2">
+                            <Form.Group controlId="searchAppAccess">
+                                <Form.Label>Project Status</Form.Label>
+                                <Select
+                                    name="searchAppAccess"
+                                    options={optionsAppAccess}
+                                    value={optionsAppAccess.find(option => option.value === searchAppAccess) || null}
+                                    onChange={(selectedOption) => setSearchAppAccess(selectedOption?.value || '')}
+                                    placeholder="Select Project Status"
+                                />
+                            </Form.Group>
+                        </Col>
+
+                        <Col lg={4} className="align-items-end d-flex justify-content-end mt-2">
+                            <ButtonGroup aria-label="Basic example" className="w-100">
+                                <Button type="button" variant="primary" onClick={handleClear}>
+                                    <i className="ri-loop-left-line"></i>
+                                </Button>
+                                &nbsp;
+                                <Button type="submit" variant="primary">
+                                    Search
+                                </Button>
+                            </ButtonGroup>
+                        </Col>
+                    </Row>
+                </Form>
+
+                <Row className='mt-3'>
+                    <div className="d-flex justify-content-end bg-light p-1">
+                        <div className="app-search d-none d-lg-block me-4">
+
+                        </div>
+
+                    </div>
+                </Row>
+            </div>
 
 
             {loading ? (
@@ -360,118 +475,7 @@ const ProjectMaster = () => {
                 </div>
             ) : (
                 <>
-                    <div className='bg-white p-2 pb-2'>
-                        <Form
-                            onSubmit={(e) => {
-                                e.preventDefault();
-                                setCurrentPage(1);
-                                setSearchTriggered(true);
-                            }}
-                        >
-                            <Row>
 
-                                <Col lg={4} className="">
-                                    <Form.Group controlId="searchProjectName">
-                                        <Form.Label>Project Name</Form.Label>
-                                        <Select
-                                            name="searchProjectName"
-                                            value={projectList.find(item => item.projectName === searchProjectName) || null} // handle null
-                                            onChange={(selectedOption) => setSearchProjectName(selectedOption ? selectedOption.projectName : "")} // null check
-                                            options={projectList}
-                                            getOptionLabel={(item) => item.projectName}
-                                            getOptionValue={(item) => item.projectName}
-                                            isSearchable={true}
-                                            placeholder="Select Project Name"
-                                            className="h45"
-                                        />
-                                    </Form.Group>
-                                </Col>
-
-                                <Col lg={4}>
-                                    <Form.Group controlId="searchProjectIncharge">
-                                        <Form.Label>Project Incharge</Form.Label>
-                                        <Select
-                                            name="searchProjectIncharge"
-                                            value={employeeList.find(emp => emp.empId === searchProjectInchage) || null} // handle null
-                                            onChange={(selectedOption) => setSearchProjectInchage(selectedOption ? selectedOption.empId : "")} // null check
-                                            options={employeeList}
-                                            getOptionLabel={(emp) => emp.employeeName}
-                                            getOptionValue={(emp) => emp.empId}
-                                            isSearchable={true}
-                                            placeholder="Select Employee"
-                                            className="h45"
-                                        />
-                                    </Form.Group>
-                                </Col>
-                                <Col lg={4} className="">
-                                    <Form.Group controlId="searchProjectCoordinator">
-                                        <Form.Label>Project Coordinator</Form.Label>
-                                        <Select
-                                            name="searchProjectCoordinator"
-                                            value={employeeList.find(emp => emp.empId === searchProjectCoordinator) || null} // handle null
-                                            onChange={(selectedOption) => setSearchProjectCoordinator(selectedOption ? selectedOption.empId : "")} // null check
-                                            options={employeeList}
-                                            getOptionLabel={(emp) => emp.employeeName}
-                                            getOptionValue={(emp) => emp.empId}
-                                            isSearchable={true}
-                                            placeholder="Select Employee "
-                                            className="h45"
-                                        />
-                                    </Form.Group>
-                                </Col>
-
-                                <Col lg={4} className="mt-2">
-                                    <Form.Group controlId="searchCompletionStatus">
-                                        <Form.Label>Completion Status</Form.Label>
-                                        <Select
-                                            name="searchCompletionStatus"
-                                            value={completionStatus.find(task => task.id === searchCompletionStatus || null)}
-                                            onChange={(selectedOption) => setSearchCompletionStatus(selectedOption ? selectedOption.id : 0)}
-                                            options={completionStatus}
-                                            getOptionLabel={(task) => task.name}
-                                            getOptionValue={(task) => String(task.id)}
-                                            isSearchable={true}
-                                            placeholder="Select Completion Status"
-                                            className="h45"
-                                        />
-                                    </Form.Group>
-                                </Col>
-                                <Col lg={4} className="mt-2">
-                                    <Form.Group controlId="searchAppAccess">
-                                        <Form.Label>Project Status</Form.Label>
-                                        <Select
-                                            name="searchAppAccess"
-                                            options={optionsAppAccess}
-                                            value={optionsAppAccess.find(option => option.value === searchAppAccess) || null}
-                                            onChange={(selectedOption) => setSearchAppAccess(selectedOption?.value || '')}
-                                            placeholder="Select Project Status"
-                                        />
-                                    </Form.Group>
-                                </Col>
-
-                                <Col lg={4} className="align-items-end d-flex justify-content-end mt-2">
-                                    <ButtonGroup aria-label="Basic example" className="w-100">
-                                        <Button type="button" variant="primary" onClick={handleClear}>
-                                            <i className="ri-loop-left-line"></i>
-                                        </Button>
-                                        &nbsp;
-                                        <Button type="submit" variant="primary">
-                                            Search
-                                        </Button>
-                                    </ButtonGroup>
-                                </Col>
-                            </Row>
-                        </Form>
-
-                        <Row className='mt-3'>
-                            <div className="d-flex justify-content-end bg-light p-1">
-                                <div className="app-search d-none d-lg-block me-4">
-
-                                </div>
-
-                            </div>
-                        </Row>
-                    </div>
                     <div className="overflow-auto text-nowrap ">
                         {!project ? (
                             <Container className="mt-5">
@@ -582,7 +586,7 @@ const ProjectMaster = () => {
                                                 </tr>
                                             ))
                                         ) : (
-                                            <tr>
+                                            // <tr>
                                                 <td colSpan={12}>
                                                     <Container className="mt-5">
                                                         <Row className="justify-content-center">
@@ -595,7 +599,7 @@ const ProjectMaster = () => {
                                                         </Row>
                                                     </Container>
                                                 </td>
-                                            </tr>
+                                            // </tr>
                                         )}
                                     </tbody>
                                 </Table>

@@ -1,22 +1,21 @@
 import { Card, Col, Row } from 'react-bootstrap'
 
 // components
-import { FileUploader } from '@/components/FileUploader'
+// import { FileUploader } from '@/components/FileUploader'
 import { PageBreadcrumb } from '@/components'
 
 const FileUploads = () => {
-    // Define additionalData according to the expected structure in FileUploaderProps
-    const additionalData = {
-        // Example data; adjust based on your actual requirements
-		ModuleID: '',
-		CreatedBy: '',
-		TaskCommonID: 0,
-		Task_Number: '',
-		ProcessInitiationID: 0,
-		ProcessID: '',
-		UpdatedBy: '', // replace with actual data
-        // Add more fields if needed
-    };
+	// Define additionalData according to the expected structure in FileUploaderProps
+	
+	// const additionalData = {
+	// 	ModuleID: '',
+	// 	CreatedBy: '',
+	// 	TaskCommonID: 0,
+	// 	Task_Number: '',
+	// 	ProcessInitiationID: 0,
+	// 	ProcessID: '',
+	// 	UpdatedBy: '', // replace with actual data
+	// };
 
 	return (
 		<>
@@ -32,12 +31,12 @@ const FileUploads = () => {
 							</p>
 						</Card.Header>
 						<Card.Body>
-							<FileUploader
+							{/* <FileUploader
 								icon="ri-upload-cloud-2-line"
 								text="Drop files here or click to upload."
 								extraText="(This is just a demo dropzone. Selected files are not actually uploaded.)"
                                 additionalData={additionalData} // Pass the additionalData prop here
-							/>
+							/> */}
 						</Card.Body>
 					</Card>
 				</Col>
