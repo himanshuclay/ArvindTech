@@ -3,9 +3,6 @@ import axios from "axios";
 import config from "@/config";
 import { useEffect, useState } from "react";
 import Select from 'react-select';
-import Flatpickr from 'react-flatpickr';
-import 'flatpickr/dist/themes/material_green.css';
-import { format } from 'date-fns';
 import { toast } from "react-toastify";
 
 
@@ -101,8 +98,9 @@ const TaskCondition: React.FC<ProcessCanvasProps> = ({ show, setShow, taskID }) 
     const [parseData, setParseData] = useState<any>(''); // Use `any` or the appropriate type here
     const [parseDataForSingle, setParseDataForsingle] = useState(false); // Use `any` or the appropriate type here
     const [sundayLogic, setSundayLogic] = useState<any>(''); // Use `any` or the appropriate type here
+    const [expiryLogic, setExpiryLogic] = useState<any>(''); // Use `any` or the appropriate type here
+    const [expirationTime, setExpirationTime] = useState<any>(''); // Use `any` or the appropriate type here
     const [isExpirable, setIsExpirable] = useState(0); // Default to 0 (No)
-    const [expirationDate, setExpirationDate] = useState<string>(''); // Default to null (no date selected)
     const [tasks, setTasks] = useState<TaskData[]>([]);
     const [singleData, setSignleData] = useState<TaskData[]>([]); // Use an array of TaskData
     const [parseConditionData, setParseConditionData] = useState<FormData[]>([]);
@@ -343,15 +341,11 @@ const TaskCondition: React.FC<ProcessCanvasProps> = ({ show, setShow, taskID }) 
 
         // If isExpirable is 0, clear expirationDate
         if (value === 0) {
-            setExpirationDate("");  // Set expirationDate to an empty string
+            setExpiryLogic("");  // Set expirationDate to an empty string
+            setExpirationTime("");  // Set expirationDate to an empty string
         }
     };
 
-    const handleChangeExpirationDate = (date: any) => {
-        if (isExpirable !== 0) {
-            setExpirationDate(date || "");
-        }
-    };
 
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -361,7 +355,8 @@ const TaskCondition: React.FC<ProcessCanvasProps> = ({ show, setShow, taskID }) 
             {
                 sundayLogic,
                 isExpirable,
-                expirationDate,
+                expiryLogic,
+                expirationTime,
                 taskSelections,
             },
         ];
@@ -387,7 +382,7 @@ const TaskCondition: React.FC<ProcessCanvasProps> = ({ show, setShow, taskID }) 
             ...singleData[0],
             condition_Json: JSON.stringify(updatedConditionJsonFormatted),
         };
-
+        toast.dismiss();
         toast.warn(
             ({ closeToast }) => (
                 <div>
@@ -440,7 +435,7 @@ const TaskCondition: React.FC<ProcessCanvasProps> = ({ show, setShow, taskID }) 
     ];
     const ExpiryLogic = [
         { value: 'Expire On Next Task Initiation', label: 'Expire On Next Task Initiation' },
-        { value: 'Expire On Defined Days', label: 'Expire On Defined Days' },
+        { value: 'Expire On Defined Time', label: 'Expire On Defined Time' },
     ];
     const optionstaskType = [
         { value: 'Actual', label: 'Actual' },
@@ -571,49 +566,37 @@ const TaskCondition: React.FC<ProcessCanvasProps> = ({ show, setShow, taskID }) 
                                 {isExpirable === 1 && (
                                     <Col lg={8} className="d-flex flex-row mt-2">
                                         <Form.Group className="mx-2">
-                                            <Form.Label>Expiration days</Form.Label>
+                                            <Form.Label>Expiration Logic</Form.Label>
                                             <Select
                                                 name="sundayLogic"
                                                 options={ExpiryLogic}
-                                                // value={ExpiryLogic.find(
-                                                //     (opt) => opt.value === ExpiryLogic
-                                                // ) || null}
-                                                // onChange={(selectedOption) => setSundayLogic(selectedOption?.value)}
+                                                value={ExpiryLogic.find(
+                                                    (opt) => opt.value === expiryLogic
+                                                ) || null}
+                                                onChange={(selectedOption) => {
+                                                    setExpiryLogic(selectedOption?.value);
+                                                    setExpirationTime(''); // Reset expiration time
+                                                }}
                                                 placeholder="Select expiry Logic"
                                                 required
                                             />
                                         </Form.Group>
-                                        <Form.Group controlId="expirationDate" className="mb-3">
-                                            <Form.Label>Expiration Date</Form.Label>
-                                            <Flatpickr
-                                                value={expirationDate || ''}
-                                                onChange={([date]) => {
-                                                    const formatedDate = format(date, 'dd-MMM-yy hh:mm a');
-                                                    handleChangeExpirationDate(formatedDate)
-                                                }}
-                                                options={{
-                                                    enableTime: true,
-                                                    dateFormat: "Y-m-d H:i",
-                                                    time_24hr: true,
-                                                }}
-                                                placeholder="Select Expiration Date"
-                                                className="form-control"
-                                                required
-                                            />
-                                        </Form.Group>
-                                        <Form.Group className="ms-2">
-                                            <Form.Label>Expiration days</Form.Label>
-                                            <Form.Control
-                                                type="number"
-                                            ></Form.Control>
-                                        </Form.Group>
+                                        {expiryLogic === `Expire On Defined Time` &&
+                                            <Form.Group className="ms-2">
+                                                <Form.Label>Expiration Time (hr)</Form.Label>
+                                                <Form.Control
+                                                    type="number"
+                                                    name="expirationTime"
+                                                    value={expirationTime}
+                                                    onChange={(e) => setExpirationTime(e.target.value)}
+                                                    placeholder='Enter Time in Hours'
+                                                />
+                                            </Form.Group>
+                                        }
                                     </Col>
 
                                 )}
                                 <Col></Col>
-
-
-
 
 
                             </Row>
@@ -682,22 +665,47 @@ const TaskCondition: React.FC<ProcessCanvasProps> = ({ show, setShow, taskID }) 
 
                                         {/* Conditionally rendered based on taskTiming */}
                                         {taskSelections[index]?.taskTiming === "Day" && (
-                                            <Col lg={4}>
-                                                <Form.Group controlId="Day" className="mb-3">
-                                                    <Form.Label>Day:</Form.Label>
-                                                    <Select
-                                                        name="Day"
-                                                        options={dropdownValuesFlag4}
-                                                        value={dropdownValuesFlag4.find(
-                                                            (option) => option.name === taskSelections[index]?.Day
-                                                        ) || null}
-                                                        onChange={selectedOption => handleChange(index, 'Day', selectedOption?.name)}
-                                                        getOptionLabel={(item) => item.name}
-                                                        getOptionValue={(item) => item.name}
-                                                        placeholder="Select Task Day"
-                                                    />
-                                                </Form.Group>
-                                            </Col>
+                                            <>
+                                                <Col lg={4}>
+                                                    <Form.Group controlId="Day" className="mb-3">
+                                                        <Form.Label>Day:</Form.Label>
+                                                        <Select
+                                                            name="Day"
+                                                            options={dropdownValuesFlag4}
+                                                            value={dropdownValuesFlag4.find(
+                                                                (option) => option.name === taskSelections[index]?.Day
+                                                            ) || null}
+                                                            onChange={selectedOption => handleChange(index, 'Day', selectedOption?.name)}
+                                                            getOptionLabel={(item) => item.name}
+                                                            getOptionValue={(item) => item.name}
+                                                            placeholder="Select Task Day"
+                                                        />
+                                                    </Form.Group>
+                                                </Col>
+                                                <Col lg={4}>
+                                                    <Form.Group controlId="time" className="mb-3">
+                                                        <Form.Label>Time</Form.Label>
+                                                        <Select
+                                                            name="time"
+                                                            options={dropdownValuesFlag3}
+                                                            value={dropdownValuesFlag3.find(
+                                                                (option) => option.name === taskSelections[index]?.time
+                                                            ) || null}
+                                                            onChange={(selectedOption) => {
+                                                                if (selectedOption) {
+                                                                    handleChange(index, 'time', selectedOption.name);
+                                                                } else {
+                                                                    handleChange(index, 'time', '');
+                                                                }
+                                                            }}
+                                                            getOptionLabel={(item) => item.name}
+                                                            getOptionValue={(item) => item.name}
+                                                            placeholder="Select Time"
+                                                        />
+                                                    </Form.Group>
+                                                </Col>
+                                            </>
+
                                         )}
 
                                         {taskSelections[index]?.taskTiming === "WeekDay" && (
@@ -796,22 +804,42 @@ const TaskCondition: React.FC<ProcessCanvasProps> = ({ show, setShow, taskID }) 
 
                                         {/* Conditionally rendered based on taskTiming */}
                                         {taskSelections[0]?.taskTiming === "Day" && (
-                                            <Col lg={4}>
-                                                <Form.Group controlId="Day" className="mb-3">
-                                                    <Form.Label>Day:</Form.Label>
-                                                    <Select
-                                                        name="Day"
-                                                        options={dropdownValuesFlag4}
-                                                        value={dropdownValuesFlag4.find(
-                                                            (option) => option.name === taskSelections[0]?.Day
-                                                        ) || null}
-                                                        onChange={selectedOption => updateTaskSelection('Day', selectedOption?.name)}
-                                                        getOptionLabel={(item) => item.name}
-                                                        getOptionValue={(item) => item.name}
-                                                        placeholder="Select Task Day"
-                                                    />
-                                                </Form.Group>
-                                            </Col>
+                                            <>
+
+
+                                                <Col lg={4}>
+                                                    <Form.Group controlId="Day" className="mb-3">
+                                                        <Form.Label>Day:</Form.Label>
+                                                        <Select
+                                                            name="Day"
+                                                            options={dropdownValuesFlag4}
+                                                            value={dropdownValuesFlag4.find(
+                                                                (option) => option.name === taskSelections[0]?.Day
+                                                            ) || null}
+                                                            onChange={selectedOption => updateTaskSelection('Day', selectedOption?.name)}
+                                                            getOptionLabel={(item) => item.name}
+                                                            getOptionValue={(item) => item.name}
+                                                            placeholder="Select Task Day"
+                                                        />
+                                                    </Form.Group>
+                                                </Col>
+                                                <Col lg={4}>
+                                                    <Form.Group controlId="time" className="mb-3">
+                                                        <Form.Label>Time</Form.Label>
+                                                        <Select
+                                                            name="time"
+                                                            options={dropdownValuesFlag3}
+                                                            value={dropdownValuesFlag3.find(
+                                                                (option) => option.name === taskSelections[0]?.time
+                                                            ) || null}
+                                                            onChange={(selectedOption) => updateTaskSelection('time', selectedOption?.name || '')}
+                                                            getOptionLabel={(item) => item.name}
+                                                            getOptionValue={(item) => item.name}
+                                                            placeholder="Select Time"
+                                                        />
+                                                    </Form.Group>
+                                                </Col>
+                                            </>
                                         )}
 
                                         {taskSelections[0]?.taskTiming === "WeekDay" && (
@@ -918,24 +946,46 @@ const TaskCondition: React.FC<ProcessCanvasProps> = ({ show, setShow, taskID }) 
                                     </Col>
 
                                     {taskRow.taskTiming === "Day" && (
-                                        <Col lg={4}>
-                                            <Form.Group controlId={`Day-${index}`} className="mb-3">
-                                                <Form.Label>Day:</Form.Label>
-                                                <Select
-                                                    name="Day"
-                                                    options={dropdownValuesFlag4}
-                                                    value={dropdownValuesFlag4.find(
-                                                        (option) => option.name === taskRow.Day
-                                                    )}
-                                                    onChange={(selectedOption) =>
-                                                        handleTaskFieldChange(index, "Day", selectedOption?.name)
-                                                    }
-                                                    getOptionLabel={(item) => item.name}
-                                                    getOptionValue={(item) => item.name}
-                                                    placeholder="Select Task Day"
-                                                />
-                                            </Form.Group>
-                                        </Col>
+
+                                        <>
+                                            <Col lg={4}>
+                                                <Form.Group controlId={`Day-${index}`} className="mb-3">
+                                                    <Form.Label>Day:</Form.Label>
+                                                    <Select
+                                                        name="Day"
+                                                        options={dropdownValuesFlag4}
+                                                        value={dropdownValuesFlag4.find(
+                                                            (option) => option.name === taskRow.Day
+                                                        )}
+                                                        onChange={(selectedOption) =>
+                                                            handleTaskFieldChange(index, "Day", selectedOption?.name)
+                                                        }
+                                                        getOptionLabel={(item) => item.name}
+                                                        getOptionValue={(item) => item.name}
+                                                        placeholder="Select Task Day"
+                                                    />
+                                                </Form.Group>
+                                            </Col>
+
+                                            <Col lg={4}>
+                                                <Form.Group controlId={`time-${index}`} className="mb-3">
+                                                    <Form.Label>Time</Form.Label>
+                                                    <Select
+                                                        name="time"
+                                                        options={dropdownValuesFlag3}
+                                                        value={dropdownValuesFlag3.find(
+                                                            (option) => option.name === taskRow.time
+                                                        )}
+                                                        onChange={(selectedOption) =>
+                                                            handleTaskFieldChange(index, "time", selectedOption?.name || "")
+                                                        }
+                                                        getOptionLabel={(item) => item.name}
+                                                        getOptionValue={(item) => item.name}
+                                                        placeholder="Select Time"
+                                                    />
+                                                </Form.Group>
+                                            </Col>
+                                        </>
                                     )}
 
                                     {taskRow.taskTiming === "WeekDay" && (
@@ -995,7 +1045,7 @@ const TaskCondition: React.FC<ProcessCanvasProps> = ({ show, setShow, taskID }) 
 
 
                             <Button onClick={handleAddTaskRow} className="ml-1">
-                                Add Row
+                                Add Successor
                             </Button>
                             <Button type="submit" className="m-2">Submit</Button>
                         </Form>
