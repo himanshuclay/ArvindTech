@@ -38,6 +38,11 @@ interface Task {
     task_Name: string;
 }
 
+interface Employee {
+    employeeName: string;
+    empId: string;
+}
+
 
 interface Module {
     moduleID: string;
@@ -68,7 +73,7 @@ const TaskMaster: React.FC = () => {
     const [showJsonModal, setShowJsonModal] = useState(false); // State to show/hide JSON modal
     const [taskIdToEdit, setTaskIdToEdit] = useState<any | null>(null);
     const [problemSolver, setProblemSolver] = useState<string>('');
-    const [employeeList, setEmployeeList] = useState([]);
+    const [employeeList, setEmployeeList] = useState<Employee[]>([]);
     // const [selectedProblemSolver, setSelectedProblemSolver] = useState('');
 
     // const [taskName, setTaskName] = useState<string | null>(null);
@@ -89,9 +94,10 @@ const TaskMaster: React.FC = () => {
         // setTaskName('');
     };
 
-    const handleProblemSolverChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const handleProblemSolverChange: React.ChangeEventHandler<HTMLInputElement> = (e) => {
         setProblemSolver(e.target.value);
     };
+
 
 
 

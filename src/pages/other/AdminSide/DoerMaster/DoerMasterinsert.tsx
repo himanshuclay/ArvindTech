@@ -1,6 +1,6 @@
 import axios from 'axios';
-import { useEffect, useState} from 'react';
-import { Button, Col, Form, Row, Table } from 'react-bootstrap';
+import { useEffect, useState } from 'react';
+import { Button, Pagination, Col, Form, Row, Table } from 'react-bootstrap';
 import config from '@/config';
 import Select from 'react-select';
 import { toast } from 'react-toastify';
@@ -18,6 +18,8 @@ const YourComponent = () => {
     const [previousTask, setPreviousTask] = useState<string | null>(null);
     const [inputFieldOptions, setInputFieldOptions] = useState([]);
     const [selectedInputField, setSelectedInputField] = useState<SelectOption | null>(null);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(1);
 
 
 
@@ -41,9 +43,13 @@ const YourComponent = () => {
 
     const fetchDoerMasterList = async () => {
         try {
-            const response = await axios.get(`${config.API_URL_APPLICATION}/DoerMaster/GetDoerByIdentifier?PageIndex=1`);
+            // const response = await axios.get(`${config.API_URL_APPLICATION}/DoerMaster/GetDoerByIdentifier?PageIndex=1`);
+            const response = await axios.get(`${config.API_URL_APPLICATION}/DoerMaster/GetDoerByIdentifier`, {
+                params: { PageIndex: currentPage }
+            });
             if (response.data.isSuccess) {
                 setDoerMasterList(response.data.getDoerByIdentifiers);
+                setTotalPages(Math.ceil(response.data.totalCount / 10));
                 console.log(doerMasterList) // Update to match the new response structure
             } else {
                 console.error(response.data.message);
@@ -66,7 +72,7 @@ const YourComponent = () => {
 
     const handleSubmit = async (e: React.ChangeEvent<HTMLFormElement>) => {
         e.preventDefault();
-    
+
         // Prepare the request data by extracting only the label values
         const requestData = {
             taskNumber: selectedTask, // Maps to the `TaskID`
@@ -77,9 +83,9 @@ const YourComponent = () => {
             previousTaskNumber: previousTask, // Add this field if applicable
             selectLabel: selectedInputField?.label || "", // Extracting label for selectLabel
         };
-    
+
         console.log("Request Data:", requestData);
-    
+
         try {
             const response = await axios.post(
                 `https://arvindo-api.clay.in/api/DynamicDoerAllocation/DynamicDoerAllocation`,
@@ -91,7 +97,7 @@ const YourComponent = () => {
                     },
                 }
             );
-    
+
             if (response.data.isSuccess) {
                 console.log("Data submitted successfully:", response.data);
                 // Refresh or perform additional actions if necessary
@@ -103,7 +109,7 @@ const YourComponent = () => {
             toast.error(error.message || "An error occurred");
         }
     };
-    
+
 
 
     const handleSourceChange = (selectedOption: any, sourceType: 'identifierOne' | 'identifierTwo') => {
@@ -139,6 +145,7 @@ const YourComponent = () => {
                 const dataResponse = response.data.getLabelFromSelects;
 
                 console.log("Fetched Data:", dataResponse); // Log the response data to verify
+                console.log("Fetched Data:", response); // Log the response data to verify
 
                 if (dataResponse && dataResponse.length > 0) {
                     // Only extract the label values into the options array
@@ -263,7 +270,7 @@ const YourComponent = () => {
                                 ]}
                                 value={
                                     identifierOneSource
-                                        ? { value: identifierOneSource, label: identifierOneSource}
+                                        ? { value: identifierOneSource, label: identifierOneSource }
                                         : null
                                 }
                                 onChange={(selectedOption) => handleSourceChange(selectedOption, 'identifierOne')}
@@ -334,13 +341,17 @@ const YourComponent = () => {
                                 <Form.Group controlId="inputFields">
                                     <Form.Label>Input Field</Form.Label>
                                     <Select
-                                        options={inputFieldOptions.map((label) => ({ label }))}  // Transform array of strings to array of objects
+                                        options={inputFieldOptions.map((option) => ({
+                                            label: option,  // Label for display
+                                            value: option,  // Value for internal use
+                                        }))}
                                         value={selectedInputField}  // Bind selected value
                                         onChange={handleSelectedInputFieldChange}  // Handle change
                                         placeholder="Select Input Field"
                                     />
                                 </Form.Group>
                             </Col>
+
                         </>
                     )}
                 </Row>
@@ -360,21 +371,43 @@ const YourComponent = () => {
                         <tr>
                             <th>Task Name</th>
                             <th>identifier One</th>
-                            <th>identifier1Source</th>
+                            <th>identifier One Source</th>
                             <th>Identifier Two</th>
+                            <th>Identifier Two Source</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {doerMasterList.map((item, index) => (
+                        {doerMasterList.slice(0, 10).map((item, index) => (
                             <tr key={index}>
                                 <td>{item.taskID}</td>
-                                <td>{item.identifier}</td>
                                 <td>{item.identifier1}</td>
+                                <td>{item.identifier1Source}</td>
+                                <td>{item.identifier2}</td>
+                                <td>
+                                    {item.identifier2Source ? (
+                                        <>
+                                            {item.identifier2Source}
+                                            <br />
+                                            From: {item.previousTaskNumber} ({item.selectLabel})
+                                        </>
+                                    ) : (
+                                        "Not applicable"
+                                    )}
+                                </td>
                             </tr>
                         ))}
                     </tbody>
                 </Table>
             </div>
+            <div className="d-flex justify-content-center align-items-center bg-white w-20 rounded-5 m-auto py-1 pb-1 my-2 pagination-rounded">
+                    <Pagination >
+                        <Pagination.First onClick={() => setCurrentPage(1)} disabled={currentPage === 1} />
+                        <Pagination.Prev onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))} disabled={currentPage === 1} />
+                        <Pagination.Item active>{currentPage}</Pagination.Item>
+                        <Pagination.Next onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))} disabled={currentPage === totalPages} />
+                        <Pagination.Last onClick={() => setCurrentPage(totalPages)} disabled={currentPage === totalPages} />
+                    </Pagination>
+             </div>
 
 
 
