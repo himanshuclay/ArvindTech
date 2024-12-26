@@ -88,7 +88,7 @@ const YourComponent = () => {
 
         try {
             const response = await axios.post(
-                `https://arvindo-api.clay.in/api/DynamicDoerAllocation/DynamicDoerAllocation`,
+                `${config.API_URL_ACCOUNT}/DynamicDoerAllocation/DynamicDoerAllocation`,
                 requestData,
                 {
                     headers: {
@@ -138,7 +138,7 @@ const YourComponent = () => {
     useEffect(() => {
         const fetchInputFieldOptions = async () => {
             try {
-                const response = await axios.get(`https://arvindo-api.clay.in/api/DynamicDoerAllocation/GetLabelFromType`, {
+                const response = await axios.get(`${config.API_URL_ACCOUNT}/DynamicDoerAllocation/GetLabelFromType`, {
                     params: { PreviousTaskNumber: previousTask }
                 });
 
@@ -200,7 +200,7 @@ const YourComponent = () => {
     const fetchDesiredTaskOptions = async (taskNumber: string) => {
         try {
             const response = await axios.get(
-                `https://arvindo-api.clay.in/api/DynamicDoerAllocation/GetTaskListfromTaskNumber`,
+                `${config.API_URL_ACCOUNT}/DynamicDoerAllocation/GetTaskListfromTaskNumber`,
                 { params: { TaskNumber: taskNumber } }
             );
 
@@ -400,14 +400,14 @@ const YourComponent = () => {
                 </Table>
             </div>
             <div className="d-flex justify-content-center align-items-center bg-white w-20 rounded-5 m-auto py-1 pb-1 my-2 pagination-rounded">
-                    <Pagination >
-                        <Pagination.First onClick={() => setCurrentPage(1)} disabled={currentPage === 1} />
-                        <Pagination.Prev onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))} disabled={currentPage === 1} />
-                        <Pagination.Item active>{currentPage}</Pagination.Item>
-                        <Pagination.Next onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))} disabled={currentPage === totalPages} />
-                        <Pagination.Last onClick={() => setCurrentPage(totalPages)} disabled={currentPage === totalPages} />
-                    </Pagination>
-             </div>
+                <Pagination >
+                    <Pagination.First onClick={() => setCurrentPage(1)} disabled={currentPage === 1} />
+                    <Pagination.Prev onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))} disabled={currentPage === 1} />
+                    <Pagination.Item active>{currentPage}</Pagination.Item>
+                    <Pagination.Next onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))} disabled={currentPage === totalPages} />
+                    <Pagination.Last onClick={() => setCurrentPage(totalPages)} disabled={currentPage === totalPages} />
+                </Pagination>
+            </div>
 
 
 
