@@ -14,6 +14,7 @@ interface Identifier {
     id: number;
     identifierName: string;
     identifierValue: string;
+    status: string;
     source: string;
 }
 interface Column {
@@ -36,6 +37,7 @@ const ModuleMaster = () => {
     const [identifierList, setIdentifierList] = useState<IdentifierList[]>([]);
     const [searchTriggered, setSearchTriggered] = useState(false);
     const [selectedRow, setSelectedRow] = useState<string | null>(null);
+    const [searchStatus, setSearchStatus] = useState('');
 
     const location = useLocation();
     const navigate = useNavigate();
@@ -61,6 +63,7 @@ const ModuleMaster = () => {
     const [columns, setColumns] = useState<Column[]>([
         { id: 'identifierName', label: 'Identifier Name', visible: true },
         { id: 'identifierValue', label: 'Identifier Value', visible: true },
+        { id: 'status', label: 'Status', visible: true },
         { id: 'source', label: 'Source Type', visible: true },
 
 
@@ -81,7 +84,7 @@ const ModuleMaster = () => {
     useEffect(() => {
         if (searchTriggered || currentPage) {
             handleSearch();
-            
+
         } else {
             fetchRoles();
         }
@@ -94,6 +97,7 @@ const ModuleMaster = () => {
 
         let query = `?`;
         if (identifierID) query += `IdentifierName=${identifierID}&`;
+        if (searchStatus) query += `Status=${searchStatus}&`;
         query += `PageIndex=${currentPage}`;
         const apiUrl = `${config.API_URL_APPLICATION}/IdentifierMaster/SearchIdentifier${query}`;
 
@@ -150,15 +154,16 @@ const ModuleMaster = () => {
                 console.error(`Error fetching data from ${endpoint}:`, error);
             }
         };
-        fetchData('CommonDropdown/GetIdentifier', setIdentifierList, 'identifierList');
+        fetchData('CommonDropdown/GetIdentifier?Flag=1', setIdentifierList, 'identifierList');
         fetchData('IdentifierMaster/GetIdentifier', setDownloadCsv, 'identifierLists');
     }, []);
 
 
     const handleClear = async () => {
-        setSearchTriggered(false);
         setIdentifierID('');
+        setSearchStatus('');
         setCurrentPage(1);
+        setSearchTriggered(false);
         await fetchRoles();
 
     };
@@ -166,11 +171,12 @@ const ModuleMaster = () => {
 
     const convertToCSV = (data: Identifier[]) => {
         const csvRows = [
-            ['ID', 'IdentifierName', 'identifierValue', 'source'],
+            ['ID', 'IdentifierName', 'identifierValue', 'Status', 'source'],
             ...data.map(identifier => [
                 identifier.id.toString(),
-                identifier.identifierName,
-                identifier.identifierValue,
+                `"${identifier.identifierName}"`,
+                `"${identifier.identifierValue}"`,
+                identifier.status,
                 identifier.source,
             ])
         ];
@@ -195,6 +201,10 @@ const ModuleMaster = () => {
     };
 
 
+    const optionsStatus = [
+        { value: 'Enabled', label: 'Enabled' },
+        { value: 'Disabled', label: 'Disabled' }
+    ];
 
 
 
@@ -231,7 +241,7 @@ const ModuleMaster = () => {
                         }}
                     >
                         <Row>
-                            <Col lg={6}>
+                            <Col lg={4}>
                                 <Form.Group controlId="identifierID">
                                     <Form.Label>Identifier Name</Form.Label>
 
@@ -248,13 +258,22 @@ const ModuleMaster = () => {
                                     />
                                 </Form.Group>
                             </Col>
-
-                            <Col>
-
+                            <Col lg={4} className="">
+                                <Form.Group controlId="searchStatus">
+                                    <Form.Label>Status</Form.Label>
+                                    <Select
+                                        name="searchStatus"
+                                        options={optionsStatus}
+                                        value={optionsStatus.find(option => option.value === searchStatus) || null}
+                                        onChange={(selectedOption) => setSearchStatus(selectedOption?.value || '')}
+                                        placeholder="Select Status"
+                                    />
+                                </Form.Group>
                             </Col>
 
 
-                            <Col className='align-items-end d-flex justify-content-end'>
+
+                            <Col lg={4} className='align-items-end d-flex justify-content-end'>
                                 <ButtonGroup aria-label="Basic example" className='w-100'>
                                     <Button type="button" variant="primary" onClick={handleClear}>
                                         <i className="ri-loop-left-line"></i>
@@ -329,7 +348,12 @@ const ModuleMaster = () => {
                                             <tr key={item.id}>
                                                 <td>{(currentPage - 1) * 10 + index + 1}</td>
                                                 {columns.filter(col => col.visible).map((col) => (
-                                                    <td key={col.id}>
+                                                    <td key={col.id}
+
+                                                        className={
+                                                            (col.id === 'status' && item[col.id] === "Enabled") ? 'task1' :
+                                                                (col.id === 'status' && item[col.id] === "Disabled") ? 'task4' : ''
+                                                        }>
                                                         {col.id === "identifierValue" ? (
                                                             <div
                                                                 className="fw-bold text-dark ellipsis-text"

@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { useState, useEffect } from 'react';
-import { Button, Pagination, Table, Container, Row, Col, Alert, Form, ButtonGroup } from 'react-bootstrap';
+import { Button, Pagination, Table, Container, Row, Col, Alert, Form, ButtonGroup, DropdownButton } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import config from '@/config';
@@ -227,6 +227,15 @@ const MessMaster = () => {
     ];
 
 
+    const handleVisibilityChange = (columnId: string) => {
+        setColumns(prevColumns =>
+            prevColumns.map(col =>
+                col.id === columnId ? { ...col, visible: !col.visible } : col
+            )
+        );
+    };
+
+
     return (
         <>
             <div className="d-flex bg-white p-2 my-2 justify-content-between align-items-center">
@@ -325,8 +334,19 @@ const MessMaster = () => {
 
                 <Row className='mt-3'>
                     <div className="d-flex justify-content-end bg-light p-1">
-                        <div className="app-search d-none d-lg-block me-4">
-
+                        <div className=" me-4">
+                        <DropdownButton title="Toggle Columns" className="">
+                            {columns.map(column => (
+                                <Form.Check
+                                    key={column.id}
+                                    type="checkbox"
+                                    id={`toggle-${column.id}`}
+                                    label={column.label}
+                                    checked={column.visible}
+                                    onChange={() => handleVisibilityChange(column.id)}
+                                />
+                            ))}
+                        </DropdownButton>
                         </div>
 
 

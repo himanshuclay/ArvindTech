@@ -4,11 +4,12 @@ import { Button, Col, Form, Row, Badge, CloseButton } from 'react-bootstrap';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import config from '@/config';
 import { toast } from 'react-toastify';
-
+import Select from 'react-select';
 
 interface Identifier {
     id: number;
     identifierName: string;
+    status: string;
     identifierValue: any;
     source: string;
     createdBy: string;
@@ -28,6 +29,7 @@ const EmployeeInsert = () => {
         id: 0,
         identifierName: '',
         identifierValue: '',
+        status: '',
         source: 'Manual Creation',
         createdBy: '',
         updatedBy: '',
@@ -127,6 +129,7 @@ const EmployeeInsert = () => {
 
         if (!identifiers.identifierName) { errors.identifierName = 'Module Display Name is required'; }
         if (!identifiers.identifierValue) { errors.identifierValue = 'Status is required'; }
+        if (!identifiers.status) { errors.status = 'Status is required'; }
 
         setValidationErrors(errors);
         return Object.keys(errors).length === 0;
@@ -162,6 +165,11 @@ const EmployeeInsert = () => {
             console.error('Error submitting module:', error);
         }
     };
+
+    const optionsAppAccess = [
+        { value: 'Enabled', label: 'Enabled' },
+        { value: 'Disabled', label: 'Disabled' }
+    ];
 
 
     return (
@@ -220,6 +228,23 @@ const EmployeeInsert = () => {
                                             </Badge>
                                         ))}
                                     </div>
+                                </Form.Group>
+                            </Col>
+
+                            <Col lg={6}>
+                                <Form.Group controlId="status" className="mb-3">
+                                    <Form.Label>Status *</Form.Label>
+                                    <Select
+                                        name="status"
+                                        options={optionsAppAccess}
+                                        value={optionsAppAccess.find(option => option.value === identifiers.status)}
+                                        onChange={selectedOption => handleChange(null, 'status', selectedOption?.value)}
+                                        placeholder="Select Status"
+                                        className={validationErrors.status ? " input-border" : "  "}
+                                    />
+                                    {validationErrors.status && (
+                                        <small className="text-danger">{validationErrors.status}</small>
+                                    )}
                                 </Form.Group>
                             </Col>
 

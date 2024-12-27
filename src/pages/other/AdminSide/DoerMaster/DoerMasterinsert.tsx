@@ -4,6 +4,7 @@ import { Button, Pagination, Col, Form, Row, Table } from 'react-bootstrap';
 import config from '@/config';
 import Select from 'react-select';
 import { toast } from 'react-toastify';
+import { Link } from 'react-router-dom';
 
 const YourComponent = () => {
     const [identifierList, setIdentifierList] = useState<any[]>([]);
@@ -37,7 +38,7 @@ const YourComponent = () => {
                 console.error(`Error fetching data from ${endpoint}:`, error);
             }
         };
-        fetchData('CommonDropdown/GetIdentifier', setIdentifierList, 'identifierList');
+        fetchData('CommonDropdown/GetIdentifier?Flag=2', setIdentifierList, 'identifierList');
         fetchData('CommonDropdown/GetTaskList', setTaskList, 'taskList');
     }, []);
 
@@ -219,171 +220,199 @@ const YourComponent = () => {
 
     return (
         <div>
-            <div className="d-flex p-2 bg-white mt-2 mb-2 rounded shadow"><h5 className="mb-0">Task's Identifier Combinations</h5></div>
-            <Form onSubmit={handleSubmit}>
-                <Row>
-                    {/* Task Selection */}
-                    <Col md={6}>
-                        <Form.Group controlId="taskSelection">
-                            <Form.Label>Task</Form.Label>
-                            <Select
-                                options={taskList.map((item) => ({
-                                    value: item.taskID,
-                                    label: item.taskID,
-                                }))}
-                                value={
-                                    selectedTask
-                                        ? { value: selectedTask, label: taskList.find((item) => item.taskID === selectedTask)?.taskID }
-                                        : null
-                                }
-                                onChange={(selectedOption) => handleTaskChange(selectedOption)}
-                                placeholder="Select Task"
-                            />
-                        </Form.Group>
-                    </Col>
+            <div className="d-flex bg-white p-2 my-2 justify-content-between align-items-center fs-20 rounded-3 border">
 
-                    {/* Identifier One */}
-                    <Col md={6}>
-                        <Form.Group controlId="identifierOne">
-                            <Form.Label>Identifier One</Form.Label>
-                            <Select
-                                options={identifierList.map((item) => ({
-                                    value: item.id,
-                                    label: item.identifier,
-                                }))}
-                                value={selectedIdentifierOne} // Bind directly to the selected object
-                                onChange={(selectedOption) => handleIdentifierChange(selectedOption, "identifierOne")}
-                                placeholder="Select Identifier One"
-                            />
-                        </Form.Group>
-                    </Col>
+                <span><i className="ri-file-list-line me-2"></i><span className='fw-bold'>Task's Identifier Combinations</span></span>
+            </div>
 
+            <div className='bg-white p-2 rounded-3 border'>
+                <Form onSubmit={handleSubmit}>
+                    <Row>
+                        {/* Task Selection */}
+                        <Col md={6}>
+                            <Form.Group controlId="taskSelection" className='mb-2'>
+                                <Form.Label>Task</Form.Label>
+                                <Select
+                                    options={taskList.map((item) => ({
+                                        value: item.taskID,
+                                        label: item.taskID,
+                                    }))}
+                                    value={
+                                        selectedTask
+                                            ? { value: selectedTask, label: taskList.find((item) => item.taskID === selectedTask)?.taskID }
+                                            : null
+                                    }
+                                    onChange={(selectedOption) => handleTaskChange(selectedOption)}
+                                    placeholder="Select Task"
+                                />
+                            </Form.Group>
+                        </Col>
 
-                    {/* Identifier One Source */}
-                    <Col md={6}>
-                        <Form.Group controlId="identifierOneSource">
-                            <Form.Label>Identifier One Source</Form.Label>
-                            <Select
-                                options={[
-                                    { value: "fromInitiationFields", label: "From Initiation Fields" },
-                                    { value: "fromProcessInputFields", label: "From Process Input Fields" },
-                                ]}
-                                value={
-                                    identifierOneSource
-                                        ? { value: identifierOneSource, label: identifierOneSource }
-                                        : null
-                                }
-                                onChange={(selectedOption) => handleSourceChange(selectedOption, 'identifierOne')}
-                                placeholder="Select Identifier One Source"
-                            />
-                        </Form.Group>
-                    </Col>
-
-                    {/* Identifier Two */}
-                    <Col md={6}>
-                        <Form.Group controlId="identifierTwo">
-                            <Form.Label>Identifier Two</Form.Label>
-                            <Select
-                                options={[
-                                    { value: null, label: "Not Applied" },
-                                    ...identifierList.map((item) => ({
+                        {/* Identifier One */}
+                        <Col md={6}>
+                            <Form.Group controlId="identifierOne" className='mb-2'>
+                                <Form.Label>Identifier One</Form.Label>
+                                <Select
+                                    options={identifierList.map((item) => ({
                                         value: item.id,
                                         label: item.identifier,
-                                    })),
-                                ]}
-                                value={selectedIdentifierTwo} // Directly bind to the selected object
-                                onChange={(selectedOption) => handleIdentifierChange(selectedOption, "identifierTwo")}
-                                placeholder="Select Identifier Two"
-                            />
-                        </Form.Group>
+                                    }))}
+                                    value={selectedIdentifierOne} // Bind directly to the selected object
+                                    onChange={(selectedOption) => handleIdentifierChange(selectedOption, "identifierOne")}
+                                    placeholder="Select Identifier One"
+                                />
+                            </Form.Group>
+                        </Col>
+
+
+                        {/* Identifier One Source */}
+                        <Col md={6}>
+                            <Form.Group controlId="identifierOneSource" className='mb-2'>
+                                <Form.Label>Identifier One Source</Form.Label>
+                                <Select
+                                    options={[
+                                        { value: "fromInitiationFields", label: "From Initiation Fields" },
+                                        { value: "fromProcessInputFields", label: "From Process Input Fields" },
+                                    ]}
+                                    value={
+                                        identifierOneSource
+                                            ? { value: identifierOneSource, label: identifierOneSource }
+                                            : null
+                                    }
+                                    onChange={(selectedOption) => handleSourceChange(selectedOption, 'identifierOne')}
+                                    placeholder="Select Identifier One Source"
+                                />
+                            </Form.Group>
+                        </Col>
+
+                        {/* Identifier Two */}
+                        <Col md={6}>
+                            <Form.Group controlId="identifierTwo" className='mb-2'>
+                                <Form.Label>Identifier Two</Form.Label>
+                                <Select
+                                    options={[
+                                        { value: null, label: "Not Applied" },
+                                        ...identifierList.map((item) => ({
+                                            value: item.id,
+                                            label: item.identifier,
+                                        })),
+                                    ]}
+                                    value={selectedIdentifierTwo} // Directly bind to the selected object
+                                    onChange={(selectedOption) => handleIdentifierChange(selectedOption, "identifierTwo")}
+                                    placeholder="Select Identifier Two"
+                                />
+                            </Form.Group>
+                        </Col>
+
+
+                        {/* Identifier Two Source */}
+                        <Col md={6}>
+                            <Form.Group controlId="identifierTwoSource" className='mb-2'>
+                                <Form.Label>Identifier Two Source</Form.Label>
+                                <Select
+                                    options={[
+                                        { value: "fromInitiationFields", label: "From Initiation Fields" },
+                                        { value: "fromProcessInputFields", label: "From Process Input Fields" },
+                                    ]}
+                                    value={
+                                        identifierTwoSource
+                                            ? { value: identifierTwoSource, label: identifierTwoSource }
+                                            : null
+                                    }
+                                    onChange={(selectedOption) => handleSourceChange(selectedOption, 'identifierTwo')}
+                                    placeholder="Select Identifier Two Source"
+                                />
+                            </Form.Group>
+                        </Col>
+
+                        {/* Conditional Fields */}
+                        {identifierTwoSource === "fromProcessInputFields" && (
+                            <>
+                                <Col md={6}>
+                                    <Form.Group controlId="previousTask" className='mb-2'>
+                                        <Form.Label>Previous Task Number</Form.Label>
+                                        <Select
+                                            options={desiredTaskOptions}
+                                            value={
+                                                previousTask
+                                                    ? desiredTaskOptions.find((option) => option.value === previousTask)
+                                                    : null
+                                            }
+                                            onChange={(selectedOption) => handleTaskNumberChange(selectedOption)}
+                                            placeholder="Select Previous Task Number"
+                                        />
+                                    </Form.Group>
+                                </Col>
+                                <Col md={6}>
+                                    <Form.Group controlId="inputFields" className='mb-2'>
+                                        <Form.Label>Input Field</Form.Label>
+                                        <Select
+                                            options={inputFieldOptions.map((option) => ({
+                                                label: option,  // Label for display
+                                                value: option,  // Value for internal use
+                                            }))}
+                                            value={selectedInputField}  // Bind selected value
+                                            onChange={handleSelectedInputFieldChange}  // Handle change
+                                            placeholder="Select Input Field"
+                                        />
+                                    </Form.Group>
+                                </Col>
+
+                            </>
+                        )}
+                    </Row>
+
+
+                    <Col className='align-items-end d-flex justify-content-end mb-3'>
+                        <div>
+                            <Link to={'/pages/DoerMaster'}>
+                                <Button variant="primary" >
+                                    Back
+                                </Button>
+                            </Link>
+                            &nbsp;
+                            <Button variant="primary" type="submit">
+                                Submit
+                            </Button>
+                        </div>
                     </Col>
+                </Form>
 
 
-                    {/* Identifier Two Source */}
-                    <Col md={6}>
-                        <Form.Group controlId="identifierTwoSource">
-                            <Form.Label>Identifier Two Source</Form.Label>
-                            <Select
-                                options={[
-                                    { value: "fromInitiationFields", label: "From Initiation Fields" },
-                                    { value: "fromProcessInputFields", label: "From Process Input Fields" },
-                                ]}
-                                value={
-                                    identifierTwoSource
-                                        ? { value: identifierTwoSource, label: identifierTwoSource }
-                                        : null
-                                }
-                                onChange={(selectedOption) => handleSourceChange(selectedOption, 'identifierTwo')}
-                                placeholder="Select Identifier Two Source"
-                            />
-                        </Form.Group>
-                    </Col>
 
-                    {/* Conditional Fields */}
-                    {identifierTwoSource === "fromProcessInputFields" && (
-                        <>
-                            <Col md={6}>
-                                <Form.Group controlId="previousTask">
-                                    <Form.Label>Previous Task Number</Form.Label>
-                                    <Select
-                                        options={desiredTaskOptions}
-                                        value={
-                                            previousTask
-                                                ? desiredTaskOptions.find((option) => option.value === previousTask)
-                                                : null
-                                        }
-                                        onChange={(selectedOption) => handleTaskNumberChange(selectedOption)}
-                                        placeholder="Select Previous Task Number"
-                                    />
-                                </Form.Group>
-                            </Col>
-                            <Col md={6}>
-                                <Form.Group controlId="inputFields">
-                                    <Form.Label>Input Field</Form.Label>
-                                    <Select
-                                        options={inputFieldOptions.map((option) => ({
-                                            label: option,  // Label for display
-                                            value: option,  // Value for internal use
-                                        }))}
-                                        value={selectedInputField}  // Bind selected value
-                                        onChange={handleSelectedInputFieldChange}  // Handle change
-                                        placeholder="Select Input Field"
-                                    />
-                                </Form.Group>
-                            </Col>
-
-                        </>
-                    )}
-                </Row>
-
-                <Button className="mt-3" variant="primary" type="submit">
-                    Submit
-                </Button>
-            </Form>
-
-
+            </div>
 
             {/* Table to display DoerMaster list */}
             <div className="mt-4">
-                <h5>Task Identifier Combinations</h5>
+                <div className="d-flex bg-white p-2 my-2 justify-content-between align-items-center fs-20 rounded-3 border">
+                    <span><i className="ri-file-list-line me-2"></i><span className='fw-bold'>Task's Identifier Combinations</span></span>
+                    <Link to={'/pages/DoerMaster'}>
+                        <Button variant="primary" >
+                            Back
+                        </Button>
+                    </Link>
+                </div>
                 <Table hover className="bg-white">
                     <thead>
                         <tr>
-                            <th>Task Name</th>
-                            <th>identifier One</th>
-                            <th>identifier One Source</th>
-                            <th>Identifier Two</th>
-                            <th>Identifier Two Source</th>
+                            <th className='py-2'>Sr.no</th>
+                            <th className='py-2'>Task Name</th>
+                            <th className='py-2'>Identifier One</th>
+                            <th className='py-2'>Identifier One Source</th>
+                            <th className='py-2'>Identifier Two</th>
+                            <th className='py-2'>Identifier Two Source</th>
+                            <th className='py-2'>Action</th>
                         </tr>
                     </thead>
                     <tbody>
                         {doerMasterList.slice(0, 10).map((item, index) => (
                             <tr key={index}>
-                                <td>{item.taskID}</td>
-                                <td>{item.identifier1}</td>
-                                <td>{item.identifier1Source}</td>
-                                <td>{item.identifier2}</td>
-                                <td>
+                                <td >{index +1}</td>
+                                <td >{item.taskID}</td>
+                                <td >{item.identifier1}</td>
+                                <td >{item.identifier1Source}</td>
+                                <td >{item.identifier2}</td>
+                                <td >
                                     {item.identifier2Source ? (
                                         <>
                                             {item.identifier2Source}
@@ -393,6 +422,13 @@ const YourComponent = () => {
                                     ) : (
                                         "Not applicable"
                                     )}
+                                </td>
+                                <td >
+                                    <Link to={`/pages/DoerMasterinsert/${item.taskID}`}>
+                                        <Button variant='primary' className='p-0 text-white'>
+                                            <i className='btn ri-edit-line text-white' ></i>
+                                        </Button>
+                                    </Link>
                                 </td>
                             </tr>
                         ))}
