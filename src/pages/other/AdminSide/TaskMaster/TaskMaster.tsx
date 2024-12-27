@@ -7,6 +7,7 @@ import config from '@/config';
 import Select from 'react-select';
 import TaskCondition from './Taskcondition';
 import DynamicForm from '../../Component/DynamicForm';
+import { toast } from 'react-toastify';
 
 // Interfaces for the data
 interface Task {
@@ -166,6 +167,7 @@ const TaskMaster: React.FC = () => {
                 console.log('Task updated:', response.data);
                 // alert('Task updated successfully');
                 handleCloseModal();
+                toast.success("Task has been Updated succussfully")
             } else {
                 console.error('task_Json does not contain valid inputs');
                 alert('Error: task_Json is invalid or missing inputs');
