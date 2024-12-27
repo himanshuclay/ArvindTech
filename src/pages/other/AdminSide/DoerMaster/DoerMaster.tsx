@@ -19,6 +19,7 @@ interface Doer {
     inputValue: string;
     doerRole: string;
     empID: string;
+    status: string;
     empName: any;
     createdBy: string;
     updatedBy: string;
@@ -54,12 +55,14 @@ const ModuleMaster = () => {
     const [showModal, setShowModal] = useState(false);
     const [selectedEmpId, setSelectedEmpId] = useState('');
     const [selectedEmpName, setSelectedEmpName] = useState('');
+    const [doerStatus, setDoerStatus] = useState('');
     const [currentId, setCurrentId] = useState<number | null>(null);
 
     const [employeeList, setEmployeeList] = useState<EmployeeList[]>([]);
     const [doerList, setdoerList] = useState<EmployeeList[]>([]);
     const [taskList, setTaskList] = useState<TaskList[]>([]);
     const [identifierList, setIdentifierList] = useState<Identifier[]>([]);
+    // const [validationErrors, setValidationErrors] = useState<{ [key: string]: string }>({});
 
 
     const location = useLocation();
@@ -81,8 +84,8 @@ const ModuleMaster = () => {
         { id: 'inputValue', label: 'Input Value one', visible: true },
         { id: 'identifier1', label: 'Second Identifier', visible: true },
         { id: 'inputValue1', label: 'Input Value two', visible: true },
-        // { id: 'empID', label: 'Employee ID', visible: true },
         { id: 'empName', label: 'Employee Name', visible: true },
+        { id: 'status', label: 'Status', visible: true },
 
     ]);
 
@@ -112,12 +115,20 @@ const ModuleMaster = () => {
     };
 
     const handleSubmit = async () => {
+
+        // if (!validateFields()) {
+        //     toast.dismiss()
+        //     toast.error('Please fill in all required fields.');
+        //     return;
+        // }
+
         try {
             const payload = {
                 id: currentId,
                 empID: selectedEmpId,
                 empName: selectedEmpName,
-                updatedBy: storedEmpName, // Replace with actual user ID
+                status: doerStatus,
+                updatedBy: storedEmpName,
             };
             console.log(payload);
 
@@ -135,19 +146,19 @@ const ModuleMaster = () => {
     };
 
 
-
+    const [searchTriggered, setSearchTriggered] = useState(false);
     const [searchEmployeeName, setSearchEmployeeName] = useState('');
     const [searchTaskId, setSearchTaskId] = useState('');
     const [searchIdentifier, setSearchIdentifier] = useState('');
-
+    const [searchStatus, setSearchStatus] = useState('');
 
     useEffect(() => {
-        if (searchEmployeeName || searchTaskId || searchIdentifier) {
+        if (searchTriggered) {
             handleSearch();
         } else {
             fetchDoers();
         }
-    }, [currentPage]);
+    }, [currentPage, searchTriggered]);
 
     const handleSearch = (e?: React.FormEvent) => {
         if (e) e.preventDefault();
@@ -156,6 +167,7 @@ const ModuleMaster = () => {
         if (searchEmployeeName) query += `DoerName=${searchEmployeeName}&`;
         if (searchTaskId) query += `TaskID=${searchTaskId}&`;
         if (searchIdentifier) query += `Identifier=${searchIdentifier}&`;
+        if (searchStatus) query += `Identifier=${searchStatus}&`;
         query += `PageIndex=${currentPage}`;
 
 
@@ -234,7 +246,7 @@ const ModuleMaster = () => {
         fetchData('CommonDropdown/GetDoerFromDoerMaster', setdoerList, 'doerListResponses');
         fetchData('CommonDropdown/GetEmployeeListWithId', setEmployeeList, 'employeeLists');
         fetchData('CommonDropdown/GetTaskList', setTaskList, 'taskList');
-        fetchData('CommonDropdown/GetIdentifier', setIdentifierList, 'identifierList');
+        fetchData('CommonDropdown/GetIdentifier?Flag=2', setIdentifierList, 'identifierList');
     }, []);
 
 
@@ -243,24 +255,27 @@ const ModuleMaster = () => {
 
 
 
-    const handleClear = () => {
+    const handleClear = async () => {
         setCurrentPage(1);
         setSearchEmployeeName('');
         setSearchIdentifier('');
         setSearchTaskId('');
-        fetchDoers();
+        setSearchStatus('');
+        setSearchTriggered(false);
+        await fetchDoers();
     };
 
 
     const convertToCSV = (data: Doer[]) => {
         const csvRows = [
-            ['Task ID', 'Identifier', 'Input', 'Input Value', 'Doer Role', 'Emp ID', 'Emp Name'],
+            ['Task ID', 'Identifier', 'Input', 'Input Value', 'Doer Role', 'Status', 'Emp ID', 'Emp Name'],
             ...data.map(doer => [
                 doer.taskID,
                 doer.identifier,
                 doer.input,
                 doer.inputValue,
                 doer.doerRole,
+                doer.status,
                 doer.empID,
                 doer.empName
             ])
@@ -288,6 +303,42 @@ const ModuleMaster = () => {
         setShowModal(true);
     };
 
+
+    const optionsAppAccess = [
+        { value: 'Enabled', label: 'Enabled' },
+        { value: 'Disabled', label: 'Disabled' }
+    ];
+
+    const optionsTaskNumber = [
+        { value: 'No Doer Assigned', label: 'No Doer Assigned' },
+    ];
+
+    const formattedTasks = employeeList.map((employee: EmployeeList) => ({
+        empId: employee.empId,
+        employeeName: employee.employeeName,
+        empName: employee.employeeName,
+    }));
+
+    const formattedOptionsTaskNumber = optionsTaskNumber.map((option) => ({
+        empId: option.value,
+        employeeName: option.label,
+        empName: option.label,
+    }));
+
+    const combinedOptions: EmployeeList[] = [...formattedOptionsTaskNumber, ...formattedTasks];
+
+
+
+
+    // const validateFields = (): boolean => {
+    //     const errors: { [key: string]: string } = {};
+
+    //     if (!doers.empName) { errors.projectID = 'Project Id is required'; }
+    //     if (!doers.status) { errors.status = 'Status is required'; }
+
+    //     setValidationErrors(errors);
+    //     return Object.keys(errors).length === 0;
+    // };
 
     return (
         <>
@@ -320,12 +371,12 @@ const ModuleMaster = () => {
                             onSubmit={(e) => {
                                 e.preventDefault();
                                 setCurrentPage(1);
-                                handleSearch();
+                                setSearchTriggered(true);
                             }}
 
                         >
                             <Row>
-                                <Col lg={4}>
+                                <Col lg={6}>
                                     <Form.Group controlId="searchEmployeeName">
                                         <Form.Label>Doer Name</Form.Label>
                                         <Select
@@ -343,7 +394,7 @@ const ModuleMaster = () => {
                                 </Col>
 
 
-                                <Col lg={4}>
+                                <Col lg={6}>
                                     <Form.Group controlId="searchTaskId">
                                         <Form.Label>Task Number</Form.Label>
                                         <Select
@@ -360,7 +411,7 @@ const ModuleMaster = () => {
                                     </Form.Group>
                                 </Col>
 
-                                <Col lg={4} className="">
+                                <Col lg={6} className="mt-2">
                                     <Form.Group controlId="searchIdentifier">
                                         <Form.Label>Identifier Name</Form.Label>
                                         <Select
@@ -376,54 +427,20 @@ const ModuleMaster = () => {
                                         />
                                     </Form.Group>
                                 </Col>
+                                <Col lg={6} className="mt-2">
+                                    <Form.Group controlId="searchStatus">
+                                        <Form.Label>Status</Form.Label>
+                                        <Select
+                                            name="searchStatus"
+                                            options={optionsAppAccess}
+                                            value={optionsAppAccess.find(option => option.value === searchStatus) || null}
+                                            onChange={(selectedOption) => setSearchStatus(selectedOption?.value || '')}
+                                            placeholder="Select Status"
+                                        />
+                                    </Form.Group>
+                                </Col>
                                 <Col></Col>
 
-                                {/* Modal */}
-                                <Modal show={showModal} onHide={handleCloseModal}>
-                                    <Modal.Header closeButton>
-                                        <Modal.Title>Edit Doer</Modal.Title>
-                                    </Modal.Header>
-                                    <Modal.Body>
-                                        <Form>
-                                            <Form.Group>
-                                                <Form.Label>Employee</Form.Label>
-                                                <Select
-                                                    options={employeeList.map((doer) => ({
-                                                        value: doer.empId,
-                                                        label: doer.employeeName,
-                                                    }))}
-                                                    value={
-                                                        selectedEmpId
-                                                            ? { value: selectedEmpId, label: selectedEmpName }
-                                                            : null
-                                                    }
-                                                    onChange={(selectedOption) => {
-                                                        if (selectedOption) {
-                                                            setSelectedEmpId(selectedOption.value);
-                                                            setSelectedEmpName(selectedOption.label);
-                                                        } else {
-                                                            setSelectedEmpId('');
-                                                            setSelectedEmpName('');
-                                                        }
-                                                    }}
-                                                    placeholder="Select Employee"
-                                                    isClearable
-                                                    isSearchable
-                                                />
-                                            </Form.Group>
-
-
-                                        </Form>
-                                    </Modal.Body>
-                                    <Modal.Footer>
-                                        <Button variant="secondary" onClick={handleCloseModal}>
-                                            Close
-                                        </Button>
-                                        <Button variant="primary" onClick={handleSubmit}>
-                                            Save Changes
-                                        </Button>
-                                    </Modal.Footer>
-                                </Modal>
 
                                 <Col lg={4} className="align-items-end d-flex justify-content-end mt-2">
                                     <ButtonGroup aria-label="Basic example" className="w-100">
@@ -439,6 +456,78 @@ const ModuleMaster = () => {
                             </Row>
                         </Form>
 
+                        <Modal show={showModal} onHide={handleCloseModal} size='lg'>
+                            <Modal.Header closeButton>
+                                <Modal.Title>Edit Doer</Modal.Title>
+                            </Modal.Header>
+                            <Modal.Body>
+                                <Form>
+                                    <Row>
+                                        <Col lg={6}>
+                                            <Form.Group>
+                                                <Form.Label>Employee  <span className='text-danger'>*</span></Form.Label>
+                                                <Select
+                                                    name="employeeName"
+                                                    // value={combinedOptions.find((item) => item.employeeName === doers.empName) || null}
+                                                    onChange={(selectedOption) => {
+                                                        if (selectedOption) {
+                                                            setSelectedEmpId(selectedOption.empId);
+                                                            setSelectedEmpName(selectedOption.employeeName);
+                                                        } else {
+                                                            setSelectedEmpId('');
+                                                            setSelectedEmpName('');
+                                                        }
+                                                    }}
+                                                    options={combinedOptions}
+                                                    getOptionLabel={(item) => item.employeeName}
+                                                    getOptionValue={(item) => item.empId}
+                                                    isSearchable={true}
+                                                    placeholder="Select Employee"
+                                                // className={validationErrors.employeeName ? " input-border h45" : "   h45"}
+                                                />
+                                                {/* {validationErrors.employeeName && (
+                                                    <small className="text-danger">{validationErrors.employeeName}</small>
+                                                )} */}
+
+
+                                            </Form.Group>
+                                        </Col>
+
+                                        <Col lg={6}>
+                                            <Form.Group controlId="status" className="mb-3">
+                                                <Form.Label>Status <span className='text-danger'>*</span></Form.Label>
+                                                <Select
+                                                    name="status"
+                                                    options={optionsAppAccess}
+                                                    // value={optionsAppAccess.find(option => option.value === doers.status)}
+                                                    onChange={(selectedOption) => {
+                                                        if (selectedOption) {
+                                                            setDoerStatus(selectedOption.value);
+                                                        } else {
+                                                            setDoerStatus('');
+                                                        }
+                                                    }}
+                                                    placeholder="Select Status"
+                                                // className={validationErrors.status ? " input-border h45" : "   h45"}
+                                                />
+                                                {/* {validationErrors.status && (
+                                                    <small className="text-danger">{validationErrors.status}</small>
+                                                )} */}
+
+                                            </Form.Group>
+                                        </Col>
+                                    </Row>
+                                </Form>
+                            </Modal.Body>
+                            <Modal.Footer>
+                                <Button variant="secondary" onClick={handleCloseModal}>
+                                    Close
+                                </Button>
+                                <Button variant="primary" onClick={handleSubmit}>
+                                    Save Changes
+                                </Button>
+                            </Modal.Footer>
+                        </Modal>
 
 
                         <Row className='mt-3'>
@@ -480,7 +569,7 @@ const ModuleMaster = () => {
                                                                         {column.id === 'inputValue' && (<i className="ri-keyboard-line"></i>)}
                                                                         {column.id === 'inputValue1' && (<i className="ri-keyboard-line"></i>)}
                                                                         {column.id === 'taskID' && (<i className="ri-settings-2-fill"></i>)}
-                                                                        {column.id === 'doerRole' && (<i className="ri-user-settings-fill"></i>)}
+                                                                        {column.id === 'status' && (<i className="ri-flag-fill"></i>)}
                                                                         {column.id === 'empName' && (<i className="ri-user-fill"></i>)}
                                                                         {column.id === 'identifier' && (<i className="ri-price-tag-3-fill"></i>)}
                                                                         {column.id === 'identifier1' && (<i className="ri-price-tag-3-fill"></i>)}
@@ -507,7 +596,9 @@ const ModuleMaster = () => {
                                                             className={
                                                                 // Add class based on column id
                                                                 col.id === 'taskID' ? 'fw-bold text-dark' :
-                                                                    ''
+                                                                    (col.id === 'status' && item[col.id] === "Enabled") ? 'task1' :
+                                                                        (col.id === 'status' && item[col.id] === "Disabled") ? 'task4' :
+                                                                            ''
                                                             }
                                                         >
                                                             <div>
