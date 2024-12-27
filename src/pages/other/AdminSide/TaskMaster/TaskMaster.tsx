@@ -96,6 +96,7 @@ const TaskMaster: React.FC = () => {
 
     const handleProblemSolverChange: React.ChangeEventHandler<HTMLInputElement> = (e) => {
         setProblemSolver(e.target.value);
+        console.log(problemSolver)
     };
 
 
@@ -147,11 +148,11 @@ const TaskMaster: React.FC = () => {
                     }),
                     updatedBy: "YourNameHere",
                     updatedDate: new Date().toISOString(),
+                    problem_Solver: problemSolver,
                 };
 
                 // Send the updated task data to the API
-                const response = await axios.post(
-                    'https://arvindo-api.clay.in/api/ProcessTaskMaster/InsertUpdateProcessTaskandDoer',
+                const response = await axios.post(`${config.API_URL_ACCOUNT}/ProcessTaskMaster/InsertUpdateProcessTaskandDoer`,
                     updatedTaskData,
                     {
                         headers: {
@@ -163,7 +164,8 @@ const TaskMaster: React.FC = () => {
                 console.log(updatedTaskData)
 
                 console.log('Task updated:', response.data);
-                alert('Task updated successfully');
+                // alert('Task updated successfully');
+                handleCloseModal();
             } else {
                 console.error('task_Json does not contain valid inputs');
                 alert('Error: task_Json is invalid or missing inputs');
@@ -181,8 +183,7 @@ const TaskMaster: React.FC = () => {
 
             const fetchTaskData = async (taskIdToEdit: number) => {
                 try {
-                    const { data } = await axios.get(
-                        `https://arvindo-api.clay.in/api/ProcessTaskMaster/GetProcessTaskByIds?Flag=3&ID=${taskIdToEdit}`
+                    const { data } = await axios.get(`${config.API_URL_ACCOUNT}/ProcessTaskMaster/GetProcessTaskByIds?Flag=3&ID=${taskIdToEdit}`
                     );
                     const task = data.getProcessTaskByIds[0];
                     console.log(task)
@@ -259,7 +260,7 @@ const TaskMaster: React.FC = () => {
 
     useEffect(() => {
         axios
-            .get('https://arvindo-api2.clay.in/api/CommonDropdown/GetEmployeeListWithId')
+            .get(`${config.API_URL_APPLICATION}/CommonDropdown/GetEmployeeListWithId`)
             .then((response) => {
                 if (response.data.isSuccess) {
                     setEmployeeList(response.data.employeeLists);
@@ -268,6 +269,30 @@ const TaskMaster: React.FC = () => {
             .catch((error) => {
                 console.error('Error fetching employee list:', error);
             });
+    }, []);
+
+    interface Role {
+        roleId: string;
+        roleName: string;
+    }
+
+    const [roles, setRoles] = useState<Role[]>([]);
+
+    useEffect(() => {
+        const fetchRoles = async () => {
+            try {
+                const response = await axios.get(`${config.API_URL_APPLICATION}/CommonDropdown/GetRoleMasterList`);
+                if (response.data.isSuccess) {
+                    setRoles(response.data.roleMasterLists); // Adjust as per API response structure
+                } else {
+                    console.error('Error fetching roles:', response.data.message);
+                }
+            } catch (error) {
+                console.error('Error fetching data:', error);
+            }
+        };
+
+        fetchRoles();
     }, []);
 
 
@@ -315,8 +340,10 @@ const TaskMaster: React.FC = () => {
                 console.log(tasks)
             })
 
+
             .catch((error) => console.error('Error fetching tasks:', error));
-    }, [selectedModuleId && selectedProcess]);
+    },
+        [selectedModuleId && selectedProcess]);
 
 
 
@@ -508,12 +535,12 @@ const TaskMaster: React.FC = () => {
                                                 <Form.Label>Problem Solver</Form.Label>
                                                 <Form.Control
                                                     as="select"
-                                                    value={problemSolver || ''}
+                                                    value={task.problem_Solver || ''}
                                                     onChange={handleProblemSolverChange}
                                                 >
-                                                    <option value="">{task.problem_Solver}</option>
+                                                    {/* <option value="">{task.problem_Solver}</option> */}
                                                     {employeeList.map((employee) => (
-                                                        <option key={employee.empId} value={employee.empId}>
+                                                        <option key={employee.employeeName} value={employee.employeeName}>
                                                             {employee.employeeName}
                                                         </option>
                                                     ))}
@@ -540,7 +567,7 @@ const TaskMaster: React.FC = () => {
                                                     if (parsedTaskJson && Array.isArray(parsedTaskJson.inputs)) {
                                                         return parsedTaskJson.inputs.map((input: any) => {
                                                             // Exclude inputIds 100, 102, 103 and handle inputId 99 differently
-                                                            if (['100', '102', '103'].includes(input.inputId)) {
+                                                            if (['100', '102'].includes(input.inputId)) {
                                                                 return null; // Skip this input
                                                             }
 
@@ -564,21 +591,44 @@ const TaskMaster: React.FC = () => {
                                                                                     }
                                                                                 />
                                                                             </div>
+
                                                                         ) : (
                                                                             <>
                                                                                 {/* Label input */}
-                                                                                <div className="form-group col-6">
-                                                                                    <label htmlFor={`label-${input.inputId}`}>Label</label>
-                                                                                    <input
-                                                                                        id={`label-${input.inputId}`}
-                                                                                        type="text"
-                                                                                        className="form-control"
-                                                                                        value={updatedFields[input.inputId]?.label || ''}
-                                                                                        onChange={(e) =>
-                                                                                            handleFieldChange(input.inputId, 'label', e.target.value)
-                                                                                        }
-                                                                                    />
-                                                                                </div>
+                                                                                {input.inputId != '103' ? (
+                                                                                    <div className="form-group col-6">
+                                                                                        <label htmlFor={`label-${input.inputId}`}>Label</label>
+                                                                                        <input
+                                                                                            id={`label-${input.inputId}`}
+                                                                                            type="text"
+                                                                                            className="form-control"
+                                                                                            value={updatedFields[input.inputId]?.label || ''}
+                                                                                            onChange={(e) =>
+                                                                                                handleFieldChange(input.inputId, 'label', e.target.value)
+                                                                                            }
+                                                                                        />
+                                                                                    </div>) :
+                                                                                    (
+                                                                                        <div className="form-group col-6">
+                                                                                            <label htmlFor={`role-${input.inputId}`}>Role</label>
+                                                                                            <select
+                                                                                                id={`role-${input.inputId}`}
+                                                                                                className="form-control"
+                                                                                                value={updatedFields[input.inputId]?.label || ''} // Tie the value to `label`
+                                                                                                onChange={(e) => handleFieldChange(input.inputId, 'label', e.target.value)} // Update `label` on change
+                                                                                            >
+                                                                                                <option value="" disabled>
+                                                                                                    Select Role
+                                                                                                </option>
+                                                                                                {roles.map((role) => (
+                                                                                                    <option key={role.roleId} value={role.roleName}>
+                                                                                                        {role.roleName}
+                                                                                                    </option>
+                                                                                                ))}
+                                                                                            </select>
+                                                                                        </div>
+                                                                                    )
+                                                                                }
 
                                                                                 {/* Placeholder input */}
                                                                                 <div className="form-group col-6">
@@ -628,9 +678,6 @@ const TaskMaster: React.FC = () => {
                                                     }
                                                 })()}
 
-                                                <div className="text-center mt-4">
-                                                    <button className="btn btn-primary" onClick={handleSaveTask}>Save Task</button>
-                                                </div>
                                             </div>
                                         )}
 
