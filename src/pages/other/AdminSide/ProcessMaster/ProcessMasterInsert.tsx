@@ -274,6 +274,38 @@ const EmployeeInsert = () => {
     ];
 
 
+    const downloadZipFile = async (moduleName: string, processName: string): Promise<void> => {
+        try {
+            const url = `${config.API_URL_APPLICATION}/FileUpload/GetFileByID?ModuleName=${encodeURIComponent(moduleName)}&ProcessName=${encodeURIComponent(processName)}`;
+
+            const response = await axios.get<Blob>(url, {
+                responseType: 'blob',
+            });
+
+            const blob = new Blob([response.data], { type: 'files/zip' });
+
+            const fileUrl = window.URL.createObjectURL(blob);
+
+            const link = document.createElement('a');
+            link.href = fileUrl;
+            link.setAttribute('download', `${moduleName}-${processName}.zip`); // Set the file name dynamically
+            document.body.appendChild(link);
+            link.click();
+
+            document.body.removeChild(link);
+            window.URL.revokeObjectURL(fileUrl);
+        } catch (error: any) {
+            console.error(error);
+        }
+    };
+
+    // Example usage
+    const handleDownload = (): void => {
+        const moduleName = process.moduleName;
+        const processName = process.processDisplayName;
+        downloadZipFile(moduleName, processName);
+    };
+
     return (
         <div>
             <div className="container">
@@ -466,7 +498,8 @@ const EmployeeInsert = () => {
                             </Col>
 
 
-                            <Col></Col>
+                            <Col> <Button onClick={handleDownload}>Download Files</Button></Col>
+
                             <Col lg={3} className='align-items-end d-flex justify-content-end mb-3'>
                                 <ButtonGroup aria-label="Basic example" className='w-100'>
                                     <Link to={'/pages/ProcessMaster'} className="btn btn-primary">

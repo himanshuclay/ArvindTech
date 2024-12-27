@@ -36,6 +36,7 @@ interface SubProject {
     estimateCompletionDate: string;
     recordedMonth: string;
     recordedYear: string;
+    status: string;
 }
 
 
@@ -87,6 +88,7 @@ const ProjectInsert = () => {
         estimateCompletionDate: '',
         recordedMonth: '',
         recordedYear: '',
+        status: '',
     });
 
     const [validationErrors, setValidationErrors] = useState<{ [key: string]: string }>({});
@@ -156,16 +158,24 @@ const ProjectInsert = () => {
 
 
 
-    const handleChange = (e: ChangeEvent<any>) => {
-        const { name, type } = e.target;
-        if (type === 'checkbox') {
-            const checked = (e.target as HTMLInputElement).checked;
-            setSubProject({
-                ...subProject,
-                [name]: checked
-            });
-        } else {
-            const value = (e.target as HTMLInputElement | HTMLSelectElement).value;
+    const handleChange = (e: ChangeEvent<any> | null, name?: string, value?: any) => {
+        if (e) {
+            const { name: eventName, type } = e.target;
+
+            if (type === 'checkbox') {
+                const checked = (e.target as HTMLInputElement).checked;
+                setSubProject({
+                    ...subProject,
+                    [eventName]: checked
+                });
+            } else {
+                const inputValue = (e.target as HTMLInputElement | HTMLSelectElement).value;
+                setSubProject({
+                    ...subProject,
+                    [eventName]: inputValue
+                });
+            }
+        } else if (name) {
             setSubProject({
                 ...subProject,
                 [name]: value
@@ -232,6 +242,11 @@ const ProjectInsert = () => {
 
     console.log(projectList)
     console.log(subProject)
+
+    const optionsAppAccess = [
+        { value: 'Enabled', label: 'Enabled' },
+        { value: 'Disabled', label: 'Disabled' }
+    ];
 
     return (
         <div>
@@ -323,6 +338,23 @@ const ProjectInsert = () => {
                                     />
                                     {validationErrors.completionStatus && (
                                         <small className="text-danger">{validationErrors.completionStatus}</small>
+                                    )}
+                                </Form.Group>
+                            </Col>
+
+                            <Col lg={6}>
+                                <Form.Group controlId="status" className="mb-3">
+                                    <Form.Label>Status *</Form.Label>
+                                    <Select
+                                        name="status"
+                                        options={optionsAppAccess}
+                                        value={optionsAppAccess.find(option => option.value === subProject.status)}
+                                        onChange={selectedOption => handleChange(null, 'status', selectedOption?.value)}
+                                        placeholder="Select Status"
+                                        className={validationErrors.status ? " input-border" : "  "}
+                                    />
+                                    {validationErrors.status && (
+                                        <small className="text-danger">{validationErrors.status}</small>
                                     )}
                                 </Form.Group>
                             </Col>

@@ -3,9 +3,6 @@ import axios from "axios";
 import config from "@/config";
 import { useEffect, useState } from "react";
 import Select from 'react-select';
-import Flatpickr from 'react-flatpickr';
-import 'flatpickr/dist/themes/material_green.css';
-import { format } from 'date-fns';
 import { toast } from "react-toastify";
 
 
@@ -101,8 +98,9 @@ const TaskCondition: React.FC<ProcessCanvasProps> = ({ show, setShow, taskID }) 
     const [parseData, setParseData] = useState<any>(''); // Use `any` or the appropriate type here
     const [parseDataForSingle, setParseDataForsingle] = useState(false); // Use `any` or the appropriate type here
     const [sundayLogic, setSundayLogic] = useState<any>(''); // Use `any` or the appropriate type here
+    const [expiryLogic, setExpiryLogic] = useState<any>(''); // Use `any` or the appropriate type here
+    const [expirationTime, setExpirationTime] = useState<any>(''); // Use `any` or the appropriate type here
     const [isExpirable, setIsExpirable] = useState(0); // Default to 0 (No)
-    const [expirationDate, setExpirationDate] = useState<string>(''); // Default to null (no date selected)
     const [tasks, setTasks] = useState<TaskData[]>([]);
     const [singleData, setSignleData] = useState<TaskData[]>([]); // Use an array of TaskData
     const [parseConditionData, setParseConditionData] = useState<FormData[]>([]);
@@ -314,39 +312,6 @@ const TaskCondition: React.FC<ProcessCanvasProps> = ({ show, setShow, taskID }) 
         setTaskSelections(updatedSelections);
     };
 
-    interface ConditionRow {
-        taskNumber: string | null;
-        taskType: string | null;
-        taskTiming: string | null;
-        Day: string | null;
-        WeekDay: string | null;
-        time: string | null;
-    }
-
-    const [conditionRows, setConditionRows] = useState<ConditionRow[]>([]);
-
-    // Function to add a new row
-    const addConditionRow = () => {
-        setConditionRows(prevState => [
-            ...prevState,
-            {
-                taskNumber: null,
-                taskType: null,
-                taskTiming: null,
-                Day: null,
-                WeekDay: null,
-                time: null,
-            },
-        ]);
-    };
-
-    // Function to remove a row by index
-    const removeConditionRow = (rowIndex: number) => {
-        setConditionRows(prevState => prevState.filter((_, index) => index !== rowIndex));
-    };
-
-
-
 
     const updateTaskSelection = (field: keyof TaskSelections, value: any) => {
         setTaskSelections((prevSelections: TaskSelections[]) => {
@@ -367,56 +332,21 @@ const TaskCondition: React.FC<ProcessCanvasProps> = ({ show, setShow, taskID }) 
                 });
             }
             return [...newSelections];
-
-        });
-        console.log("Updated conditionRows:", taskSelections);
-    };
-
-    const updateConditionRows = (rowIndex: number, field: keyof ConditionRow, value: any) => {
-        setConditionRows(prevState => {
-            const updatedRows = [...prevState];
-    
-            // Ensure the row exists; otherwise, add a new row with the provided field and value
-            if (rowIndex >= 0 && rowIndex < updatedRows.length) {
-                updatedRows[rowIndex] = {
-                    ...updatedRows[rowIndex],
-                    [field]: value, // Update the specific field for the selected row
-                };
-            } else {
-                const newRow: ConditionRow = {
-                    taskNumber: null,
-                    taskType: null,
-                    taskTiming: null,
-                    Day: null,
-                    WeekDay: null,
-                    time: null,
-                    [field]: value, // Add the field to the new row
-                };
-                updatedRows.push(newRow);
-            }
-    
-            console.log("Updated conditionRows:", updatedRows);
-    
-    
-            return updatedRows;
         });
     };
-    
+
 
     const handleChangeExpirable = (value: number) => {
         setIsExpirable(value);
 
         // If isExpirable is 0, clear expirationDate
         if (value === 0) {
-            setExpirationDate("");  // Set expirationDate to an empty string
+            setExpiryLogic("");  // Set expirationDate to an empty string
+            setExpirationTime("");  // Set expirationDate to an empty string
         }
     };
 
-    const handleChangeExpirationDate = (date: any) => {
-        if (isExpirable !== 0) {
-            setExpirationDate(date || "");
-        }
-    };
+
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -425,7 +355,8 @@ const TaskCondition: React.FC<ProcessCanvasProps> = ({ show, setShow, taskID }) 
             {
                 sundayLogic,
                 isExpirable,
-                expirationDate,
+                expiryLogic,
+                expirationTime,
                 taskSelections,
             },
         ];
@@ -451,7 +382,7 @@ const TaskCondition: React.FC<ProcessCanvasProps> = ({ show, setShow, taskID }) 
             ...singleData[0],
             condition_Json: JSON.stringify(updatedConditionJsonFormatted),
         };
-
+        toast.dismiss();
         toast.warn(
             ({ closeToast }) => (
                 <div>
@@ -500,11 +431,11 @@ const TaskCondition: React.FC<ProcessCanvasProps> = ({ show, setShow, taskID }) 
     const optionssundayLogic = [
         { value: 'Increase Planned day by 1 Day ', label: 'Increase Planned day by 1 Day ' },
         { value: 'Keep making task as per logic ', label: 'Keep making task as per logic ' },
-        { value: 'SkipCSkip Creating task', label: 'Skip Creating task' }
+        { value: 'Skip Creating task', label: 'Skip Creating task' }
     ];
     const ExpiryLogic = [
         { value: 'Expire On Next Task Initiation', label: 'Expire On Next Task Initiation' },
-        { value: 'Expire On Defined Days', label: 'Expire On Defined Days' },
+        { value: 'Expire On Defined Time', label: 'Expire On Defined Time' },
     ];
     const optionstaskType = [
         { value: 'Actual', label: 'Actual' },
@@ -574,6 +505,7 @@ const TaskCondition: React.FC<ProcessCanvasProps> = ({ show, setShow, taskID }) 
                                                             "Task"
                                                         )}
                                                         </h5>
+
                                                         <span><strong>Task Number:</strong> {task.taskNumber || "N/A"}</span>
                                                         <span><strong>Type:</strong> {task.taskType || "N/A"}</span>
                                                         <span><strong>Timing:</strong> {task.taskTiming || "N/A"}</span>
@@ -593,9 +525,13 @@ const TaskCondition: React.FC<ProcessCanvasProps> = ({ show, setShow, taskID }) 
                                     </li>
                                 )
                                 }
+
                             </ul>
                         </Card.Body>
                     </Col>
+
+
+
                     {showNestedModal && (
                         <Form onSubmit={handleSubmit} className="mt-3" style={{ border: "1px solid #ccc", borderRadius: "5px" }}>
                             <Row className=" mx-1 ">
@@ -630,42 +566,39 @@ const TaskCondition: React.FC<ProcessCanvasProps> = ({ show, setShow, taskID }) 
                                 {isExpirable === 1 && (
                                     <Col lg={8} className="d-flex flex-row mt-2">
                                         <Form.Group className="mx-2">
-                                            <Form.Label>Expiration days</Form.Label>
+                                            <Form.Label>Expiration Logic</Form.Label>
                                             <Select
                                                 name="sundayLogic"
                                                 options={ExpiryLogic}
+                                                value={ExpiryLogic.find(
+                                                    (opt) => opt.value === expiryLogic
+                                                ) || null}
+                                                onChange={(selectedOption) => {
+                                                    setExpiryLogic(selectedOption?.value);
+                                                    setExpirationTime(''); // Reset expiration time
+                                                }}
                                                 placeholder="Select expiry Logic"
                                                 required
                                             />
                                         </Form.Group>
-                                        <Form.Group controlId="expirationDate" className="mb-3">
-                                            <Form.Label>Expiration Date</Form.Label>
-                                            <Flatpickr
-                                                value={expirationDate || ''}
-                                                onChange={([date]) => {
-                                                    const formatedDate = format(date, 'dd-MMM-yy hh:mm a');
-                                                    handleChangeExpirationDate(formatedDate)
-                                                }}
-                                                options={{
-                                                    enableTime: true,
-                                                    dateFormat: "Y-m-d H:i",
-                                                    time_24hr: true,
-                                                }}
-                                                placeholder="Select Expiration Date"
-                                                className="form-control"
-                                                required
-                                            />
-                                        </Form.Group>
-                                        <Form.Group className="ms-2">
-                                            <Form.Label>Expiration days</Form.Label>
-                                            <Form.Control
-                                                type="number"
-                                            ></Form.Control>
-                                        </Form.Group>
+                                        {expiryLogic === `Expire On Defined Time` &&
+                                            <Form.Group className="ms-2">
+                                                <Form.Label>Expiration Time (hr)</Form.Label>
+                                                <Form.Control
+                                                    type="number"
+                                                    name="expirationTime"
+                                                    value={expirationTime}
+                                                    onChange={(e) => setExpirationTime(e.target.value)}
+                                                    placeholder='Enter Time in Hours'
+                                                />
+                                            </Form.Group>
+                                        }
                                     </Col>
 
                                 )}
                                 <Col></Col>
+
+
                             </Row>
                             <Col lg={4} className=" mx-2 ">
                                 <Form.Group controlId="sundayLogic" className="mb-3">
@@ -732,22 +665,47 @@ const TaskCondition: React.FC<ProcessCanvasProps> = ({ show, setShow, taskID }) 
 
                                         {/* Conditionally rendered based on taskTiming */}
                                         {taskSelections[index]?.taskTiming === "Day" && (
-                                            <Col lg={4}>
-                                                <Form.Group controlId="Day" className="mb-3">
-                                                    <Form.Label>Day:</Form.Label>
-                                                    <Select
-                                                        name="Day"
-                                                        options={dropdownValuesFlag4}
-                                                        value={dropdownValuesFlag4.find(
-                                                            (option) => option.name === taskSelections[index]?.Day
-                                                        ) || null}
-                                                        onChange={selectedOption => handleChange(index, 'Day', selectedOption?.name)}
-                                                        getOptionLabel={(item) => item.name}
-                                                        getOptionValue={(item) => item.name}
-                                                        placeholder="Select Task Day"
-                                                    />
-                                                </Form.Group>
-                                            </Col>
+                                            <>
+                                                <Col lg={4}>
+                                                    <Form.Group controlId="Day" className="mb-3">
+                                                        <Form.Label>Day:</Form.Label>
+                                                        <Select
+                                                            name="Day"
+                                                            options={dropdownValuesFlag4}
+                                                            value={dropdownValuesFlag4.find(
+                                                                (option) => option.name === taskSelections[index]?.Day
+                                                            ) || null}
+                                                            onChange={selectedOption => handleChange(index, 'Day', selectedOption?.name)}
+                                                            getOptionLabel={(item) => item.name}
+                                                            getOptionValue={(item) => item.name}
+                                                            placeholder="Select Task Day"
+                                                        />
+                                                    </Form.Group>
+                                                </Col>
+                                                <Col lg={4}>
+                                                    <Form.Group controlId="time" className="mb-3">
+                                                        <Form.Label>Time</Form.Label>
+                                                        <Select
+                                                            name="time"
+                                                            options={dropdownValuesFlag3}
+                                                            value={dropdownValuesFlag3.find(
+                                                                (option) => option.name === taskSelections[index]?.time
+                                                            ) || null}
+                                                            onChange={(selectedOption) => {
+                                                                if (selectedOption) {
+                                                                    handleChange(index, 'time', selectedOption.name);
+                                                                } else {
+                                                                    handleChange(index, 'time', '');
+                                                                }
+                                                            }}
+                                                            getOptionLabel={(item) => item.name}
+                                                            getOptionValue={(item) => item.name}
+                                                            placeholder="Select Time"
+                                                        />
+                                                    </Form.Group>
+                                                </Col>
+                                            </>
+
                                         )}
 
                                         {taskSelections[index]?.taskTiming === "WeekDay" && (
@@ -796,235 +754,137 @@ const TaskCondition: React.FC<ProcessCanvasProps> = ({ show, setShow, taskID }) 
                                     </Row>
                                 );
                             })}
-                            {parseDataForSingle ? (
-                                <Row className="bg-light m-2 p-2">
-                                    {/* Select Successor Task */}
-                                    <Col lg={4}>
-                                        <Form.Group controlId="taskNumber" className="mb-3">
-                                            <Form.Label>Select Successor Task For</Form.Label>
-                                            <Select
-                                                name="taskNumber"
-                                                value={combinedOptions.find((item) => item.task_Number === taskSelections[0]?.taskNumber) || null}
-                                                onChange={selectedOption => updateTaskSelection('taskNumber', selectedOption?.task_Number)}
-                                                options={combinedOptions}
-                                                getOptionLabel={(item) => item.task_Label}
-                                                getOptionValue={(item) => item.task_Number}
-                                                isSearchable={true}
-                                                placeholder="Select Option"
-                                                className="h45"
-                                            />
-                                        </Form.Group>
-                                    </Col>
 
-                                    {/* Task Type */}
-                                    <Col lg={4}>
-                                        <Form.Group controlId="taskType" className="mb-3">
-                                            <Form.Label>Task Type</Form.Label>
-                                            <Select
-                                                name="taskType"
-                                                options={optionstaskType}
-                                                value={optionstaskType.find(option => option.value === taskSelections[0]?.taskType)}
-                                                onChange={selectedOption => updateTaskSelection('taskType', selectedOption?.value)}
-                                                placeholder="Select Task Type"
-                                            />
-                                        </Form.Group>
-                                    </Col>
 
-                                    {/* Task Timing */}
-                                    <Col lg={4}>
-                                        <Form.Group controlId="taskTiming" className="mb-3">
-                                            <Form.Label>Task Timing</Form.Label>
-                                            <Select
-                                                name="taskTiming"
-                                                options={optionsTaskTiming}
-                                                value={optionsTaskTiming.find(option => option.value === taskSelections[0]?.taskTiming)}
-                                                onChange={selectedOption => updateTaskSelection('taskTiming', selectedOption?.value)}
-                                                placeholder="Select Task Timing"
-                                            />
-                                        </Form.Group>
-                                    </Col>
-
-                                    {/* Conditionally Rendered Fields */}
-                                    {taskSelections[0]?.taskTiming === "Day" && (
+                            {parseDataForSingle ?
+                                (
+                                    <Row className="bg-light m-2 p-2">
                                         <Col lg={4}>
-                                            <Form.Group controlId="Day" className="mb-3">
-                                                <Form.Label>Day:</Form.Label>
+                                            <Form.Group controlId="taskNumber" className="mb-3">
+                                                <Form.Label>Select Successor Task For</Form.Label>
                                                 <Select
-                                                    name="Day"
-                                                    options={dropdownValuesFlag4}
-                                                    value={dropdownValuesFlag4.find((option) => option.name === taskSelections[0]?.Day) || null}
-                                                    onChange={selectedOption => updateTaskSelection('Day', selectedOption?.name)}
-                                                    getOptionLabel={(item) => item.name}
-                                                    getOptionValue={(item) => item.name}
-                                                    placeholder="Select Task Day"
+                                                    name="taskNumber"
+                                                    value={combinedOptions.find((item) => item.task_Number === taskSelections[0]?.taskNumber) || null}
+                                                    onChange={selectedOption => updateTaskSelection('taskNumber', selectedOption?.task_Number)}
+                                                    options={combinedOptions}
+                                                    getOptionLabel={(item) => item.task_Label}
+                                                    getOptionValue={(item) => item.task_Number}
+                                                    isSearchable={true}
+                                                    placeholder="Select Option"
+                                                    className="h45"
                                                 />
                                             </Form.Group>
                                         </Col>
-                                    )}
 
-                                    {taskSelections[0]?.taskTiming === "WeekDay" && (
-                                        <>
-                                            <Col lg={4}>
-                                                <Form.Group controlId="WeekDay" className="mb-3">
-                                                    <Form.Label>Date:</Form.Label>
-                                                    <Select
-                                                        name="WeekDay"
-                                                        options={dropdownValuesFlag2}
-                                                        value={dropdownValuesFlag2.find((option) => option.name === taskSelections[0]?.WeekDay) || null}
-                                                        onChange={selectedOption => updateTaskSelection('WeekDay', selectedOption?.name)}
-                                                        getOptionLabel={(item) => item.name}
-                                                        getOptionValue={(item) => item.name}
-                                                        placeholder="Select WeekDay"
-                                                    />
-                                                </Form.Group>
-                                            </Col>
-
-                                            <Col lg={4}>
-                                                <Form.Group controlId="time" className="mb-3">
-                                                    <Form.Label>Time</Form.Label>
-                                                    <Select
-                                                        name="time"
-                                                        options={dropdownValuesFlag3}
-                                                        value={dropdownValuesFlag3.find((option) => option.name === taskSelections[0]?.time) || null}
-                                                        onChange={selectedOption => updateTaskSelection('time', selectedOption?.name || '')}
-                                                        getOptionLabel={(item) => item.name}
-                                                        getOptionValue={(item) => item.name}
-                                                        placeholder="Select Time"
-                                                    />
-                                                </Form.Group>
-                                            </Col>
-                                        </>
-                                    )}
-                                </Row>
-                            ) : null}
-
-                            {conditionRows.map((row, index) => (
-                                <Row key={index} className="bg-light m-2 p-2">
-                                    <Col lg={4}>
-                                        <Form.Group controlId={`taskNumber-${index}`} className="mb-3">
-                                            <Form.Label>Select Successor Task For</Form.Label>
-                                            <Select
-                                                name="taskNumber"
-                                                value={combinedOptions.find(item => item.task_Number === row.taskNumber) || null}
-                                                onChange={selectedOption => {
-                                                    updateTaskSelection('taskNumber', selectedOption?.task_Number);
-                                                    updateConditionRows(index, 'taskNumber', selectedOption?.task_Number);  // Update condition row
-                                                }}
-                                                options={combinedOptions}
-                                                getOptionLabel={item => item.task_Label}
-                                                getOptionValue={item => item.task_Number}
-                                                isSearchable={true}
-                                                placeholder="Select Option"
-                                                className="h45"
-                                            />
-                                        </Form.Group>
-                                    </Col>
-
-                                    <Col lg={4}>
-                                        <Form.Group controlId={`taskType-${index}`} className="mb-3">
-                                            <Form.Label>Task Type</Form.Label>
-                                            <Select
-                                                name="taskType"
-                                                options={optionstaskType}
-                                                value={optionstaskType.find(option => option.value === row.taskType)}
-                                                onChange={selectedOption => {
-                                                    updateTaskSelection('taskType', selectedOption?.value);
-                                                    updateConditionRows(index, 'taskType', selectedOption?.value);  // Update condition row
-                                                }}
-                                                placeholder="Select Task Type"
-                                            />
-                                        </Form.Group>
-                                    </Col>
-
-                                    <Col lg={4}>
-                                        <Form.Group controlId={`taskTiming-${index}`} className="mb-3">
-                                            <Form.Label>Task Timing</Form.Label>
-                                            <Select
-                                                name="taskTiming"
-                                                options={optionsTaskTiming}
-                                                value={optionsTaskTiming.find(option => option.value === row.taskTiming)}
-                                                onChange={selectedOption => {
-                                                    updateTaskSelection('taskTiming', selectedOption?.value);
-                                                    updateConditionRows(index, 'taskTiming', selectedOption?.value);  // Update condition row
-                                                }}
-                                                placeholder="Select Task Timing"
-                                            />
-                                        </Form.Group>
-                                    </Col>
-
-                                    {row.taskTiming === "Day" && (
                                         <Col lg={4}>
-                                            <Form.Group controlId={`Day-${index}`} className="mb-3">
-                                                <Form.Label>Day:</Form.Label>
+                                            <Form.Group controlId="taskType" className="mb-3">
+                                                <Form.Label>Task Type</Form.Label>
                                                 <Select
-                                                    name="Day"
-                                                    options={dropdownValuesFlag4}
-                                                    value={dropdownValuesFlag4.find(option => option.name === row.Day) || null}
-                                                    onChange={selectedOption => {
-                                                        updateTaskSelection('Day', selectedOption?.name);
-                                                        updateConditionRows(index, 'Day', selectedOption?.name);  // Update condition row
-                                                    }}
-                                                    getOptionLabel={item => item.name}
-                                                    getOptionValue={item => item.name}
-                                                    placeholder="Select Task Day"
+                                                    name="taskType"
+                                                    options={optionstaskType}
+                                                    value={optionstaskType.find(option => option.value === taskSelections[0]?.taskType)}
+                                                    onChange={selectedOption => updateTaskSelection('taskType', selectedOption?.value)}
+                                                    placeholder="Select Task Type"
                                                 />
                                             </Form.Group>
                                         </Col>
-                                    )}
 
-                                    {row.taskTiming === "WeekDay" && (
-                                        <>
-                                            <Col lg={4}>
-                                                <Form.Group controlId={`WeekDay-${index}`} className="mb-3">
-                                                    <Form.Label>Date:</Form.Label>
-                                                    <Select
-                                                        name="WeekDay"
-                                                        options={dropdownValuesFlag2}
-                                                        value={dropdownValuesFlag2.find(option => option.name === row.WeekDay) || null}
-                                                        onChange={selectedOption => {
-                                                            updateTaskSelection('WeekDay', selectedOption?.name);
-                                                            updateConditionRows(index, 'WeekDay', selectedOption?.name);  // Update condition row
-                                                        }}
-                                                        getOptionLabel={item => item.name}
-                                                        getOptionValue={item => item.name}
-                                                        placeholder="Select WeekDay"
-                                                    />
-                                                </Form.Group>
-                                            </Col>
+                                        <Col lg={4}>
+                                            <Form.Group controlId="taskTiming" className="mb-3">
+                                                <Form.Label>Task Timing</Form.Label>
+                                                <Select
+                                                    name="taskTiming"
+                                                    options={optionsTaskTiming}
+                                                    value={optionsTaskTiming.find(option => option.value === taskSelections[0]?.taskTiming)}
+                                                    onChange={selectedOption => updateTaskSelection('taskTiming', selectedOption?.value)}
+                                                    placeholder="Select Task Timing"
+                                                />
+                                            </Form.Group>
+                                        </Col>
 
-                                            <Col lg={4}>
-                                                <Form.Group controlId={`time-${index}`} className="mb-3">
-                                                    <Form.Label>Time</Form.Label>
-                                                    <Select
-                                                        name="time"
-                                                        options={dropdownValuesFlag3}
-                                                        value={dropdownValuesFlag3.find(option => option.name === row.time) || null}
-                                                        onChange={selectedOption => {
-                                                            updateTaskSelection('time', selectedOption?.name || '');
-                                                            updateConditionRows(index, 'time', selectedOption?.name || '');  // Update condition row
-                                                        }}
-                                                        getOptionLabel={item => item.name}
-                                                        getOptionValue={item => item.name}
-                                                        placeholder="Select Time"
-                                                    />
-                                                </Form.Group>
-                                            </Col>
-                                        </>
-                                    )}
+                                        {/* Conditionally rendered based on taskTiming */}
+                                        {taskSelections[0]?.taskTiming === "Day" && (
+                                            <>
 
-                                    <Col lg={12} className="text-end">
-                                        <Button
-                                            variant="danger"
-                                            onClick={() => removeConditionRow(index)}
-                                        >
-                                            Remove Condition
-                                        </Button>
-                                    </Col>
-                                </Row>
-                            ))}
-                            <Button onClick={addConditionRow} className="btn btn-outline-primary">
-                                Add Successor
-                            </Button>
+
+                                                <Col lg={4}>
+                                                    <Form.Group controlId="Day" className="mb-3">
+                                                        <Form.Label>Day:</Form.Label>
+                                                        <Select
+                                                            name="Day"
+                                                            options={dropdownValuesFlag4}
+                                                            value={dropdownValuesFlag4.find(
+                                                                (option) => option.name === taskSelections[0]?.Day
+                                                            ) || null}
+                                                            onChange={selectedOption => updateTaskSelection('Day', selectedOption?.name)}
+                                                            getOptionLabel={(item) => item.name}
+                                                            getOptionValue={(item) => item.name}
+                                                            placeholder="Select Task Day"
+                                                        />
+                                                    </Form.Group>
+                                                </Col>
+                                                <Col lg={4}>
+                                                    <Form.Group controlId="time" className="mb-3">
+                                                        <Form.Label>Time</Form.Label>
+                                                        <Select
+                                                            name="time"
+                                                            options={dropdownValuesFlag3}
+                                                            value={dropdownValuesFlag3.find(
+                                                                (option) => option.name === taskSelections[0]?.time
+                                                            ) || null}
+                                                            onChange={(selectedOption) => updateTaskSelection('time', selectedOption?.name || '')}
+                                                            getOptionLabel={(item) => item.name}
+                                                            getOptionValue={(item) => item.name}
+                                                            placeholder="Select Time"
+                                                        />
+                                                    </Form.Group>
+                                                </Col>
+                                            </>
+                                        )}
+
+                                        {taskSelections[0]?.taskTiming === "WeekDay" && (
+                                            <>
+                                                <Col lg={4}>
+                                                    <Form.Group controlId="WeekDay" className="mb-3">
+                                                        <Form.Label>Date:</Form.Label>
+                                                        <Select
+                                                            name="WeekDay"
+                                                            options={dropdownValuesFlag2}
+                                                            value={dropdownValuesFlag2.find(
+                                                                (option) => option.name === taskSelections[0]?.WeekDay
+                                                            ) || null}
+                                                            onChange={selectedOption => updateTaskSelection('WeekDay', selectedOption?.name)}
+                                                            getOptionLabel={(item) => item.name}
+                                                            getOptionValue={(item) => item.name}
+                                                            placeholder="Select WeekDay"
+                                                        />
+                                                    </Form.Group>
+                                                </Col>
+
+                                                <Col lg={4}>
+                                                    <Form.Group controlId="time" className="mb-3">
+                                                        <Form.Label>Time</Form.Label>
+                                                        <Select
+                                                            name="time"
+                                                            options={dropdownValuesFlag3}
+                                                            value={dropdownValuesFlag3.find(
+                                                                (option) => option.name === taskSelections[0]?.time
+                                                            ) || null}
+                                                            onChange={(selectedOption) => updateTaskSelection('time', selectedOption?.name || '')}
+                                                            getOptionLabel={(item) => item.name}
+                                                            getOptionValue={(item) => item.name}
+                                                            placeholder="Select Time"
+                                                        />
+                                                    </Form.Group>
+                                                </Col>
+                                            </>
+                                        )}
+                                    </Row>
+                                ) : (
+                                    null
+                                )
+
+                            }
 
 
 
@@ -1086,24 +946,46 @@ const TaskCondition: React.FC<ProcessCanvasProps> = ({ show, setShow, taskID }) 
                                     </Col>
 
                                     {taskRow.taskTiming === "Day" && (
-                                        <Col lg={4}>
-                                            <Form.Group controlId={`Day-${index}`} className="mb-3">
-                                                <Form.Label>Day:</Form.Label>
-                                                <Select
-                                                    name="Day"
-                                                    options={dropdownValuesFlag4}
-                                                    value={dropdownValuesFlag4.find(
-                                                        (option) => option.name === taskRow.Day
-                                                    )}
-                                                    onChange={(selectedOption) =>
-                                                        handleTaskFieldChange(index, "Day", selectedOption?.name)
-                                                    }
-                                                    getOptionLabel={(item) => item.name}
-                                                    getOptionValue={(item) => item.name}
-                                                    placeholder="Select Task Day"
-                                                />
-                                            </Form.Group>
-                                        </Col>
+
+                                        <>
+                                            <Col lg={4}>
+                                                <Form.Group controlId={`Day-${index}`} className="mb-3">
+                                                    <Form.Label>Day:</Form.Label>
+                                                    <Select
+                                                        name="Day"
+                                                        options={dropdownValuesFlag4}
+                                                        value={dropdownValuesFlag4.find(
+                                                            (option) => option.name === taskRow.Day
+                                                        )}
+                                                        onChange={(selectedOption) =>
+                                                            handleTaskFieldChange(index, "Day", selectedOption?.name)
+                                                        }
+                                                        getOptionLabel={(item) => item.name}
+                                                        getOptionValue={(item) => item.name}
+                                                        placeholder="Select Task Day"
+                                                    />
+                                                </Form.Group>
+                                            </Col>
+
+                                            <Col lg={4}>
+                                                <Form.Group controlId={`time-${index}`} className="mb-3">
+                                                    <Form.Label>Time</Form.Label>
+                                                    <Select
+                                                        name="time"
+                                                        options={dropdownValuesFlag3}
+                                                        value={dropdownValuesFlag3.find(
+                                                            (option) => option.name === taskRow.time
+                                                        )}
+                                                        onChange={(selectedOption) =>
+                                                            handleTaskFieldChange(index, "time", selectedOption?.name || "")
+                                                        }
+                                                        getOptionLabel={(item) => item.name}
+                                                        getOptionValue={(item) => item.name}
+                                                        placeholder="Select Time"
+                                                    />
+                                                </Form.Group>
+                                            </Col>
+                                        </>
                                     )}
 
                                     {taskRow.taskTiming === "WeekDay" && (
@@ -1163,15 +1045,21 @@ const TaskCondition: React.FC<ProcessCanvasProps> = ({ show, setShow, taskID }) 
 
 
                             <Button onClick={handleAddTaskRow} className="ml-1">
-                                Add Row
+                                Add Successor
                             </Button>
                             <Button type="submit" className="m-2">Submit</Button>
                         </Form>
                     )}
+
+
+
                 </Modal.Body>
             </Modal>
+
         </div >
     );
+
+
 };
 
 export default TaskCondition;

@@ -16,6 +16,7 @@ interface Project {
     projectName: string;
     projectID: string;
     stateId: number;
+    status: string;
     projectType: number;
     managementContract: number;
     projectIncharge: number;
@@ -47,6 +48,7 @@ const ProjectViewPopup: React.FC<ProcessCanvasProps> = ({ showView, setShowView,
         { id: 'projectInchargeName', label: 'Project Incharge', visible: true },
         { id: 'projectCoordinatorName', label: 'Project Coordinator', visible: true },
         { id: 'completionStatusName', label: 'Completion Status', visible: true },
+        { id: 'status', label: 'Sub Project Status', visible: true },
         { id: 'nameOfWork', label: 'Name of Work', visible: true }
     ]);
 
@@ -156,7 +158,11 @@ const ProjectViewPopup: React.FC<ProcessCanvasProps> = ({ showView, setShowView,
                                                             <td>{index + 1}</td>
                                                             {columns.filter(col => col.visible).map((col) => (
 
-                                                                <td key={col.id}>
+                                                                <td key={col.id}
+                                                                    className={
+                                                                        (col.id === 'status' && item[col.id] === "Enabled") ? 'task1' :
+                                                                            (col.id === 'status' && item[col.id] === "Disabled") ? 'task4' : ''
+                                                                    }>
                                                                     <div>
 
                                                                         {col.id === 'projectInchargeName' ? (
