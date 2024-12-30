@@ -11,6 +11,7 @@ interface ProcessCanvasProps {
     show: boolean;
     setShow: (show: boolean) => void;
     taskID: number;
+    taskNumber: string;
 }
 
 
@@ -92,7 +93,7 @@ interface TaskSelections {
 }
 
 
-const TaskCondition: React.FC<ProcessCanvasProps> = ({ show, setShow, taskID }) => {
+const TaskCondition: React.FC<ProcessCanvasProps> = ({ show, setShow, taskID, taskNumber }) => {
     const [ModuleId, setModuleId] = useState<string>('');
     const [ProcessId, setProcessId] = useState<string>('');
     const [parseData, setParseData] = useState<any>(''); // Use `any` or the appropriate type here
@@ -142,7 +143,7 @@ const TaskCondition: React.FC<ProcessCanvasProps> = ({ show, setShow, taskID }) 
 
     const [dropdownValuesFlag2, setDropdownValuesFlag2] = useState<GetTypeDayTimeList[]>([]);
     const [dropdownValuesFlag3, setDropdownValuesFlag3] = useState<GetTypeDayTimeList[]>([]);
-    const [dropdownValuesFlag4, setDropdownValuesFlag4] = useState<GetTypeDayTimeList[]>([]);
+    // const [dropdownValuesFlag4, setDropdownValuesFlag4] = useState<GetTypeDayTimeList[]>([]);
 
     const [taskRows, setTaskRows] = useState<TaskSelections[]>([]);
 
@@ -268,7 +269,7 @@ const TaskCondition: React.FC<ProcessCanvasProps> = ({ show, setShow, taskID }) 
     useEffect(() => {
         GetTypeDayTimeList(2, setDropdownValuesFlag2);
         GetTypeDayTimeList(3, setDropdownValuesFlag3);
-        GetTypeDayTimeList(4, setDropdownValuesFlag4);
+        // GetTypeDayTimeList(4, setDropdownValuesFlag4);
     }, []);
 
     const GetTypeDayTimeList = async (flag: any, setStateCallback: any) => {
@@ -466,7 +467,7 @@ const TaskCondition: React.FC<ProcessCanvasProps> = ({ show, setShow, taskID }) 
             <Modal size="xl" className="p-2" show={show} placement="end" onHide={handleClose}>
                 <Modal.Header closeButton>
                     <Modal.Title className="text-dark d-flex justify-content-between w-100">
-                        Condition Data Overview
+                        Condition Data Overview for {taskNumber}
                         <Button variant="primary" className=" mr-2" onClick={() => setShowNestedModal((prev) => !prev)} >
                             {parseConditionData ? 'Edit Conditions' : 'Set Conditions'}
                         </Button>
@@ -668,17 +669,13 @@ const TaskCondition: React.FC<ProcessCanvasProps> = ({ show, setShow, taskID }) 
                                             <>
                                                 <Col lg={4}>
                                                     <Form.Group controlId="Day" className="mb-3">
-                                                        <Form.Label>Day:</Form.Label>
-                                                        <Select
+                                                        <Form.Label>Hours:</Form.Label>
+                                                        <Form.Control
+                                                            type="number"
                                                             name="Day"
-                                                            options={dropdownValuesFlag4}
-                                                            value={dropdownValuesFlag4.find(
-                                                                (option) => option.name === taskSelections[index]?.Day
-                                                            ) || null}
-                                                            onChange={selectedOption => handleChange(index, 'Day', selectedOption?.name)}
-                                                            getOptionLabel={(item) => item.name}
-                                                            getOptionValue={(item) => item.name}
-                                                            placeholder="Select Task Day"
+                                                            value={taskSelections[index]?.Day || ''}
+                                                            onChange={(e) => handleChange(index, 'Day', String(e.target.value))}
+                                                            placeholder="Enter Task Hours"
                                                         />
                                                     </Form.Group>
                                                 </Col>
@@ -810,19 +807,16 @@ const TaskCondition: React.FC<ProcessCanvasProps> = ({ show, setShow, taskID }) 
                                                 <Col lg={4}>
                                                     <Form.Group controlId="Day" className="mb-3">
                                                         <Form.Label>Day:</Form.Label>
-                                                        <Select
+                                                        <Form.Control
+                                                            type="text"
                                                             name="Day"
-                                                            options={dropdownValuesFlag4}
-                                                            value={dropdownValuesFlag4.find(
-                                                                (option) => option.name === taskSelections[0]?.Day
-                                                            ) || null}
-                                                            onChange={selectedOption => updateTaskSelection('Day', selectedOption?.name)}
-                                                            getOptionLabel={(item) => item.name}
-                                                            getOptionValue={(item) => item.name}
-                                                            placeholder="Select Task Day"
+                                                            value={taskSelections[0]?.Day || ''}
+                                                            onChange={(e) => updateTaskSelection('Day', e.target.value)}
+                                                            placeholder="Enter Task Day"
                                                         />
                                                     </Form.Group>
                                                 </Col>
+
                                                 <Col lg={4}>
                                                     <Form.Group controlId="time" className="mb-3">
                                                         <Form.Label>Time</Form.Label>
@@ -951,21 +945,16 @@ const TaskCondition: React.FC<ProcessCanvasProps> = ({ show, setShow, taskID }) 
                                             <Col lg={4}>
                                                 <Form.Group controlId={`Day-${index}`} className="mb-3">
                                                     <Form.Label>Day:</Form.Label>
-                                                    <Select
+                                                    <Form.Control
+                                                        type="number"
                                                         name="Day"
-                                                        options={dropdownValuesFlag4}
-                                                        value={dropdownValuesFlag4.find(
-                                                            (option) => option.name === taskRow.Day
-                                                        )}
-                                                        onChange={(selectedOption) =>
-                                                            handleTaskFieldChange(index, "Day", selectedOption?.name)
-                                                        }
-                                                        getOptionLabel={(item) => item.name}
-                                                        getOptionValue={(item) => item.name}
-                                                        placeholder="Select Task Day"
+                                                        value={taskRow.Day || ''}
+                                                        onChange={(e) => handleTaskFieldChange(index, "Day", String(e.target.value))}
+                                                        placeholder="Enter Task Day"
                                                     />
                                                 </Form.Group>
                                             </Col>
+
 
                                             <Col lg={4}>
                                                 <Form.Group controlId={`time-${index}`} className="mb-3">

@@ -1415,7 +1415,8 @@ const App: React.FC = () => {
                 </Form.Group>
                 {(editField.type === 'text' || editField.type === 'custom' ||
                   editField.type === 'number' || editField.type === 'email' ||
-                  editField.type === 'tel') && (
+                  editField.type === 'tel' || editField.type === 'decimal' ||
+                  editField.type === 'positive-integer') && (
                     <Form.Group>
                       {/* Dropdown to select input type */}
                       <Form.Label>Select Input Type</Form.Label>
@@ -1428,20 +1429,64 @@ const App: React.FC = () => {
                         <option value="number">Number</option>
                         <option value="email">Email</option>
                         <option value="tel">Telephone</option>
-                        <option value="custom">Custom</option> {/* For custom handling */}
+                        <option value="custom">Custom</option>
+                        <option value="decimal">Decimal</option>
+                        <option value="positive-integer">Positive Integer</option>
                       </Form.Control>
-
-                      {/* Input field depending on the selected type */}
                       <Form.Label>Placeholder</Form.Label>
                       <Form.Control
-                        type={editField.type}  // Use the dynamic type for the input field
+                        type="text"  // Use the dynamic type for the input field
                         placeholder={editField.placeholder}
                         value={editField.placeholder || ''}
                         onChange={(e) => setEditField({ ...editField, placeholder: e.target.value })}
                       />
+
+                      {/* Input field depending on the selected type */}
+                      {editField.type === 'text' && (
+                        <>
+                          <Form.Label>Enter Text</Form.Label>
+                          <Form.Control
+                            type="text"
+                            value={editField.value || ''}
+                            placeholder="Enter text"
+                            onChange={(e) => setEditField({ ...editField, value: e.target.value })}
+                          />
+                        </>
+                      )}
+
+                      {editField.type === 'number' && (
+                        <>
+                          <Form.Label>Enter Number</Form.Label>
+                          <Form.Control
+                            type="number"
+                            value={editField.value || ''}
+                            placeholder="Enter a number"
+                            onChange={(e) => setEditField({ ...editField, value: e.target.value })}
+                          />
+                        </>
+                      )}
+
+                      {editField.type === 'email' && (
+                        <>
+                          <Form.Label>Enter Email</Form.Label>
+                          <Form.Control
+                            type="email"
+                            value={editField.value || ''}
+                            placeholder="Enter a valid email"
+                            onChange={(e) => setEditField({ ...editField, value: e.target.value })}
+                            onBlur={() => {
+                              const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                              if (!regex.test(editField.value || '')) {
+                                alert('Enter a valid email address.');
+                              }
+                            }}
+                          />
+                        </>
+                      )}
+
                       {editField.type === 'tel' && (
                         <>
-                          <Form.Label>Phone Number (Indian Standard)</Form.Label>
+                          <Form.Label>Enter Phone Number (10 digits, Indian Standard)</Form.Label>
                           <Form.Control
                             type="tel"
                             value={editField.value || ''}
@@ -1463,6 +1508,74 @@ const App: React.FC = () => {
                                 alert('Invalid phone number. Must be 10 digits.');
                               }
                             }}
+                          />
+                        </>
+                      )}
+
+                      {editField.type === 'decimal' && (
+                        <>
+                          <Form.Label>Enter Decimal Value (0 or greater, up to 2 decimals)</Form.Label>
+                          <Form.Control
+                            type="number"
+                            step="0.01"
+                            value={editField.value || ''}
+                            placeholder="0.00"
+                            onChange={(e) => {
+                              let value = e.target.value;
+
+                              // Validation: Only numbers with up to 2 decimals and >= 0
+                              const regex = /^(\d+(\.\d{0,2})?)?$/;
+                              if (regex.test(value) && parseFloat(value) >= 0) {
+                                setEditField({ ...editField, value });
+                              }
+                            }}
+                            onBlur={() => {
+                              const value = parseFloat(editField.value || '0');
+                              if (isNaN(value) || value < 0) {
+                                alert('Enter a valid decimal value (0 or greater, up to 2 decimals).');
+                                setEditField({ ...editField, value: '0.00' }); // Reset to default
+                              }
+                            }}
+                          />
+                        </>
+                      )}
+
+                      {editField.type === 'positive-integer' && (
+                        <>
+                          <Form.Label>Enter Positive Integer</Form.Label>
+                          <Form.Control
+                            type="number"
+                            step="1"
+                            value={editField.value || ''}
+                            placeholder="Enter a positive integer"
+                            onChange={(e) => {
+                              let value = e.target.value;
+
+                              // Validation: Positive integers only
+                              const regex = /^[0-9]*$/;
+                              if (regex.test(value) && parseInt(value) >= 0) {
+                                setEditField({ ...editField, value });
+                              }
+                            }}
+                            onBlur={() => {
+                              const value = parseInt(editField.value || '0');
+                              if (isNaN(value) || value < 0) {
+                                alert('Enter a valid positive integer.');
+                                setEditField({ ...editField, value: '0' }); // Reset to default
+                              }
+                            }}
+                          />
+                        </>
+                      )}
+
+                      {editField.type === 'custom' && (
+                        <>
+                          <Form.Label>Enter Custom Value</Form.Label>
+                          <Form.Control
+                            type="text"
+                            value={editField.value || ''}
+                            placeholder="Enter a custom value"
+                            onChange={(e) => setEditField({ ...editField, value: e.target.value })}
                           />
                         </>
                       )}
@@ -1507,7 +1620,9 @@ const App: React.FC = () => {
                         </Form.Control>
                       )}
                     </Form.Group>
+
                   )}
+
 
 
                 {(editField.type === 'file') && (
@@ -1684,6 +1799,13 @@ const App: React.FC = () => {
 
                 {(editField?.type === 'select' || editField?.type === 'multiselect' || editField?.type === 'radio') && (
                   <Form.Group>
+                    <Form.Label>Placeholder</Form.Label>
+                      <Form.Control
+                        type="text"  // Use the dynamic type for the input field
+                        placeholder={editField.placeholder}
+                        value={editField.placeholder || ''}
+                        onChange={(e) => setEditField({ ...editField, placeholder: e.target.value })}
+                      />
                     <Form.Label className='mt-2'>Options</Form.Label>
                     {editField.options?.map((option, index) => (
                       <div key={option.id} className="d-flex mb-2 row align-items-center">

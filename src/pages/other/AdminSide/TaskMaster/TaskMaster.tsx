@@ -64,6 +64,7 @@ interface Column {
 const TaskMaster: React.FC = () => {
     const [tasks, setTasks] = useState<Task[]>([]);
     const [taskID, setTaskID] = useState<number>(0);
+    const [taskNumber, setTaskNumber] = useState<string>('');
     const [modules, setModules] = useState<Module[]>([]);
     const [processes, setProcesses] = useState<Process[]>([]);
     const [selectedModule, setSelectedModule] = useState<string>('');
@@ -351,10 +352,12 @@ const TaskMaster: React.FC = () => {
 
 
     const handleShow = () => setShow(true);
-    const handleCondition = (id: number) => {
+    const handleCondition = (id: number, task_Number: string) => {
         handleShow();
         setTaskID(id)
+        setTaskNumber(task_Number)
         console.log(taskID)
+        console.log(taskNumber)
 
     };
 
@@ -494,7 +497,7 @@ const TaskMaster: React.FC = () => {
                                             </Button>
                                         </td>
                                         <td>
-                                            <Button variant="primary" onClick={() => handleCondition(task.id)}>Conditions</Button>
+                                            <Button variant="primary" onClick={() => handleCondition(task.id, task.task_Number)}>Conditions</Button>
                                         </td>
                                     </tr>
                                 ))
@@ -700,7 +703,7 @@ const TaskMaster: React.FC = () => {
                     ))}
                 </DragDropContext>
             </div>
-            <TaskCondition show={show} setShow={setShow} taskID={taskID} />
+            <TaskCondition show={show} setShow={setShow} taskID={taskID} taskNumber={taskNumber} />
 
             {selectedJson &&
                 <DynamicForm
