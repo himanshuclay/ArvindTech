@@ -551,6 +551,16 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
             selectedLabel = input.label;
         }
 
+        if (input && input.type === 'decimal') {
+            const regex = /^(\d+(\.\d{0,2})?)?$/;
+            if (regex.test(value as string) && parseFloat(value as string) >= 0) {
+                updatedValue = value as string;
+            } else {
+                console.warn('Invalid decimal value. Value must be 0 or greater with up to 2 decimals.');
+                return; // Exit if the value is invalid
+            }
+        }
+
         // Handle select and CustomSelect input types
         if (input && (input.type === 'select' || input.type === 'CustomSelect')) {
             const selectedOption = input.options?.find(option => option.label === value);
@@ -1175,33 +1185,92 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
 
                                 <div className="form-section" style={{ width: '90%', paddingLeft: '20px' }}>
                                     <div className="my-task">
-                                         {formData.inputs.map((input: Input) => (
+                                        {formData.inputs.map((input: Input) => (
                                             (fromComponent === 'TaskMaster' && 'PendingTask' || shouldDisplayInput(input)) && (
-                                                <div className={input.visibility === false ? 'd-none' : 'form-group'} 
-                                                key={input.inputId} style={{ marginBottom: '1rem' }}>
+                                                <div className={input.visibility === false ? 'd-none' : 'form-group'}
+                                                    key={input.inputId} style={{ marginBottom: '1rem' }}>
                                                     <label className='label'>{input.label}</label>
-                                                    {input.type === 'text' 
-                                                    && 
-                                                    (
+                                                    {input.type === 'text'
+                                                        &&
+                                                        (
+                                                            <input
+                                                                type="text"
+                                                                className="form-control"
+                                                                placeholder={input.placeholder}
+                                                                value={formState[input.inputId] || ''}
+                                                                onChange={e => handleChange(input.inputId, e.target.value)}
+                                                            />
+                                                        )}
+                                                    {input.type === 'number' &&
+                                                        //  input.visibility !== false && 
+                                                        (
+                                                            <input
+                                                                type="number"
+                                                                className='form-control'
+                                                                placeholder={input.placeholder}
+                                                                value={formState[input.inputId]}
+                                                                onChange={e => handleChange(input.inputId, e.target.value)}
+                                                            />
+                                                        )}
+                                                    {input.type === 'decimal' && (
                                                         <input
                                                             type="text"
                                                             className="form-control"
-                                                            placeholder={input.placeholder}
+                                                            placeholder={input.placeholder || '0.00'}
                                                             value={formState[input.inputId] || ''}
-                                                            onChange={e => handleChange(input.inputId, e.target.value)}
+                                                            onChange={(e) => {
+                                                                const value = e.target.value;
+                                                                const regex = /^(\d+(\.\d{0,2})?)?$/;
+
+                                                                // Validate the input value for decimals with up to 2 places
+                                                                if (regex.test(value) && (parseFloat(value) >= 0 || value === '')) {
+                                                                    handleChange(input.inputId, value);
+                                                                } else {
+                                                                    console.warn('Invalid decimal input. Must be 0 or greater with up to 2 decimal places.');
+                                                                }
+                                                            }}
+                                                            onBlur={() => {
+                                                                // Ensure the value is properly formatted or reset on blur
+                                                                const formattedValue = parseFloat(formState[input.inputId] || '0').toFixed(2);
+                                                                if (!isNaN(Number(formattedValue)) && Number(formattedValue) >= 0) {
+                                                                    handleChange(input.inputId, formattedValue);
+                                                                } else {
+                                                                    alert('Enter a valid decimal value (0 or greater, up to 2 decimals).');
+                                                                    handleChange(input.inputId, '0.00');
+                                                                }
+                                                            }}
                                                         />
                                                     )}
-                                                    {input.type === 'number' &&
-                                                    //  input.visibility !== false && 
-                                                    (
+                                                    {input.type === 'positive-integer' && (
                                                         <input
-                                                            type="number"
-                                                            className='form-control'
-                                                            placeholder={input.placeholder}
-                                                            value={formState[input.inputId]}
-                                                            onChange={e => handleChange(input.inputId, e.target.value)}
+                                                            type="text"
+                                                            className="form-control"
+                                                            placeholder={input.placeholder || 'Enter a positive integer'}
+                                                            value={formState[input.inputId] || ''}
+                                                            onChange={(e) => {
+                                                                const value = e.target.value;
+
+                                                                // Validation: Positive integers only
+                                                                const regex = /^[0-9]*$/;
+                                                                if (regex.test(value) && (parseInt(value, 10) >= 0 || value === '')) {
+                                                                    handleChange(input.inputId, value);
+                                                                } else {
+                                                                    console.warn('Invalid input. Only positive integers are allowed.');
+                                                                }
+                                                            }}
+                                                            onBlur={() => {
+                                                                // Ensure the value is properly formatted or reset on blur
+                                                                const parsedValue = parseInt(formState[input.inputId] || '0', 10);
+                                                                if (!isNaN(parsedValue) && parsedValue >= 0) {
+                                                                    handleChange(input.inputId, parsedValue.toString());
+                                                                } else {
+                                                                    alert('Enter a valid positive integer.');
+                                                                    handleChange(input.inputId, '0');
+                                                                }
+                                                            }}
                                                         />
                                                     )}
+
                                                     {input.type === 'email' && (
                                                         <input
                                                             type="email"
@@ -1245,6 +1314,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                                                             ))}
                                                         </select>
                                                     )}
+
 
                                                     {input.type === 'multiselect' && (
                                                         <select

@@ -1028,6 +1028,18 @@ const App: React.FC = () => {
               <div>{field.labeltext}</div>
             </div>
           );
+        case 'decimal':
+          return (
+            <div className='col-6'>
+              <div>{field.labeltext}</div>
+            </div>
+          );
+        case 'positive-integer':
+          return (
+            <div className='col-6'>
+              <div>{field.labeltext}</div>
+            </div>
+          );
 
         case 'taskName':
           return (
@@ -1800,12 +1812,12 @@ const App: React.FC = () => {
                 {(editField?.type === 'select' || editField?.type === 'multiselect' || editField?.type === 'radio') && (
                   <Form.Group>
                     <Form.Label>Placeholder</Form.Label>
-                      <Form.Control
-                        type="text"  // Use the dynamic type for the input field
-                        placeholder={editField.placeholder}
-                        value={editField.placeholder || ''}
-                        onChange={(e) => setEditField({ ...editField, placeholder: e.target.value })}
-                      />
+                    <Form.Control
+                      type="text"  // Use the dynamic type for the input field
+                      placeholder={editField.placeholder}
+                      value={editField.placeholder || ''}
+                      onChange={(e) => setEditField({ ...editField, placeholder: e.target.value })}
+                    />
                     <Form.Label className='mt-2'>Options</Form.Label>
                     {editField.options?.map((option, index) => (
                       <div key={option.id} className="d-flex mb-2 row align-items-center">
