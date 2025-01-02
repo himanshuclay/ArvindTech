@@ -444,11 +444,11 @@ const getFilteredMenuItems = () => {
       item.key === 'CompletedTask' ||
       item.key === 'ExpireTask' ||
       item.key === 'TaskPlanned' ||
-      item.key === 'Notification'||
-      item.key === 'TaskAdmin' ||
-      item.key === 'Analytics' ||
-      item.key === 'Process' ||
-      item.key === 'Modules'
+      item.key === 'Notification'
+      // item.key === 'TaskAdmin' ||
+      // item.key === 'Analytics' ||
+      // item.key === 'Process' ||
+      // item.key === 'Modules'
     );
   }
   if (role === 'ProcessCoordinator') {
