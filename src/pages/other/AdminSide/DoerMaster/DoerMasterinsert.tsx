@@ -105,7 +105,7 @@ const YourComponent = () => {
                 toast.success("Doer Combination  submitted successfully");
                 fetchDoerMasterList()
             } else {
-                toast.error("Error:", response.data.message);
+                toast.error( response.data.message);
             }
         } catch (error: any) {
             toast.error(error || "An error occurred");
