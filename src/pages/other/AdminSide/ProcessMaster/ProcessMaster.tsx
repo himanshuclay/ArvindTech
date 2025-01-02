@@ -382,7 +382,7 @@ const ModuleMaster = () => {
                     </div>
                 </Row>
             </div>
-            
+
             {!processes ? (
                 <Container className="mt-5">
                     <Row className="justify-content-center">

@@ -14,10 +14,7 @@ interface SubProject {
     projectName: string;
     subProjectID: string;
     subProjectName: string;
-    projectIncharge: {};
-    projectCoordinator: string;
     completionStatus: number;
-    nameOfWork: string;
     createdBy: string;
     updatedBy: string;
     contractualWorkValue: string;
@@ -66,10 +63,7 @@ const ProjectInsert = () => {
         projectName: '',
         subProjectID: '',
         subProjectName: '',
-        projectIncharge: {},
-        projectCoordinator: '',
         completionStatus: 0,
-        nameOfWork: '',
         createdBy: '',
         updatedBy: '',
         contractualWorkValue: '',
@@ -209,6 +203,7 @@ const ProjectInsert = () => {
             completionStatus: subProject.completionStatus,
             subProjectName: subProject.subProjectName,
             projectName: subProject.projectName,
+            status: subProject.status,
             createdBy: editMode ? subProject.createdBy : empName,
         };
         const payloadUpdate = {
@@ -239,9 +234,6 @@ const ProjectInsert = () => {
 
 
     };
-
-    console.log(projectList)
-    console.log(subProject)
 
     const optionsAppAccess = [
         { value: 'Enabled', label: 'Enabled' },

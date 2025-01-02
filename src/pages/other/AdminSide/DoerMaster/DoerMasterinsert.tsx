@@ -101,13 +101,14 @@ const YourComponent = () => {
 
             if (response.data.isSuccess) {
                 console.log("Data submitted successfully:", response.data);
-                // Refresh or perform additional actions if necessary
+
+                toast.success("Doer Combination  submitted successfully");
+                fetchDoerMasterList()
             } else {
-                console.error("Error:", response.data.message);
+                toast.error("Error:", response.data.message);
             }
         } catch (error: any) {
-            console.error("Error submitting data:", error);
-            toast.error(error.message || "An error occurred");
+            toast.error(error || "An error occurred");
         }
     };
 
@@ -407,7 +408,7 @@ const YourComponent = () => {
                     <tbody>
                         {doerMasterList.slice(0, 10).map((item, index) => (
                             <tr key={index}>
-                                <td >{index +1}</td>
+                                <td >{index + 1}</td>
                                 <td >{item.taskID}</td>
                                 <td >{item.identifier1}</td>
                                 <td >{item.identifier1Source}</td>
