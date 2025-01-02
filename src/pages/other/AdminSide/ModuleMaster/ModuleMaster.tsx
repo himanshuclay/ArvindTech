@@ -36,8 +36,7 @@ interface Column {
 
 
 const ModuleMaster = () => {
-
-
+    const role = localStorage.getItem('role');
     const [modules, setModules] = useState<Module[]>([]);
     const [loading, setLoading] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
@@ -220,11 +219,14 @@ const ModuleMaster = () => {
                     <Button variant="primary" onClick={downloadCSV} className="me-2">
                         Download CSV
                     </Button>
-                    <Link to='/pages/ModuleMasterinsert'>
-                        <Button variant="primary">
-                            Add Modules
-                        </Button>
-                    </Link>
+                    {role === 'DME' && (
+                        <Link to='/pages/ModuleMasterinsert'>
+                            <Button variant="primary">
+                                Add Modules
+                            </Button>
+                        </Link>
+                    )
+                    }
 
                 </div>
             </div>
@@ -310,7 +312,6 @@ const ModuleMaster = () => {
                             </div>
                         ) : (
                             <>
-
                                 <div className="overflow-auto text-nowrap">
                                     <DragDropContext onDragEnd={handleOnDragEnd}>
                                         <Table hover className='bg-white '>
@@ -345,7 +346,9 @@ const ModuleMaster = () => {
                                                                     </Draggable>
                                                                 ))}
                                                             {provided.placeholder}
-                                                            <th>Action</th>
+                                                            {role === 'DME' && (
+                                                                <th>Action</th>
+                                                            )}
                                                         </tr>
                                                     )}
                                                 </Droppable>
@@ -379,11 +382,13 @@ const ModuleMaster = () => {
                                                                     </div>
                                                                 </td>
                                                             ))}
-                                                            <td><Link to={`/pages/ModuleMasterinsert/${item.id}`}>
-                                                                <Button variant='primary' className=' text-white p-0' title="You can Edit the Porcess." >
-                                                                    <i className='btn ri-edit-line text-white' ></i>
+                                                            {role === 'DME' ? (
+                                                                <td><Link to={`/pages/ModuleMasterinsert/${item.id}`}>
+                                                                    <Button variant='primary' className=' text-white p-0' title="You can Edit the Porcess." >
+                                                                        <i className='btn ri-edit-line text-white' ></i>
 
-                                                                </Button></Link></td>
+                                                                    </Button></Link></td>
+                                                            ) : ''}
 
                                                         </tr>
                                                     ))

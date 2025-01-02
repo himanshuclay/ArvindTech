@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { Button, Form, Table, Alert, Container, Row, Col, Modal } from 'react-bootstrap';
+import { Button, Form, Table, Alert, Container, Row, Col, Modal, Pagination } from 'react-bootstrap';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import { Link } from 'react-router-dom';
 import config from '@/config';
@@ -62,6 +62,7 @@ interface Column {
 }
 
 const TaskMaster: React.FC = () => {
+    const role = localStorage.getItem('role');
     const [tasks, setTasks] = useState<Task[]>([]);
     const [taskID, setTaskID] = useState<number>(0);
     const [taskNumber, setTaskNumber] = useState<string>('');
@@ -76,6 +77,8 @@ const TaskMaster: React.FC = () => {
     const [taskIdToEdit, setTaskIdToEdit] = useState<any | null>(null);
     const [problemSolver, setProblemSolver] = useState<string>('');
     const [employeeList, setEmployeeList] = useState<Employee[]>([]);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(1);
     // const [selectedProblemSolver, setSelectedProblemSolver] = useState('');
 
     // const [taskName, setTaskName] = useState<string | null>(null);
@@ -339,6 +342,7 @@ const TaskMaster: React.FC = () => {
             .then((response) => {
                 if (response.data.isSuccess) {
                     setTasks(response.data.getProcessTaskByIds);
+                    setTotalPages(Math.ceil(response.data.totalCount / 10));
                 }
                 console.log(tasks)
             })
@@ -375,9 +379,12 @@ const TaskMaster: React.FC = () => {
             <div className="d-flex bg-white p-2 my-2 justify-content-between align-items-center fs-20">
                 <span><i className="ri-file-list-line me-2"></i><span className='fw-bold test-nowrap'>Task List</span></span>
                 <div className="col-md-4 my-1 d-flex justify-content-end">
-                    <Link to="/pages/Modules-Master">
-                        <Button variant="primary">Create Task</Button>
-                    </Link>
+                    {role === "DME" && (
+                        <Link to="/pages/Modules-Master">
+                            <Button variant="primary">Create Task</Button>
+                        </Link>
+                    )}
+
                 </div>
 
             </div>
@@ -446,8 +453,13 @@ const TaskMaster: React.FC = () => {
                                                 </Draggable>
                                             ))}
                                         {provided.placeholder}
-                                        <th>View</th>
-                                        <th>Action</th>
+                                        {role === 'DME' && (
+                                            <>
+                                                <th>View</th>
+                                                <th>Action</th>
+                                                <th>Conditions</th>
+                                            </>
+                                        )}
                                     </tr>
                                 )}
                             </Droppable>
@@ -463,7 +475,7 @@ const TaskMaster: React.FC = () => {
                                             .map((col) => (
                                                 <td key={col.id}
                                                     className={
-                                                        col.id === 'moduleName' ? 'fw-bold  text-dark text-nowrap' :
+                                                        col.id === 'moduleName' ? 'fw-bold  text-dark text-nowrap py-2' :
                                                             col.id === 'taskName' ? 'fw-bold    text-wrap' :
                                                                 ''
                                                     }
@@ -474,31 +486,37 @@ const TaskMaster: React.FC = () => {
                                                     )}
                                                 </td>
                                             ))}
-                                        <td>
-                                            <Button
-                                                variant="primary"
-                                                onClick={() => {
 
-                                                    handleJsonModal(task.task_Json);
+                                        {
+                                            role === 'DME' && (
+                                                <>
+                                                    <td>
+                                                        <Button
+                                                            variant="primary"
+                                                            onClick={() => { handleJsonModal(task.task_Json); }}
+                                                            className='text-nowrap'
+                                                        >
+                                                            View Task
+                                                        </Button>
+                                                    </td>
+                                                    <td>
+                                                        <Button
+                                                            variant="primary"
+                                                            onClick={() => handleShowModal(task.id, task.problem_Solver)}
+                                                            className="text-nowrap"
+                                                        >
+                                                            Edit Task
+                                                        </Button>
+                                                    </td>
+                                                    <td>
+                                                        <Button variant="primary" onClick={() => handleCondition(task.id, task.task_Number)}>Conditions</Button>
+                                                    </td>
+                                                </>
 
-                                                }}
-                                                className='text-nowrap'
-                                            >
-                                                View Task
-                                            </Button>
-                                        </td>
-                                        <td>
-                                            <Button
-                                                variant="primary"
-                                                onClick={() => handleShowModal(task.id, task.problem_Solver)}
-                                                className="text-nowrap"
-                                            >
-                                                Edit Task
-                                            </Button>
-                                        </td>
-                                        <td>
-                                            <Button variant="primary" onClick={() => handleCondition(task.id, task.task_Number)}>Conditions</Button>
-                                        </td>
+
+                                            )
+                                        }
+
                                     </tr>
                                 ))
                             ) : (
@@ -727,6 +745,16 @@ const TaskMaster: React.FC = () => {
 
                 />
             }
+
+            <div className="d-flex justify-content-center align-items-center bg-white w-20 rounded-5 m-auto py-1 pb-1 my-2 pagination-rounded">
+                <Pagination >
+                    <Pagination.First onClick={() => setCurrentPage(1)} disabled={currentPage === 1} />
+                    <Pagination.Prev onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))} disabled={currentPage === 1} />
+                    <Pagination.Item active>{currentPage}</Pagination.Item>
+                    <Pagination.Next onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))} disabled={currentPage === totalPages} />
+                    <Pagination.Last onClick={() => setCurrentPage(totalPages)} disabled={currentPage === totalPages} />
+                </Pagination>
+            </div>
 
         </div>
     );

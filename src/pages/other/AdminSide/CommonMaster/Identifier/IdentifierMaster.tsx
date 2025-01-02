@@ -28,6 +28,7 @@ interface IdentifierList {
 }
 
 const ModuleMaster = () => {
+    const role = localStorage.getItem('role');
     const [identifiers, setIdentifiers] = useState<Identifier[]>([]);
     const [loading, setLoading] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
@@ -216,11 +217,14 @@ const ModuleMaster = () => {
                     <Button variant="primary" onClick={downloadCSV} className="me-2">
                         Download CSV
                     </Button>
-                    <Link to='/pages/Identifiermasterinsert'>
-                        <Button variant="primary" className="me-2">
-                            Add Identifier
-                        </Button>
-                    </Link>
+                    {role === 'DME' && (
+                        <Link to='/pages/Identifiermasterinsert'>
+                            <Button variant="primary" className="me-2">
+                                Add Identifier
+                            </Button>
+                        </Link>
+                    )}
+
 
                 </div>
             </div>
@@ -290,8 +294,6 @@ const ModuleMaster = () => {
                         <div className="d-flex justify-content-end bg-light p-1">
                             <div className="app-search d-none d-lg-block me-4">
                             </div>
-
-
                         </div>
                     </Row>
                 </div>
@@ -337,7 +339,10 @@ const ModuleMaster = () => {
                                                     </Draggable>
                                                 ))}
                                                 {provided.placeholder}
-                                                <th>Action</th>
+
+                                                {role === 'DME' && (
+                                                    <th>Action</th>
+                                                )}
                                             </tr>
                                         )}
                                     </Droppable>
@@ -367,13 +372,15 @@ const ModuleMaster = () => {
                                                         )}
                                                     </td>
                                                 ))}
-                                                <td>
-                                                    <Link to={`/pages/identifiermasterinsert/${item.id}`}>
-                                                        <Button variant="primary" className="p-0 text-white">
-                                                            <i className="btn ri-edit-line text-white"></i>
-                                                        </Button>
-                                                    </Link>
-                                                </td>
+                                                {role === 'DME' && (
+                                                    <td>
+                                                        <Link to={`/pages/identifiermasterinsert/${item.id}`}>
+                                                            <Button variant="primary" className="p-0 text-white">
+                                                                <i className="btn ri-edit-line text-white"></i>
+                                                            </Button>
+                                                        </Link>
+                                                    </td>
+                                                )}
 
                                                 {/* Modal for the selected row */}
                                                 {selectedRow === String(item.identifierValue) && (

@@ -51,6 +51,8 @@ interface EmployeeList {
 }
 
 const TenderMaster = () => {
+    const role = localStorage.getItem('role');
+
     const [venders, setVenders] = useState<Vender[]>([]);
     const [loading, setLoading] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
@@ -277,11 +279,13 @@ const TenderMaster = () => {
                         <Button variant="primary" onClick={downloadCSV} className="me-2">
                             Download CSV
                         </Button>
-                        <Link to='/pages/VendorMasterinsert'>
-                            <Button variant="primary" className="">
-                                Add Vendor
-                            </Button>
-                        </Link>
+                        {(role === 'Admin' || role === 'DME') && (
+                            <Link to='/pages/VendorMasterinsert'>
+                                <Button variant="primary" className="">
+                                    Add Vendor
+                                </Button>
+                            </Link>
+                        )}
 
 
                     </div>
@@ -439,7 +443,10 @@ const TenderMaster = () => {
                                                         </Draggable>
                                                     ))}
                                                     {provided.placeholder}
-                                                    <th>Action</th>
+
+                                                    {(role === 'Admin' || role === 'DME') && (
+                                                        <th>Action</th>
+                                                    )}
                                                 </tr>
                                             )}
                                         </Droppable>
@@ -475,13 +482,14 @@ const TenderMaster = () => {
 
                                                         </td>
                                                     ))}
-
-                                                    <td><Link to={`/pages/VendorMasterinsert/${item.id}`}>
-                                                        <Button variant='primary' className='p-0 text-white'>
-                                                            <i className='btn ri-edit-line text-white' ></i>
-                                                        </Button>
-                                                    </Link>
-                                                    </td>
+                                                    {(role === 'Admin' || role === 'DME') && (
+                                                        <td><Link to={`/pages/VendorMasterinsert/${item.id}`}>
+                                                            <Button variant='primary' className='p-0 text-white'>
+                                                                <i className='btn ri-edit-line text-white' ></i>
+                                                            </Button>
+                                                        </Link>
+                                                        </td>
+                                                    )}
                                                 </tr>
                                             ))
                                         ) : (

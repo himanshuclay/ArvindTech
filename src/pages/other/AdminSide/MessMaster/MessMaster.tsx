@@ -45,6 +45,8 @@ interface ModuleProjectList {
 
 
 const MessMaster = () => {
+    const role = localStorage.getItem('role');
+
     const [messes, setMesses] = useState<Mess[]>([]);
     const [loading, setLoading] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
@@ -244,11 +246,13 @@ const MessMaster = () => {
                     <Button variant="primary" onClick={downloadCSV} className="me-2">
                         Download CSV
                     </Button>
-                    <Link to='/pages/MessMasterinsert'>
-                        <Button variant="primary" className="me-2">
-                            Add Mess
-                        </Button>
-                    </Link>
+                    {(role === 'Admin' || role === 'DME') && (
+
+                        <Link to='/pages/MessMasterinsert'>
+                            <Button variant="primary" className="me-2">
+                                Add Mess
+                            </Button>
+                        </Link>)}
 
                 </div>
             </div>
@@ -335,18 +339,18 @@ const MessMaster = () => {
                 <Row className='mt-3'>
                     <div className="d-flex justify-content-end bg-light p-1">
                         <div className=" me-4">
-                        <DropdownButton title="Toggle Columns" className="">
-                            {columns.map(column => (
-                                <Form.Check
-                                    key={column.id}
-                                    type="checkbox"
-                                    id={`toggle-${column.id}`}
-                                    label={column.label}
-                                    checked={column.visible}
-                                    onChange={() => handleVisibilityChange(column.id)}
-                                />
-                            ))}
-                        </DropdownButton>
+                            <DropdownButton title="Toggle Columns" className="">
+                                {columns.map(column => (
+                                    <Form.Check
+                                        key={column.id}
+                                        type="checkbox"
+                                        id={`toggle-${column.id}`}
+                                        label={column.label}
+                                        checked={column.visible}
+                                        onChange={() => handleVisibilityChange(column.id)}
+                                    />
+                                ))}
+                            </DropdownButton>
                         </div>
 
 
@@ -403,7 +407,9 @@ const MessMaster = () => {
                                                     </Draggable>
                                                 ))}
                                                 {provided.placeholder}
-                                                <th>Action</th>
+                                                {(role === 'Admin' || role === 'DME') && (
+
+                                                    <th>Action</th>)}
                                             </tr>
                                         )}
                                     </Droppable>
@@ -433,13 +439,15 @@ const MessMaster = () => {
 
                                                     </td>
                                                 ))}
+                                                {(role === 'Admin' || role === 'DME') && (
 
-                                                <td><Link to={`/pages/MessMasterinsert/${item.id}`}>
-                                                    <Button variant='primary' className='p-0 text-white'>
-                                                        <i className='btn ri-edit-line text-white' ></i>
-                                                    </Button>
-                                                </Link>
-                                                </td>
+
+                                                    <td><Link to={`/pages/MessMasterinsert/${item.id}`}>
+                                                        <Button variant='primary' className='p-0 text-white'>
+                                                            <i className='btn ri-edit-line text-white' ></i>
+                                                        </Button>
+                                                    </Link>
+                                                    </td>)}
                                             </tr>
                                         ))
                                     ) : (

@@ -38,6 +38,8 @@ interface Column {
 const ProjectViewPopup: React.FC<ProcessCanvasProps> = ({ showView, setShowView, projectName }) => {
     const [loading, setLoading] = useState<boolean>(false);
     const [subProject, setSubProject] = useState<Project[]>([]);
+    const role = localStorage.getItem('role');
+
 
     const [columns, setColumns] = useState<Column[]>([
         { id: 'subProjectID', label: 'Sub Project ID', visible: true },
@@ -179,12 +181,13 @@ const ProjectViewPopup: React.FC<ProcessCanvasProps> = ({ showView, setShowView,
                                                                     </div>
                                                                 </td>
                                                             ))}
-                                                            <td><Link to={`/pages/ProjectSubmasterinsert/${item.id}`}>
-                                                                <Button variant='primary' className='p-0 text-white'>
-                                                                    <i className='btn ri-edit-line text-white' ></i>
-                                                                </Button>
-                                                            </Link>
-                                                            </td>
+                                                            {(role === 'Admin' || role === 'DME') && (
+                                                                <td><Link to={`/pages/ProjectSubmasterinsert/${item.id}`}>
+                                                                    <Button variant='primary' className='p-0 text-white'>
+                                                                        <i className='btn ri-edit-line text-white' ></i>
+                                                                    </Button>
+                                                                </Link>
+                                                                </td>)}
                                                         </tr>
                                                     ))
                                                 ) : (

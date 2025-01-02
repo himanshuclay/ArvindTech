@@ -86,6 +86,7 @@ interface ModuleProjectList {
 
 
 const EmployeeMaster = () => {
+    const role = localStorage.getItem('role');
     const [employee, setEmployee] = useState<Employee[]>([]);
     const [loading, setLoading] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
@@ -438,11 +439,14 @@ const EmployeeMaster = () => {
                         <Button variant="primary" onClick={downloadCSV} className="me-2">
                             Download CSV
                         </Button>
-                        <Link to='/pages/EmployeeMasterinsert'>
-                            <Button variant="primary" className="me-2">
-                                Add Employee
-                            </Button>
-                        </Link>
+                        {(role === 'Admin' || role === 'DME') && (
+
+                            <Link to='/pages/EmployeeMasterinsert'>
+                                <Button variant="primary" className="me-2">
+                                    Add Employee
+                                </Button>
+                            </Link>
+                        )}
                     </div>
 
                 </div>
@@ -624,7 +628,10 @@ const EmployeeMaster = () => {
                                                         </Draggable>
                                                     ))}
                                                     <th>Bank Details</th>
-                                                    <th>Action</th>
+                                                    {(role === 'Admin' || role === 'DME') && (
+
+                                                        <th>Action</th>
+                                                    )}
                                                 </tr>
                                             )}
                                         </Droppable>
@@ -677,14 +684,16 @@ const EmployeeMaster = () => {
                                                                 )}
                                                         </td>
                                                     ))}
-                                                    {/* Action Button */}
                                                     <td><Button variant='primary' className='text-white icon-padding' onClick={() => handleViewEdit(item.id)}>  <i className="ri-eye-line fs-18"></i></Button></td>
-                                                    <td><Link to={`/pages/EmployeeMasterinsert/${item.id}`}>
-                                                        <Button variant='primary' className='icon-padding text-white'>
-                                                            <i className='fs-18 ri-edit-line text-white' ></i>
-                                                        </Button>
-                                                    </Link>
-                                                    </td>
+
+                                                    {(role === 'Admin' || role === 'DME') && (
+                                                        <td><Link to={`/pages/EmployeeMasterinsert/${item.id}`}>
+                                                            <Button variant='primary' className='icon-padding text-white'>
+                                                                <i className='fs-18 ri-edit-line text-white' ></i>
+                                                            </Button>
+                                                        </Link>
+                                                        </td>
+                                                    )}
                                                 </tr>
                                             ))
                                         ) : (

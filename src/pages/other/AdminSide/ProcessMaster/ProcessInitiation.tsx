@@ -35,6 +35,7 @@ interface Column {
 }
 
 const ProcessInitiation = () => {
+    
     const [processes, setProcesses] = useState<Process[]>([]);
     const [loading, setLoading] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);

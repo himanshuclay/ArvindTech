@@ -497,7 +497,6 @@ const EmployeeMasterInsert = () => {
 
     const validateFields = (): boolean => {
         const errors: { [key: string]: string } = {};
-
         if (!employee.empID) { errors.empID = 'Employee ID is required'; }
         if (!employee.employeeName) { errors.employeeName = 'Employee Name is required'; }
         if (!employee.fatherName) { errors.fatherName = 'Father Name is required'; }
@@ -648,7 +647,7 @@ const EmployeeMasterInsert = () => {
         { value: 'Admin', label: 'Admin' },
         { value: 'Employee', label: 'Employee' },
         { value: 'Management', label: 'Management' },
-        { value: 'PC', label: 'PC' },
+        { value: 'ProcessCoordinator', label: 'ProcessCoordinator' },
         { value: 'DME', label: 'DME' },
     ];
     const optionsDataAccesLevel = [

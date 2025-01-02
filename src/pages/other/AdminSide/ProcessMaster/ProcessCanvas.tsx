@@ -1,4 +1,4 @@
-import { Form, Button, Modal, Row, Col, ButtonGroup } from "react-bootstrap";
+import { Form, Button, Modal, Row, Col, ButtonGroup, Container, Alert } from "react-bootstrap";
 import axios from "axios";
 import config from "@/config";
 import { useEffect, useState } from "react";
@@ -37,6 +37,9 @@ interface SubProject {
 }
 
 const ProcessCanvas: React.FC<ProcessCanvasProps> = ({ show, setShow, manageId }) => {
+    const role = localStorage.getItem('role');
+    const [loading, setLoading] = useState(false);
+
     const [assignedProject, setAssignedProject] = useState<Project[]>([]);
     const [projectList, setProjectList] = useState<Project[]>([]);
     const [subProjectList, setSubProjectList] = useState<SubProject[]>([]);
@@ -79,7 +82,7 @@ const ProcessCanvas: React.FC<ProcessCanvasProps> = ({ show, setShow, manageId }
             }
         };
         fetchData();
-    }, [manageId]);
+    }, [manageId, show]);
 
     useEffect(() => {
         if (show && moduleName && processId) {
@@ -113,6 +116,7 @@ const ProcessCanvas: React.FC<ProcessCanvasProps> = ({ show, setShow, manageId }
 
 
     const fetchProcessByid = async (id: string) => {
+        setLoading(true);
         try {
             const response = await axios.get(`${config.API_URL_APPLICATION}/ProcessMaster/GetProcess`, {
                 params: { id: id }
@@ -125,6 +129,9 @@ const ProcessCanvas: React.FC<ProcessCanvasProps> = ({ show, setShow, manageId }
             }
         } catch (error) {
             console.error('Error fetching module:', error);
+        }
+        finally {
+            setLoading(false);
         }
     };
 
@@ -324,109 +331,140 @@ const ProcessCanvas: React.FC<ProcessCanvasProps> = ({ show, setShow, manageId }
                     <Modal.Title className="text-dark">Assign Project to Process</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
-                    <div className="">
-                        {assignedProject?.map((project, index) => (
-                            <div key={project.projectID} className="my-1 p-1 bg-light rounded-1 border d-flex justify-content-between">
-                                <> {index + 1}. {project.projectName} - {project.projectID}</>
-                                <div className="cursor-pointer">
-                                    <i className="ri-close-line fs-14 " onClick={() => handleDelete(project.id)}></i>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-
-
-                    <Col lg={6} className='align-items-end d-flex justify-content-end' >
-                        <ButtonGroup aria-label="Basic example" className='w-100'>
-                            <Button type="button"
-                                variant={activeButton === 'project' ? 'primary' : 'outline-primary'}
-                                onClick={() => handleButtonClick('project')}
-                                disabled={assignedProject[0]?.type === 'subProject'}
-                            >
-                                Project
-                            </Button>
-                            <Button type="button"
-                                variant={activeButton === 'subProject' ? 'primary' : 'outline-primary'}
-                                onClick={() => handleButtonClick('subProject')}
-                                disabled={assignedProject[0]?.type === 'project'}
-                            >Sub Project</Button>
-                        </ButtonGroup>
-                    </Col>
-
-
-                    <Form onSubmit={handleSubmit}>
-                        <Row>
-                            {activeButton === 'project' && (
-                                <Col lg={12}>
-                                    <Form.Group controlId="moduleName" className="mb-3 mt-2">
-                                        <Form.Label>Project Name</Form.Label>
-                                        <Select
-                                            name="projectName"
-                                            value={projectList.filter(project =>
-                                                assignProject.projects.some(ap => ap.projectID === project.id)
+                    {loading ? (
+                        <div className='loader-container'>
+                            <div className="loader"></div>
+                            <div className='mt-2'>Please Wait!</div>
+                        </div>
+                    ) : (
+                        <div className="">
+                            {assignedProject && assignedProject.length > 0 ? (
+                                assignedProject.map((project, index) => (
+                                    <div key={project.projectID} className="my-1 p-1 bg-light rounded-1 border d-flex justify-content-between">
+                                        <> {index + 1}. {project.projectName} - {project.projectID}</>
+                                        <div className="cursor-pointer">
+                                            {role === 'DME' && (
+                                                <i className="ri-close-line fs-14 " onClick={() => handleDelete(project.id)}></i>
                                             )}
-                                            onChange={(selectedOption) => {
-                                                const selectedProjects = (selectedOption || []) as Project[];
-                                                const updatedProjects = selectedProjects.map(project => ({
-                                                    projectID: project.id,
-                                                    projectName: project.projectName,
-                                                }));
-                                                setAssignProject({
-                                                    ...assignProject,
-                                                    projects: updatedProjects,
-                                                });
-                                            }}
-                                            getOptionLabel={(project) => project.projectName}
-                                            getOptionValue={(project) => project.id}
-                                            options={projectList}
-                                            isSearchable={true}
-                                            isMulti={true}
-                                            placeholder="Select Projects"
-                                            required
-                                        />
-                                    </Form.Group>
-                                </Col>
+                                        </div>
+                                    </div>
+                                ))
+                            ) : (
+                                <Container className="mt-4">
+                                    <Row className="justify-content-center">
+                                        <Col xs={12} md={8} lg={6}>
+                                            <Alert variant="info" className="text-center">
+                                                <h4> No  Process Assigned to  Project</h4>
+                                                {/* <p>You don't have Completed tasks</p> */}
+                                            </Alert>
+                                        </Col>
+                                    </Row>
+                                </Container>
                             )}
-                            {activeButton === 'subProject' && (
-                                <Col lg={12}>
-                                    <Form.Group controlId="subProjectName" className="mb-3 mt-2">
-                                        <Form.Label>Sub Project Name</Form.Label>
-                                        <Select
-                                            name="subProjectName"
-                                            value={subProjectList.filter(subProject =>
-                                                assignProject.projects.some(ap => ap.projectID === subProject.id)
-                                            )}
+                        </div>
 
-                                            onChange={(selectedOptions) => {
-                                                const selectedSubProjects = (selectedOptions || []) as SubProject[];
-                                                const newSubProjectArray = selectedSubProjects.map(subProject => ({
-                                                    projectID: subProject.id,
-                                                    projectName: subProject.name,
-                                                }));
-
-                                                setAssignProject({
-                                                    ...assignProject,
-                                                    projects: newSubProjectArray,
-                                                });
-                                            }}
-                                            getOptionLabel={(subProject) => subProject.name}
-                                            getOptionValue={(subProject) => subProject.id}
-                                            options={subProjectList}
-                                            isSearchable={true}
-                                            isMulti={true}
-                                            placeholder="Select Sub Projects"
-                                            required
-                                        />
-                                    </Form.Group>
-                                </Col>
-                            )}
-                        </Row>
+                    )}
 
 
-                        <Button variant="primary" type="submit" className="mt-2">
-                            Submit
-                        </Button>
-                    </Form>
+
+
+                    {role === 'DME' && (
+                        <>
+                            <Col lg={6} className='align-items-end d-flex justify-content-end' >
+                                <ButtonGroup aria-label="Basic example" className='w-100'>
+                                    <Button type="button"
+                                        variant={activeButton === 'project' ? 'primary' : 'outline-primary'}
+                                        onClick={() => handleButtonClick('project')}
+                                        disabled={assignedProject[0]?.type === 'subProject'}
+                                    >
+                                        Project
+                                    </Button>
+                                    <Button type="button"
+                                        variant={activeButton === 'subProject' ? 'primary' : 'outline-primary'}
+                                        onClick={() => handleButtonClick('subProject')}
+                                        disabled={assignedProject[0]?.type === 'project'}
+                                    >Sub Project</Button>
+                                </ButtonGroup>
+                            </Col>
+
+
+
+
+                            <Form onSubmit={handleSubmit}>
+                                <Row>
+                                    {activeButton === 'project' && (
+                                        <Col lg={12}>
+                                            <Form.Group controlId="moduleName" className="mb-3 mt-2">
+                                                <Form.Label>Project Name</Form.Label>
+                                                <Select
+                                                    name="projectName"
+                                                    value={projectList.filter(project =>
+                                                        assignProject.projects.some(ap => ap.projectID === project.id)
+                                                    )}
+                                                    onChange={(selectedOption) => {
+                                                        const selectedProjects = (selectedOption || []) as Project[];
+                                                        const updatedProjects = selectedProjects.map(project => ({
+                                                            projectID: project.id,
+                                                            projectName: project.projectName,
+                                                        }));
+                                                        setAssignProject({
+                                                            ...assignProject,
+                                                            projects: updatedProjects,
+                                                        });
+                                                    }}
+                                                    getOptionLabel={(project) => project.projectName}
+                                                    getOptionValue={(project) => project.id}
+                                                    options={projectList}
+                                                    isSearchable={true}
+                                                    isMulti={true}
+                                                    placeholder="Select Projects"
+                                                    required
+                                                />
+                                            </Form.Group>
+                                        </Col>
+                                    )}
+                                    {activeButton === 'subProject' && (
+                                        <Col lg={12}>
+                                            <Form.Group controlId="subProjectName" className="mb-3 mt-2">
+                                                <Form.Label>Sub Project Name</Form.Label>
+                                                <Select
+                                                    name="subProjectName"
+                                                    value={subProjectList.filter(subProject =>
+                                                        assignProject.projects.some(ap => ap.projectID === subProject.id)
+                                                    )}
+
+                                                    onChange={(selectedOptions) => {
+                                                        const selectedSubProjects = (selectedOptions || []) as SubProject[];
+                                                        const newSubProjectArray = selectedSubProjects.map(subProject => ({
+                                                            projectID: subProject.id,
+                                                            projectName: subProject.name,
+                                                        }));
+
+                                                        setAssignProject({
+                                                            ...assignProject,
+                                                            projects: newSubProjectArray,
+                                                        });
+                                                    }}
+                                                    getOptionLabel={(subProject) => subProject.name}
+                                                    getOptionValue={(subProject) => subProject.id}
+                                                    options={subProjectList}
+                                                    isSearchable={true}
+                                                    isMulti={true}
+                                                    placeholder="Select Sub Projects"
+                                                    required
+                                                />
+                                            </Form.Group>
+                                        </Col>
+                                    )}
+                                </Row>
+
+
+                                <Button variant="primary" type="submit" className="mt-2">
+                                    Submit
+                                </Button>
+                            </Form>
+                        </>
+                    )}
 
                 </Modal.Body>
             </Modal>

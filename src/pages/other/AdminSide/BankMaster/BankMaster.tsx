@@ -45,6 +45,8 @@ interface BankList {
 }
 
 const BankMaster = () => {
+    const role = localStorage.getItem('role');
+
     const [banks, setBanks] = useState<Bank[]>([]);
     const [loading, setLoading] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
@@ -247,11 +249,14 @@ const BankMaster = () => {
                         <Button variant="primary" onClick={downloadCSV} className="me-2">
                             Download CSV
                         </Button>
-                        <Link to='/pages/BankMasterinsert'>
-                            <Button variant="primary" className="">
-                                Add Bank
-                            </Button>
-                        </Link>
+                        {(role === 'Admin' || role === 'DME') && (
+                            <Link to='/pages/BankMasterinsert'>
+                                <Button variant="primary" className="">
+                                    Add Bank
+                                </Button>
+                            </Link>
+                        )}
+
                     </div>
                 </div>
             </div>
@@ -402,7 +407,9 @@ const BankMaster = () => {
                                                         </Draggable>
                                                     ))}
                                                     {provided.placeholder}
-                                                    <th>Action</th>
+                                                    {(role === 'Admin' || role === 'DME') && (
+                                                        <th>Action</th>
+                                                    )}
                                                 </tr>
                                             )}
                                         </Droppable>
@@ -425,13 +432,13 @@ const BankMaster = () => {
                                                             <div>{item[col.id as keyof Bank]}</div>
                                                         </td>
                                                     ))}
-
-                                                    <td><Link to={`/pages/BankMasterinsert/${item.id}`}>
-                                                        <Button variant='primary' className='p-0 text-white'>
-                                                            <i className='btn ri-edit-line text-white' ></i>
-                                                        </Button>
-                                                    </Link>
-                                                    </td>
+                                                    {(role === 'Admin' || role === 'DME') && (
+                                                        <td><Link to={`/pages/BankMasterinsert/${item.id}`}>
+                                                            <Button variant='primary' className='p-0 text-white'>
+                                                                <i className='btn ri-edit-line text-white' ></i>
+                                                            </Button>
+                                                        </Link>
+                                                        </td>)}
                                                 </tr>
                                             ))
                                         ) : (

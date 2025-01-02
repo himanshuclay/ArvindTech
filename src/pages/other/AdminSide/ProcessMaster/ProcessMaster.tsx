@@ -27,7 +27,7 @@ interface Process {
     processName: string;
     userUpdatedMobileNumber: string;
     processFlowchart: string;
-    projectName: string;
+    projectName: string[];
     link: string;
     empId: string;
     employeeName: string;
@@ -43,6 +43,7 @@ interface Column {
 }
 
 const ModuleMaster = () => {
+    const role = localStorage.getItem('role');
     const [processes, setProcesses] = useState<Process[]>([]);
     const [loading, setLoading] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
@@ -224,7 +225,7 @@ const ModuleMaster = () => {
                 mod.processFlowchart || '',
                 mod.misExempt || '',
                 mod.status || '',
-                `"${mod.projectName.replace(/"/g, '""')}"`,
+                mod.projectName.map(project => `${project.replace(/"/g, '""')}`).join('; '),
                 mod.createdBy,
                 mod.updatedBy,
                 mod.createdDate,
@@ -279,11 +280,17 @@ const ModuleMaster = () => {
                     <Button variant="primary" onClick={downloadCSV} className="me-2">
                         Download CSV
                     </Button>
-                    <Link to='/pages/ProcessMasterinsert'>
-                        <Button variant="primary">
-                            Add Process
-                        </Button>
-                    </Link>
+
+
+
+                    {role === 'DME' && (
+                        <Link to='/pages/ProcessMasterinsert'>
+                            <Button variant="primary">
+                                Add Process
+                            </Button>
+                        </Link>
+
+                    )}
 
                 </div>
             </div>
@@ -436,7 +443,10 @@ const ModuleMaster = () => {
                                                             {provided.placeholder}
                                                             <th><i className="ri-flow-chart "></i> Project/SubProject</th>
                                                             <th><i className="ri-task-line"></i> Tasks</th>
-                                                            <th><i className="ri-tools-line"></i> Action</th>
+
+                                                            {role === 'DME' && (
+                                                                <th><i className="ri-tools-line"></i> Action</th>
+                                                            )}
                                                         </tr>
                                                     )}
                                                 </Droppable>
@@ -479,7 +489,14 @@ const ModuleMaster = () => {
                                                             ))}
                                                             <td><Button variant='primary' className=' text-white icon-padding' title="You can Add and Remove Porject from this Process." onClick={() => handleEdit(item.id)}> <i className="fs-18 ri-folder-add-line "></i> </Button></td>
                                                             <td><Button variant='primary' className=' text-white icon-padding' title="You can View the running tasks." onClick={() => handleViewEdit(item.id)}>  <i className=" fs-18 ri-eye-line "></i></Button></td>
-                                                            <td><Link to={`/pages/ProcessMasterinsert/${item.id}`}><Button variant='primary' className=' text-white icon-padding' title="You can Edit the Porcess." ><i className='fs-18 ri-edit-line text-white' ></i></Button></Link></td>
+                                                            {role === 'DME' && (
+                                                                <td><Link to={`/pages/ProcessMasterinsert/${item.id}`}>
+                                                                    <Button variant='primary' className=' text-white icon-padding' title="You can Edit the Porcess." >
+                                                                        <i className='fs-18 ri-edit-line text-white' ></i>
+                                                                    </Button></Link>
+                                                                </td>
+                                                            )}
+
 
                                                         </tr>
                                                     ))

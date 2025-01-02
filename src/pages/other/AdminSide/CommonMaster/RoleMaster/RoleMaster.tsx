@@ -26,6 +26,7 @@ interface Column {
 }
 
 const ModuleMaster = () => {
+    const role = localStorage.getItem('role');
     const [roles, setRoles] = useState<Role[]>([]);
     const [loading, setLoading] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
@@ -199,18 +200,19 @@ const ModuleMaster = () => {
 
     return (
         <>
-
             <div className="d-flex bg-white p-2 my-2 justify-content-between align-items-center">
                 <span><i className="ri-file-list-line me-2 text-dark fs-16"></i><span className='fw-bold text-dark fs-15'>Role List</span></span>
                 <div className="d-flex justify-content-end  ">
                     <Button variant="primary" onClick={downloadCSV} className="me-2">
                         Download CSV
                     </Button>
-                    <Link to='/pages/RoleMasterinsert'>
-                        <Button variant="primary" className="me-2">
-                            Add Role
-                        </Button>
-                    </Link>
+                    {role === 'DME' && (
+                        <Link to='/pages/RoleMasterinsert'>
+                            <Button variant="primary" className="me-2">
+                                Add Role
+                            </Button>
+                        </Link>
+                    )}
 
                 </div>
             </div>
@@ -321,7 +323,11 @@ const ModuleMaster = () => {
                                                     </Draggable>
                                                 ))}
                                                 {provided.placeholder}
-                                                <th>Action</th>
+                                                {
+                                                    role === 'DME' && (
+                                                        <th>Action</th>
+                                                    )
+                                                }
                                             </tr>
                                         )}
                                     </Droppable>
@@ -341,12 +347,14 @@ const ModuleMaster = () => {
                                                         <div>{item[col.id as keyof Role]}</div>
                                                     </td>
                                                 ))}
-                                                <td><Link to={`/pages/RoleMasterinsert/${item.id}`}>
-                                                    <Button variant='primary' className='p-0 text-white'>
-                                                        <i className='btn ri-edit-line text-white' ></i>
-                                                    </Button>
-                                                </Link>
-                                                </td>
+                                                {role === 'DME' && (
+                                                    <td><Link to={`/pages/RoleMasterinsert/${item.id}`}>
+                                                        <Button variant='primary' className='p-0 text-white'>
+                                                            <i className='btn ri-edit-line text-white' ></i>
+                                                        </Button> </Link>
+                                                    </td>)
+                                                }
+
                                             </tr>
                                         ))
                                     ) : (

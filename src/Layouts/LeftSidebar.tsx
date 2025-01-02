@@ -9,6 +9,7 @@ import AppMenu from './Menu';
 const getFilteredMenuItems = () => {
   const role = localStorage.getItem('role'); // Retrieve role from local storage
 
+  console.log(role)
   // Define your menu items array
   const MENU_ITEMS = [
     {
@@ -67,16 +68,6 @@ const getFilteredMenuItems = () => {
     },
 
 
-
-
-
-    // {
-    //   key: 'Notification',
-    //   label: 'My Task',
-    //   url: '/pages/Notification',
-    //   icon: 'ri-notification-3-line',
-    //   parentKey: 'pages',
-    // },
     {
       key: 'Notification',
       label: 'My Task',
@@ -88,14 +79,14 @@ const getFilteredMenuItems = () => {
           label: 'My Task',
           url: '/pages/admin/Notification',
           icon: 'ri-slideshow-line',
-          parentKey: 'TaskAdmin',
+          parentKey: 'Notification',
         },
         {
           key: 'Approval',
           label: 'Approval Console',
           url: '/pages/ApprovalConsole',
           icon: 'ri-dashboard-3-line',
-          parentKey: 'TaskAdmin',
+          parentKey: 'Notification',
         }
       ]
     },
@@ -104,21 +95,21 @@ const getFilteredMenuItems = () => {
       label: 'Completed Task',
       url: '/pages/CompletedTask',
       icon: 'ri-slideshow-line',
-      parentKey: 'Modules-Master',
+      parentKey: 'CompletedTask',
     },
     {
       key: 'ExpireTask',
       label: 'Expired Tasks',
       url: '/pages/ExpireTask',
       icon: 'ri-slideshow-line',
-      parentKey: 'Modules-Master',
+      parentKey: 'ExpireTask',
     },
     {
       key: 'TaskPlanned',
       label: 'Planned Tasks',
       url: '/pages/TaskPlanned',
       icon: 'ri-slideshow-line',
-      parentKey: 'Modules-Master',
+      parentKey: 'TaskPlanned',
     },
     {
       key: 'TaskAdmin',
@@ -280,27 +271,27 @@ const getFilteredMenuItems = () => {
           icon: 'ri-login-circle-line',
           parentKey: 'systemmaster',
         },
-        {
-          key: 'ChkTaskMaster',
-          label: 'CHK Task Master',
-          url: '/pages/ChkTaskMaster',
-          icon: 'ri-user-settings-line',
-          parentKey: 'systemmaster',
-        },
-        {
-          key: 'ChkInputMaster',
-          label: 'CHK Input Master',
-          url: '/pages/ChkInputMaster',
-          icon: 'ri-user-settings-line',
-          parentKey: 'systemmaster',
-        },
-        {
-          key: 'ChecklistMaster',
-          label: 'Checklist Master',
-          url: '/pages/ChecklistMaster',
-          icon: 'ri-list-check-3',
-          parentKey: 'systemmaster',
-        },
+        // {
+        //   key: 'ChkTaskMaster',
+        //   label: 'CHK Task Master',
+        //   url: '/pages/ChkTaskMaster',
+        //   icon: 'ri-user-settings-line',
+        //   parentKey: 'systemmaster',
+        // },
+        // {
+        //   key: 'ChkInputMaster',
+        //   label: 'CHK Input Master',
+        //   url: '/pages/ChkInputMaster',
+        //   icon: 'ri-user-settings-line',
+        //   parentKey: 'systemmaster',
+        // },
+        // {
+        //   key: 'ChecklistMaster',
+        //   label: 'Checklist Master',
+        //   url: '/pages/ChecklistMaster',
+        //   icon: 'ri-list-check-3',
+        //   parentKey: 'systemmaster',
+        // },
 
       ],
     },
@@ -436,31 +427,64 @@ const getFilteredMenuItems = () => {
 
   ];
 
+
+
   if (role === 'Employee') {
     return MENU_ITEMS.filter(item =>
       item.key === 'dashboard' ||
       item.key === 'CompletedTask' ||
       item.key === 'ExpireTask' ||
       item.key === 'TaskPlanned' ||
-      // item.key === 'Action' ||
       item.key === 'Notification'
     );
   }
+  if (role === 'Management') {
+    return MENU_ITEMS.filter(item =>
+      item.key === 'dashboard' ||
+      item.key === 'CompletedTask' ||
+      item.key === 'ExpireTask' ||
+      item.key === 'TaskPlanned' ||
+      item.key === 'Notification'||
+      item.key === 'TaskAdmin' ||
+      item.key === 'Analytics' ||
+      item.key === 'Process' ||
+      item.key === 'Modules'
+    );
+  }
+  if (role === 'ProcessCoordinator') {
+    return MENU_ITEMS.filter(item =>
+      item.key === 'dashboard' ||
+      item.key === 'TaskAdmin' ||
+      item.key === 'Analytics' ||
+      item.key === 'master' ||
+      item.key === 'systemmaster' ||
+      item.key === 'Process' ||
+      item.key === 'ProcessDataMaster' ||
+      item.key === 'Modules'
+    );
+  }
+  if (role === 'Admin') {
+    return MENU_ITEMS.filter(item =>
+      item.key === 'dashboard' ||
+      item.key === 'TaskAdmin' ||
+      item.key === 'Analytics' ||
+      item.key === 'master' ||
+      item.key === 'systemmaster' ||
+      item.key === 'Process' ||
+      item.key === 'ProcessDataMaster' ||
+      item.key === 'Modules'
+    );
+  }
   return MENU_ITEMS.filter(item => {
-    if (role === 'Admin') {
+    if (role === 'DME') {
       return item.key === 'dashboard' ||
-        item.key === 'Filtertask' ||
         item.key === 'TaskAdmin' ||
         item.key === 'Analytics' ||
         item.key === 'master' ||
-        item.key === 'Modules-Master' ||
-        // item.key === 'Action' ||
-        item.key === 'ChkLnMaster' ||
         item.key === 'systemmaster' ||
-        item.key === 'Modules-Master' ||
         item.key === 'Process' ||
         item.key === 'ProcessDataMaster' ||
-        item.key === 'Modules';
+        item.key === 'Modules'
     }
 
     return true;

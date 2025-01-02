@@ -27,6 +27,8 @@ interface Column {
 }
 
 const ModuleMaster = () => {
+    const role = localStorage.getItem('role');
+
     const [identifiers, setIdentifiers] = useState<FrequencyFill[]>([]);
     const [loading, setLoading] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
@@ -198,12 +200,14 @@ const ModuleMaster = () => {
                     <Button variant="primary" onClick={downloadCSV} className="me-2">
                         Download CSV
                     </Button>
-                    <Link to='/pages/FillingFrequencyMasterinsert'>
-                        <Button variant="primary" className="me-2">
-                            Add  Filling Frequency
-                        </Button>
-                    </Link>
+                    {(role === 'Admin' || role === 'DME') && (
 
+                        <Link to='/pages/FillingFrequencyMasterinsert'>
+                            <Button variant="primary" className="me-2">
+                                Add  Filling Frequency
+                            </Button>
+                        </Link>
+                    )}
                 </div>
             </div>
 
@@ -319,7 +323,9 @@ const ModuleMaster = () => {
                                                     </Draggable>
                                                 ))}
                                                 {provided.placeholder}
-                                                <th>Action</th>
+                                                {(role === 'Admin' || role === 'DME') && (
+
+                                                    <th>Action</th>)}
                                             </tr>
                                         )}
                                     </Droppable>
@@ -339,12 +345,14 @@ const ModuleMaster = () => {
                                                         <div>{item[col.id as keyof FrequencyFill]}</div>
                                                     </td>
                                                 ))}
-                                                <td><Link to={`/pages/FillingFrequencyMasterinsert/${item.id}`}>
-                                                    <Button variant='primary' className='p-0 text-white'>
-                                                        <i className='btn ri-edit-line text-white' ></i>
-                                                    </Button>
-                                                </Link>
-                                                </td>
+                                                {(role === 'Admin' || role === 'DME') && (
+
+                                                    <td><Link to={`/pages/FillingFrequencyMasterinsert/${item.id}`}>
+                                                        <Button variant='primary' className='p-0 text-white'>
+                                                            <i className='btn ri-edit-line text-white' ></i>
+                                                        </Button>
+                                                    </Link>
+                                                    </td>)}
                                             </tr>
                                         ))
                                     ) : (

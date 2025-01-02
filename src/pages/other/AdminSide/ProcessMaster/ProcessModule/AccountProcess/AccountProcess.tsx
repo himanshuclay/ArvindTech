@@ -47,6 +47,7 @@ interface AdhocList {
     formName: string;
 }
 const AccountProcess = () => {
+    const role = localStorage.getItem('role');
     const { id } = useParams<{ id: string }>();
     const { processID } = useParams<{ processID: string }>();
     const { moduleID } = useParams<{ moduleID: string }>();
@@ -100,7 +101,7 @@ const AccountProcess = () => {
 
 
     useEffect(() => {
-    toast.dismiss()
+        toast.dismiss()
 
         const storedEmpName = localStorage.getItem('EmpName');
         if (storedEmpName) {
@@ -204,7 +205,7 @@ const AccountProcess = () => {
                 }
             });
 
-        } catch (error:any) {
+        } catch (error: any) {
             toast.error(error);
             console.error('Error submitting module:', error);
         }
@@ -421,33 +422,36 @@ const AccountProcess = () => {
                                 </Form.Group>
                             </Col>
 
-                            <Col lg={6}>
-                                <Form.Group controlId="processOwnerName" className="mb-3">
-                                    <Form.Label>Adhoc Applicable</Form.Label>
-                                    <div className='d-flex'>
-                                        <Form.Check
-                                            inline
-                                            type="radio"
-                                            id="statusDeactive"
-                                            name="isExpirable"
-                                            value={0}
-                                            label="No"
-                                            checked={adhocApplicable === 0}
-                                            onChange={() => handleChangeExpirable(0)}
-                                        />
-                                        <Form.Check
-                                            inline
-                                            type="radio"
-                                            id="statusActive"
-                                            name="isExpirable"
-                                            value={1}
-                                            label="Yes"
-                                            checked={adhocApplicable === 1}
-                                            onChange={() => handleChangeExpirable(1)}
-                                        />
-                                    </div>
-                                </Form.Group>
-                            </Col>
+                            {
+                                role === 'DME' &&
+                                <Col lg={6}>
+                                    <Form.Group controlId="processOwnerName" className="mb-3">
+                                        <Form.Label>Adhoc Applicable</Form.Label>
+                                        <div className='d-flex'>
+                                            <Form.Check
+                                                inline
+                                                type="radio"
+                                                id="statusDeactive"
+                                                name="isExpirable"
+                                                value={0}
+                                                label="No"
+                                                checked={adhocApplicable === 0}
+                                                onChange={() => handleChangeExpirable(0)}
+                                            />
+                                            <Form.Check
+                                                inline
+                                                type="radio"
+                                                id="statusActive"
+                                                name="isExpirable"
+                                                value={1}
+                                                label="Yes"
+                                                checked={adhocApplicable === 1}
+                                                onChange={() => handleChangeExpirable(1)}
+                                            />
+                                        </div>
+                                    </Form.Group>
+                                </Col>
+                            }
 
 
                             <Col lg={12}>
@@ -573,9 +577,12 @@ const AccountProcess = () => {
                                             &nbsp;
                                         </>
                                     }
-                                    <Button variant="primary" type="submit">
-                                        Initate Process
-                                    </Button>
+                                    {
+                                        role === 'DME' &&
+                                        <Button variant="primary" type="submit">
+                                            Initate Process
+                                        </Button>
+                                    }
                                 </ButtonGroup>
                             </Col>
                         </Row>

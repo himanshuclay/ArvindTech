@@ -37,6 +37,7 @@ interface StateList {
 
 
 const AddressMaster = () => {
+    const role = localStorage.getItem('role');
     const [addresses, setAddresses] = useState<Addresses[]>([]);
     const [loading, setLoading] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
@@ -229,11 +230,13 @@ const AddressMaster = () => {
                     <Button variant="primary" onClick={downloadCSV} className="me-2">
                         Download CSV
                     </Button>
-                    <Link to='/pages/AddressMasterinsert'>
-                        <Button variant="primary" className="me-2">
-                            Add Address
-                        </Button>
-                    </Link>
+                    {(role === 'Admin' || role === 'DME') && (
+
+                        <Link to='/pages/AddressMasterinsert'>
+                            <Button variant="primary" className="me-2">
+                                Add Address
+                            </Button>
+                        </Link>)}
 
                 </div>
             </div>
@@ -362,7 +365,9 @@ const AddressMaster = () => {
                                                         </Draggable>
                                                     ))}
                                                     {provided.placeholder}
-                                                    <th>Action</th>
+                                                    {(role === 'Admin' || role === 'DME') && (
+                                                        <th>Action</th>
+                                                    )}
                                                 </tr>
                                             )}
                                         </Droppable>
@@ -384,13 +389,14 @@ const AddressMaster = () => {
                                                             <div>{item[col.id as keyof Addresses]}</div>
                                                         </td>
                                                     ))}
+                                                    {(role === 'Admin' || role === 'DME') && (
 
-                                                    <td><Link to={`/pages/AddressMasterinsert/${item.id}`}>
-                                                        <Button variant='primary' className='p-0 text-white'>
-                                                            <i className='btn ri-edit-line text-white' ></i>
-                                                        </Button>
-                                                    </Link>
-                                                    </td>
+                                                        <td><Link to={`/pages/AddressMasterinsert/${item.id}`}>
+                                                            <Button variant='primary' className='p-0 text-white'>
+                                                                <i className='btn ri-edit-line text-white' ></i>
+                                                            </Button>
+                                                        </Link>
+                                                        </td>)}
                                                 </tr>
                                             ))
                                         ) : (

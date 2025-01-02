@@ -105,7 +105,7 @@ const YourComponent = () => {
                 toast.success("Doer Combination  submitted successfully");
                 fetchDoerMasterList()
             } else {
-                toast.error("Error:", response.data.message);
+                toast.error(response.data.message);
             }
         } catch (error: any) {
             toast.error(error || "An error occurred");
@@ -205,7 +205,6 @@ const YourComponent = () => {
                 `${config.API_URL_ACCOUNT}/DynamicDoerAllocation/GetTaskListfromTaskNumber`,
                 { params: { TaskNumber: taskNumber } }
             );
-
             if (response.data.isSuccess && response.data.getTaskListfromTaskNumbers) {
                 const options = response.data.getTaskListfromTaskNumbers.map((item: { taskID: string }) => ({
                     value: item.taskID,
@@ -222,7 +221,6 @@ const YourComponent = () => {
     return (
         <div>
             <div className="d-flex bg-white p-2 my-2 justify-content-between align-items-center fs-20 rounded-3 border">
-
                 <span><i className="ri-file-list-line me-2"></i><span className='fw-bold'>Task's Identifier Combinations</span></span>
             </div>
 

@@ -34,6 +34,8 @@ interface DepartmentList {
 }
 
 const DesignationMaster = () => {
+    const role = localStorage.getItem('role');
+
     const [designations, setDesignations] = useState<Designation[]>([]);
     const [loading, setLoading] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
@@ -213,11 +215,13 @@ const DesignationMaster = () => {
                     <Button variant="primary" onClick={downloadCSV} className="me-2">
                         Download CSV
                     </Button>
-                    <Link to='/pages/DepartmentMasterinsert'>
-                        <Button variant="primary" className="me-2">
-                            Add Department
-                        </Button>
-                    </Link>
+                    {(role === 'Admin' || role === 'DME') && (
+
+                        <Link to='/pages/DepartmentMasterinsert'>
+                            <Button variant="primary" className="me-2">
+                                Add Department
+                            </Button>
+                        </Link>)}
 
                 </div>
             </div>
@@ -333,7 +337,9 @@ const DesignationMaster = () => {
                                                         </Draggable>
                                                     ))}
                                                     {provided.placeholder}
-                                                    <th>Action</th>
+                                                    {(role === 'Admin' || role === 'DME') && (
+
+                                                        <th>Action</th>)}
                                                 </tr>
                                             )}
                                         </Droppable>
@@ -347,7 +353,7 @@ const DesignationMaster = () => {
                                                         <td key={col.id}
                                                             className={
                                                                 // Add class based on column id
-                                                                col.id === 'departmentName' ? 'fw-bold  text-dark ' :
+                                                                col.id === 'departmentName' ? 'fw-bold  text-dark py-2' :
                                                                     (col.id === 'status' && item[col.id] === "Enabled") ? 'task1' :
                                                                         (col.id === 'status' && item[col.id] === "Disabled") ? 'task4' : ''
                                                             }
@@ -356,12 +362,14 @@ const DesignationMaster = () => {
                                                         </td>
                                                     ))}
 
-                                                    <td><Link to={`/pages/DepartmentMasterinsert/${item.id}`}>
-                                                        <Button variant='primary' className='p-0 text-white'>
-                                                            <i className='btn ri-edit-line text-white' ></i>
-                                                        </Button>
-                                                    </Link>
-                                                    </td>
+                                                    {(role === 'Admin' || role === 'DME') && (
+
+                                                        <td><Link to={`/pages/DepartmentMasterinsert/${item.id}`}>
+                                                            <Button variant='primary' className='p-0 text-white'>
+                                                                <i className='btn ri-edit-line text-white' ></i>
+                                                            </Button>
+                                                        </Link>
+                                                        </td>)}
                                                 </tr>
                                             ))
                                         ) : (

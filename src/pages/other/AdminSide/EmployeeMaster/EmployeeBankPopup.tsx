@@ -34,7 +34,7 @@ interface EmployeePopusProps {
 }
 
 const EmployeeBankPopup: React.FC<EmployeePopusProps> = ({ showView, setShowView, id }) => {
-
+    const role = localStorage.getItem('role');
     const [employee, setEmployee] = useState<Employee[]>([]);
     const [loading, setLoading] = useState<boolean>(false);
 
@@ -92,11 +92,13 @@ const EmployeeBankPopup: React.FC<EmployeePopusProps> = ({ showView, setShowView
                                     <span key={index}>{item.employeeName}</span>
                                 ))}
 
-                                <Link to={`/pages/EmployeeMasterinsert/${id}`}>
-                                    <Button variant='primary' className='icon-padding text-white'>
-                                        <i className='fs-18 ri-edit-line text-white' ></i>
-                                    </Button>
-                                </Link>
+                                {(role === 'Admin' || role === 'DME') && (
+                                    <Link to={`/pages/EmployeeMasterinsert/${id}`}>
+                                        <Button variant='primary' className='icon-padding text-white'>
+                                            <i className='fs-18 ri-edit-line text-white' ></i>
+                                        </Button>
+                                    </Link>
+                                )}
                             </h3>
 
                             <div className="overflow-auto text-nowrap">

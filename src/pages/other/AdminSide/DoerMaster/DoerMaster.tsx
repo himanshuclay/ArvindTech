@@ -46,6 +46,7 @@ interface Identifier {
 }
 
 const ModuleMaster = () => {
+    const role = localStorage.getItem('role');
     const [doers, setDoers] = useState<Doer[]>([]);
     const [loading, setLoading] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
@@ -348,11 +349,15 @@ const ModuleMaster = () => {
                     <Button variant="primary" onClick={downloadCSV} className="me-2">
                         Download CSV
                     </Button>
-                    <Link to='/pages/DoerMasterinsert'>
-                        <Button variant="primary" className="me-2">
-                            Add Doer
-                        </Button>
-                    </Link>
+                    {role === 'DME' && (
+                        <Link to='/pages/DoerMasterinsert'>
+                            <Button variant="primary" className="me-2">
+                                Add Doer
+                            </Button>
+                        </Link>
+                    )
+                    }
+
 
                 </div>
             </div>
@@ -581,7 +586,9 @@ const ModuleMaster = () => {
                                                         </Draggable>
                                                     ))}
                                                     {provided.placeholder}
-                                                    <th>Action</th>
+                                                    {role === 'DME' && (
+                                                        <th>Action</th>
+                                                    )}
                                                 </tr>
                                             )}
                                         </Droppable>
@@ -620,15 +627,17 @@ const ModuleMaster = () => {
                                                         </td>
                                                     ))}
 
-                                                    <td>
-                                                        <Button
+                                                    {role === 'DME' && (
+                                                        <td><Button
                                                             variant="primary"
                                                             className="p-0 text-white"
                                                             onClick={() => handleEditClick(item.id)}
                                                         >
                                                             <i className="btn ri-edit-line text-white"></i>
                                                         </Button>
-                                                    </td>
+                                                        </td>
+                                                    )}
+
                                                 </tr>
                                             ))
                                         ) : (

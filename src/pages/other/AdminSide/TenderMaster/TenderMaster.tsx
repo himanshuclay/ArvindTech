@@ -72,6 +72,8 @@ interface StatusList {
 }
 
 const TenderMaster = () => {
+    const role = localStorage.getItem('role');
+
     const [tenders, setTenders] = useState<Tender[]>([]);
     const [loading, setLoading] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
@@ -345,11 +347,13 @@ const TenderMaster = () => {
                     <Button variant="primary" onClick={downloadCSV} className="me-2">
                         Download CSV
                     </Button>
-                    <Link to='/pages/TenderMasterinsert'>
-                        <Button variant="primary" className="me-2">
-                            Add Tender
-                        </Button>
-                    </Link>
+                    {(role === 'Admin' || role === 'DME') && (
+
+                        <Link to='/pages/TenderMasterinsert'>
+                            <Button variant="primary" className="me-2">
+                                Add Tender
+                            </Button>
+                        </Link>)}
 
                 </div>
             </div>
@@ -527,13 +531,14 @@ const TenderMaster = () => {
                                                             <div>{item[col.id as keyof Tender]}</div>
                                                         </td>
                                                     ))}
+                                                    {(role === 'Admin' || role === 'DME') && (
 
-                                                    <td><Link to={`/pages/TenderMasterinsert/${item.tenderID}`}>
-                                                        <Button variant='primary' className='p-0 text-white'>
-                                                            <i className='btn ri-edit-line text-white' ></i>
-                                                        </Button>
-                                                    </Link>
-                                                    </td>
+                                                        <td><Link to={`/pages/TenderMasterinsert/${item.tenderID}`}>
+                                                            <Button variant='primary' className='p-0 text-white'>
+                                                                <i className='btn ri-edit-line text-white' ></i>
+                                                            </Button>
+                                                        </Link>
+                                                        </td>)}
                                                 </tr>
                                             ))
                                         ) : (

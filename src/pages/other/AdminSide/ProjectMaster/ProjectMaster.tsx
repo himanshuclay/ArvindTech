@@ -78,6 +78,8 @@ interface CompletionStatus {
 }
 
 const ProjectMaster = () => {
+    const role = localStorage.getItem('role');
+
     const [project, setProject] = useState<Project[]>([]);
     const [loading, setLoading] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
@@ -341,16 +343,22 @@ const ProjectMaster = () => {
                     <Button variant="primary" onClick={downloadCSV} className="me-2">
                         Download CSV
                     </Button>
-                    <Link to='/pages/ProjectMasterinsert'>
-                        <Button variant="primary" className="me-2">
-                            Add Project
-                        </Button>
-                    </Link>
-                    <Link to='/pages/ProjectSubmasterinsert'>
-                        <Button variant="primary" className="me-2">
-                            Add Sub Project
-                        </Button>
-                    </Link>
+                    {(role === 'Admin' || role === 'DME') && (
+                        <>
+                            <Link to='/pages/ProjectMasterinsert'>
+                                <Button variant="primary" className="me-2">
+                                    Add Project
+                                </Button>
+                            </Link>
+                            <Link to='/pages/ProjectSubmasterinsert'>
+                                <Button variant="primary" className="me-2">
+                                    Add Sub Project
+                                </Button>
+                            </Link>
+                        </>
+
+                    )
+                    }
 
                 </div>
             </div>
@@ -523,7 +531,9 @@ const ProjectMaster = () => {
                                                     ))}
                                                     {provided.placeholder}
                                                     <th>Sub Project</th>
-                                                    <th>Action</th>
+                                                    {(role === 'Admin' || role === 'DME') && (
+                                                        <th>Action</th>
+                                                    )}
                                                 </tr>
                                             )}
                                         </Droppable>
@@ -577,28 +587,30 @@ const ProjectMaster = () => {
                                                     ))}
                                                     {/* Action Button */}
                                                     <td><Button variant='primary' className='px-3 text-white' onClick={() => handleViewEdit(item.projectName)}>  <i className="ri-eye-line fs-4"></i></Button></td>
-                                                    <td><Link to={`/pages/ProjectMasterinsert/${item.id}`}>
-                                                        <Button variant='primary' className='p-0 text-white'>
-                                                            <i className='btn ri-edit-line text-white' ></i>
-                                                        </Button>
-                                                    </Link>
-                                                    </td>
+
+                                                    {(role === 'Admin' || role === 'DME') && (
+                                                        <td><Link to={`/pages/ProjectMasterinsert/${item.id}`}>
+                                                            <Button variant='primary' className='p-0 text-white'>
+                                                                <i className='btn ri-edit-line text-white' ></i>
+                                                            </Button>
+                                                        </Link>
+                                                        </td>)}
                                                 </tr>
                                             ))
                                         ) : (
                                             // <tr>
-                                                <td colSpan={12}>
-                                                    <Container className="mt-5">
-                                                        <Row className="justify-content-center">
-                                                            <Col xs={12} md={8} lg={6}>
-                                                                <Alert variant="info" className="text-center">
-                                                                    <h4>No Data Found</h4>
-                                                                    <p>You currently don't have any Data</p>
-                                                                </Alert>
-                                                            </Col>
-                                                        </Row>
-                                                    </Container>
-                                                </td>
+                                            <td colSpan={12}>
+                                                <Container className="mt-5">
+                                                    <Row className="justify-content-center">
+                                                        <Col xs={12} md={8} lg={6}>
+                                                            <Alert variant="info" className="text-center">
+                                                                <h4>No Data Found</h4>
+                                                                <p>You currently don't have any Data</p>
+                                                            </Alert>
+                                                        </Col>
+                                                    </Row>
+                                                </Container>
+                                            </td>
                                             // </tr>
                                         )}
                                     </tbody>
