@@ -105,11 +105,7 @@ const YourComponent = () => {
                 toast.success("Doer Combination  submitted successfully");
                 fetchDoerMasterList()
             } else {
-<<<<<<< HEAD
                 toast.error(response.data.message);
-=======
-                toast.error( response.data.message);
->>>>>>> a9a4718a7d8f68fe9598c094e12098cd8216fc06
             }
         } catch (error: any) {
             toast.error(error || "An error occurred");
