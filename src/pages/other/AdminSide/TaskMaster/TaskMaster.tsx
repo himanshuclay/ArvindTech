@@ -79,6 +79,7 @@ const TaskMaster: React.FC = () => {
     const [employeeList, setEmployeeList] = useState<Employee[]>([]);
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
+    const [RoleName, setRoleName] = useState(1);
     // const [selectedProblemSolver, setSelectedProblemSolver] = useState('');
 
     // const [taskName, setTaskName] = useState<string | null>(null);
@@ -151,6 +152,7 @@ const TaskMaster: React.FC = () => {
                         ...parsedTaskJson,
                         inputs: updatedInputs, // Update the inputs with new values
                     }),
+                    roleName: RoleName,
                     updatedBy: "YourNameHere",
                     updatedDate: new Date().toISOString(),
                     problem_Solver: problemSolver,
@@ -638,7 +640,10 @@ const TaskMaster: React.FC = () => {
                                                                                                 id={`role-${input.inputId}`}
                                                                                                 className="form-control"
                                                                                                 value={updatedFields[input.inputId]?.label || ''} // Tie the value to `label`
-                                                                                                onChange={(e) => handleFieldChange(input.inputId, 'label', e.target.value)} // Update `label` on change
+                                                                                                onChange={(e) => {
+                                                                                                    handleFieldChange(input.inputId, 'label', e.target.value),
+                                                                                                        setRoleName(e.target.value)
+                                                                                                }} // Update `label` on change
                                                                                             >
                                                                                                 <option value="" disabled>
                                                                                                     Select Role

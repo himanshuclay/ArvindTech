@@ -378,7 +378,6 @@ const ModuleMaster = () => {
                                 setCurrentPage(1);
                                 setSearchTriggered(true);
                             }}
-
                         >
                             <Row>
                                 <Col lg={6}>
