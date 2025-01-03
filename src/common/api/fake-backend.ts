@@ -26,8 +26,6 @@ export default function configureFakeBackend() {
 
       const { isSuccess, message, loginData, getEmployeeDetailsbyEmpId, token } = response.data;
 
-      console.log(response.data);
-
       if (isSuccess) {
         let user;
         if (loginData) {

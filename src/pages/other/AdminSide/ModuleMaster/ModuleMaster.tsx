@@ -219,7 +219,7 @@ const ModuleMaster = () => {
                     <Button variant="primary" onClick={downloadCSV} className="me-2">
                         Download CSV
                     </Button>
-                    {role === 'DME' && (
+                    {role === 'Admin' && (
                         <Link to='/pages/ModuleMasterinsert'>
                             <Button variant="primary">
                                 Add Modules
@@ -346,7 +346,7 @@ const ModuleMaster = () => {
                                                                     </Draggable>
                                                                 ))}
                                                             {provided.placeholder}
-                                                            {role === 'DME' && (
+                                                            {role === 'Admin' && (
                                                                 <th>Action</th>
                                                             )}
                                                         </tr>
@@ -382,7 +382,7 @@ const ModuleMaster = () => {
                                                                     </div>
                                                                 </td>
                                                             ))}
-                                                            {role === 'DME' ? (
+                                                            {role === 'Admin' ? (
                                                                 <td><Link to={`/pages/ModuleMasterinsert/${item.id}`}>
                                                                     <Button variant='primary' className=' text-white p-0' title="You can Edit the Porcess." >
                                                                         <i className='btn ri-edit-line text-white' ></i>

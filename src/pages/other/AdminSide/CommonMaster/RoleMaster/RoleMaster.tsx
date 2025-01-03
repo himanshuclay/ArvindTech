@@ -206,7 +206,7 @@ const ModuleMaster = () => {
                     <Button variant="primary" onClick={downloadCSV} className="me-2">
                         Download CSV
                     </Button>
-                    {role === 'DME' && (
+                    {role === 'Admin' && (
                         <Link to='/pages/RoleMasterinsert'>
                             <Button variant="primary" className="me-2">
                                 Add Role
@@ -324,7 +324,7 @@ const ModuleMaster = () => {
                                                 ))}
                                                 {provided.placeholder}
                                                 {
-                                                    role === 'DME' && (
+                                                    role === 'Admin' && (
                                                         <th>Action</th>
                                                     )
                                                 }
@@ -347,7 +347,7 @@ const ModuleMaster = () => {
                                                         <div>{item[col.id as keyof Role]}</div>
                                                     </td>
                                                 ))}
-                                                {role === 'DME' && (
+                                                {role === 'Admin' && (
                                                     <td><Link to={`/pages/RoleMasterinsert/${item.id}`}>
                                                         <Button variant='primary' className='p-0 text-white'>
                                                             <i className='btn ri-edit-line text-white' ></i>

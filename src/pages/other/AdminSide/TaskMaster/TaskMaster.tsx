@@ -379,7 +379,7 @@ const TaskMaster: React.FC = () => {
             <div className="d-flex bg-white p-2 my-2 justify-content-between align-items-center fs-20">
                 <span><i className="ri-file-list-line me-2"></i><span className='fw-bold test-nowrap'>Task List</span></span>
                 <div className="col-md-4 my-1 d-flex justify-content-end">
-                    {role === "DME" && (
+                    {role === "Admin" && (
                         <Link to="/pages/Modules-Master">
                             <Button variant="primary">Create Task</Button>
                         </Link>
@@ -453,7 +453,7 @@ const TaskMaster: React.FC = () => {
                                                 </Draggable>
                                             ))}
                                         {provided.placeholder}
-                                        {role === 'DME' && (
+                                        {role === 'Admin' && (
                                             <>
                                                 <th>View</th>
                                                 <th>Action</th>
@@ -488,7 +488,7 @@ const TaskMaster: React.FC = () => {
                                             ))}
 
                                         {
-                                            role === 'DME' && (
+                                            role === 'Admin' && (
                                                 <>
                                                     <td>
                                                         <Button

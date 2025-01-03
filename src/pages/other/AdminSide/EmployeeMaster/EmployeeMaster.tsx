@@ -417,10 +417,10 @@ const EmployeeMaster = () => {
 
     const optionsAppAccesLevel = [
         { value: 'Admin', label: 'Admin' },
-        { value: 'Employee', label: 'Employee' },
-        { value: 'Management', label: 'Management' },
-        { value: 'PC', label: 'PC' },
         { value: 'DME', label: 'DME' },
+        { value: 'ProcessCoordinator', label: 'ProcessCoordinator' },
+        { value: 'Management', label: 'Management' },
+        { value: 'Employee', label: 'Employee' },
     ];
     const optionsDataAccesLevel = [
         { value: 'All', label: 'All' },

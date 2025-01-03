@@ -9,7 +9,7 @@ type User = {
   firstName: string;
   lastName: string;
   EmpId: string;
-  role: string;
+  roles: string;
   EmpName: string;
   token: string;
   error?: string; // Optional property for error messages

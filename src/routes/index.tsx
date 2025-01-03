@@ -209,18 +209,22 @@ const customPagesRoutes = {
 			name: 'ModuleMaster ',
 			element: <DoerMasterNew />,
 			route: PrivateRoute,
+			roles: ['Admin'],
 		},
 		{
 			path: '/pages/DoerMasterinsert/:id',
 			name: 'DoerMasterinsert ',
 			element: <DoerMasterinsert />,
 			route: PrivateRoute,
+			roles: ['Admin', 'ProjectCoordinator'],
 		},
 		{
 			path: '/pages/DoerMasterinsert',
 			name: 'DoerMasterinsert ',
 			element: <DoerMasterinsert />,
 			route: PrivateRoute,
+			roles: ['Admin', 'ProjectCoordinator'],
+
 		},
 		// {
 		// 	path: '/pages/FilterTasks',
@@ -228,7 +232,7 @@ const customPagesRoutes = {
 		// 	element: <Filtertask />,
 		// 	route: PrivateRoute,
 		// },
-		
+
 		{
 			path: '/pages/Notification',
 			name: 'Notification',
@@ -247,15 +251,15 @@ const customPagesRoutes = {
 			element: <ApprovalConsole />,
 			route: PrivateRoute,
 		},
-	
+
 		{
 			path: '/pages/MessMaster',
 			name: 'Mess Master',
 			element: <MessMaster />,
 			route: PrivateRoute,
 		},
-	
-	
+
+
 
 		{
 			path: '/pages/FormMaster',
@@ -281,7 +285,7 @@ const customPagesRoutes = {
 			element: <TicketMaster />,
 			route: PrivateRoute,
 		},
-		
+
 		{
 			path: '/pages/SystemLogs',
 			name: 'System Logs',
@@ -306,7 +310,7 @@ const customPagesRoutes = {
 			element: <ChecklistMaster />,
 			route: PrivateRoute,
 		},
-	
+
 
 		{
 			path: '/pages/CompletedTask',
@@ -393,7 +397,7 @@ const customPagesRoutes = {
 			element: <EmployeeMasterinsert />,
 			route: PrivateRoute,
 		},
-		
+
 		{
 			path: '/pages/ProjectMaster',
 			name: 'ProjectMasterNew ',

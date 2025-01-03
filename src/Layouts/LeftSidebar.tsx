@@ -7,9 +7,8 @@ import AppMenu from './Menu';
 
 // Function to get filtered menu items based on user role
 const getFilteredMenuItems = () => {
-  const role = localStorage.getItem('role'); // Retrieve role from local storage
+  const role = localStorage.getItem('roles'); // Retrieve role from local storage
 
-  console.log(role)
   // Define your menu items array
   const MENU_ITEMS = [
     {

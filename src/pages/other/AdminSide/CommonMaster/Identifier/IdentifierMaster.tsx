@@ -217,7 +217,7 @@ const ModuleMaster = () => {
                     <Button variant="primary" onClick={downloadCSV} className="me-2">
                         Download CSV
                     </Button>
-                    {role === 'DME' && (
+                    {role === 'Admin' && (
                         <Link to='/pages/Identifiermasterinsert'>
                             <Button variant="primary" className="me-2">
                                 Add Identifier
@@ -340,7 +340,7 @@ const ModuleMaster = () => {
                                                 ))}
                                                 {provided.placeholder}
 
-                                                {role === 'DME' && (
+                                                {role === 'Admin' && (
                                                     <th>Action</th>
                                                 )}
                                             </tr>
@@ -372,7 +372,7 @@ const ModuleMaster = () => {
                                                         )}
                                                     </td>
                                                 ))}
-                                                {role === 'DME' && (
+                                                {role === 'Admin' && (
                                                     <td>
                                                         <Link to={`/pages/identifiermasterinsert/${item.id}`}>
                                                             <Button variant="primary" className="p-0 text-white">

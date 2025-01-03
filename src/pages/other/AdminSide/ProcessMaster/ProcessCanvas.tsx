@@ -343,7 +343,7 @@ const ProcessCanvas: React.FC<ProcessCanvasProps> = ({ show, setShow, manageId }
                                     <div key={project.projectID} className="my-1 p-1 bg-light rounded-1 border d-flex justify-content-between">
                                         <> {index + 1}. {project.projectName} - {project.projectID}</>
                                         <div className="cursor-pointer">
-                                            {role === 'DME' && (
+                                            {role === 'Admin' && (
                                                 <i className="ri-close-line fs-14 " onClick={() => handleDelete(project.id)}></i>
                                             )}
                                         </div>
@@ -368,7 +368,7 @@ const ProcessCanvas: React.FC<ProcessCanvasProps> = ({ show, setShow, manageId }
 
 
 
-                    {role === 'DME' && (
+                    {role === 'Admin' && (
                         <>
                             <Col lg={6} className='align-items-end d-flex justify-content-end' >
                                 <ButtonGroup aria-label="Basic example" className='w-100'>

@@ -645,10 +645,10 @@ const EmployeeMasterInsert = () => {
     ];
     const optionsAppAccesLevel = [
         { value: 'Admin', label: 'Admin' },
-        { value: 'Employee', label: 'Employee' },
-        { value: 'Management', label: 'Management' },
-        { value: 'ProcessCoordinator', label: 'ProcessCoordinator' },
         { value: 'DME', label: 'DME' },
+        { value: 'ProcessCoordinator', label: 'ProcessCoordinator' },
+        { value: 'Management', label: 'Management' },
+        { value: 'Employee', label: 'Employee' },
     ];
     const optionsDataAccesLevel = [
         { value: 'All', label: 'All' },

@@ -283,7 +283,7 @@ const ModuleMaster = () => {
 
 
 
-                    {role === 'DME' && (
+                    {role === 'Admin' && (
                         <Link to='/pages/ProcessMasterinsert'>
                             <Button variant="primary">
                                 Add Process
@@ -444,7 +444,7 @@ const ModuleMaster = () => {
                                                             <th><i className="ri-flow-chart "></i> Project/SubProject</th>
                                                             <th><i className="ri-task-line"></i> Tasks</th>
 
-                                                            {role === 'DME' && (
+                                                            {role === 'Admin' && (
                                                                 <th><i className="ri-tools-line"></i> Action</th>
                                                             )}
                                                         </tr>
@@ -489,7 +489,7 @@ const ModuleMaster = () => {
                                                             ))}
                                                             <td><Button variant='primary' className=' text-white icon-padding' title="You can Add and Remove Porject from this Process." onClick={() => handleEdit(item.id)}> <i className="fs-18 ri-folder-add-line "></i> </Button></td>
                                                             <td><Button variant='primary' className=' text-white icon-padding' title="You can View the running tasks." onClick={() => handleViewEdit(item.id)}>  <i className=" fs-18 ri-eye-line "></i></Button></td>
-                                                            {role === 'DME' && (
+                                                            {role === 'Admin' && (
                                                                 <td><Link to={`/pages/ProcessMasterinsert/${item.id}`}>
                                                                     <Button variant='primary' className=' text-white icon-padding' title="You can Edit the Porcess." >
                                                                         <i className='fs-18 ri-edit-line text-white' ></i>
