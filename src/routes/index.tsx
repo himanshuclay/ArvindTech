@@ -93,6 +93,8 @@ const ProcessManualInitiation = React.lazy(() => import('../pages/other/AdminSid
 const ProcessInitiation = React.lazy(() => import('../pages/other/AdminSide/ProcessMaster/ProcessInitiation.tsx'))
 const TaskMasterNew = React.lazy(() => import('../pages/other/AdminSide/TaskMaster/TaskMaster.tsx'))
 const CommonMaster = React.lazy(() => import('../pages/other/AdminSide/CommonMaster/CommonMasterPage.tsx'))
+const CommonModule = React.lazy(() => import('../pages/other/CommonModule-process/Module.tsx'))
+const CommonProcess = React.lazy(() => import('../pages/other/CommonModule-process/Process.tsx'))
 
 
 
@@ -782,6 +784,18 @@ const customPagesRoutes = {
 			path: '/pages/CommonMaster',
 			name: 'CommonMaster',
 			element: <CommonMaster />,
+			route: PrivateRoute,
+		},
+		{
+			path: '/pages/Module',
+			name: 'CommonModule',
+			element: <CommonModule />,
+			route: PrivateRoute,
+		},
+		{
+			path: '/pages/Process',
+			name: 'CommonProcess',
+			element: <CommonProcess />,
 			route: PrivateRoute,
 		},
 

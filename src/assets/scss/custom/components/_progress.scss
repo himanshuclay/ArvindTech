@@ -854,3 +854,18 @@ input.numInput.cur-year:hover {
 .border-danger {
   border: 1px solid #dc3545 !important;
 }
+
+
+.dashboard-quick {
+  width: inherit;
+  padding: 10px;
+  color: #fff;
+  border-radius: 5px;
+  text-align: center;
+  margin:10px auto;
+}
+
+.taskpercentage div:first-child {
+  margin: auto;
+  width: min-content;
+}

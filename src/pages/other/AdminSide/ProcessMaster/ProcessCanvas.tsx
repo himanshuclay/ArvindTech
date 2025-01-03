@@ -82,6 +82,8 @@ const ProcessCanvas: React.FC<ProcessCanvasProps> = ({ show, setShow, manageId }
             }
         };
         fetchData();
+
+
     }, [manageId, show]);
 
     useEffect(() => {
@@ -332,7 +334,7 @@ const ProcessCanvas: React.FC<ProcessCanvasProps> = ({ show, setShow, manageId }
                 </Modal.Header>
                 <Modal.Body>
                     {loading ? (
-                        <div className='loader-container'>
+                        <div className='d-flex justify-content-center align-items-center my-3 flex-column'>
                             <div className="loader"></div>
                             <div className='mt-2'>Please Wait!</div>
                         </div>

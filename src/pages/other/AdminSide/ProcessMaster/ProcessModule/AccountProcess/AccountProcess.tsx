@@ -578,7 +578,7 @@ const AccountProcess = () => {
                                         </>
                                     }
                                     {
-                                        role === 'DME' &&
+                                        role === 'Admin' &&
                                         <Button variant="primary" type="submit">
                                             Initate Process
                                         </Button>
@@ -647,7 +647,6 @@ const AccountProcess = () => {
                     ProcessInitiationID
                     approval_Console
                     approvalConsoleInputID
-
                 />
             }
             <Modal className="p-0" show={showLink} onHide={handleClose} size="xl">
