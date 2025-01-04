@@ -343,7 +343,7 @@ const getFilteredMenuItems = () => {
     },
     {
       key: 'ProcessDataMaster',
-      label: 'Process Master',
+      label: 'PD Master',
       isTitle: false,
       icon: 'ri-settings-fill',
       children: [

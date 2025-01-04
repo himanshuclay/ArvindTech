@@ -27,7 +27,7 @@ interface Process {
     processName: string;
     userUpdatedMobileNumber: string;
     processFlowchart: string;
-    projectName: string[];
+    projectName: string;
     link: string;
     empId: string;
     employeeName: string;
@@ -204,7 +204,6 @@ const ModuleMaster = () => {
         await fetchProcess();
     };
 
-
     const convertToCSV = (data: Process[]) => {
         const csvRows = [
             ['ID', 'Module Name', 'Module ID', 'Process ID', 'Process Display Name',
@@ -212,28 +211,40 @@ const ModuleMaster = () => {
                 'User Updated Mobile Number', 'Link', 'Pdf Link',
                 'Mis Exempt', 'Status', 'Assigned Project/Subproject',
                 'Created By', 'Updated By', 'Created Date', 'Updated Date'],
-            ...data.map(mod => [
-                mod.id,
-                `"${mod.moduleName}"`,
-                mod.moduleID,
-                mod.processID,
-                mod.processDisplayName,
-                `"${mod.processObjective}"`,
-                mod.processOwnerName || '',
-                mod.userUpdatedMobileNumber || '',
-                mod.link || '',
-                mod.processFlowchart || '',
-                mod.misExempt || '',
-                mod.status || '',
-                mod.projectName.map(project => `${project.replace(/"/g, '""')}`).join('; '),
-                mod.createdBy,
-                mod.updatedBy,
-                mod.createdDate,
-                mod.updatedDate
-            ])
+            ...data.map(mod => {
+                let projectNames: string[] = [];
+                try {
+                    projectNames = JSON.parse(mod.projectName || '[]') as string[];
+                } catch (error) {
+                    console.error('Error parsing project names:', error);
+                }
+
+                return [
+                    mod.id,
+                    `"${mod.moduleName}"`,
+                    mod.moduleID,
+                    mod.processID,
+                    mod.processDisplayName,
+                    `"${mod.processObjective}"`,
+                    mod.processOwnerName || '',
+                    mod.userUpdatedMobileNumber || '',
+                    mod.link || '',
+                    mod.processFlowchart || '',
+                    mod.misExempt || '',
+                    mod.status || '',
+                    `"${projectNames.join(', ').replace(/"/g, '""')}"`, // Join parsed array and escape quotes
+                    mod.createdBy,
+                    mod.updatedBy,
+                    mod.createdDate,
+                    mod.updatedDate
+                ];
+            })
         ];
         return csvRows.map(row => row.join(',')).join('\n');
     };
+
+
+
 
 
     const downloadCSV = () => {
@@ -280,9 +291,6 @@ const ModuleMaster = () => {
                     <Button variant="primary" onClick={downloadCSV} className="me-2">
                         Download CSV
                     </Button>
-
-
-
                     {role === 'Admin' && (
                         <Link to='/pages/ProcessMasterinsert'>
                             <Button variant="primary">

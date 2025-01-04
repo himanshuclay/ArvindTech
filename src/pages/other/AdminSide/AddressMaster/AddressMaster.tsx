@@ -94,7 +94,7 @@ const AddressMaster = () => {
 
 
     const [searchPinCode, setSearchPinCode] = useState('');
-    const [searchState, setSearchState] = useState('');
+    const [searchState, setSearchState] = useState(' ');
 
     const handleSearch = async (e?: React.FormEvent) => {
         if (e) e.preventDefault();
@@ -173,12 +173,12 @@ const AddressMaster = () => {
 
     const handleClear = async () => {
         setCurrentPage(1);
-        setSearchState('');
+        setSearchState(' ');
         setSearchPinCode('');
         setSearchStatus('');
         setSearchTriggered(false);
-        await new Promise(resolve => setTimeout(resolve, 200));
         await fetchStaffRequirements();
+        console.log('ji')
 
     };
 
@@ -243,7 +243,7 @@ const AddressMaster = () => {
 
             <div className='bg-white p-2 pb-2'>
 
-                <Form onSubmit={async (e) => {
+                <Form onSubmit={(e) => {
                     e.preventDefault();
                     setSearchTriggered(true);
                     setCurrentPage(1);
@@ -269,7 +269,7 @@ const AddressMaster = () => {
                                 <Form.Label>State</Form.Label>
                                 <Select
                                     name="searchState"
-                                    value={stateList.find(item => item.stateName === searchState)}
+                                    value={stateList.find(item => item.stateName === searchState) || null}
                                     onChange={(selectedOption) => setSearchState(selectedOption ? selectedOption.stateName : '')}
                                     options={stateList}
                                     getOptionLabel={(item) => item.stateName}

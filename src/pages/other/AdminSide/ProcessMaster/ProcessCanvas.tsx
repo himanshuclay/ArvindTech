@@ -223,10 +223,7 @@ const ProcessCanvas: React.FC<ProcessCanvasProps> = ({ show, setShow, manageId }
                     if (fetchResponse.data.isSuccess) {
                         const fetchedProject = fetchResponse.data.getProjectAssignListbyIDs;
                         setAssignedProject(fetchedProject);
-                        const updatedFilteredData = fetchedProject.map((item: Project) => ({
-                            projectID: item.projectID,
-                            projectName: item.projectName,
-                        }));
+                        const updatedFilteredData = fetchedProject.map((item: Project) => item.projectName);
 
                         const updatedPayloadUpdate = {
                             ...process,
@@ -280,10 +277,7 @@ const ProcessCanvas: React.FC<ProcessCanvasProps> = ({ show, setShow, manageId }
                     if (fetchResponse.data.isSuccess) {
                         const fetchedProjects = fetchResponse.data.getProjectAssignListbyIDs;
                         setAssignedProject(fetchedProjects);
-                        const updatedFilteredData = fetchedProjects.map((item: Project) => ({
-                            projectID: item.projectID,
-                            projectName: item.projectName,
-                        }));
+                        const updatedFilteredData = fetchedProjects.map((item: Project) => item.projectName);
 
                         const updatedPayload = {
                             ...process,

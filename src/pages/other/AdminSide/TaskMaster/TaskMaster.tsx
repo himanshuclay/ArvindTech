@@ -79,7 +79,7 @@ const TaskMaster: React.FC = () => {
     const [employeeList, setEmployeeList] = useState<Employee[]>([]);
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
-    const [RoleName, setRoleName] = useState(1);
+    const [RoleName, setRoleName] = useState('');
     // const [selectedProblemSolver, setSelectedProblemSolver] = useState('');
 
     // const [taskName, setTaskName] = useState<string | null>(null);

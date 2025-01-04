@@ -44,7 +44,7 @@ const DesignationMaster = () => {
                             <tr>
 
                                 <td>1</td>
-                                <td>Departement Master</td>
+                                <td>Department Master</td>
                                 <td> <Link to='/pages/departmentMaster'> <Button> <i className="ri-eye-line"></i>  </Button> </Link> </td>
                                 {(role === 'Admin' || role === 'DME') && (
                                     <td> <Link to='/pages/departmentMasterinsert'> <Button> Add Data </Button> </Link> </td>)}

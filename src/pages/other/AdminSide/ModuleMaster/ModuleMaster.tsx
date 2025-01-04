@@ -97,7 +97,7 @@ const ModuleMaster = () => {
         { id: 'moduleID', label: 'Module ID', visible: true },
         { id: 'moduleDisplayName', label: 'Module Display Name', visible: true },
         { id: 'fmsType', label: 'Fms Types', visible: true },
-        { id: 'misExempt', label: 'Mis Exempt ID', visible: true },
+        { id: 'misExempt', label: 'Mis Exempt Status', visible: true },
         { id: 'status', label: 'Status', visible: true },
 
     ]);
@@ -172,7 +172,7 @@ const ModuleMaster = () => {
 
     const convertToCSV = (data: Module[]) => {
         const csvRows = [
-            ['ID', 'Module Display Name', 'FMS Type', 'Module ID', 'MIS Exempt', 'Status', 'Created By', 'Updated By', 'Created Date', 'Updated Date'],
+            ['ID', 'Module Display Name', 'FMS Type', 'Module ID', 'MIS Exempt Status', 'Status', 'Created By', 'Updated By', 'Created Date', 'Updated Date'],
             ...data.map(mod => [
                 mod.id,
                 mod.moduleDisplayName,

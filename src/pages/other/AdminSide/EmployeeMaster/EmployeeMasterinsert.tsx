@@ -504,6 +504,9 @@ const EmployeeMasterInsert = () => {
         if (!employee.empStatus) { errors.empStatus = 'Employee Status is required'; }
         if (!employee.hrUpdatedMobileNo) { errors.hrUpdatedMobileNo = 'Mobile No is required'; }
         if (!employee.pin) { errors.pin = 'Pin is required'; }
+        if (!employee.state) { errors.state = 'State is required'; }
+        if (!employee.area) { errors.area = 'Area is required'; }
+        if (!employee.district) { errors.district = 'District is required'; }
         if (!employee.address) { errors.address = 'Address is required'; }
         if (!employee.gender) { errors.gender = 'Gender is required'; }
         if (!employee.dateOfBirth) { errors.dateOfBirth = 'Date of Birth is required'; }
@@ -588,6 +591,27 @@ const EmployeeMasterInsert = () => {
         if (isMobileVerified) {
             toast.dismiss()
             toast.error("Please verify your mobile number before submitting the form.");
+            return;
+        }
+        if (errorMessage) {
+            toast.dismiss()
+            toast.error("Please vErify Pin Code.");
+            return;
+        }
+
+        if (ifscError.salary) {
+            toast.dismiss()
+            toast.error("Please Verify Salary Bank Ifsc.");
+            return;
+        }
+        if (ifscError.expense) {
+            toast.dismiss()
+            toast.error("Please Verify Expence Bank Ifsc.");
+            return;
+        }
+        if (ifscError.reimbursement) {
+            toast.dismiss()
+            toast.error("Please Verify Reimbursement Bank Ifsc.");
             return;
         }
 
@@ -1140,7 +1164,12 @@ const EmployeeMasterInsert = () => {
                                         onChange={handleChange}
                                         placeholder='Enter State Name'
                                         readOnly
+                                        className={validationErrors.state ? " input-border" : "  "}
+
                                     />
+                                    {validationErrors.state && (
+                                        <small className="text-danger">{validationErrors.state}</small>
+                                    )}
                                 </Form.Group>
                             </Col>
                             <Col lg={6}>
@@ -1164,9 +1193,12 @@ const EmployeeMasterInsert = () => {
                                         getOptionValue={(item) => item.district}
                                         isSearchable={true}
                                         placeholder="Select District"
-                                        className="h45"
-                                    />
+                                        className={validationErrors.district ? " input-border" : "  "}
 
+                                    />
+                                    {validationErrors.district && (
+                                        <small className="text-danger">{validationErrors.district}</small>
+                                    )}
                                 </Form.Group>
                             </Col>
                             <Col lg={6}>
@@ -1188,8 +1220,11 @@ const EmployeeMasterInsert = () => {
                                         getOptionValue={(item) => item?.areaName || ''}
                                         isSearchable={true}
                                         placeholder="Select Area"
-                                        className="h45"
+                                        className={validationErrors.area ? " input-border" : "  "}
                                     />
+                                    {validationErrors.area && (
+                                        <small className="text-danger">{validationErrors.area}</small>
+                                    )}
                                 </Form.Group>
                             </Col>
                             <Col lg={12}>
@@ -1253,7 +1288,7 @@ const EmployeeMasterInsert = () => {
 
                             <Col lg={6}>
                                 <Form.Group controlId="salaryBankAccountNumber" className="mb-3">
-                                    <Form.Label>Bank Account Number {employee.salaryBankIfsc.length > 0 ? '*' : ''}</Form.Label>
+                                    <Form.Label>Bank Account Number {employee.salaryBankIfsc.length > 0 ? (<span className='text-danger'>*</span>) : ''}</Form.Label>
                                     <Form.Control
                                         type="text" // Change to "text" to preserve leading zeroes
                                         name="salaryBankAccountNumber"
@@ -1319,7 +1354,7 @@ const EmployeeMasterInsert = () => {
 
                             <Col lg={6}>
                                 <Form.Group controlId="reimbursementBankAccountNumber" className="mb-3">
-                                    <Form.Label>Bank Account Number {employee.reimbursementBankIfsc.length > 0 ? '*' : ''}</Form.Label>
+                                    <Form.Label>Bank Account Number {employee.reimbursementBankIfsc.length > 0 ? (<span className='text-danger'>*</span>) : ''}</Form.Label>
                                     <Form.Control
                                         type="text" // Change to "text" to preserve leading zeroes
                                         name="reimbursementBankAccountNumber"
@@ -1384,7 +1419,7 @@ const EmployeeMasterInsert = () => {
 
                             <Col lg={6}>
                                 <Form.Group controlId="expenseBankAccountNumber" className="mb-3">
-                                    <Form.Label>Bank Account Number {employee.expenseBankIfsc.length > 0 ? '*' : ''}</Form.Label>
+                                    <Form.Label>Bank Account Number {employee.expenseBankIfsc.length > 0 ? (<span className='text-danger'>*</span>) : ''}</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="expenseBankAccountNumber"
