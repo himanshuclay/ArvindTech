@@ -508,6 +508,7 @@ const ProjectAssignTable: React.FC = () => {
                                 selectedTasknumber={selectedTasknumber}
                                 setLoading={setLoading}
                                 taskCommonIDRow={taskCommonIDRow}
+                                projectName ={item.projectName}
                                 taskStatus
                                 processId={item.processID}
                                 moduleId={item.moduleID}
