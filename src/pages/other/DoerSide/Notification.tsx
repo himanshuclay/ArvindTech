@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Button, Table, Container, Row, Col, Alert, Collapse } from 'react-bootstrap'; // Assuming DynamicForm is in the same directory
-import { parse, format, addDays } from 'date-fns';
+import { format } from 'date-fns';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import DynamicForm from '../Component/DynamicForm';
 import config from '@/config';
@@ -96,20 +96,13 @@ const ProjectAssignTable: React.FC = () => {
   const toggleExpandRow = (id: number) => {
     setExpandedRow(expandedRow === id ? null : id);
   };
+
   // both are required to make dragable column of table 
   const [columns, setColumns] = useState<Column[]>([
-    { id: 'taskName', label: 'Task Name', visible: true },
-    // { id: 'processName', label: 'Process Name', visible: true },
-    { id: 'projectName', label: 'Project Name', visible: true },
-    // { id: 'roleName', label: 'Role Name', visible: true },
     { id: 'task_Number', label: 'Task Number', visible: true },
-    // { id: 'taskType', label: 'Task Type', visible: true },
-    // { id: 'plannedDate', label: 'Planned Date', visible: true },
-    // { id: 'createdDate', label: 'Created Date', visible: true },
-    // { id: 'sourceId', label: 'Sourse Id', visible: true },
-    // { id: 'taskCommonId', label: 'Request Id', visible: true },
-    // { id: 'plannedDate', label: 'Task Period', visible: true },
-
+    { id: 'taskName', label: 'Task Name', visible: true },
+    { id: 'projectName', label: 'Project Name', visible: true },
+    { id: 'createdDate', label: 'Planned Date', visible: true },
   ]);
 
 
@@ -197,10 +190,6 @@ const ProjectAssignTable: React.FC = () => {
 
     fetchData();
   }, []);
-
-  // console.log(data)
-
-
 
 
   useEffect(() => {
@@ -316,19 +305,12 @@ const ProjectAssignTable: React.FC = () => {
   }, [taskCommonId]);
 
 
-  // console.log(preData)
-
   const formatPeriod = (createdDate: string): string => {
     const startDate = new Date(createdDate);
     const endDate = new Date(startDate);
     endDate.setDate(startDate.getDate() + 6); // Add 7 days to the start date
 
     return `${format(startDate, "dd MMM yyyy")} to ${format(endDate, "dd MMM yyyy")}`;
-  };
-
-  const formatDate = (dateString: string): string => {
-    const date = new Date(dateString);
-    return format(date, "dd MMM yyyy");
   };
 
 
@@ -364,15 +346,8 @@ const ProjectAssignTable: React.FC = () => {
     }
   };
 
+
   console.log(singleDataById)
-
-
-
-
-
-
-
-
 
   // const toggleExpandRow = (id: number) => {
   //   setExpandedRow(expandedRow === id ? null : id);
@@ -394,29 +369,6 @@ const ProjectAssignTable: React.FC = () => {
     </div>;
   }
 
-  const formatAndUpdateDate = (createdDate: string, taskTime: string) => {
-    // Log the input values for debugging
-
-    // Parse the created date in MM/dd/yyyy HH:mm:ss format
-    const createdDateObj = parse(createdDate, 'MM/dd/yyyy HH:mm:ss', new Date());
-
-    // Check if the createdDateObj is valid
-    if (isNaN(createdDateObj.getTime())) {
-      throw new Error('Invalid created date format');
-    }
-
-    const taskTimeValue = parseInt(taskTime, 10); // Assuming taskTime is in hours
-
-    // Calculate the number of days to add
-    const daysToAdd = Math.floor(taskTimeValue / 24);
-
-    // Add days to the created date
-    const updatedDate = addDays(createdDateObj, daysToAdd);
-
-    // Format the updated date to the desired format
-    return format(updatedDate, 'MM/dd/yyyy HH:mm:ss');
-  };
-
 
   const handleShow = () => setShow(true);
 
@@ -430,9 +382,16 @@ const ProjectAssignTable: React.FC = () => {
     }
   };
 
-  // console.log(data)
+  const conditionArray = JSON.parse(data[0].condition_Json);
+  const expiryLogic = conditionArray[0].expiryLogic;
 
-
+  const isTimeExtended = (createdDate: string) => {
+    const created = new Date(createdDate);
+    const currentDate = new Date();
+    const twoDaysLater = new Date(created);
+    twoDaysLater.setDate(created.getDate() + 2);
+    return currentDate > twoDaysLater;
+  }
 
   return (
 
@@ -451,11 +410,7 @@ const ProjectAssignTable: React.FC = () => {
             </Row>
           </Container>
         ) : (
-
           <>
-
-
-
             <DragDropContext onDragEnd={handleOnDragEnd}>
               <Table hover className='bg-white '>
                 <thead>
@@ -506,29 +461,22 @@ const ProjectAssignTable: React.FC = () => {
                   {data.length > 0 ? (
                     data.slice(0, 10).map((item, index) => (
                       <>
-
-
-
                         <tr key={item.id}>
-                          {/* <td>
-                          {JSON.parse(item.task_Json)?.inputs?.find(
-                          (input: any) => input.inputId === "99"
-                        )?.label || "Task name not found"}
-                        </td> */}
                           {columns.filter(col => col.visible).map((col) => (
                             <td key={col.id}
-
                               className={
                                 // Add class based on column id
-                                col.id === 'taskName' ? 'fw-bold fs-14 text-dark text-nowrap' :
-                                  ''
+                                col.id === 'taskName' ? 'fw-bold fs-14 text-dark truncated-text' :
+                                  col.id === 'task_Number' ? 'fw-bold fs-14 text-dark ' :
+                                    ''
                               }
                             >
                               <div className=''>
 
-                                {col.id === 'plannedDate' ? (
+                                {col.id === 'createdDate' ? (
                                   <td>
-                                    {formatAndUpdateDate(item.createdDate, item.taskTime)}
+                                    {/* {formatAndUpdateDate(item.createdDate, item.taskTime)} */}
+                                    {format(new Date(item.createdDate), 'MMM dd, yyyy HH:mm')}
                                   </td>
                                 ) : (<>{item[col.id as keyof ProjectAssignListWithDoer]}</>
                                 )}
@@ -539,8 +487,11 @@ const ProjectAssignTable: React.FC = () => {
                           ))}
 
                           <td>
-                            <Button onClick={() => toggleExpandRow(item.id)}>
-                              {expandedRow === item.id ? <i className=" fs-16 ri-arrow-up-s-line"></i> : <i className=" fs-16 ri-arrow-down-s-line"></i>}
+                            <Button
+                              variant={isTimeExtended(item.createdDate) ? 'warning' : 'primary'}
+                              onClick={() => toggleExpandRow(item.id)}
+                            >
+                              {expandedRow === item.id ? <i className=" fs-18 ri-arrow-up-s-line"></i> : <i className=" fs-18 ri-arrow-down-s-line"></i>}
                             </Button>
                           </td>
                           <td colSpan={10}>
@@ -575,72 +526,152 @@ const ProjectAssignTable: React.FC = () => {
                                 <div className='p-3'>
 
                                   <Row>
-                                    <Col lg={4}>
-                                      <p className='mb-1'>Task Name</p>
-                                      <h5 className='text-primary'>{item.taskName}</h5>
+                                    <Col lg={7}>
+                                      <table>
+                                        <tbody>
+                                          <tr>
+                                            <td><h5 className='text-nowrap'>Task Name :</h5></td>
+                                            <td>  <h5 className='text-primary'>{item.taskName}</h5></td>
+                                          </tr>
+                                          <tr>
+                                            <td><h5>Link :</h5></td>
+                                            <td> <h5 className='text-primary'>NA</h5></td>
+                                          </tr>
+                                          <tr>
+                                            <td><h5>Process :</h5></td>
+                                            <td> <h5 className='text-primary'>{item.processName}</h5></td>
+                                          </tr>
+                                          <tr>
+                                            <td><h5>Created Date :</h5></td>
+                                            <td><h5 className='text-primary'>{format(new Date(item.createdDate), 'MMM dd, yyyy HH:mm')}</h5></td>
+                                          </tr>
+                                          <tr>
+                                            <td><h5>Doer :</h5></td>
+                                            <td>
+                                              <h5 className='text-primary'> {item.doerName}</h5>
+                                              {item.projectInchargeMobileNumber ?
+                                                <p className='fw-normal m-0'><a href={`tel:${item.projectInchargeMobileNumber}`}>
+                                                  <i className="ri-phone-fill"></i> {item.projectInchargeMobileNumber}</a></p> : ""
+                                              }
+                                            </td>
+                                          </tr>
+                                          <tr>
+                                            <td><h5>Role :</h5></td>
+                                            <td><h5 className='text-primary'> {item.roleName}</h5></td>
+                                          </tr>
+                                        </tbody>
+                                      </table>
                                     </Col>
-                                    <Col lg={4}>
-                                      <p className='mb-1'>Role Name</p>
-                                      <h5 className='text-primary'>{item.roleName}</h5>
-                                    </Col>
-                                    <Col lg={4}>
-                                      <p className='mb-1'>Process Name</p>
-                                      <h5 className='text-primary'>{item.processName}</h5>
+                                    <Col lg={5}>
+                                      <table>
+                                        <tbody>
+                                          <tr>
+                                            <td><h5>Problem Solver :</h5></td>
+                                            <td>  <h5 className='text-primary'> {item.problemSolver}</h5>
+                                              {item.problemSolverMobileNumber ?
+                                                <p className=' fw-normal m-0'><a href={`tel:${item.problemSolverMobileNumber}`}>
+                                                  <i className="ri-phone-fill"></i> {item.problemSolverMobileNumber}</a></p> : ""
+                                              }
+                                            </td>
+                                          </tr>
+                                          <tr>
+                                            <td><h5>Expiry Logic :</h5></td>
+                                            <td> <h5 className='text-primary'>{expiryLogic}</h5></td>
+                                          </tr>
+                                          <tr>
+                                            <td><h5>Approval :</h5></td>
+                                            <td> <h5 className='text-primary'>Yes/No</h5></td>
+                                          </tr>
+                                          <tr>
+                                            <td><h5>Approver :</h5></td>
+                                            <td><h5 className='text-primary'>NA</h5>
+                                            </td>
+                                          </tr>
+                                        </tbody>
+                                      </table>
                                     </Col>
                                   </Row>
 
-                                  <Row className='taskDetailsView'>
-                                    {item.problemSolver ?
-                                      <Col lg={4}>
-                                        <p className='mb-1'>Problem Solver</p>
-                                        <h5 className='d-flex align-items-center text-primary m-0' >
-                                          <span className="icon-circle me-1">{item.problemSolver.charAt(0).toUpperCase()}</span>
-                                          {item.problemSolver}
-                                        </h5>
-                                        {item.problemSolverMobileNumber ?
-                                          <p className='phone_user fw-normal m-0'><a href={`tel:${item.problemSolverMobileNumber}`}>
-                                            <i className="ri-phone-fill"></i> {item.problemSolverMobileNumber}</a></p> : ""
-                                        }
-                                      </Col> : null
-                                    }
-                                    {item.projectIncharge ?
-                                      <Col lg={4}>
-                                        <p className='mb-1'>Project Incharge</p>
-                                        <h5 className='text-primary'>{item.projectIncharge}</h5>
-                                      </Col> : null
-                                    }
-                                    {item.projectCoordinator ?
-                                      <Col lg={4}>
-                                        <p className='mb-1'>Project Coordinator</p>
-                                        <h5 className='text-primary'>{item.projectCoordinator}</h5>
 
-                                      </Col> : null
-                                    }
+                                  <Row className='taskDetailsView'>
+                                    <Col lg={4}>
+                                      <tr>
+                                        <td> <h5 >Initiation period : </h5></td>
+                                        <td><h5 className='text-primary'>{formatPeriod(item.createdDate)}</h5></td>
+                                      </tr>
+                                      <tr>
+                                        <td> <h5 >Source : </h5></td>
+                                        <td><h5 className='text-primary'>Source</h5>
+                                        </td>
+                                      </tr>
+
+                                    </Col>
+                                    <Col lg={4}>
+                                      <tr>
+                                        <td> <h5 >Week : </h5></td>
+                                        <td><h5 className='text-primary'>Source</h5></td>
+                                      </tr>
+                                      <tr>
+                                        <td> <h5 >Var Field 1 : </h5></td>
+                                        <td><h5 className='text-primary'>Var Field 1</h5>
+                                        </td>
+                                      </tr>
+
+                                    </Col>
+                                    <Col lg={4}>
+                                      <tr>
+                                        <td> <h5>Mess Manager : </h5></td>
+                                        <td><h5 className='text-primary'>Mess Manager Name</h5></td>
+                                      </tr>
+                                      <tr>
+                                        <td> <h5 className='mb-1'>Var Field 2 : </h5></td>
+                                        <td><h5 className='text-primary'>Var Field 2</h5>
+                                        </td>
+                                      </tr>
+
+                                    </Col>
                                   </Row>
 
                                   <Row>
-                                    <Col lg={4}>
-                                      <p className='mb-1'>Project Name</p>
-                                      <h5 className='text-primary'>{item.projectName}-({item.projectId})</h5>
+                                    <Col lg={7}>
+                                      <table>
+                                        <tbody>
+                                          <tr>
+                                            <td><h5>Created Date :</h5></td>
+                                            <td><h5 className='text-primary'>{format(new Date(item.createdDate), 'MMM dd, yyyy HH:mm')}</h5></td>
+                                          </tr>
+                                          <tr>
+                                            <td><h5>Extended Date :</h5></td>
+                                            <td><h5 className='text-primary'>{format(new Date(item.createdDate), 'MMM dd, yyyy HH:mm')}</h5></td>
+                                          </tr>
+                                          <tr>
+                                            <td><h5>Completed Date :</h5></td>
+                                            <td><h5 className='text-primary'>{format(new Date(item.createdDate), 'MMM dd, yyyy HH:mm')}</h5></td>
+                                          </tr>
+                                        </tbody>
+                                      </table>
                                     </Col>
 
-                                    <Col lg={4}>
-                                      <p className='mb-1'>Period</p>
-                                      <h5 className='text-primary'>{formatPeriod(item.createdDate)}</h5>
-                                    </Col>
-
-                                    <Col lg={4}>
-                                      <p className='mb-1'>Created At</p>
-                                      <h5 className='text-primary'>{formatDate(item.createdDate)}</h5>
+                                    <Col lg={5} className='d-flex justify-content-end text-end'>
+                                      <table>
+                                        <tbody>
+                                          <tr>
+                                            <td><h5 className='text-primary'>View Output</h5></td>
+                                          </tr>
+                                          <tr>
+                                            <td><h5 className='text-primary'>Heirarchy View</h5></td>
+                                          </tr>
+                                          <tr>
+                                            <td><h5 className='text-primary'>Help</h5></td>
+                                          </tr>
+                                        </tbody>
+                                      </table>
                                     </Col>
                                   </Row>
 
-
-
                                   <div className=' d-flex justify-content-end'>
-
-                                    <Button className='ms-auto' onClick={() => handleEdit(item.taskCommonId)}>
-                                      Show
+                                    <Button className='ms-auto mt-3' onClick={() => handleEdit(item.taskCommonId)}>
+                                      Perform
                                     </Button>
                                   </div>
 
@@ -654,11 +685,20 @@ const ProjectAssignTable: React.FC = () => {
                       </>
                     ))
                   ) : (
-                    <tr><td colSpan={columns.length + 1}>No data available</td></tr>
+                    <tr><td colSpan={columns.length + 1}> <Container className="mt-5">
+                      <Row className="justify-content-center">
+                        <Col xs={12} md={8} lg={6}>
+                          <Alert variant="info" className="text-center">
+                            <h4>No Task Found</h4>
+                            <p>You currently don't have any tasks assigned.</p>
+                          </Alert>
+                        </Col>
+                      </Row>
+                    </Container></td></tr>
                   )}
 
                 </tbody>
-              </Table>
+              </Table >
             </DragDropContext>
           </>
         )}
