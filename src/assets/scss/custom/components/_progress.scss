@@ -765,6 +765,7 @@ input.numInput.cur-year:hover {
 .input-border {
   border-color: #DC4C64 !important;
 }
+
 .input-border .css-13cymwt-control,
 .input-border {
   border-color: #DC4C64 !important;
@@ -804,8 +805,7 @@ input.numInput.cur-year:hover {
   background-color: #1f1d56;
 }
 
-.active .toggle-circle
-{
+.active .toggle-circle {
   background-color: white;
 }
 
@@ -862,7 +862,7 @@ input.numInput.cur-year:hover {
   color: #fff;
   border-radius: 5px;
   text-align: center;
-  margin:10px auto;
+  margin: 10px auto;
 }
 
 .taskpercentage div:first-child {
@@ -877,4 +877,10 @@ input.numInput.cur-year:hover {
   box-shadow: rgba(0, 0, 0, 0.1) 0px 1px 3px 0px, rgba(0, 0, 0, 0.06) 0px 1px 2px 0px;
   height: max-content;
   border-radius: 8px;
+
+.truncated-text div {
+  max-width: 400px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }

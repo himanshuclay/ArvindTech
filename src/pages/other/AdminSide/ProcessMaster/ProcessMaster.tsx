@@ -212,6 +212,7 @@ const ModuleMaster = () => {
                 'Mis Exempt', 'Status', 'Assigned Project/Subproject',
                 'Created By', 'Updated By', 'Created Date', 'Updated Date'],
             ...data.map(mod => {
+                
                 let projectNames: string[] = [];
                 try {
                     projectNames = JSON.parse(mod.projectName || '[]') as string[];

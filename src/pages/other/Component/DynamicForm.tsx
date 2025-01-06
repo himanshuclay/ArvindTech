@@ -177,13 +177,6 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
     //   };
 
 
-    console.log(taskCommonIDRow)
-    console.log(formData)
-    console.log(preData)
-    // console.log(formDatas)
-
-
-
     type InputConfig = {
         inputId: string;
         type?: string;
@@ -281,7 +274,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
 
     useEffect(() => {
 
-        console.log(selectedCondition)
+        // console.log(selectedCondition)
 
         const customSelectInput = formData.inputs?.find(
             (input) => input.type === "CustomSelect"
@@ -326,7 +319,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
     useEffect(() => {
         // Function to run on reload or component mount
         const runOnReload = () => {
-            console.log("Page reloaded or component mounted");
+            // console.log("Page reloaded or component mounted");
             localStorage.removeItem(localStorageKey);
             // Your logic here
         };
@@ -509,7 +502,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                 if (response.data.isSuccess) {
                     const fetchedMessList = response.data.messProjectListResponses; // Store fetched list
                     setMessList(fetchedMessList);
-                    console.log("Fetched mess list:", fetchedMessList); // Log the fetched list directly
+                    // console.log("Fetched mess list:", fetchedMessList); // Log the fetched list directly
                 } else {
                     console.error('Failed to fetch mess data');
                 }
@@ -531,7 +524,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
 
     const [approvalStatus, setApprovalStatus] = useState<OptionType | null>(null);
 
-    console.log("this is my condition", parsedCondition)
+    // console.log("this is my condition", parsedCondition)
 
     // Handle change in input values
     const handleChange = (inputId: string, value: string | boolean | string[]) => {
@@ -849,7 +842,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                 return formState[otherInput.inputId] !== '';
 
             }
-            console.log(otherInput)
+            // console.log(otherInput)
             if (otherInput.options && otherInput.options.some(option => option.id === conditionValue)) {
                 return formState[otherInput.inputId] === conditionValue;
             }
@@ -875,7 +868,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
         if (selectedManager) {
             const fetchBankDetails = async () => {
                 try {
-                    const response = await axios.get(`https://arvindo-api.clay.in/api/ProcessInitiation/GetMessData?EmpID=${selectedManager}`);
+                    const response = await axios.get(`${config.API_URL_ACCOUNT}/ProcessInitiation/GetMessData?EmpID=${selectedManager}`);
                     const data = response.data.getMessDataByMessManagerEmpID[0]; // Assuming one result
 
                     setBankDetails({
