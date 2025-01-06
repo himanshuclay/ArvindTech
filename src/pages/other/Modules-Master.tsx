@@ -1428,7 +1428,7 @@ const App: React.FC = () => {
                 {(editField.type === 'text' || editField.type === 'custom' ||
                   editField.type === 'number' || editField.type === 'email' ||
                   editField.type === 'tel' || editField.type === 'decimal' ||
-                  editField.type === 'positive-integer') && (
+                  editField.type === 'Non Negative Integer' || editField.type === 'Positive-integer-greater-zero') && (
                     <Form.Group>
                       {/* Dropdown to select input type */}
                       <Form.Label>Select Input Type</Form.Label>
@@ -1443,7 +1443,8 @@ const App: React.FC = () => {
                         <option value="tel">Telephone</option>
                         <option value="custom">Custom</option>
                         <option value="decimal">Decimal</option>
-                        <option value="positive-integer">Positive Integer</option>
+                        <option value="Non Negative Integer">Non Negative Integer</option>
+                        <option value="Positive-integer-greater-zero">positive-integer-greater-zero</option>
                       </Form.Control>
                       <Form.Label>Placeholder</Form.Label>
                       <Form.Control
@@ -1552,7 +1553,7 @@ const App: React.FC = () => {
                         </>
                       )}
 
-                      {editField.type === 'positive-integer' && (
+                      {editField.type === 'Non Negative Integer' && (
                         <>
                           <Form.Label>Enter Positive Integer</Form.Label>
                           <Form.Control
@@ -1572,13 +1573,47 @@ const App: React.FC = () => {
                             onBlur={() => {
                               const value = parseInt(editField.value || '0');
                               if (isNaN(value) || value < 0) {
-                                alert('Enter a valid positive integer.');
+                                alert('Enter a valid Non Negative Integer.');
                                 setEditField({ ...editField, value: '0' }); // Reset to default
                               }
                             }}
                           />
                         </>
                       )}
+                      {editField.type === 'Positive-integer-greater-zero' && (
+                        <>
+                          <Form.Label>Enter Positive Integer (&gt; 0)</Form.Label>
+                          <Form.Control
+                            type="number"
+                            step="1"
+                            value={editField.value || ''} // Show empty string if value is undefined or null
+                            placeholder="Enter a positive integer greater than 0"
+                            onChange={(e) => {
+                              const value = e.target.value;
+
+                              // Prevent entering 0
+                              if (value === '0') {
+                                setEditField({ ...editField, value: undefined }); // Reset to undefined if 0 is entered
+                                return;
+                              }
+
+                              // Allow only positive integers greater than 0
+                              const regex = /^[1-9][0-9]*$/;
+                              if (regex.test(value) || value === '') {
+                                setEditField({ ...editField, value: value === '' ? undefined : value });
+                              }
+                            }}
+                            onBlur={() => {
+                              const value = parseInt(editField.value || '0', 10);
+                              if (isNaN(value) || value <= 0) {
+                                alert('Enter a valid positive integer greater than 0.');
+                                setEditField({ ...editField, value: undefined }); // Reset to undefined if invalid
+                              }
+                            }}
+                          />
+                        </>
+                      )}
+
 
                       {editField.type === 'custom' && (
                         <>

@@ -173,6 +173,7 @@ const TaskMaster: React.FC = () => {
                 console.log('Task updated:', response.data);
                 // alert('Task updated successfully');
                 handleCloseModal();
+                fetchTasks();
                 toast.success("Task has been Updated succussfully")
             } else {
                 console.error('task_Json does not contain valid inputs');
@@ -239,14 +240,6 @@ const TaskMaster: React.FC = () => {
             fetchTaskData(taskIdToEdit);
         }
     }, [taskIdToEdit, problemSolver]);
-
-
-
-
-
-
-
-
 
     const [columns, setColumns] = useState<Column[]>([
         { id: 'moduleName', label: 'Module', visible: true },
@@ -330,11 +323,7 @@ const TaskMaster: React.FC = () => {
         }
     }, [selectedModule]);
 
-
-
-
-    // Fetch Tasks
-    useEffect(() => {
+    const fetchTasks = () => {
         const endpoint = selectedModuleId && selectedProcess
             ? `${config.API_URL_ACCOUNT}/ProcessTaskMaster/GetProcessTaskByIds?Flag=2&ModuleId=${selectedModuleId}&ProcessId=${selectedProcess}`
             : `${config.API_URL_ACCOUNT}/ProcessTaskMaster/GetProcessTaskByIds?Flag=1`;
@@ -346,13 +335,14 @@ const TaskMaster: React.FC = () => {
                     setTasks(response.data.getProcessTaskByIds);
                     setTotalPages(Math.ceil(response.data.totalCount / 10));
                 }
-                console.log(tasks)
+                console.log('Fetched tasks:', response.data.getProcessTaskByIds);
             })
-
-
             .catch((error) => console.error('Error fetching tasks:', error));
-    },
-        [selectedModuleId && selectedProcess]);
+    };
+
+    useEffect(() => {
+        fetchTasks();
+    }, [selectedModuleId, selectedProcess]);
 
 
 
@@ -598,8 +588,9 @@ const TaskMaster: React.FC = () => {
 
                                                             return (
                                                                 <div key={input.inputId} className="col-6 card mb-3">
-                                                                    <div className="card-header">
-                                                                        <h5> <span className='text-primary'>Input Name -</span> {input.label}</h5>
+                                                                    <div className="card-header d-flex justify-content-between">
+                                                                        <div><span className='fs-6 text-primary'>Input Name</span><br></br><span className='text-primary'></span> {input.label}</div>
+                                                                        {input.inputId != '99' && '102' && '103' && '101' && (<div className='d-flex flex-column justify-content-start align-items-end'><div className='shadow-light-btn mb-1'>{input.type}</div><span className='fs-6 text-danger'>{input.required ? "Required" : ""}</span></div>)}
                                                                     </div>
                                                                     <div className="card-body row m-0">
                                                                         {/* Only allow label to be edited for inputId 99 */}
@@ -673,26 +664,40 @@ const TaskMaster: React.FC = () => {
                                                                                 </div>
 
                                                                                 {/* Visibility toggle button */}
+                                                                                {input.inputId != '103' && (
+                                                                                    <div className="form-group form-switch col-6 mt-2 ps-0">
+                                                                                        <label htmlFor={`visibility-${input.inputId}`} className="toggle-label">
+                                                                                            Visibility
+                                                                                        </label>
+                                                                                        <div
+                                                                                            className={`toggle-switch ${updatedFields[input.inputId]?.visibility ? 'active' : ''}`}
+                                                                                            onClick={() =>
+                                                                                                handleFieldChange(input.inputId, 'visibility', !updatedFields[input.inputId]?.visibility)
+                                                                                            }
+                                                                                        >
+                                                                                            <div className="toggle-circle"></div>
+                                                                                            <span className="toggle-text">
+                                                                                                {updatedFields[input.inputId]?.visibility ? 'Show' : 'Hide'}
+                                                                                            </span>
+                                                                                        </div>
+                                                                                    </div>
+                                                                                )}
                                                                                 <div className="form-group form-switch col-6 mt-2 ps-0">
-                                                                                    <label htmlFor={`visibility-${input.inputId}`} className="toggle-label">
-                                                                                        Visibility
+                                                                                    <label htmlFor={`required-${input.inputId}`} className="toggle-label">
+                                                                                        Required
                                                                                     </label>
                                                                                     <div
-                                                                                        className={`toggle-switch ${updatedFields[input.inputId]?.visibility ? 'active' : ''}`}
+                                                                                        className={`toggle-switch ${updatedFields[input.inputId]?.required ? 'active' : ''}`}
                                                                                         onClick={() =>
-                                                                                            handleFieldChange(input.inputId, 'visibility', !updatedFields[input.inputId]?.visibility)
+                                                                                            handleFieldChange(input.inputId, 'required', !updatedFields[input.inputId]?.required)
                                                                                         }
                                                                                     >
                                                                                         <div className="toggle-circle"></div>
                                                                                         <span className="toggle-text">
-                                                                                            {updatedFields[input.inputId]?.visibility ? 'Show' : 'Hide'}
+                                                                                            {updatedFields[input.inputId]?.required ? 'Yes' : 'No'}
                                                                                         </span>
                                                                                     </div>
-                                                                                    <div></div>
                                                                                 </div>
-
-
-
                                                                             </>
                                                                         )}
                                                                     </div>

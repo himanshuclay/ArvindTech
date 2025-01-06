@@ -1241,7 +1241,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                                                             }}
                                                         />
                                                     )}
-                                                    {input.type === 'positive-integer' && (
+                                                    {input.type === 'Non Negative Integer' && (
                                                         <input
                                                             type="text"
                                                             className="form-control"
@@ -1270,6 +1270,38 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                                                             }}
                                                         />
                                                     )}
+                                                    {input.type === 'Non Negative Integer Greater Zero' && (
+                                                        <input
+                                                            type="text"
+                                                            className="form-control"
+                                                            placeholder={input.placeholder || 'Enter a positive integer greater than 0'}
+                                                            value={formState[input.inputId] || ''}
+                                                            onChange={(e) => {
+                                                                const value = e.target.value;
+
+                                                                // Prevent entering 0
+                                                                if (value === '0') {
+                                                                    handleChange(input.inputId, ''); // Reset to empty string instead of undefined
+                                                                    return;
+                                                                }
+
+                                                                // Allow only positive integers greater than 0
+                                                                const regex = /^[1-9][0-9]*$/;
+                                                                if (regex.test(value) || value === '') {
+                                                                    handleChange(input.inputId, value === '' ? '' : value);
+                                                                }
+                                                            }}
+                                                            onBlur={() => {
+                                                                const value = parseInt(formState[input.inputId] || '0', 10);
+                                                                if (isNaN(value) || value <= 0) {
+                                                                    alert('Enter a valid positive integer greater than 0.');
+                                                                    handleChange(input.inputId, ''); // Reset to undefined if invalid
+                                                                }
+                                                            }}
+                                                        />
+                                                    )}
+
+
 
                                                     {input.type === 'email' && (
                                                         <input
