@@ -82,6 +82,7 @@ const FillingFrequencyMaster = React.lazy(() => import('../pages/other/AdminSide
 const FillingFrequencyMasterinsert = React.lazy(() => import('../pages/other/AdminSide/CommonMaster/FillingFrequencyMaster/FillingFrequencyMasterinsert.tsx'))
 const ManagementContractMaster = React.lazy(() => import('../pages/other/AdminSide/CommonMaster/ManagementContractMaster/ManagementContractMaster.tsx'))
 const ManagementContractMasterinsert = React.lazy(() => import('../pages/other/AdminSide/CommonMaster/ManagementContractMaster/ManagementContractMasterinsert.tsx'))
+const TrackTask = React.lazy(() => import('../pages/other/AdminSide/TrackTask/TrackTask.tsx'))
 
 const ProjectTypeMaster = React.lazy(() => import('../pages/other/AdminSide/CommonMaster/ProjectTypeMaster/ProjectTypeMaster.tsx'))
 const ProjectTypeMasterinsert = React.lazy(() => import('../pages/other/AdminSide/CommonMaster/ProjectTypeMaster/ProjectTypeMasterinsert.tsx'))
@@ -796,6 +797,12 @@ const customPagesRoutes = {
 			path: '/pages/Process',
 			name: 'CommonProcess',
 			element: <CommonProcess />,
+			route: PrivateRoute,
+		},
+		{
+			path: '/pages/TrackTask',
+			name: 'TrackTask',
+			element: <TrackTask />,
 			route: PrivateRoute,
 		},
 

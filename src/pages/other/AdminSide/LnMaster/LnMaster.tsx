@@ -381,7 +381,7 @@ const LnMaster: React.FC = () => {
                         ))}
                         {provided.placeholder}
                         <th>Working Status</th>
-                        <th>View</th>
+                        <th className='text-center'>View</th>
                       </tr>
                     )}
                   </Droppable>
@@ -423,7 +423,7 @@ const LnMaster: React.FC = () => {
                           </td>
 
 
-                          <td>
+                          <td className='text-end pr-3'>
                             <Button onClick={() => toggleExpandRow(item.id)}>
                               {expandedRow === item.id ? <i className=" fs-16 ri-arrow-up-s-line"></i> : <i className=" fs-16 ri-arrow-down-s-line"></i>}
                             </Button>
