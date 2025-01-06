@@ -115,6 +115,17 @@ const TaskMaster: React.FC = () => {
 
     // Function to fetch task data by ID
 
+    // useEffect(() => {
+    //     const initialFields = inputs.reduce((acc, input) => {
+    //         acc[input.inputId] = {
+    //             required: input.required,
+    //             visibility: input.visibility,
+    //         };
+    //         return acc;
+    //     }, {});
+    //     setUpdatedFields(initialFields);
+    // }, [inputs]);
+
 
     // Function to handle field updates
     const handleFieldChange = (inputId: string, field: string, value: string | boolean) => {
@@ -214,6 +225,7 @@ const TaskMaster: React.FC = () => {
                                         label: input.label,
                                         placeholder: input.placeholder,
                                         visibility: input.visibility,
+                                        required: input.required,
                                     };
                                     return acc;
                                 }, {});
@@ -665,39 +677,44 @@ const TaskMaster: React.FC = () => {
 
                                                                                 {/* Visibility toggle button */}
                                                                                 {input.inputId != '103' && (
-                                                                                    <div className="form-group form-switch col-6 mt-2 ps-0">
-                                                                                        <label htmlFor={`visibility-${input.inputId}`} className="toggle-label">
-                                                                                            Visibility
-                                                                                        </label>
-                                                                                        <div
-                                                                                            className={`toggle-switch ${updatedFields[input.inputId]?.visibility ? 'active' : ''}`}
-                                                                                            onClick={() =>
-                                                                                                handleFieldChange(input.inputId, 'visibility', !updatedFields[input.inputId]?.visibility)
-                                                                                            }
-                                                                                        >
-                                                                                            <div className="toggle-circle"></div>
-                                                                                            <span className="toggle-text">
-                                                                                                {updatedFields[input.inputId]?.visibility ? 'Show' : 'Hide'}
-                                                                                            </span>
+                                                                                    <>
+                                                                                        <div className="form-group form-switch col-6 mt-2 ps-0">
+                                                                                            <label htmlFor={`visibility-${input.inputId}`} className="toggle-label">
+                                                                                                Visibility
+                                                                                            </label>
+                                                                                            <div
+                                                                                                className={`toggle-switch ${updatedFields[input.inputId]?.visibility ? 'active' : ''}`}
+                                                                                                onClick={() =>
+                                                                                                    handleFieldChange(input.inputId, 'visibility', !updatedFields[input.inputId]?.visibility)
+                                                                                                }
+                                                                                            >
+                                                                                                <div className="toggle-circle"></div>
+                                                                                                <span className="toggle-text">
+                                                                                                    {updatedFields[input.inputId]?.visibility ? 'Show' : 'Hide'}
+                                                                                                </span>
+                                                                                            </div>
                                                                                         </div>
-                                                                                    </div>
+                                                                                        <div className="form-group form-switch col-6 mt-2 ps-0" key={input.inputId}>
+                                                                                            <label htmlFor={`required-${input.inputId}`} className="toggle-label">
+                                                                                                Required
+                                                                                            </label>
+                                                                                            <div
+                                                                                                className={`toggle-switch ${updatedFields[input.inputId]?.required ? 'active' : ''}`}
+                                                                                                onClick={() =>
+                                                                                                    handleFieldChange(input.inputId, 'required', !updatedFields[input.inputId]?.required)
+                                                                                                }
+                                                                                            >
+                                                                                                <div className="toggle-circle"></div>
+                                                                                                <span className="toggle-text">
+                                                                                                    {updatedFields[input.inputId]?.required ? 'Yes' : 'No'}
+                                                                                                </span>
+                                                                                            </div>
+                                                                                        </div>
+                                                                                    </>
+
                                                                                 )}
-                                                                                <div className="form-group form-switch col-6 mt-2 ps-0">
-                                                                                    <label htmlFor={`required-${input.inputId}`} className="toggle-label">
-                                                                                        Required
-                                                                                    </label>
-                                                                                    <div
-                                                                                        className={`toggle-switch ${updatedFields[input.inputId]?.required ? 'active' : ''}`}
-                                                                                        onClick={() =>
-                                                                                            handleFieldChange(input.inputId, 'required', !updatedFields[input.inputId]?.required)
-                                                                                        }
-                                                                                    >
-                                                                                        <div className="toggle-circle"></div>
-                                                                                        <span className="toggle-text">
-                                                                                            {updatedFields[input.inputId]?.required ? 'Yes' : 'No'}
-                                                                                        </span>
-                                                                                    </div>
-                                                                                </div>
+
+
                                                                             </>
                                                                         )}
                                                                     </div>
