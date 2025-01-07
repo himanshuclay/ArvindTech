@@ -382,8 +382,21 @@ const ProjectAssignTable: React.FC = () => {
     }
   };
 
-  const conditionArray = JSON.parse(data[0].condition_Json);
-  const expiryLogic = conditionArray[0].expiryLogic;
+  let conditionArray: any[] = [];
+
+  if (data[0]?.condition_Json) {
+    try {
+      conditionArray = JSON.parse(data[0].condition_Json);
+    } catch (error) {
+      console.error("Error parsing condition_Json:", error);
+      conditionArray = []; // Fallback to an empty array in case of error
+    }
+  } else {
+    console.warn("condition_Json is undefined or null.");
+    conditionArray = []; // Default to an empty array if condition_Json is undefined or null
+  }
+
+  const expiryLogic = conditionArray[0]?.expiryLogic;
 
   const isTimeExtended = (createdDate: string) => {
     const created = new Date(createdDate);
@@ -508,7 +521,7 @@ const ProjectAssignTable: React.FC = () => {
                                 selectedTasknumber={selectedTasknumber}
                                 setLoading={setLoading}
                                 taskCommonIDRow={taskCommonIDRow}
-                                projectName ={item.projectName}
+                                projectName={item.projectName}
                                 taskStatus
                                 processId={item.processID}
                                 moduleId={item.moduleID}

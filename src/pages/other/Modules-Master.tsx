@@ -18,7 +18,9 @@ type FormField = {
   labeltext?: string;
   fieldId?: string;     // Label for the field
   textbox?: string;       // Textbox input
-  number?: number;        // Number input
+  number?: number;// Number input
+  selectedMaster?: string;
+  selectedHeader?: string;
   type?: string;
   email?: string;         // Email input
   selection?: string;     // Dropdown selection input
@@ -204,6 +206,8 @@ const App: React.FC = () => {
     processOptions: [] as ProcessOption[], // Add processOptions to store the list of processes
   });
   const [conditionalField, setConditionalField] = useState(false);
+  // const [customSelectFields, setCustomSelectFields] = useState<Record<string, { selectedMaster: string, selectedHeader: string, headersList: HeaderItem[] }>>({});
+
 
   const location = useLocation();
 
@@ -261,14 +265,11 @@ const App: React.FC = () => {
     mastersName: string;
   }
 
-  interface HeaderItem {
-    headerName: string;
-  }
-
   const [mastersList, setMastersList] = useState<MasterItem[]>([]); // State to store the fetched options
-  const [selectedMaster, setSelectedMaster] = useState(''); // State to track selected option
-  const [headersList, setHeadersList] = useState<HeaderItem[]>([]);
-  const [selectedHeader, setSelectedHeader] = useState('');
+  // const [selectedMaster, setSelectedMaster] = useState(''); // State to track selected option
+  const [headersList, setHeadersList] = useState<{ headerName: string }[]>([]);
+
+  // const [selectedHeader, setSelectedHeader] = useState('');
 
 
   const storedEmpName = localStorage.getItem('EmpName');
@@ -292,23 +293,23 @@ const App: React.FC = () => {
     fetchMastersList();
   }, []);
 
-  // Handle header selection
-  const handleHeaderChange = (header: string) => {
-    setSelectedHeader(header);
-    // Save or perform an action with the selected header
-    console.log('Selected Header:', header);
-  };
-
   const handleMasterChange = async (masterId: string, mastersName: string) => {
-    setSelectedMaster(mastersName);  // Set selected master name
-    console.log('Selected Master:', mastersName);  // Log the selected master
+    setEditField((prevField) => {
+      if (!prevField) return prevField;
 
-    // Fetch headers based on the selected master
+      return {
+        ...prevField,
+        selectedMaster: mastersName,
+      };
+    });
+
     if (masterId) {
       try {
-        const response = await axios.get(`${config.API_URL_APPLICATION}/CommonDropdown/GettableHeaderName?flag=${masterId}`);
+        const response = await axios.get(
+          `${config.API_URL_APPLICATION}/CommonDropdown/GettableHeaderName?flag=${masterId}`
+        );
         if (response.data.isSuccess) {
-          setHeadersList(response.data.gettableHeaderNames); // Update headers based on selected master
+          setHeadersList(response.data.gettableHeaderNames);
         } else {
           console.error('Failed to fetch headers for the selected master');
         }
@@ -316,9 +317,25 @@ const App: React.FC = () => {
         console.error('Error fetching headers:', error);
       }
     } else {
-      setHeadersList([]); // Clear headers if no master is selected
+      setHeadersList([]);
     }
   };
+
+
+
+  const handleHeaderChange = (header: string) => {
+    setEditField((prevField) => {
+      if (!prevField) return prevField;
+
+      return {
+        ...prevField,
+        selectedHeader: header,
+      };
+    });
+  };
+
+
+
 
 
 
@@ -571,15 +588,16 @@ const App: React.FC = () => {
           inputId,
           type: field.type,
           label: field.labeltext || "Default Label",
-          fieldId: field.fieldId,
-          required: field.required || false,
-          conditionalFieldId: field.conditionalFieldId || "", // Use existing conditionalFieldId if any
-          value: field.value || "",
-          selectedMaster: selectedMaster,
-          selectedHeader: selectedHeader,
-          visibility: field.visibility,
+          fieldId: field.fieldId || "", // Default to an empty string if fieldId is undefined
+          required: !!field.required, // Convert to boolean, defaulting to false
+          conditionalFieldId: field.conditionalFieldId || "", // Use existing conditionalFieldId or default to an empty string
+          value: field.value || "", // Default to an empty string if value is undefined
+          selectedMaster: field.selectedMaster || "", // Default to an empty string if not provided
+          selectedHeader: field.selectedHeader || "", // Default to an empty string if not provided
+          visibility: field.visibility ?? true, // Default to true if visibility is undefined
         };
       }
+      
 
       // Default return for other input types
       return {
@@ -639,7 +657,7 @@ const App: React.FC = () => {
     setLoading(true);
 
     try {
-      const response = await fetch(`${config.API_URL_ACCOUNT}/ProcessTaskMaster/InsertUpdateProcessTaskandDoer`, {
+      const response = await fetch(`${config.API_URL_ACCOUNT}/ProcessTaskMaster/InsertUpdateProcessTaskandDoers`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -1054,11 +1072,11 @@ const App: React.FC = () => {
                 <div className='d-flex justify-content-between'>
                   <div className='d-flex flex-column'>
                     <div>Selected Master</div>
-                    <span className='fw-bold'>{selectedMaster}</span>
+                    <span className='fw-bold'>{field.selectedMaster}</span>
                   </div>
                   <div className='d-flex flex-column'>
                     <div>Selected Header</div>
-                    <span className='fw-bold'>{selectedHeader}</span>
+                    <span className='fw-bold'>{field.selectedHeader}</span>
                   </div>
                 </div>
               </Form.Group>
@@ -1757,15 +1775,20 @@ const App: React.FC = () => {
                 {editField.type === 'CustomSelect' && (
                   <Form.Group key={editField.inputId}>
                     {/* Select Master */}
-                    <Form.Group className='mt-2'>
+                    <Form.Group className="mt-2">
                       <Form.Label>Select Master</Form.Label>
                       <Form.Select
-                        value={selectedMaster}
+                        value={editField.selectedMaster || ""}
                         onChange={(e) => {
                           const selectedId = e.target.value;
-                          const selectedMasterObj = mastersList.find((master) => master.id.toString() === selectedId);
+                          const selectedMasterObj = mastersList.find(
+                            (master) => master.id.toString() === selectedId
+                          );
                           if (selectedMasterObj) {
-                            handleMasterChange(selectedMasterObj.id.toString(), selectedMasterObj.mastersName); // Convert id to string
+                            handleMasterChange(
+                              selectedMasterObj.id.toString(),
+                              selectedMasterObj.mastersName
+                            );
                           }
                         }}
                       >
@@ -1776,15 +1799,16 @@ const App: React.FC = () => {
                           </option>
                         ))}
                       </Form.Select>
-                      <div className='selected-point'>{selectedMaster}</div>
+
+
                     </Form.Group>
 
                     {/* Select Header */}
-                    <Form.Group className='mt-2'>
+                    <Form.Group className="mt-2">
                       <Form.Label>Select Header</Form.Label>
                       <Form.Select
-                        value={selectedHeader} // Bind selected header state
-                        onChange={(e) => handleHeaderChange(e.target.value)} // Handle header selection
+                        value={editField?.selectedHeader || ""}
+                        onChange={(e) => handleHeaderChange(e.target.value)}
                       >
                         <option value="">Select a Header</option>
                         {headersList.map((header) => (
@@ -1796,25 +1820,35 @@ const App: React.FC = () => {
                     </Form.Group>
 
                     {/* Conditional Checkbox */}
-                    <div className='form-group mt-2'>
+                    <div className="form-group mt-2">
                       <label className="form-label">
                         <input
-                          className='me-1'
+                          className="me-1"
                           type="checkbox"
-                          checked={conditionalField}
-                          onChange={handleCheckboxChange}
+                          checked={editField.conditionalField || false}
+                          onChange={(e) =>
+                            setEditField((prevField) => ({
+                              ...prevField,
+                              conditionalField: e.target.checked,
+                            }))
+                          }
                         />
                         Is Conditionally bound?
                       </label>
                     </div>
 
                     {/* Conditional Select Dropdown */}
-                    {conditionalField && (
+                    {editField.conditionalField && (
                       <Form.Control
                         as="select"
                         className="mt-2"
-                        value={editField.conditionalFieldId || ''}
-                        onChange={handleSelectChange}
+                        value={editField.conditionalFieldId || ""}
+                        onChange={(e) =>
+                          setEditField((prevField) => ({
+                            ...prevField,
+                            conditionalFieldId: e.target.value,
+                          }))
+                        }
                       >
                         <option value="">Select an option</option>
                         {taskFields.map((field) => (
@@ -1836,6 +1870,8 @@ const App: React.FC = () => {
                     )}
                   </Form.Group>
                 )}
+
+
 
 
                 {editField.type === 'paragraph' && (

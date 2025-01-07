@@ -1179,8 +1179,6 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
 
                                 </div>
 
-
-
                                 <div className="form-section" style={{ width: '90%', paddingLeft: '20px' }}>
                                     <div className="my-task">
                                         {formData.inputs.map((input: Input) => (
