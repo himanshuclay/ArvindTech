@@ -85,44 +85,70 @@ const HeirarchyView: React.FC<ProcessCanvasProps> = ({ showView, setShowView, id
 
     return (
         <div>
-            <Offcanvas className="" show={showView} placement="end" onHide={handleClose}>
+            <Offcanvas className="w-50" show={showView} placement="end" onHide={handleClose}>
                 <Offcanvas.Header closeButton>
                     <Offcanvas.Title className="text-dark">View Tasks</Offcanvas.Title>
                 </Offcanvas.Header>
                 <Offcanvas.Body>
-
                     {loading ? (
-                        <div className='loader-container'>
+                        <div className="loader-container d-flex flex-column align-tasks-center justify-content-center">
                             <div className="loader"></div>
-                            <div className='mt-2'>Please Wait!</div>
+                            <div className="mt-3 text-muted">Please Wait...</div>
                         </div>
                     ) : (
                         <>
-                            {preData.length > 0 ? preData.map((task, index) => (
-                                <div key={index}>
-                                    {task.doerName}
-                                    {task.taskName}
-                                    {task.planDate}
-                                    {task.doerNumber}
-                                    {task.isCompleted}
-                                    {task.task_Number}
-
-                                </div>
-                            )) : <Container className="mt-5">
-                                <Row className="justify-content-center">
-                                    <Col xs={12} md={8} lg={10}>
-                                        <Alert variant="info" className="text-center">
-                                            <h4>No Data Found</h4>
-                                            <p>You currently don't have any Data</p>
-                                        </Alert>
-                                    </Col>
+                            {preData.length > 0 ? (
+                                <Row>
+                                    {preData.map((task, index) => (
+                                        <Col className="task-card p-3 border rounded shadow-sm">
+                                            <table>
+                                                <tbody>
+                                                    <tr>
+                                                        <td className='text-nowrap'><h5>Task Number :</h5></td>
+                                                        <td> <h5 className='text-primary'>{task.task_Number}</h5></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td className='text-nowrap'><h5>Task Name :</h5></td>
+                                                        <td> <h5 className='text-primary'>{task.taskName}</h5></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td className='text-nowrap'><h5>Doer :</h5></td>
+                                                        <td>  <h5 className='text-primary'> {task.doerName}</h5>
+                                                            {task.doerNumber ?
+                                                                <p className=' fw-normal m-0'><a href={`tel:${task.doerNumber}`}>
+                                                                    <i className="ri-phone-fill"></i> {task.doerNumber}</a></p> : ""
+                                                            }
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td className='text-nowrap'><h5>Plan Date :</h5></td>
+                                                        <td> <h5 className='text-primary'>{task.planDate}</h5></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td className='text-nowrap'><h5>Status :</h5></td>
+                                                        <td> <h5 className='text-primary'>{task.isCompleted}</h5></td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </Col>
+                                    ))}
                                 </Row>
-                            </Container>
-
-                            }
+                            ) : (
+                                <Container className="mt-5">
+                                    <Row className="justify-content-center">
+                                        <Col xs={12} md={8} lg={6}>
+                                            <Alert variant="info" className="text-center">
+                                                <h4>No Data Found</h4>
+                                                <p>You currently don't have any data available.</p>
+                                            </Alert>
+                                        </Col>
+                                    </Row>
+                                </Container>
+                            )}
                         </>
                     )}
                 </Offcanvas.Body>
+
             </Offcanvas>
         </div>
     );
