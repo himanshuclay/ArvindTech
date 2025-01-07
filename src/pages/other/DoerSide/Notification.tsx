@@ -20,6 +20,7 @@ interface ProjectAssignListWithDoer {
   roleId: string;
   doerId: string;
   doerName: string;
+  doerNumber: string;
   task_Json: string;
   task_Number: string;
   task_Status: number;
@@ -382,18 +383,13 @@ const ProjectAssignTable: React.FC = () => {
     }
   };
 
-  let conditionArray: any[] = [];
-
-  if (data[0]?.condition_Json) {
-    try {
+  let conditionArray = [];
+  try {
+    if (data[0]?.condition_Json) {
       conditionArray = JSON.parse(data[0].condition_Json);
-    } catch (error) {
-      console.error("Error parsing condition_Json:", error);
-      conditionArray = []; // Fallback to an empty array in case of error
     }
-  } else {
-    console.warn("condition_Json is undefined or null.");
-    conditionArray = []; // Default to an empty array if condition_Json is undefined or null
+  } catch (error) {
+    console.error("Failed to parse condition_Json:", error);
   }
 
   const expiryLogic = conditionArray[0]?.expiryLogic;
@@ -409,7 +405,9 @@ const ProjectAssignTable: React.FC = () => {
   return (
 
     <>
-      <div className="d-flex p-2 bg-white mt-2 mb-2 rounded shadow"><h5 className='mb-0'>Pending Task</h5></div>
+      <div className="d-flex bg-white p-2 my-2 justify-content-between align-items-center fs-20">
+        <span><i className="ri-file-list-line me-2"></i><span className='fw-bold test-nowrap'>Pending Task</span></span>
+      </div>
       <div className='overflow-auto'>
         {data.length === 0 ? (
           <Container className="mt-5">
@@ -433,7 +431,6 @@ const ProjectAssignTable: React.FC = () => {
                       <tr
                         {...provided.droppableProps} ref={provided.innerRef as React.Ref<HTMLTableRowElement>}
                         className='text-nowrap'>
-                        {/* <th><i className="ri-list-ordered-2"></i>Task Name</th> */}
                         {columns.filter(col => col.visible).map((column, index) => (
                           <Draggable key={column.id} draggableId={column.id} index={index}>
                             {(provided) => (
@@ -443,7 +440,7 @@ const ProjectAssignTable: React.FC = () => {
                                   {...provided.dragHandleProps}>
                                   {column.id === 'processName' && (<i className="ri-map-2-line"></i>)}
                                   {column.id === 'projectName' && (<i className="ri-building-line"></i>)}
-                                  {column.id === 'task_Number' && (<i className="ri-health-book-line"></i>)}
+                                  {column.id === 'task_Number' && (<i className="ri-health-book-line pl-1-5"></i>)}
                                   {column.id === 'roleName' && (<i className="ri-shield-user-line"></i>)}
                                   {column.id === 'taskType' && (<i className="ri-bookmark-line"></i>)}
                                   {column.id === 'taskTime' && (<i className="ri-calendar-line"></i>)}
@@ -462,7 +459,7 @@ const ProjectAssignTable: React.FC = () => {
                           </Draggable>
                         ))}
                         {provided.placeholder}
-                        <th>Action</th>
+                        <th className='text-end pr-3'>Action</th>
                       </tr>
 
                     )}
@@ -478,9 +475,8 @@ const ProjectAssignTable: React.FC = () => {
                           {columns.filter(col => col.visible).map((col) => (
                             <td key={col.id}
                               className={
-                                // Add class based on column id
                                 col.id === 'taskName' ? 'fw-bold fs-14 text-dark truncated-text' :
-                                  col.id === 'task_Number' ? 'fw-bold fs-14 text-dark ' :
+                                  col.id === 'task_Number' ? 'fw-bold fs-14 text-dark pl-3' :
                                     ''
                               }
                             >
@@ -499,7 +495,7 @@ const ProjectAssignTable: React.FC = () => {
 
                           ))}
 
-                          <td>
+                          <td className='text-end pr-3'>
                             <Button
                               variant={isTimeExtended(item.createdDate) ? 'warning' : 'primary'}
                               onClick={() => toggleExpandRow(item.id)}
@@ -507,7 +503,7 @@ const ProjectAssignTable: React.FC = () => {
                               {expandedRow === item.id ? <i className=" fs-18 ri-arrow-up-s-line"></i> : <i className=" fs-18 ri-arrow-down-s-line"></i>}
                             </Button>
                           </td>
-                          <td colSpan={10}>
+                          <td colSpan={10} className='d-none'>
                             <div>
                               <DynamicForm
                                 fromComponent='PendingTask'
@@ -549,7 +545,7 @@ const ProjectAssignTable: React.FC = () => {
                                           </tr>
                                           <tr>
                                             <td><h5>Link :</h5></td>
-                                            <td> <h5 className='text-primary'>NA</h5></td>
+                                            <td> <h5 className='text-primary'>N/A</h5></td>
                                           </tr>
                                           <tr>
                                             <td><h5>Process :</h5></td>
@@ -563,9 +559,9 @@ const ProjectAssignTable: React.FC = () => {
                                             <td><h5>Doer :</h5></td>
                                             <td>
                                               <h5 className='text-primary'> {item.doerName}</h5>
-                                              {item.projectInchargeMobileNumber ?
-                                                <p className='fw-normal m-0'><a href={`tel:${item.projectInchargeMobileNumber}`}>
-                                                  <i className="ri-phone-fill"></i> {item.projectInchargeMobileNumber}</a></p> : ""
+                                              {item.doerNumber ?
+                                                <p className='fw-normal m-0'><a href={`tel:${item.doerNumber}`}>
+                                                  <i className="ri-phone-fill"></i> {item.doerNumber}</a></p> : ""
                                               }
                                             </td>
                                           </tr>
@@ -590,24 +586,27 @@ const ProjectAssignTable: React.FC = () => {
                                           </tr>
                                           <tr>
                                             <td><h5>Expiry Logic :</h5></td>
-                                            <td> <h5 className='text-primary'>{expiryLogic}</h5></td>
+                                            <td> <h5 className='text-primary'>{expiryLogic ? expiryLogic : 'N/A'}</h5></td>
                                           </tr>
                                           <tr>
                                             <td><h5>Approval :</h5></td>
-                                            <td> <h5 className='text-primary'>Yes/No</h5></td>
+                                            <td> <h5 className='text-primary'>{item.approval_Console !== null ? 'Yes' : 'No'}</h5></td>
                                           </tr>
-                                          <tr>
-                                            <td><h5>Approver :</h5></td>
-                                            <td><h5 className='text-primary'>NA</h5>
-                                            </td>
-                                          </tr>
+
+                                          {item.approval_Console !== null &&
+                                            <tr>
+                                              <td><h5>Approver :</h5></td>
+                                              <td><h5 className='text-primary'>NA</h5>
+                                              </td>
+                                            </tr>}
+
                                         </tbody>
                                       </table>
                                     </Col>
                                   </Row>
 
-
-                                  <Row className='taskDetailsView'>
+                                  <hr />
+                                  <Row className=''>
                                     <Col lg={4}>
                                       <tr>
                                         <td> <h5 >Initiation period : </h5></td>
@@ -645,7 +644,7 @@ const ProjectAssignTable: React.FC = () => {
 
                                     </Col>
                                   </Row>
-
+                                  <hr />
                                   <Row>
                                     <Col lg={7}>
                                       <table>
@@ -656,11 +655,11 @@ const ProjectAssignTable: React.FC = () => {
                                           </tr>
                                           <tr>
                                             <td><h5>Extended Date :</h5></td>
-                                            <td><h5 className='text-primary'>{format(new Date(item.createdDate), 'MMM dd, yyyy HH:mm')}</h5></td>
+                                            <td><h5 className='text-primary'>N/A</h5></td>
                                           </tr>
                                           <tr>
                                             <td><h5>Completed Date :</h5></td>
-                                            <td><h5 className='text-primary'>{format(new Date(item.createdDate), 'MMM dd, yyyy HH:mm')}</h5></td>
+                                            <td><h5 className='text-primary'>N/A</h5></td>
                                           </tr>
                                         </tbody>
                                       </table>
@@ -685,7 +684,7 @@ const ProjectAssignTable: React.FC = () => {
 
                                   <div className=' d-flex justify-content-end'>
                                     <Button className='ms-auto mt-3' onClick={() => handleEdit(item.taskCommonId)}>
-                                      Perform
+                                      Finish
                                     </Button>
                                   </div>
 

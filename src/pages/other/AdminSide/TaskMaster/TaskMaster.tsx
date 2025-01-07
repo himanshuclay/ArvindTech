@@ -89,20 +89,15 @@ const TaskMaster: React.FC = () => {
 
     // const [showModal, setShowModal] = useState<boolean>(false);
 
-    const handleShowModal = (taskId: number, solver: string) => {
+    const handleShowModal = (taskId: number) => {
         setTaskIdToEdit(taskId);         // Set the task ID that is being edited
-        setProblemSolver(solver);        // Set the solver for the task
+        // setProblemSolver(solver);        // Set the solver for the task
     };
 
     const handleCloseModal = () => {
         setTaskIdToEdit(null);           // Close modal by clearing taskIdToEdit
-        setProblemSolver('');
+        // setProblemSolver('');
         // setTaskName('');
-    };
-
-    const handleProblemSolverChange: React.ChangeEventHandler<HTMLInputElement> = (e) => {
-        setProblemSolver(e.target.value);
-        console.log(problemSolver)
     };
 
 
@@ -163,10 +158,10 @@ const TaskMaster: React.FC = () => {
                         ...parsedTaskJson,
                         inputs: updatedInputs, // Update the inputs with new values
                     }),
-                    roleName: RoleName,
+                    roleName: RoleName ? RoleName : taskData.roleName,
                     updatedBy: "YourNameHere",
                     updatedDate: new Date().toISOString(),
-                    problem_Solver: problemSolver,
+                    problem_Solver: problemSolver ? problemSolver : taskData.problem_Solver,
                 };
 
                 // Send the updated task data to the API
@@ -183,9 +178,19 @@ const TaskMaster: React.FC = () => {
 
                 console.log('Task updated:', response.data);
                 // alert('Task updated successfully');
-                handleCloseModal();
-                fetchTasks();
-                toast.success("Task has been Updated succussfully")
+                if (response.status === 200) {
+                    // Perform the actions when the response is successful (status 200)
+                    handleCloseModal();
+                    fetchTasks();
+                    toast.dismiss()
+                    toast.success("Task has been updated successfully");
+                    setRoleName('');
+                    setProblemSolver('');
+
+                } else {
+                    // Handle any unexpected status codes
+                    toast.error("Error: Task update failed");
+                }
             } else {
                 console.error('task_Json does not contain valid inputs');
                 alert('Error: task_Json is invalid or missing inputs');
@@ -196,62 +201,64 @@ const TaskMaster: React.FC = () => {
         }
     };
 
+    // console.log(problemSolver)
+
     useEffect(() => {
-        if (taskIdToEdit !== null && problemSolver) {
-            console.log('Updated taskIdToEdit:', taskIdToEdit);
-            console.log('Updated problemSolver:', problemSolver);
+        // if (taskIdToEdit !== null) {
+        console.log('Updated taskIdToEdit:', taskIdToEdit);
+        // console.log('Updated problemSolver:', problemSolver);
 
-            const fetchTaskData = async (taskIdToEdit: number) => {
-                try {
-                    const { data } = await axios.get(`${config.API_URL_ACCOUNT}/ProcessTaskMaster/GetProcessTaskByIds?Flag=3&ID=${taskIdToEdit}`
-                    );
-                    const task = data.getProcessTaskByIds[0];
-                    console.log(task)
+        const fetchTaskData = async (taskIdToEdit: number) => {
+            try {
+                const { data } = await axios.get(`${config.API_URL_ACCOUNT}/ProcessTaskMaster/GetProcessTaskByIds?Flag=3&ID=${taskIdToEdit}`
+                );
+                const task = data.getProcessTaskByIds[0];
+                console.log(task)
 
-                    // Check if task and task.inputs are defined before proceeding
-                    if (task && task.task_Json) {
-                        try {
-                            // Parse the task_Json string if it's a stringified JSON object
-                            const parsedTaskJson = typeof task.task_Json === 'string' ? JSON.parse(task.task_Json) : task.task_Json;
+                // Check if task and task.inputs are defined before proceeding
+                if (task && task.task_Json) {
+                    try {
+                        // Parse the task_Json string if it's a stringified JSON object
+                        const parsedTaskJson = typeof task.task_Json === 'string' ? JSON.parse(task.task_Json) : task.task_Json;
 
-                            // Ensure inputs is an array
-                            if (Array.isArray(parsedTaskJson.inputs)) {
-                                setTaskData(task); // Store the fetched task data in state
-                                console.log(task);
+                        // Ensure inputs is an array
+                        if (Array.isArray(parsedTaskJson.inputs)) {
+                            setTaskData(task); // Store the fetched task data in state
+                            console.log(task);
 
-                                // Initialize updatedFields to keep track of the updated values
-                                const initialUpdatedFields = parsedTaskJson.inputs.reduce((acc: any, input: any) => {
-                                    acc[input.inputId] = {
-                                        label: input.label,
-                                        placeholder: input.placeholder,
-                                        visibility: input.visibility,
-                                        required: input.required,
-                                    };
-                                    return acc;
-                                }, {});
+                            // Initialize updatedFields to keep track of the updated values
+                            const initialUpdatedFields = parsedTaskJson.inputs.reduce((acc: any, input: any) => {
+                                acc[input.inputId] = {
+                                    label: input.label,
+                                    placeholder: input.placeholder,
+                                    visibility: input.visibility,
+                                    required: input.required,
+                                };
+                                return acc;
+                            }, {});
 
-                                // Set initial updated fields
-                                setUpdatedFields(initialUpdatedFields);
+                            // Set initial updated fields
+                            setUpdatedFields(initialUpdatedFields);
 
-                                console.log(updatedFields)
-                            } else {
-                                console.error('Task data "inputs" is missing or is not an array.');
-                            }
-                        } catch (error) {
-                            console.error('Error parsing task_Json:', error);
+                            console.log(updatedFields)
+                        } else {
+                            console.error('Task data "inputs" is missing or is not an array.');
                         }
-                    } else {
-                        console.error('Task data is missing "task_Json".');
+                    } catch (error) {
+                        console.error('Error parsing task_Json:', error);
                     }
-
-                } catch (error) {
-                    console.error('Error fetching task data:', error);
+                } else {
+                    console.error('Task data is missing "task_Json".');
                 }
-            };
 
-            fetchTaskData(taskIdToEdit);
-        }
-    }, [taskIdToEdit, problemSolver]);
+            } catch (error) {
+                console.error('Error fetching task data:', error);
+            }
+        };
+
+        fetchTaskData(taskIdToEdit);
+        // }
+    }, [taskIdToEdit]);
 
     const [columns, setColumns] = useState<Column[]>([
         { id: 'moduleName', label: 'Module', visible: true },
@@ -382,7 +389,7 @@ const TaskMaster: React.FC = () => {
         <div>
             <div className="d-flex bg-white p-2 my-2 justify-content-between align-items-center fs-20">
                 <span><i className="ri-file-list-line me-2"></i><span className='fw-bold test-nowrap'>Task List</span></span>
-                <div className="col-md-4 my-1 d-flex justify-content-end">
+                <div className="col-md-4  d-flex justify-content-end">
                     {role === "Admin" && (
                         <Link to="/pages/Modules-Master">
                             <Button variant="primary">Create Task</Button>
@@ -500,20 +507,22 @@ const TaskMaster: React.FC = () => {
                                                             onClick={() => { handleJsonModal(task.task_Json); }}
                                                             className='text-nowrap'
                                                         >
-                                                            View Task
+                                                            <i className="ri-eye-line"></i>
                                                         </Button>
                                                     </td>
                                                     <td>
                                                         <Button
                                                             variant="primary"
-                                                            onClick={() => handleShowModal(task.id, task.problem_Solver)}
+                                                            onClick={() => handleShowModal(task.id)}
                                                             className="text-nowrap"
                                                         >
-                                                            Edit Task
+                                                            <i className="ri-pencil-line"></i>
                                                         </Button>
                                                     </td>
-                                                    <td>
-                                                        <Button variant="primary" onClick={() => handleCondition(task.id, task.task_Number)}>Conditions</Button>
+                                                    <td className='text-center'>
+                                                        <Button variant="primary" onClick={() => handleCondition(task.id, task.task_Number)}>
+                                                            <i className="ri-braces-line"></i>
+                                                        </Button>
                                                     </td>
                                                 </>
 
@@ -541,7 +550,7 @@ const TaskMaster: React.FC = () => {
                             )}
                         </tbody>
                     </Table>
-                    {tasks.map((task) => (
+                    {Array.isArray(tasks) && tasks.map((task) => (
                         <div key={task.id}>
 
                             {/* Show only one modal at a time for the specific task */}
@@ -556,33 +565,34 @@ const TaskMaster: React.FC = () => {
                                         <Modal.Title>Edit Task for {task.task_Number}</Modal.Title>
                                     </Modal.Header>
                                     <Modal.Body>
-                                        <Form>
-                                            {/* Input for Problem Solver */}
-                                            <Form.Group controlId="problemSolver">
-                                                <Form.Label>Problem Solver</Form.Label>
-                                                <Form.Control
-                                                    as="select"
-                                                    value={task.problem_Solver || ''}
-                                                    onChange={handleProblemSolverChange}
-                                                >
-                                                    {/* <option value="">{task.problem_Solver}</option> */}
-                                                    {employeeList.map((employee) => (
-                                                        <option key={employee.employeeName} value={employee.employeeName}>
-                                                            {employee.employeeName}
-                                                        </option>
-                                                    ))}
-                                                </Form.Control>
-                                            </Form.Group>
-                                            {/* <Form.Group controlId="taskName">
-                                                <Form.Label>Task Name</Form.Label>
-                                                <Form.Control
-                                                    type="text"
-                                                    value={taskName || task.task_Name || ''}
-                                                    onChange={handleTaskNameChange}
-                                                    placeholder="Enter Task Name"
-                                                />
-                                            </Form.Group> */}
-                                        </Form>
+                                        {/* Input for Problem Solver */}
+                                        <Form.Group controlId="problemSolver">
+                                            <Form.Label>Problem Solver</Form.Label>
+                                            <Select
+                                                name="problemSolver"
+                                                value={employeeList.find((emp) => emp.employeeName === task.problem_Solver) || null}
+                                                onChange={(selectedOption) => {
+                                                    setTasks((prevTasks) =>
+                                                        prevTasks.map((t) =>
+                                                            t.id === task.id
+                                                                ? { ...t, problem_Solver: selectedOption?.employeeName || '' }
+                                                                : t
+                                                        )
+                                                    );
+                                                    setProblemSolver(selectedOption?.employeeName || '')
+                                                }}
+                                                getOptionLabel={(emp) => emp.employeeName}
+                                                getOptionValue={(emp) => emp.employeeName}
+                                                options={employeeList}
+                                                isSearchable={true}
+                                                placeholder="Select Problem Solver"
+                                            />
+
+                                        </Form.Group>
+
+
+
+
                                         {taskData && taskData.task_Json && (
                                             <div className="container mt-4 row">
                                                 {/* Parse task_Json if it's a string */}

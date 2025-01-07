@@ -212,7 +212,7 @@ const ModuleMaster = () => {
                 'Mis Exempt', 'Status', 'Assigned Project/Subproject',
                 'Created By', 'Updated By', 'Created Date', 'Updated Date'],
             ...data.map(mod => {
-                
+
                 let projectNames: string[] = [];
                 try {
                     projectNames = JSON.parse(mod.projectName || '[]') as string[];
@@ -496,10 +496,10 @@ const ModuleMaster = () => {
 
                                                                 </td>
                                                             ))}
-                                                            <td><Button variant='primary' className=' text-white icon-padding' title="You can Add and Remove Porject from this Process." onClick={() => handleEdit(item.id)}> <i className="fs-18 ri-folder-add-line "></i> </Button></td>
-                                                            <td><Button variant='primary' className=' text-white icon-padding' title="You can View the running tasks." onClick={() => handleViewEdit(item.id)}>  <i className=" fs-18 ri-eye-line "></i></Button></td>
+                                                            <td className='text-center'><Button variant='primary' className=' text-white icon-padding' title="You can Add and Remove Porject from this Process." onClick={() => handleEdit(item.id)}> <i className="fs-18 ri-folder-add-line "></i> </Button></td>
+                                                            <td className='text-center'><Button variant='primary' className=' text-white icon-padding' title="You can View the running tasks." onClick={() => handleViewEdit(item.id)}>  <i className=" fs-18 ri-eye-line "></i></Button></td>
                                                             {role === 'Admin' && (
-                                                                <td><Link to={`/pages/ProcessMasterinsert/${item.id}`}>
+                                                                <td className='text-center'><Link to={`/pages/ProcessMasterinsert/${item.id}`}>
                                                                     <Button variant='primary' className=' text-white icon-padding' title="You can Edit the Porcess." >
                                                                         <i className='fs-18 ri-edit-line text-white' ></i>
                                                                     </Button></Link>

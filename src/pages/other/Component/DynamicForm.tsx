@@ -278,7 +278,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
 
     useEffect(() => {
 
-        // console.log(selectedCondition)
+        console.log(selectedCondition)
 
         const customSelectInput = formData.inputs?.find(
             (input) => input.type === "CustomSelect"

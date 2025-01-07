@@ -323,7 +323,7 @@ const ProcessInitiation = () => {
                                                                     </Draggable>
                                                                 ))}
                                                             {provided.placeholder}
-                                                            <th><i className="ri-play-circle-fill"></i> Initiation</th>
+                                                            <th className='text-center'><i className="ri-play-circle-fill"></i> Initiation</th>
                                                         </tr>
                                                     )}
                                                 </Droppable>
@@ -363,7 +363,7 @@ const ProcessInitiation = () => {
 
                                                                 </td>
                                                             ))}
-                                                            <td><Link to={`/pages/ProcessManualInitiation/${item.moduleID}-Module/${item.processID}/Process/${item.id}`}><Button variant='primary' className='icon-padding text-white'><i className=" fs-18 ri-list-settings-line text-white"></i></Button></Link></td>
+                                                            <td className='text-center'><Link to={`/pages/ProcessManualInitiation/${item.moduleID}-Module/${item.processID}/Process/${item.id}`}><Button variant='primary' className='icon-padding text-white'><i className=" fs-18 ri-list-settings-line text-white"></i></Button></Link></td>
 
                                                         </tr>
                                                     ))

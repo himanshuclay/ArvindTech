@@ -19,7 +19,7 @@ const getFilteredMenuItems = () => {
       icon: 'ri-dashboard-3-line',
       badge: {
         variant: 'success',
-        text: '9+',
+        text: '',
       },
     },
     {
@@ -126,7 +126,7 @@ const getFilteredMenuItems = () => {
         {
           key: 'Track Task',
           label: 'Track Task',
-          url: '/pages/Notification',
+          url: '/pages/TrackTask',
           icon: 'ri-slideshow-line',
           parentKey: 'TaskAdmin',
         },
@@ -143,7 +143,21 @@ const getFilteredMenuItems = () => {
           url: '/pages/ApprovalConsole',
           icon: 'ri-dashboard-3-line',
           parentKey: 'TaskAdmin',
-        }
+        },
+        {
+          key: 'CompletedTask',
+          label: 'Completed Task',
+          url: '/pages/CompletedTask',
+          icon: 'ri-slideshow-line',
+          parentKey: 'TaskAdmin',
+        },
+        {
+          key: 'ExpireTask',
+          label: 'Expired Tasks',
+          url: '/pages/ExpireTask',
+          icon: 'ri-slideshow-line',
+          parentKey: 'TaskAdmin',
+        },
       ],
     },
     {

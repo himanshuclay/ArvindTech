@@ -270,6 +270,18 @@
   margin-right: 20px;
 }
 
+.pl-1-5 {
+  padding-left: 15px !important;
+}
+
+.pl-3 {
+  padding-left: 30px !important;
+}
+
+.pr-3 {
+  padding-right: 30px !important;
+}
+
 .task1 {
   color: #359088 !important;
   font-weight: bold;
@@ -869,8 +881,8 @@ input.numInput.cur-year:hover {
   margin: auto;
   width: min-content;
 }
-.shadow-light-btn
-{
+
+.shadow-light-btn {
   padding: 5px;
   font-size: 12px;
   color: #1f1d56;
@@ -885,3 +897,4 @@ input.numInput.cur-year:hover {
   overflow: hidden;
   text-overflow: ellipsis;
 }
+
