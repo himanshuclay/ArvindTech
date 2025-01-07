@@ -233,6 +233,13 @@ const LnMaster: React.FC = () => {
 
   const expiryLogic = conditionArray[0]?.expiryLogic;
 
+  const isTimeExtended = (createdDate: string) => {
+    const created = new Date(createdDate);
+    const currentDate = new Date();
+    const twoDaysLater = new Date(created);
+    twoDaysLater.setDate(created.getDate() + 2);
+    return currentDate > twoDaysLater;
+  }
 
 
   return (
@@ -414,20 +421,30 @@ const LnMaster: React.FC = () => {
                               }
                             >
                               <div>
-                                {col.id === 'taskType' ? (
-                                  <>
-                                    {item.task_Number.endsWith('.T1') ? "Actual" : ""}
-                                  </>
-                                ) : (
-                                  <>{item[col.id as keyof LnMaster]}</>
-                                )}
+                                {
+                                  col.id === 'taskType' ? (
+                                    <>
+                                      {item.task_Number.endsWith('.T1') ? "Actual" : ""}
+                                    </>
+                                  ) :
+                                    col.id === 'createdDate' ? (
+                                      <>
+                                        {format(new Date(item.createdDate), 'MMM dd, yyyy HH:mm')}
+                                      </>
+                                    ) :
+
+                                      (
+                                        <>{item[col.id as keyof LnMaster]}</>
+                                      )}
                               </div>
                             </td>
                           ))}
 
                           <td className={item.completedDate === '' ? 'text-warning fw-bolder' : ''}>
                             {item.completedDate !== '' ? (
-                              item.completedDate
+
+                              // format(new Date(item.completedDate), 'MMM dd, yyyy HH:mm')
+                              'Completed'
                             ) : (
                               <span>
                                 In Progress <i className="ri-loader-2-fill fs-5"></i>
@@ -437,7 +454,9 @@ const LnMaster: React.FC = () => {
 
 
                           <td className='text-end pr-3'>
-                            <Button onClick={() => toggleExpandRow(item.id)}>
+                            <Button onClick={() => toggleExpandRow(item.id)}
+                              variant={isTimeExtended(item.createdDate) ? 'warning' : 'primary'}
+                            >
                               {expandedRow === item.id ? <i className=" fs-16 ri-arrow-up-s-line"></i> : <i className=" fs-16 ri-arrow-down-s-line"></i>}
                             </Button>
                           </td>
@@ -577,11 +596,11 @@ const LnMaster: React.FC = () => {
                                           </tr>
                                           <tr>
                                             <td><h5>Extended Date :</h5></td>
-                                            <td><h5 className='text-primary'>{format(new Date(item.createdDate), 'MMM dd, yyyy HH:mm')}</h5></td>
+                                            <td><h5 className='text-primary'>N/A</h5></td>
                                           </tr>
                                           <tr>
                                             <td><h5>Completed Date :</h5></td>
-                                            <td><h5 className='text-primary'>{format(new Date(item.createdDate), 'MMM dd, yyyy HH:mm')}</h5></td>
+                                            <td><h5 className='text-primary'>{format(new Date(item.completedDate), 'MMM dd, yyyy HH:mm')}</h5></td>
                                           </tr>
                                         </tbody>
                                       </table>

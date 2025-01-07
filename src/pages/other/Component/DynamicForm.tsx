@@ -97,6 +97,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
     taskStatus,
     fromComponent,
     setLoading }) => {
+
     //  const [formDatas, setFormDatas] = useState<any>({});
     const [formState, setFormState] = useState<FormState>({});
     const [summary, setSummary] = useState('');
@@ -114,7 +115,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
     const location = useLocation();
 
     const navigate = useNavigate()
-
+    console.log(formData)
 
 
     // useEffect(() => {
@@ -272,7 +273,8 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
         name: string;
     }
 
-    // await axios.get(`${config.API_URL_APPLICATION}/CommonDropdown/GetMessandManagerListByProjectName?ProjectName=${projectNames}`);
+
+
 
     const [vendors, setVendors] = useState<DropdownItem[]>([]);
 
@@ -722,7 +724,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
 
 
             try {
-                const response = await fetch(`${config.API_URL_ACCOUNT}/ProcessInitiation/UpdateDoerTasks`, {
+                const response = await fetch(`${config.API_URL_ACCOUNT}/ProcessInitiation/UpdateDoerTask`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -874,7 +876,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
             const fetchBankDetails = async () => {
                 try {
                     const response = await axios.get(`${config.API_URL_ACCOUNT}/ProcessInitiation/GetMessData?EmpID=${selectedManager}`);
-                    const data = response.data.getMessDataByMessManagerEmpID[0]; // Assuming one result
+                    const data = response.data.getMessDataByMessManagerEmpID[0]; 
 
                     setBankDetails({
                         reimbursementBankAccountNumber: data.reimbursementBankAccountNumber,
@@ -1058,6 +1060,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
 
 
 
+
                 {/* {location.pathname === '/pages/ApprovalConsole' && 
                     ( */}
                 <div>
@@ -1115,7 +1118,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
 
 
 
-
+                    <MessCards data={preData} />
                     {formData && formData.inputs &&
                         <form className='side-scroll' onSubmit={(event) => handleSubmit(event, taskNumber)}>
 
