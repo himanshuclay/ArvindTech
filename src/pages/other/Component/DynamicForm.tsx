@@ -44,6 +44,7 @@ interface DynamicFormProps {
     parsedCondition: any;
     setShow: any;
     preData: any;
+    projectName: any;
     selectedTasknumber: any
     setLoading: any
     taskCommonIDRow: any
@@ -84,6 +85,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
     moduleId,
     data,
     show,
+    projectName,
     setShow,
     parsedCondition,
     preData,
@@ -270,6 +272,8 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
         name: string;
     }
 
+    // await axios.get(`${config.API_URL_APPLICATION}/CommonDropdown/GetMessandManagerListByProjectName?ProjectName=${projectNames}`);
+
     const [vendors, setVendors] = useState<DropdownItem[]>([]);
 
     useEffect(() => {
@@ -292,6 +296,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                             },
                         }
                     );
+                    console.log(response)
 
                     if (response.data.isSuccess) {
                         setVendors(response.data.dropDownLists);
@@ -481,7 +486,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
     // console.log(projectName)
 
 
-    const projectNames = 'PNC_GWALIOR';
+    const projectNames = projectName;
 
     type OptionType = { value: string; label: string };
 
@@ -717,7 +722,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
 
 
             try {
-                const response = await fetch(`${config.API_URL_ACCOUNT}/ProcessInitiation/UpdateDoerTaskss`, {
+                const response = await fetch(`${config.API_URL_ACCOUNT}/ProcessInitiation/UpdateDoerTasks`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -1263,7 +1268,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                                                             }}
                                                         />
                                                     )}
-                                                    {input.type === 'Non Negative Integer Greater Zero' && (
+                                                    {input.type === 'Positive-integer-greater-zero' && (
                                                         <input
                                                             type="text"
                                                             className="form-control"

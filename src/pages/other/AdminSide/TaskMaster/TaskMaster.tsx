@@ -721,10 +721,7 @@ const TaskMaster: React.FC = () => {
                                                                                             </div>
                                                                                         </div>
                                                                                     </>
-
                                                                                 )}
-
-
                                                                             </>
                                                                         )}
                                                                     </div>
@@ -770,6 +767,7 @@ const TaskMaster: React.FC = () => {
                     setShow={setShowJsonModal}
                     parsedCondition
                     preData
+                    projectName
                     selectedTasknumber
                     setLoading
                     taskCommonIDRow
