@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import Select, { SingleValue } from 'react-select';
-import { Container, Row, Col, Card, Form, Button } from 'react-bootstrap';
+import { Container, Row, Col, Card, Form, Button, Alert } from 'react-bootstrap';
 import config from '@/config';
 import DynamicForm from './Component/DynamicForm';
 // import 'remixicon/fonts/remixicon.css'; // Import Remix Icons
@@ -103,17 +103,17 @@ const ApprovalPage: React.FC = () => {
         const approvalStatus = approvalStatuses[task.id]?.value; // approved, rejected, or amendment
         const isApprovalConsole = task.approval_Console === "Select Approval_Console";
         let parsedTaskJson;
-  
+
         try {
           parsedTaskJson = JSON.parse(task.task_Json);
         } catch (error) {
           console.error('Error parsing task_Json:', error);
           return null;
         }
-  
+
         let updatedTaskJson = [...parsedTaskJson];
         let updatedIsCompleted = task.isCompleted;
-  
+
         if (isApprovalConsole) {
           if (approvalStatus === "rejected") {
             updatedIsCompleted = "Pending";
@@ -131,7 +131,7 @@ const ApprovalPage: React.FC = () => {
         } else {
           updatedIsCompleted = isApprovalConsole ? "Pending for Approval" : "Completed";
         }
-  
+
         const payload = {
           id: task.id,
           doerID: task.doerId,
@@ -146,11 +146,11 @@ const ApprovalPage: React.FC = () => {
           taskExpired: task.isExpired,
           updatedBy: task.createdBy,
         };
-  
+
         const response = await axios.post(`${config.API_URL_ACCOUNT}/ProcessInitiation/UpdateDoerTask`, payload);
         return response.data;
       });
-  
+
       const responses = await Promise.all(requests);
       console.log('Tasks submitted successfully:', responses);
     } catch (error) {
@@ -159,13 +159,23 @@ const ApprovalPage: React.FC = () => {
   };
 
   return (
-    <Container>
-      <h4 className="ps-2 my-4 py-2 bg-white">Approval Page</h4>
+    <>
+      <div className="d-flex bg-white p-2 my-2 justify-content-between align-items-center fs-20">
+        <span><i className="ri-file-list-line me-2"></i><span className='fw-bold test-nowrap'>Approval Page</span></span>
+
+      </div>
       {tasks.length === 0 ? (
-        <div className="text-center my-5">
-          <i className="ri-file-search-line" style={{ fontSize: '48px' }}></i>
-          <p>No Approval Request Yet</p>
-        </div>
+        <Container className="mt-5">
+          <Row className="justify-content-center">
+            <Col xs={12} md={8} lg={6}>
+              <Alert variant="info" className="text-center">
+                <h4>No Approvals Found</h4>
+                <p>You currently don't have any tasks to approve.</p>
+              </Alert>
+            </Col>
+          </Row>
+        </Container>
+
       ) : (
         tasks.map((task) => (
           <Card key={task.id} className="mb-4">
@@ -217,7 +227,7 @@ const ApprovalPage: React.FC = () => {
           parsedCondition={[]}
           preData={[]}
           selectedTasknumber={selectedTask.task_Number}
-          setLoading={() => {}}
+          setLoading={() => { }}
           taskCommonIDRow={selectedTask.taskCommonId}
           taskStatus={selectedTask.isCompleted}
           processId={selectedTask.processID}
@@ -227,7 +237,7 @@ const ApprovalPage: React.FC = () => {
           approvalConsoleInputID={selectedTask.approvalConsoleInputID}
         />
       )}
-    </Container>
+    </>
   );
 };
 

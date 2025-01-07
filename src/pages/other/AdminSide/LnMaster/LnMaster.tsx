@@ -21,8 +21,11 @@ interface LnMaster {
   roleName: string;
   taskName: string;
   problemSolver: string;
+  doerName: string;
+  approval_Console: string;
   projectIncharge: string;
   projectCoordinator: string;
+  doerNumber: string;
   projectId: string;
   condition_Json: string;
   problemSolverMobileNumber: number;
@@ -219,6 +222,16 @@ const LnMaster: React.FC = () => {
   // };
 
 
+  let conditionArray = [];
+  try {
+    if (data[0]?.condition_Json) {
+      conditionArray = JSON.parse(data[0].condition_Json);
+    }
+  } catch (error) {
+    console.error("Failed to parse condition_Json:", error);
+  }
+
+  const expiryLogic = conditionArray[0]?.expiryLogic;
 
 
 
@@ -458,13 +471,13 @@ const LnMaster: React.FC = () => {
                                           </tr>
                                           <tr>
                                             <td><h5>Doer :</h5></td>
-                                            {/* <td>
+                                            <td>
                                               <h5 className='text-primary'> {item.doerName}</h5>
-                                              {item.projectInchargeMobileNumber ?
-                                                <p className='fw-normal m-0'><a href={`tel:${item.projectInchargeMobileNumber}`}>
-                                                  <i className="ri-phone-fill"></i> {item.projectInchargeMobileNumber}</a></p> : ""
+                                              {item.doerNumber ?
+                                                <p className='fw-normal m-0'><a href={`tel:${item.doerNumber}`}>
+                                                  <i className="ri-phone-fill"></i> {item.doerNumber}</a></p> : ""
                                               }
-                                            </td> */}
+                                            </td>
                                           </tr>
                                           <tr>
                                             <td><h5>Role :</h5></td>
@@ -492,36 +505,28 @@ const LnMaster: React.FC = () => {
 
                                           <tr>
                                             <td><h5>Expiry Logic:</h5></td>
-                                            <td>
-                                              {(() => {
-                                                if (item.condition_Json.length > 0) {
-                                                  const conditionArray = JSON.parse(item.condition_Json);
-                                                  const expiryLogic = conditionArray[0]?.expiryLogic;
-                                                  return <h5 className="text-primary">{expiryLogic}</h5>;
-                                                } else {
-                                                  return <h5 className="text-danger">No Expiry Logic</h5>;
-                                                }
-                                              })()}
-                                            </td>
+                                            <td> <h5 className='text-primary'>{expiryLogic ? expiryLogic : 'N/A'}</h5></td>
                                           </tr>
 
                                           <tr>
                                             <td><h5>Approval :</h5></td>
-                                            <td><h5 className="text-primary">Yes/No</h5></td>
+                                            <td> <h5 className='text-primary'>{item.approval_Console !== null ? 'Yes' : 'No'}</h5></td>
                                           </tr>
 
-                                          <tr>
-                                            <td><h5>Approver :</h5></td>
-                                            <td><h5 className="text-primary">NA</h5></td>
-                                          </tr>
+                                          {item.approval_Console !== null &&
+                                            <tr>
+                                              <td><h5>Approver :</h5></td>
+                                              <td><h5 className='text-primary'>NA</h5>
+                                              </td>
+                                            </tr>}
                                         </tbody>
                                       </table>
                                     </Col>
 
                                   </Row>
+                                  <hr />
 
-
-                                  <Row className='taskDetailsView'>
+                                  <Row className=''>
                                     <Col lg={4}>
                                       <tr>
                                         <td> <h5 >Initiation period : </h5></td>
@@ -559,6 +564,8 @@ const LnMaster: React.FC = () => {
 
                                     </Col>
                                   </Row>
+
+                                  <hr />
 
                                   <Row>
                                     <Col lg={7}>

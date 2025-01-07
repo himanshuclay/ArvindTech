@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { Button, ButtonGroup, Table, Form, Collapse } from 'react-bootstrap';
+import { Button, ButtonGroup, Table, Form, Collapse, Pagination } from 'react-bootstrap';
 import config from '@/config';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import Select from 'react-select';
@@ -23,10 +23,13 @@ interface LnMaster {
     taskTime: string;
     taskType: string;
     roleName: string;
+    doerName: string;
+    doerNumber: number;
     taskName: string;
     problemSolver: string;
     projectIncharge: string;
     projectCoordinator: string;
+    approval_Console: string;
     projectId: string;
     condition_Json: string;
     problemSolverMobileNumber: number;
@@ -61,7 +64,9 @@ const LnMaster: React.FC = () => {
     const [show, setShow] = useState(false);
     const [manageId, setManageID] = useState<number>();
     const [expandedRow, setExpandedRow] = useState<number | null>(null); // For row expansion
-
+    const [currentPage, setCurrentPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(1);
+    const [searchTriggered, setSearchTriggered] = useState(false);
 
     const [startDate, setStartDate] = useState('');
     const [endDate, setEndDate] = useState('');
@@ -100,10 +105,8 @@ const LnMaster: React.FC = () => {
     const toggleExpandRow = (id: number) => {
         setExpandedRow(expandedRow === id ? null : id);
     };
-
-    const handleSearch = (e: any) => {
-        e.preventDefault();
-
+    const handleSearch = (e?: React.FormEvent) => {
+        if (e) e.preventDefault();
         let query = `?`;
         if (startDate) query += `StartDate=${startDate}&`;
         if (endDate) query += `EndDate=${endDate}&`;
@@ -113,10 +116,11 @@ const LnMaster: React.FC = () => {
         if (moduleID) query += `ModuleID=${moduleID}&`;
         if (taskNumberName) query += `TaskID=${taskNumberName}&`;
         if (doerName) query += `DoerID=${doerName}&`;
+        query += `PageIndex=${currentPage}`;
 
         query = query.endsWith('&') ? query.slice(0, -1) : query;
 
-        const apiUrl = `${config.API_URL_ACCOUNT}/ProcessInitiation/SearchTaskListByIDs${query}`;
+        const apiUrl = `${config.API_URL_APPLICATION}/Task/SearchTrackTaskList${query}`;
         console.log(apiUrl)
         axios.get(apiUrl, {
             headers: {
@@ -124,29 +128,44 @@ const LnMaster: React.FC = () => {
             }
         })
             .then((response) => {
-                setData(response.data.getFilterTasks)
+                setData(response.data.tasks)
+                console.log(response.data.tasks)
+                setTotalPages(Math.ceil(response.data.totalCount / 10));
             })
             .catch((error) => {
                 console.error('Error fetching data:', error);
             });
     };
 
-console.log(data)
+    console.log(data)
 
 
-    // Fetch initial data
     useEffect(() => {
+        if (searchTriggered && currentPage) {
+            handleSearch();
 
-        fetchData();
-    }, []);
+        } else {
+            fetchData();
+        }
+    }, [currentPage, searchTriggered]);
+
+    // useEffect(() => {
+    //     fetchData();
+    // }, []);
+
 
     const fetchData = async () => {
         try {
             const response = await axios.get(
-                `${config.API_URL_ACCOUNT}/ProcessInitiation/GetFilterTask?Flag=6`
+                `${config.API_URL_ACCOUNT}/ProcessInitiation/GetFilterTask?Flag=6`, {
+                params: {
+                    PageIndex: currentPage
+                }
+            }
             );
             if (response.data && response.data.isSuccess) {
                 setData(response.data.getFilterTasks || []);
+                setTotalPages(Math.ceil(response.data.totalCount / 10));
             } else {
                 console.error('API Response Error:', response.data?.message || 'Unknown error');
             }
@@ -203,13 +222,18 @@ console.log(data)
     }, [ModuleName])
 
 
-    const handleClear = () => {
+    const handleClear = async () => {
         setDoerName('');
         setTaskNumberName('');
         setProcessName('');
         setModuleID('');
         setProjectName('');
-        fetchData();
+        setEndDate('');
+        setOptions('');
+        setStartDate('');
+        setCurrentPage(1);
+        setSearchTriggered(false);
+        await fetchData();
     };
 
     const handleShow = () => setShow(true);
@@ -243,73 +267,81 @@ console.log(data)
         { value: 'Project', label: 'Project' }
     ];
 
+    let conditionArray = [];
+    try {
+        if (data[0]?.condition_Json) {
+            conditionArray = JSON.parse(data[0].condition_Json);
+        }
+    } catch (error) {
+        console.error("Failed to parse condition_Json:", error);
+    }
 
+    const expiryLogic = conditionArray[0]?.expiryLogic;
 
     return (
         <>
 
-            <div className="d-flex bg-white p-2 my-2 justify-content-between align-items-center">
-                <span><i className="ri-file-list-line me-2 text-dark fs-16"></i><span className='fw-bold text-dark fs-15'>Track Task</span></span>
+            <div className="d-flex bg-white p-2 my-2 justify-content-between align-items-center fs-20">
+                <span><i className="ri-file-list-line me-2"></i><span className='fw-bold test-nowrap'>Track Task</span></span>
+
             </div>
-            {loading ? (
-                <div className='loader-container'>
-                    <div className="loader"></div>
-                    <div className='mt-2'>Please Wait!</div>
-                </div>
-            ) : (<>
+            <div className='bg-white p-2 pb-2'>
+                <Form
+                    onSubmit={(e) => {
+                        e.preventDefault();
+                        setCurrentPage(1);
+                        setSearchTriggered(true);
+                    }}
+                >
+                    <Row>
 
+                        <Col lg={4}>
+                            <Form.Group controlId="dateRange" className="mb-3">
+                                <Form.Label>Select Date Range</Form.Label>
+                                <Flatpickr
+                                    value={[startDate, endDate]}
+                                    onChange={([start, end]) => {
+                                        if (start && end) {
+                                            const formattedStart = start.toLocaleDateString('en-CA');
+                                            const formattedEnd = end.toLocaleDateString('en-CA');
+                                            setStartDate(formattedStart);
+                                            setEndDate(formattedEnd);
 
-                <div className='bg-white p-2 pb-2'>
-                    <Form onSubmit={handleSearch}>
-                        <Row>
-
-                            <Col lg={4}>
-                                <Form.Group controlId="dateRange" className="mb-3">
-                                    <Form.Label>Select Date Range</Form.Label>
-                                    <Flatpickr
-                                        value={[startDate, endDate]}
-                                        onChange={([start, end]) => {
-                                            if (start && end) {
-                                                const formattedStart = start.toLocaleDateString('en-CA');
-                                                const formattedEnd = end.toLocaleDateString('en-CA');
-                                                setStartDate(formattedStart);
-                                                setEndDate(formattedEnd);
-
-                                            }
-                                        }}
-                                        options={{
-                                            mode: "range",
-                                            enableTime: false,
-                                            dateFormat: "Y-m-d",
-                                            time_24hr: false,
-                                        }}
-                                        placeholder=" Select Date Range "
-                                        className="form-control "
-                                    />
-                                </Form.Group>
-                            </Col>
+                                        }
+                                    }}
+                                    options={{
+                                        mode: "range",
+                                        enableTime: false,
+                                        dateFormat: "Y-m-d",
+                                        time_24hr: false,
+                                    }}
+                                    placeholder=" Select Date Range "
+                                    className="form-control "
+                                />
+                            </Form.Group>
+                        </Col>
 
 
 
-                            <Col lg={4}>
-                                <Form.Group controlId="projectName">
-                                    <Form.Label>Select Project</Form.Label>
-                                    <Select
-                                        name="projectName"
-                                        value={projectList.find(item => item.name === projectName) || null}
-                                        onChange={(selectedOption) => {
-                                            setProjectName(selectedOption ? selectedOption.name : "")
-                                        }}
-                                        options={projectList}
-                                        getOptionLabel={(item) => item.name}
-                                        getOptionValue={(item) => item.name}
-                                        isSearchable={true}
-                                        placeholder="Select Project Name"
-                                        className="h45"
-                                    />
-                                </Form.Group>
-                            </Col>
-                            {/* <Col lg={3}>
+                        <Col lg={4}>
+                            <Form.Group controlId="projectName">
+                                <Form.Label>Select Project</Form.Label>
+                                <Select
+                                    name="projectName"
+                                    value={projectList.find(item => item.name === projectName) || null}
+                                    onChange={(selectedOption) => {
+                                        setProjectName(selectedOption ? selectedOption.name : "")
+                                    }}
+                                    options={projectList}
+                                    getOptionLabel={(item) => item.name}
+                                    getOptionValue={(item) => item.name}
+                                    isSearchable={true}
+                                    placeholder="Select Project Name"
+                                    className="h45"
+                                />
+                            </Form.Group>
+                        </Col>
+                        {/* <Col lg={3}>
                                 <Form.Group controlId="ModuleName">
                                     <Form.Label>Sort  By</Form.Label>
                                     <Select
@@ -329,116 +361,125 @@ console.log(data)
                                     />
                                 </Form.Group>
                             </Col> */}
-                            <Col lg={4}>
-                                <Form.Group controlId="options">
-                                    <Form.Label>Select Any Option</Form.Label>
-                                    <Select
-                                        name="options"
-                                        options={optionsDataAccesLevel}
-                                        value={optionsDataAccesLevel.find(option => option.value === options) || null}
-                                        onChange={(selectedOption) => setOptions(selectedOption?.value || '')}
-                                        placeholder="Select Any Option"
-                                    />
-                                </Form.Group>
-                            </Col>
-                            <Col lg={3}>
-                                <Form.Group controlId="ModuleName">
-                                    <Form.Label>Select Module</Form.Label>
-                                    <Select
-                                        name="ModuleName"
-                                        value={moduleList.find(item => item.moduleID === moduleID) || null}
-                                        onChange={(selectedOption) => {
-                                            setModuleName(selectedOption ? selectedOption.moduleName : ""),
-                                                setModuleID(selectedOption ? selectedOption.moduleID : "")
+                        <Col lg={4}>
+                            <Form.Group controlId="options">
+                                <Form.Label>Select Any Option</Form.Label>
+                                <Select
+                                    name="options"
+                                    options={optionsDataAccesLevel}
+                                    value={optionsDataAccesLevel.find(option => option.value === options) || null}
+                                    onChange={(selectedOption) => setOptions(selectedOption?.value || '')}
+                                    placeholder="Select Any Option"
+                                />
+                            </Form.Group>
+                        </Col>
+                        <Col lg={3}>
+                            <Form.Group controlId="ModuleName">
+                                <Form.Label>Select Module</Form.Label>
+                                <Select
+                                    name="ModuleName"
+                                    value={moduleList.find(item => item.moduleID === moduleID) || null}
+                                    onChange={(selectedOption) => {
+                                        setModuleName(selectedOption ? selectedOption.moduleName : ""),
+                                            setModuleID(selectedOption ? selectedOption.moduleID : "")
 
-                                        }}
-                                        options={moduleList}
-                                        getOptionLabel={(item) => item.moduleName}
-                                        getOptionValue={(item) => item.moduleID}
-                                        isSearchable={true}
-                                        placeholder="Select Module Name"
-                                        className="h45"
-                                    />
-                                </Form.Group>
-                            </Col>
-                            <Col lg={3}>
-                                <Form.Group controlId="ModuleOwnerName">
-                                    <Form.Label>Select Process</Form.Label>
-                                    <Select
-                                        name="ModuleOwnerName"
-                                        value={processList.find(item => item.processID === ProcessName) || null}
-                                        onChange={(selectedOption) => setProcessName(selectedOption ? selectedOption.processID : "")}
-                                        options={processList}
-                                        getOptionLabel={(item) => item.processName}
-                                        getOptionValue={(item) => item.processID}
-                                        isSearchable={true}
-                                        placeholder="Select Process Name"
-                                        className="h45"
-                                        isDisabled={!ModuleName}
-                                    />
-                                </Form.Group>
-                            </Col>
+                                    }}
+                                    options={moduleList}
+                                    getOptionLabel={(item) => item.moduleName}
+                                    getOptionValue={(item) => item.moduleID}
+                                    isSearchable={true}
+                                    placeholder="Select Module Name"
+                                    className="h45"
+                                />
+                            </Form.Group>
+                        </Col>
+                        <Col lg={3}>
+                            <Form.Group controlId="ModuleOwnerName">
+                                <Form.Label>Select Process</Form.Label>
+                                <Select
+                                    name="ModuleOwnerName"
+                                    value={processList.find(item => item.processID === ProcessName) || null}
+                                    onChange={(selectedOption) => setProcessName(selectedOption ? selectedOption.processID : "")}
+                                    options={processList}
+                                    getOptionLabel={(item) => item.processName}
+                                    getOptionValue={(item) => item.processID}
+                                    isSearchable={true}
+                                    placeholder="Select Process Name"
+                                    className="h45"
+                                    isDisabled={!ModuleName}
+                                />
+                            </Form.Group>
+                        </Col>
 
-                            <Col lg={3} className="">
-                                <Form.Group controlId="searchTaskNumber">
-                                    <Form.Label>Select Task </Form.Label>
-                                    <Select
-                                        name="searchTaskNumber"
-                                        value={taskNumberList.find(item => item.taskID === taskNumberName) || null}
-                                        onChange={(selectedOption) => setTaskNumberName(selectedOption ? selectedOption.taskID : "")}
-                                        options={taskNumberList}
-                                        getOptionLabel={(item) => item.taskID}
-                                        getOptionValue={(item) => item.taskID}
-                                        isSearchable={true}
-                                        placeholder="Select Task Number"
-                                        className="h45"
-                                    />
-                                </Form.Group>
-                            </Col>
-                            <Col lg={3} className="">
-                                <Form.Group controlId="searchDoerName">
-                                    <Form.Label>Select Doer</Form.Label>
-                                    <Select
-                                        name="searchDoerName"
-                                        value={doerList.find(item => item.empID === doerName) || null}
-                                        onChange={(selectedOption) => setDoerName(selectedOption ? selectedOption.empID : "")}
-                                        options={doerList}
-                                        getOptionLabel={(item) => item.empName}
-                                        getOptionValue={(item) => item.empID}
-                                        isSearchable={true}
-                                        placeholder="Select Doer Name"
-                                        className="h45"
-                                    />
-                                </Form.Group>
-                            </Col>
-
-
-                            <Col></Col>
-
-                            <Col lg={3} className="align-items-end d-flex justify-content-end mt-2">
-                                <ButtonGroup aria-label="Basic example" className="w-100">
-                                    <Button type="button" variant="primary" onClick={handleClear}>
-                                        <i className="ri-loop-left-line"></i>
-                                    </Button>
-                                    &nbsp;
-                                    <Button type="submit" variant="primary">
-                                        Search
-                                    </Button>
-                                </ButtonGroup>
-                            </Col>
-                        </Row>
-                    </Form>
+                        <Col lg={3} className="">
+                            <Form.Group controlId="searchTaskNumber">
+                                <Form.Label>Select Task </Form.Label>
+                                <Select
+                                    name="searchTaskNumber"
+                                    value={taskNumberList.find(item => item.taskID === taskNumberName) || null}
+                                    onChange={(selectedOption) => setTaskNumberName(selectedOption ? selectedOption.taskID : "")}
+                                    options={taskNumberList}
+                                    getOptionLabel={(item) => item.taskID}
+                                    getOptionValue={(item) => item.taskID}
+                                    isSearchable={true}
+                                    placeholder="Select Task Number"
+                                    className="h45"
+                                />
+                            </Form.Group>
+                        </Col>
+                        <Col lg={3} className="">
+                            <Form.Group controlId="searchDoerName">
+                                <Form.Label>Select Doer</Form.Label>
+                                <Select
+                                    name="searchDoerName"
+                                    value={doerList.find(item => item.empID === doerName) || null}
+                                    onChange={(selectedOption) => setDoerName(selectedOption ? selectedOption.empID : "")}
+                                    options={doerList}
+                                    getOptionLabel={(item) => item.empName}
+                                    getOptionValue={(item) => item.empID}
+                                    isSearchable={true}
+                                    placeholder="Select Doer Name"
+                                    className="h45"
+                                />
+                            </Form.Group>
+                        </Col>
 
 
+                        <Col></Col>
 
-                    <Row className='mt-3'>
-                        <div className="d-flex justify-content-end bg-light p-1">
-                            <div className="app-search d-none d-lg-block me-4">
-
-                            </div>
-                        </div>
+                        <Col lg={3} className="align-items-end d-flex justify-content-end mt-2">
+                            <ButtonGroup aria-label="Basic example" className="w-100">
+                                <Button type="button" variant="primary" onClick={handleClear}>
+                                    <i className="ri-loop-left-line"></i>
+                                </Button>
+                                &nbsp;
+                                <Button type="submit" variant="primary">
+                                    Search
+                                </Button>
+                            </ButtonGroup>
+                        </Col>
                     </Row>
+                </Form>
+
+
+
+                <Row className='mt-3'>
+                    <div className="d-flex justify-content-end bg-light p-1">
+                        <div className="app-search d-none d-lg-block me-4">
+
+                        </div>
+                    </div>
+                </Row>
+            </div>
+            {loading ? (
+                <div className='loader-container'>
+                    <div className="loader"></div>
+                    <div className='mt-2'>Please Wait!</div>
                 </div>
+            ) : (<>
+
+
+
 
                 <div className="overflow-auto text-nowrap">
                     {!data ? (
@@ -490,7 +531,7 @@ console.log(data)
                                 </thead>
                                 <tbody>
                                     {data.length > 0 ? (
-                                        data.map((item, index) => (
+                                        data.slice(0, 10).map((item, index) => (
                                             <>
                                                 <tr key={item.id}>
                                                     <td>{index + 1}</td>
@@ -560,13 +601,13 @@ console.log(data)
                                                                                     </tr>
                                                                                     <tr>
                                                                                         <td><h5>Doer :</h5></td>
-                                                                                        {/* <td>
-                                              <h5 className='text-primary'> {item.doerName}</h5>
-                                              {item.projectInchargeMobileNumber ?
-                                                <p className='fw-normal m-0'><a href={`tel:${item.projectInchargeMobileNumber}`}>
-                                                  <i className="ri-phone-fill"></i> {item.projectInchargeMobileNumber}</a></p> : ""
-                                              }
-                                            </td> */}
+                                                                                        <td>
+                                                                                            <h5 className='text-primary'> {item.doerName}</h5>
+                                                                                            {item.doerNumber ?
+                                                                                                <p className='fw-normal m-0'><a href={`tel:${item.doerNumber}`}>
+                                                                                                    <i className="ri-phone-fill"></i> {item.doerNumber}</a></p> : ""
+                                                                                            }
+                                                                                        </td>
                                                                                     </tr>
                                                                                     <tr>
                                                                                         <td><h5>Role :</h5></td>
@@ -594,36 +635,28 @@ console.log(data)
 
                                                                                     <tr>
                                                                                         <td><h5>Expiry Logic:</h5></td>
-                                                                                        <td>
-                                                                                            {(() => {
-                                                                                                if (item.condition_Json.length > 0) {
-                                                                                                    const conditionArray = JSON.parse(item.condition_Json);
-                                                                                                    const expiryLogic = conditionArray[0]?.expiryLogic;
-                                                                                                    return <h5 className="text-primary">{expiryLogic}</h5>;
-                                                                                                } else {
-                                                                                                    return <h5 className="text-danger">No Expiry Logic</h5>;
-                                                                                                }
-                                                                                            })()}
-                                                                                        </td>
+                                                                                        <td> <h5 className='text-primary'>{expiryLogic ? expiryLogic : 'N/A'}</h5></td>
                                                                                     </tr>
 
                                                                                     <tr>
                                                                                         <td><h5>Approval :</h5></td>
-                                                                                        <td><h5 className="text-primary">Yes/No</h5></td>
+                                                                                        <td> <h5 className='text-primary'>{item.approval_Console !== null ? 'Yes' : 'No'}</h5></td>
                                                                                     </tr>
 
-                                                                                    <tr>
-                                                                                        <td><h5>Approver :</h5></td>
-                                                                                        <td><h5 className="text-primary">NA</h5></td>
-                                                                                    </tr>
+                                                                                    {item.approval_Console !== null &&
+                                                                                        <tr>
+                                                                                            <td><h5>Approver :</h5></td>
+                                                                                            <td><h5 className='text-primary'>NA</h5>
+                                                                                            </td>
+                                                                                        </tr>}
                                                                                 </tbody>
                                                                             </table>
                                                                         </Col>
 
                                                                     </Row>
 
-
-                                                                    <Row className='taskDetailsView'>
+                                                                    <hr />
+                                                                    <Row className=''>
                                                                         <Col lg={4}>
                                                                             <tr>
                                                                                 <td> <h5 >Initiation period : </h5></td>
@@ -661,6 +694,7 @@ console.log(data)
 
                                                                         </Col>
                                                                     </Row>
+                                                                    <hr />
 
                                                                     <Row>
                                                                         <Col lg={7}>
@@ -734,7 +768,15 @@ console.log(data)
                     )}
                 </div>
             </>)}
-
+            <div className="d-flex justify-content-center align-items-center bg-white w-20 rounded-5 m-auto py-1 pb-1 my-2 pagination-rounded">
+                <Pagination >
+                    <Pagination.First onClick={() => setCurrentPage(1)} disabled={currentPage === 1} />
+                    <Pagination.Prev onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))} disabled={currentPage === 1} />
+                    <Pagination.Item active>{currentPage}</Pagination.Item>
+                    <Pagination.Next onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))} disabled={currentPage === totalPages} />
+                    <Pagination.Last onClick={() => setCurrentPage(totalPages)} disabled={currentPage === totalPages} />
+                </Pagination>
+            </div>
             <TrackPopUpView show={show} setShow={setShow} manageId={manageId} />
         </>
     );

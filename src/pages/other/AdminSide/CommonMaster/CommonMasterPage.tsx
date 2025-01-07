@@ -35,7 +35,7 @@ const DesignationMaster = () => {
                                 <th> <i className="ri-settings-2-line"></i> Master</th>
                                 <th><i className="ri-eye-line"></i> View</th>
                                 {(role === 'Admin' || role === 'DME') && (
-                                    <th><i className="ri-tools-line"></i> Action</th>)}
+                                    <th className='text-center'><i className="ri-tools-line"></i> Action</th>)}
                             </tr>
 
                         </thead>
@@ -47,7 +47,7 @@ const DesignationMaster = () => {
                                 <td>Department Master</td>
                                 <td> <Link to='/pages/departmentMaster'> <Button> <i className="ri-eye-line"></i>  </Button> </Link> </td>
                                 {(role === 'Admin' || role === 'DME') && (
-                                    <td> <Link to='/pages/departmentMasterinsert'> <Button> Add Data </Button> </Link> </td>)}
+                                    <td className='text-center'> <Link to='/pages/departmentMasterinsert'> <Button> Add Data </Button> </Link> </td>)}
 
 
                             </tr>
@@ -57,7 +57,7 @@ const DesignationMaster = () => {
                                 <td>Filling Frequency</td>
                                 <td> <Link to='/pages/FillingFrequencyMaster'> <Button> <i className="ri-eye-line"></i>  </Button> </Link> </td>
                                 {(role === 'Admin' || role === 'DME') && (
-                                    <td> <Link to='/pages/FillingFrequencyMasterinsert'> <Button> Add Data </Button> </Link> </td>)}
+                                    <td className='text-center'><Link to='/pages/FillingFrequencyMasterinsert'> <Button> Add Data </Button> </Link> </td>)}
 
 
 
@@ -68,7 +68,7 @@ const DesignationMaster = () => {
                                 <td>Management Contract Master</td>
                                 <td> <Link to='/pages/ManagementContractMaster'> <Button> <i className="ri-eye-line"></i>  </Button> </Link> </td>
                                 {(role === 'Admin' || role === 'DME') && (
-                                    <td> <Link to='/pages/ManagementContractMasterinsert'> <Button> Add Data </Button> </Link> </td>)}
+                                    <td className='text-center'> <Link to='/pages/ManagementContractMasterinsert'> <Button> Add Data </Button> </Link> </td>)}
 
                             </tr>
                             <tr>
@@ -77,7 +77,7 @@ const DesignationMaster = () => {
                                 <td>Project Type Master</td>
                                 <td> <Link to='/pages/ProjectTypeMaster'> <Button> <i className="ri-eye-line"></i>  </Button> </Link> </td>
                                 {(role === 'Admin' || role === 'DME') && (
-                                    <td> <Link to='/pages/ProjectTypeMasterinsert'> <Button> Add Data </Button> </Link> </td>)}
+                                    <td className='text-center'> <Link to='/pages/ProjectTypeMasterinsert'> <Button> Add Data </Button> </Link> </td>)}
 
 
                             </tr>

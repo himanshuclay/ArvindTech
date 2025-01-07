@@ -20,6 +20,7 @@ interface ProjectAssignListWithDoer {
   roleId: string;
   doerId: string;
   doerName: string;
+  doerNumber: string;
   task_Json: string;
   task_Number: string;
   task_Status: number;
@@ -382,8 +383,16 @@ const ProjectAssignTable: React.FC = () => {
     }
   };
 
-  const conditionArray = JSON.parse(data[0].condition_Json);
-  const expiryLogic = conditionArray[0].expiryLogic;
+  let conditionArray = [];
+  try {
+    if (data[0]?.condition_Json) {
+      conditionArray = JSON.parse(data[0].condition_Json);
+    }
+  } catch (error) {
+    console.error("Failed to parse condition_Json:", error);
+  }
+
+  const expiryLogic = conditionArray[0]?.expiryLogic;
 
   const isTimeExtended = (createdDate: string) => {
     const created = new Date(createdDate);
@@ -396,7 +405,9 @@ const ProjectAssignTable: React.FC = () => {
   return (
 
     <>
-      <div className="d-flex p-2 bg-white mt-2 mb-2 rounded shadow"><h5 className='mb-0'>Pending Task</h5></div>
+      <div className="d-flex bg-white p-2 my-2 justify-content-between align-items-center fs-20">
+        <span><i className="ri-file-list-line me-2"></i><span className='fw-bold test-nowrap'>Pending Task</span></span>
+      </div>
       <div className='overflow-auto'>
         {data.length === 0 ? (
           <Container className="mt-5">
@@ -420,7 +431,6 @@ const ProjectAssignTable: React.FC = () => {
                       <tr
                         {...provided.droppableProps} ref={provided.innerRef as React.Ref<HTMLTableRowElement>}
                         className='text-nowrap'>
-                        {/* <th><i className="ri-list-ordered-2"></i>Task Name</th> */}
                         {columns.filter(col => col.visible).map((column, index) => (
                           <Draggable key={column.id} draggableId={column.id} index={index}>
                             {(provided) => (
@@ -465,7 +475,6 @@ const ProjectAssignTable: React.FC = () => {
                           {columns.filter(col => col.visible).map((col) => (
                             <td key={col.id}
                               className={
-                                // Add class based on column id
                                 col.id === 'taskName' ? 'fw-bold fs-14 text-dark truncated-text' :
                                   col.id === 'task_Number' ? 'fw-bold fs-14 text-dark pl-3' :
                                     ''
@@ -535,7 +544,7 @@ const ProjectAssignTable: React.FC = () => {
                                           </tr>
                                           <tr>
                                             <td><h5>Link :</h5></td>
-                                            <td> <h5 className='text-primary'>NA</h5></td>
+                                            <td> <h5 className='text-primary'>N/A</h5></td>
                                           </tr>
                                           <tr>
                                             <td><h5>Process :</h5></td>
@@ -549,9 +558,9 @@ const ProjectAssignTable: React.FC = () => {
                                             <td><h5>Doer :</h5></td>
                                             <td>
                                               <h5 className='text-primary'> {item.doerName}</h5>
-                                              {item.projectInchargeMobileNumber ?
-                                                <p className='fw-normal m-0'><a href={`tel:${item.projectInchargeMobileNumber}`}>
-                                                  <i className="ri-phone-fill"></i> {item.projectInchargeMobileNumber}</a></p> : ""
+                                              {item.doerNumber ?
+                                                <p className='fw-normal m-0'><a href={`tel:${item.doerNumber}`}>
+                                                  <i className="ri-phone-fill"></i> {item.doerNumber}</a></p> : ""
                                               }
                                             </td>
                                           </tr>
@@ -576,7 +585,7 @@ const ProjectAssignTable: React.FC = () => {
                                           </tr>
                                           <tr>
                                             <td><h5>Expiry Logic :</h5></td>
-                                            <td> <h5 className='text-primary'>{expiryLogic}</h5></td>
+                                            <td> <h5 className='text-primary'>{expiryLogic ? expiryLogic : 'N/A'}</h5></td>
                                           </tr>
                                           <tr>
                                             <td><h5>Approval :</h5></td>
@@ -645,11 +654,11 @@ const ProjectAssignTable: React.FC = () => {
                                           </tr>
                                           <tr>
                                             <td><h5>Extended Date :</h5></td>
-                                            <td><h5 className='text-primary'>{format(new Date(item.createdDate), 'MMM dd, yyyy HH:mm')}</h5></td>
+                                            <td><h5 className='text-primary'>N/A</h5></td>
                                           </tr>
                                           <tr>
                                             <td><h5>Completed Date :</h5></td>
-                                            <td><h5 className='text-primary'>{format(new Date(item.createdDate), 'MMM dd, yyyy HH:mm')}</h5></td>
+                                            <td><h5 className='text-primary'>N/A</h5></td>
                                           </tr>
                                         </tbody>
                                       </table>

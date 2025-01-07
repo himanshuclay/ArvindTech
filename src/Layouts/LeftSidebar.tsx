@@ -19,7 +19,7 @@ const getFilteredMenuItems = () => {
       icon: 'ri-dashboard-3-line',
       badge: {
         variant: 'success',
-        text: '9+',
+        text: '',
       },
     },
     {

@@ -684,7 +684,7 @@ const EmployeeMaster = () => {
                                                                 )}
                                                         </td>
                                                     ))}
-                                                    <td><Button variant='primary' className='text-white icon-padding' onClick={() => handleViewEdit(item.id)}>  <i className="ri-eye-line fs-18"></i></Button></td>
+                                                    <td className='text-center'><Button variant='primary' className='text-white icon-padding' onClick={() => handleViewEdit(item.id)}>  <i className="ri-eye-line fs-18"></i></Button></td>
 
                                                     {(role === 'Admin' || role === 'DME') && (
                                                         <td><Link to={`/pages/EmployeeMasterinsert/${item.id}`}>

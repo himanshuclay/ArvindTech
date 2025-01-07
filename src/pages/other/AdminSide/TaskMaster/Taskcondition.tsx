@@ -68,6 +68,8 @@ interface Option {
 
 interface FormData {
     isExpirable: any; // 0 or 1
+    expiryLogic: any; // 0 or 1
+    expirationTime: any; // 0 or 1
     expirationDate: string | null; // ISO 8601 string or null
     sundayLogic: string | null; // Selected value for Sunday logic
     taskSelections: {
@@ -383,6 +385,8 @@ const TaskCondition: React.FC<ProcessCanvasProps> = ({ show, setShow, taskID, ta
             ...singleData[0],
             condition_Json: JSON.stringify(updatedConditionJsonFormatted),
         };
+
+
         toast.dismiss();
         toast.warn(
             ({ closeToast }) => (
@@ -407,15 +411,15 @@ const TaskCondition: React.FC<ProcessCanvasProps> = ({ show, setShow, taskID, ta
         );
     };
 
+
+
     const submitPayload = async (payload: any) => {
         try {
             const apiUrl = `${config.API_URL_ACCOUNT}/ProcessTaskMaster/InsertUpdateProcessTaskandDoer`;
             const response = await axios.post(apiUrl, payload);
-
-            console.log(payload)
             if (response.status === 200) {
-                const conditionData = parseConditionJson(singleData);
-                setParseConditionData(conditionData);
+
+                fetchSingleDataById(taskID)
                 toast.success("Condition is set successfully!");
             } else {
                 toast.error(response.data.message || "Failed to process request");
@@ -481,11 +485,13 @@ const TaskCondition: React.FC<ProcessCanvasProps> = ({ show, setShow, taskID, ta
                                     <span><strong>Is Expirable:</strong> {parseConditionData && parseConditionData[0]?.isExpirable === 1 ? "Yes" : "No"}</span>
 
                                 </li>
-                                {parseConditionData[0]?.isExpirable === 1 && (
-                                    <li className="list-group-item">
-                                        <strong>Expiration Date:</strong> {parseConditionData[0]?.expirationDate || "N/A"}
-                                    </li>
-                                )}
+                                {/* {parseConditionData[0]?.isExpirable === 1 && ( */}
+                                <li className="list-group-item">
+                                    <strong>Expiration Time:</strong> {parseConditionData[0]?.expiryLogic === 'Expire On Defined Time' ? `${parseConditionData[0]?.expirationTime} hr` : parseConditionData[0]?.expiryLogic ? 'Expire On Next Task Initiation' : 'N/A'}
+
+
+                                </li>
+                                {/* )} */}
                                 <li className="list-group-item">
                                     <strong>Sunday Logic:</strong> {parseConditionData[0]?.sundayLogic || "N/A"}
                                 </li>
@@ -576,7 +582,7 @@ const TaskCondition: React.FC<ProcessCanvasProps> = ({ show, setShow, taskID, ta
                                                 ) || null}
                                                 onChange={(selectedOption) => {
                                                     setExpiryLogic(selectedOption?.value);
-                                                    setExpirationTime(''); // Reset expiration time
+                                                    setExpirationTime('');
                                                 }}
                                                 placeholder="Select expiry Logic"
                                                 required
@@ -591,6 +597,7 @@ const TaskCondition: React.FC<ProcessCanvasProps> = ({ show, setShow, taskID, ta
                                                     value={expirationTime}
                                                     onChange={(e) => setExpirationTime(e.target.value)}
                                                     placeholder='Enter Time in Hours'
+                                                    required
                                                 />
                                             </Form.Group>
                                         }

@@ -546,9 +546,11 @@ const ProjectMaster = () => {
                                                     {columns.filter(col => col.visible).map((col) => (
                                                         <td key={col.id}
                                                             className={
-                                                                (col.id === 'status' && item[col.id] === "Enabled") ? 'task1' :
-                                                                    (col.id === 'status' && item[col.id] === "Disabled") ? 'task4' :
-                                                                        ''
+                                                             
+                                                                    (col.id === 'status' && item[col.id] === "Enabled") ? 'task1 ' :
+                                                                        (col.id === 'status' && item[col.id] === "Disabled") ? 'task4' :
+
+                                                                            ''
                                                             }
                                                         >
                                                             <div>
