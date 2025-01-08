@@ -763,6 +763,7 @@ const TaskMaster: React.FC = () => {
                     formData={JSON.parse(selectedJson)}
                     taskNumber
                     data
+                    taskName
                     show={showJsonModal}
                     setShow={setShowJsonModal}
                     parsedCondition

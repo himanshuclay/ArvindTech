@@ -252,7 +252,7 @@ const LnMaster: React.FC = () => {
         const endDate = new Date(startDate);
         endDate.setDate(startDate.getDate() + 6);
 
-        return `${format(startDate, "dd MMM yyyy")} to ${format(endDate, "dd MMM yyyy")}`;
+        return `${format(startDate, "dd-MMM-yyyy")} to ${format(endDate, "dd-MMM-yyyy")}`;
     };
 
     // const formatDate = (dateString: string): string => {
@@ -691,7 +691,7 @@ const LnMaster: React.FC = () => {
                                                                                 <tbody>
                                                                                     <tr>
                                                                                         <td><h5>Created Date :</h5></td>
-                                                                                        <td><h5 className='text-primary'>{format(new Date(item.createdDate), 'MMM dd, yyyy HH:mm')}</h5></td>
+                                                                                        <td><h5 className='text-primary'>{item.createdDate && format(new Date(item.createdDate), 'dd-MMM-yyyy HH:mm')}</h5></td>
                                                                                     </tr>
                                                                                     <tr>
                                                                                         <td><h5>Extended Date :</h5></td>
@@ -699,7 +699,7 @@ const LnMaster: React.FC = () => {
                                                                                     </tr>
                                                                                     <tr>
                                                                                         <td><h5>Completed Date :</h5></td>
-                                                                                        <td><h5 className='text-primary'>{format(new Date(item.completedDate), 'MMM dd, yyyy HH:mm')}</h5></td>
+                                                                                        <td><h5 className='text-primary'>{item.completedDate && format(new Date(item.completedDate), 'dd-MMM-yyyy HH:mm')}</h5></td>
                                                                                     </tr>
                                                                                 </tbody>
                                                                             </table>
