@@ -7,6 +7,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import config from '@/config';
 import Select, { SingleValue } from 'react-select';
 import MessCards from './Previous&Completed';
+import { toast } from 'react-toastify';
 
 interface Option {
     id: string;
@@ -456,6 +457,50 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
 
     const [approvalStatus, setApprovalStatus] = useState<OptionType | null>(null);
 
+
+    const submitMessData = async (event: React.FormEvent) => {
+        event.preventDefault(); // Prevent page refresh
+
+        const payload = {
+            managerName: bankDetails.managerName,
+            reimbursementBankName: bankDetails.reimbursementBankName,
+            reimbursementBankAccountNumber: bankDetails.reimbursementBankAccountNumber,
+            reimbursementBankIfsc: bankDetails.reimbursementBankIfsc,
+            reimbursementBranchName: bankDetails.reimbursementBranchName,
+            userUpdatedMobileNumber: bankDetails.userUpdateMobileNumber,
+            empID: selectedManager, // Replace with actual employee ID if available
+        };
+
+        console.log('Payload:', payload); // Log the payload to the console
+
+        try {
+            const response = await fetch(
+                `${config.API_URL_ACCOUNT}/ProcessInitiation/UpdateMessData`,
+                {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': '*/*',
+                    },
+                    body: JSON.stringify(payload),
+                }
+            );
+
+            if (!response.ok) {
+                throw new Error(`Error: ${response.statusText}`);
+            }
+
+            const data = await response.json();
+            console.log('Response Data:', data);
+            toast.success('Mess Data submitted successfully!');
+        } catch (error) {
+            console.error('Error submitting data:', error);
+            alert('Failed to submit data. Please try again.');
+        }
+    };
+
+
+
     // console.log("this is my condition", parsedCondition)
 
     // Handle change in input values
@@ -507,12 +552,14 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                     } else {
                         console.error('parsedCondition is not an array:', parsedCondition);
                     }
+                    console.log(selectedOption.id)
 
-                    setShowMessManagerSelect(selectedOption.id === '11-1');
                 } else {
                     console.warn(`No option found for the value: ${value}`);
                 }
             }
+            setShowMessManagerSelect(value === "11-1");
+
 
             // Handle multiselect input type
             if (input.type === 'multiselect') {
@@ -793,8 +840,9 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
         if (selectedManager) {
             const fetchBankDetails = async () => {
                 try {
-                    const response = await axios.get(`${config.API_URL_ACCOUNT}/ProcessInitiation/GetMessData?EmpID=${selectedManager}`);
+                    const response = await axios.get(`${config.API_URL_ACCOUNT}/ProcessInitiation/GetMessDataByMessManagerEmpID?EmpID=${selectedManager}`);
                     const data = response.data.getMessDataByMessManagerEmpID[0];
+                    console.log(response)
 
                     setBankDetails({
                         reimbursementBankAccountNumber: data.reimbursementBankAccountNumber,
@@ -1391,86 +1439,97 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                                         <div className="modal-overlay">
                                             <div className="modal-content">
                                                 <h4>Bank Details</h4>
-                                                <form className='form-group row'>
+                                                <form
+                                                    className="form-group row"
+                                                >
                                                     <div className="mt-3 col-6">
                                                         <label>Reimbursement Account</label>
                                                         <input
-                                                            className='form-control'
+                                                            className="form-control"
                                                             type="text"
-                                                            name="reimbursementBankAccountNumber" // Name for state update
+                                                            name="reimbursementBankAccountNumber"
                                                             value={bankDetails.reimbursementBankAccountNumber}
                                                             placeholder="Enter account number"
-                                                            onChange={handleInputChange} // Handle changes in input
+                                                            onChange={handleInputChange}
                                                         />
                                                     </div>
 
                                                     <div className="mt-3 col-6">
                                                         <label>Reimbursement Bank</label>
                                                         <input
-                                                            className='form-control'
+                                                            className="form-control"
                                                             type="text"
-                                                            name="reimbursementBankName" // Name for state update
+                                                            name="reimbursementBankName"
                                                             value={bankDetails.reimbursementBankName}
                                                             placeholder="Enter bank name"
-                                                            onChange={handleInputChange} // Handle changes in input
+                                                            onChange={handleInputChange}
                                                         />
                                                     </div>
 
                                                     <div className="mt-3 col-6">
                                                         <label>Reimbursement Bank Branch</label>
                                                         <input
-                                                            className='form-control'
+                                                            className="form-control"
                                                             type="text"
-                                                            name="reimbursementBranchName" // Name for state update
+                                                            name="reimbursementBranchName"
                                                             value={bankDetails.reimbursementBranchName}
                                                             placeholder="Enter branch name"
-                                                            onChange={handleInputChange} // Handle changes in input
+                                                            onChange={handleInputChange}
                                                         />
                                                     </div>
 
                                                     <div className="mt-3 col-6">
                                                         <label>Reimbursement IFSC Code</label>
                                                         <input
-                                                            className='form-control'
+                                                            className="form-control"
                                                             type="text"
-                                                            name="reimbursementBankIfsc" // Name for state update
+                                                            name="reimbursementBankIfsc"
                                                             value={bankDetails.reimbursementBankIfsc}
                                                             placeholder="Enter IFSC code"
-                                                            onChange={handleInputChange} // Handle changes in input
+                                                            onChange={handleInputChange}
                                                         />
                                                     </div>
 
                                                     <div className="mt-3 col-6">
                                                         <label>Mess Manager</label>
                                                         <input
-                                                            className='form-control'
+                                                            className="form-control"
                                                             type="text"
-                                                            name="managerName" // Name for state update
+                                                            name="managerName"
                                                             value={bankDetails.managerName}
                                                             placeholder="Enter manager name"
-                                                            onChange={handleInputChange} // Handle changes in input
+                                                            onChange={handleInputChange}
                                                         />
                                                     </div>
 
                                                     <div className="mt-3 col-6">
                                                         <label>Mess Manager Mobile Number</label>
                                                         <input
-                                                            className='form-control'
+                                                            className="form-control"
                                                             type="text"
-                                                            name="userUpdateMobileNumber" // Name for state update
+                                                            name="userUpdateMobileNumber"
                                                             value={bankDetails.userUpdateMobileNumber}
                                                             placeholder="Enter mobile number"
-                                                            onChange={handleInputChange} // Handle changes in input
+                                                            onChange={handleInputChange}
                                                         />
                                                     </div>
 
                                                     <div className="modal-buttons mt-3 d-flex justify-content-end">
-                                                        <button className='btn btn-primary' type="button" onClick={handleClose2}>Close</button>
+                                                        <button className="btn btn-secondary" type="button" onClick={handleClose2}>
+                                                            Close
+                                                        </button>
+                                                        <button
+                                                            className="btn btn-primary ms-2"
+                                                            type="submit"
+                                                            onClick={submitMessData}>
+                                                            Submit
+                                                        </button>
                                                     </div>
                                                 </form>
                                             </div>
                                         </div>
                                     )}
+
                                     {/* <div className="form-group mb-2">
                                     <label htmlFor="taskSummary">Comments</label>
                                     <input
