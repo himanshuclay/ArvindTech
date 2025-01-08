@@ -1,4 +1,4 @@
-import { Offcanvas, Row, Col, Card, Container, Alert } from 'react-bootstrap';
+import { Offcanvas, Row, Col, Container, Alert } from 'react-bootstrap';
 import axios from "axios";
 import config from "@/config";
 import { useEffect, useState } from "react";

@@ -568,9 +568,10 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
 
     const handleSubmit = async (event: React.FormEvent, taskNumber: string) => {
         event.preventDefault();
-        if (processId === 'ACC.01') {
-            saveDataToLocalStorage();
+        {
+            processId === "ACC.01" && saveDataToLocalStorage();
         }
+
         const finalData = JSON.parse(localStorage.getItem(localStorageKey) ?? '[]');
         localStorage.removeItem(localStorageKey);
         console.log('Final Submitted Data:', finalData);

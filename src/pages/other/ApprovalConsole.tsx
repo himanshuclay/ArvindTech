@@ -223,6 +223,7 @@ const ApprovalPage: React.FC = () => {
           taskNumber={selectedTask.task_Number}
           data={tasks}
           show={show}
+          taskName
           setShow={setShow}
           parsedCondition={[]}
           preData={[]}
@@ -235,6 +236,8 @@ const ApprovalPage: React.FC = () => {
           ProcessInitiationID={selectedTask.id}
           approval_Console={selectedTask.approval_Console}
           approvalConsoleInputID={selectedTask.approvalConsoleInputID}
+          projectName
+
         />
       )}
     </>

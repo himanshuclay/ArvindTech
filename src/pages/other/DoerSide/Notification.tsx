@@ -89,7 +89,6 @@ const ProjectAssignTable: React.FC = () => {
   const [selectedTasknumber, setSelectedTasknumber] = useState<string>('');
   const [singleDataById, setSingleDataById] = useState<ProjectAssignListWithDoer[]>([]);
   const [taskCommonIDRow, setTaskCommonIdRow] = useState<number | null>(null);
-  // const [formState, setFormState] = useState<any>({});
   const [show, setShow] = useState(false);
   const [showView, setShowView] = useState(false);
   const [manageId, setManageID] = useState<number>();
@@ -298,12 +297,24 @@ const ProjectAssignTable: React.FC = () => {
     }
   };
 
+
+
+  // useEffect(() => {
+
+
+  //   if (taskCommonId) {
+  //     fetchPreData(taskCommonId);
+  //   }
+  // }, [taskCommonId]);
+
+  // console.log(preData)
+
   const formatPeriod = (createdDate: string): string => {
     const startDate = new Date(createdDate);
     const endDate = new Date(startDate);
     endDate.setDate(startDate.getDate() + 6); // Add 7 days to the start date
 
-    return `${format(startDate, "dd MMM yyyy")} to ${format(endDate, "dd MMM yyyy")}`;
+    return `${format(startDate, "dd-MMM-yyyy")} to ${format(endDate, "dd-MMM-yyyy")}`;
   };
 
 
@@ -355,7 +366,6 @@ const ProjectAssignTable: React.FC = () => {
   const handleEdit = (taskCommonId: number) => {
     setTaskCommonIdRow(taskCommonId);
     fetchPreData(taskCommonId);
-    // Set the task common ID
     handleShow();
     if (taskCommonId) {
       fetchSingleDataById(taskCommonId);
@@ -398,7 +408,7 @@ const ProjectAssignTable: React.FC = () => {
     const year = plannedDate.getFullYear();
     const hours = String(plannedDate.getHours()).padStart(2, '0');
     const minutes = String(plannedDate.getMinutes()).padStart(2, '0');
-    return `${month} ${day}, ${year} ${hours}:${minutes}`;
+    return `${day}-${month}-${year} ${hours}:${minutes}`;
   }
 
 
@@ -477,19 +487,21 @@ const ProjectAssignTable: React.FC = () => {
                               className={
                                 col.id === 'taskName' ? 'fw-bold fs-14 text-dark truncated-text' :
                                   col.id === 'task_Number' ? 'fw-bold fs-14 text-dark pl-3' :
-                                    ''
+                                    col.id === 'planDate' ? 'text-nowrap' :
+                                      ''
                               }
                             >
                               <div className=''>
 
-                                {col.id === 'planDate' ? (
-                                  <td>
-                                    {item.task_Number === 'ACC.01.T1' ? calculatePlannedDate(item.createdDate) : item.planDate}
-                                    {/* {item.task_Json} */}
-                                  </td>
-                                ) :
-                                  (<>{item[col.id as keyof ProjectAssignListWithDoer]}</>
-                                  )}
+                                {
+                                  col.id === 'planDate' ? (
+                                    <td>
+                                      {item.task_Number === 'ACC.01.T1' ? calculatePlannedDate(item.createdDate) : item.planDate}
+                                      {/* {item.task_Json} */}
+                                    </td>
+                                  ) :
+                                    (<>{item[col.id as keyof ProjectAssignListWithDoer]}</>
+                                    )}
 
                               </div>
                             </td>
@@ -549,7 +561,7 @@ const ProjectAssignTable: React.FC = () => {
                                           </tr>
                                           <tr>
                                             <td><h5>Link :</h5></td>
-                                            <td> <h5 className='text-primary'>N/A</h5></td>
+                                            <td> <h5 className='text-primary'>SOP (3) / Checklist / Training Video / Office Order (4) / Process Flowchart</h5></td>
                                           </tr>
                                           <tr>
                                             <td><h5>Process :</h5></td>
@@ -652,7 +664,7 @@ const ProjectAssignTable: React.FC = () => {
                                         <tbody>
                                           <tr>
                                             <td><h5>Created Date :</h5></td>
-                                            <td><h5 className='text-primary'>{format(new Date(item.createdDate), 'MMM dd, yyyy HH:mm')}</h5></td>
+                                            <td><h5 className='text-primary'>{format(new Date(item.createdDate), 'dd-MMM-yyyy HH:mm')}</h5></td>
                                           </tr>
                                           <tr>
                                             <td><h5>Extended Date :</h5></td>

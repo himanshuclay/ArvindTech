@@ -630,10 +630,11 @@ const AccountProcess = () => {
 
             {adhocJson && adhocJson.templateJson &&
                 <DynamicForm
-                    fromComponent='AccountProcess'
+                    fromComponent="AccountProcess"
                     formData={JSON.parse(adhocJson.templateJson)}
                     taskNumber
                     data
+                    taskName
                     show={showAdhocDynamic}
                     setShow={setShowAdhocDynamic}
                     parsedCondition
@@ -647,7 +648,9 @@ const AccountProcess = () => {
                     ProcessInitiationID
                     approval_Console
                     approvalConsoleInputID
+                    projectName
                 />
+
             }
             <Modal className="p-0" show={showLink} onHide={handleClose} size="xl">
                 <Modal.Body>
