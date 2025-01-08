@@ -5,6 +5,7 @@ import { format } from 'date-fns';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import DynamicForm from '../Component/DynamicForm';
 import config from '@/config';
+import HeirarchyView from '../Component/HeirarchyView/HeirarchyView';
 
 
 
@@ -35,6 +36,7 @@ interface ProjectAssignListWithDoer {
   taskTime: string;
   taskType: string;
   roleName: string;
+  planDate: string;
   taskNumber: string;
   inputs: Input[];
   data: string;
@@ -89,7 +91,8 @@ const ProjectAssignTable: React.FC = () => {
   const [taskCommonIDRow, setTaskCommonIdRow] = useState<number | null>(null);
   // const [formState, setFormState] = useState<any>({});
   const [show, setShow] = useState(false);
-
+  const [showView, setShowView] = useState(false);
+  const [manageId, setManageID] = useState<number>();
 
   const [expandedRow, setExpandedRow] = useState<number | null>(null); // For row expansion
 
@@ -103,7 +106,8 @@ const ProjectAssignTable: React.FC = () => {
     { id: 'task_Number', label: 'Task Number', visible: true },
     { id: 'taskName', label: 'Task Name', visible: true },
     { id: 'projectName', label: 'Project Name', visible: true },
-    { id: 'createdDate', label: 'Planned Date', visible: true },
+    { id: 'planDate', label: 'Planned Date', visible: true },
+    { id: 'isCompleted', label: 'Working Status', visible: true },
   ]);
 
 
@@ -296,15 +300,12 @@ const ProjectAssignTable: React.FC = () => {
       }
     };
 
-
-
-
-
     if (taskCommonId) {
       fetchPreData(taskCommonId);
     }
   }, [taskCommonId]);
 
+  console.log(preData)
 
   const formatPeriod = (createdDate: string): string => {
     const startDate = new Date(createdDate);
@@ -350,19 +351,6 @@ const ProjectAssignTable: React.FC = () => {
 
   console.log(singleDataById)
 
-  // const toggleExpandRow = (id: number) => {
-  //   setExpandedRow(expandedRow === id ? null : id);
-  // };
-
-  // const handleDoerChange = (taskNumber: string, selectedOption: any) => {
-  //   // Handle the change for doer selection
-  //   console.log(`Doer changed for task ${taskNumber}:`, selectedOption);
-  // };
-
-
-
-
-
   if (loading) {
     return <div className="loader-fixed">
       <div className="loader"></div>
@@ -374,8 +362,8 @@ const ProjectAssignTable: React.FC = () => {
   const handleShow = () => setShow(true);
 
   const handleEdit = (taskCommonId: number) => {
-    // setProjectNameIDRow(projectName);  // Set the project name
-    setTaskCommonIdRow(taskCommonId);   // Set the task common ID
+    setTaskCommonIdRow(taskCommonId);
+    // Set the task common ID
     handleShow();
     if (taskCommonId) {
       fetchSingleDataById(taskCommonId);
@@ -391,8 +379,9 @@ const ProjectAssignTable: React.FC = () => {
   } catch (error) {
     console.error("Failed to parse condition_Json:", error);
   }
-
   const expiryLogic = conditionArray[0]?.expiryLogic;
+
+
 
   const isTimeExtended = (createdDate: string) => {
     const created = new Date(createdDate);
@@ -401,6 +390,33 @@ const ProjectAssignTable: React.FC = () => {
     twoDaysLater.setDate(created.getDate() + 2);
     return currentDate > twoDaysLater;
   }
+
+
+
+  function calculatePlannedDate(createdDate: string): string {
+    const parsedDate = new Date(createdDate);
+    if (isNaN(parsedDate.getTime())) {
+      console.error('Invalid date format');
+      return ''; // Return an empty string if the date is invalid
+    }
+    const plannedDate = new Date(parsedDate.getTime() + 88 * 60 * 60 * 1000);
+    const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    const month = months[plannedDate.getMonth()];
+    const day = String(plannedDate.getDate()).padStart(2, '0');
+    const year = plannedDate.getFullYear();
+    const hours = String(plannedDate.getHours()).padStart(2, '0');
+    const minutes = String(plannedDate.getMinutes()).padStart(2, '0');
+    return `${month} ${day}, ${year} ${hours}:${minutes}`;
+  }
+
+
+  const handleShowview = () => setShowView(true);
+
+  const handleViewEdit = (id: any) => {
+    handleShowview();
+    setManageID(id)
+
+  };
 
   return (
 
@@ -441,18 +457,10 @@ const ProjectAssignTable: React.FC = () => {
                                   {column.id === 'processName' && (<i className="ri-map-2-line"></i>)}
                                   {column.id === 'projectName' && (<i className="ri-building-line"></i>)}
                                   {column.id === 'task_Number' && (<i className="ri-health-book-line pl-1-5"></i>)}
-                                  {column.id === 'roleName' && (<i className="ri-shield-user-line"></i>)}
-                                  {column.id === 'taskType' && (<i className="ri-bookmark-line"></i>)}
-                                  {column.id === 'taskTime' && (<i className="ri-calendar-line"></i>)}
-                                  {column.id === 'createdDate' && (<i className="ri-hourglass-line"></i>)}
-                                  {column.id === 'completedDate' && (<i className="ri-focus-3-line"></i>)}
-                                  {column.id === 'moduleName' && (<i className="ri-box-3-line"></i>)}
-                                  {column.id === 'sourceId' && (<i className="ri-box-3-line"></i>)}
-                                  {column.id === 'requestId' && (<i className="ri-box-3-line"></i>)}
-                                  {column.id === 'taskPeriod' && (<i className="ri-box-3-line"></i>)}
-
+                                  {column.id === 'isCompleted' && (<i className="ri-flag-line"></i>)}
+                                  {column.id === 'planDate' && (<i className="ri-hourglass-line"></i>)}
+                                  {column.id === 'taskName' && (<i className="ri-tools-line"></i>)}
                                   &nbsp; {column.label}
-
                                 </div>
                               </th>
                             )}
@@ -482,13 +490,14 @@ const ProjectAssignTable: React.FC = () => {
                             >
                               <div className=''>
 
-                                {col.id === 'createdDate' ? (
+                                {col.id === 'planDate' ? (
                                   <td>
-                                    {/* {formatAndUpdateDate(item.createdDate, item.taskTime)} */}
-                                    {format(new Date(item.createdDate), 'MMM dd, yyyy HH:mm')}
+                                    {item.task_Number === 'ACC.01.T1' ? calculatePlannedDate(item.createdDate) : item.planDate}
+                                    {/* {item.task_Json} */}
                                   </td>
-                                ) : (<>{item[col.id as keyof ProjectAssignListWithDoer]}</>
-                                )}
+                                ) :
+                                  (<>{item[col.id as keyof ProjectAssignListWithDoer]}</>
+                                  )}
 
                               </div>
                             </td>
@@ -505,27 +514,29 @@ const ProjectAssignTable: React.FC = () => {
                           </td>
                           <td colSpan={10} className='d-none'>
                             <div>
-                              <DynamicForm
-                                fromComponent='PendingTask'
-                                formData={JSON.parse(item.task_Json)}
-                                taskNumber={item.task_Number}
-                                data={data}
-                                show={show}
-                                setShow={setShow}
-                                parsedCondition={parsedCondition}
-                                preData={preData}
-                                selectedTasknumber={selectedTasknumber}
-                                setLoading={setLoading}
-                                taskCommonIDRow={taskCommonIDRow}
-                                projectName={item.projectName}
-                                taskStatus
-                                processId={item.processID}
-                                moduleId={item.moduleID}
-                                ProcessInitiationID={item.id}
-                                approval_Console={item.approval_Console}
-                                approvalConsoleInputID={item.approvalConsoleInputID}
 
-                              />
+                              {expandedRow === item.id &&
+                                <DynamicForm
+                                  fromComponent='PendingTask'
+                                  formData={JSON.parse(item.task_Json)}
+                                  taskNumber={item.task_Number}
+                                  data={data}
+                                  show={show}
+                                  setShow={setShow}
+                                  parsedCondition={parsedCondition}
+                                  preData={preData}
+                                  selectedTasknumber={selectedTasknumber}
+                                  setLoading={setLoading}
+                                  taskCommonIDRow={taskCommonIDRow}
+                                  projectName={item.projectName}
+                                  taskStatus
+                                  processId={item.processID}
+                                  moduleId={item.moduleID}
+                                  ProcessInitiationID={item.id}
+                                  approval_Console={item.approval_Console}
+                                  approvalConsoleInputID={item.approvalConsoleInputID}
+                                />
+                              }
                             </div>
                           </td>
                         </tr>
@@ -551,10 +562,7 @@ const ProjectAssignTable: React.FC = () => {
                                             <td><h5>Process :</h5></td>
                                             <td> <h5 className='text-primary'>{item.processName}</h5></td>
                                           </tr>
-                                          <tr>
-                                            <td><h5>Created Date :</h5></td>
-                                            <td><h5 className='text-primary'>{format(new Date(item.createdDate), 'MMM dd, yyyy HH:mm')}</h5></td>
-                                          </tr>
+
                                           <tr>
                                             <td><h5>Doer :</h5></td>
                                             <td>
@@ -672,7 +680,7 @@ const ProjectAssignTable: React.FC = () => {
                                             <td><h5 className='text-primary'>View Output</h5></td>
                                           </tr>
                                           <tr>
-                                            <td><h5 className='text-primary'>Heirarchy View</h5></td>
+                                            <td><h5 className='text-primary cursor-pointer' onClick={() => handleViewEdit(item.taskCommonId)}>Heirarchy View</h5></td>
                                           </tr>
                                           <tr>
                                             <td><h5 className='text-primary'>Help</h5></td>
@@ -715,6 +723,7 @@ const ProjectAssignTable: React.FC = () => {
             </DragDropContext>
           </>
         )}
+        <HeirarchyView showView={showView} setShowView={setShowView} id={manageId} />
       </div>
     </>
 
