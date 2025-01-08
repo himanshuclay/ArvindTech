@@ -49,7 +49,7 @@ const HeirarchyView: React.FC<ProcessCanvasProps> = ({ showView, setShowView, id
     }, [id]);
 
 
-    console.log(id)
+    console.log(preData)
 
     const fetchPreData = async (taskCommonId: number) => {
         try {
@@ -87,7 +87,7 @@ const HeirarchyView: React.FC<ProcessCanvasProps> = ({ showView, setShowView, id
         <div>
             <Offcanvas className="w-50" show={showView} placement="end" onHide={handleClose}>
                 <Offcanvas.Header closeButton>
-                    <Offcanvas.Title className="text-dark">View Tasks</Offcanvas.Title>
+                    <Offcanvas.Title className="text-dark"> Tasks History</Offcanvas.Title>
                 </Offcanvas.Header>
                 <Offcanvas.Body>
                     {loading ? (
@@ -100,7 +100,7 @@ const HeirarchyView: React.FC<ProcessCanvasProps> = ({ showView, setShowView, id
                             {preData.length > 0 ? (
                                 <Row>
                                     {preData.map((task, index) => (
-                                        <Col className="task-card p-3 border rounded shadow-sm">
+                                        <Col lg={12} className="task-card p-3 border rounded shadow-sm">
                                             <table>
                                                 <tbody>
                                                     <tr>

@@ -90,6 +90,7 @@ const LnMaster: React.FC = () => {
         { id: 'taskType', label: 'Task Type', visible: true },
         // { id: 'taskTime', label: 'Planned Date', visible: true },
         { id: 'createdDate', label: 'Initiation Date', visible: true },
+        { id: 'isCompleted', label: 'Task Status', visible: true },
     ]);
 
     const handleOnDragEnd = (result: any) => {
@@ -516,6 +517,7 @@ const LnMaster: React.FC = () => {
                                                                     {column.id === 'taskType' && (<i className="ri-task-line"></i>)}
                                                                     {column.id === 'taskTime' && (<i className="ri-calendar-line"></i>)}
                                                                     {column.id === 'createdDate' && (<i className="ri-time-line"></i>)}
+                                                                    {column.id === 'isCompleted' && (<i className="ri-flag-line"></i>)}
                                                                     &nbsp; {column.label}
                                                                 </div>
                                                             </th>
@@ -523,7 +525,6 @@ const LnMaster: React.FC = () => {
                                                     </Draggable>
                                                 ))}
                                                 {provided.placeholder}
-                                                <th>Working Status</th>
                                                 <th className='text-center'>View</th>
                                             </tr>
                                         )}
@@ -545,26 +546,14 @@ const LnMaster: React.FC = () => {
                                                         >
                                                             <div>
                                                                 {col.id === 'taskType' ? (
-                                                                    <>
-                                                                        {item.task_Number.endsWith('.T1') ? "Actual" : ""}
-                                                                    </>
-                                                                ) : (
-                                                                    <>{item[col.id as keyof LnMaster]}</>
+                                                                    <>{item.task_Number.endsWith('.T1') ? "Actual" : item.taskType}</>
+                                                                ) : col.id === 'createdDate' ? (
+                                                                    <>{format(new Date(item.createdDate), 'MMM dd, yyyy HH:mm')}</>
+                                                                ) : (<>{item[col.id as keyof LnMaster]}</>
                                                                 )}
                                                             </div>
                                                         </td>
                                                     ))}
-
-                                                    <td className={item.completedDate === '' ? 'text-warning fw-bolder' : ''}>
-                                                        {item.completedDate !== '' ? (
-                                                            item.completedDate
-                                                        ) : (
-                                                            <span>
-                                                                In Progress <i className="ri-loader-2-fill fs-5"></i>
-                                                            </span>
-                                                        )}
-                                                    </td>
-
 
                                                     <td className='text-end pr-3'>
                                                         <Button onClick={() => toggleExpandRow(item.id)}>
@@ -706,11 +695,11 @@ const LnMaster: React.FC = () => {
                                                                                     </tr>
                                                                                     <tr>
                                                                                         <td><h5>Extended Date :</h5></td>
-                                                                                        <td><h5 className='text-primary'>{format(new Date(item.createdDate), 'MMM dd, yyyy HH:mm')}</h5></td>
+                                                                                        <td><h5 className='text-primary'>N/A</h5></td>
                                                                                     </tr>
                                                                                     <tr>
                                                                                         <td><h5>Completed Date :</h5></td>
-                                                                                        <td><h5 className='text-primary'>{format(new Date(item.createdDate), 'MMM dd, yyyy HH:mm')}</h5></td>
+                                                                                        <td><h5 className='text-primary'>{format(new Date(item.completedDate), 'MMM dd, yyyy HH:mm')}</h5></td>
                                                                                     </tr>
                                                                                 </tbody>
                                                                             </table>

@@ -42,6 +42,7 @@ interface DynamicFormProps {
     data: any;
     show: boolean;
     parsedCondition: any;
+    taskName: any;
     setShow: any;
     preData: any;
     projectName: any;
@@ -81,7 +82,7 @@ interface Task {
 const DynamicForm: React.FC<DynamicFormProps> = ({
     taskNumber,
     processId,
-    ProcessInitiationID,
+    taskName,
     moduleId,
     data,
     show,
@@ -248,6 +249,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                 formName: formData.formName,
                 taskJson,  // Replace with the newly transformed taskJson
                 comments: summary,   // Replace with current comments
+                taskName: taskName,   // Replace with current comments
             };
         } else {
             // If messID doesn't exist, add a new entry with current messID, taskJson, and comments
@@ -262,6 +264,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                 formName: formData.formName,
                 taskJson,  // Use the transformed taskJson
                 comments: summary,
+                taskName: taskName,
             });
         }
 
@@ -401,91 +404,13 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
     };
 
 
-    // const handlePrevStep = () => {
-
-    //     saveDataToLocalStorage();
-
-    //     if (currentStep > 0) {
-    //         const prevStep = currentStep - 1;
-    //         setCurrentStep(prevStep);
-
-    //         const savedData =  JSON.parse(localStorage.getItem(localStorageKey) || '[]');
-    //         const prevMessID = messList[prevStep].messID;
-    //         const prevData = savedData.find((data) => data.messID === prevMessID);
-
-    //         if (prevData && prevData.taskJson) {
-
-    //             const newFormState = prevData.taskJson.inputs.reduce((acc, input) => {
-    //                 acc[input.inputId] = input.value;
-    //                 return acc;
-    //             }, {});
-
-    //             setFormState(newFormState); 
-    //         }
-
-    //         if (prevData && prevData.comments) {
-    //             setSummary(prevData.comments);
-    //         }
-    //     }
-    // };
 
 
-
-
-    // useEffect(() => {
-    //     const fetchMessManagers = async () => {
-    //         try {
-    //             const response = await axios.get(`${config.API_URL_APPLICATION}/CommonDropdown/GetMessManagerNameListWithId`);
-    //             const data = response.data.messManagerNameLists;
-
-    //             // Map the response data to the format required for the <select> component
-    //             const formattedData = data.map((manager: { messManagerEmpId: string, messManagerName: string }) => ({
-    //                 value: manager.messManagerEmpId,
-    //                 label: manager.messManagerName
-    //             }));
-
-    //             setMessManagers(formattedData);
-    //         } catch (error) {
-    //             console.error('Error fetching mess managers:', error);
-    //         }
-    //     };
-
-    //     fetchMessManagers();
-    // }, []);
-
-    // const handleSelectMessImpChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    //     const selectedValue = event.target.value;
-    //     setSelectedManager(selectedValue);
-    //     console.log('Selected manager ID:', selectedValue);
-    // };
 
 
     const handleClose = () => {
         setShow(false);
-    };
-
-
-    // Initialize form state
-    // useEffect(() => {
-    //     // Initialize formState with a deep copy of formData to preserve its structure
-    //     const initialState: { [key: string]: any } = JSON.parse(JSON.stringify(formData));
-
-    //     // Update the values of the inputs in the initialState
-    //     formData.inputs.forEach((input: Input) => {
-    //         // Ensure that we only update the specific input values
-    //         initialState.inputs = initialState.inputs.map((item: Input) =>
-    //             item.inputId === input.inputId ? { ...item, value: input.value || '' } : item
-    //         );
-    //     });
-
-    //     // Update the formState with the merged initial state
-    //     setFormState(initialState);
-    // }, [formData]);
-
-
-
-
-    // console.log(projectName)
+    }
 
 
     const projectNames = projectName;
@@ -709,6 +634,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
 
             const taskData = data.find((task: Task) => task.task_Number === taskNumber);
             const requestData = {
+                // ...formData,
                 id: taskData?.id || 0,
                 doerID: role || '', // Fallback to an empty string if role is undefined
                 task_Json: processId === "ACC.01" ? JSON.stringify(finalData) : JSON.stringify(globalTaskJson), // Conditional task_Json based on processId
@@ -719,9 +645,10 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                 condition_Json: JSON.stringify(selectedCondition), // Ensure conditionToSend is properly serialized
                 taskCommonId: taskCommonIDRow, // Use the taskCommonIDRow value from the context
                 taskStatus: taskStatus, // Ensure taskStatus is available
+                taskName: taskName, // Ensure taskStatus is available
                 updatedBy: role, // Use role for updatedBy
             };
-
+            console.log(requestData)
 
             try {
                 const response = await fetch(`${config.API_URL_ACCOUNT}/ProcessInitiation/UpdateDoerTask`, {
@@ -876,7 +803,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
             const fetchBankDetails = async () => {
                 try {
                     const response = await axios.get(`${config.API_URL_ACCOUNT}/ProcessInitiation/GetMessData?EmpID=${selectedManager}`);
-                    const data = response.data.getMessDataByMessManagerEmpID[0]; 
+                    const data = response.data.getMessDataByMessManagerEmpID[0];
 
                     setBankDetails({
                         reimbursementBankAccountNumber: data.reimbursementBankAccountNumber,
@@ -1118,7 +1045,6 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
 
 
 
-                    <MessCards data={preData} />
                     {formData && formData.inputs &&
                         <form className='side-scroll' onSubmit={(event) => handleSubmit(event, taskNumber)}>
 

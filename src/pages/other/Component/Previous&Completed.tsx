@@ -63,6 +63,7 @@ const MessCards: React.FC<{ data: Task[] }> = ({ data }) => {
                                 </p>
                                 <hr />
                                 <h6>Tasks:</h6>
+
                                 {messTasks.map((task, index) => (
                                     <div key={index} className="mb-3">
 
@@ -83,9 +84,12 @@ const MessCards: React.FC<{ data: Task[] }> = ({ data }) => {
                                                         )
                                                 )}
                                             </ul>
+
                                         ) : (
                                             <p>No inputs available.</p>
                                         )}
+                                        <hr />
+
                                     </div>
                                 ))}
                             </Card.Body>

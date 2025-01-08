@@ -107,7 +107,7 @@ const ProjectAssignTable: React.FC = () => {
     { id: 'taskName', label: 'Task Name', visible: true },
     { id: 'projectName', label: 'Project Name', visible: true },
     { id: 'planDate', label: 'Planned Date', visible: true },
-    { id: 'isCompleted', label: 'Working Status', visible: true },
+    { id: 'isCompleted', label: 'Task Status', visible: true },
   ]);
 
 
@@ -520,6 +520,7 @@ const ProjectAssignTable: React.FC = () => {
                                   fromComponent='PendingTask'
                                   formData={JSON.parse(item.task_Json)}
                                   taskNumber={item.task_Number}
+                                  taskName={item.taskName}
                                   data={data}
                                   show={show}
                                   setShow={setShow}
