@@ -196,116 +196,107 @@ const ProjectAssignTable: React.FC = () => {
     fetchData();
   }, []);
 
+  const fetchPreData = async (taskCommonId: number) => {
+    try {
+      const flag = 5;
+      const response = await axios.get<ApiResponse>(
+        `${config.API_URL_ACCOUNT}/ProcessInitiation/GetFilterTask?TaskCommonId=${taskCommonId}&Flag=${flag}`
+      );
 
-  useEffect(() => {
-    const fetchPreData = async (taskCommonId: number) => {
-      try {
-        const flag = 5;
-        const response = await axios.get<ApiResponse>(
-          `${config.API_URL_ACCOUNT}/ProcessInitiation/GetFilterTask?TaskCommonId=${taskCommonId}&Flag=${flag}`
-        );
+      if (response.data?.isSuccess) {
+        const fetchedData = response.data.getFilterTasks || [];
+        console.log(fetchedData);
 
-        if (response.data?.isSuccess) {
-          const fetchedData = response.data.getFilterTasks || [];
-          console.log(fetchedData);
+        // Filter and transform data
+        const filteredTasks = fetchedData
+          .filter((task) => task.isCompleted !== "Pending") // Exclude pending tasks
+          .flatMap((task: ProjectAssignListWithDoer) => {
+            let taskJsonArray: any[] = [];
 
-          // Filter and transform data
-          const filteredTasks = fetchedData
-            .filter((task) => task.isCompleted !== "Pending") // Exclude pending tasks
-            .flatMap((task: ProjectAssignListWithDoer) => {
-              let taskJsonArray: any[] = [];
+            try {
+              // Parse task_Json and check its structure
+              taskJsonArray = JSON.parse(task.task_Json);
+              console.log("Parsed taskJsonArray:", taskJsonArray);
+            } catch (error) {
+              console.error("Error parsing task_Json:", task.task_Json, error);
+              return []; // Return an empty array if parsing fails
+            }
 
-              try {
-                // Parse task_Json and check its structure
-                taskJsonArray = JSON.parse(task.task_Json);
-                console.log("Parsed taskJsonArray:", taskJsonArray);
-              } catch (error) {
-                console.error("Error parsing task_Json:", task.task_Json, error);
-                return []; // Return an empty array if parsing fails
+            // If taskJsonArray is not an array, log and handle accordingly
+            if (!Array.isArray(taskJsonArray)) {
+              console.error("taskJsonArray is not an array:", taskJsonArray);
+              console.log("task_Json is not in the expected array format:", task.task_Json);
+
+              // Handle taskJsonArray as an object if it's an object
+              if (typeof taskJsonArray === "object" && taskJsonArray !== null) {
+                console.log("task_Json is an object:", taskJsonArray);
+                // Transform the object into an array for processing
+                taskJsonArray = [taskJsonArray]; // Wrap the object in an array
+              } else {
+                return []; // If not an object or array, return an empty array
+              }
+            }
+
+            // Proceed with the rest of the taskJsonArray processing
+            return taskJsonArray.flatMap((taskJson: any) => {
+              if (!taskJson) {
+                console.error("Invalid taskJson:", taskJson);
+                return [];
               }
 
-              // If taskJsonArray is not an array, log and handle accordingly
-              if (!Array.isArray(taskJsonArray)) {
-                console.error("taskJsonArray is not an array:", taskJsonArray);
-                console.log("task_Json is not in the expected array format:", task.task_Json);
-
-                // Handle taskJsonArray as an object if it's an object
-                if (typeof taskJsonArray === "object" && taskJsonArray !== null) {
-                  console.log("task_Json is an object:", taskJsonArray);
-                  // Transform the object into an array for processing
-                  taskJsonArray = [taskJsonArray]; // Wrap the object in an array
-                } else {
-                  return []; // If not an object or array, return an empty array
-                }
+              // Extract inputs from the appropriate structure
+              const inputs = taskJson.taskJson?.inputs || taskJson.inputs;
+              if (!Array.isArray(inputs)) {
+                console.error("Invalid inputs:", inputs);
+                return [];
               }
+              console.log(inputs);
 
-              // Proceed with the rest of the taskJsonArray processing
-              return taskJsonArray.flatMap((taskJson: any) => {
-                if (!taskJson) {
-                  console.error("Invalid taskJson:", taskJson);
-                  return [];
+              // Map options for replacing value with label
+              const optionsMap = inputs.reduce((map: Record<string, string>, input: any) => {
+                if (input.options) {
+                  input.options.forEach((option: any) => {
+                    map[option.id] = option.label;
+                  });
                 }
+                return map;
+              }, {});
 
-                // Extract inputs from the appropriate structure
-                const inputs = taskJson.taskJson?.inputs || taskJson.inputs;
-                if (!Array.isArray(inputs)) {
-                  console.error("Invalid inputs:", inputs);
-                  return [];
-                }
-                console.log(inputs);
+              // Filter and map inputs
+              const filteredInputsData = inputs
+                .filter((input: any) => !["99", "100", "102", "103"].includes(input.inputId)) // Exclude unwanted inputs
+                .map((input: any) => ({
+                  label: input.label,
+                  value: optionsMap[input.value] || input.value, // Replace value with label if available
+                }));
 
-                // Map options for replacing value with label
-                const optionsMap = inputs.reduce((map: Record<string, string>, input: any) => {
-                  if (input.options) {
-                    input.options.forEach((option: any) => {
-                      map[option.id] = option.label;
-                    });
-                  }
-                  return map;
-                }, {});
-
-                // Filter and map inputs
-                const filteredInputsData = inputs
-                  .filter((input: any) => !["99", "100", "102", "103"].includes(input.inputId)) // Exclude unwanted inputs
-                  .map((input: any) => ({
-                    label: input.label,
-                    value: optionsMap[input.value] || input.value, // Replace value with label if available
-                  }));
-
-                // Return transformed task object
-                return {
-                  messID: taskJson.messID,
-                  messName: taskJson.messName,
-                  messManager: taskJson.messManager,
-                  managerNumber: taskJson.mobileNumber,
-                  messTaskNumber: taskJson.messTaskNumber,
-                  inputs: filteredInputsData,
-                };
-              });
+              // Return transformed task object
+              return {
+                messID: taskJson.messID,
+                messName: taskJson.messName,
+                messManager: taskJson.messManager,
+                managerNumber: taskJson.mobileNumber,
+                messTaskNumber: taskJson.messTaskNumber,
+                inputs: filteredInputsData,
+              };
             });
+          });
 
-          setPreData(filteredTasks);
-          console.log("Filtered Tasks:", filteredTasks);
-        } else {
-          console.error("API Response Error:", response.data?.message || "Unknown error");
-        }
-      } catch (error) {
-        if (axios.isAxiosError(error)) {
-          console.error("Axios Error:", error.message);
-        } else {
-          console.error("Unexpected Error:", error);
-        }
-      } finally {
-        setLoading(false);
+        setPreData(filteredTasks);
+        console.log("Filtered Tasks:", filteredTasks);
+      } else {
+        console.error("API Response Error:", response.data?.message || "Unknown error");
       }
-    };
-
-    if (taskCommonId) {
-      fetchPreData(taskCommonId);
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        console.error("Axios Error:", error.message);
+      } else {
+        console.error("Unexpected Error:", error);
+      }
+    } finally {
+      setLoading(false);
     }
-  }, [taskCommonId]);
-
-  console.log(preData)
+  };
 
   const formatPeriod = (createdDate: string): string => {
     const startDate = new Date(createdDate);
@@ -363,6 +354,7 @@ const ProjectAssignTable: React.FC = () => {
 
   const handleEdit = (taskCommonId: number) => {
     setTaskCommonIdRow(taskCommonId);
+    fetchPreData(taskCommonId);
     // Set the task common ID
     handleShow();
     if (taskCommonId) {

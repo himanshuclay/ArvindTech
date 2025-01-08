@@ -460,96 +460,76 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
 
     // Handle change in input values
     const handleChange = (inputId: string, value: string | boolean | string[]) => {
-        // Prevent default behavior (if needed)
-        // event.preventDefault(); 
-
         const excludedInputIds = ['99', '100', '102', '103'];
         const input = formData.inputs.find(input => String(input.inputId) === String(inputId));
 
         let updatedValue = value;
-        var selectedLabel: any;
+        let selectedLabel: any = input ? input.label : undefined;
         console.log(`Selected label: ${selectedLabel}`);
-        console.log(input)
-
+        console.log(input);
 
         if (input) {
-            selectedLabel = input.label;
-        }
-
-        if (input && input.type === 'decimal') {
-            const regex = /^(\d+(\.\d{0,2})?)?$/;
-            if (regex.test(value as string) && parseFloat(value as string) >= 0) {
-                updatedValue = value as string;
-            } else {
-                console.warn('Invalid decimal value. Value must be 0 or greater with up to 2 decimals.');
-                return; // Exit if the value is invalid
+            // Decimal input validation
+            if (input.type === 'decimal') {
+                const regex = /^(\d+(\.\d{0,2})?)?$/;
+                if (regex.test(value as string) && parseFloat(value as string) >= 0) {
+                    updatedValue = value as string;
+                } else {
+                    console.warn('Invalid decimal value. Value must be 0 or greater with up to 2 decimals.');
+                    return; // Exit if invalid
+                }
             }
-        }
 
-        // Handle select and CustomSelect input types
-        if (input && (input.type === 'select' || input.type === 'CustomSelect')) {
-            const selectedOption = input.options?.find(option => option.label === value);
+            // Handle select and CustomSelect input types
+            if (input.type === 'select' || input.type === 'CustomSelect') {
+                const selectedOption = input.options?.find(option => option.label === value);
+                if (selectedOption) {
+                    updatedValue = selectedOption.id;
+                    selectedLabel = selectedOption.label;
 
+                    if (Array.isArray(parsedCondition)) {
+                        const flattenedCondition = parsedCondition.flat();
+                        flattenedCondition.forEach((condition) => {
+                            if (Array.isArray(condition.taskSelections)) {
+                                const filteredTaskSelections = condition.taskSelections.filter(
+                                    (taskSelection: any) => String(taskSelection.inputId) === String(updatedValue)
+                                );
 
-            if (selectedOption) {
-                updatedValue = selectedOption.id;
-                selectedLabel = selectedOption.label;
-
-
-                if (Array.isArray(parsedCondition)) {
-                    const flattenedCondition = parsedCondition.flat();
-                    flattenedCondition.forEach((condition) => {
-                        if (Array.isArray(condition.taskSelections)) {
-
-                            const filteredTaskSelections = condition.taskSelections.filter(
-                                (taskSelection: any) => String(taskSelection.inputId) === String(updatedValue)
-                            );
-
-                            if (filteredTaskSelections.length > 0) {
-                                setSelectedCondition({ ...condition, taskSelections: filteredTaskSelections });
-
+                                if (filteredTaskSelections.length > 0) {
+                                    setSelectedCondition({ ...condition, taskSelections: filteredTaskSelections });
+                                } else {
+                                    console.warn('No matching task found for updatedValue:', updatedValue);
+                                }
                             } else {
-                                console.warn('No matching task found for updatedValue:', updatedValue);
+                                console.error('taskSelections is not an array or undefined:', condition.taskSelections);
                             }
-                        } else {
-                            console.error('taskSelections is not an array or undefined:', condition.taskSelections);
-                        }
-                    });
-                } else { console.error('parsedCondition is not an array:', parsedCondition); }
+                        });
+                    } else {
+                        console.error('parsedCondition is not an array:', parsedCondition);
+                    }
 
-                setShowMessManagerSelect(selectedOption.id === '11-1');
-            } else {
-                console.warn(`No option found for the value: ${value}`);
+                    setShowMessManagerSelect(selectedOption.id === '11-1');
+                } else {
+                    console.warn(`No option found for the value: ${value}`);
+                }
             }
-        }
 
+            // Handle multiselect input type
+            if (input.type === 'multiselect') {
+                updatedValue = (value as string[]).map(label => {
+                    const selectedOption = input.options?.find(option => option.label === label);
+                    return selectedOption ? selectedOption.id : label;
+                });
+            }
 
-        // Handle multiselect input type
-        if (input && input.type === 'multiselect') {
-            updatedValue = (value as string[]).map(label => {
-                const selectedOption = input.options?.find(option => option.label === label);
-                return selectedOption ? selectedOption.id : label;
-            });
-        }
-
-        // Handle other input types
-        if (input) {
+            // Handle other input types
             switch (input.type) {
                 case 'text':
                 case 'textarea':
-                    updatedValue = value as string;
-                    selectedLabel = input.label;
-                    break;
                 case 'checkbox':
-                    updatedValue = value as boolean;
-                    selectedLabel = input.label;
-                    break;
                 case 'radio':
-                    updatedValue = value as boolean;
-                    selectedLabel = input.label;
-                    break;
                 case 'date':
-                    updatedValue = value as string;
+                    updatedValue = value;
                     selectedLabel = input.label;
                     break;
                 case 'file':
@@ -558,39 +538,43 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                 default:
                     break;
             }
-        }
 
-        // Update formState
-        setFormState(prevState => {
-            const newState = {
-                ...prevState,
-                ...(excludedInputIds.includes(inputId) ? {} : { [inputId]: updatedValue }),
-            };
-
-            if (!excludedInputIds.includes(inputId)) {
-                const updatedTaskJson = {
-                    ...formData,
-                    inputs: formData.inputs.map(input => ({
-                        ...input,
-                        value: newState[input.inputId] !== undefined ? newState[input.inputId] : input.value,
-                    })),
+            // Update formState
+            setFormState(prevState => {
+                const newState = {
+                    ...prevState,
+                    ...(excludedInputIds.includes(inputId) ? {} : { [inputId]: updatedValue }),
                 };
-                setglobalTaskJson(updatedTaskJson);
-            }
-            reEvaluateConditions(newState);
 
-            console.log(newState);
+                if (!excludedInputIds.includes(inputId)) {
+                    const updatedTaskJson = {
+                        ...formData,
+                        inputs: formData.inputs.map(input => ({
+                            ...input,
+                            value: newState[input.inputId] !== undefined ? newState[input.inputId] : input.value,
+                        })),
+                    };
+                    setglobalTaskJson(updatedTaskJson);
+                }
 
-            return newState;
-        });
+                reEvaluateConditions(newState); // Re-evaluate conditions with updated state
+                console.log(newState);
+
+                return newState;
+            });
+        }
     };
+
 
     const handleSubmit = async (event: React.FormEvent, taskNumber: string) => {
         event.preventDefault();
-        saveDataToLocalStorage();
+        if (processId === 'ACC.01') {
+            saveDataToLocalStorage();
+        }
         const finalData = JSON.parse(localStorage.getItem(localStorageKey) ?? '[]');
         localStorage.removeItem(localStorageKey);
         console.log('Final Submitted Data:', finalData);
+
         const role = localStorage.getItem('EmpId') || '';
         // if (fromComponent != 'AccountProcess'){
         // }
@@ -651,7 +635,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
             console.log(requestData)
 
             try {
-                const response = await fetch(`${config.API_URL_ACCOUNT}/ProcessInitiation/UpdateDoerTask`, {
+                const response = await fetch(`${config.API_URL_ACCOUNT}/ProcessInitiation/UpdateDoerTasks`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -766,22 +750,28 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
     };
 
     const shouldDisplayInput = (input: Input): boolean => {
+        // If there's no conditional field, show the input
         if (!input.conditionalFieldId) return true;
 
         const conditionValue = input.conditionalFieldId;
+
+        // If the condition matches a specific value, show the input
         if (conditionValue === 'someid') return true;
 
+        // Find the input with the conditionalFieldId and check its value
         for (const otherInput of formData.inputs) {
             if (otherInput.inputId === conditionValue) {
+                // Return true if the value is not empty
                 return formState[otherInput.inputId] !== '';
-
             }
-            // console.log(otherInput)
+
+            // If the input has options, check if the selected option matches the condition
             if (otherInput.options && otherInput.options.some(option => option.id === conditionValue)) {
                 return formState[otherInput.inputId] === conditionValue;
             }
         }
 
+        // Return false if no condition is met
         return false;
     };
 
@@ -971,7 +961,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                                         )}
                                     </div>
                                 ))} */}
-                                {preData && preData.length > 0 &&
+                                {processId === 'ACC.01' && preData && preData.length > 0 &&
                                     (
                                         <MessCards data={preData} />
                                     )
@@ -1105,9 +1095,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                                         </>
                                     )
                                     }
-
                                 </div>
-
                                 <div className="form-section" style={{ width: '90%', paddingLeft: '20px' }}>
                                     <div className="my-task">
                                         {formData.inputs.map((input: Input) => (
@@ -1258,19 +1246,20 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                                                     {input.type === 'select' && (
                                                         <select
                                                             id={input.inputId}
-                                                            className='form-select form-control'
-                                                            value={formState[input.inputId] || ''}
-                                                            onChange={e => handleChange(input.inputId, e.target.value)}
+                                                            className="form-select form-control"
+                                                            value={formState[input.inputId] || ''} // Ensure formState holds the selected value (id)
+                                                            onChange={e => handleChange(input.inputId, e.target.value)} // Passing the id to handleChange
                                                             style={{ display: 'block', width: '100%', padding: '0.5rem' }}
                                                         >
                                                             <option value="" disabled>Select an option</option>
                                                             {input.options?.map(option => (
-                                                                <option key={option.id} value={option.label}>
+                                                                <option key={option.id} value={option.id}> {/* Set value to option.id */}
                                                                     {option.label}
                                                                 </option>
                                                             ))}
                                                         </select>
                                                     )}
+
 
 
                                                     {input.type === 'multiselect' && (
