@@ -683,7 +683,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
             console.log(requestData)
 
             try {
-                const response = await fetch(`${config.API_URL_ACCOUNT}/ProcessInitiation/UpdateDoerTasks`, {
+                const response = await fetch(`${config.API_URL_ACCOUNT}/ProcessInitiation/UpdateDoerTask`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
