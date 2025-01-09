@@ -13,6 +13,7 @@ interface Task {
     messManager: string;
     managerNumber: string;
     messTaskNumber: string;
+    taskName: string;
     inputs: Input[];
 }
 
@@ -53,7 +54,8 @@ const MessCards: React.FC<{ data: Task[] }> = ({ data }) => {
                         <Col key={messName} md={6} lg={4} className="">
                             <Card>
                                 <Card.Header className="bg-primary text-white">
-                                    <h5 className="mb-0">{messName}</h5>
+                                    <h5 className="mb-0">{messName || (messTasks[0]?.taskName || 'Task')}</h5>
+
                                 </Card.Header>
                                 <Card.Body>
                                     {messTasks[0]?.messManager &&

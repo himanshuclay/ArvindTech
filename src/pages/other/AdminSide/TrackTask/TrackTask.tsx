@@ -81,7 +81,6 @@ const LnMaster: React.FC = () => {
     const [moduleID, setModuleID] = useState('');
 
     const [showView, setShowView] = useState(false);
-
     // both are required to make dragable column of table 
     const [columns, setColumns] = useState<Column[]>([
         { id: 'moduleName', label: 'Module', visible: true },
@@ -224,7 +223,6 @@ const LnMaster: React.FC = () => {
         }
     }, [ModuleName])
 
-
     const handleClear = async () => {
         setDoerName('');
         setTaskNumberName('');
@@ -246,9 +244,6 @@ const LnMaster: React.FC = () => {
 
     }
 
-
-    // console.log(data)
-
     const formatPeriod = (createdDate: string): string => {
         const startDate = new Date(createdDate);
         const endDate = new Date(startDate);
@@ -256,11 +251,6 @@ const LnMaster: React.FC = () => {
 
         return `${format(startDate, "dd-MMM-yyyy")} to ${format(endDate, "dd-MMM-yyyy")}`;
     };
-
-    // const formatDate = (dateString: string): string => {
-    //   const date = new Date(dateString);
-    //   return format(date, "dd MMM yyyy");
-    // };
 
     const optionsDataAccesLevel = [
         { value: 'All', label: 'All' },
@@ -590,7 +580,7 @@ const LnMaster: React.FC = () => {
                                                                                     </tr>
                                                                                     <tr>
                                                                                         <td><h5>Link :</h5></td>
-                                                                                        <td> <h5 className='text-primary'>NA</h5></td>
+                                                                                        <td> <h5 className='text-primary'>SOP (3) / Checklist / Training Video / Office Order (4) / Process Flowchart</h5></td>
                                                                                     </tr>
                                                                                     <tr>
                                                                                         <td><h5>Process :</h5></td>
@@ -712,7 +702,7 @@ const LnMaster: React.FC = () => {
                                                                         </Col>
                                                                         <Col lg={3} className=''>
                                                                             <div className=' d-flex justify-content-end align-items-center'>
-                                                                                <span className='text-primary me-3 fw-bold'>View Output</span>
+                                                                                <span className='text-primary me-3 cursor-pointer fw-bold' onClick={() => handleView(item.id)}>View Output</span>
                                                                                 <span className='text-primary cursor-pointer me-3 fw-bold' onClick={() => handleViewEdit(item.taskCommonId)}>Heirarchy View</span>
                                                                                 <span className='text-primary me-2 fw-bold'>Help</span>
                                                                                 <Button variant='primary' onClick={() => handleView(item.id)}> Show</Button>
@@ -765,6 +755,7 @@ const LnMaster: React.FC = () => {
                 </Pagination>
             </div>
             <TrackPopUpView show={show} setShow={setShow} manageId={manageId} />
+
             <HeirarchyView showView={showView} setShowView={setShowView} id={manageId} />
 
         </>
