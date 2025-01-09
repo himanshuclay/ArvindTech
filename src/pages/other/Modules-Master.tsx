@@ -597,7 +597,7 @@ const App: React.FC = () => {
           visibility: field.visibility ?? true, // Default to true if visibility is undefined
         };
       }
-      
+
 
       // Default return for other input types
       return {
@@ -1047,6 +1047,18 @@ const App: React.FC = () => {
             </div>
           );
         case 'decimal':
+          return (
+            <div className='col-6'>
+              <div>{field.labeltext}</div>
+            </div>
+          );
+        case 'Positive-integer-greater-zero':
+          return (
+            <div className='col-6'>
+              <div>{field.labeltext}</div>
+            </div>
+          );
+        case 'Non Negative Integer':
           return (
             <div className='col-6'>
               <div>{field.labeltext}</div>
