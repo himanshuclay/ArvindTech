@@ -7,6 +7,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import config from '@/config';
 import Select, { SingleValue } from 'react-select';
 import MessCards from './Previous&Completed';
+import { toast } from 'react-toastify';
 
 interface Option {
     id: string;
@@ -231,6 +232,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                     };
                 }),
         };
+          
 
 
         // Find if the current messID already exists in the savedData array
@@ -276,48 +278,75 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
         name: string;
     }
 
+    useEffect(() => {
+        const messName = messList[currentStep]?.messName;
+        if (!messName) return;
+      
+        axios
+          .get(`${config.API_URL_APPLICATION}/CommonDropdown/GetMessManagerNameByMessName`, {
+            params: { MessName: messName },
+          })
+          .then((response) => {
+            if (response.data.isSuccess && response.data.messManagerNameByMessName) {
+              setSelectedManager(response.data.messManagerNameByMessName.id);
+              console.log(response.data.messManagerNameByMessName.id);
+            } else {
+              console.error("Failed to fetch manager details");
+            }
+          })
+          .catch((error) => {
+            console.error("Error fetching manager details:", error);
+          });
+      }, [messList[currentStep]?.messName]);
 
 
 
-    const [vendors, setVendors] = useState<DropdownItem[]>([]);
+
+    const [vendorsMap, setVendorsMap] = useState<Record<string, DropdownItem[]>>({});
+
 
     useEffect(() => {
+        const fetchVendorsForInputs = async () => {
+            const customSelectInputs = formData.inputs?.filter((input) => input.type === "CustomSelect");
 
-        console.log(selectedCondition)
+            if (customSelectInputs?.length) {
+                const newVendorsMap: Record<string, DropdownItem[]> = {};
 
-        const customSelectInput = formData.inputs?.find(
-            (input) => input.type === "CustomSelect"
-        );
+                await Promise.all(
+                    customSelectInputs.map(async (input) => {
+                        if (input.selectedMaster && input.selectedHeader) {
+                            try {
+                                const response = await axios.get(
+                                    `${config.API_URL_APPLICATION}/CommonDropdown/GetData`,
+                                    {
+                                        params: {
+                                            MasterName: input.selectedMaster,
+                                            HeaderName: input.selectedHeader,
+                                        },
+                                    }
+                                );
 
-        if (customSelectInput && customSelectInput.selectedMaster && customSelectInput.selectedHeader) {
-            const fetchVendors = async () => {
-                try {
-                    const response = await axios.get(
-                        `${config.API_URL_APPLICATION}/CommonDropdown/GetData`,
-                        {
-                            params: {
-                                MasterName: customSelectInput.selectedMaster,
-                                HeaderName: customSelectInput.selectedHeader,
-                            },
+                                if (response.data.isSuccess) {
+                                    newVendorsMap[input.inputId] = response.data.dropDownLists;
+                                } else {
+                                    console.error(`Failed to fetch vendors for ${input.inputId}:`, response.data.message);
+                                }
+                            } catch (error) {
+                                console.error(`Error fetching vendor data for ${input.inputId}:`, error);
+                            }
                         }
-                    );
-                    console.log(response)
+                    })
+                );
 
-                    if (response.data.isSuccess) {
-                        setVendors(response.data.dropDownLists);
-                    } else {
-                        console.error("Failed to fetch vendors:", response.data.message);
-                    }
-                } catch (error) {
-                    console.error("Error fetching vendor data:", error);
-                }
-            };
+                setVendorsMap(newVendorsMap);
+            } else {
+                console.warn("No CustomSelect inputs with valid MasterName and HeaderName found.");
+            }
+        };
 
-            fetchVendors();
-        } else {
-            console.warn("No CustomSelect input with MasterName and HeaderName found.");
-        }
+        fetchVendorsForInputs();
     }, [formData]);
+
 
 
 
@@ -400,6 +429,9 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
             } else {
                 setSummary(''); // Clear the summary if no comments exist
             }
+
+            setShowBankModal(false)
+            setShowMessManagerSelect(false)
         }
     };
 
@@ -456,100 +488,127 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
 
     const [approvalStatus, setApprovalStatus] = useState<OptionType | null>(null);
 
+
+    const submitMessData = async (event: React.FormEvent) => {
+        event.preventDefault(); // Prevent page refresh
+
+        const payload = {
+            managerName: bankDetails.managerName,
+            reimbursementBankName: bankDetails.reimbursementBankName,
+            reimbursementBankAccountNumber: bankDetails.reimbursementBankAccountNumber,
+            reimbursementBankIfsc: bankDetails.reimbursementBankIfsc,
+            reimbursementBranchName: bankDetails.reimbursementBranchName,
+            userUpdatedMobileNumber: bankDetails.userUpdateMobileNumber,
+            empID: selectedManager, // Replace with actual employee ID if available
+        };
+
+        console.log('Payload:', payload); // Log the payload to the console
+
+        try {
+            const response = await fetch(
+                `${config.API_URL_ACCOUNT}/ProcessInitiation/UpdateMessData`,
+                {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': '*/*',
+                    },
+                    body: JSON.stringify(payload),
+                }
+            );
+
+            if (!response.ok) {
+                throw new Error(`Error: ${response.statusText}`);
+            }
+
+            const data = await response.json();
+            console.log('Response Data:', data);
+            toast.success('Mess Data submitted successfully!');
+        } catch (error) {
+            console.error('Error submitting data:', error);
+            alert('Failed to submit data. Please try again.');
+        }
+    };
+
+
+
     // console.log("this is my condition", parsedCondition)
 
     // Handle change in input values
     const handleChange = (inputId: string, value: string | boolean | string[]) => {
-        // Prevent default behavior (if needed)
-        // event.preventDefault(); 
-
         const excludedInputIds = ['99', '100', '102', '103'];
         const input = formData.inputs.find(input => String(input.inputId) === String(inputId));
 
         let updatedValue = value;
-        var selectedLabel: any;
+        let selectedLabel: any = input ? input.label : undefined;
         console.log(`Selected label: ${selectedLabel}`);
-        console.log(input)
-
+        console.log(input);
 
         if (input) {
-            selectedLabel = input.label;
-        }
-
-        if (input && input.type === 'decimal') {
-            const regex = /^(\d+(\.\d{0,2})?)?$/;
-            if (regex.test(value as string) && parseFloat(value as string) >= 0) {
-                updatedValue = value as string;
-            } else {
-                console.warn('Invalid decimal value. Value must be 0 or greater with up to 2 decimals.');
-                return; // Exit if the value is invalid
+            // Decimal input validation
+            if (input.type === 'decimal') {
+                const regex = /^(\d+(\.\d{0,2})?)?$/;
+                if (regex.test(value as string) && parseFloat(value as string) >= 0) {
+                    updatedValue = value as string;
+                } else {
+                    console.warn('Invalid decimal value. Value must be 0 or greater with up to 2 decimals.');
+                    return; // Exit if invalid
+                }
             }
-        }
 
-        // Handle select and CustomSelect input types
-        if (input && (input.type === 'select' || input.type === 'CustomSelect')) {
-            const selectedOption = input.options?.find(option => option.label === value);
+            // Handle select and CustomSelect input types
+            if (input.type === 'select' || input.type === 'CustomSelect') {
+                const selectedOption = input.options?.find(option => option.label === value);
+                if (selectedOption) {
+                    updatedValue = selectedOption.id;
+                    selectedLabel = selectedOption.label;
 
+                    if (Array.isArray(parsedCondition)) {
+                        const flattenedCondition = parsedCondition.flat();
+                        flattenedCondition.forEach((condition) => {
+                            if (Array.isArray(condition.taskSelections)) {
+                                const filteredTaskSelections = condition.taskSelections.filter(
+                                    (taskSelection: any) => String(taskSelection.inputId) === String(updatedValue)
+                                );
 
-            if (selectedOption) {
-                updatedValue = selectedOption.id;
-                selectedLabel = selectedOption.label;
-
-
-                if (Array.isArray(parsedCondition)) {
-                    const flattenedCondition = parsedCondition.flat();
-                    flattenedCondition.forEach((condition) => {
-                        if (Array.isArray(condition.taskSelections)) {
-
-                            const filteredTaskSelections = condition.taskSelections.filter(
-                                (taskSelection: any) => String(taskSelection.inputId) === String(updatedValue)
-                            );
-
-                            if (filteredTaskSelections.length > 0) {
-                                setSelectedCondition({ ...condition, taskSelections: filteredTaskSelections });
-
+                                if (filteredTaskSelections.length > 0) {
+                                    setSelectedCondition({ ...condition, taskSelections: filteredTaskSelections });
+                                } else {
+                                    console.warn('No matching task found for updatedValue:', updatedValue);
+                                }
                             } else {
-                                console.warn('No matching task found for updatedValue:', updatedValue);
+                                console.error('taskSelections is not an array or undefined:', condition.taskSelections);
                             }
-                        } else {
-                            console.error('taskSelections is not an array or undefined:', condition.taskSelections);
-                        }
-                    });
-                } else { console.error('parsedCondition is not an array:', parsedCondition); }
+                        });
+                    } else {
+                        console.error('parsedCondition is not an array:', parsedCondition);
+                    }
+                    console.log(selectedOption.id)
 
-                setShowMessManagerSelect(selectedOption.id === '11-1');
-            } else {
-                console.warn(`No option found for the value: ${value}`);
+                } else {
+                    console.warn(`No option found for the value: ${value}`);
+                }
             }
-        }
+            // setShowMessManagerSelect(value === "11-1");
 
 
-        // Handle multiselect input type
-        if (input && input.type === 'multiselect') {
-            updatedValue = (value as string[]).map(label => {
-                const selectedOption = input.options?.find(option => option.label === label);
-                return selectedOption ? selectedOption.id : label;
-            });
-        }
 
-        // Handle other input types
-        if (input) {
+            // Handle multiselect input type
+            if (input.type === 'multiselect') {
+                updatedValue = (value as string[]).map(label => {
+                    const selectedOption = input.options?.find(option => option.label === label);
+                    return selectedOption ? selectedOption.id : label;
+                });
+            }
+
+            // Handle other input types
             switch (input.type) {
                 case 'text':
                 case 'textarea':
-                    updatedValue = value as string;
-                    selectedLabel = input.label;
-                    break;
                 case 'checkbox':
-                    updatedValue = value as boolean;
-                    selectedLabel = input.label;
-                    break;
                 case 'radio':
-                    updatedValue = value as boolean;
-                    selectedLabel = input.label;
-                    break;
                 case 'date':
-                    updatedValue = value as string;
+                    updatedValue = value;
                     selectedLabel = input.label;
                     break;
                 case 'file':
@@ -558,32 +617,36 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                 default:
                     break;
             }
-        }
 
-        // Update formState
-        setFormState(prevState => {
-            const newState = {
-                ...prevState,
-                ...(excludedInputIds.includes(inputId) ? {} : { [inputId]: updatedValue }),
-            };
-
-            if (!excludedInputIds.includes(inputId)) {
-                const updatedTaskJson = {
-                    ...formData,
-                    inputs: formData.inputs.map(input => ({
-                        ...input,
-                        value: newState[input.inputId] !== undefined ? newState[input.inputId] : input.value,
-                    })),
+            // Update formState
+            setFormState(prevState => {
+                const newState = {
+                    ...prevState,
+                    ...(excludedInputIds.includes(inputId) ? {} : { [inputId]: updatedValue }),
                 };
-                setglobalTaskJson(updatedTaskJson);
-            }
-            reEvaluateConditions(newState);
 
-            console.log(newState);
+                if (!excludedInputIds.includes(inputId)) {
+                    const updatedTaskJson = {
+                        ...formData,
+                        inputs: formData.inputs.map(input => ({
+                            ...input,
+                            value: newState[input.inputId] !== undefined ? newState[input.inputId] : input.value,
+                        })),
+                    };
+                    setglobalTaskJson(updatedTaskJson);
+                }
 
-            return newState;
-        });
+                reEvaluateConditions(newState); // Re-evaluate conditions with updated state
+                console.log(newState);
+
+                setShowMessManagerSelect(Object.values(newState).includes("11-1"));
+                setShowBankModal(Object.values(newState).includes("11-1"));
+
+                return newState;
+            });
+        }
     };
+
 
     const handleSubmit = async (event: React.FormEvent, taskNumber: string) => {
         event.preventDefault();
@@ -594,6 +657,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
         const finalData = JSON.parse(localStorage.getItem(localStorageKey) ?? '[]');
         localStorage.removeItem(localStorageKey);
         console.log('Final Submitted Data:', finalData);
+
         const role = localStorage.getItem('EmpId') || '';
         // if (fromComponent != 'AccountProcess'){
         // }
@@ -769,22 +833,28 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
     };
 
     const shouldDisplayInput = (input: Input): boolean => {
+        // If there's no conditional field, show the input
         if (!input.conditionalFieldId) return true;
 
         const conditionValue = input.conditionalFieldId;
+
+        // If the condition matches a specific value, show the input
         if (conditionValue === 'someid') return true;
 
+        // Find the input with the conditionalFieldId and check its value
         for (const otherInput of formData.inputs) {
             if (otherInput.inputId === conditionValue) {
+                // Return true if the value is not empty
                 return formState[otherInput.inputId] !== '';
-
             }
-            // console.log(otherInput)
+
+            // If the input has options, check if the selected option matches the condition
             if (otherInput.options && otherInput.options.some(option => option.id === conditionValue)) {
                 return formState[otherInput.inputId] === conditionValue;
             }
         }
 
+        // Return false if no condition is met
         return false;
     };
 
@@ -805,8 +875,9 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
         if (selectedManager) {
             const fetchBankDetails = async () => {
                 try {
-                    const response = await axios.get(`${config.API_URL_ACCOUNT}/ProcessInitiation/GetMessData?EmpID=${selectedManager}`);
+                    const response = await axios.get(`${config.API_URL_ACCOUNT}/ProcessInitiation/GetMessDataByMessManagerEmpID?EmpID=${selectedManager}`);
                     const data = response.data.getMessDataByMessManagerEmpID[0];
+                    console.log(response)
 
                     setBankDetails({
                         reimbursementBankAccountNumber: data.reimbursementBankAccountNumber,
@@ -974,7 +1045,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                                         )}
                                     </div>
                                 ))} */}
-                                {preData && preData.length > 0 &&
+                                {processId === 'ACC.01' && preData && preData.length > 0 &&
                                     (
                                         <MessCards data={preData} />
                                     )
@@ -1108,11 +1179,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                                         </>
                                     )
                                     }
-
                                 </div>
-
-
-
                                 <div className="form-section" style={{ width: '90%', paddingLeft: '20px' }}>
                                     <div className="my-task">
                                         {formData.inputs.map((input: Input) => (
@@ -1263,19 +1330,20 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                                                     {input.type === 'select' && (
                                                         <select
                                                             id={input.inputId}
-                                                            className='form-select form-control'
-                                                            value={formState[input.inputId] || ''}
-                                                            onChange={e => handleChange(input.inputId, e.target.value)}
+                                                            className="form-select form-control"
+                                                            value={formState[input.inputId] || ''} // Ensure formState holds the selected value (id)
+                                                            onChange={e => handleChange(input.inputId, e.target.value)} // Passing the id to handleChange
                                                             style={{ display: 'block', width: '100%', padding: '0.5rem' }}
                                                         >
                                                             <option value="" disabled>Select an option</option>
                                                             {input.options?.map(option => (
-                                                                <option key={option.id} value={option.label}>
+                                                                <option key={option.id} value={option.id}> {/* Set value to option.id */}
                                                                     {option.label}
                                                                 </option>
                                                             ))}
                                                         </select>
                                                     )}
+
 
 
                                                     {input.type === 'multiselect' && (
@@ -1295,14 +1363,15 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                                                         </select>
                                                     )}
                                                     {input.type === 'CustomSelect' && (
-                                                        <select className='form-control'
-                                                            value={formState[input.inputId]}
-                                                            onChange={e => handleChange(input.inputId, e.target.value)}
+                                                        <select
+                                                            key={input.inputId}
+                                                            className="form-control"
+                                                            value={formState[input.inputId] || ""}
+                                                            onChange={(e) => handleChange(input.inputId, e.target.value)}
                                                             style={{ display: 'block', width: '100%', padding: '0.5rem' }}
-
                                                         >
                                                             <option value="" disabled>Select an option</option>
-                                                            {vendors.map((vendor, index) => (
+                                                            {(vendorsMap[input.inputId] || []).map((vendor, index) => (
                                                                 <option key={index} value={vendor.name}>
                                                                     {vendor.name}
                                                                 </option>
@@ -1406,86 +1475,97 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                                         <div className="modal-overlay">
                                             <div className="modal-content">
                                                 <h4>Bank Details</h4>
-                                                <form className='form-group row'>
+                                                <form
+                                                    className="form-group row"
+                                                >
                                                     <div className="mt-3 col-6">
                                                         <label>Reimbursement Account</label>
                                                         <input
-                                                            className='form-control'
+                                                            className="form-control"
                                                             type="text"
-                                                            name="reimbursementBankAccountNumber" // Name for state update
+                                                            name="reimbursementBankAccountNumber"
                                                             value={bankDetails.reimbursementBankAccountNumber}
                                                             placeholder="Enter account number"
-                                                            onChange={handleInputChange} // Handle changes in input
+                                                            onChange={handleInputChange}
                                                         />
                                                     </div>
 
                                                     <div className="mt-3 col-6">
                                                         <label>Reimbursement Bank</label>
                                                         <input
-                                                            className='form-control'
+                                                            className="form-control"
                                                             type="text"
-                                                            name="reimbursementBankName" // Name for state update
+                                                            name="reimbursementBankName"
                                                             value={bankDetails.reimbursementBankName}
                                                             placeholder="Enter bank name"
-                                                            onChange={handleInputChange} // Handle changes in input
+                                                            onChange={handleInputChange}
                                                         />
                                                     </div>
 
                                                     <div className="mt-3 col-6">
                                                         <label>Reimbursement Bank Branch</label>
                                                         <input
-                                                            className='form-control'
+                                                            className="form-control"
                                                             type="text"
-                                                            name="reimbursementBranchName" // Name for state update
+                                                            name="reimbursementBranchName"
                                                             value={bankDetails.reimbursementBranchName}
                                                             placeholder="Enter branch name"
-                                                            onChange={handleInputChange} // Handle changes in input
+                                                            onChange={handleInputChange}
                                                         />
                                                     </div>
 
                                                     <div className="mt-3 col-6">
                                                         <label>Reimbursement IFSC Code</label>
                                                         <input
-                                                            className='form-control'
+                                                            className="form-control"
                                                             type="text"
-                                                            name="reimbursementBankIfsc" // Name for state update
+                                                            name="reimbursementBankIfsc"
                                                             value={bankDetails.reimbursementBankIfsc}
                                                             placeholder="Enter IFSC code"
-                                                            onChange={handleInputChange} // Handle changes in input
+                                                            onChange={handleInputChange}
                                                         />
                                                     </div>
 
                                                     <div className="mt-3 col-6">
                                                         <label>Mess Manager</label>
                                                         <input
-                                                            className='form-control'
+                                                            className="form-control"
                                                             type="text"
-                                                            name="managerName" // Name for state update
+                                                            name="managerName"
                                                             value={bankDetails.managerName}
                                                             placeholder="Enter manager name"
-                                                            onChange={handleInputChange} // Handle changes in input
+                                                            onChange={handleInputChange}
                                                         />
                                                     </div>
 
                                                     <div className="mt-3 col-6">
                                                         <label>Mess Manager Mobile Number</label>
                                                         <input
-                                                            className='form-control'
+                                                            className="form-control"
                                                             type="text"
-                                                            name="userUpdateMobileNumber" // Name for state update
+                                                            name="userUpdateMobileNumber"
                                                             value={bankDetails.userUpdateMobileNumber}
                                                             placeholder="Enter mobile number"
-                                                            onChange={handleInputChange} // Handle changes in input
+                                                            onChange={handleInputChange}
                                                         />
                                                     </div>
 
                                                     <div className="modal-buttons mt-3 d-flex justify-content-end">
-                                                        <button className='btn btn-primary' type="button" onClick={handleClose2}>Close</button>
+                                                        <button className="btn btn-secondary" type="button" onClick={handleClose2}>
+                                                            Close
+                                                        </button>
+                                                        <button
+                                                            className="btn btn-primary ms-2"
+                                                            type="submit"
+                                                            onClick={submitMessData}>
+                                                            Submit
+                                                        </button>
                                                     </div>
                                                 </form>
                                             </div>
                                         </div>
                                     )}
+
                                     {/* <div className="form-group mb-2">
                                     <label htmlFor="taskSummary">Comments</label>
                                     <input
