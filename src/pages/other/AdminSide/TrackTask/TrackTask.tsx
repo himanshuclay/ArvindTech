@@ -9,6 +9,7 @@ import { Container, Row, Col, Alert } from 'react-bootstrap';
 import TrackPopUpView from './TrackPopupView';
 import Flatpickr from 'react-flatpickr';
 import 'flatpickr/dist/themes/material_green.css';
+import HeirarchyView from '../../Component/ViewTask/HeirarchyView';
 
 
 
@@ -33,6 +34,7 @@ interface LnMaster {
     projectId: string;
     condition_Json: string;
     problemSolverMobileNumber: number;
+    taskCommonId: number;
 }
 
 interface Column {
@@ -78,7 +80,7 @@ const LnMaster: React.FC = () => {
     const [doerName, setDoerName] = useState('');
     const [moduleID, setModuleID] = useState('');
 
-
+    const [showView, setShowView] = useState(false);
 
     // both are required to make dragable column of table 
     const [columns, setColumns] = useState<Column[]>([
@@ -278,6 +280,16 @@ const LnMaster: React.FC = () => {
     }
 
     const expiryLogic = conditionArray[0]?.expiryLogic;
+
+    const handleShowview = () => setShowView(true);
+
+    const handleViewEdit = (id: any) => {
+        handleShowview();
+        setManageID(id)
+
+    };
+
+
 
     return (
         <>
@@ -644,7 +656,7 @@ const LnMaster: React.FC = () => {
 
                                                                     </Row>
 
-                                                                    <hr />
+                                                                    <hr className='my-1' />
                                                                     <Row className=''>
                                                                         <Col lg={4}>
                                                                             <tr>
@@ -683,48 +695,34 @@ const LnMaster: React.FC = () => {
 
                                                                         </Col>
                                                                     </Row>
-                                                                    <hr />
+                                                                    <hr className='my-1' />
 
                                                                     <Row>
-                                                                        <Col lg={7}>
-                                                                            <table>
-                                                                                <tbody>
-                                                                                    <tr>
-                                                                                        <td><h5>Created Date :</h5></td>
-                                                                                        <td><h5 className='text-primary'>{item.createdDate && format(new Date(item.createdDate), 'dd-MMM-yyyy HH:mm')}</h5></td>
-                                                                                    </tr>
-                                                                                    <tr>
-                                                                                        <td><h5>Extended Date :</h5></td>
-                                                                                        <td><h5 className='text-primary'>N/A</h5></td>
-                                                                                    </tr>
-                                                                                    <tr>
-                                                                                        <td><h5>Completed Date :</h5></td>
-                                                                                        <td><h5 className='text-primary'>{item.completedDate && format(new Date(item.completedDate), 'dd-MMM-yyyy HH:mm')}</h5></td>
-                                                                                    </tr>
-                                                                                </tbody>
-                                                                            </table>
+                                                                        <Col lg={3} className='mt-2'>
+                                                                            <td><h5>Created Date :</h5></td>
+                                                                            <td><h5 className='text-primary'>{item.createdDate && format(new Date(item.createdDate), 'dd-MMM-yyyy HH:mm')}</h5></td>
                                                                         </Col>
-
-                                                                        <Col lg={5} className='d-flex justify-content-end text-end'>
-                                                                            <table>
-                                                                                <tbody>
-                                                                                    <tr>
-                                                                                        <td><h5 className='text-primary'>View Output</h5></td>
-                                                                                    </tr>
-                                                                                    <tr>
-                                                                                        <td><h5 className='text-primary'>Heirarchy View</h5></td>
-                                                                                    </tr>
-                                                                                    <tr>
-                                                                                        <td><h5 className='text-primary'>Help</h5></td>
-                                                                                    </tr>
-                                                                                </tbody>
-                                                                            </table>
+                                                                        <Col lg={3} className='mt-2'>
+                                                                            <td><h5>Extended Date :</h5></td>
+                                                                            <td><h5 className='text-primary'>N/A</h5></td>
+                                                                        </Col>
+                                                                        <Col lg={3} className='mt-2'>
+                                                                            <td><h5>Completed Date :</h5></td>
+                                                                            <td><h5 className='text-primary'>{item.completedDate && format(new Date(item.completedDate), 'dd-MMM-yyyy HH:mm')}</h5></td>
+                                                                        </Col>
+                                                                        <Col lg={3} className=''>
+                                                                            <div className=' d-flex justify-content-end align-items-center'>
+                                                                                <span className='text-primary me-3 fw-bold'>View Output</span>
+                                                                                <span className='text-primary cursor-pointer me-3 fw-bold' onClick={() => handleViewEdit(item.taskCommonId)}>Heirarchy View</span>
+                                                                                <span className='text-primary me-2 fw-bold'>Help</span>
+                                                                                <Button variant='primary' onClick={() => handleView(item.id)}> Show</Button>
+                                                                            </div>
                                                                         </Col>
                                                                     </Row>
 
-                                                                    <div className=' d-flex justify-content-end'>
-                                                                        <Button variant='primary' onClick={() => handleView(item.id)}> Show</Button>
-                                                                    </div>
+
+
+
 
                                                                 </div>
                                                             </Collapse>
@@ -767,6 +765,8 @@ const LnMaster: React.FC = () => {
                 </Pagination>
             </div>
             <TrackPopUpView show={show} setShow={setShow} manageId={manageId} />
+            <HeirarchyView showView={showView} setShowView={setShowView} id={manageId} />
+
         </>
     );
 };

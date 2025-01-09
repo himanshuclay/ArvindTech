@@ -232,7 +232,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                     };
                 }),
         };
-          
+
 
 
         // Find if the current messID already exists in the savedData array
@@ -281,23 +281,23 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
     useEffect(() => {
         const messName = messList[currentStep]?.messName;
         if (!messName) return;
-      
+
         axios
-          .get(`${config.API_URL_APPLICATION}/CommonDropdown/GetMessManagerNameByMessName`, {
-            params: { MessName: messName },
-          })
-          .then((response) => {
-            if (response.data.isSuccess && response.data.messManagerNameByMessName) {
-              setSelectedManager(response.data.messManagerNameByMessName.id);
-              console.log(response.data.messManagerNameByMessName.id);
-            } else {
-              console.error("Failed to fetch manager details");
-            }
-          })
-          .catch((error) => {
-            console.error("Error fetching manager details:", error);
-          });
-      }, [messList[currentStep]?.messName]);
+            .get(`${config.API_URL_APPLICATION}/CommonDropdown/GetMessManagerNameByMessName`, {
+                params: { MessName: messName },
+            })
+            .then((response) => {
+                if (response.data.isSuccess && response.data.messManagerNameByMessName) {
+                    setSelectedManager(response.data.messManagerNameByMessName.id);
+                    console.log(response.data.messManagerNameByMessName.id);
+                } else {
+                    console.error("Failed to fetch manager details");
+                }
+            })
+            .catch((error) => {
+                console.error("Error fetching manager details:", error);
+            });
+    }, [messList[currentStep]?.messName]);
 
 
 
