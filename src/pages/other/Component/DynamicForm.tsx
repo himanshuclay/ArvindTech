@@ -232,6 +232,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                     };
                 }),
         };
+          
 
 
         // Find if the current messID already exists in the savedData array
@@ -277,48 +278,75 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
         name: string;
     }
 
+    useEffect(() => {
+        const messName = messList[currentStep]?.messName;
+        if (!messName) return;
+      
+        axios
+          .get(`${config.API_URL_APPLICATION}/CommonDropdown/GetMessManagerNameByMessName`, {
+            params: { MessName: messName },
+          })
+          .then((response) => {
+            if (response.data.isSuccess && response.data.messManagerNameByMessName) {
+              setSelectedManager(response.data.messManagerNameByMessName.id);
+              console.log(response.data.messManagerNameByMessName.id);
+            } else {
+              console.error("Failed to fetch manager details");
+            }
+          })
+          .catch((error) => {
+            console.error("Error fetching manager details:", error);
+          });
+      }, [messList[currentStep]?.messName]);
 
 
 
-    const [vendors, setVendors] = useState<DropdownItem[]>([]);
+
+    const [vendorsMap, setVendorsMap] = useState<Record<string, DropdownItem[]>>({});
+
 
     useEffect(() => {
+        const fetchVendorsForInputs = async () => {
+            const customSelectInputs = formData.inputs?.filter((input) => input.type === "CustomSelect");
 
-        console.log(selectedCondition)
+            if (customSelectInputs?.length) {
+                const newVendorsMap: Record<string, DropdownItem[]> = {};
 
-        const customSelectInput = formData.inputs?.find(
-            (input) => input.type === "CustomSelect"
-        );
+                await Promise.all(
+                    customSelectInputs.map(async (input) => {
+                        if (input.selectedMaster && input.selectedHeader) {
+                            try {
+                                const response = await axios.get(
+                                    `${config.API_URL_APPLICATION}/CommonDropdown/GetData`,
+                                    {
+                                        params: {
+                                            MasterName: input.selectedMaster,
+                                            HeaderName: input.selectedHeader,
+                                        },
+                                    }
+                                );
 
-        if (customSelectInput && customSelectInput.selectedMaster && customSelectInput.selectedHeader) {
-            const fetchVendors = async () => {
-                try {
-                    const response = await axios.get(
-                        `${config.API_URL_APPLICATION}/CommonDropdown/GetData`,
-                        {
-                            params: {
-                                MasterName: customSelectInput.selectedMaster,
-                                HeaderName: customSelectInput.selectedHeader,
-                            },
+                                if (response.data.isSuccess) {
+                                    newVendorsMap[input.inputId] = response.data.dropDownLists;
+                                } else {
+                                    console.error(`Failed to fetch vendors for ${input.inputId}:`, response.data.message);
+                                }
+                            } catch (error) {
+                                console.error(`Error fetching vendor data for ${input.inputId}:`, error);
+                            }
                         }
-                    );
-                    console.log(response)
+                    })
+                );
 
-                    if (response.data.isSuccess) {
-                        setVendors(response.data.dropDownLists);
-                    } else {
-                        console.error("Failed to fetch vendors:", response.data.message);
-                    }
-                } catch (error) {
-                    console.error("Error fetching vendor data:", error);
-                }
-            };
+                setVendorsMap(newVendorsMap);
+            } else {
+                console.warn("No CustomSelect inputs with valid MasterName and HeaderName found.");
+            }
+        };
 
-            fetchVendors();
-        } else {
-            console.warn("No CustomSelect input with MasterName and HeaderName found.");
-        }
+        fetchVendorsForInputs();
     }, [formData]);
+
 
 
 
@@ -401,6 +429,9 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
             } else {
                 setSummary(''); // Clear the summary if no comments exist
             }
+
+            setShowBankModal(false)
+            setShowMessManagerSelect(false)
         }
     };
 
@@ -558,7 +589,8 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                     console.warn(`No option found for the value: ${value}`);
                 }
             }
-            setShowMessManagerSelect(value === "11-1");
+            // setShowMessManagerSelect(value === "11-1");
+
 
 
             // Handle multiselect input type
@@ -606,6 +638,9 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
 
                 reEvaluateConditions(newState); // Re-evaluate conditions with updated state
                 console.log(newState);
+
+                setShowMessManagerSelect(Object.values(newState).includes("11-1"));
+                setShowBankModal(Object.values(newState).includes("11-1"));
 
                 return newState;
             });
@@ -1328,14 +1363,15 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                                                         </select>
                                                     )}
                                                     {input.type === 'CustomSelect' && (
-                                                        <select className='form-control'
-                                                            value={formState[input.inputId]}
-                                                            onChange={e => handleChange(input.inputId, e.target.value)}
+                                                        <select
+                                                            key={input.inputId}
+                                                            className="form-control"
+                                                            value={formState[input.inputId] || ""}
+                                                            onChange={(e) => handleChange(input.inputId, e.target.value)}
                                                             style={{ display: 'block', width: '100%', padding: '0.5rem' }}
-
                                                         >
                                                             <option value="" disabled>Select an option</option>
-                                                            {vendors.map((vendor, index) => (
+                                                            {(vendorsMap[input.inputId] || []).map((vendor, index) => (
                                                                 <option key={index} value={vendor.name}>
                                                                     {vendor.name}
                                                                 </option>
