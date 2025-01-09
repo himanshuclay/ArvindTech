@@ -714,6 +714,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                 taskStatus: taskStatus, // Ensure taskStatus is available
                 taskName: taskName, // Ensure taskStatus is available
                 updatedBy: role, // Use role for updatedBy
+                projectName: projectName
             };
             console.log(requestData)
 
@@ -1045,7 +1046,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                                         )}
                                     </div>
                                 ))} */}
-                                {processId === 'ACC.01' && preData && preData.length > 0 &&
+                                {preData && preData.length > 0 &&
                                     (
                                         <MessCards data={preData} />
                                     )
