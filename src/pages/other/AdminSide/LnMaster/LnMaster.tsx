@@ -7,6 +7,7 @@ import Select from 'react-select';
 import { format, } from 'date-fns';
 import { Container, Row, Col, Alert } from 'react-bootstrap';
 import LnPopupVew from './LnPopupVew';
+import HeirarchyView from '../../Component/ViewTask/HeirarchyView';
 
 interface LnMaster {
   id: number;
@@ -29,6 +30,7 @@ interface LnMaster {
   projectId: string;
   condition_Json: string;
   problemSolverMobileNumber: number;
+  taskCommonId: number;
 }
 
 interface Column {
@@ -59,7 +61,7 @@ const LnMaster: React.FC = () => {
   const [manageId, setManageID] = useState<number>();
   const [expandedRow, setExpandedRow] = useState<number | null>(null); // For row expansion
 
-
+  const [showView, setShowView] = useState(false);
   const [ModuleName, setModuleName] = useState('');
   const [ProcessName, setProcessName] = useState('');
   const [taskNumberName, setTaskNumberName] = useState('');
@@ -241,6 +243,15 @@ const LnMaster: React.FC = () => {
     return currentDate > twoDaysLater;
   }
 
+
+
+  const handleShowview = () => setShowView(true);
+
+  const handleViewEdit = (id: any) => {
+    handleShowview();
+    setManageID(id)
+
+  };
 
   return (
     <>
@@ -431,11 +442,9 @@ const LnMaster: React.FC = () => {
                                       <>
                                         {format(new Date(item.createdDate), 'MMM dd, yyyy HH:mm')}
                                       </>
-                                    ) :
-
-                                      (
-                                        <>{item[col.id as keyof LnMaster]}</>
-                                      )}
+                                    ) : (
+                                      <>{item[col.id as keyof LnMaster]}</>
+                                    )}
                               </div>
                             </td>
                           ))}
@@ -549,7 +558,7 @@ const LnMaster: React.FC = () => {
                                     <Col lg={4}>
                                       <tr>
                                         <td> <h5 >Initiation period : </h5></td>
-                                        <td><h5 className='text-primary'>{formatPeriod(item.createdDate)}</h5></td>
+                                        <td><h5 className='text-primary'>{item.createdDate && formatPeriod(item.createdDate)}</h5></td>
                                       </tr>
                                       <tr>
                                         <td> <h5 >Source : </h5></td>
@@ -586,49 +595,29 @@ const LnMaster: React.FC = () => {
 
                                   <hr />
 
-                                  <Row>
-                                    <Col lg={7}>
-                                      <table>
-                                        <tbody>
-                                          <tr>
-                                            <td><h5>Created Date :</h5></td>
-                                            <td><h5 className='text-primary'>{format(new Date(item.createdDate), 'MMM dd, yyyy HH:mm')}</h5></td>
-                                          </tr>
-                                          <tr>
-                                            <td><h5>Extended Date :</h5></td>
-                                            <td><h5 className='text-primary'>N/A</h5></td>
-                                          </tr>
-                                          <tr>
-                                            <td><h5>Completed Date :</h5></td>
-                                            <td><h5 className='text-primary'>{format(new Date(item.completedDate), 'MMM dd, yyyy HH:mm')}</h5></td>
-                                          </tr>
-                                        </tbody>
-                                      </table>
-                                    </Col>
 
-                                    <Col lg={5} className='d-flex justify-content-end text-end'>
-                                      <table>
-                                        <tbody>
-                                          <tr>
-                                            <td><h5 className='text-primary'>View Output</h5></td>
-                                          </tr>
-                                          <tr>
-                                            <td><h5 className='text-primary'>Heirarchy View</h5></td>
-                                          </tr>
-                                          <tr>
-                                            <td><h5 className='text-primary'>Help</h5></td>
-                                          </tr>
-                                        </tbody>
-                                      </table>
+                                  <Row>
+                                    <Col lg={3} className='mt-2'>
+                                      <td><h5>Created Date :</h5></td>
+                                      <td><h5 className='text-primary'>{item.createdDate && format(new Date(item.createdDate), 'dd-MMM-yyyy HH:mm')}</h5></td>
+                                    </Col>
+                                    <Col lg={3} className='mt-2'>
+                                      <td><h5>Extended Date :</h5></td>
+                                      <td><h5 className='text-primary'>N/A</h5></td>
+                                    </Col>
+                                    <Col lg={3} className='mt-2'>
+                                      <td><h5>Completed Date :</h5></td>
+                                      <td><h5 className='text-primary'>{item.completedDate && format(new Date(item.completedDate), 'dd-MMM-yyyy HH:mm')}</h5></td>
+                                    </Col>
+                                    <Col lg={3} className=''>
+                                      <div className=' d-flex justify-content-end align-items-center'>
+                                        <span className='text-primary me-3 fw-bold'>View Output</span>
+                                        <span className='text-primary cursor-pointer me-3 fw-bold' onClick={() => handleViewEdit(item.taskCommonId)}>Heirarchy View</span>
+                                        <span className='text-primary me-2 fw-bold'>Help</span>
+                                        <Button variant='primary' onClick={() => handleView(item.id)}> Show</Button>
+                                      </div>
                                     </Col>
                                   </Row>
-
-
-
-                                  <div className=' d-flex justify-content-end'>
-                                    <Button variant='primary' onClick={() => handleView(item.id)}> Show</Button>
-                                  </div>
-
                                 </div>
                               </Collapse>
                             </td>
@@ -662,6 +651,7 @@ const LnMaster: React.FC = () => {
       </>)}
 
       <LnPopupVew show={show} setShow={setShow} manageId={manageId} />
+      <HeirarchyView showView={showView} setShowView={setShowView} id={manageId} />
 
 
     </>
