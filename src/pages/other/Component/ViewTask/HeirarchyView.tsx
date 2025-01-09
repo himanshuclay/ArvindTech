@@ -48,9 +48,6 @@ const HeirarchyView: React.FC<ProcessCanvasProps> = ({ showView, setShowView, id
         fetchData();
     }, [id]);
 
-
-    console.log(preData)
-
     const fetchPreData = async (taskCommonId: number) => {
         try {
             const flag = 5;

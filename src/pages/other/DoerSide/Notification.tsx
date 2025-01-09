@@ -176,8 +176,6 @@ const ProjectAssignTable: React.FC = () => {
           // Set parsed conditions state
           setParsedCondition(parsedConditions);
 
-          console.log('Task Common IDs:', TaskCommonIds[0]);
-
         } else {
           console.error('API Response Error:', response.data?.message || 'Unknown error');
         }
@@ -284,7 +282,6 @@ const ProjectAssignTable: React.FC = () => {
           });
 
         setPreData(filteredTasks);
-        console.log("Filtered Tasks:", filteredTasks);
       } else {
         console.error("API Response Error:", response.data?.message || "Unknown error");
       }
@@ -344,7 +341,6 @@ const ProjectAssignTable: React.FC = () => {
   };
 
 
-  console.log(singleDataById)
 
   if (loading) {
     return <div className="loader-fixed">
@@ -487,8 +483,8 @@ const ProjectAssignTable: React.FC = () => {
 
                   {data.length > 0 ? (
                     data.slice(0, 10).map((item, index) => (
-                      <>
-                        <tr key={item.id}>
+                      <React.Fragment key={item.id}>
+                        <tr>
                           {columns.filter(col => col.visible).map((col) => (
                             <td key={col.id}
                               className={
@@ -685,7 +681,7 @@ const ProjectAssignTable: React.FC = () => {
                                       <td><h5>Extended Date :</h5></td>
                                       <td><h5 className='text-primary'>N/A</h5></td>
                                     </Col>
-                                    <Col lg={3}  className='mt-2'>
+                                    <Col lg={3} className='mt-2'>
                                       <td><h5>Completed Date :</h5></td>
                                       <td><h5 className='text-primary'>N/A</h5></td>
                                     </Col>
@@ -710,7 +706,7 @@ const ProjectAssignTable: React.FC = () => {
                           : ''
                         }
 
-                      </>
+                      </React.Fragment>
                     ))
                   ) : (
                     <tr><td colSpan={columns.length + 1}> <Container className="mt-5">
