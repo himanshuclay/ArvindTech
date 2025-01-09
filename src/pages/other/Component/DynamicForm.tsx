@@ -233,6 +233,8 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                 }),
         };
 
+        const messStatus = formState['11'] === '11-2' ? false : true;
+
 
 
         // Find if the current messID already exists in the savedData array
@@ -252,6 +254,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                 taskJson,  // Replace with the newly transformed taskJson
                 comments: summary,   // Replace with current comments
                 taskName: taskName,   // Replace with current comments
+                messStatus: messStatus,
             };
         } else {
             // If messID doesn't exist, add a new entry with current messID, taskJson, and comments
@@ -267,6 +270,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                 taskJson,  // Use the transformed taskJson
                 comments: summary,
                 taskName: taskName,
+                messStatus: messStatus,
             });
         }
 
@@ -383,6 +387,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
         messManagerId: string;
         mobileNumber: string;
         taskJson: TaskJson;
+        messStatus: boolean;
         comments?: string;
     };
 
@@ -480,11 +485,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
         }
     }, [projectNames]);
 
-
     const localStorageKey = 'messFormData'; // Key for localStorage
-
-
-
 
     const [approvalStatus, setApprovalStatus] = useState<OptionType | null>(null);
 
@@ -559,12 +560,14 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
             // Handle select and CustomSelect input types
             if (input.type === 'select' || input.type === 'CustomSelect') {
                 const selectedOption = input.options?.find(option => option.label === value);
+                console.log(selectedOption)
                 if (selectedOption) {
                     updatedValue = selectedOption.id;
                     selectedLabel = selectedOption.label;
 
                     if (Array.isArray(parsedCondition)) {
                         const flattenedCondition = parsedCondition.flat();
+                        console.log(flattenedCondition)
                         flattenedCondition.forEach((condition) => {
                             if (Array.isArray(condition.taskSelections)) {
                                 const filteredTaskSelections = condition.taskSelections.filter(
@@ -573,6 +576,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
 
                                 if (filteredTaskSelections.length > 0) {
                                     setSelectedCondition({ ...condition, taskSelections: filteredTaskSelections });
+                                    console.log(selectedCondition)
                                 } else {
                                     console.warn('No matching task found for updatedValue:', updatedValue);
                                 }
@@ -719,7 +723,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
             console.log(requestData)
 
             try {
-                const response = await fetch(`${config.API_URL_ACCOUNT}/ProcessInitiation/UpdateDoerTask`, {
+                const response = await fetch(`${config.API_URL_ACCOUNT}/ProcessInitiation/UpdateDoerTasks`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
