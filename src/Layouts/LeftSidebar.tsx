@@ -133,7 +133,7 @@ const getFilteredMenuItems = () => {
         {
           key: 'Other Task',
           label: 'Other Task',
-          url: '/pages/Notification',
+          url: '/pages/TrackTask',
           icon: 'ri-slideshow-line',
           parentKey: 'TaskAdmin',
         },
@@ -259,7 +259,7 @@ const getFilteredMenuItems = () => {
         {
           key: 'FormMaster',
           label: 'Form Master',
-          url: '/pages/FormMaster',
+          url: '/pages/AdhocTempleteList',
           icon: 'ri-survey-line',
           parentKey: 'systemmaster',
         },

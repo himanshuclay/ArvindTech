@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Table, Button, Collapse } from 'react-bootstrap';
 import axios from 'axios';
+import { Link } from 'react-router-dom';
 // import { FileUploader } from '@/components/FileUploader'
 import config from '@/config';
 
@@ -102,52 +103,66 @@ const TemplateTable: React.FC = () => {
   }
 
   return (
-    <Table className='bg-white mt-3' striped bordered hover>
-      <thead>
-        <tr>
-          <th>Sr.no</th>
-          <th>Form Name</th>
-          <th>Task Type</th>
-          <th>Planned Date</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        {data.map((item, index) => (
-          <React.Fragment key={item.id}>
-            <tr>
-              <td>{index + 1}</td>
-              <td>{item.formName}</td>
-              {/* Assuming `taskType` and `plannedDate` can be extracted or handled */}
-              <td>Task Type Here</td>
-              <td>Planned Date Here</td>
-              <td>
-                <Button onClick={() => toggleExpandRow(item.id)}>
-                  {expandedRow === item.id ? 'Hide' : 'Show'}
-                </Button>
-              </td>
-            </tr>
-            <tr>
-              <td colSpan={5}>
-                <Collapse in={expandedRow === item.id}>
-                  <div>
-                    {/* Parse and pass the form data from JSON to the dynamic form */}
-                    <DynamicForm
-                      formData={JSON.parse(item.templateJson)}
-                      messName={item.formName}
-                      showMessManagerSelect={true} // You can add logic to show/hide this
-                      messManagers={messManagers}
-                    />
-                  </div>
-                </Collapse>
-              </td>
-            </tr>
-          </React.Fragment>
-        ))}
-      </tbody>
-    </Table>
+    <>
+      <div className="d-flex bg-white p-2 my-2 justify-content-between align-items-center fs-20">
+        <span><i className="ri-file-list-line me-2"></i><span className='fw-bold test-nowrap'>Form List</span></span>
+        <div className="d-flex">
+          <Link to='/pages/CreateTemplates'>
+            <Button variant="primary" className="">
+              Add Form
+            </Button>
+          </Link>
+
+        </div>
+      </div>
+      <Table className='bg-white mt-3' striped bordered hover>
+        <thead>
+          <tr>
+            <th>Sr.no</th>
+            <th>Form Name</th>
+            <th>Task Type</th>
+            <th>Planned Date</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {data.map((item, index) => (
+            <React.Fragment key={item.id}>
+              <tr>
+                <td>{index + 1}</td>
+                <td>{item.formName}</td>
+                {/* Assuming `taskType` and `plannedDate` can be extracted or handled */}
+                <td>Task Type Here</td>
+                <td>Planned Date Here</td>
+                <td>
+                  <Button onClick={() => toggleExpandRow(item.id)}>
+                    {expandedRow === item.id ? 'Hide' : 'Show'}
+                  </Button>
+                </td>
+              </tr>
+              <tr>
+                <td colSpan={5}>
+                  <Collapse in={expandedRow === item.id}>
+                    <div>
+                      {/* Parse and pass the form data from JSON to the dynamic form */}
+                      <DynamicForm
+                        formData={JSON.parse(item.templateJson)}
+                        messName={item.formName}
+                        showMessManagerSelect={true} // You can add logic to show/hide this
+                        messManagers={messManagers}
+                      />
+                    </div>
+                  </Collapse>
+                </td>
+              </tr>
+            </React.Fragment>
+          ))}
+        </tbody>
+      </Table>
+    </>
   );
 };
+
 
 // Dynamic form component
 interface DynamicFormProps {
