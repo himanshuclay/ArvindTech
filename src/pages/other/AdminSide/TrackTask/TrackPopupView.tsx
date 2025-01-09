@@ -135,12 +135,17 @@ const TrackPopUpView: React.FC<ProcessCanvasProps> = ({ show, setShow, manageId 
                                 }));
 
                             // Return transformed task object
+
+                            const input = inputs.find(item => item.inputId === "99");
+                            const label = input ? input.label : null;
                             return {
-                                messID: taskJson.messID,
-                                messName: taskJson.messName || 'Mess',
-                                messManager: taskJson.messManager,
-                                managerNumber: taskJson.mobileNumber,
-                                messTaskNumber: taskJson.messTaskNumber,
+                                messID: taskJson.messID || '',
+                                messName: taskJson.messName || '',
+                                messManager: taskJson.messManager || '',
+                                managerNumber: taskJson.mobileNumber || '',
+                                messTaskNumber: taskJson.messTaskNumber || '',
+
+                                taskName: label,
                                 inputs: filteredInputsData,
                             };
                         });

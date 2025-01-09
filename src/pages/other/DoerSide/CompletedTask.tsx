@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { Button, Table, Toast, Container, Row, Col, Alert, Modal } from 'react-bootstrap';
-import { useLocation, useNavigate } from 'react-router-dom';
-import { parse, addDays, format, isValid } from 'date-fns';
+import { Button, Table, Container, Row, Col, Alert, Modal } from 'react-bootstrap';
+// import { useLocation, useNavigate } from 'react-router-dom';
+import { format } from 'date-fns';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import config from '@/config';
 import MessCards from '../Component/Previous&Completed';
@@ -38,6 +38,7 @@ interface ProjectAssignListWithDoer {
   roleName: string;
   inputs: string;
   messID: string;
+  plannedDate: string;
 }
 
 interface ApiResponse {
@@ -60,9 +61,6 @@ const ProjectAssignTable: React.FC = () => {
   const [preData, setPreData] = useState<any>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [show, setShow] = useState(false);
-  const [taskCommonId, setTaskCommonId] = useState<number | null>(null);
-  const [showToast, setShowToast] = useState(false);
-  const [taskName, setTaskName] = useState<string | undefined>(undefined);
 
   // const [popoverIndex, setPopoverIndex] = useState<number | null>(null);
   // =======================================================================
@@ -88,22 +86,6 @@ const ProjectAssignTable: React.FC = () => {
     setColumns(reorderedColumns);
   };
   // ==============================================================
-
-  // const targetRefs = useRef<(HTMLSpanElement | null)[]>([]);
-  const location = useLocation();
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    if (location.state && location.state.showToast) {
-      setShowToast(true);
-      setTaskName(location.state.taskName);
-    }
-    navigate(location.pathname, { replace: true });
-  }, [location.state]);
-
-
-
-
 
 
   useEffect(() => {
@@ -136,12 +118,6 @@ const ProjectAssignTable: React.FC = () => {
 
 
 
-  useEffect(() => {
-    if (taskCommonId !== null) {
-      fetchPreData(taskCommonId);
-    }
-  }, [taskCommonId]);
-
   const fetchPreData = async (taskCommonId: number) => {
     try {
       const flag = 5;
@@ -149,62 +125,89 @@ const ProjectAssignTable: React.FC = () => {
         `${config.API_URL_ACCOUNT}/ProcessInitiation/GetFilterTask?TaskCommonId=${taskCommonId}&Flag=${flag}`
       );
 
-      if (response.data && response.data.isSuccess) {
+      if (response.data?.isSuccess) {
         const fetchedData = response.data.getFilterTasks || [];
-        // console.log(fetchedData);
+        console.log(fetchedData);
 
-        // Filter out tasks with isCompleted as "Pending"
+        // Filter and transform data
         const filteredTasks = fetchedData
-          .filter((task) => task.isCompleted !== "Pending") // Filter step
-          .map((task: ProjectAssignListWithDoer) => {
-            const taskJsonArray = JSON.parse(task.task_Json); // Parse task_Json to get an array of taskJson objects
-            console.log(taskJsonArray)
-            // Assuming taskJsonArray is an array, handle each taskJson object
-            return taskJsonArray.map((taskJson: any) => {
-              // Ensure taskJson is valid and has taskJson and inputs
-              if (taskJson && taskJson.taskJson && taskJson.taskJson.inputs && Array.isArray(taskJson.taskJson.inputs)) {
-                // Create a map for the options
-                const optionsMap = taskJson.taskJson.inputs.reduce((map: Record<string, string>, input: any) => {
-                  if (input.options) {
-                    input.options.forEach((option: any) => {
-                      map[option.id] = option.label; // Map option ids to labels
-                    });
-                  }
-                  return map;
-                }, {});
+          .filter((task) => task.isCompleted !== "Pending") // Exclude pending tasks
+          .flatMap((task: ProjectAssignListWithDoer) => {
+            let taskJsonArray: any[] = [];
 
-                // Create a filtered array of inputs excluding specific inputIds
-                const filteredInputsdata = taskJson.taskJson.inputs
-                  .filter((input: any) => !['99', '100', '102', '103'].includes(input.inputId)) // Exclude unwanted inputIds
-                  .map((input: any) => ({
-                    label: input.label,
-                    value: optionsMap[input.value] || input.value // Replace value with label if it exists in optionsMap
-                  }));
+            try {
+              // Parse task_Json and check its structure
+              taskJsonArray = JSON.parse(task.task_Json);
+              console.log("Parsed taskJsonArray:", taskJsonArray);
+            } catch (error) {
+              console.error("Error parsing task_Json:", task.task_Json, error);
+              return []; // Return an empty array if parsing fails
+            }
 
-                return {
-                  messID: taskJson.messID, // Include messID for reference
-                  messName: taskJson.messName, // Include messID for reference
-                  messManager: taskJson.messManager, // Include messID for reference
-                  managerNumber: taskJson.mobileNumber,
-                  messTaskNumber: taskJson.messTaskNumber,
-                  inputs: filteredInputsdata // Return filtered inputs
-                };
+            if (!Array.isArray(taskJsonArray)) {
+              if (typeof taskJsonArray === "object" && taskJsonArray !== null) {
+                taskJsonArray = [taskJsonArray]; // Wrap the object in an array
               } else {
-                console.error('taskJson does not have valid inputs:', taskJson);
-                return null; // Handle invalid inputs array gracefully
+                return []; // If not an object or array, return an empty array
               }
-            }).filter((item: number) => item !== null); // Filter out any null tasks resulting from invalid inputs
-          }).flat(); // Flatten the array if needed
+            }
+
+            return taskJsonArray.flatMap((taskJson: any) => {
+              if (!taskJson) {
+                console.error("Invalid taskJson:", taskJson);
+                return [];
+              }
+              const inputs = taskJson.taskJson?.inputs || taskJson.inputs;
+              if (!Array.isArray(inputs)) {
+                console.error("Invalid inputs:", inputs);
+                return [];
+              }
+              console.log(inputs);
+
+              // Map options for replacing value with label
+              const optionsMap = inputs.reduce((map: Record<string, string>, input: any) => {
+                if (input.options) {
+                  input.options.forEach((option: any) => {
+                    map[option.id] = option.label;
+                  });
+                }
+                return map;
+              }, {});
+
+              // Filter and map inputs
+              const filteredInputsData = inputs
+                .filter((input: any) => !["99", "100", "102", "103"].includes(input.inputId)) // Exclude unwanted inputs
+                .map((input: any) => ({
+                  label: input.label,
+                  value: optionsMap[input.value] || input.value, // Replace value with label if available
+                }));
+
+              const input = inputs.find(item => item.inputId === "99");
+              const label = input ? input.label : null;
+
+
+              return {
+                messID: taskJson.messID || '',
+                messName: taskJson.messName || '',
+                messManager: taskJson.messManager || '',
+                managerNumber: taskJson.mobileNumber || '',
+                messTaskNumber: taskJson.messTaskNumber || '',
+                taskName: label,
+                inputs: filteredInputsData,
+              };
+            });
+          });
 
         setPreData(filteredTasks);
+        console.log("Filtered Tasks:", filteredTasks);
       } else {
-        console.error('API Response Error:', response.data?.message || 'Unknown error');
+        console.error("API Response Error:", response.data?.message || "Unknown error");
       }
     } catch (error) {
       if (axios.isAxiosError(error)) {
-        console.error('Axios Error:', error.message);
+        console.error("Axios Error:", error.message);
       } else {
-        console.error('Unexpected Error:', error);
+        console.error("Unexpected Error:", error);
       }
     } finally {
       setLoading(false);
@@ -212,77 +215,41 @@ const ProjectAssignTable: React.FC = () => {
   };
 
 
-
-
-  const handleEdit = (id: number) => {
-    const taskCommonId = data[0].taskCommonId
-    // const taskCommonId = data
-
-    setTaskCommonId(taskCommonId);
-
-    // Set the taskCommonId to fetch the specific task data
-    setShow(true); // Show the Offcanvas
+  const handleEdit = (taskCommonId: number) => {
+    fetchPreData(taskCommonId);
+    setShow(true);
+    console.log(preData)
   };
 
-  const handleClose = () => setShow(false);
+  console.log(preData)
+
+
+  const handleClose = () => {
+    setShow(false);
+    setPreData([]);
+  };
+
 
   if (loading) {
     return <div className="loader-fixed">Loading...</div>;
   }
 
-  const formatAndUpdateDate = (createdDate: string, taskTime: string) => {
-    // Parse the created date with the correct format 'MM/dd/yyyy HH:mm:ss'
-    const createdDateObj = parse(createdDate, 'dd/MM/yyyy HH:mm:ss', new Date());
-
-    // Check if the createdDateObj is valid
-    if (!isValid(createdDateObj)) {
-      console.error('Invalid createdDate:', createdDate);
-      return 'Invalid created date';
+  function calculatePlannedDate(createdDate: string): string {
+    const parsedDate = new Date(createdDate);
+    if (isNaN(parsedDate.getTime())) {
+      console.error('Invalid date format');
+      return ''; // Return an empty string if the date is invalid
     }
+    const plannedDate = new Date(parsedDate.getTime() + 88 * 60 * 60 * 1000);
+    const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    const month = months[plannedDate.getMonth()];
+    const day = String(plannedDate.getDate()).padStart(2, '0');
+    const year = plannedDate.getFullYear();
+    const hours = String(plannedDate.getHours()).padStart(2, '0');
+    const minutes = String(plannedDate.getMinutes()).padStart(2, '0');
+    return `${day}-${month}-${year} ${hours}:${minutes}`;
+  }
 
-    const taskTimeValue = parseInt(taskTime, 10); // Assuming taskTime is in hours
-
-    // Check if taskTime is a valid number
-    if (isNaN(taskTimeValue)) {
-      console.error('Invalid taskTime:', taskTime);
-      return 'Invalid task time';
-    }
-
-    // Calculate the number of days to add
-    const daysToAdd = Math.floor(taskTimeValue / 24);
-
-    // Add days to the created date
-    const updatedDate = addDays(createdDateObj, daysToAdd);
-
-    // Format the updated date to the desired format 'MM/dd/yyyy HH:mm:ss'
-    return format(updatedDate, 'dd/mmm/yyyy HH:mm:ss');
-  };
-
-
-  const SuccessToast: React.FC<{ show: boolean; taskName?: string; onClose: () => void }> = ({ show, onClose }) => {
-    return (
-      <Toast
-        show={show}
-        onClose={onClose}
-        delay={5000}
-        autohide
-        style={{
-          position: 'fixed',
-          top: 20,
-          right: 20,
-          zIndex: 105000,
-        }}
-      >
-        <Toast.Header className="col-12 d-flex justify-content-between">
-          <i className="ri-thumb-up-fill text-primary fs-2"></i>
-          <div onClick={onClose}></div>
-        </Toast.Header>
-        <Toast.Body className="bg-primary text-white fs-4 rounded">
-          {`Task "${taskName}" has been saved successfully!`}
-        </Toast.Body>
-      </Toast>
-    );
-  };
 
   return (
     <>
@@ -291,71 +258,15 @@ const ProjectAssignTable: React.FC = () => {
           <Modal.Title>Task Details</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          {/* {preData.map((task, index) => (
-            <div key={index}>
-              <span className='fs-15 information-btn '
-                ref={(el) => (targetRefs.current[index] = el)}
-                onClick={() => setPopoverIndex(popoverIndex === index ? null : index)}
-              >
-                <h5 className="mt-2 border border-primary rounded-1 p-2 d-flex justify-content-between cursor-pointer">
-
-                  <span>
-                    <span className='fs-4 fw-bold text-primary'> Task Id : </span> <span className="text-primary fs-13 fw-500"> {task.messName}</span> &nbsp;&nbsp;&nbsp;
-                  </span>
-                  <i className="ri-eye-line fs-4"></i>
-                </h5>
-              </span>
-              <div>
-                <Overlay
-                  target={targetRefs.current[index]}
-                  show={popoverIndex === index}
-                  placement="left"
-                >
-                  {(props) => (
-                    <Tooltip id="overlay-example" {...props} className='tooltip-position'>
-                      <div className='d-flex'>
-                        {Array.isArray(task.inputs) && task.inputs.length > 0 ? (
-                          Array.isArray(task.inputs[0]) ? (
-                            task.inputs.map((inputArray: any, arrIndex: number) => (
-                              <Card key={arrIndex} className="m-2 pop-card">
-                                <Card.Body>
-                                  {inputArray.map((input: any, i: number) => (
-                                    <Col key={i}>
-                                      <strong>{input.label}:</strong> <span className="text-primary">{input.value}</span>
-                                    </Col>
-                                  ))}
-                                </Card.Body>
-                              </Card>
-                            ))
-                          ) : (
-                            <Card className="m-2 pop-card">
-                              <Row>
-                                <Card.Body>
-                                  {task.inputs.map((input: any, i: number) => (
-                                    <Col key={i}>
-                                      <strong>{input.label}:</strong> <span className="text-primary">{input.value}</span>
-                                    </Col>
-                                  ))}
-                                </Card.Body>
-                              </Row>
-                            </Card>
-                          )
-                        ) : (
-                          <p>No inputs available</p>
-                        )}
-                      </div>
-                    </Tooltip>
-                  )}
-                </Overlay>
-
-              </div>
-            </div>
-          ))} */}
           <MessCards data={preData} />
         </Modal.Body>
       </Modal>
 
-      <div className="d-flex p-2 bg-white mt-2 mb-2 rounded shadow"><h5 className="mb-0">Completed Tasks</h5></div>
+
+      <div className="d-flex bg-white p-2 my-2 justify-content-between align-items-center fs-20">
+        <span><i className="ri-file-list-line me-2"></i><span className='fw-bold test-nowrap'>Completed Task</span></span>
+      </div>
+
       <div className='overflow-auto '>
         {data.length === 0 ? (
           <Container className="mt-5">
@@ -406,7 +317,7 @@ const ProjectAssignTable: React.FC = () => {
                           </Draggable>
                         ))}
                       {provided.placeholder}
-                      <th>Action</th>
+                      <th className='text-center'>Action</th>
                     </tr>
                   )}
                 </Droppable>
@@ -440,36 +351,38 @@ const ProjectAssignTable: React.FC = () => {
                             }
                           >
                             <div>
-                              {col.id === 'plannedDate' ? (
-                                <td>{formatAndUpdateDate(item.createdDate, item.taskTime)}</td>
-                              ) : (
-                                <>{item[col.id as keyof typeof item]}</>
-                              )}
+                              {
+                                col.id === 'plannedDate' ? (
+                                  <>{item.task_Number === 'ACC.01.T1' ? calculatePlannedDate(item.createdDate) : item.plannedDate}</>
+                                ) :
+                                  col.id === 'createdDate' ? (
+                                    <>{format(new Date(item.createdDate), 'dd-MMM-yyyy HH:mm')}</>
+                                  ) :
+                                    col.id === 'completedDate' ? (
+                                      <>{format(new Date(item.completedDate), 'dd-MMM-yyyy HH:mm')}</>
+                                    ) :
+
+                                      (
+                                        <>{item[col.id as keyof typeof item]}</>
+                                      )}
                             </div>
                           </td>
                         ))}
-                      <td>
-                        <Button onClick={() => handleEdit(item.id)}>
-                          <i className="ri-edit-2-fill"></i>
+                      <td className='text-center'>
+                        <Button onClick={() => handleEdit(item.taskCommonId)}>
+                          Show
                         </Button>
                       </td>
                     </tr>
                   ))
                 ) : (
-                  <tr>
-                    <td colSpan={columns.length + 1}>No data available</td>
-                  </tr>
+                  <tr><td colSpan={columns.length + 1}>No data available</td></tr>
                 )}
               </tbody>
             </Table>
           </DragDropContext>
-
-
-
         )}
       </div>
-
-      <SuccessToast show={showToast} taskName={taskName} onClose={() => setShowToast(false)} />
     </>
   );
 };

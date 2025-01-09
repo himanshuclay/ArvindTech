@@ -6,6 +6,7 @@ import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import DynamicForm from '../Component/DynamicForm';
 import config from '@/config';
 import HeirarchyView from '../Component/ViewTask/HeirarchyView';
+import ViewOutput from '../Component/ViewTask/ViewOutput';
 
 
 
@@ -91,6 +92,7 @@ const ProjectAssignTable: React.FC = () => {
   const [taskCommonIDRow, setTaskCommonIdRow] = useState<number | null>(null);
   const [show, setShow] = useState(false);
   const [showView, setShowView] = useState(false);
+  const [showViewOutput, setShowViewOutput] = useState(false);
   const [manageId, setManageID] = useState<number>();
 
   const [expandedRow, setExpandedRow] = useState<number | null>(null); // For row expansion
@@ -299,15 +301,6 @@ const ProjectAssignTable: React.FC = () => {
 
 
 
-  // useEffect(() => {
-
-
-  //   if (taskCommonId) {
-  //     fetchPreData(taskCommonId);
-  //   }
-  // }, [taskCommonId]);
-
-  // console.log(preData)
 
   const formatPeriod = (createdDate: string): string => {
     const startDate = new Date(createdDate);
@@ -413,11 +406,17 @@ const ProjectAssignTable: React.FC = () => {
 
 
   const handleShowview = () => setShowView(true);
+  const handleShowviewOutput = () => setShowViewOutput(true);
 
   const handleViewEdit = (id: any) => {
     handleShowview();
     setManageID(id)
 
+  };
+  const handleViewEditOutput = (taskCommonId: any) => {
+    handleShowviewOutput();
+    fetchPreData(taskCommonId);
+    console.log(preData)
   };
 
   return (
@@ -502,27 +501,25 @@ const ProjectAssignTable: React.FC = () => {
                               }
                             >
                               <div className=''>
-
-                                {
-                                  col.id === 'planDate' ? (
-                                    <>{item.task_Number === 'ACC.01.T1' ? calculatePlannedDate(item.createdDate) : item.planDate}</>
-                                  ) :
-                                    // col.id === 'taskName' ? (
-                                    //   <>
-                                    //     Lorem ipsum dolor sit amet consectetur adipisicing elit. Accusamus facilis aperiam recusandae
-                                    //     dolores sit ad ratione, nemo, ipsum repellendus facere id amet distinctio architecto
-                                    //     illo doloremque quasi odit. Minus harum doloribus omnis, vel nam ut, est sint libero aut repudiandae
-                                    //     in quas odit ipsam ullam, ad corporis quod repellat ipsum maxime eius voluptatum nostrum ab. Consequuntur
-                                    //     error nostrum voluptatum, optio minus dolorem atque odit veniam, suscipit nesciunt accusamus laborum voluptate laboriosam ipsam adipisci tempore, obcaecati ipsa tenetur architecto dolore fugit pariatur
-                                    //     animi molestias! Numquam commodi sit, id debitis, similique itaque, sed modi possimus rerum minima quam at quo aperiam voluptatum.</>
-                                    // ) :
-                                    // col.id === 'isCompleted' ? (
-                                    //   <>
-                                    //     Pending - console
-                                    //   </>
-                                    // ) :
-                                    (<>{item[col.id as keyof ProjectAssignListWithDoer]}</>
-                                    )}
+                                {col.id === 'planDate' ? (
+                                  <>{item.task_Number === 'ACC.01.T1' ? calculatePlannedDate(item.createdDate) : item.planDate}</>
+                                ) :
+                                  // col.id === 'taskName' ? (
+                                  //   <>
+                                  //     Lorem ipsum dolor sit amet consectetur adipisicing elit. Accusamus facilis aperiam recusandae
+                                  //     dolores sit ad ratione, nemo, ipsum repellendus facere id amet distinctio architecto
+                                  //     illo doloremque quasi odit. Minus harum doloribus omnis, vel nam ut, est sint libero aut repudiandae
+                                  //     in quas odit ipsam ullam, ad corporis quod repellat ipsum maxime eius voluptatum nostrum ab. Consequuntur
+                                  //     error nostrum voluptatum, optio minus dolorem atque odit veniam, suscipit nesciunt accusamus laborum voluptate laboriosam ipsam adipisci tempore, obcaecati ipsa tenetur architecto dolore fugit pariatur
+                                  //     animi molestias! Numquam commodi sit, id debitis, similique itaque, sed modi possimus rerum minima quam at quo aperiam voluptatum.</>
+                                  // ) :
+                                  // col.id === 'isCompleted' ? (
+                                  //   <>
+                                  //     Pending - console
+                                  //   </>
+                                  // ) :
+                                  (<>{item[col.id as keyof ProjectAssignListWithDoer]}</>
+                                  )}
 
                               </div>
                             </td>
@@ -688,14 +685,14 @@ const ProjectAssignTable: React.FC = () => {
                                       <td><h5>Extended Date :</h5></td>
                                       <td><h5 className='text-primary'>N/A</h5></td>
                                     </Col>
-                                    <Col lg={3} className='mt-2'>
+                                    <Col lg={3}  className='mt-2'>
                                       <td><h5>Completed Date :</h5></td>
                                       <td><h5 className='text-primary'>N/A</h5></td>
                                     </Col>
                                     <Col lg={3} className=''>
                                       <div className=' d-flex justify-content-end align-items-center'>
-                                        <span className='text-primary me-3 fw-bold'>View Output</span>
-                                        <span className='text-primary cursor-pointer me-3 fw-bold' onClick={() => handleViewEdit(item.taskCommonId)}>Heirarchy View</span>
+                                        <span className='text-primary me-2 cursor-pointer fw-bold' onClick={() => handleViewEditOutput(item.taskCommonId)}>View Output</span>
+                                        <span className='text-primary cursor-pointer me-2 fw-bold' onClick={() => handleViewEdit(item.taskCommonId)}>Heirarchy View</span>
                                         <span className='text-primary me-2 fw-bold'>Help</span>
                                         <Button className='ms-auto ' onClick={() => handleEdit(item.taskCommonId)}>
                                           Finish
@@ -734,6 +731,7 @@ const ProjectAssignTable: React.FC = () => {
           </>
         )}
         <HeirarchyView showView={showView} setShowView={setShowView} id={manageId} />
+        <ViewOutput showViewOutput={showViewOutput} setShowViewOutput={setShowViewOutput} preData={preData} />
       </div>
     </>
 
