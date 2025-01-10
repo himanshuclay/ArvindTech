@@ -191,6 +191,8 @@ const ProjectAssignTable: React.FC = () => {
       }
     };
 
+    console.log(singleDataById)
+
 
     fetchData();
   }, []);
