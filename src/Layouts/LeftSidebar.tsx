@@ -147,7 +147,7 @@ const getFilteredMenuItems = () => {
         {
           key: 'CompletedTask',
           label: 'Completed Task',
-          url: '/pages/CompletedTask',
+          url: '/pages/admin/CompletedTask',
           icon: 'ri-slideshow-line',
           parentKey: 'TaskAdmin',
         },

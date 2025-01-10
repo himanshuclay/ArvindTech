@@ -47,26 +47,15 @@ interface DynamicFormProps {
     setShow: any;
     preData: any;
     projectName: any;
-    selectedTasknumber: any
-    setLoading: any
     taskCommonIDRow: any
     taskStatus: any
     processId: any
     moduleId: any
     ProcessInitiationID: any
     approval_Console: any
-    approvalConsoleInputID: any
     fromComponent: string
 }
 
-// interface taskSelection {
-//     inputId: string;
-//     optionId: string;
-//     taskNumber: string;
-//     taskTiming: string;
-//     taskType: string;
-//     daySelection: string;
-// }
 
 interface MessData {
     messID: string;
@@ -79,7 +68,21 @@ interface FormState {
 interface Task {
     task_Number: any;
 }
+interface DropdownItem {
+    name: string;
+}
 
+
+type InputConfig = {
+    inputId: string;
+    type?: string;
+    label?: string;
+    placeholder?: string;
+    options?: any[];
+    required?: boolean;
+    conditionalFieldId?: string;
+    fieldId?: string;
+};
 const DynamicForm: React.FC<DynamicFormProps> = ({
     taskNumber,
     processId,
@@ -91,19 +94,15 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
     setShow,
     parsedCondition,
     preData,
-    selectedTasknumber,
     formData,
     taskCommonIDRow,
     approval_Console,
-    approvalConsoleInputID,
     taskStatus,
-    fromComponent,
-    setLoading }) => {
+    fromComponent
+}) => {
 
-    //  const [formDatas, setFormDatas] = useState<any>({});
     const [formState, setFormState] = useState<FormState>({});
     const [summary, setSummary] = useState('');
-    // const [taskJson, setTaskJson] = useState<{ [key: string]: any }>({});
     const [globalTaskJson, setglobalTaskJson] = useState<any>(JSON.stringify(formData));
     const [messManagers, setMessManagers] = useState<{ value: string, label: string }[]>([]);
     const [selectedManager, setSelectedManager] = useState<string>("Avisineni Pavan Kumar_LLP05337"); // Initialize with default value
@@ -117,81 +116,9 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
     const location = useLocation();
 
     const navigate = useNavigate()
-    console.log(formData)
-
-
-    // useEffect(() => {
-
-    //     if (formData) {
-    //         try {
-    //             // Check if formData is a string and parse it; otherwise, use it as-is
-    //             const parsedData = typeof formData === 'string'
-    //                 ? JSON.parse(formData)  // Parse the string if it's in JSON format
-    //                 : formData;  // Use as-is if it's already an object
-
-    //             setTaskJson(parsedData); // Set the parsed or direct object
-    //         } catch (e) {
-    //             console.error("Error parsing formData:", e);
-    //         }
-    //     } else {
-    //         console.warn("formData is undefined or empty");
-    //     }
-    // }, [formData]);
 
 
 
-    // useEffect(()=>{
-    //     if(taskCommonIDRow){
-
-    //         fetchSingleDataById(taskCommonIDRow);
-    //     }
-    // },[taskCommonIDRow])
-    // const fetchSingleDataById = async (taskCommonId: number) => {
-    //     try {
-    //       const flag = 5;
-    //       const response = await axios.get<ApiResponse>(
-    //         `${config.API_URL_ACCOUNT}/ProcessInitiation/GetFilterTask?TaskCommonId=${taskCommonId}&Flag=${flag}`
-    //       );
-
-    //       if (response.data && response.data.isSuccess) {
-    //         // Safely access task_Json and ensure it's a string
-    //         const singledatabyID = response.data.getFilterTasks[0]?.task_Json;
-
-    //         if (typeof singledatabyID === 'string') {
-    //           console.log('fetch single Data:', JSON.parse(singledatabyID));
-    //         //   setSingleDataById(JSON.parse(singledatabyID));
-    //         setFormDatas(JSON.parse(singledatabyID));
-    //         // setFormDatas(singledatabyID);
-
-    //         } else {
-    //           console.error('task_Json is not a valid string:', singledatabyID);
-    //         }
-    //       } else {
-    //         console.error('API Response Error:', response.data?.message || 'Unknown error');
-    //       }
-    //     } catch (error) {
-    //       if (axios.isAxiosError(error)) {
-    //         console.error('Axios Error Response:', error.response?.data || 'No response data');
-    //         console.error('Axios Error Message:', error.message);
-    //       } else {
-    //         console.error('Unexpected Error:', error);
-    //       }
-    //     } finally {
-    //       setLoading(false);
-    //     }
-    //   };
-
-
-    type InputConfig = {
-        inputId: string;
-        type?: string;
-        label?: string;
-        placeholder?: string;
-        options?: any[];
-        required?: boolean;
-        conditionalFieldId?: string;
-        fieldId?: string;
-    };
 
     const saveDataToLocalStorage = () => {
         // Retrieve saved data from localStorage or initialize with an empty array if none
@@ -278,9 +205,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
         localStorage.setItem(localStorageKey, JSON.stringify(updatedData));
     };
 
-    interface DropdownItem {
-        name: string;
-    }
+
 
     useEffect(() => {
         const messName = messList[currentStep]?.messName;
@@ -393,16 +318,12 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
 
 
     const handleNextStep = () => {
-        // Save current form data before moving to next step
         saveDataToLocalStorage();
 
-
-        // Move to the next step if it's within the bounds of the messList
         if (currentStep < messList.length - 1) {
             const nextStep = currentStep + 1;
             setCurrentStep(nextStep);
 
-            // Load the saved data for the next step from localStorage
             const savedData: SavedData[] = JSON.parse(localStorage.getItem(localStorageKey) || '[]');
             const nextMessID = messList[nextStep].messID;
 
@@ -533,9 +454,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
 
 
 
-    // console.log("this is my condition", parsedCondition)
 
-    // Handle change in input values
     const handleChange = (inputId: string, value: string | boolean | string[]) => {
         const excludedInputIds = ['99', '100', '102', '103'];
         const input = formData.inputs.find(input => String(input.inputId) === String(inputId));
@@ -545,6 +464,8 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
         console.log(`Selected label: ${selectedLabel}`);
         console.log(input);
 
+        console.log(updatedValue);
+
         if (input) {
             // Decimal input validation
             if (input.type === 'decimal') {
@@ -553,14 +474,18 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                     updatedValue = value as string;
                 } else {
                     console.warn('Invalid decimal value. Value must be 0 or greater with up to 2 decimals.');
-                    return; // Exit if invalid
+                    return;
                 }
             }
 
+
             // Handle select and CustomSelect input types
             if (input.type === 'select' || input.type === 'CustomSelect') {
+                console.log("i am inside")
                 const selectedOption = input.options?.find(option => option.label === value);
+                console.log(parsedCondition)
                 console.log(selectedOption)
+
                 if (selectedOption) {
                     updatedValue = selectedOption.id;
                     selectedLabel = selectedOption.label;
@@ -593,7 +518,6 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                     console.warn(`No option found for the value: ${value}`);
                 }
             }
-            // setShowMessManagerSelect(value === "11-1");
 
 
 
@@ -633,8 +557,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                     const updatedTaskJson = {
                         ...formData,
                         inputs: formData.inputs.map(input => ({
-                            ...input,
-                            value: newState[input.inputId] !== undefined ? newState[input.inputId] : input.value,
+                            ...input, value: newState[input.inputId] !== undefined ? newState[input.inputId] : input.value,
                         })),
                     };
                     setglobalTaskJson(updatedTaskJson);
@@ -661,18 +584,72 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
         const finalData = JSON.parse(localStorage.getItem(localStorageKey) ?? '[]');
         localStorage.removeItem(localStorageKey);
         console.log('Final Submitted Data:', finalData);
-
         const role = localStorage.getItem('EmpId') || '';
-        // if (fromComponent != 'AccountProcess'){
+
+
+        let found = false;
+        finalData.forEach((mess: any) => {
+            mess.taskJson.inputs.forEach((input: any) => {
+                if (input.value === "11-1") {
+                    found = true;
+                }
+            });
+        });
+
+
+        console.log(found)
+        console.log(parsedCondition)
+
+        console.log(globalTaskJson)
+
+        // const input = formData.inputs.find(input => String(input.inputId) === String(inputId));
+
+        // console.log(input)
+
+        // if (input.type === 'select' || input.type === 'CustomSelect') {
+        //     console.log("i am inside")
+        //     const selectedOption = input.options?.find(option => option.label === value);
+        //     console.log(parsedCondition)
+        //     console.log(selectedOption)
+
+        //     if (selectedOption) {
+
+        //         if (Array.isArray(parsedCondition)) {
+        //             const flattenedCondition = parsedCondition.flat();
+        //             console.log(flattenedCondition)
+        //             flattenedCondition.forEach((condition) => {
+        //                 if (Array.isArray(condition.taskSelections)) {
+        //                     const filteredTaskSelections = condition.taskSelections.filter(
+        //                         (taskSelection: any) => String(taskSelection.inputId) === String(updatedValue)
+        //                     );
+
+        //                     if (filteredTaskSelections.length > 0) {
+        //                         setSelectedCondition({ ...condition, taskSelections: filteredTaskSelections });
+        //                         console.log(selectedCondition)
+        //                     } else {
+        //                         console.warn('No matching task found for updatedValue:', updatedValue);
+        //                     }
+        //                 } else {
+        //                     console.error('taskSelections is not an array or undefined:', condition.taskSelections);
+        //                 }
+        //             });
+        //         } else {
+        //             console.error('parsedCondition is not an array:', parsedCondition);
+        //         }
+        //         console.log(selectedOption.id)
+
+        //     } else {
+        //         console.warn(`No option found for the value: ${value}`);
+        //     }
         // }
 
-        // Prepare the data to be posted
-        // const taskCommonId = localStorage.getItem('taskCommonId') || 0;  // Retrieve from localStorage or set to 0 if not found
-
-        // const conditionToSend = selectedCondition.length > 0 ? selectedCondition : [parsedCondition[0]]; // Ensure the fallback is an array
 
 
-        // setLoading(true);  // Show loader when the request is initiated
+
+
+
+
+
         if (fromComponent === 'AccountProcess') {
             const adhocRequestedData = {
                 projectName: projectNames,
@@ -697,7 +674,6 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                 }
             } catch (error: any) {
                 console.error('Error submitting module:', error.message || error);
-                // Optionally, handle network errors or unexpected errors here
             }
         }
         if (fromComponent === 'PendingTask') {
@@ -707,42 +683,42 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
             const requestData = {
                 // ...formData,
                 id: taskData?.id || 0,
-                doerID: role || '', // Fallback to an empty string if role is undefined
-                task_Json: processId === "ACC.01" ? JSON.stringify(finalData) : JSON.stringify(globalTaskJson), // Conditional task_Json based on processId
+                doerID: role || '',
+                task_Json: processId === "ACC.01" ? JSON.stringify(finalData) : JSON.stringify(globalTaskJson),
                 isExpired: 0, // Assuming this is a static value
-                isCompleted: formState['Pending'] || 'Completed', // Use 'Pending' if available, else default to 'Completed'
-                task_Number: taskNumber, // Ensure taskNumber is available
-                summary: formState['summary'] || 'Task Summary', // Fallback to a default if 'summary' is not in formState
-                condition_Json: JSON.stringify(selectedCondition), // Ensure conditionToSend is properly serialized
-                taskCommonId: taskCommonIDRow, // Use the taskCommonIDRow value from the context
-                taskStatus: taskStatus, // Ensure taskStatus is available
-                taskName: taskName, // Ensure taskStatus is available
-                updatedBy: role, // Use role for updatedBy
+                isCompleted: formState['Pending'] || 'Completed',
+                task_Number: taskNumber,
+                summary: formState['summary'] || 'Task Summary',
+                condition_Json: parsedCondition,
+                taskCommonId: taskCommonIDRow,
+                taskStatus: taskStatus,
+                taskName: taskName,
+                updatedBy: role,
                 projectName: projectName
             };
             console.log(requestData)
 
-            try {
-                const response = await fetch(`${config.API_URL_ACCOUNT}/ProcessInitiation/UpdateDoerTask`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(requestData),
-                });
+            // try {
+            //     const response = await fetch(`${config.API_URL_ACCOUNT}/ProcessInitiation/UpdateDoerTask`, {
+            //         method: 'POST',
+            //         headers: {
+            //             'Content-Type': 'application/json',
+            //         },
+            //         body: JSON.stringify(requestData),
+            //     });
 
-                if (response.ok) {
-                    const responseData = await response.json();
-                    navigate('/pages/completedTask', { state: { showToast: true, taskName: data[0].task_Number } });
-                    console.log('Task updated successfully:', responseData);
-                } else {
-                    console.error('Failed to update the task:', response.statusText);
-                }
-            } catch (error) {
-                console.error('Error occurred while updating task:', error);
-            } finally {
+            //     if (response.ok) {
+            //         const responseData = await response.json();
+            //         navigate('/pages/completedTask', { state: { showToast: true, taskName: data[0].task_Number } });
+            //         console.log('Task updated successfully:', responseData);
+            //     } else {
+            //         console.error('Failed to update the task:', response.statusText);
+            //     }
+            // } catch (error) {
+            //     console.error('Error occurred while updating task:', error);
+            // } finally {
 
-            }
+            // }
 
         }
     };
@@ -1443,15 +1419,14 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                                                     )}
                                                 </div>
                                             )
-
                                         ))}
                                         {showMessManagerSelect && (
                                             <div className='form-group my-2 position-relative'>
                                                 <label>Select Mess Manager</label>
                                                 <select
                                                     className='form-control'
-                                                    value={selectedManager} // Bound to selectedManager state
-                                                    onChange={handleSelectMessImpChange} // Updates state on change
+                                                    value={selectedManager}
+                                                    onChange={handleSelectMessImpChange}
                                                 >
                                                     <option value="">Select a Manager</option> {/* Default placeholder option */}
                                                     {messManagers.map((manager) => (
@@ -1559,12 +1534,12 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                                                         <button className="btn btn-secondary" type="button" onClick={handleClose2}>
                                                             Close
                                                         </button>
-                                                        <button
+                                                        {/* <button
                                                             className="btn btn-primary ms-2"
                                                             type="submit"
                                                             onClick={submitMessData}>
                                                             Submit
-                                                        </button>
+                                                        </button> */}
                                                     </div>
                                                 </form>
                                             </div>
@@ -1610,6 +1585,14 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                                         ) : <> {fromComponent != 'TaskMaster' && <button
                                             type="submit" // This button will submit the form
                                             className="btn btn-success mt-2"
+
+                                            onClick={(e) => {
+                                                if (processId === 'ACC.01') {
+                                                    submitMessData(e);
+                                                }
+                                            }}
+
+
                                         >
                                             Submit
                                         </button>}

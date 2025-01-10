@@ -639,15 +639,12 @@ const AccountProcess = () => {
                     setShow={setShowAdhocDynamic}
                     parsedCondition
                     preData
-                    selectedTasknumber
-                    setLoading
                     taskCommonIDRow
                     taskStatus
                     processId={processID}
                     moduleId={moduleID}
                     ProcessInitiationID
                     approval_Console
-                    approvalConsoleInputID
                     projectName
                 />
 

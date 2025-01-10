@@ -769,15 +769,12 @@ const TaskMaster: React.FC = () => {
                     parsedCondition
                     preData
                     projectName
-                    selectedTasknumber
-                    setLoading
                     taskCommonIDRow
                     taskStatus
                     processId
                     moduleId
                     ProcessInitiationID
                     approval_Console
-                    approvalConsoleInputID
 
                 />
             }

@@ -6,6 +6,7 @@ import { format } from 'date-fns';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import config from '@/config';
 import MessCards from '../Component/Previous&Completed';
+import { getPlannedDate } from '../Component/PlanDateFunction';
 
 
 
@@ -28,8 +29,8 @@ interface ProjectAssignListWithDoer {
   taskCommonId: number;
   expiredSummary: null;
   createdBy: string;
-  status: 'Pending' | 'Done';
-  isCompleted: 'Pending';
+  status: string;
+  isCompleted: string;
   condition_Json: string;
   createdDate: string;
   completedDate: string;
@@ -38,7 +39,9 @@ interface ProjectAssignListWithDoer {
   roleName: string;
   inputs: string;
   messID: string;
+  planDate: string;
   plannedDate: string;
+  taskName: string;
 }
 
 interface ApiResponse {
@@ -66,16 +69,11 @@ const ProjectAssignTable: React.FC = () => {
   // =======================================================================
   // both are required to make dragable column of table 
   const [columns, setColumns] = useState<Column[]>([
-    { id: 'moduleName', label: 'Module Name', visible: true },
-    { id: 'processName', label: 'Process Name', visible: true },
-    { id: 'projectName', label: 'Project Name', visible: true },
-    { id: 'roleName', label: 'Role Name', visible: true },
-    { id: 'task_Number', label: 'Task Number', visible: true },
-    { id: 'taskType', label: 'Task Type', visible: true },
-    { id: 'plannedDate', label: 'Planned Date', visible: true },
-    { id: 'createdDate', label: 'Created Date', visible: true },
-    { id: 'completedDate', label: 'Completed Date', visible: true },
-
+    { id: 'task_Number', label: 'Task', visible: true },
+    { id: 'taskName', label: 'Task Name', visible: true },
+    { id: 'projectName', label: 'Project', visible: true },
+    { id: 'planDate', label: 'Planned', visible: true },
+    { id: 'isCompleted', label: 'Status', visible: true },
   ]);
 
   const handleOnDragEnd = (result: any) => {
@@ -268,7 +266,7 @@ const ProjectAssignTable: React.FC = () => {
       </div>
 
       <div className='overflow-auto '>
-        {data.length === 0 ? (
+        {!data ? (
           <Container className="mt-5">
             <Row className="justify-content-center">
               <Col xs={12} md={8} lg={6}>
@@ -280,107 +278,140 @@ const ProjectAssignTable: React.FC = () => {
             </Row>
           </Container>
         ) : (
+          <>
+            {loading ? (
+              <div className='loader-container'>
+                <div className="loader"></div>
+                <div className='mt-2'>Please Wait!</div>
+              </div>
+            ) : (
+              <DragDropContext onDragEnd={handleOnDragEnd}>
+                <Table hover className="bg-white">
+                  <thead>
+                    <Droppable droppableId="columns" direction="horizontal">
+                      {(provided) => (
+                        <tr
+                          {...provided.droppableProps} ref={provided.innerRef as React.Ref<HTMLTableRowElement>}
+                          className="text-nowrap">
+                          <th><i className="ri-list-ordered-2"></i> Sr. No</th>
+                          {columns
+                            .filter((col) => col.visible)
+                            .map((column, index) => (
+                              <Draggable key={column.id} draggableId={column.id} index={index}>
+                                {(provided) => (
+                                  <th
+                                    key={column.id}
+                                    className={
+                                      column.id === 'projectName' ? 'text-end' :
+                                        column.id === 'isCompleted' ? 'text-end' :
+                                          column.id === 'planDate' ? 'text-end' :
+                                            ''
+                                    }
+                                  >
+                                    <div ref={provided.innerRef}
+                                      {...provided.draggableProps}
+                                      {...provided.dragHandleProps}>
+                                      {column.id === 'processName' && (<i className="ri-map-2-line"></i>)}
+                                      {column.id === 'projectName' && (<i className="ri-building-line"></i>)}
+                                      {column.id === 'task_Number' && (<i className="ri-health-book-line pl-1-5"></i>)}
+                                      {column.id === 'isCompleted' && (<i className="ri-flag-line"></i>)}
+                                      {column.id === 'planDate' && (<i className="ri-hourglass-line"></i>)}
+                                      {column.id === 'taskName' && (<i className="ri-tools-line"></i>)}
+                                      &nbsp; {column.label}
+                                    </div>
+                                  </th>
+                                )}
+                              </Draggable>
+                            ))}
+                          {provided.placeholder}
+                          <th className='text-end pr-3'>Action</th>
+                        </tr>
+                      )}
+                    </Droppable>
+                  </thead>
+                  <tbody>
+                    {data.length > 0 ? (
+                      data.slice(0, 10).map((item, index) => (
+                        <tr key={item.id}>
+                          <td>{index + 1}</td>
+                          {columns
+                            .filter((col) => col.visible)
+                            .map((col) => (
+                              <td key={col.id}
+                                className={
+                                  col.id === 'taskName' ? 'fw-bold fs-14 text-dark truncated-text' :
+                                    col.id === 'task_Number' ? 'fw-bold fs-14 text-dark pl-3' :
+                                      col.id === 'planDate' ? 'text-nowrap text-end' :
+                                        col.id === 'projectName' ? 'text-end' :
+                                          col.id === 'isCompleted' ? 'text-nowrap text-end' :
+                                            ''
+                                }
+                              >
+                                <div>
+                                  {
+                                    col.id === 'planDate' ? (
+                                      <>
+                                        {item.task_Number === 'ACC.01.T1' ? (
+                                          calculatePlannedDate(item.createdDate)
+                                        ) : (
+                                          getPlannedDate(item.createdDate, item.planDate)
 
-          <DragDropContext onDragEnd={handleOnDragEnd}>
-            <Table hover className="bg-white">
-              <thead>
-                <Droppable droppableId="columns" direction="horizontal">
-                  {(provided) => (
-                    <tr
-                      {...provided.droppableProps} ref={provided.innerRef as React.Ref<HTMLTableRowElement>}
-                      className="text-nowrap">
-                      <th><i className="ri-list-ordered-2"></i> Sr. No</th>
-                      {columns
-                        .filter((col) => col.visible)
-                        .map((column, index) => (
-                          <Draggable key={column.id} draggableId={column.id} index={index}>
-                            {(provided) => (
-                              <th>
-                                <div
-                                  ref={provided.innerRef}
-                                  {...provided.draggableProps}
-                                  {...provided.dragHandleProps}
-                                >
-                                  {column.id === 'processName' && <i className="ri-map-2-line"></i>}
-                                  {column.id === 'projectName' && <i className="ri-building-line"></i>}
-                                  {column.id === 'task_Number' && <i className="ri-health-book-line"></i>}
-                                  {column.id === 'roleName' && <i className="ri-shield-user-line"></i>}
-                                  {column.id === 'taskType' && <i className="ri-bookmark-line"></i>}
-                                  {column.id === 'taskTime' && <i className="ri-calendar-line"></i>}
-                                  {column.id === 'createdDate' && <i className="ri-hourglass-line"></i>}
-                                  {column.id === 'completedDate' && <i className="ri-focus-3-line"></i>}
-                                  {column.id === 'moduleName' && <i className="ri-box-3-line"></i>}
-                                  &nbsp; {column.label}
-                                </div>
-                              </th>
-                            )}
-                          </Draggable>
-                        ))}
-                      {provided.placeholder}
-                      <th className='text-center'>Action</th>
-                    </tr>
-                  )}
-                </Droppable>
-              </thead>
-              <tbody>
-                {data.length > 0 ? (
-                  data.slice(0, 10).map((item, index) => (
-                    <tr key={item.id}>
-                      <td>{index + 1}</td>
-                      {columns
-                        .filter((col) => col.visible)
-                        .map((col) => (
-                          <td
-                            key={col.id}
-                            className={
-                              col.id === 'processName'
-                                ? 'fw-bold fs-14 text-dark text-nowrap'
-                                : col.id === 'task_Number'
-                                  ? 'fw-bold fs-13 text-dark text-nowrap task1'
-                                  : col.id === 'processOwnerName'
-                                    ? 'fw-bold fs-13 text-dark text-nowrap'
-                                    : col.id === 'plannedDate'
-                                      ? ' text-nowrap '
-                                      : col.id === 'completedDate'
-                                        ? ' text-nowrap '
-                                        : col.id === 'moduleName' && item[col.id] === 'Accounts'
-                                          ? 'text-nowrap task4'
-                                          : col.id === 'moduleName' && item[col.id] === 'Accounts Checklist'
-                                            ? 'text-nowrap task3'
-                                            : ''
-                            }
-                          >
-                            <div>
-                              {
-                                col.id === 'plannedDate' ? (
-                                  <>{item.task_Number === 'ACC.01.T1' ? calculatePlannedDate(item.createdDate) : item.plannedDate}</>
-                                ) :
-                                  col.id === 'createdDate' ? (
-                                    <>{format(new Date(item.createdDate), 'dd-MMM-yyyy HH:mm')}</>
-                                  ) :
-                                    col.id === 'completedDate' ? (
-                                      <>{format(new Date(item.completedDate), 'dd-MMM-yyyy HH:mm')}</>
+                                        )}
+                                      </>
                                     ) :
+                                      col.id === 'createdDate' ? (
+                                        <>{format(new Date(item.createdDate), 'dd-MMM-yyyy HH:mm')}</>
+                                      ) :
+                                        col.id === 'completedDate' ? (
+                                          <>{format(new Date(item.completedDate), 'dd-MMM-yyyy HH:mm')}</>
+                                        ) : col.id === 'taskName' ? (
+                                          <>
+                                            {item.isCompleted !== "Completed"
+                                              ? item.taskName
+                                              : (() => {
+                                                const taskJson = JSON.parse(item.task_Json);
+                                                const firstTaskName = taskJson && Array.isArray(taskJson) && taskJson.length > 0
+                                                  ? taskJson[0].taskName
+                                                  : 'No task names available';
+                                                return firstTaskName;
+                                              })()
+                                            }
+                                          </>
+                                        ) :
 
-                                      (
-                                        <>{item[col.id as keyof typeof item]}</>
-                                      )}
-                            </div>
+                                          (
+                                            <>{item[col.id as keyof typeof item]}</>
+                                          )}
+                                </div>
+                              </td>
+                            ))}
+                          <td className='text-end pr-3'>
+                            <Button onClick={() => handleEdit(item.taskCommonId)}>
+                              Show
+                            </Button>
                           </td>
-                        ))}
-                      <td className='text-center'>
-                        <Button onClick={() => handleEdit(item.taskCommonId)}>
-                          Show
-                        </Button>
-                      </td>
-                    </tr>
-                  ))
-                ) : (
-                  <tr><td colSpan={columns.length + 1}>No data available</td></tr>
-                )}
-              </tbody>
-            </Table>
-          </DragDropContext>
+                        </tr>
+                      ))
+                    ) : (
+                      <tr><td colSpan={columns.length + 1}>
+                        <Container className="mt-5">
+                          <Row className="justify-content-center">
+                            <Col xs={12} md={8} lg={6}>
+                              <Alert variant="info" className="text-center">
+                                <h4>No Task Found</h4>
+                                <p>You currently don't have any tasks assigned.</p>
+                              </Alert>
+                            </Col>
+                          </Row>
+                        </Container>
+                      </td></tr>
+                    )}
+                  </tbody>
+                </Table>
+              </DragDropContext>
+            )}
+          </>
+
         )}
       </div>
     </>
