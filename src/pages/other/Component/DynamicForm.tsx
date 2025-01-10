@@ -1152,7 +1152,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                                                     <div key={mess.messID}>
                                                         <div
                                                             className={stepClass}
-                                                            onClick={() => setCurrentStep(index)}
+                                                            // onClick={() => setCurrentStep(index)}
                                                             style={{
                                                                 cursor: 'pointer',
                                                                 padding: '10px 0',
