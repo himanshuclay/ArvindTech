@@ -88,7 +88,7 @@ const ProjectAssignTable: React.FC = () => {
   const [parsedCondition, setParsedCondition] = useState<any[]>([]);
   const [taskCommonId, setTaskCommonId] = useState<number | null>(null);
   const [selectedTasknumber, setSelectedTasknumber] = useState<string>('');
-  const [singleDataById, setSingleDataById] = useState<ProjectAssignListWithDoer[]>([]);
+  // const [singleDataById, setSingleDataById] = useState<ProjectAssignListWithDoer[]>([]);
   const [taskCommonIDRow, setTaskCommonIdRow] = useState<number | null>(null);
   const [show, setShow] = useState(false);
   const [showView, setShowView] = useState(false);
@@ -308,37 +308,36 @@ const ProjectAssignTable: React.FC = () => {
   };
 
 
-  const fetchSingleDataById = async (taskCommonId: number) => {
-    try {
-      const flag = 5;
-      const response = await axios.get<ApiResponse>(
-        `${config.API_URL_ACCOUNT}/ProcessInitiation/GetFilterTask?TaskCommonId=${taskCommonId}&Flag=${flag}`
-      );
+  // const fetchSingleDataById = async (taskCommonId: number) => {
+  //   try {
+  //     const flag = 5;
+  //     const response = await axios.get<ApiResponse>(
+  //       `${config.API_URL_ACCOUNT}/ProcessInitiation/GetFilterTask?TaskCommonId=${taskCommonId}&Flag=${flag}`
+  //     );
 
-      if (response.data && response.data.isSuccess) {
-        // Safely access task_Json and ensure it's a string
-        const singledatabyID = response.data.getFilterTasks[0]?.task_Json;
+  //     if (response.data && response.data.isSuccess) {
+  //       const singledatabyID = response.data.getFilterTasks[0]?.task_Json;
 
-        if (typeof singledatabyID === 'string') {
-          console.log('fetch single Data:', JSON.parse(singledatabyID));
-          setSingleDataById(JSON.parse(singledatabyID));
-        } else {
-          console.error('task_Json is not a valid string:', singledatabyID);
-        }
-      } else {
-        console.error('API Response Error:', response.data?.message || 'Unknown error');
-      }
-    } catch (error) {
-      if (axios.isAxiosError(error)) {
-        console.error('Axios Error Response:', error.response?.data || 'No response data');
-        console.error('Axios Error Message:', error.message);
-      } else {
-        console.error('Unexpected Error:', error);
-      }
-    } finally {
-      setLoading(false);
-    }
-  };
+  //       if (typeof singledatabyID === 'string') {
+  //         console.log('fetch single Data:', JSON.parse(singledatabyID));
+  //         setSingleDataById(JSON.parse(singledatabyID));
+  //       } else {
+  //         console.error('task_Json is not a valid string:', singledatabyID);
+  //       }
+  //     } else {
+  //       console.error('API Response Error:', response.data?.message || 'Unknown error');
+  //     }
+  //   } catch (error) {
+  //     if (axios.isAxiosError(error)) {
+  //       console.error('Axios Error Response:', error.response?.data || 'No response data');
+  //       console.error('Axios Error Message:', error.message);
+  //     } else {
+  //       console.error('Unexpected Error:', error);
+  //     }
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
 
 
 
@@ -356,10 +355,10 @@ const ProjectAssignTable: React.FC = () => {
     setTaskCommonIdRow(taskCommonId);
     fetchPreData(taskCommonId);
     handleShow();
-    if (taskCommonId) {
-      fetchSingleDataById(taskCommonId);
+    // if (taskCommonId) {
+    //   fetchSingleDataById(taskCommonId);
 
-    }
+    // }
   };
 
   let conditionArray = [];
