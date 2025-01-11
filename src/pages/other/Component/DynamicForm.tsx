@@ -713,6 +713,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                 if (response.ok) {
                     const responseData = await response.json();
                     toast.success('Task Completed')
+                    navigate('/pages/Notification')
                     console.log('Task updated successfully:', responseData);
                 } else {
                     console.error('Failed to update the task:', response.statusText);
