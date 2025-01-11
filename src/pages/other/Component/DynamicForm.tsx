@@ -7,7 +7,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import config from '@/config';
 import Select, { SingleValue } from 'react-select';
 import MessCards from './Previous&Completed';
-// import { toast } from 'react-toastify';npm r
+import { toast } from 'react-toastify';
 
 interface Option {
     id: string;
@@ -447,11 +447,11 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                 throw new Error(`Error: ${response.statusText}`);
             }
 
-            // const data = await response.json();
-            // console.log('Response Data:', data);
+            const data = await response.json();
+            console.log('Response Data:', data);
+            // toast.success('Mess Data submitted successfully!');
         } catch (error) {
             console.error('Error submitting data:', error);
-            alert('Failed to submit data. Please try again.');
         }
     };
 
@@ -579,6 +579,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
 
 
     const handleSubmit = async (event: React.FormEvent, taskNumber: string) => {
+        console.log('found')
         event.preventDefault();
         {
             processId === "ACC.01" && saveDataToLocalStorage();
@@ -601,9 +602,9 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
 
 
         console.log(found)
-        console.log(parsedCondition)
+        // console.log(parsedCondition)
 
-        console.log(globalTaskJson)
+        // console.log(globalTaskJson)
 
         // const input = formData.inputs.find(input => String(input.inputId) === String(inputId));
 
@@ -679,7 +680,6 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
             }
         }
         if (fromComponent === 'PendingTask') {
-            console.log(globalTaskJson)
 
             // const taskData = data.find((task: Task) => task.task_Number === taskNumber);
             const requestData = {
@@ -701,29 +701,27 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
             };
             console.log(requestData)
 
-            // try {
-            //     const response = await fetch(`${config.API_URL_ACCOUNT}/ProcessInitiation/UpdateDoerTask`, {
-            //         method: 'POST',
-            //         headers: {
-            //             'Content-Type': 'application/json',
-            //         },
-            //         body: JSON.stringify(requestData),
-            //     });
+            try {
+                const response = await fetch(`${config.API_URL_ACCOUNT}/ProcessInitiation/UpdateDoerTask`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(requestData),
+                });
 
-            //     if (response.ok) {
-            //         const responseData = await response.json();
-            //         toast.success('Task Completed')
-            //         navigate('/pages/Notification')
-            //         setShow(false);
-            //         console.log('Task updated successfully:', responseData);
-            //     } else {
-            //         console.error('Failed to update the task:', response.statusText);
-            //     }
-            // } catch (error) {
-            //     console.error('Error occurred while updating task:', error);
-            // } finally {
+                if (response.ok) {
+                    const responseData = await response.json();
+                    toast.success('Task Completed')
+                    navigate('/pages/Notification')
+                    setShow(false);
+                    console.log('Task updated successfully:', responseData);
+                } else {
+                    console.error('Failed to update the task:', response.statusText);
+                }
+            } catch (error) {
+                console.error('Error occurred while updating task:', error);
+            } finally {
 
-            // }
+            }
 
         }
     };
@@ -923,38 +921,6 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
 
 
 
-
-
-    // useEffect(() => {
-    //     if (showBankModal && selectedManager) {
-    //         // Fetch details when modal is shown and selectedManager is set
-    //         fetchBankDetails(selectedManager);
-    //     }
-    // }, [showBankModal, selectedManager]);
-
-    // const fetchBankDetails = async (empID: string) => {
-    //     try {
-    //         const response = await axios.get(`https://arvindo-api.clay.in/api/ProcessInitiation/GetMessData?EmpID=${selectedManager}`);
-    //         if (response.data.isSuccess) {
-    //             const data = response.data.getMessDataByMessManagerEmpID[0];
-    //             setBankDetails({
-    //                 managerName: data.managerName,
-    //                 reimbursementBankAccountNumber: data.reimbursementBankAccountNumber,
-    //                 reimbursementBankName: data.reimbursementBankName,
-    //                 reimbursementBankIfsc: data.reimbursementBankIfsc,
-    //                 reimbursementBranchName: data.reimbursementBranchName,
-    //                 userUpdateMobileNumber: data.userUpdateMobileNumber,
-    //             });
-
-    //             console.log(data)
-    //         } else {
-    //             console.error('Failed to fetch bank details');
-    //         }
-    //     } catch (error) {
-    //         console.error('Error fetching bank details:', error);
-    //     }
-    // };
-
     const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = event.target;
         setBankDetails((prevDetails) => ({
@@ -991,48 +957,6 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
 
                         {location.pathname !== '/pages/ApprovalConsole' && (
                             <div className="d-flex flex-wrap mx-3">
-                                {/* {preData && preData.length > 0 && preData.map((task: { taskNumber: string; messName: string; messTaskNumber: string; messManager: string; managerNumber: string; inputs: { label: string; value: string }[] }, index: number) => (
-                                    <div key={index} className={`m-1 w-24 ${currentStep === index ? "activeIndex" : ""}`}>
-                                        {selectedTasknumber !== task.taskNumber && (
-                                            <div className="card shadow-sm w-100">
-                                                <div className="card-body">
-                                                    <h5 className="card-title text-primary">Task Number: <span>{task.messTaskNumber}</span></h5>
-
-                                                    {messList.length > 0 &&
-                                                        index === messList.length &&
-                                                        (
-                                                            <p className="card-text mb-2">
-                                                                <strong>Mess Name: </strong><span className="text-primary">{task.messName}</span><br />
-                                                                <strong>Mess Manager Name: </strong> <span className="text-primary">{task.messManager}</span><br />
-                                                                <strong>Mess Manager Contact: </strong>
-                                                                <a
-                                                                    href={`tel:${task.managerNumber}`}
-                                                                    className="ms-1 text-primary"
-                                                                    style={{ textDecoration: "none" }}
-                                                                    aria-label="Call"
-                                                                >
-                                                                    <i className="ri-phone-fill" style={{ fontSize: "1rem" }}></i>
-                                                                    {task.managerNumber}
-                                                                </a>
-                                                            </p>
-                                                        )
-                                                    }
-
-                                                    <div className="card-text">
-                                                        <h6>Value:</h6>
-                                                        <ul className="">
-                                                            {task.inputs.map((input, idx) => (
-                                                                <li key={idx} className="list-group-item">
-                                                                    <strong>{input.label} </strong> <span className="text-primary">{input.value}</span>
-                                                                </li>
-                                                            ))}
-                                                        </ul>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        )}
-                                    </div>
-                                ))} */}
                                 {preData && preData.length > 0 &&
                                     (
                                         <MessCards data={preData} />
@@ -1053,59 +977,6 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                 {/* {location.pathname === '/pages/ApprovalConsole' && 
                     ( */}
                 <div>
-                    {/* {formData.map((mess) => (
-                                <form
-                                    key={mess.messID}
-                                    className='side-scroll'
-                                    onSubmit={(event) => handleApprovalSubmit(event, taskNumber)}  // Use handleApprovalSubmit here
-                                >
-                                    <div style={{ border: '1px solid #ccc', padding: '10px', margin: '10px 0' }}>
-                                        <h2>{mess.taskJson.formName}</h2>
-                                        <h3>Mess ID: {mess.messID}</h3>
-                                        {mess.taskJson.inputs.map((input) => (
-                                            <div key={input.inputId} style={{ marginBottom: '15px' }}>
-                                                <label style={{ display: 'block', fontWeight: 'bold' }}>
-                                                    {input.label} {input.required && '*'}
-                                                </label>
-                                                {input.type === 'select' && (
-                                                    <select
-                                                        value={formState[input.inputId] || input.value}  // Bind to formState
-                                                        onChange={(e) => setFormState({
-                                                            ...formState,
-                                                            [input.inputId]: e.target.value
-                                                        })}
-                                                        style={{ padding: '5px', width: '100%' }}
-                                                    >
-                                                        {input.options?.map((option) => (
-                                                            <option key={option.id} value={option.id} style={{ color: option.color }}>
-                                                                {option.label}
-                                                            </option>
-                                                        ))}
-                                                    </select>
-                                                )}
-                                                {input.type === 'text' && (
-                                                    <input
-                                                        type="text"
-                                                        value={formState[input.inputId] || input.value}  // Bind to formState
-                                                        onChange={(e) => setFormState({
-                                                            ...formState,
-                                                            [input.inputId]: e.target.value
-                                                        })}
-                                                        placeholder={input.placeholder}
-                                                        style={{ padding: '5px', width: '100%' }}
-                                                    />
-                                                )}
-                                            </div>
-                                        ))}
-                                    </div>
-                                    <button type="submit" className="btn btn-success">
-                                        Submit
-                                    </button>
-                                </form>
-                            ))} */}
-
-
-
 
                     {formData && formData.inputs &&
                         <form className='side-scroll' onSubmit={(event) => handleSubmit(event, taskNumber)}>
@@ -1486,7 +1357,6 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                                                             value={bankDetails.reimbursementBankName}
                                                             placeholder="Enter bank name"
                                                             onChange={handleInputChange}
-                                                        // readOnly
                                                         />
                                                     </div>
 
@@ -1499,7 +1369,6 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                                                             value={bankDetails.reimbursementBranchName}
                                                             placeholder="Enter branch name"
                                                             onChange={handleInputChange}
-                                                        // readOnly
                                                         />
                                                     </div>
 
@@ -1589,12 +1458,13 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                                                 )}
                                                 {currentStep === messList.length - 1 && (
                                                     <button
-                                                        type="submit" // This button will submit the form
+                                                        type="submit"
                                                         className="btn btn-success"
                                                         onClick={(e) => {
                                                             if (processId === 'ACC.01') {
                                                                 submitMessData(e);
                                                             }
+                                                            handleSubmit(e, taskNumber)
                                                         }}
                                                     >
                                                         Submit
@@ -1604,14 +1474,6 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                                         ) : <> {fromComponent != 'TaskMaster' && <button
                                             type="submit" // This button will submit the form
                                             className="btn btn-success mt-2"
-
-                                            onClick={(e) => {
-                                                if (processId === 'ACC.01') {
-                                                    submitMessData(e);
-                                                }
-                                            }}
-
-
                                         >
                                             Submit
                                         </button>}

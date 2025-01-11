@@ -372,16 +372,6 @@ const ProjectAssignTable: React.FC = () => {
   };
 
 
-
-  // function getNextMonday(createdDate: string) {
-  //   const currentDate = new Date(createdDate); // Use the provided createdDate
-  //   const currentDay = currentDate.getDay();  // Get the day of the week (0-6, Sunday-Saturday)
-  //   const daysToAdd = (currentDay === 1) ? 7 : (1 + 7 - currentDay) % 7;
-  //   currentDate.setDate(currentDate.getDate() + daysToAdd);
-  //   currentDate.setHours(20, 0, 0, 0);
-  //   return currentDate;
-  // }
-
   return (
 
     <>
