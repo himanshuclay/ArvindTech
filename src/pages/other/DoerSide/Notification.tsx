@@ -350,10 +350,13 @@ const ProjectAssignTable: React.FC = () => {
     const month = months[plannedDate.getMonth()];
     const day = String(plannedDate.getDate()).padStart(2, '0');
     const year = plannedDate.getFullYear();
-    const hours = String(plannedDate.getHours()).padStart(2, '0');
+    let hours = plannedDate.getHours();
     const minutes = String(plannedDate.getMinutes()).padStart(2, '0');
-    return `${day}-${month}-${year} ${hours}:${minutes}`;
+    const amPm = hours >= 12 ? 'PM' : 'AM';
+    hours = hours % 12 || 12; // Convert to 12-hour format and handle midnight (0 becomes 12)
+    return `${day}-${month}-${year} ${String(hours).padStart(2, '0')}:${minutes} ${amPm}`;
   }
+
 
 
   const handleShowview = () => setShowView(true);
