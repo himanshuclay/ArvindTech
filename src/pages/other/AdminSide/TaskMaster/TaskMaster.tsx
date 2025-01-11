@@ -775,6 +775,7 @@ const TaskMaster: React.FC = () => {
                     moduleId
                     ProcessInitiationID
                     approval_Console
+                    problemSolver
 
                 />
             }

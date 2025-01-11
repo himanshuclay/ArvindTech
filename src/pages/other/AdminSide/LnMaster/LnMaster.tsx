@@ -664,10 +664,10 @@ const LnMaster: React.FC = () => {
                                     </Col>
                                     <Col lg={3} className=''>
                                       <div className=' d-flex justify-content-end align-items-center'>
-                                        <span className='text-primary me-3 cursor-pointer fw-bold' onClick={() => handleView(item.id)}>View Output</span>
+                                        <span className='text-primary me-3 cursor-pointer fw-bold' onClick={() => handleView(item.taskCommonId)}>View Output</span>
                                         <span className='text-primary cursor-pointer me-3 fw-bold' onClick={() => handleViewEdit(item.taskCommonId)}>Heirarchy View</span>
                                         <span className='text-primary me-2 fw-bold'>Help</span>
-                                        <Button variant='primary' onClick={() => handleView(item.id)}> Show</Button>
+                                        <Button variant='primary' onClick={() => handleView(item.taskCommonId)}> Show</Button>
                                       </div>
                                     </Col>
                                   </Row>

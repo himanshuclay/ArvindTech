@@ -146,7 +146,7 @@ const ProjectAssignTable: React.FC = () => {
     fetchData();
   }, []);
 
-
+  console.log(data)
 
 
   const fetchPreData = async (taskCommonId: number) => {
@@ -516,6 +516,7 @@ const ProjectAssignTable: React.FC = () => {
                                   moduleId={item.moduleID}
                                   ProcessInitiationID={item.id}
                                   approval_Console={item.approval_Console}
+                                  problemSolver={item.problemSolver}
                                 />
                               }
                             </div>

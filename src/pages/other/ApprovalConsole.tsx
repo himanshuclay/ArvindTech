@@ -237,6 +237,7 @@ const ApprovalPage: React.FC = () => {
           approval_Console={selectedTask.approval_Console}
           // approvalConsoleInputID={selectedTask.approvalConsoleInputID}
           projectName
+          problemSolver
 
         />
       )}

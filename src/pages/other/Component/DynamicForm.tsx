@@ -53,6 +53,7 @@ interface DynamicFormProps {
     moduleId: any
     ProcessInitiationID: any
     approval_Console: any
+    problemSolver: any
     fromComponent: string
 }
 
@@ -65,9 +66,9 @@ interface MessData {
 interface FormState {
     [key: string]: any; // or more specific types
 }
-interface Task {
-    task_Number: any;
-}
+// interface Task {
+//     task_Number: any;
+// }
 interface DropdownItem {
     name: string;
 }
@@ -98,7 +99,9 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
     taskCommonIDRow,
     approval_Console,
     taskStatus,
-    fromComponent
+    fromComponent,
+    problemSolver,
+    ProcessInitiationID,
 }) => {
 
     const [formState, setFormState] = useState<FormState>({});
@@ -363,7 +366,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
 
 
 
-
+    console.log(parsedCondition)
 
 
     const handleClose = () => {
@@ -670,7 +673,6 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                     navigate('/pages/ProcessMaster');
                 } else {
                     console.error('Error submitting module:', response.status, response.statusText);
-                    // Optionally, show an error message to the user
                 }
             } catch (error: any) {
                 console.error('Error submitting module:', error.message || error);
@@ -679,13 +681,13 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
         if (fromComponent === 'PendingTask') {
             console.log(globalTaskJson)
 
-            const taskData = data.find((task: Task) => task.task_Number === taskNumber);
+            // const taskData = data.find((task: Task) => task.task_Number === taskNumber);
             const requestData = {
                 // ...formData,
-                id: taskData?.id || 0,
+                id: ProcessInitiationID || 0,
                 doerID: role || '',
                 task_Json: processId === "ACC.01" ? JSON.stringify(finalData) : JSON.stringify(globalTaskJson),
-                isExpired: 0, // Assuming this is a static value
+                isExpired: 0,
                 isCompleted: formState['Pending'] || 'Completed',
                 task_Number: taskNumber,
                 summary: formState['summary'] || 'Task Summary',
@@ -694,6 +696,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                 taskStatus: taskStatus,
                 taskName: taskName,
                 updatedBy: role,
+                problemSolver: problemSolver,
                 projectName: projectName
             };
             console.log(requestData)
@@ -709,7 +712,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
 
                 if (response.ok) {
                     const responseData = await response.json();
-                    navigate('/pages/completedTask', { state: { showToast: true, taskName: data[0].task_Number } });
+                    toast.success('Task Completed')
                     console.log('Task updated successfully:', responseData);
                 } else {
                     console.error('Failed to update the task:', response.statusText);

@@ -6,7 +6,7 @@ export const getPlannedDate = (createdDate: string, planDate: string): string =>
 
     const createdDateTime = new Date(createdDate);
 
-    const hoursMatch = planDate.match(/Hours-\s*(\d+)/i);
+    const hoursMatch = planDate.match(/Hours -\s*(\d+)/i);
     if (hoursMatch) {
         const hoursToAdd = parseInt(hoursMatch[1], 10);
         if (!isNaN(hoursToAdd)) {

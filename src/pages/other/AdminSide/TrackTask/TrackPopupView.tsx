@@ -57,7 +57,7 @@ const TrackPopUpView: React.FC<ProcessCanvasProps> = ({ show, setShow, manageId 
     const handleClose = () => {
         setShow(false);
     };
-
+    console.log(manageId)
 
 
     useEffect(() => {
