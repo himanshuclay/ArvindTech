@@ -698,27 +698,27 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
             };
             console.log(requestData)
 
-            // try {
-            //     const response = await fetch(`${config.API_URL_ACCOUNT}/ProcessInitiation/UpdateDoerTask`, {
-            //         method: 'POST',
-            //         headers: {
-            //             'Content-Type': 'application/json',
-            //         },
-            //         body: JSON.stringify(requestData),
-            //     });
+            try {
+                const response = await fetch(`${config.API_URL_ACCOUNT}/ProcessInitiation/UpdateDoerTask`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(requestData),
+                });
 
-            //     if (response.ok) {
-            //         const responseData = await response.json();
-            //         navigate('/pages/completedTask', { state: { showToast: true, taskName: data[0].task_Number } });
-            //         console.log('Task updated successfully:', responseData);
-            //     } else {
-            //         console.error('Failed to update the task:', response.statusText);
-            //     }
-            // } catch (error) {
-            //     console.error('Error occurred while updating task:', error);
-            // } finally {
+                if (response.ok) {
+                    const responseData = await response.json();
+                    navigate('/pages/completedTask', { state: { showToast: true, taskName: data[0].task_Number } });
+                    console.log('Task updated successfully:', responseData);
+                } else {
+                    console.error('Failed to update the task:', response.statusText);
+                }
+            } catch (error) {
+                console.error('Error occurred while updating task:', error);
+            } finally {
 
-            // }
+            }
 
         }
     };
