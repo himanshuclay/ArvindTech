@@ -7,7 +7,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import config from '@/config';
 import Select, { SingleValue } from 'react-select';
 import MessCards from './Previous&Completed';
-import { toast } from 'react-toastify';
+// import { toast } from 'react-toastify';npm r
 
 interface Option {
     id: string;
@@ -115,6 +115,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
     const [selectedCondition, setSelectedCondition] = useState<any[]>([]);
 
     const [currentStep, setCurrentStep] = useState(0); // Track the current step
+    const [messForbank, setMessForbank] = useState(''); // Track the current step
 
     const location = useLocation();
 
@@ -214,6 +215,8 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
         const messName = messList[currentStep]?.messName;
         if (!messName) return;
 
+        setMessForbank(messName)
+
         axios
             .get(`${config.API_URL_APPLICATION}/CommonDropdown/GetMessManagerNameByMessName`, {
                 params: { MessName: messName },
@@ -221,7 +224,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
             .then((response) => {
                 if (response.data.isSuccess && response.data.messManagerNameByMessName) {
                     setSelectedManager(response.data.messManagerNameByMessName.id);
-                    console.log(response.data.messManagerNameByMessName.id);
+                    // console.log(response.data.messManagerNameByMessName.id);
                 } else {
                     console.error("Failed to fetch manager details");
                 }
@@ -230,7 +233,6 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                 console.error("Error fetching manager details:", error);
             });
     }, [messList[currentStep]?.messName]);
-
 
 
 
@@ -366,9 +368,6 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
 
 
 
-    console.log(parsedCondition)
-
-
     const handleClose = () => {
         setShow(false);
     }
@@ -416,18 +415,20 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
 
     const submitMessData = async (event: React.FormEvent) => {
         event.preventDefault(); // Prevent page refresh
+        console.log('hi')
 
         const payload = {
+            messName: messForbank,
             managerName: bankDetails.managerName,
             reimbursementBankName: bankDetails.reimbursementBankName,
             reimbursementBankAccountNumber: bankDetails.reimbursementBankAccountNumber,
             reimbursementBankIfsc: bankDetails.reimbursementBankIfsc,
             reimbursementBranchName: bankDetails.reimbursementBranchName,
             userUpdatedMobileNumber: bankDetails.userUpdateMobileNumber,
-            empID: selectedManager, // Replace with actual employee ID if available
+            empID: selectedManager,
         };
 
-        console.log('Payload:', payload); // Log the payload to the console
+        console.log('Payload:', payload);
 
         try {
             const response = await fetch(
@@ -446,9 +447,8 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                 throw new Error(`Error: ${response.statusText}`);
             }
 
-            const data = await response.json();
-            console.log('Response Data:', data);
-            toast.success('Mess Data submitted successfully!');
+            // const data = await response.json();
+            // console.log('Response Data:', data);
         } catch (error) {
             console.error('Error submitting data:', error);
             alert('Failed to submit data. Please try again.');
@@ -701,28 +701,29 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
             };
             console.log(requestData)
 
-            try {
-                const response = await fetch(`${config.API_URL_ACCOUNT}/ProcessInitiation/UpdateDoerTask`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(requestData),
-                });
+            // try {
+            //     const response = await fetch(`${config.API_URL_ACCOUNT}/ProcessInitiation/UpdateDoerTask`, {
+            //         method: 'POST',
+            //         headers: {
+            //             'Content-Type': 'application/json',
+            //         },
+            //         body: JSON.stringify(requestData),
+            //     });
 
-                if (response.ok) {
-                    const responseData = await response.json();
-                    toast.success('Task Completed')
-                    navigate('/pages/Notification')
-                    console.log('Task updated successfully:', responseData);
-                } else {
-                    console.error('Failed to update the task:', response.statusText);
-                }
-            } catch (error) {
-                console.error('Error occurred while updating task:', error);
-            } finally {
+            //     if (response.ok) {
+            //         const responseData = await response.json();
+            //         toast.success('Task Completed')
+            //         navigate('/pages/Notification')
+            //         setShow(false);
+            //         console.log('Task updated successfully:', responseData);
+            //     } else {
+            //         console.error('Failed to update the task:', response.statusText);
+            //     }
+            // } catch (error) {
+            //     console.error('Error occurred while updating task:', error);
+            // } finally {
 
-            }
+            // }
 
         }
     };
@@ -853,6 +854,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
         reimbursementBranchName: '',
         reimbursementBankIfsc: '',
         managerName: '',
+        messName: '',
         userUpdateMobileNumber: ''
     });
 
@@ -870,6 +872,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                         reimbursementBranchName: data.reimbursementBranchName,
                         reimbursementBankIfsc: data.reimbursementBankIfsc,
                         managerName: data.managerName,
+                        messName: messForbank,
                         userUpdateMobileNumber: data.userUpdateMobileNumber
                     });
 
@@ -1483,6 +1486,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                                                             value={bankDetails.reimbursementBankName}
                                                             placeholder="Enter bank name"
                                                             onChange={handleInputChange}
+                                                        // readOnly
                                                         />
                                                     </div>
 
@@ -1495,6 +1499,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                                                             value={bankDetails.reimbursementBranchName}
                                                             placeholder="Enter branch name"
                                                             onChange={handleInputChange}
+                                                        // readOnly
                                                         />
                                                     </div>
 
@@ -1570,9 +1575,14 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                                                 {/* Next Button */}
                                                 {currentStep < messList.length - 1 && (
                                                     <button
-                                                        type="button" // Add this to prevent form submission
+                                                        type="button"
                                                         className="btn btn-primary"
-                                                        onClick={handleNextStep}
+                                                        onClick={(e) => {
+                                                            handleNextStep();
+                                                            if (processId === 'ACC.01') {
+                                                                submitMessData(e);
+                                                            }
+                                                        }}
                                                     >
                                                         Next
                                                     </button>
@@ -1581,6 +1591,11 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                                                     <button
                                                         type="submit" // This button will submit the form
                                                         className="btn btn-success"
+                                                        onClick={(e) => {
+                                                            if (processId === 'ACC.01') {
+                                                                submitMessData(e);
+                                                            }
+                                                        }}
                                                     >
                                                         Submit
                                                     </button>

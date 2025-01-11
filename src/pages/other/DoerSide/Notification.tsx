@@ -146,8 +146,6 @@ const ProjectAssignTable: React.FC = () => {
     fetchData();
   }, []);
 
-  console.log(data)
-
 
   const fetchPreData = async (taskCommonId: number) => {
     try {
