@@ -26,6 +26,7 @@ const TemplateMaster = React.lazy(() => import('../pages/other/Modules-Master.ts
 const ActiveTasks = React.lazy(() => import('../pages/other/ActiveTasks.tsx'))
 const ActiveProject = React.lazy(() => import('../pages/other/ActiveProject.tsx'))
 const ApprovalConsole = React.lazy(() => import('../pages/other/ApprovalConsole.tsx'))
+const NotificationPage = React.lazy(() => import('../pages/other/Component/NotificationPage.tsx'))
 const Notification = React.lazy(() => import('../pages/other/DoerSide/Notification.tsx'))
 const FormMaster = React.lazy(() => import('../pages/other/FormMaster.tsx'))
 const LnMaster = React.lazy(() => import('../pages/other/AdminSide/LnMaster/LnMaster.tsx'))
@@ -96,10 +97,6 @@ const TaskMasterNew = React.lazy(() => import('../pages/other/AdminSide/TaskMast
 const CommonMaster = React.lazy(() => import('../pages/other/AdminSide/CommonMaster/CommonMasterPage.tsx'))
 const CommonModule = React.lazy(() => import('../pages/other/CommonModule-process/Module.tsx'))
 const CommonProcess = React.lazy(() => import('../pages/other/CommonModule-process/Process.tsx'))
-
-
-
-
 
 
 
@@ -773,6 +770,12 @@ const customPagesRoutes = {
 			path: '/pages/TaskMaster',
 			name: 'TaskMaster',
 			element: <TaskMasterNew />,
+			route: PrivateRoute,
+		},
+		{
+			path: '/pages/NotificationPage',
+			name: 'NotificationPage',
+			element: <NotificationPage />,
 			route: PrivateRoute,
 		},
 		{
