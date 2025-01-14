@@ -71,7 +71,7 @@ const EmployeeBankPopup: React.FC<EmployeePopusProps> = ({ showView, setShowView
         setShowView(false);
     };
 
-    const hasBankDetails = employee.some(emp => emp.salaryBankName && emp.salaryBankIfsc);
+    // const hasBankDetails = employee.some(emp => emp.salaryBankName && emp.salaryBankIfsc);
 
     return (
         <div>
@@ -116,7 +116,7 @@ const EmployeeBankPopup: React.FC<EmployeePopusProps> = ({ showView, setShowView
                                 ) : (
                                     <Table hover className='bg-white'>
                                         <tbody>
-                                            {hasBankDetails ? (
+                                            {employee ? (
                                                 employee.slice(0, 10).map((item, index) => (
                                                     <>
                                                         <tr>

@@ -36,6 +36,7 @@ interface Process {
     source: string;
     createdBy: string;
     updatedBy: string;
+    problemSolver: any;
 }
 
 interface GetTypeDayTimeList {
@@ -91,7 +92,8 @@ const AccountProcess = () => {
         month: '',
         source: '',
         createdBy: '',
-        updatedBy: ''
+        updatedBy: '',
+        problemSolver: ''
     });
 
     const [dropdownValuesFlag1, setDropdownValuesFlag1] = useState<GetTypeDayTimeList[]>([]);
@@ -639,16 +641,14 @@ const AccountProcess = () => {
                     setShow={setShowAdhocDynamic}
                     parsedCondition
                     preData
-                    selectedTasknumber
-                    setLoading
                     taskCommonIDRow
                     taskStatus
                     processId={processID}
                     moduleId={moduleID}
                     ProcessInitiationID
                     approval_Console
-                    approvalConsoleInputID
                     projectName
+                    problemSolver
                 />
 
             }

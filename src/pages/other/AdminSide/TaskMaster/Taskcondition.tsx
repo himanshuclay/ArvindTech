@@ -385,7 +385,7 @@ const TaskCondition: React.FC<ProcessCanvasProps> = ({ show, setShow, taskID, ta
             ...singleData[0],
             condition_Json: JSON.stringify(updatedConditionJsonFormatted),
         };
-
+        console.log(payload)
 
         toast.dismiss();
         toast.warn(
@@ -671,7 +671,6 @@ const TaskCondition: React.FC<ProcessCanvasProps> = ({ show, setShow, taskID, ta
                                             </Form.Group>
                                         </Col>
 
-                                        {/* Conditionally rendered based on taskTiming */}
                                         {taskSelections[index]?.taskTiming === "Hours" && (
                                             <>
                                                 <Col lg={4}>
@@ -680,7 +679,7 @@ const TaskCondition: React.FC<ProcessCanvasProps> = ({ show, setShow, taskID, ta
                                                         <Form.Control
                                                             type="number"
                                                             name="Hours"
-                                                            value={taskSelections[index]?.Day || ''}
+                                                            value={taskSelections[index]?.Hours || ''}
                                                             onChange={(e) => handleChange(index, 'Hours', String(e.target.value))}
                                                             placeholder="Enter Task Hours"
                                                         />
@@ -784,25 +783,20 @@ const TaskCondition: React.FC<ProcessCanvasProps> = ({ show, setShow, taskID, ta
                                             </Form.Group>
                                         </Col>
 
-                                        {/* Conditionally rendered based on taskTiming */}
                                         {taskSelections[0]?.taskTiming === "Hours" && (
-                                            <>
+                                            <Col lg={4}>
+                                                <Form.Group controlId="Hours" className="mb-3">
+                                                    <Form.Label>Hours</Form.Label>
+                                                    <Form.Control
+                                                        type="text"
+                                                        name="Hours"
+                                                        value={taskSelections[0]?.Hours || ''}
+                                                        onChange={(e) => updateTaskSelection('Hours', e.target.value)}
+                                                        placeholder="Enter Task Day"
+                                                    />
+                                                </Form.Group>
+                                            </Col>
 
-
-                                                <Col lg={4}>
-                                                    <Form.Group controlId="Hours" className="mb-3">
-                                                        <Form.Label>Day:</Form.Label>
-                                                        <Form.Control
-                                                            type="text"
-                                                            name="Hours"
-                                                            value={taskSelections[0]?.Day || ''}
-                                                            onChange={(e) => updateTaskSelection('Hours', e.target.value)}
-                                                            placeholder="Enter Task Day"
-                                                        />
-                                                    </Form.Group>
-                                                </Col>
-
-                                            </>
                                         )}
 
                                         {taskSelections[0]?.taskTiming === "WeekDay" && (

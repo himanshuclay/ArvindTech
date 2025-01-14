@@ -128,7 +128,7 @@ const EmployeeInsert = () => {
         const errors: { [key: string]: string } = {};
 
         if (!identifiers.identifierName) { errors.identifierName = 'Module Display Name is required'; }
-        if (!identifiers.identifierValue) { errors.identifierValue = 'Status is required'; }
+        // if (!inputValue) { errors.inputValue = 'Identifier Value is required'; }
         if (!identifiers.status) { errors.status = 'Status is required'; }
 
         setValidationErrors(errors);
@@ -207,14 +207,14 @@ const EmployeeInsert = () => {
                                         value={inputValue}
                                         onChange={handleInputChange}
                                         onKeyDown={handleKeyDown}
-                                        className={validationErrors.identifierValue ? " input-border" : "  "}
+                                    // className={validationErrors.inputValue ? " input-border" : "  "}
                                     />
                                     <div onClick={clearAllTags} style={{ position: 'absolute', top: '33px', right: '15px', cursor: 'pointer', }}>
                                         <i className="ri-close-line fs-18 "></i>
                                     </div>
-                                    {validationErrors.identifierValue && (
-                                        <small className="text-danger">{validationErrors.identifierValue}</small>
-                                    )}
+                                    {/* {validationErrors.inputValue && (
+                                        <small className="text-danger">{validationErrors.inputValue}</small>
+                                    )} */}
 
                                     <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', marginBottom: '4px', marginTop: '4px' }}>
                                         {tags.map((tag, index) => (

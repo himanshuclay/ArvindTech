@@ -47,26 +47,16 @@ interface DynamicFormProps {
     setShow: any;
     preData: any;
     projectName: any;
-    selectedTasknumber: any
-    setLoading: any
     taskCommonIDRow: any
     taskStatus: any
     processId: any
     moduleId: any
     ProcessInitiationID: any
     approval_Console: any
-    approvalConsoleInputID: any
+    problemSolver: any
     fromComponent: string
 }
 
-// interface taskSelection {
-//     inputId: string;
-//     optionId: string;
-//     taskNumber: string;
-//     taskTiming: string;
-//     taskType: string;
-//     daySelection: string;
-// }
 
 interface MessData {
     messID: string;
@@ -76,10 +66,24 @@ interface MessData {
 interface FormState {
     [key: string]: any; // or more specific types
 }
-interface Task {
-    task_Number: any;
+// interface Task {
+//     task_Number: any;
+// }
+interface DropdownItem {
+    name: string;
 }
 
+
+type InputConfig = {
+    inputId: string;
+    type?: string;
+    label?: string;
+    placeholder?: string;
+    options?: any[];
+    required?: boolean;
+    conditionalFieldId?: string;
+    fieldId?: string;
+};
 const DynamicForm: React.FC<DynamicFormProps> = ({
     taskNumber,
     processId,
@@ -91,19 +95,17 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
     setShow,
     parsedCondition,
     preData,
-    selectedTasknumber,
     formData,
     taskCommonIDRow,
     approval_Console,
-    approvalConsoleInputID,
     taskStatus,
     fromComponent,
-    setLoading }) => {
+    problemSolver,
+    ProcessInitiationID,
+}) => {
 
-    //  const [formDatas, setFormDatas] = useState<any>({});
     const [formState, setFormState] = useState<FormState>({});
     const [summary, setSummary] = useState('');
-    // const [taskJson, setTaskJson] = useState<{ [key: string]: any }>({});
     const [globalTaskJson, setglobalTaskJson] = useState<any>(JSON.stringify(formData));
     const [messManagers, setMessManagers] = useState<{ value: string, label: string }[]>([]);
     const [selectedManager, setSelectedManager] = useState<string>("Avisineni Pavan Kumar_LLP05337"); // Initialize with default value
@@ -113,85 +115,14 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
     const [selectedCondition, setSelectedCondition] = useState<any[]>([]);
 
     const [currentStep, setCurrentStep] = useState(0); // Track the current step
+    const [messForbank, setMessForbank] = useState(''); // Track the current step
 
     const location = useLocation();
 
     const navigate = useNavigate()
-    console.log(formData)
-
-
-    // useEffect(() => {
-
-    //     if (formData) {
-    //         try {
-    //             // Check if formData is a string and parse it; otherwise, use it as-is
-    //             const parsedData = typeof formData === 'string'
-    //                 ? JSON.parse(formData)  // Parse the string if it's in JSON format
-    //                 : formData;  // Use as-is if it's already an object
-
-    //             setTaskJson(parsedData); // Set the parsed or direct object
-    //         } catch (e) {
-    //             console.error("Error parsing formData:", e);
-    //         }
-    //     } else {
-    //         console.warn("formData is undefined or empty");
-    //     }
-    // }, [formData]);
 
 
 
-    // useEffect(()=>{
-    //     if(taskCommonIDRow){
-
-    //         fetchSingleDataById(taskCommonIDRow);
-    //     }
-    // },[taskCommonIDRow])
-    // const fetchSingleDataById = async (taskCommonId: number) => {
-    //     try {
-    //       const flag = 5;
-    //       const response = await axios.get<ApiResponse>(
-    //         `${config.API_URL_ACCOUNT}/ProcessInitiation/GetFilterTask?TaskCommonId=${taskCommonId}&Flag=${flag}`
-    //       );
-
-    //       if (response.data && response.data.isSuccess) {
-    //         // Safely access task_Json and ensure it's a string
-    //         const singledatabyID = response.data.getFilterTasks[0]?.task_Json;
-
-    //         if (typeof singledatabyID === 'string') {
-    //           console.log('fetch single Data:', JSON.parse(singledatabyID));
-    //         //   setSingleDataById(JSON.parse(singledatabyID));
-    //         setFormDatas(JSON.parse(singledatabyID));
-    //         // setFormDatas(singledatabyID);
-
-    //         } else {
-    //           console.error('task_Json is not a valid string:', singledatabyID);
-    //         }
-    //       } else {
-    //         console.error('API Response Error:', response.data?.message || 'Unknown error');
-    //       }
-    //     } catch (error) {
-    //       if (axios.isAxiosError(error)) {
-    //         console.error('Axios Error Response:', error.response?.data || 'No response data');
-    //         console.error('Axios Error Message:', error.message);
-    //       } else {
-    //         console.error('Unexpected Error:', error);
-    //       }
-    //     } finally {
-    //       setLoading(false);
-    //     }
-    //   };
-
-
-    type InputConfig = {
-        inputId: string;
-        type?: string;
-        label?: string;
-        placeholder?: string;
-        options?: any[];
-        required?: boolean;
-        conditionalFieldId?: string;
-        fieldId?: string;
-    };
 
     const saveDataToLocalStorage = () => {
         // Retrieve saved data from localStorage or initialize with an empty array if none
@@ -278,13 +209,13 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
         localStorage.setItem(localStorageKey, JSON.stringify(updatedData));
     };
 
-    interface DropdownItem {
-        name: string;
-    }
+
 
     useEffect(() => {
         const messName = messList[currentStep]?.messName;
         if (!messName) return;
+
+        setMessForbank(messName)
 
         axios
             .get(`${config.API_URL_APPLICATION}/CommonDropdown/GetMessManagerNameByMessName`, {
@@ -293,7 +224,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
             .then((response) => {
                 if (response.data.isSuccess && response.data.messManagerNameByMessName) {
                     setSelectedManager(response.data.messManagerNameByMessName.id);
-                    console.log(response.data.messManagerNameByMessName.id);
+                    // console.log(response.data.messManagerNameByMessName.id);
                 } else {
                     console.error("Failed to fetch manager details");
                 }
@@ -302,7 +233,6 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                 console.error("Error fetching manager details:", error);
             });
     }, [messList[currentStep]?.messName]);
-
 
 
 
@@ -393,16 +323,12 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
 
 
     const handleNextStep = () => {
-        // Save current form data before moving to next step
         saveDataToLocalStorage();
 
-
-        // Move to the next step if it's within the bounds of the messList
         if (currentStep < messList.length - 1) {
             const nextStep = currentStep + 1;
             setCurrentStep(nextStep);
 
-            // Load the saved data for the next step from localStorage
             const savedData: SavedData[] = JSON.parse(localStorage.getItem(localStorageKey) || '[]');
             const nextMessID = messList[nextStep].messID;
 
@@ -439,9 +365,6 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
             setShowMessManagerSelect(false)
         }
     };
-
-
-
 
 
 
@@ -492,18 +415,20 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
 
     const submitMessData = async (event: React.FormEvent) => {
         event.preventDefault(); // Prevent page refresh
+        console.log('hi')
 
         const payload = {
+            messName: messForbank,
             managerName: bankDetails.managerName,
             reimbursementBankName: bankDetails.reimbursementBankName,
             reimbursementBankAccountNumber: bankDetails.reimbursementBankAccountNumber,
             reimbursementBankIfsc: bankDetails.reimbursementBankIfsc,
             reimbursementBranchName: bankDetails.reimbursementBranchName,
             userUpdatedMobileNumber: bankDetails.userUpdateMobileNumber,
-            empID: selectedManager, // Replace with actual employee ID if available
+            empID: selectedManager,
         };
 
-        console.log('Payload:', payload); // Log the payload to the console
+        console.log('Payload:', payload);
 
         try {
             const response = await fetch(
@@ -524,18 +449,15 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
 
             const data = await response.json();
             console.log('Response Data:', data);
-            toast.success('Mess Data submitted successfully!');
+            // toast.success('Mess Data submitted successfully!');
         } catch (error) {
             console.error('Error submitting data:', error);
-            alert('Failed to submit data. Please try again.');
         }
     };
 
 
 
-    // console.log("this is my condition", parsedCondition)
 
-    // Handle change in input values
     const handleChange = (inputId: string, value: string | boolean | string[]) => {
         const excludedInputIds = ['99', '100', '102', '103'];
         const input = formData.inputs.find(input => String(input.inputId) === String(inputId));
@@ -545,6 +467,8 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
         console.log(`Selected label: ${selectedLabel}`);
         console.log(input);
 
+        console.log(updatedValue);
+
         if (input) {
             // Decimal input validation
             if (input.type === 'decimal') {
@@ -553,14 +477,18 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                     updatedValue = value as string;
                 } else {
                     console.warn('Invalid decimal value. Value must be 0 or greater with up to 2 decimals.');
-                    return; // Exit if invalid
+                    return;
                 }
             }
 
+
             // Handle select and CustomSelect input types
             if (input.type === 'select' || input.type === 'CustomSelect') {
+                console.log("i am inside")
                 const selectedOption = input.options?.find(option => option.label === value);
+                console.log(parsedCondition)
                 console.log(selectedOption)
+
                 if (selectedOption) {
                     updatedValue = selectedOption.id;
                     selectedLabel = selectedOption.label;
@@ -593,7 +521,6 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                     console.warn(`No option found for the value: ${value}`);
                 }
             }
-            // setShowMessManagerSelect(value === "11-1");
 
 
 
@@ -633,8 +560,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                     const updatedTaskJson = {
                         ...formData,
                         inputs: formData.inputs.map(input => ({
-                            ...input,
-                            value: newState[input.inputId] !== undefined ? newState[input.inputId] : input.value,
+                            ...input, value: newState[input.inputId] !== undefined ? newState[input.inputId] : input.value,
                         })),
                     };
                     setglobalTaskJson(updatedTaskJson);
@@ -653,6 +579,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
 
 
     const handleSubmit = async (event: React.FormEvent, taskNumber: string) => {
+        console.log('found')
         event.preventDefault();
         {
             processId === "ACC.01" && saveDataToLocalStorage();
@@ -661,18 +588,72 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
         const finalData = JSON.parse(localStorage.getItem(localStorageKey) ?? '[]');
         localStorage.removeItem(localStorageKey);
         console.log('Final Submitted Data:', finalData);
-
         const role = localStorage.getItem('EmpId') || '';
-        // if (fromComponent != 'AccountProcess'){
+
+
+        let found = false;
+        finalData.forEach((mess: any) => {
+            mess.taskJson.inputs.forEach((input: any) => {
+                if (input.value === "11-1") {
+                    found = true;
+                }
+            });
+        });
+
+
+        console.log(found)
+        // console.log(parsedCondition)
+
+        // console.log(globalTaskJson)
+
+        // const input = formData.inputs.find(input => String(input.inputId) === String(inputId));
+
+        // console.log(input)
+
+        // if (input.type === 'select' || input.type === 'CustomSelect') {
+        //     console.log("i am inside")
+        //     const selectedOption = input.options?.find(option => option.label === value);
+        //     console.log(parsedCondition)
+        //     console.log(selectedOption)
+
+        //     if (selectedOption) {
+
+        //         if (Array.isArray(parsedCondition)) {
+        //             const flattenedCondition = parsedCondition.flat();
+        //             console.log(flattenedCondition)
+        //             flattenedCondition.forEach((condition) => {
+        //                 if (Array.isArray(condition.taskSelections)) {
+        //                     const filteredTaskSelections = condition.taskSelections.filter(
+        //                         (taskSelection: any) => String(taskSelection.inputId) === String(updatedValue)
+        //                     );
+
+        //                     if (filteredTaskSelections.length > 0) {
+        //                         setSelectedCondition({ ...condition, taskSelections: filteredTaskSelections });
+        //                         console.log(selectedCondition)
+        //                     } else {
+        //                         console.warn('No matching task found for updatedValue:', updatedValue);
+        //                     }
+        //                 } else {
+        //                     console.error('taskSelections is not an array or undefined:', condition.taskSelections);
+        //                 }
+        //             });
+        //         } else {
+        //             console.error('parsedCondition is not an array:', parsedCondition);
+        //         }
+        //         console.log(selectedOption.id)
+
+        //     } else {
+        //         console.warn(`No option found for the value: ${value}`);
+        //     }
         // }
 
-        // Prepare the data to be posted
-        // const taskCommonId = localStorage.getItem('taskCommonId') || 0;  // Retrieve from localStorage or set to 0 if not found
-
-        // const conditionToSend = selectedCondition.length > 0 ? selectedCondition : [parsedCondition[0]]; // Ensure the fallback is an array
 
 
-        // setLoading(true);  // Show loader when the request is initiated
+
+
+
+
+
         if (fromComponent === 'AccountProcess') {
             const adhocRequestedData = {
                 projectName: projectNames,
@@ -693,31 +674,29 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                     navigate('/pages/ProcessMaster');
                 } else {
                     console.error('Error submitting module:', response.status, response.statusText);
-                    // Optionally, show an error message to the user
                 }
             } catch (error: any) {
                 console.error('Error submitting module:', error.message || error);
-                // Optionally, handle network errors or unexpected errors here
             }
         }
         if (fromComponent === 'PendingTask') {
-            console.log(globalTaskJson)
 
-            const taskData = data.find((task: Task) => task.task_Number === taskNumber);
+            // const taskData = data.find((task: Task) => task.task_Number === taskNumber);
             const requestData = {
                 // ...formData,
-                id: taskData?.id || 0,
-                doerID: role || '', // Fallback to an empty string if role is undefined
-                task_Json: processId === "ACC.01" ? JSON.stringify(finalData) : JSON.stringify(globalTaskJson), // Conditional task_Json based on processId
-                isExpired: 0, // Assuming this is a static value
-                isCompleted: formState['Pending'] || 'Completed', // Use 'Pending' if available, else default to 'Completed'
-                task_Number: taskNumber, // Ensure taskNumber is available
-                summary: formState['summary'] || 'Task Summary', // Fallback to a default if 'summary' is not in formState
-                condition_Json: JSON.stringify(selectedCondition), // Ensure conditionToSend is properly serialized
-                taskCommonId: taskCommonIDRow, // Use the taskCommonIDRow value from the context
-                taskStatus: taskStatus, // Ensure taskStatus is available
-                taskName: taskName, // Ensure taskStatus is available
-                updatedBy: role, // Use role for updatedBy
+                id: ProcessInitiationID || 0,
+                doerID: role || '',
+                task_Json: processId === "ACC.01" ? JSON.stringify(finalData) : JSON.stringify(globalTaskJson),
+                isExpired: 0,
+                isCompleted: formState['Pending'] || 'Completed',
+                task_Number: taskNumber,
+                summary: formState['summary'] || 'Task Summary',
+                condition_Json: parsedCondition,
+                taskCommonId: taskCommonIDRow,
+                taskStatus: taskStatus,
+                taskName: taskName,
+                updatedBy: role,
+                problemSolver: problemSolver,
                 projectName: projectName
             };
             console.log(requestData)
@@ -725,15 +704,15 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
             try {
                 const response = await fetch(`${config.API_URL_ACCOUNT}/ProcessInitiation/UpdateDoerTask`, {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(requestData),
                 });
 
                 if (response.ok) {
                     const responseData = await response.json();
-                    navigate('/pages/completedTask', { state: { showToast: true, taskName: data[0].task_Number } });
+                    toast.success('Task Completed')
+                    navigate('/pages/Notification')
+                    setShow(false);
                     console.log('Task updated successfully:', responseData);
                 } else {
                     console.error('Failed to update the task:', response.statusText);
@@ -873,6 +852,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
         reimbursementBranchName: '',
         reimbursementBankIfsc: '',
         managerName: '',
+        messName: '',
         userUpdateMobileNumber: ''
     });
 
@@ -890,6 +870,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                         reimbursementBranchName: data.reimbursementBranchName,
                         reimbursementBankIfsc: data.reimbursementBankIfsc,
                         managerName: data.managerName,
+                        messName: messForbank,
                         userUpdateMobileNumber: data.userUpdateMobileNumber
                     });
 
@@ -940,38 +921,6 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
 
 
 
-
-
-    // useEffect(() => {
-    //     if (showBankModal && selectedManager) {
-    //         // Fetch details when modal is shown and selectedManager is set
-    //         fetchBankDetails(selectedManager);
-    //     }
-    // }, [showBankModal, selectedManager]);
-
-    // const fetchBankDetails = async (empID: string) => {
-    //     try {
-    //         const response = await axios.get(`https://arvindo-api.clay.in/api/ProcessInitiation/GetMessData?EmpID=${selectedManager}`);
-    //         if (response.data.isSuccess) {
-    //             const data = response.data.getMessDataByMessManagerEmpID[0];
-    //             setBankDetails({
-    //                 managerName: data.managerName,
-    //                 reimbursementBankAccountNumber: data.reimbursementBankAccountNumber,
-    //                 reimbursementBankName: data.reimbursementBankName,
-    //                 reimbursementBankIfsc: data.reimbursementBankIfsc,
-    //                 reimbursementBranchName: data.reimbursementBranchName,
-    //                 userUpdateMobileNumber: data.userUpdateMobileNumber,
-    //             });
-
-    //             console.log(data)
-    //         } else {
-    //             console.error('Failed to fetch bank details');
-    //         }
-    //     } catch (error) {
-    //         console.error('Error fetching bank details:', error);
-    //     }
-    // };
-
     const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = event.target;
         setBankDetails((prevDetails) => ({
@@ -1008,48 +957,6 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
 
                         {location.pathname !== '/pages/ApprovalConsole' && (
                             <div className="d-flex flex-wrap mx-3">
-                                {/* {preData && preData.length > 0 && preData.map((task: { taskNumber: string; messName: string; messTaskNumber: string; messManager: string; managerNumber: string; inputs: { label: string; value: string }[] }, index: number) => (
-                                    <div key={index} className={`m-1 w-24 ${currentStep === index ? "activeIndex" : ""}`}>
-                                        {selectedTasknumber !== task.taskNumber && (
-                                            <div className="card shadow-sm w-100">
-                                                <div className="card-body">
-                                                    <h5 className="card-title text-primary">Task Number: <span>{task.messTaskNumber}</span></h5>
-
-                                                    {messList.length > 0 &&
-                                                        index === messList.length &&
-                                                        (
-                                                            <p className="card-text mb-2">
-                                                                <strong>Mess Name: </strong><span className="text-primary">{task.messName}</span><br />
-                                                                <strong>Mess Manager Name: </strong> <span className="text-primary">{task.messManager}</span><br />
-                                                                <strong>Mess Manager Contact: </strong>
-                                                                <a
-                                                                    href={`tel:${task.managerNumber}`}
-                                                                    className="ms-1 text-primary"
-                                                                    style={{ textDecoration: "none" }}
-                                                                    aria-label="Call"
-                                                                >
-                                                                    <i className="ri-phone-fill" style={{ fontSize: "1rem" }}></i>
-                                                                    {task.managerNumber}
-                                                                </a>
-                                                            </p>
-                                                        )
-                                                    }
-
-                                                    <div className="card-text">
-                                                        <h6>Value:</h6>
-                                                        <ul className="">
-                                                            {task.inputs.map((input, idx) => (
-                                                                <li key={idx} className="list-group-item">
-                                                                    <strong>{input.label} </strong> <span className="text-primary">{input.value}</span>
-                                                                </li>
-                                                            ))}
-                                                        </ul>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        )}
-                                    </div>
-                                ))} */}
                                 {preData && preData.length > 0 &&
                                     (
                                         <MessCards data={preData} />
@@ -1070,59 +977,6 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                 {/* {location.pathname === '/pages/ApprovalConsole' && 
                     ( */}
                 <div>
-                    {/* {formData.map((mess) => (
-                                <form
-                                    key={mess.messID}
-                                    className='side-scroll'
-                                    onSubmit={(event) => handleApprovalSubmit(event, taskNumber)}  // Use handleApprovalSubmit here
-                                >
-                                    <div style={{ border: '1px solid #ccc', padding: '10px', margin: '10px 0' }}>
-                                        <h2>{mess.taskJson.formName}</h2>
-                                        <h3>Mess ID: {mess.messID}</h3>
-                                        {mess.taskJson.inputs.map((input) => (
-                                            <div key={input.inputId} style={{ marginBottom: '15px' }}>
-                                                <label style={{ display: 'block', fontWeight: 'bold' }}>
-                                                    {input.label} {input.required && '*'}
-                                                </label>
-                                                {input.type === 'select' && (
-                                                    <select
-                                                        value={formState[input.inputId] || input.value}  // Bind to formState
-                                                        onChange={(e) => setFormState({
-                                                            ...formState,
-                                                            [input.inputId]: e.target.value
-                                                        })}
-                                                        style={{ padding: '5px', width: '100%' }}
-                                                    >
-                                                        {input.options?.map((option) => (
-                                                            <option key={option.id} value={option.id} style={{ color: option.color }}>
-                                                                {option.label}
-                                                            </option>
-                                                        ))}
-                                                    </select>
-                                                )}
-                                                {input.type === 'text' && (
-                                                    <input
-                                                        type="text"
-                                                        value={formState[input.inputId] || input.value}  // Bind to formState
-                                                        onChange={(e) => setFormState({
-                                                            ...formState,
-                                                            [input.inputId]: e.target.value
-                                                        })}
-                                                        placeholder={input.placeholder}
-                                                        style={{ padding: '5px', width: '100%' }}
-                                                    />
-                                                )}
-                                            </div>
-                                        ))}
-                                    </div>
-                                    <button type="submit" className="btn btn-success">
-                                        Submit
-                                    </button>
-                                </form>
-                            ))} */}
-
-
-
 
                     {formData && formData.inputs &&
                         <form className='side-scroll' onSubmit={(event) => handleSubmit(event, taskNumber)}>
@@ -1443,15 +1297,14 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                                                     )}
                                                 </div>
                                             )
-
                                         ))}
                                         {showMessManagerSelect && (
                                             <div className='form-group my-2 position-relative'>
                                                 <label>Select Mess Manager</label>
                                                 <select
                                                     className='form-control'
-                                                    value={selectedManager} // Bound to selectedManager state
-                                                    onChange={handleSelectMessImpChange} // Updates state on change
+                                                    value={selectedManager}
+                                                    onChange={handleSelectMessImpChange}
                                                 >
                                                     <option value="">Select a Manager</option> {/* Default placeholder option */}
                                                     {messManagers.map((manager) => (
@@ -1559,12 +1412,12 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                                                         <button className="btn btn-secondary" type="button" onClick={handleClose2}>
                                                             Close
                                                         </button>
-                                                        <button
+                                                        {/* <button
                                                             className="btn btn-primary ms-2"
                                                             type="submit"
                                                             onClick={submitMessData}>
                                                             Submit
-                                                        </button>
+                                                        </button> */}
                                                     </div>
                                                 </form>
                                             </div>
@@ -1591,17 +1444,28 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                                                 {/* Next Button */}
                                                 {currentStep < messList.length - 1 && (
                                                     <button
-                                                        type="button" // Add this to prevent form submission
+                                                        type="button"
                                                         className="btn btn-primary"
-                                                        onClick={handleNextStep}
+                                                        onClick={(e) => {
+                                                            handleNextStep();
+                                                            if (processId === 'ACC.01') {
+                                                                submitMessData(e);
+                                                            }
+                                                        }}
                                                     >
                                                         Next
                                                     </button>
                                                 )}
                                                 {currentStep === messList.length - 1 && (
                                                     <button
-                                                        type="submit" // This button will submit the form
+                                                        type="submit"
                                                         className="btn btn-success"
+                                                        onClick={(e) => {
+                                                            if (processId === 'ACC.01') {
+                                                                submitMessData(e);
+                                                            }
+                                                            handleSubmit(e, taskNumber)
+                                                        }}
                                                     >
                                                         Submit
                                                     </button>

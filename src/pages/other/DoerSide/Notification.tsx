@@ -7,7 +7,8 @@ import DynamicForm from '../Component/DynamicForm';
 import config from '@/config';
 import HeirarchyView from '../Component/ViewTask/HeirarchyView';
 import ViewOutput from '../Component/ViewTask/ViewOutput';
-
+import { getPlannedDate } from '../Component/PlanDateFunction';
+import { toast } from 'react-toastify';
 
 
 
@@ -85,10 +86,7 @@ const ProjectAssignTable: React.FC = () => {
   const [data, setData] = useState<ProjectAssignListWithDoer[]>([]);
   const [preData, setPreData] = useState<FilteredTask[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
-  const [parsedCondition, setParsedCondition] = useState<any[]>([]);
-  const [taskCommonId, setTaskCommonId] = useState<number | null>(null);
-  const [selectedTasknumber, setSelectedTasknumber] = useState<string>('');
-  const [singleDataById, setSingleDataById] = useState<ProjectAssignListWithDoer[]>([]);
+  const [parsedCondition, setParsedCondition] = useState<string>('');
   const [taskCommonIDRow, setTaskCommonIdRow] = useState<number | null>(null);
   const [show, setShow] = useState(false);
   const [showView, setShowView] = useState(false);
@@ -134,68 +132,20 @@ const ProjectAssignTable: React.FC = () => {
 
         if (response.data && response.data.isSuccess) {
           const fetchedData = response.data.getFilterTasks || [];
-          console.log('Fetched Data:', fetchedData);
-
-
-          // Set the fetched data
           setData(fetchedData);
-
-          // Process conditions
-          const parsedConditions = fetchedData.map((task: ProjectAssignListWithDoer) => {
-            try {
-              return JSON.parse(task.condition_Json); // Parse the condition JSON
-            } catch (error) {
-              console.error('Error parsing condition_Json:', error);
-              return null;
-            }
-          });
-
-          // Extract and set TaskCommonId (assumes it should be a single number)
-          const TaskCommonIds = fetchedData.map((task: ProjectAssignListWithDoer) => task.taskCommonId);
-          if (TaskCommonIds && TaskCommonIds.length > 0) {
-            const commonId = TaskCommonIds[0];
-            setTaskCommonId(commonId); // Use a string key for localStorage
-            console.log("This is updated:", commonId);  // Log the correct value
-          } else {
-            console.error('No taskCommonId values found.');
-          }
-          // Assuming 'fetchedData' is an array of 'ProjectAssignListWithDoer' objects
-          const TaskNumber = fetchedData.map((task: ProjectAssignListWithDoer) => task.task_Number);
-
-          if (TaskNumber.length > 0) {
-            const selectTask = TaskNumber[0];
-            setSelectedTasknumber(selectTask); // Assuming you want the first task number from the array
-            console.log(selectTask); // Log the value being set instead of selectedTasknumber
-          }
-          console.log(selectedTasknumber)
-
-          setTaskCommonId(TaskCommonIds[0]);
-          // localStorage.setitem(taskCommonId)
-          console.log("this is updated", taskCommonId)
-
-          // Set parsed conditions state
-          setParsedCondition(parsedConditions);
-
         } else {
           console.error('API Response Error:', response.data?.message || 'Unknown error');
         }
-      } catch (error) {
-        if (axios.isAxiosError(error)) {
-          console.error('Axios Error Response:', error.response?.data || 'No response data');
-          console.error('Axios Error Message:', error.message);
-        } else {
-          console.error('Unexpected Error:', error);
-        }
+      } catch (error: any) {
+        toast.error(error)
       } finally {
         setLoading(false);
       }
     };
 
-    console.log(singleDataById)
-
-
     fetchData();
   }, []);
+
 
   const fetchPreData = async (taskCommonId: number) => {
     try {
@@ -206,7 +156,8 @@ const ProjectAssignTable: React.FC = () => {
 
       if (response.data?.isSuccess) {
         const fetchedData = response.data.getFilterTasks || [];
-        console.log(fetchedData);
+
+        setParsedCondition(fetchedData[0].condition_Json);
 
         // Filter and transform data
         const filteredTasks = fetchedData
@@ -310,37 +261,36 @@ const ProjectAssignTable: React.FC = () => {
   };
 
 
-  const fetchSingleDataById = async (taskCommonId: number) => {
-    try {
-      const flag = 5;
-      const response = await axios.get<ApiResponse>(
-        `${config.API_URL_ACCOUNT}/ProcessInitiation/GetFilterTask?TaskCommonId=${taskCommonId}&Flag=${flag}`
-      );
+  // const fetchSingleDataById = async (taskCommonId: number) => {
+  //   try {
+  //     const flag = 5;
+  //     const response = await axios.get<ApiResponse>(
+  //       `${config.API_URL_ACCOUNT}/ProcessInitiation/GetFilterTask?TaskCommonId=${taskCommonId}&Flag=${flag}`
+  //     );
 
-      if (response.data && response.data.isSuccess) {
-        // Safely access task_Json and ensure it's a string
-        const singledatabyID = response.data.getFilterTasks[0]?.task_Json;
+  //     if (response.data && response.data.isSuccess) {
+  //       const singledatabyID = response.data.getFilterTasks[0]?.task_Json;
 
-        if (typeof singledatabyID === 'string') {
-          console.log('fetch single Data:', JSON.parse(singledatabyID));
-          setSingleDataById(JSON.parse(singledatabyID));
-        } else {
-          console.error('task_Json is not a valid string:', singledatabyID);
-        }
-      } else {
-        console.error('API Response Error:', response.data?.message || 'Unknown error');
-      }
-    } catch (error) {
-      if (axios.isAxiosError(error)) {
-        console.error('Axios Error Response:', error.response?.data || 'No response data');
-        console.error('Axios Error Message:', error.message);
-      } else {
-        console.error('Unexpected Error:', error);
-      }
-    } finally {
-      setLoading(false);
-    }
-  };
+  //       if (typeof singledatabyID === 'string') {
+  //         console.log('fetch single Data:', JSON.parse(singledatabyID));
+  //         setSingleDataById(JSON.parse(singledatabyID));
+  //       } else {
+  //         console.error('task_Json is not a valid string:', singledatabyID);
+  //       }
+  //     } else {
+  //       console.error('API Response Error:', response.data?.message || 'Unknown error');
+  //     }
+  //   } catch (error) {
+  //     if (axios.isAxiosError(error)) {
+  //       console.error('Axios Error Response:', error.response?.data || 'No response data');
+  //       console.error('Axios Error Message:', error.message);
+  //     } else {
+  //       console.error('Unexpected Error:', error);
+  //     }
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
 
 
 
@@ -358,10 +308,10 @@ const ProjectAssignTable: React.FC = () => {
     setTaskCommonIdRow(taskCommonId);
     fetchPreData(taskCommonId);
     handleShow();
-    if (taskCommonId) {
-      fetchSingleDataById(taskCommonId);
+    // if (taskCommonId) {
+    //   fetchSingleDataById(taskCommonId);
 
-    }
+    // }
   };
 
   let conditionArray = [];
@@ -373,6 +323,7 @@ const ProjectAssignTable: React.FC = () => {
     console.error("Failed to parse condition_Json:", error);
   }
   const expiryLogic = conditionArray[0]?.expiryLogic;
+  const expirationTime = conditionArray[0]?.expirationTime;
 
 
 
@@ -392,15 +343,18 @@ const ProjectAssignTable: React.FC = () => {
       console.error('Invalid date format');
       return ''; // Return an empty string if the date is invalid
     }
-    const plannedDate = new Date(parsedDate.getTime() + 88 * 60 * 60 * 1000);
+    const plannedDate = new Date(parsedDate.getTime() + 86 * 60 * 60 * 1000);
     const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
     const month = months[plannedDate.getMonth()];
     const day = String(plannedDate.getDate()).padStart(2, '0');
     const year = plannedDate.getFullYear();
-    const hours = String(plannedDate.getHours()).padStart(2, '0');
+    let hours = plannedDate.getHours();
     const minutes = String(plannedDate.getMinutes()).padStart(2, '0');
-    return `${day}-${month}-${year} ${hours}:${minutes}`;
+    const amPm = hours >= 12 ? 'PM' : 'AM';
+    hours = hours % 12 || 12; // Convert to 12-hour format and handle midnight (0 becomes 12)
+    return `${day}-${month}-${year} ${String(hours).padStart(2, '0')}:${minutes} ${amPm}`;
   }
+
 
 
   const handleShowview = () => setShowView(true);
@@ -417,6 +371,7 @@ const ProjectAssignTable: React.FC = () => {
     console.log(preData)
   };
 
+
   return (
 
     <>
@@ -424,7 +379,7 @@ const ProjectAssignTable: React.FC = () => {
         <span><i className="ri-file-list-line me-2"></i><span className='fw-bold test-nowrap'>Pending Task</span></span>
       </div>
       <div className='overflow-auto'>
-        {data.length === 0 ? (
+        {!data ? (
           <Container className="mt-5">
             <Row className="justify-content-center">
               <Col xs={12} md={8} lg={6}>
@@ -499,25 +454,21 @@ const ProjectAssignTable: React.FC = () => {
                               }
                             >
                               <div className=''>
-                                {col.id === 'planDate' ? (
-                                  <>{item.task_Number === 'ACC.01.T1' ? calculatePlannedDate(item.createdDate) : item.planDate}</>
-                                ) :
-                                  // col.id === 'taskName' ? (
-                                  //   <>
-                                  //     Lorem ipsum dolor sit amet consectetur adipisicing elit. Accusamus facilis aperiam recusandae
-                                  //     dolores sit ad ratione, nemo, ipsum repellendus facere id amet distinctio architecto
-                                  //     illo doloremque quasi odit. Minus harum doloribus omnis, vel nam ut, est sint libero aut repudiandae
-                                  //     in quas odit ipsam ullam, ad corporis quod repellat ipsum maxime eius voluptatum nostrum ab. Consequuntur
-                                  //     error nostrum voluptatum, optio minus dolorem atque odit veniam, suscipit nesciunt accusamus laborum voluptate laboriosam ipsam adipisci tempore, obcaecati ipsa tenetur architecto dolore fugit pariatur
-                                  //     animi molestias! Numquam commodi sit, id debitis, similique itaque, sed modi possimus rerum minima quam at quo aperiam voluptatum.</>
-                                  // ) :
-                                  // col.id === 'isCompleted' ? (
-                                  //   <>
-                                  //     Pending - console
-                                  //   </>
-                                  // ) :
-                                  (<>{item[col.id as keyof ProjectAssignListWithDoer]}</>
-                                  )}
+                                {
+                                  col.id === 'planDate' ? (
+                                    <>
+                                      {item.task_Number === 'ACC.01.T1' ? (
+                                        calculatePlannedDate(item.createdDate)
+                                      ) : (
+                                        getPlannedDate(item.createdDate, item.planDate)
+                                      )}
+                                    </>
+                                  ) : (
+                                    <>
+                                      {item[col.id as keyof ProjectAssignListWithDoer]}
+                                    </>
+                                  )
+                                }
 
                               </div>
                             </td>
@@ -546,8 +497,6 @@ const ProjectAssignTable: React.FC = () => {
                                   setShow={setShow}
                                   parsedCondition={parsedCondition}
                                   preData={preData}
-                                  selectedTasknumber={selectedTasknumber}
-                                  setLoading={setLoading}
                                   taskCommonIDRow={taskCommonIDRow}
                                   projectName={item.projectName}
                                   taskStatus
@@ -555,7 +504,7 @@ const ProjectAssignTable: React.FC = () => {
                                   moduleId={item.moduleID}
                                   ProcessInitiationID={item.id}
                                   approval_Console={item.approval_Console}
-                                  approvalConsoleInputID={item.approvalConsoleInputID}
+                                  problemSolver={item.problemSolver}
                                 />
                               }
                             </div>
@@ -615,7 +564,10 @@ const ProjectAssignTable: React.FC = () => {
                                           </tr>
                                           <tr>
                                             <td><h5>Expiry Logic :</h5></td>
-                                            <td> <h5 className='text-primary'>{expiryLogic ? expiryLogic : 'N/A'}</h5></td>
+                                            <td>
+                                              <h5 className='text-primary'> {expiryLogic === "Expire On Defined Time" ? `${expirationTime} Hr` : (expiryLogic || 'N/A')}</h5>
+                                            </td>
+
                                           </tr>
                                           <tr>
                                             <td><h5>Approval :</h5></td>

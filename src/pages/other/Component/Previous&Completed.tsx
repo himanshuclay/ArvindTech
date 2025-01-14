@@ -59,10 +59,10 @@ const MessCards: React.FC<{ data: Task[] }> = ({ data }) => {
                                 </Card.Header>
                                 <Card.Body>
                                     {messTasks[0]?.messManager &&
-                                        <p><strong>Manager:</strong> {messTasks[0]?.messManager}</p>
+                                        <p className="m-0"><strong>Manager:</strong> {messTasks[0]?.messManager}</p>
                                     }
                                     {messTasks[0]?.managerNumber &&
-                                        <p><strong>Mess Manager Contact: </strong>
+                                        <p className="m-0"><strong>Mess Manager Contact: </strong>
                                             <a
                                                 href={`tel:${messTasks[0]?.managerNumber}`}
                                                 className="ms-1 text-primary"
@@ -74,14 +74,15 @@ const MessCards: React.FC<{ data: Task[] }> = ({ data }) => {
                                             </a>
                                         </p>
                                     }
-                                    <hr />
+                                    {messTasks[0]?.managerNumber && messTasks[0]?.managerNumber &&
+                                        <hr />}
                                     <h6>Tasks:</h6>
 
                                     {messTasks.map((task, index) => (
-                                        <div key={index} className="mb-3">
+                                        <div key={index} className="">
 
                                             {task.messTaskNumber ?
-                                                <p>
+                                                <p className="m-0">
                                                     <strong>Task ID:</strong> {task.messTaskNumber}
                                                 </p> : ''
                                             }
@@ -99,7 +100,16 @@ const MessCards: React.FC<{ data: Task[] }> = ({ data }) => {
                                                 </ul>
 
                                             ) : (
-                                                <p>No inputs available.</p>
+                                                <Container className="my-5">
+                                                    <Row className="justify-content-center">
+                                                        <Col xs={12} md={8} lg={6}>
+                                                            <Alert variant="info" className="text-center">
+                                                                <h4>No Details Found</h4>
+                                                                <p>You currently don't have any Data</p>
+                                                            </Alert>
+                                                        </Col>
+                                                    </Row>
+                                                </Container>
                                             )}
                                             <hr />
 

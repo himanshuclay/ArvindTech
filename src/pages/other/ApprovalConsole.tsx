@@ -227,16 +227,17 @@ const ApprovalPage: React.FC = () => {
           setShow={setShow}
           parsedCondition={[]}
           preData={[]}
-          selectedTasknumber={selectedTask.task_Number}
-          setLoading={() => { }}
+          // selectedTasknumber={selectedTask.task_Number}
+          // setLoading={() => { }}
           taskCommonIDRow={selectedTask.taskCommonId}
           taskStatus={selectedTask.isCompleted}
           processId={selectedTask.processID}
           moduleId={selectedTask.moduleID}
           ProcessInitiationID={selectedTask.id}
           approval_Console={selectedTask.approval_Console}
-          approvalConsoleInputID={selectedTask.approvalConsoleInputID}
+          // approvalConsoleInputID={selectedTask.approvalConsoleInputID}
           projectName
+          problemSolver
 
         />
       )}

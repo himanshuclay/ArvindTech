@@ -10,11 +10,13 @@ import TrackPopUpView from './TrackPopupView';
 import Flatpickr from 'react-flatpickr';
 import 'flatpickr/dist/themes/material_green.css';
 import HeirarchyView from '../../Component/ViewTask/HeirarchyView';
+import { getPlannedDate } from '../../Component/PlanDateFunction';
 
 
 
 interface LnMaster {
     id: number;
+    processID: string;
     projectName: string;
     moduleName: string;
     processName: string;
@@ -33,6 +35,9 @@ interface LnMaster {
     approval_Console: string;
     projectId: string;
     condition_Json: string;
+    task_Json: string;
+    planDate: string;
+    isCompleted: string;
     problemSolverMobileNumber: number;
     taskCommonId: number;
 }
@@ -83,17 +88,12 @@ const LnMaster: React.FC = () => {
     const [showView, setShowView] = useState(false);
     // both are required to make dragable column of table 
     const [columns, setColumns] = useState<Column[]>([
-        { id: 'moduleName', label: 'Module', visible: true },
-        { id: 'processName', label: 'Process', visible: true },
+        { id: 'task_Number', label: 'Task', visible: true },
+        { id: 'taskName', label: 'Task Name', visible: true },
         { id: 'projectName', label: 'Project', visible: true },
-        { id: 'roleName', label: 'Assigned Role', visible: true },
-        { id: 'task_Number', label: 'Task Number', visible: true },
-        { id: 'taskType', label: 'Task Type', visible: true },
-        // { id: 'taskTime', label: 'Planned Date', visible: true },
-        { id: 'createdDate', label: 'Initiation Date', visible: true },
-        { id: 'isCompleted', label: 'Task Status', visible: true },
+        { id: 'planDate', label: 'Planned', visible: true },
+        { id: 'isCompleted', label: 'Status', visible: true },
     ]);
-
     const handleOnDragEnd = (result: any) => {
         if (!result.destination) return;
         const reorderedColumns = Array.from(columns);
@@ -268,17 +268,34 @@ const LnMaster: React.FC = () => {
     } catch (error) {
         console.error("Failed to parse condition_Json:", error);
     }
-
     const expiryLogic = conditionArray[0]?.expiryLogic;
+    const expirationTime = conditionArray[0]?.expirationTime;
+
+
 
     const handleShowview = () => setShowView(true);
-
     const handleViewEdit = (id: any) => {
         handleShowview();
         setManageID(id)
 
     };
-
+    function calculatePlannedDate(createdDate: string): string {
+        const parsedDate = new Date(createdDate);
+        if (isNaN(parsedDate.getTime())) {
+            console.error('Invalid date format');
+            return ''; // Return an empty string if the date is invalid
+        }
+        const plannedDate = new Date(parsedDate.getTime() + 86 * 60 * 60 * 1000);
+        const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+        const month = months[plannedDate.getMonth()];
+        const day = String(plannedDate.getDate()).padStart(2, '0');
+        const year = plannedDate.getFullYear();
+        let hours = plannedDate.getHours();
+        const minutes = String(plannedDate.getMinutes()).padStart(2, '0');
+        const amPm = hours >= 12 ? 'PM' : 'AM';
+        hours = hours % 12 || 12; // Convert to 12-hour format and handle midnight (0 becomes 12)
+        return `${day}-${month}-${year} ${String(hours).padStart(2, '0')}:${minutes} ${amPm}`;
+    }
 
 
     return (
@@ -507,19 +524,24 @@ const LnMaster: React.FC = () => {
                                                 {columns.filter(col => col.visible).map((column, index) => (
                                                     <Draggable key={column.id} draggableId={column.id} index={index}>
                                                         {(provided) => (
-                                                            <th>
+                                                            <th
+                                                                key={column.id}
+                                                                className={
+                                                                    column.id === 'projectName' ? 'text-end' :
+                                                                        column.id === 'isCompleted' ? 'text-end' :
+                                                                            column.id === 'planDate' ? 'text-end' :
+                                                                                ''
+                                                                }
+                                                            >
                                                                 <div ref={provided.innerRef}
                                                                     {...provided.draggableProps}
                                                                     {...provided.dragHandleProps}>
-                                                                    {column.id === 'moduleName' && (<i className="ri-layout-grid-line"></i>)}
-                                                                    {column.id === 'processName' && (<i className="ri-flow-chart-line"></i>)}
-                                                                    {column.id === 'projectName' && (<i className="ri-briefcase-line"></i>)}
-                                                                    {column.id === 'roleName' && (<i className="ri-user-settings-fill"></i>)}
-                                                                    {column.id === 'task_Number' && (<i className="ri-hashtag"></i>)}
-                                                                    {column.id === 'taskType' && (<i className="ri-task-line"></i>)}
-                                                                    {column.id === 'taskTime' && (<i className="ri-calendar-line"></i>)}
-                                                                    {column.id === 'createdDate' && (<i className="ri-time-line"></i>)}
+                                                                    {column.id === 'processName' && (<i className="ri-map-2-line"></i>)}
+                                                                    {column.id === 'projectName' && (<i className="ri-building-line"></i>)}
+                                                                    {column.id === 'task_Number' && (<i className="ri-health-book-line pl-1-5"></i>)}
                                                                     {column.id === 'isCompleted' && (<i className="ri-flag-line"></i>)}
+                                                                    {column.id === 'planDate' && (<i className="ri-hourglass-line"></i>)}
+                                                                    {column.id === 'taskName' && (<i className="ri-tools-line"></i>)}
                                                                     &nbsp; {column.label}
                                                                 </div>
                                                             </th>
@@ -527,7 +549,7 @@ const LnMaster: React.FC = () => {
                                                     </Draggable>
                                                 ))}
                                                 {provided.placeholder}
-                                                <th className='text-center'>View</th>
+                                                <th className='text-center pr-3'>View</th>
                                             </tr>
                                         )}
                                     </Droppable>
@@ -543,16 +565,49 @@ const LnMaster: React.FC = () => {
                                                             className={
                                                                 col.id === 'moduleName' ? 'fw-bold  text-dark ' :
                                                                     col.id === 'task_Number' ? 'fw-bold  text-dark p-2' :
-                                                                        ''
+                                                                        col.id === 'taskName' ? 'fw-bold fs-14 text-dark truncated-text' :
+                                                                            col.id === 'planDate' ? 'text-end' :
+                                                                                col.id === 'isCompleted' ? 'text-end' :
+                                                                                    col.id === 'projectName' ? 'text-end' :
+                                                                                        ''
                                                             }
                                                         >
-                                                            <div>
-                                                                {col.id === 'taskType' ? (
-                                                                    <>{item.task_Number.endsWith('.T1') ? "Actual" : item.taskType}</>
-                                                                ) : col.id === 'createdDate' ? (
-                                                                    <>{format(new Date(item.createdDate), 'MMM dd, yyyy HH:mm')}</>
-                                                                ) : (<>{item[col.id as keyof LnMaster]}</>
-                                                                )}
+                                                            <div className=''>
+                                                                {
+                                                                    col.id === 'planDate' ? (
+                                                                        <>
+                                                                            {item.task_Number === 'ACC.01.T1' ? (
+                                                                                calculatePlannedDate(item.createdDate)
+                                                                            ) : (
+                                                                                getPlannedDate(item.createdDate, item.planDate)
+                                                                            )}
+                                                                        </>
+                                                                    ) :
+                                                                        col.id === 'taskName' ? (
+                                                                            <>
+
+                                                                                {item.processID === "ACC.01" ? (
+                                                                                    item.isCompleted !== "Completed" ? (
+                                                                                        item.taskName
+                                                                                    ) : (
+                                                                                        (() => {
+                                                                                            const taskJson = JSON.parse(item.task_Json);
+                                                                                            const firstTaskName =
+                                                                                                taskJson && Array.isArray(taskJson) && taskJson.length > 0
+                                                                                                    ? taskJson[0].taskName
+                                                                                                    : 'No task names available';
+                                                                                            return firstTaskName;
+                                                                                        })()
+                                                                                    )
+                                                                                ) : (
+                                                                                    item.taskName
+                                                                                )}
+                                                                            </>
+                                                                        ) : (
+                                                                            <>{item[col.id as keyof LnMaster]}</>
+                                                                        )}
+
+
                                                             </div>
                                                         </td>
                                                     ))}
@@ -571,13 +626,35 @@ const LnMaster: React.FC = () => {
                                                                 <div className='p-3'>
 
                                                                     <Row>
-                                                                        <Col lg={7}>
+                                                                        <Col lg={8}>
                                                                             <table>
                                                                                 <tbody>
                                                                                     <tr>
                                                                                         <td><h5 className='text-nowrap'>Task Name :</h5></td>
-                                                                                        <td>  <h5 className='text-primary'>{item.taskName}</h5></td>
+                                                                                        <td>
+                                                                                            <h5 className='text-primary'>
+                                                                                                {item.processID === "ACC.01" ? (
+                                                                                                    item.isCompleted !== "Completed" ? (
+                                                                                                        item.taskName
+                                                                                                    ) : (
+                                                                                                        (() => {
+                                                                                                            const taskJson = JSON.parse(item.task_Json);
+                                                                                                            const firstTaskName =
+                                                                                                                taskJson && Array.isArray(taskJson) && taskJson.length > 0
+                                                                                                                    ? taskJson[0].taskName
+                                                                                                                    : 'No task names available';
+                                                                                                            return firstTaskName;
+                                                                                                        })()
+                                                                                                    )
+                                                                                                ) : (
+                                                                                                    item.taskName
+                                                                                                )}
+                                                                                            </h5>
+                                                                                        </td>
+
                                                                                     </tr>
+
+
                                                                                     <tr>
                                                                                         <td><h5>Link :</h5></td>
                                                                                         <td> <h5 className='text-primary'>SOP (3) / Checklist / Training Video / Office Order (4) / Process Flowchart</h5></td>
@@ -607,7 +684,7 @@ const LnMaster: React.FC = () => {
                                                                                 </tbody>
                                                                             </table>
                                                                         </Col>
-                                                                        <Col lg={5}>
+                                                                        <Col lg={4}>
                                                                             <table>
                                                                                 <tbody>
                                                                                     <tr>
@@ -626,7 +703,12 @@ const LnMaster: React.FC = () => {
 
                                                                                     <tr>
                                                                                         <td><h5>Expiry Logic:</h5></td>
-                                                                                        <td> <h5 className='text-primary'>{expiryLogic ? expiryLogic : 'N/A'}</h5></td>
+                                                                                        <td>
+                                                                                            <h5 className='text-primary'>
+                                                                                                {expiryLogic === "Expire On Defined Time" ? `${expirationTime} Hr` : (expiryLogic || 'N/A')}
+                                                                                            </h5>
+                                                                                        </td>
+
                                                                                     </tr>
 
                                                                                     <tr>
@@ -702,10 +784,10 @@ const LnMaster: React.FC = () => {
                                                                         </Col>
                                                                         <Col lg={3} className=''>
                                                                             <div className=' d-flex justify-content-end align-items-center'>
-                                                                                <span className='text-primary me-3 cursor-pointer fw-bold' onClick={() => handleView(item.id)}>View Output</span>
+                                                                                <span className='text-primary me-3 cursor-pointer fw-bold' onClick={() => handleView(item.taskCommonId)}>View Output</span>
                                                                                 <span className='text-primary cursor-pointer me-3 fw-bold' onClick={() => handleViewEdit(item.taskCommonId)}>Heirarchy View</span>
                                                                                 <span className='text-primary me-2 fw-bold'>Help</span>
-                                                                                <Button variant='primary' onClick={() => handleView(item.id)}> Show</Button>
+                                                                                <Button variant='primary' onClick={() => handleView(item.taskCommonId)}> Show</Button>
                                                                             </div>
                                                                         </Col>
                                                                     </Row>
