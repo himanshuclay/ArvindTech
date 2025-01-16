@@ -199,30 +199,30 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
         if (messList && messList.length > 0 && currentStep >= 0 && currentStep < messList.length) {
             const savedDataString = localStorage.getItem(localStorageKey);
             const savedData: SavedData[] = JSON.parse(savedDataString || '[]');
-    
+
             // Find the saved data for the current messID
             const currentData = savedData.find((data) => data.messID === messList[currentStep]?.messID);
-    
+
             // Reset modals before checking for the new state
             setShowBankModal(false);  // Reset Bank Modal
             setShowMessManagerSelect(false);  // Reset Mess Manager Select
-    
+
             if (currentData) {
                 const taskJson = currentData.taskJson || {};
-    
+
                 // Convert taskJson inputs into formState
                 const loadedFormState = taskJson.inputs?.reduce((acc: { [key: string]: string }, input: Input) => {
                     acc[input.inputId] = input.value || ''; // Set default value if no value is found
-                    
+
                     // Check if input.inputId is 11 and input.value is '11-1'
                     if (input.inputId === '11' && input.value === '11-1') {
                         setShowBankModal(true);   // Trigger the Bank Modal
                         setShowMessManagerSelect(true); // Trigger the Mess Manager Select
                     }
-    
+
                     return acc;
                 }, {});
-    
+
                 // Update form state with the loaded data or set to an empty object
                 setFormState(loadedFormState || {});
                 setSummary(currentData.comments || '');
@@ -237,8 +237,8 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
             setSummary('');
         }
     }, [currentStep, messList]);
-    
-    
+
+
 
 
 
@@ -966,26 +966,47 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
     };
 
 
+    // useEffect(() => {
+    //     const fetchMessManagers = async () => {
+    //         try {
+    //             const response = await axios.get(`${config.API_URL_APPLICATION}/CommonDropdown/GetMessManagerNameListWithId`);
+    //             const data = response.data.messManagerNameLists;
+
+    //             // Map the response data to the format required for the <select> component
+    //             const formattedData = data.map((manager: { messManagerEmpId: string, messManagerName: string }) => ({
+    //                 value: manager.messManagerEmpId,
+    //                 label: manager.messManagerName
+    //             }));
+
+    //             setMessManagers(formattedData);
+    //         } catch (error) {
+    //             console.error('Error fetching mess managers:', error);
+    //         }
+    //     };
+
+    //     fetchMessManagers();
+    // }, []);
     useEffect(() => {
-        const fetchMessManagers = async () => {
+        const fetchEmployees = async () => {
             try {
-                const response = await axios.get(`${config.API_URL_APPLICATION}/CommonDropdown/GetMessManagerNameListWithId`);
-                const data = response.data.messManagerNameLists;
+                const response = await axios.get(`${config.API_URL_APPLICATION}/CommonDropdown/GetEmployeeListWithId`);
+                const data = response.data.employeeLists;
 
                 // Map the response data to the format required for the <select> component
-                const formattedData = data.map((manager: { messManagerEmpId: string, messManagerName: string }) => ({
-                    value: manager.messManagerEmpId,
-                    label: manager.messManagerName
+                const formattedData = data.map((employee: { empId: string, employeeName: string }) => ({
+                    value: employee.empId,
+                    label: employee.employeeName
                 }));
 
                 setMessManagers(formattedData);
             } catch (error) {
-                console.error('Error fetching mess managers:', error);
+                console.error('Error fetching employee list:', error);
             }
         };
 
-        fetchMessManagers();
+        fetchEmployees();
     }, []);
+
 
 
 
@@ -1388,12 +1409,13 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                                                     value={selectedManager}
                                                     onChange={handleSelectMessImpChange}
                                                 >
-                                                    <option value="">Select a Manager</option> {/* Default placeholder option */}
-                                                    {messManagers.map((manager) => (
-                                                        <option key={manager.value} value={manager.value}>
-                                                            {manager.label}
+                                                    <option value="">Select an Employee</option> {/* Default placeholder option */}
+                                                    {messManagers.map((employee) => (
+                                                        <option key={employee.value} value={employee.value}>
+                                                            {employee.label}
                                                         </option>
                                                     ))}
+
                                                 </select>
                                                 <i style={{ position: 'absolute', right: '10px', bottom: '6px' }} className="ri-pencil-fill fs-4" onClick={handleShow2}></i> {/* This shows the modal */}
                                             </div>

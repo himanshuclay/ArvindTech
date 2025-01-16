@@ -9,6 +9,7 @@ import HeirarchyView from '../Component/ViewTask/HeirarchyView';
 import ViewOutput from '../Component/ViewTask/ViewOutput';
 import { getPlannedDate } from '../Component/PlanDateFunction';
 import { toast } from 'react-toastify';
+import { Divider } from 'rsuite';
 
 
 
@@ -453,15 +454,17 @@ const ProjectAssignTable: React.FC = () => {
                                           ''
                               }
                             >
-                              <div className=''>
+                              <div className="">
                                 {
                                   col.id === 'planDate' ? (
                                     <>
-                                      {item.task_Number === 'ACC.01.T1' ? (
-                                        calculatePlannedDate(item.createdDate)
-                                      ) : (
-                                        getPlannedDate(item.createdDate, item.planDate)
-                                      )}
+                                      {item.task_Number === 'ACC.01.T1'
+                                        ? calculatePlannedDate(item.createdDate)
+                                        : getPlannedDate(item.createdDate, item.planDate)}
+                                    </>
+                                  ) : col.id === 'projectName' ? (
+                                    <>
+                                      <i className="ri-building-line"></i> {item.projectName}-{item.projectId}
                                     </>
                                   ) : (
                                     <>
@@ -469,8 +472,8 @@ const ProjectAssignTable: React.FC = () => {
                                     </>
                                   )
                                 }
-
                               </div>
+
                             </td>
 
                           ))}
@@ -569,6 +572,17 @@ const ProjectAssignTable: React.FC = () => {
                                             </td>
 
                                           </tr>
+                                          <tr>
+                                            <Col className="mt-2">
+                                              <td><h5>Sunday Logic:</h5></td>
+                                              <td>
+                                                <h5 className="text-primary">
+                                                  {JSON.parse(item.condition_Json || "[]")[0]?.sundayLogic || "N/A"}
+                                                </h5>
+                                              </td>
+                                            </Col>
+                                          </tr>
+
                                           <tr>
                                             <td><h5>Approval :</h5></td>
                                             <td> <h5 className='text-primary'>{item.approval_Console !== null ? 'Yes' : 'No'}</h5></td>

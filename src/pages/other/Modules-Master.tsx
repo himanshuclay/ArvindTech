@@ -1807,12 +1807,11 @@ const App: React.FC = () => {
                         <option value="">Select a Master</option>
                         {mastersList.map((master) => (
                           <option key={master.id} value={master.id.toString()}>
-                            {master.mastersName}
+                            <div>{master.mastersName}</div>
                           </option>
                         ))}
                       </Form.Select>
-
-
+                      <div className='badge bg-success-subtle text-success rounded-pill'>{editField.selectedMaster}</div>
                     </Form.Group>
 
                     {/* Select Header */}
