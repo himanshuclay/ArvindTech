@@ -58,11 +58,11 @@ interface DynamicFormProps {
 }
 
 
-interface MessData {
-    messID: string;
-    taskJson: any;
-    comments: string;
-}
+// interface MessData {
+//     messID: string;
+//     taskJson: any;
+//     comments: string;
+// }
 interface FormState {
     [key: string]: any; // or more specific types
 }
@@ -114,7 +114,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
 
     const [selectedCondition, setSelectedCondition] = useState<any[]>([]);
 
-    const [currentStep, setCurrentStep] = useState(0); // Track the current step
+    const [currentStep, setCurrentStep] = useState<number>(0); // Track the current step
     const [messForbank, setMessForbank] = useState(''); // Track the current step
 
     const location = useLocation();
@@ -124,90 +124,125 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
 
 
 
+
+
     const saveDataToLocalStorage = () => {
-        // Retrieve saved data from localStorage or initialize with an empty array if none
         const savedData = JSON.parse(localStorage.getItem(localStorageKey) || '[]');
-
-
-        // Create a copy of saved data
         const updatedData = [...savedData];
 
-        // Get the current messID for the step
-        const currentmessID = messList[currentStep].messID;
-        const currentmessName = messList[currentStep].messName;
-        const currentmessManagerName = messList[currentStep].managerName;
-        const currentmessManagerId = messList[currentStep].managerEmpID;
-        const currentmessManagerNumber = messList[currentStep].mobileNumber;
+        const currentMessID = messList[currentStep]?.messID;
+        const currentMessName = messList[currentStep]?.messName;
+        const currentMessManagerName = messList[currentStep]?.managerName;
+        const currentMessManagerId = messList[currentStep]?.managerEmpID;
+        const currentMessManagerNumber = messList[currentStep]?.mobileNumber;
         const messTaskNumber = taskNumber;
-        // const formConfig = formData?.inputs || [];
 
-        // Transform formState into the taskJson structure
-        // Assuming formData is already an object, there's no need to parse it.
         const taskJson = {
-            approvalStatus: approval_Console,  // Fetch formName from formData or fallback
-            inputs: Object.keys(formState)  // Iterate through formState keys to construct inputs
-                .filter(inputId => inputId !== 'formId' && inputId !== 'formName')
-                .map(inputId => {
-                    const inputConfig = formData?.inputs?.find(config => config.inputId === inputId) || {} as InputConfig; // Get metadata for the input
-
-                    return {
-                        inputId,  // From formState
-                        value: formState[inputId],  // Value from formState
-                        type: inputConfig.type || 'text',  // Default to 'text' if type not found
-                        label: inputConfig.label || '',  // Fetch label from config or set as empty
-                        fieldId: inputConfig.fieldId,
-                        placeholder: inputConfig.placeholder || '',  // Fetch or set empty
-                        options: inputConfig.options || [],  // Fetch options or default to empty array
-                        required: inputConfig.required || false,  // Default to false if not found
-                        conditionalFieldId: inputConfig.conditionalFieldId || '',  // Default to empty string
-                    };
-                }),
+            approvalStatus: approval_Console,
+            inputs: Object.keys(formState).filter(inputId => inputId !== 'formId' && inputId !== 'formName').map(inputId => {
+                const inputConfig = formData?.inputs?.find(config => config.inputId === inputId) || {} as InputConfig;
+                return {
+                    inputId,
+                    value: formState[inputId],
+                    type: inputConfig.type || 'text',
+                    label: inputConfig.label || '',
+                    fieldId: inputConfig.fieldId,
+                    placeholder: inputConfig.placeholder || '',
+                    options: inputConfig.options || [],
+                    required: inputConfig.required || false,
+                    conditionalFieldId: inputConfig.conditionalFieldId || '',
+                };
+            }),
         };
 
         const messStatus = formState['11'] === '11-2' ? false : true;
 
-
-
-        // Find if the current messID already exists in the savedData array
-        const existingIndex = updatedData.findIndex((data) => data.messID === currentmessID);
-
-        // If messID exists, update the taskJson and comments
+        const existingIndex = updatedData.findIndex((data) => data.messID === currentMessID);
         if (existingIndex >= 0) {
             updatedData[existingIndex] = {
-                messID: currentmessID,
+                messID: currentMessID,
                 messTaskNumber: messTaskNumber,
-                messName: currentmessName,
-                messManager: currentmessManagerName,
-                messManagerId: currentmessManagerId,
-                mobileNumber: currentmessManagerNumber,
+                messName: currentMessName,
+                messManager: currentMessManagerName,
+                messManagerId: currentMessManagerId,
+                mobileNumber: currentMessManagerNumber,
                 formId: formData.formId,
                 formName: formData.formName,
-                taskJson,  // Replace with the newly transformed taskJson
-                comments: summary,   // Replace with current comments
-                taskName: taskName,   // Replace with current comments
+                taskJson,
+                comments: summary,
+                taskName: taskName,
                 messStatus: messStatus,
             };
         } else {
-            // If messID doesn't exist, add a new entry with current messID, taskJson, and comments
             updatedData.push({
-                messID: currentmessID,
-                messName: currentmessName,
+                messID: currentMessID,
+                messName: currentMessName,
                 messTaskNumber: messTaskNumber,
-                messManager: currentmessManagerName,
-                messManagerId: currentmessManagerId,
-                mobileNumber: currentmessManagerNumber,
+                messManager: currentMessManagerName,
+                messManagerId: currentMessManagerId,
+                mobileNumber: currentMessManagerNumber,
                 formId: formData.formId,
                 formName: formData.formName,
-                taskJson,  // Use the transformed taskJson
+                taskJson,
                 comments: summary,
                 taskName: taskName,
                 messStatus: messStatus,
             });
         }
 
-        // Save the updated data back to localStorage
         localStorage.setItem(localStorageKey, JSON.stringify(updatedData));
     };
+
+
+    useEffect(() => {
+        // Ensure messList and currentStep are valid before accessing messID
+        if (messList && messList.length > 0 && currentStep >= 0 && currentStep < messList.length) {
+            const savedDataString = localStorage.getItem(localStorageKey);
+            const savedData: SavedData[] = JSON.parse(savedDataString || '[]');
+    
+            // Find the saved data for the current messID
+            const currentData = savedData.find((data) => data.messID === messList[currentStep]?.messID);
+    
+            // Reset modals before checking for the new state
+            setShowBankModal(false);  // Reset Bank Modal
+            setShowMessManagerSelect(false);  // Reset Mess Manager Select
+    
+            if (currentData) {
+                const taskJson = currentData.taskJson || {};
+    
+                // Convert taskJson inputs into formState
+                const loadedFormState = taskJson.inputs?.reduce((acc: { [key: string]: string }, input: Input) => {
+                    acc[input.inputId] = input.value || ''; // Set default value if no value is found
+                    
+                    // Check if input.inputId is 11 and input.value is '11-1'
+                    if (input.inputId === '11' && input.value === '11-1') {
+                        setShowBankModal(true);   // Trigger the Bank Modal
+                        setShowMessManagerSelect(true); // Trigger the Mess Manager Select
+                    }
+    
+                    return acc;
+                }, {});
+    
+                // Update form state with the loaded data or set to an empty object
+                setFormState(loadedFormState || {});
+                setSummary(currentData.comments || '');
+            } else {
+                // If no saved data is found, reset the form state and summary
+                setFormState({});
+                setSummary('');
+            }
+        } else {
+            // Handle the case when messList or currentStep is invalid
+            setFormState({});
+            setSummary('');
+        }
+    }, [currentStep, messList]);
+    
+    
+
+
+
+
 
 
 
@@ -289,22 +324,22 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
 
 
 
-    useEffect(() => {
-        // Function to run on reload or component mount
-        const runOnReload = () => {
-            // console.log("Page reloaded or component mounted");
-            localStorage.removeItem(localStorageKey);
-            // Your logic here
-        };
+    // useEffect(() => {
+    //     // Function to run on reload or component mount
+    //     const runOnReload = () => {
+    //         // console.log("Page reloaded or component mounted");
+    //         localStorage.removeItem(localStorageKey);
+    //         // Your logic here
+    //     };
 
-        // Call the function when the component mounts
-        runOnReload();
+    //     // Call the function when the component mounts
+    //     runOnReload();
 
-        // Optionally, return a cleanup function (if needed)
-        return () => {
-            // Cleanup code if required
-        };
-    }, []);
+    //     // Optionally, return a cleanup function (if needed)
+    //     return () => {
+    //         // Cleanup code if required
+    //     };
+    // }, []);
 
     type TaskJson = {
         inputs: Input[];
@@ -361,10 +396,43 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                 setSummary(''); // Clear the summary if no comments exist
             }
 
-            setShowBankModal(false)
-            setShowMessManagerSelect(false)
+            setShowBankModal(false);
+            setShowMessManagerSelect(false);
         }
     };
+
+    const handlePreviousStep = () => {
+        saveDataToLocalStorage();  // Save data before moving to the previous step
+
+        if (currentStep > 0) {
+            const prevStep = currentStep - 1;
+            setCurrentStep(prevStep);
+
+            // Load saved data for the previous step
+            const savedData: SavedData[] = JSON.parse(localStorage.getItem(localStorageKey) || '[]');
+            const prevMessID = messList[prevStep].messID;
+
+            // Find saved data for the previous step
+            const prevData = savedData.find((data: SavedData) => data.messID === prevMessID);
+
+            if (prevData && prevData.taskJson) {
+                const { taskJson } = prevData;
+
+                if (taskJson.inputs && Array.isArray(taskJson.inputs)) {
+                    const newFormState = taskJson.inputs.reduce((acc: { [key: string]: string }, input: Input) => {
+                        acc[input.inputId] = input.value || '';
+                        return acc;
+                    }, {});
+
+                    setFormState(newFormState);
+                }
+            } else {
+                setFormState({});
+                setSummary('');
+            }
+        }
+    };
+
 
 
 
@@ -702,7 +770,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
             console.log(requestData)
 
             try {
-                const response = await fetch(`${config.API_URL_ACCOUNT}/ProcessInitiation/UpdateDoerTask`, {
+                const response = await fetch(`${config.API_URL_ACCOUNT}/ProcessInitiation/UpdateDoerTasks`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(requestData),
@@ -930,19 +998,19 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
     };
 
 
-    useEffect(() => {
-        const savedDataString = localStorage.getItem(localStorageKey);
-        const savedData: MessData[] = JSON.parse(savedDataString || '[]');
+    // useEffect(() => {
+    //     const savedDataString = localStorage.getItem(localStorageKey);
+    //     const savedData: MessData[] = JSON.parse(savedDataString || '[]');
 
-        const currentData = savedData.find((data) => data.messID === messList[currentStep].messID);
-        if (currentData) {
-            setFormState(currentData.taskJson || []);
-            setSummary(currentData.comments || '');
-        } else {
-            setFormState([]);
-            setSummary('');
-        }
-    }, [currentStep, messList]);
+    //     const currentData = savedData.find((data) => data.messID === messList[currentStep].messID);
+    //     if (currentData) {
+    //         setFormState(currentData.taskJson || []);
+    //         setSummary(currentData.comments || '');
+    //     } else {
+    //         setFormState([]);
+    //         setSummary('');
+    //     }
+    // }, [currentStep, messList]);
 
     return (
         <>
@@ -983,63 +1051,77 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
 
                             <Modal.Body className=" p-4">
                                 <div className="stepper-vertical" style={{
-                                    width: 'max-content',
+                                    width: '100%',
                                     paddingRight: '10px',
                                     position: 'relative',
                                     display: 'flex',
-                                    justifyContent: 'space-between',
+                                    justifyContent: 'center',
                                     marginBottom: '20px'
 
                                 }}>
                                     {processId === "ACC.01" && (
-                                        <>
-                                            {messList.map((mess, index) => {
-                                                let stepClass = 'step';
+                                        <div className="stepper-container position-relative">
+                                            {/* Active Mess Name */}
+                                            <div className="active-mess text-center">
+                                                <strong>Current Mess:</strong> {messList[currentStep]?.messName || "N/A"}
+                                            </div>
 
-                                                if (index < currentStep) {
-                                                    stepClass += ' completed';
-                                                } else if (index === currentStep) {
-                                                    stepClass += ' active';
-                                                }
+                                            {/* Stepper */}
+                                            <div
+                                                className="stepper-wrapper"
+                                                style={{
+                                                    ['--progress' as string]: `${currentStep / (messList.length - 1)}`,
+                                                }}
+                                            >
+                                                <div className="stepper-line"></div> {/* Background line */}
+                                                <div className="stepper-line-filled"></div> {/* Filled line */}
 
-                                                return (
-                                                    <div key={mess.messID}>
-                                                        <div
-                                                            className={stepClass}
-                                                            // onClick={() => setCurrentStep(index)}
-                                                            style={{
-                                                                cursor: 'pointer',
-                                                                padding: '10px 0',
-                                                                margin: '0 20px 5px 0',
-                                                                background: index < currentStep ? 'green' : index === currentStep ? 'green' : '#e1e1e1', // Change color based on step status
-                                                                color: "#fff",
-                                                                borderRadius: '50%',
-                                                                position: 'relative',
-                                                            }}
-                                                        >
-                                                            {index + 1}
+                                                <div className="stepper d-flex justify-content-between">
+                                                    {messList.map((mess, index) => {
+                                                        const isCompleted = index < currentStep;
+                                                        const isActive = index === currentStep;
 
-                                                            {index < messList.length - 1 && (
+                                                        return (
+                                                            <div
+                                                                key={mess.messID}
+                                                                className={`stepper-item text-center ${isCompleted ? "completed" : isActive ? "active" : "pending"
+                                                                    }`}
+                                                            >
+                                                                {/* Step Circle */}
                                                                 <div
-                                                                    className={`step-line ${index < currentStep ? 'completed' : ''}`}
-                                                                    style={{
-                                                                        backgroundColor: index < currentStep ? 'green' : '#e1e1e1',
-                                                                    }}
-                                                                />
-                                                            )}
-                                                        </div>
+                                                                    className={`step-circle ${isCompleted
+                                                                        ? "bg-success"
+                                                                        : isActive
+                                                                            ? "bg-primary"
+                                                                            : "bg-light"
+                                                                        }`}
+                                                                >
+                                                                    {isCompleted ? (
+                                                                        <i className="ri-check-line text-white"></i>
+                                                                    ) : (
+                                                                        <span className="step-number">{index + 1}</span>
+                                                                    )}
+                                                                </div>
 
-                                                        <div className='me-2'>
-                                                            {mess.messName}
-                                                        </div>
-                                                    </div>
-                                                );
-                                            })}
-                                        </>
+                                                                {/* Step Label */}
+                                                                <div
+                                                                    className={`step-label ${isActive ? "text-primary" : "text-muted"
+                                                                        }`}
+                                                                    title={mess.messName} // Tooltip for longer names
+                                                                >
+                                                                    {mess.messName}
+                                                                </div>
+                                                            </div>
+                                                        );
+                                                    })}
+                                                </div>
+                                            </div>
+                                        </div>
+
                                     )
                                     }
                                 </div>
-                                <div className="form-section" style={{ width: '90%', paddingLeft: '20px' }}>
+                                <div className="form-section" style={{ width: '90%', padding: '0px 20px' }}>
                                     <div className="my-task">
                                         {formData.inputs.map((input: Input) => (
                                             (fromComponent === 'TaskMaster' && 'PendingTask' || shouldDisplayInput(input)) && (
@@ -1440,46 +1522,80 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                                     ))} */}
                                     <div>
                                         {processId === "ACC.01" ? (
-                                            <div className="d-flex justify-content-between mt-2">
+                                            <div className="d-flex justify-content-end align-items-center mt-2 gap-2">
+                                                {/* Previous Button */}
+                                                {currentStep > 0 && (
+                                                    <button
+                                                        type="button"
+                                                        className="btn btn-outline-secondary"
+                                                        onClick={handlePreviousStep}
+                                                        title="Previous"
+                                                    >
+                                                        <i className="ri-arrow-left-line"></i>
+                                                    </button>
+                                                )}
+
+                                                {/* Refresh Button */}
+                                                <button
+                                                    type="button"
+                                                    className="btn btn-outline-secondary"
+                                                    onClick={() => {
+                                                        setFormState({});
+                                                        setSummary("");
+                                                    }}
+                                                    title="Refresh Form"
+                                                >
+                                                    <i className="ri-refresh-line"></i>
+                                                </button>
+
                                                 {/* Next Button */}
                                                 {currentStep < messList.length - 1 && (
                                                     <button
                                                         type="button"
-                                                        className="btn btn-primary"
+                                                        className="btn btn-outline-primary"
                                                         onClick={(e) => {
                                                             handleNextStep();
-                                                            if (processId === 'ACC.01') {
+                                                            if (processId === "ACC.01") {
                                                                 submitMessData(e);
                                                             }
                                                         }}
+                                                        title="Next"
                                                     >
-                                                        Next
+                                                        <i className="ri-arrow-right-line"></i>
                                                     </button>
                                                 )}
+
+                                                {/* Submit Button */}
                                                 {currentStep === messList.length - 1 && (
                                                     <button
                                                         type="submit"
-                                                        className="btn btn-success"
+                                                        className="btn btn-outline-success"
                                                         onClick={(e) => {
-                                                            if (processId === 'ACC.01') {
+                                                            if (processId === "ACC.01") {
                                                                 submitMessData(e);
                                                             }
-                                                            handleSubmit(e, taskNumber)
+                                                            handleSubmit(e, taskNumber);
                                                         }}
+                                                        title="Submit"
+                                                    >
+                                                        <i className="ri-check-line"></i>
+                                                    </button>
+                                                )}
+                                            </div>
+                                        ) : (
+                                            <>
+                                                {fromComponent !== "TaskMaster" && (
+                                                    <button
+                                                        type="submit" // This button will submit the form
+                                                        className="btn btn-success mt-2"
                                                     >
                                                         Submit
                                                     </button>
                                                 )}
-                                            </div>
-                                        ) : <> {fromComponent != 'TaskMaster' && <button
-                                            type="submit" // This button will submit the form
-                                            className="btn btn-success mt-2"
-                                        >
-                                            Submit
-                                        </button>}
-                                        </>
-                                        }
+                                            </>
+                                        )}
                                     </div>
+
                                 </div>
                             </Modal.Body>
                         </form>
