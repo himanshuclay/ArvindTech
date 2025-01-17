@@ -124,7 +124,7 @@ const DepartmentMasterinsert = () => {
             if (response.status === 200) {
                 navigate('/pages/departmentMaster', {
                     state: {
-                        successMessage: editMode ? `${departments.departmentName}  Updated successfully!` : `${departments.departmentName}  added successfully!`,
+                        successMessage: editMode ? `Record Updated successfully!` : `Record  added successfully!`,
                     },
                 });
             } else {
@@ -159,7 +159,7 @@ const DepartmentMasterinsert = () => {
                                         name="departmentName"
                                         value={departments.departmentName}
                                         onChange={handleChange}
-                                        placeholder='Enter Core Designation'
+                                        placeholder='Enter Department Name'
                                         className={validationErrors.departmentName ? " input-border" : "  "}
                                     />
                                     {validationErrors.departmentName && (

@@ -256,13 +256,8 @@ const getFilteredMenuItems = () => {
           icon: 'ri-brain-line',
           parentKey: 'systemmaster',
         },
-        {
-          key: 'FormMaster',
-          label: 'Form Master',
-          url: '/pages/AdhocTempleteList',
-          icon: 'ri-survey-line',
-          parentKey: 'systemmaster',
-        },
+
+
         {
           key: 'LnMaster',
           label: 'LN Master',
@@ -284,28 +279,33 @@ const getFilteredMenuItems = () => {
           icon: 'ri-login-circle-line',
           parentKey: 'systemmaster',
         },
-        // {
-        //   key: 'ChkTaskMaster',
-        //   label: 'CHK Task Master',
-        //   url: '/pages/ChkTaskMaster',
-        //   icon: 'ri-user-settings-line',
-        //   parentKey: 'systemmaster',
-        // },
-        // {
-        //   key: 'ChkInputMaster',
-        //   label: 'CHK Input Master',
-        //   url: '/pages/ChkInputMaster',
-        //   icon: 'ri-user-settings-line',
-        //   parentKey: 'systemmaster',
-        // },
-        // {
-        //   key: 'ChecklistMaster',
-        //   label: 'Checklist Master',
-        //   url: '/pages/ChecklistMaster',
-        //   icon: 'ri-list-check-3',
-        //   parentKey: 'systemmaster',
-        // },
-
+        {
+          key: 'FormMaster',
+          label: 'Form Master',
+          url: '/pages/AdhocTempleteList',
+          // icon: 'ri-survey-line',
+          parentKey: 'systemmaster',
+          children: [
+            {
+              key: 'Mess-Master',
+              label: 'HR Templete Master',
+              url: '/pages/AdhocTempleteList',
+              parentKey: 'FormMaster',
+            },
+            {
+              key: 'Mess-Master',
+              label: 'Account Templete Master',
+              url: '/pages/AdhocTempleteList',
+              parentKey: 'FormMaster',
+            },
+            {
+              key: 'Mess-Master',
+              label: 'BD Templete Master',
+              url: '/pages/AdhocTempleteList',
+              parentKey: 'FormMaster',
+            },
+          ],
+        },
       ],
     },
 

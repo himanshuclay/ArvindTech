@@ -197,7 +197,7 @@ const ProjectTypeInsert = () => {
                                 </Form.Group>
                             </Col>
                             <Col className='align-items-end d-flex justify-content-end mb-3'>
-                               
+
                                 <div>
                                     <Link to={'/pages/FillingFrequencyMaster'}>
                                         <Button variant="primary" >
