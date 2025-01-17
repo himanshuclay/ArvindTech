@@ -55,7 +55,7 @@ interface DynamicFormProps {
     approval_Console: any
     problemSolver: any
     fromComponent: string
-    finishPoint: number;
+    finishPoint: any;
 }
 
 

@@ -224,6 +224,7 @@ const ApprovalPage: React.FC = () => {
           data={tasks}
           show={show}
           taskName
+          finishPoint
           setShow={setShow}
           parsedCondition={[]}
           preData={[]}

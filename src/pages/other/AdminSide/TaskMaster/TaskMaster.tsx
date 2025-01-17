@@ -764,6 +764,7 @@ const TaskMaster: React.FC = () => {
                     taskNumber
                     data
                     taskName
+                    finishPoint
                     show={showJsonModal}
                     setShow={setShowJsonModal}
                     parsedCondition

@@ -638,6 +638,7 @@ const AccountProcess = () => {
                     data
                     taskName
                     show={showAdhocDynamic}
+                    finishPoint
                     setShow={setShowAdhocDynamic}
                     parsedCondition
                     preData
