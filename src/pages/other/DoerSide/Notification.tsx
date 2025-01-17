@@ -497,6 +497,7 @@ const ProjectAssignTable: React.FC = () => {
                                   taskName={item.taskName}
                                   data={data}
                                   show={show}
+                                  finishPoint={item.finishPoint}
                                   setShow={setShow}
                                   parsedCondition={parsedCondition}
                                   preData={preData}

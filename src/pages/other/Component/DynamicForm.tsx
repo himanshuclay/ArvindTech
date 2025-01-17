@@ -55,6 +55,7 @@ interface DynamicFormProps {
     approval_Console: any
     problemSolver: any
     fromComponent: string
+    finishPoint: number;
 }
 
 
@@ -92,6 +93,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
     data,
     show,
     projectName,
+    finishPoint,
     setShow,
     parsedCondition,
     preData,
@@ -359,28 +361,59 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
 
     const handleNextStep = () => {
         saveDataToLocalStorage();
-
+    
+        // Retrieve saved data from localStorage
+        const savedData: SavedData[] = JSON.parse(localStorage.getItem(localStorageKey) || '[]');
+        const currentMessID = messList[currentStep].messID;
+        const currentData = savedData.find((data: SavedData) => data.messID === currentMessID);
+    
+        if (currentData && currentData.taskJson) {
+            const { taskJson } = currentData;
+    
+            if (taskJson.inputs && Array.isArray(taskJson.inputs)) {
+                const finishPointInput = taskJson.inputs.find(
+                    (input) => input.inputId === String(finishPoint) // Ensure finishPoint is a string for comparison
+                );
+                console.log(finishPointInput)
+                console.log(taskJson.inputs)
+    
+                if (!finishPointInput) {
+                    console.error('No matching input found for finishPoint:', finishPoint);
+                    console.log('Available inputIds:', taskJson.inputs.map((input) => input.inputId));
+                    toast.error(`Please fill the required field`);
+                    return; // Prevent moving to the next step
+                }
+    
+                // Ensure the value is checked properly
+                if (!finishPointInput.value || finishPointInput.value.trim() === '') {
+                    toast.error(`Please fill the required field: ${finishPointInput.label}`);
+                    return; // Prevent moving to the next step
+                }
+            }
+        }
+    
         if (currentStep < messList.length - 1) {
             const nextStep = currentStep + 1;
             setCurrentStep(nextStep);
-
-            const savedData: SavedData[] = JSON.parse(localStorage.getItem(localStorageKey) || '[]');
+    
             const nextMessID = messList[nextStep].messID;
-
+    
             // Find saved data for the next step
             const nextData = savedData.find((data: SavedData) => data.messID === nextMessID);
-
+    
             if (nextData && nextData.taskJson) {
-                // Safely check if taskJson and inputs exist before processing
                 const { taskJson } = nextData;
-
+    
                 if (taskJson.inputs && Array.isArray(taskJson.inputs)) {
                     // Update formState with the saved taskJson
-                    const newFormState = taskJson.inputs.reduce((acc: { [key: string]: string }, input: Input) => {
-                        acc[input.inputId] = input.value || '';  // Safely handle missing values
-                        return acc;
-                    }, {});
-
+                    const newFormState = taskJson.inputs.reduce(
+                        (acc: { [key: string]: string }, input: Input) => {
+                            acc[input.inputId] = input.value || ''; // Safely handle missing values
+                            return acc;
+                        },
+                        {}
+                    );
+    
                     setFormState(newFormState); // Set the formState with loaded values
                 } else {
                     console.error('Invalid taskJson inputs structure:', taskJson.inputs);
@@ -388,18 +421,21 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
             } else {
                 console.warn('No saved data found for messID:', nextMessID);
             }
-
+    
             // Optionally load the comments for the next step
             if (nextData && nextData.comments) {
                 setSummary(nextData.comments);
             } else {
                 setSummary(''); // Clear the summary if no comments exist
             }
-
+    
             setShowBankModal(false);
             setShowMessManagerSelect(false);
         }
     };
+    
+
+
 
     const handlePreviousStep = () => {
         saveDataToLocalStorage();  // Save data before moving to the previous step
@@ -770,7 +806,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
             console.log(requestData)
 
             try {
-                const response = await fetch(`${config.API_URL_ACCOUNT}/ProcessInitiation/UpdateDoerTasks`, {
+                const response = await fetch(`${config.API_URL_ACCOUNT}/ProcessInitiation/UpdateDoerTask`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(requestData),
@@ -1439,7 +1475,19 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                                                 <h4>Bank Details</h4>
                                                 <form
                                                     className="form-group row"
-                                                >
+                                                >   
+                                                    <div className="mt-3 col-6">
+                                                        <label>Reimbursement IFSC Code</label>
+                                                        <input
+                                                            className="form-control"
+                                                            type="text"
+                                                            name="reimbursementBankIfsc"
+                                                            value={bankDetails.reimbursementBankIfsc}
+                                                            placeholder="Enter IFSC code"
+                                                            onChange={handleInputChange}
+                                                        />
+                                                    </div>
+
                                                     <div className="mt-3 col-6">
                                                         <label>Reimbursement Account</label>
                                                         <input
@@ -1472,18 +1520,6 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                                                             name="reimbursementBranchName"
                                                             value={bankDetails.reimbursementBranchName}
                                                             placeholder="Enter branch name"
-                                                            onChange={handleInputChange}
-                                                        />
-                                                    </div>
-
-                                                    <div className="mt-3 col-6">
-                                                        <label>Reimbursement IFSC Code</label>
-                                                        <input
-                                                            className="form-control"
-                                                            type="text"
-                                                            name="reimbursementBankIfsc"
-                                                            value={bankDetails.reimbursementBankIfsc}
-                                                            placeholder="Enter IFSC code"
                                                             onChange={handleInputChange}
                                                         />
                                                     </div>
@@ -1564,6 +1600,8 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                                                     onClick={() => {
                                                         setFormState({});
                                                         setSummary("");
+                                                        setShowBankModal(false);
+                                                        setShowMessManagerSelect(false);
                                                     }}
                                                     title="Refresh Form"
                                                 >
