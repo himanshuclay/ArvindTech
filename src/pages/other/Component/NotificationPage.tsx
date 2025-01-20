@@ -14,7 +14,6 @@ interface Notification {
 }
 
 const NotificationPage: React.FC = () => {
-    // Static data for notifications
     const [notifications, setNotifications] = useState<Notification[]>([
         {
             id: 1,
@@ -100,8 +99,8 @@ const NotificationPage: React.FC = () => {
                             {/* Status Icon */}
                             <i
                                 className={`remixicon ${notification.status === "unread"
-                                        ? "ri-mail-unread-line text-primary"
-                                        : "ri-mail-open-line text-muted"
+                                    ? "ri-mail-unread-line text-primary"
+                                    : "ri-mail-open-line text-muted"
                                     } me-3 fs-4`}
                                 title={
                                     notification.status === "unread"

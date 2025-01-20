@@ -559,7 +559,8 @@ const ProjectAssignTable: React.FC = () => {
                                         <tbody>
                                           <tr>
                                             <td><h5>Problem Solver :</h5></td>
-                                            <td>  <h5 className='text-primary'> {item.problemSolver}</h5>
+                                            <td>
+                                              <h5 className='text-primary'> {item.problemSolver}</h5>
                                               {item.problemSolverMobileNumber ?
                                                 <p className=' fw-normal m-0'><a href={`tel:${item.problemSolverMobileNumber}`}>
                                                   <i className="ri-phone-fill"></i> {item.problemSolverMobileNumber}</a></p> : ""
@@ -574,14 +575,10 @@ const ProjectAssignTable: React.FC = () => {
 
                                           </tr>
                                           <tr>
-                                            <Col className="mt-2">
-                                              <td><h5>Sunday Logic:</h5></td>
-                                              <td>
-                                                <h5 className="text-primary">
-                                                  {JSON.parse(item.condition_Json || "[]")[0]?.sundayLogic || "N/A"}
-                                                </h5>
-                                              </td>
-                                            </Col>
+                                            <td><h5>Sunday Logic:</h5></td>
+                                            <td><h5 className="text-primary">
+                                              {JSON.parse(item.condition_Json || "[]")[0]?.sundayLogic || "N/A"}
+                                            </h5></td>
                                           </tr>
 
                                           <tr>

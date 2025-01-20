@@ -280,6 +280,13 @@ const getFilteredMenuItems = () => {
           parentKey: 'systemmaster',
         },
         {
+          key: 'CreateNotification',
+          label: 'Notification',
+          url: '/pages/CreateNotification',
+          icon: 'ri-notification-line',
+          parentKey: 'systemmaster',
+        },
+        {
           key: 'FormMaster',
           label: 'Form Master',
           url: '/pages/AdhocTempleteList',

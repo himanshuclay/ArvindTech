@@ -97,6 +97,7 @@ const TaskMasterNew = React.lazy(() => import('../pages/other/AdminSide/TaskMast
 const CommonMaster = React.lazy(() => import('../pages/other/AdminSide/CommonMaster/CommonMasterPage.tsx'))
 const CommonModule = React.lazy(() => import('../pages/other/CommonModule-process/Module.tsx'))
 const CommonProcess = React.lazy(() => import('../pages/other/CommonModule-process/Process.tsx'))
+const CreateNotification = React.lazy(() => import('../pages/other/Component/ViewTask/CreateNotification/CreateNotification.tsx'))
 
 
 
@@ -812,6 +813,12 @@ const customPagesRoutes = {
 			path: '/pages/TrackTask',
 			name: 'TrackTask',
 			element: <TrackTask />,
+			route: PrivateRoute,
+		},
+		{
+			path: '/pages/CreateNotification',
+			name: 'CreateNotification',
+			element: <CreateNotification />,
 			route: PrivateRoute,
 		},
 
