@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
-import logo from '@/assets/images/logo.png';
-import logoDark from '@/assets/images/logo-dark.png';
-import logoSm from '@/assets/images/logo-sm.png';
+import logo from '@/assets/images/Clayimage.png';
+import logoDark from '@/assets/images/Clayimage.png';
+import logoSm from '@/assets/images/Clayimage.png';
 import SimpleBar from 'simplebar-react';
 import AppMenu from './Menu';
 
