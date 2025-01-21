@@ -51,7 +51,7 @@ const ProfilePages = () => {
 										<h4 className="mt-4 fs-20 ellipsis">{empName}</h4>
 										<p className="font-13"> Employee ID - <span className='text-uppercase fw-bold'> {empID}</span></p>
 										<p className="text-muted mb-0">
-											<small>Arvindo Employee</small>
+											<small>Clay TechSystem Employee</small>
 										</p>
 									</div>
 								</Col>

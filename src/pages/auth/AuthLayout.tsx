@@ -112,7 +112,7 @@ const AuthLayout = ({
 			</div>
 			<footer className="footer footer-alt fw-medium">
 				<span className="text-dark">
-					{new Date().getFullYear()} ©  Arvindtechno
+					{new Date().getFullYear()} ©  Clay TechSystem
 				</span>
 			</footer>
 		</div>
