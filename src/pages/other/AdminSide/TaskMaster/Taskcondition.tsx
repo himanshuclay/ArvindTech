@@ -62,6 +62,7 @@ interface Option {
     taskNumber?: string;
     taskTiming?: string;
     taskType?: string;
+    Days?: string;
     WeekDay?: string;
     time?: string;
 }
@@ -77,6 +78,7 @@ interface FormData {
         taskType?: string;
         taskTiming?: string;
         Hours?: string;
+        Days?: string;
         WeekDay?: string;
         time?: string;
     };
@@ -89,6 +91,7 @@ interface TaskSelections {
     taskNumber?: string;
     taskType?: string;
     taskTiming?: string;
+    Days?: string;
     Hours?: string;
     WeekDay?: string;
     time?: string;
@@ -118,6 +121,7 @@ const TaskCondition: React.FC<ProcessCanvasProps> = ({ show, setShow, taskID, ta
             taskTiming: option.taskTiming || '',
             taskType: option.taskType || '',
             WeekDay: option.WeekDay || '',
+            Days: option.Days || '',
             time: option.time || '',
             isExpirable: '',
         })) || []
@@ -134,6 +138,7 @@ const TaskCondition: React.FC<ProcessCanvasProps> = ({ show, setShow, taskID, ta
                 taskNumber: '',
                 taskType: '',
                 taskTiming: '',
+                Days: '',
                 Hours: '',
                 WeekDay: '',
                 time: '',
@@ -158,6 +163,7 @@ const TaskCondition: React.FC<ProcessCanvasProps> = ({ show, setShow, taskID, ta
             taskNumber: '',
             taskType: '',
             taskTiming: '',
+            Days: '',
             Hours: '',
             WeekDay: '',
             time: '',
@@ -451,6 +457,7 @@ const TaskCondition: React.FC<ProcessCanvasProps> = ({ show, setShow, taskID, ta
         { value: 'End', label: 'End Process' }
     ];
     const optionsTaskTiming = [
+        { value: 'Days', label: 'Days' },
         { value: 'Hours', label: 'Hours' },
         { value: 'WeekDay', label: 'Week Day' }
     ];
@@ -688,6 +695,45 @@ const TaskCondition: React.FC<ProcessCanvasProps> = ({ show, setShow, taskID, ta
                                             </>
 
                                         )}
+                                        {taskSelections[index]?.taskTiming === "Days" && (
+                                            <>
+                                                <Col lg={4}>
+                                                    <Form.Group controlId="Days" className="mb-3">
+                                                        <Form.Label>Hours:</Form.Label>
+                                                        <Form.Control
+                                                            type="number"
+                                                            name="Days"
+                                                            value={taskSelections[index]?.Days || ''}
+                                                            onChange={(e) => handleChange(index, 'Days', String(e.target.value))}
+                                                            placeholder="Enter Days"
+                                                        />
+                                                    </Form.Group>
+                                                </Col>
+                                                <Col lg={4}>
+                                                    <Form.Group controlId="time" className="mb-3">
+                                                        <Form.Label>Time</Form.Label>
+                                                        <Select
+                                                            name="time"
+                                                            options={dropdownValuesFlag3}
+                                                            value={dropdownValuesFlag3.find(
+                                                                (option) => option.name === taskSelections[index]?.time
+                                                            ) || null}
+                                                            onChange={(selectedOption) => {
+                                                                if (selectedOption) {
+                                                                    handleChange(index, 'time', selectedOption.name);
+                                                                } else {
+                                                                    handleChange(index, 'time', '');
+                                                                }
+                                                            }}
+                                                            getOptionLabel={(item) => item.name}
+                                                            getOptionValue={(item) => item.name}
+                                                            placeholder="Select Time"
+                                                        />
+                                                    </Form.Group>
+                                                </Col>
+                                            </>
+
+                                        )}
 
                                         {taskSelections[index]?.taskTiming === "WeekDay" && (
                                             <>
@@ -796,6 +842,45 @@ const TaskCondition: React.FC<ProcessCanvasProps> = ({ show, setShow, taskID, ta
                                                     />
                                                 </Form.Group>
                                             </Col>
+
+                                        )}
+                                        {taskSelections[0]?.taskTiming === "Days" && (
+                                            <>
+                                                <Col lg={4}>
+                                                    <Form.Group controlId="Days" className="mb-3">
+                                                        <Form.Label>Hours:</Form.Label>
+                                                        <Form.Control
+                                                            type="number"
+                                                            name="Days"
+                                                            value={taskSelections[0]?.Days || ''}
+                                                            onChange={(e) => updateTaskSelection('Days', String(e.target.value))}
+                                                            placeholder="Enter Days"
+                                                        />
+                                                    </Form.Group>
+                                                </Col>
+                                                <Col lg={4}>
+                                                    <Form.Group controlId="time" className="mb-3">
+                                                        <Form.Label>Time</Form.Label>
+                                                        <Select
+                                                            name="time"
+                                                            options={dropdownValuesFlag3}
+                                                            value={dropdownValuesFlag3.find(
+                                                                (option) => option.name === taskSelections[0]?.time
+                                                            ) || null}
+                                                            onChange={(selectedOption) => {
+                                                                if (selectedOption) {
+                                                                    updateTaskSelection('time', selectedOption.name);
+                                                                } else {
+                                                                    updateTaskSelection('time', '');
+                                                                }
+                                                            }}
+                                                            getOptionLabel={(item) => item.name}
+                                                            getOptionValue={(item) => item.name}
+                                                            placeholder="Select Time"
+                                                        />
+                                                    </Form.Group>
+                                                </Col>
+                                            </>
 
                                         )}
 
@@ -919,6 +1004,42 @@ const TaskCondition: React.FC<ProcessCanvasProps> = ({ show, setShow, taskID, ta
                                             </Col>
 
                                         </>
+                                    )}
+
+                                    {taskRow.taskTiming === "Days" && (
+                                        <>
+                                            <Col lg={4}>
+                                                <Form.Group controlId="Days" className="mb-3">
+                                                    <Form.Label>Hours:</Form.Label>
+                                                    <Form.Control
+                                                        type="number"
+                                                        name="Days"
+                                                        value={taskRow.Days || ''}
+                                                        onChange={(e) => handleTaskFieldChange(index, 'Days', String(e.target.value))}
+                                                        placeholder="Enter Days"
+                                                    />
+                                                </Form.Group>
+                                            </Col>
+                                            <Col lg={4}>
+                                                <Form.Group controlId={`time-${index}`} className="mb-3">
+                                                    <Form.Label>Time</Form.Label>
+                                                    <Select
+                                                        name="time"
+                                                        options={dropdownValuesFlag3}
+                                                        value={dropdownValuesFlag3.find(
+                                                            (option) => option.name === taskRow.time
+                                                        )}
+                                                        onChange={(selectedOption) =>
+                                                            handleTaskFieldChange(index, "time", selectedOption?.name || "")
+                                                        }
+                                                        getOptionLabel={(item) => item.name}
+                                                        getOptionValue={(item) => item.name}
+                                                        placeholder="Select Time"
+                                                    />
+                                                </Form.Group>
+                                            </Col>
+                                        </>
+
                                     )}
 
                                     {taskRow.taskTiming === "WeekDay" && (

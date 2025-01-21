@@ -1,158 +1,159 @@
-// import { Form, Button, Modal, Row, Col, ButtonGroup, Container, Alert } from "react-bootstrap";
-// import axios from "axios";
-// import config from "@/config";
-// import { useEffect, useState } from "react";
-// import Select from 'react-select';
-// import { toast } from "react-toastify";
+import { Form, Button, Modal, Col, ButtonGroup } from "react-bootstrap";
+import axios from "axios";
+import config from "@/config";
+import { ChangeEvent, useEffect, useState } from "react";
+import { toast } from "react-toastify";
 
-// interface ProcessCanvasProps {
-//     show: boolean;
-//     setShow: (show: boolean) => void;
-// }
+interface ProcessCanvasProps {
+    show: boolean;
+    setShow: (show: boolean) => void;
+}
 
-// interface AssignProjecttoProcess {
-//     id: number;
-//     moduleName: string;
-//     processId: string;
-//     type: string;
-//     projects: Array<{
-//         projectID: string;
-//         projectName: string;
-//     }>;
-//     createdBy: string;
-//     updatedBy: string;
-// }
+interface AssignProjecttoProcess {
+    id: number;
+    title: string;
+    subject: string;
+    content: string;
+    createdBy: string;
+    updatedBy: string;
+}
 
+const CreatePopup: React.FC<ProcessCanvasProps> = ({ show, setShow }) => {
 
-// const CreatePopup: React.FC<ProcessCanvasProps> = ({ show, setShow }) => {
+    const [empName, setEmpName] = useState<string | null>('');
+    const [wordCount, setWordCount] = useState(0);
+    const [notification, setNotification] = useState<AssignProjecttoProcess>({
+        id: 0,
+        title: '',
+        subject: '',
+        content: '',
+        createdBy: '',
+        updatedBy: empName || '',
+    });
 
-//     const [empName, setEmpName] = useState<string | null>('');
-//     const [notification, setNotification] = useState<AssignProjecttoProcess>({
-//         id: 0,
-//         moduleName: '',
-//         processId: '',
-//         type: '',
-//         projects: [],
-//         createdBy: '',
-//         updatedBy: empName || '',
-//     });
+    // Set employee name on component mount
+    useEffect(() => {
+        const storedEmpName = localStorage.getItem('EmpName');
+        const storedEmpID = localStorage.getItem('EmpId');
+        if (storedEmpName || storedEmpID) {
+            setEmpName(`${storedEmpName} - ${storedEmpID}`);
+        }
+    }, []);
 
+    // Handle form field change
+    const handleChange = (e: ChangeEvent<any> | null, name?: string, value?: any) => {
+        if (e) {
+            const { name: eventName, type, value: inputValue } = e.target;
 
+            if (type === 'textarea' || type === 'text') {
+                const words = inputValue.trim().split(/\s+/).filter((word: string) => word.length > 0);
+                const wordLimit = 500;
 
-//     useEffect(() => {
-//         toast.dismiss();
+                // Only update if word count is less than or equal to limit
+                if (words.length <= wordLimit) {
+                    setNotification({
+                        ...notification,
+                        [eventName]: inputValue
+                    });
+                    setWordCount(words.length);
+                }
+            }
+        } else if (name) {
+            setNotification({
+                ...notification,
+                [name]: value
+            });
+        }
+    };
 
-//         const storedEmpName = localStorage.getItem('EmpName');
-//         const storedEmpID = localStorage.getItem('EmpId');
-//         if (storedEmpName || storedEmpID) {
-//             setEmpName(`${storedEmpName} - ${storedEmpID}`);
-//         }
-//     }, []);
+    // Close modal
+    const handleClose = () => {
+        setShow(false);
+    };
 
-//     useEffect(() => {
-//         // const fetchData = async () => {
+    // Handle form submission (just logging data for now)
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        try {
+            const payload = { ...notification };
+            console.log("Notification Payload:", payload);
 
-//         // };
-//         // fetchData();
+            const apiUrl = `${config.API_URL_APPLICATION}/Notification/CreateNotification`;
+            const response = await axios.post(apiUrl, payload);
 
+            if (response.data.isSuccess) {
+                toast.success("Notification created successfully!");
+                setShow(false);
+            } else {
+                toast.error(response.data.message || "Failed to create notification.");
+            }
+        } catch (error: any) {
+            toast.error(error.response?.data?.message || "An error occurred.");
+            console.error("Error in handleSubmit:", error);
+        }
+    };
 
-//     }, [show]);
+    return (
+        <div>
+            <Modal className="p-2" show={show} onHide={handleClose} size="lg">
+                <Modal.Header closeButton>
+                    <Modal.Title className="text-dark">Create Notification</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <Form onSubmit={handleSubmit}>
+                        <Col lg={12}>
+                            <Form.Group controlId="title" className="mb-3">
+                                <Form.Label>Title <span className='text-danger'>*</span></Form.Label>
+                                <Form.Control
+                                    type="text"
+                                    name="title"
+                                    value={notification.title}
+                                    onChange={handleChange}
+                                    placeholder="Enter title"
+                                />
+                            </Form.Group>
+                        </Col>
+                        <Col lg={12}>
+                            <Form.Group controlId="subject" className="mb-3">
+                                <Form.Label>Subject <span className='text-danger'>*</span></Form.Label>
+                                <Form.Control
+                                    type="text"
+                                    name="subject"
+                                    value={notification.subject}
+                                    onChange={handleChange}
+                                    placeholder="Enter subject"
+                                />
+                            </Form.Group>
+                        </Col>
+                        <Col lg={12}>
+                            <Form.Group controlId="content" className="mb-3">
+                                <Form.Label>Content <span className='text-danger'>*</span></Form.Label>
+                                <Form.Control
+                                    as="textarea"
+                                    name="content"
+                                    value={notification.content}
+                                    onChange={handleChange}
+                                    placeholder="Enter content"
+                                    rows={5}
+                                />
+                                <div className="word-count mt-2">
+                                    {wordCount} / 500 words
+                                </div>
+                            </Form.Group>
+                        </Col>
+                        <ButtonGroup className="mt-3">
+                            <Button onClick={handleClose} className="me-1" >
+                                Cancel
+                            </Button>
+                            <Button type="submit" variant="primary">
+                                Save Notification
+                            </Button>
+                        </ButtonGroup>
+                    </Form>
+                </Modal.Body>
+            </Modal>
+        </div>
+    );
+};
 
-
-
-//     // useEffect(() => {
-//     //     const fetchData = async (endpoint: string, setter: Function, listName: string) => {
-//     //         try {
-//     //             const response = await axios.get(`${config.API_URL_APPLICATION}/${endpoint}`);
-//     //             if (response.data.isSuccess) {
-//     //                 setter(response.data[listName]);
-//     //             } else {
-//     //                 console.error(response.data.message);
-//     //             }
-//     //         } catch (error) {
-//     //             console.error(`Error fetching data from ${endpoint}:`, error);
-//     //         }
-//     //     };
-//     //     fetchData('CommonDropdown/GetProjectList', setProjectList, 'projectListResponses');
-//     //     fetchData('CommonDropdown/GetSubProjectList', setSubProjectList, 'subProjectLists');
-//     // }, []);
-
-
-
-
-//     // const fetchProcessByid = async (id: string) => {
-//     //     setLoading(true);
-//     //     try {
-//     //         const response = await axios.get(`${config.API_URL_APPLICATION}/ProcessMaster/GetProcess`, {
-//     //             params: { id: id }
-//     //         });
-//     //         if (response.data.isSuccess) {
-//     //             const fetchedModule = response.data.processMasterList[0];
-//     //             setProcess(fetchedModule);
-//     //         } else {
-//     //             console.error(response.data.message);
-//     //         }
-//     //     } catch (error) {
-//     //         console.error('Error fetching module:', error);
-//     //     }
-//     //     finally {
-//     //         setLoading(false);
-//     //     }
-//     // };
-
-
-//     const handleClose = () => {
-//         setShow(false);
-//     };
-
-
-
-
-//     // const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-//     //     e.preventDefault();
-
-//     //     const payload = {
-//     //         ...assignProject,
-//     //         type: activeButton,
-//     //     };
-//     //     console.log("Initial Payload:", payload);
-
-//     //     try {
-//     //         const apiUrl = `${config.API_URL_APPLICATION}/AssignProjecttoProcess/AssignProjecttoProcess`;
-//     //         const response = await axios.post(apiUrl, payload);
-
-//     //         if (response.data.isSuccess) {
-//     //             toast.dismiss();
-//     //             toast.success("Project assigned successfully!");
-
-
-//     //         } else {
-//     //             toast.dismiss();
-//     //             toast.error(response.data.message || "Failed to assign project.");
-//     //         }
-//     //     } catch (error: any) {
-//     //         toast.error(error.response?.data?.message || "An error occurred.");
-//     //         console.error("Error in handleSubmit:", error);
-//     //     }
-//     // };
-
-
-
-
-//     return (
-//         <div>
-//             <Modal className="p-2" show={show} placement="end" onHide={handleClose} size="lg">
-//                 <Modal.Header closeButton>
-//                     <Modal.Title className="text-dark">Assign Project to Process</Modal.Title>
-//                 </Modal.Header>
-//                 <Modal.Body>
-
-
-
-//                 </Modal.Body>
-//             </Modal>
-//         </div>
-//     );
-// };
-
-// export default CreatePopup;
+export default CreatePopup;

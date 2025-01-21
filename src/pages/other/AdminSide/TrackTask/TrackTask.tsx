@@ -296,6 +296,12 @@ const LnMaster: React.FC = () => {
         hours = hours % 12 || 12; // Convert to 12-hour format and handle midnight (0 becomes 12)
         return `${day}-${month}-${year} ${String(hours).padStart(2, '0')}:${minutes} ${amPm}`;
     }
+    const isCompletedLate = (planDate: string, completedDate: string) => {
+        const planDateObj = new Date(planDate);
+        const completedDateObj = new Date(completedDate);
+
+        return completedDateObj > planDateObj;
+    };
 
 
     return (
@@ -612,11 +618,19 @@ const LnMaster: React.FC = () => {
                                                         </td>
                                                     ))}
 
-                                                    <td className='text-end pr-3'>
-                                                        <Button onClick={() => toggleExpandRow(item.id)}>
-                                                            {expandedRow === item.id ? <i className=" fs-16 ri-arrow-up-s-line"></i> : <i className=" fs-16 ri-arrow-down-s-line"></i>}
+                                                    <td className="text-end pr-3">
+                                                        <Button
+                                                            onClick={() => toggleExpandRow(item.id)}
+                                                            variant={isCompletedLate(item.planDate, item.completedDate) ? "danger" : "primary"}
+                                                        >
+                                                            {expandedRow === item.id ? (
+                                                                <i className="fs-16 ri-arrow-up-s-line"></i>
+                                                            ) : (
+                                                                <i className="fs-16 ri-arrow-down-s-line"></i>
+                                                            )}
                                                         </Button>
                                                     </td>
+
                                                 </tr>
 
                                                 {expandedRow && expandedRow === item.id ?
