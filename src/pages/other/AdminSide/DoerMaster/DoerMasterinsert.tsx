@@ -453,11 +453,11 @@ const YourComponent = () => {
                                 </td>
                                 <td >
                                         <Button
-                                            variant="primary"
+                                            variant=''
                                             className="p-0 text-white"
                                             onClick={() => handleConfirmDelete(item.taskID)}
                                         >
-                                            <i className="btn ri-edit-line text-white"></i>
+                                            <i className="btn ri-delete-bin-6-line fs-20 text-danger"></i>
                                         </Button>
                                 </td>
                             </tr>

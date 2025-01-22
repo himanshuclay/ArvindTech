@@ -1,104 +1,54 @@
-import { Offcanvas, Row, Col, Card, Container, Alert } from 'react-bootstrap';
-import axios from "axios";
-import config from "@/config";
-import { useEffect, useState, useRef } from "react";
-import Overlay from 'react-bootstrap/Overlay';
-import Tooltip from 'react-bootstrap/Tooltip';
-import { format } from 'date-fns'; // For date formatting
+import { Form, Button, Modal, Row, Col, ButtonGroup } from "react-bootstrap";
+import { useEffect, useState } from "react";
+import Select from 'react-select';
+import { toast } from "react-toastify";
 
 interface ProcessCanvasProps {
     showView: boolean;
     setShowView: (show: boolean) => void;
-    id: any; // Ensure this is defined as a string
+    id: any;
+
 }
 
-
-
-
-interface ProjectAssignListWithDoer {
+interface AssignProjecttoProcess {
     id: number;
-    task_Name: string;
-    task_Number: string;
-    processName: string;
-    moduleID: string;
-    problem_Solver: string;
-    roleName: string;
-    createdDate: any;
-
-
-
+    moduleName: string;
+    processId: string;
+    type: string;
+    projects: Array<{
+        projectID: string;
+        projectName: string;
+    }>;
+    createdBy: string;
+    updatedBy: string;
 }
+
+
 const PushNotification: React.FC<ProcessCanvasProps> = ({ showView, setShowView, id }) => {
+    const role = localStorage.getItem('role');
 
-    const targetRefs = useRef<(HTMLSpanElement | null)[]>([]);
-    const [popoverIndex, setPopoverIndex] = useState<number | null>(null);
-    const [moduleName, setModuleName] = useState<string>("");
-    const [processId, setProcessId] = useState<string>("");
-    const [preData, setPreData] = useState<ProjectAssignListWithDoer[]>([]);
-    const [loading, setLoading] = useState<boolean>(false);
-
-
+    const [empName, setEmpName] = useState<string | null>('');
+    const [activeButton, setActiveButton] = useState('project');
+    const [assignProject, setAssignProject] = useState<AssignProjecttoProcess>({
+        id: 0,
+        moduleName: '',
+        processId: '',
+        type: '',
+        projects: [],
+        createdBy: '',
+        updatedBy: empName || '',
+    });
 
 
     useEffect(() => {
-        const fetchData = async () => {
-            if (id) {
-                await fetchModuleById(id);
-            }
-        };
-        fetchData();
-    }, [id]);
+        toast.dismiss();
 
-    useEffect(() => {
-        if (showView && moduleName && processId) {
-            const fetchProject = async () => {
-                await GetProcessTaskByIds(moduleName, processId);
-            };
-            fetchProject();
+        const storedEmpName = localStorage.getItem('EmpName');
+        const storedEmpID = localStorage.getItem('EmpId');
+        if (storedEmpName || storedEmpID) {
+            setEmpName(`${storedEmpName} - ${storedEmpID}`);
         }
-    }, [showView, moduleName, processId]);
-
-
-    const fetchModuleById = async (id: string) => {
-        setLoading(true);
-        try {
-            const response = await axios.get(`${config.API_URL_APPLICATION}/ProcessMaster/GetProcess`, {
-                params: { id: id }
-            });
-            if (response.data.isSuccess) {
-                const fetchedModule = response.data.processMasterList[0];
-                setProcessId(fetchedModule.processID);
-                setModuleName(fetchedModule.moduleName);
-
-            } else {
-                console.error(response.data.message);
-            }
-        } catch (error) {
-            console.error('Error fetching module:', error);
-        }
-        finally {
-            setLoading(false); // End loading
-        }
-    };
-
-    const GetProcessTaskByIds = async (moduleID: string, processId: string) => {
-        try {
-            const response = await axios.get(`${config.API_URL_ACCOUNT}/ProcessTaskMaster/GetProcessTaskByIds`, {
-                params: { Flag: 2, ModuleID: moduleID, ProcessID: processId }
-            });
-            console.log(response)
-            if (response.data.isSuccess) {
-                const fetchedProject = response.data.getProcessTaskByIds;
-                setPreData(fetchedProject);
-                console.log(preData)
-            } else {
-                console.error(response.data.message);
-            }
-        } catch (error) {
-            console.error('Error fetching project:', error);
-        }
-    };
-
+    }, []);
 
 
     const handleClose = () => {
@@ -106,112 +56,118 @@ const PushNotification: React.FC<ProcessCanvasProps> = ({ showView, setShowView,
     };
 
 
+    const handleButtonClick = (buttonName: string) => {
+        setActiveButton(buttonName);
+
+        setAssignProject({
+            id: 0,
+            moduleName: assignProject.moduleName,
+            processId: assignProject.processId,
+            type: activeButton,
+            projects: [],
+            createdBy: '',
+            updatedBy: empName || '',
+        });
+    };
+
+    const optionsAppAccesLevel = [
+        { value: 'Admin', label: 'Admin' },
+        { value: 'DME', label: 'DME' },
+        { value: 'ProcessCoordinator', label: 'ProcessCoordinator' },
+        { value: 'Management', label: 'Management' },
+        { value: 'Employee', label: 'Employee' },
+    ];
+
+
     return (
         <div>
-            <Offcanvas className="" show={showView} placement="end" onHide={handleClose}>
-                <Offcanvas.Header closeButton>
-                    <Offcanvas.Title className="text-dark">View Tasks</Offcanvas.Title>
-                </Offcanvas.Header>
-                <Offcanvas.Body>
-
-                    {loading ? (
-                        <div className='loader-container'>
-                            <div className="loader"></div>
-                            <div className='mt-2'>Please Wait!</div>
-                        </div>
-                    ) : (
+            <Modal className="p-2" show={showView} placement="end" onHide={handleClose} size="lg">
+                <Modal.Header closeButton>
+                    <Modal.Title className="text-dark">Publish Notification</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    {role === 'Admin' && (
                         <>
-                            {preData.length > 0 ? preData.map((task, index) => (
-                                <div key={index}>
-                                    <span className='fs-15 information-btn '
-                                        ref={(el) => (targetRefs.current[index] = el)}
-                                        onClick={() => setPopoverIndex(popoverIndex === index ? null : index)}
+                            <Col lg={6} className='align-items-end d-flex justify-content-end' >
+                                <ButtonGroup aria-label="Basic example" className='w-100'>
+                                    <Button type="button"
+                                        variant={activeButton === 'project' ? 'primary' : 'outline-primary'}
+                                        onClick={() => handleButtonClick('project')}
+                                    // disabled={assignedProject[0]?.type === 'subProject'}
                                     >
-                                        <h5 className="mt-2 border border-primary rounded-1 p-2 d-flex justify-content-between cursor-pointer">
+                                        Group Level
+                                    </Button>
+                                    <Button type="button"
+                                        variant={activeButton === 'subProject' ? 'primary' : 'outline-primary'}
+                                        onClick={() => handleButtonClick('subProject')}
+                                    // disabled={assignedProject[0]?.type === 'project'}
+                                    >Employee level</Button>
+                                </ButtonGroup>
+                            </Col>
 
-                                            <span>
-                                                <span className='fs-4 fw-bold text-primary'> Task Id : </span> <span className="text-primary fs-13 fw-500"> {task.task_Number}</span> &nbsp;&nbsp;&nbsp;
-                                            </span>
 
-                                            <i className="ri-eye-line fs-4"></i>
+                            <Form >
+                                <Row>
+                                    {activeButton === 'project' && (
+                                        <Col lg={12}>
+                                            <Form.Group controlId="status" className="mb-3 mt-2">
+                                                <Form.Label>Group Wise</Form.Label>
+                                                <Select
+                                                    name="status"
+                                                    options={optionsAppAccesLevel}
+                                                    // value={optionsAppAccess.find(option => option.value === departments.status)}
+                                                    // onChange={selectedOption => handleChange(null, 'status', selectedOption?.value)}
+                                                    placeholder="Select Status"
+                                                />
 
-                                        </h5>
-                                    </span>
-                                    <div>
-                                        <Overlay
-                                            target={targetRefs.current[index]}
-                                            show={popoverIndex === index}
-                                            placement="left"
-                                        >
-                                            {(props) => (
-                                                <Tooltip id="overlay-example" {...props} className='tooltip-position'>
-                                                    <Card className="m-2 pop-card">
-                                                        <Row>
-                                                            <Card.Body className='text-left text-primary'>
-                                                                <table>
-                                                                    <tbody>
-                                                                        <h4 className=''>Task</h4>
-                                                                        <tr>
-                                                                            <td><strong>Task ID :</strong></td>
-                                                                            <td>{task.task_Number}</td>
-                                                                        </tr>
-                                                                        <tr>
-                                                                            <td><strong>Title :</strong></td>
-                                                                            <td>{task.task_Name}</td>
-                                                                        </tr>
-                                                                        <tr>
-                                                                            <td><strong>Process :</strong></td>
-                                                                            <td>{task.processName}</td>
-                                                                        </tr>
-                                                                        <tr>
-                                                                            <td><strong>Module :</strong></td>
-                                                                            <td>{task.moduleID}</td>
-                                                                        </tr>
-                                                                        <tr>
-                                                                            <td><strong>Created Date :</strong></td>
-                                                                            <td>{format(new Date(task.createdDate), 'MMM dd, yyyy HH:mm')}</td>
-                                                                        </tr>
+                                            </Form.Group>
+                                        </Col>
+                                    )}
+                                    {activeButton === 'subProject' && (
+                                        <Col lg={12}>
+                                            <Form.Group controlId="Employee" className="mb-3 mt-2">
+                                                <Form.Label>Employee</Form.Label>
+                                                <Select
+                                                    name="Employee"
+                                                    // value={subProjectList.filter(subProject =>
+                                                    //     assignProject.projects.some(ap => ap.projectID === subProject.id)
+                                                    // )}
 
-                                                                        <h4 className='text-primary mt-2'>Problem Solver</h4>
-                                                                        <tr>
-                                                                            <td><strong>Name :</strong></td>
-                                                                            <td>{task.problem_Solver.split('_')[0]}</td>
-                                                                        </tr>
-                                                                        <tr>
-                                                                            <td><strong>Role :</strong></td>
-                                                                            <td>{task.roleName}</td>
-                                                                        </tr>
-                                                                        <tr>
-                                                                            <td><strong>Emp ID :</strong></td>
-                                                                            <td>{task.problem_Solver.split('_')[1]}</td>
-                                                                        </tr>
-                                                                    </tbody>
-                                                                </table>
-                                                            </Card.Body>
-                                                        </Row>
-                                                    </Card>
-                                                </Tooltip>
-                                            )}
-                                        </Overlay>
+                                                    // onChange={(selectedOptions) => {
+                                                    //     const selectedSubProjects = (selectedOptions || []) as SubProject[];
+                                                    //     const newSubProjectArray = selectedSubProjects.map(subProject => ({
+                                                    //         projectID: subProject.id,
+                                                    //         projectName: subProject.name,
+                                                    //     }));
 
-                                    </div>
-                                </div>
-                            )) : <Container className="mt-5">
-                                <Row className="justify-content-center">
-                                    <Col xs={12} md={8} lg={10}>
-                                        <Alert variant="info" className="text-center">
-                                            <h4>No Data Found</h4>
-                                            <p>You currently don't have any Data</p>
-                                        </Alert>
-                                    </Col>
+                                                    //     setAssignProject({
+                                                    //         ...assignProject,
+                                                    //         projects: newSubProjectArray,
+                                                    //     });
+                                                    // }}
+                                                    // getOptionLabel={(subProject) => subProject.name}
+                                                    // getOptionValue={(subProject) => subProject.id}
+                                                    // options={subProjectList}
+                                                    isSearchable={true}
+                                                    isMulti={true}
+                                                    placeholder="Select Employee"
+                                                    required
+                                                />
+                                            </Form.Group>
+                                        </Col>
+                                    )}
                                 </Row>
-                            </Container>
 
-                            }
+
+                                <Button variant="primary" type="submit" className="mt-2">
+                                    Submit
+                                </Button>
+                            </Form>
                         </>
                     )}
-                </Offcanvas.Body>
-            </Offcanvas>
+
+                </Modal.Body>
+            </Modal>
         </div>
     );
 };

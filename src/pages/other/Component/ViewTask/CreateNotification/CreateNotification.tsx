@@ -7,7 +7,7 @@ import config from '@/config';
 import Select from 'react-select';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
-// import CreatePopup from './CreatePopup';
+import CreatePopup from './CreatePopup';
 import PushNotification from './PushNotification';
 
 
@@ -15,12 +15,11 @@ import PushNotification from './PushNotification';
 
 interface Designation {
     id: number;
-    departmentName: string;
-    status: string;
-    createdBy: string;
-    updatedBy: string;
-    updatedDate: string;
-    createdDate: string;
+    title: string;
+    subject: string;
+    content: string;
+    allocated: string;
+    count: number;
 }
 
 interface Column {
@@ -38,7 +37,7 @@ interface DepartmentList {
 const DesignationMaster = () => {
     const role = localStorage.getItem('role');
 
-    const [designations, setDesignations] = useState<Designation[]>([]);
+    // const [designations, setDesignations] = useState<Designation[]>([]);
     const [loading, setLoading] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
@@ -46,9 +45,54 @@ const DesignationMaster = () => {
     const [searchDept, setSearchDept] = useState('');
     const [searchStatus, setSearchStatus] = useState('');
     const [searchTriggered, setSearchTriggered] = useState(false);
-    // const [show, setShow] = useState(false);
+    const [show, setShow] = useState(false);
     const [manageId, setManageID] = useState<number>();
     const [showView, setShowView] = useState(false);
+
+
+    const [notifications, setNotifications] = useState<Designation[]>([
+        {
+            id: 1,
+            title: "System Update",
+            subject: "Scheduled Maintenance Notification",
+            content: "The system will undergo maintenance on Saturday from 2 AM to 6 AM. Please save your work beforehand.",
+            allocated: "DME",
+            count: 150
+        },
+        {
+            id: 2,
+            title: "New Policy Announcement",
+            subject: "Remote Work Policy Update",
+            content: "Starting next month, employees are allowed to work remotely twice a week. Please refer to the HR portal for more details.",
+            allocated: "Management",
+            count: 3
+        },
+        {
+            id: 3,
+            title: "Training Reminder",
+            subject: "Mandatory Compliance Training",
+            content: "All employees are required to complete the compliance training by the end of this week.",
+            allocated: "Admin",
+            count: 50
+        },
+        {
+            id: 4,
+            title: "Event Invitation",
+            subject: "Annual Company Meetup",
+            content: "You are cordially invited to our Annual Company Meetup happening next Friday. RSVP by this Wednesday.",
+            allocated: "Employee",
+            count: 500
+        },
+        {
+            id: 5,
+            title: "Security Alert",
+            subject: "Phishing Email Awareness",
+            content: "Please be cautious of phishing emails. Avoid clicking on suspicious links and report them to the IT department immediately.",
+            allocated: "ProjectIncharge",
+            count: 17
+        }
+    ]);
+
 
     const location = useLocation();
     const navigate = useNavigate();
@@ -63,12 +107,11 @@ const DesignationMaster = () => {
 
     // both are required to make dragable column of table 
     const [columns, setColumns] = useState<Column[]>([
-        { id: 'departmentName', label: 'Department Name', visible: true },
-        { id: 'status', label: 'Status', visible: true },
-        { id: 'createdBy', label: 'Created By ', visible: true },
-        { id: 'updatedBy', label: 'Updated By ', visible: true },
-        { id: 'createdDate', label: 'Created Date ', visible: true },
-        { id: 'updatedDate', label: 'Updated Date ', visible: true },
+        { id: 'title', label: 'Title', visible: true },
+        { id: 'subject', label: 'Subject', visible: true },
+        { id: 'content', label: 'Content ', visible: true },
+        { id: 'allocated', label: 'Allocated to ', visible: true },
+        { id: 'count', label: 'Count ', visible: true },
     ]);
 
 
@@ -93,7 +136,7 @@ const DesignationMaster = () => {
                 params: { PageIndex: currentPage }
             });
             if (response.data.isSuccess) {
-                setDesignations(response.data.departments);
+                // setDesignations(response.data.departments);
                 setTotalPages(Math.ceil(response.data.totalCount / 10));
             } else {
                 console.error(response.data.message);
@@ -135,7 +178,7 @@ const DesignationMaster = () => {
         axios.get(apiUrl, { headers: { 'accept': '*/*' } })
             .then((response) => {
                 console.log("search response ", response.data.departments);
-                setDesignations(response.data.departments)
+                setNotifications(response.data.departments)
                 setTotalPages(Math.ceil(response.data.totalCount / 10));
             })
             .catch((error) => {
@@ -187,13 +230,13 @@ const DesignationMaster = () => {
     return (
         <>
             <div className="d-flex bg-white p-2 my-2 justify-content-between align-items-center">
-                <span><i className="ri-file-list-line me-2 text-dark fs-16"></i><span className='fw-bold text-dark fs-15'>Department List</span></span>
+                <span><i className="ri-file-list-line me-2 text-dark fs-16"></i><span className='fw-bold text-dark fs-15'>Notifications</span></span>
                 <div className="d-flex justify-content-end  ">
 
 
                     {(role === 'Admin' || role === 'DME') && (
                         <Button variant="primary" className="me-2"
-                        // onClick={() => setShow(true)}
+                            onClick={() => setShow(true)}
                         >
                             Create Notification
                         </Button>
@@ -201,7 +244,6 @@ const DesignationMaster = () => {
 
                 </div>
             </div>
-
 
             {loading ? (
                 <div className='loader-container'>
@@ -222,7 +264,7 @@ const DesignationMaster = () => {
                             <Row>
                                 <Col lg={4}>
                                     <Form.Group controlId="searchDept">
-                                        <Form.Label></Form.Label>
+                                        <Form.Label>Title</Form.Label>
                                         <Select
                                             name="searchDept"
                                             value={departmentList.find(item => item.departmentName === searchDept) || null}
@@ -231,7 +273,7 @@ const DesignationMaster = () => {
                                             getOptionLabel={(item) => item.departmentName}
                                             getOptionValue={(item) => item.departmentName}
                                             isSearchable={true}
-                                            placeholder="Select Department Name"
+                                            placeholder="Select Title"
                                             className="h45"
                                         />
                                     </Form.Group>
@@ -275,7 +317,7 @@ const DesignationMaster = () => {
                     </div>
 
                     <div className="overflow-auto text-nowrap">
-                        {!designations ? (
+                        {!notifications ? (
                             <Container className="mt-5">
                                 <Row className="justify-content-center">
                                     <Col xs={12} md={8} lg={6}>
@@ -310,24 +352,25 @@ const DesignationMaster = () => {
                                                     ))}
                                                     {provided.placeholder}
                                                     {(role === 'Admin' || role === 'DME') && (
-
-                                                        <th>Action</th>)}
+                                                        <>
+                                                            <th className='text-center'>Publish</th>
+                                                            <th>Action</th>
+                                                        </>
+                                                    )}
                                                 </tr>
                                             )}
                                         </Droppable>
                                     </thead>
                                     <tbody>
-                                        {designations.length > 0 ? (
-                                            designations.slice(0, 10).map((item, index) => (
+                                        {notifications.length > 0 ? (
+                                            notifications.slice(0, 10).map((item, index) => (
                                                 <tr key={item.id}>
                                                     <td>{(currentPage - 1) * 10 + index + 1}</td>
                                                     {columns.filter(col => col.visible).map((col) => (
                                                         <td key={col.id}
                                                             className={
-                                                                // Add class based on column id
-                                                                col.id === 'departmentName' ? 'fw-bold  text-dark py-2' :
-                                                                    (col.id === 'status' && item[col.id] === "Enabled") ? 'task1' :
-                                                                        (col.id === 'status' && item[col.id] === "Disabled") ? 'task4' : ''
+                                                                col.id === 'content' ? 'truncated-text-500' :
+                                                                    ''
                                                             }
                                                         >
                                                             <div>{item[col.id as keyof Designation]}</div>
@@ -335,14 +378,22 @@ const DesignationMaster = () => {
                                                     ))}
 
                                                     {(role === 'Admin' || role === 'DME') && (
+                                                        <>
+                                                            <td className='text-center'>
+                                                                <Button variant='primary' className='text-white' onClick={() => handleViewEdit(item.id)}>
+                                                                    {item.count > 0 ? 'Published' : 'Publish'}
+                                                                </Button>
+                                                            </td>
 
-                                                        <td>
-                                                            {/* <Link to={`/pages/DepartmentMasterinsert/${item.id}`}> */}
-                                                            <Button variant='primary' className='p-0 text-white' onClick={() => handleViewEdit(item.id)}>
-                                                                <i className='btn ri-edit-line text-white' ></i>
-                                                            </Button>
-                                                            {/* </Link> */}
-                                                        </td>)}
+                                                            <td>
+                                                                <Button variant='primary' className='p-0 text-white' onClick={() => handleViewEdit(item.id)}>
+                                                                    <i className='btn ri-edit-line text-white' ></i>
+                                                                </Button>
+                                                            </td>
+                                                        </>
+
+
+                                                    )}
                                                 </tr>
                                             ))
                                         ) : (
@@ -378,7 +429,7 @@ const DesignationMaster = () => {
                     <Pagination.Last onClick={() => setCurrentPage(totalPages)} disabled={currentPage === totalPages} />
                 </Pagination>
             </div>
-            {/* <CreatePopup show={show} setShow={setShow} /> */}
+            <CreatePopup show={show} setShow={setShow} />
             <PushNotification showView={showView} setShowView={setShowView} id={manageId} />
 
 

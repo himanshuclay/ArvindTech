@@ -37,7 +37,7 @@ export function useAuthContext() {
   return context;
 }
 
-const authSessionKey = '_VELONIC_AUTH';
+const authSessionKey = '_ARVINDO_AUTH';
 
 // AuthProvider component
 export function AuthProvider({ children }: { children: ReactNode }) {

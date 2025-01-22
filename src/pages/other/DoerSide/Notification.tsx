@@ -462,7 +462,9 @@ const ProjectAssignTable: React.FC = () => {
                                         ? calculatePlannedDate(item.createdDate)
                                         : getPlannedDate(item.createdDate, item.planDate)}
                                     </>
-                                  ) : col.id === 'projectName' ? (
+                                  ) :
+                                  
+                                  col.id === 'projectName' ? (
                                     <>
                                       <i className="ri-building-line"></i> {item.projectName}-{item.projectId}
                                     </>
