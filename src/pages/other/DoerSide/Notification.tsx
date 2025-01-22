@@ -662,16 +662,12 @@ const ProjectAssignTable: React.FC = () => {
                                       </div>
                                     </Col>
                                   </Row>
-
-
-
                                 </div>
                               </Collapse>
                             </td>
                           </tr>
                           : ''
                         }
-
                       </React.Fragment>
                     ))
                   ) : (

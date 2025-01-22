@@ -1121,16 +1121,8 @@ const App: React.FC = () => {
     <div className="App" id="taskTop">
       <div className="container mt-4">
         <div className="d-flex p-2 bg-white mt-2 mb-2 fw-bold text-dark fs-5">
-          {
-
-            (location.pathname === '/pages/CreateTemplates' ? '  Create Templates' : '  Create Task')
-
-          }
-
-
+          {(location.pathname === '/pages/CreateTemplates' ? '  Create Templates' : '  Create Task')}
         </div>
-
-
         <DragDropContext onDragEnd={handleDragEnd}>
           <div className='row m-0'>
             <Form className='row col-md-12 p-2 bg-white rounded align-items-end m-0' onSubmit={handleFormSubmit}>
@@ -1180,8 +1172,9 @@ const App: React.FC = () => {
                   required
                 />
               </Form.Group>
-
-              <Form.Group className="col-md-3 my-1">
+              {location.pathname != '/pages/CreateTemplates' && 
+              (
+                <Form.Group className="col-md-3 my-1">
                 <Form.Label>Role Name</Form.Label>
                 <Select
                   name="RoleName"
@@ -1193,22 +1186,19 @@ const App: React.FC = () => {
                   isSearchable={true}
                   placeholder="Select Role"
                   className="h45"
-                  required
                 />
-
-
-
-              </Form.Group>
-
+              </Form.Group> 
+              )
+              }
               <Form.Group className='col-md-3 my-1'>
-                <Form.Label>Task Name</Form.Label>
+                <Form.Label>{(location.pathname === '/pages/CreateTemplates' ? 'Template Name' : 'Task Name')}</Form.Label>
                 <Form.Control
                   type="text"
                   name="taskName"
                   value={formData.taskName}
                   onChange={handleFormChange}
                   required
-                  placeholder='Enter Task Name'
+                  placeholder={(location.pathname === '/pages/CreateTemplates' ? 'Enter Template Name' : 'Enter Task Name')}
                 />
               </Form.Group>
 
@@ -1427,11 +1417,6 @@ const App: React.FC = () => {
             Save Task
           </Button>)
           }
-
-
-
-
-
         </div>
 
         <Modal size='lg' show={isModalOpen} onHide={() => setIsModalOpen(false)}>
@@ -1881,10 +1866,6 @@ const App: React.FC = () => {
                     )}
                   </Form.Group>
                 )}
-
-
-
-
                 {editField.type === 'paragraph' && (
                   <Form.Group key={editField.inputId}>
 
