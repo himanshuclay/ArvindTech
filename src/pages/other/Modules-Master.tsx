@@ -11,6 +11,7 @@ import { Button, Form, Modal, ListGroup, Toast, Popover } from 'react-bootstrap'
 import axios from 'axios';
 import { useLocation } from 'react-router-dom';
 import config from '@/config';
+import CustomFlatpickr from '@/components/CustomFlatpickr';
 
 type FormField = {
   inputId: string;
@@ -41,7 +42,8 @@ type FormField = {
   value?: string;
   fileType?: string;        // The value of the input
   fileSize?: string;
-  visibility: boolean,
+  visibility: boolean;
+  condition?: number;
 };
 
 interface FormFieldOption {
@@ -321,8 +323,6 @@ const App: React.FC = () => {
     }
   };
 
-
-
   const handleHeaderChange = (header: string) => {
     setEditField((prevField) => {
       if (!prevField) return prevField;
@@ -333,11 +333,6 @@ const App: React.FC = () => {
       };
     });
   };
-
-
-
-
-
 
   const handleFormSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -390,10 +385,6 @@ const App: React.FC = () => {
     }
   };
 
-
-
-
-
   const reorder = (list: FormField[], startIndex: number, endIndex: number): FormField[] => {
     const result = Array.from(list);
     const [removed] = result.splice(startIndex, 1);
@@ -432,15 +423,11 @@ const App: React.FC = () => {
       }
     };
 
-
-
     fetchRoles();
   }, []);
 
 
   console.log(formData)
-
-
 
   const handleRoleSelect = (selectedOption: { id: number; roleName: string } | null) => {
     if (selectedOption) {
@@ -452,7 +439,11 @@ const App: React.FC = () => {
     }
   };
 
-
+  interface CustomOption {
+    value: string;
+    label: string;
+    className?: string; // Optional property for custom class
+  }
 
 
   const handleFormChange = (e: { target: { name: string; value: string; } }) => {
@@ -542,6 +533,9 @@ const App: React.FC = () => {
     }
   };
 
+  const [condition, setCondition] = React.useState<number>(3);
+
+
 
 
 
@@ -594,6 +588,20 @@ const App: React.FC = () => {
           value: field.value || "", // Default to an empty string if value is undefined
           selectedMaster: field.selectedMaster || "", // Default to an empty string if not provided
           selectedHeader: field.selectedHeader || "", // Default to an empty string if not provided
+          visibility: field.visibility ?? true, // Default to true if visibility is undefined
+        };
+      }
+      if (field.type === 'date') {
+        console.log(field.condition)
+        return {
+          inputId,
+          type: field.type,
+          label: field.labeltext || "Default Label",
+          fieldId: field.fieldId || "", // Default to an empty string if fieldId is undefined
+          required: !!field.required, // Convert to boolean, defaulting to false
+          conditionalFieldId: field.conditionalFieldId || "", // Use existing conditionalFieldId or default to an empty string
+          value: field.value || "", // Default to an empty string if value is undefined
+          condition: field.condition,
           visibility: field.visibility ?? true, // Default to true if visibility is undefined
         };
       }
@@ -657,7 +665,7 @@ const App: React.FC = () => {
     setLoading(true);
 
     try {
-      const response = await fetch(`${config.API_URL_ACCOUNT}/ProcessTaskMaster/InsertUpdateProcessTaskandDoer`, {
+      const response = await fetch(`${config.API_URL_ACCOUNT}/ProcessTaskMaster/InsertUpdateProcessTaskandDoers`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -1172,23 +1180,23 @@ const App: React.FC = () => {
                   required
                 />
               </Form.Group>
-              {location.pathname != '/pages/CreateTemplates' && 
-              (
-                <Form.Group className="col-md-3 my-1">
-                <Form.Label>Role Name</Form.Label>
-                <Select
-                  name="RoleName"
-                  value={roles.find((role) => role.id === selectedRole?.id) || null}
-                  onChange={(selectedOption) => handleRoleSelect(selectedOption)}
-                  getOptionLabel={(role) => role.roleName}
-                  getOptionValue={(role) => String(role.id)}
-                  options={roles}
-                  isSearchable={true}
-                  placeholder="Select Role"
-                  className="h45"
-                />
-              </Form.Group> 
-              )
+              {location.pathname != '/pages/CreateTemplates' &&
+                (
+                  <Form.Group className="col-md-3 my-1">
+                    <Form.Label>Role Name</Form.Label>
+                    <Select
+                      name="RoleName"
+                      value={roles.find((role) => role.id === selectedRole?.id) || null}
+                      onChange={(selectedOption) => handleRoleSelect(selectedOption)}
+                      getOptionLabel={(role) => role.roleName}
+                      getOptionValue={(role) => String(role.id)}
+                      options={roles}
+                      isSearchable={true}
+                      placeholder="Select Role"
+                      className="h45"
+                    />
+                  </Form.Group>
+                )
               }
               <Form.Group className='col-md-3 my-1'>
                 <Form.Label>{(location.pathname === '/pages/CreateTemplates' ? 'Template Name' : 'Task Name')}</Form.Label>
@@ -1284,22 +1292,31 @@ const App: React.FC = () => {
               </Droppable>
 
             </div>
+
             <Form.Group className="col-3 my-1">
               <Form.Label>Problem Solver</Form.Label>
               <Select
-                value={employees
-                  .map(employee => ({ value: employee.empId, label: employee.employeeName }))
-                  .find(option => option.value === selectedEmployee)
-                }
+                value={[
+                  { value: "ProjectCoordinator", label: "Project Coordinator", className: "special-option" },
+                  { value: "ProjectIncharge", label: "Project Incharge", className: "special-option" },
+                  ...employees.map(employee => ({ value: employee.empId, label: employee.employeeName })),
+                ].find(option => option.value === selectedEmployee) as CustomOption}
                 onChange={handleEmployeeChange}
-                options={employees.map(employee => ({
-                  value: employee.empId,
-                  label: employee.employeeName,
-                }))}
+                options={[
+                  { value: "ProjectCoordinator", label: "Project Coordinator", className: "special-option" },
+                  { value: "ProjectIncharge", label: "Project Incharge", className: "special-option" },
+                  ...employees.map(employee => ({ value: employee.empId, label: employee.employeeName })),
+                ] as CustomOption[]}
                 placeholder="Select an employee"
                 isSearchable
+                classNames={{
+                  option: (state) => state.data.className || "",
+                }}
               />
             </Form.Group>
+
+
+
             <Form.Group className="col-3 my-1">
               <Form.Label>Set Finish Point</Form.Label>
               <Form.Control
@@ -1979,26 +1996,56 @@ const App: React.FC = () => {
 
                 {editField.type === 'date' && (
                   <Form.Group>
+                    {/* Date Field */}
                     <Form.Label>Date</Form.Label>
-                    <Form.Control
-                      type="date"
-                      value={editField.date}
-                      onChange={(e) =>
-                        setEditField({
-                          ...editField,
-                          date: editField.date ? e.target.value : undefined
-                        })
-                      }
+                    <Form.Select
+                      className="mb-3"
+                      value={editField.condition}
+                      onChange={(e) => setCondition(Number(e.target.value))}
+                    >
+                      <option value={1}>Future Date Only (Including Today)</option>
+                      <option value={2}>Future Date Only (Max 15 Days)</option>
+                      <option value={3}>Simple Date Selection</option>
+                    </Form.Select>
+
+                    <CustomFlatpickr
+                      className='form-control'
+                      options={{
+                        enableTime: false, // Disables time selection
+                        dateFormat: 'Y-m-d', // Formats the date as 'YYYY-MM-DD'
+                        minDate: condition === 1 || condition === 2 ? 'today' : undefined, // Future date only
+                        maxDate:
+                          condition === 2
+                            ? new Date(Date.now() + 15 * 24 * 60 * 60 * 1000).toISOString().split('T')[0] // Max 15 days from today
+                            : undefined, // No max date restriction for other conditions
+                      }}
+                      value={editField.date ? new Date(editField.date) : undefined} // Ensure the value is a valid Date object
+                      onChange={(selectedDates) => {
+                        if (selectedDates && selectedDates.length > 0) {
+                          // Update the date only if a valid selection is made
+                          setEditField({
+                            ...editField,
+                            date: selectedDates[0].toISOString().split('T')[0], // Format as 'YYYY-MM-DD'
+                          });
+                        }
+                      }}
                     />
-                    <div className='form-group mt-2'>
+
+                    {/* Conditional Checkbox */}
+                    <div className="form-group mt-2">
                       <label className="form-label">
-                        <input className='me-1' type="checkbox"
+                        <input
+                          className="me-1"
+                          type="checkbox"
                           checked={conditionalField}
-                          onChange={handleCheckboxChange} />
+                          onChange={handleCheckboxChange}
+                        />
                         Is Conditionally bound?
                       </label>
                     </div>
-                    {conditionalField == true &&
+
+                    {/* Conditional Dropdown */}
+                    {conditionalField && (
                       <Form.Control
                         as="select"
                         className="mt-2"
@@ -2013,8 +2060,8 @@ const App: React.FC = () => {
                               <option
                                 key={option.id}
                                 value={option.id}
-                                data-color={option.color || ""}
-                                style={{ color: option.color || "inherit" }}
+                                data-color={option.color || ''}
+                                style={{ color: option.color || 'inherit' }}
                               >
                                 {option.label}
                               </option>
@@ -2022,10 +2069,11 @@ const App: React.FC = () => {
                           </React.Fragment>
                         ))}
                       </Form.Control>
-
-                    }
+                    )}
                   </Form.Group>
                 )}
+
+
                 <Form.Group className='mt-2'>
                   <Form.Check
                     type="switch"

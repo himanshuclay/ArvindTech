@@ -384,20 +384,6 @@
 }
 
 
-
-/* Container Styling */
-.stepper-container {
-  padding: 10px;
-  max-width: 100%;
-  overflow-x: hidden;
-}
-
-/* Active Mess Name */
-.active-mess {
-  font-size: 14px;
-  color: #333;
-}
-
 /* Container Styling */
 .stepper-container {
   padding: 10px;
@@ -997,4 +983,17 @@ input.numInput.cur-year:hover {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+.special-option {
+  color: blue;
+  font-weight: bold;
+}
+
+.special-option:hover {
+  background-color: lightblue;
+}
+
+.special-option:focus {
+  background-color: lightyellow;
 }

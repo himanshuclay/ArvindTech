@@ -100,9 +100,6 @@ const TaskMaster: React.FC = () => {
         // setTaskName('');
     };
 
-
-
-
     const [taskData, setTaskData] = useState<any>(null);
     const [updatedFields, setUpdatedFields] = useState<any>({});
 
@@ -344,8 +341,8 @@ const TaskMaster: React.FC = () => {
 
     const fetchTasks = () => {
         const endpoint = selectedModuleId && selectedProcess
-            ? `${config.API_URL_ACCOUNT}/ProcessTaskMaster/GetProcessTaskByIds?Flag=2&ModuleId=${selectedModuleId}&ProcessId=${selectedProcess}`
-            : `${config.API_URL_ACCOUNT}/ProcessTaskMaster/GetProcessTaskByIds?Flag=1`;
+            ? `${config.API_URL_ACCOUNT}/ProcessTaskMaster/GetProcessTaskByIds?Flag=2&ModuleId=${selectedModuleId}&ProcessId=${selectedProcess}&PageIndex=${currentPage}`
+            : `${config.API_URL_ACCOUNT}/ProcessTaskMaster/GetProcessTaskByIds?Flag=1&PageIndex=${currentPage}`;
 
         axios
             .get(endpoint)
@@ -358,6 +355,10 @@ const TaskMaster: React.FC = () => {
             })
             .catch((error) => console.error('Error fetching tasks:', error));
     };
+
+    useEffect(() => {
+        fetchTasks();
+    }, [selectedModuleId, selectedProcess, currentPage]);
 
     useEffect(() => {
         fetchTasks();
@@ -375,6 +376,13 @@ const TaskMaster: React.FC = () => {
         console.log(taskNumber)
 
     };
+
+    interface CustomOption {
+        employeeName: any;
+        employeeId?: any; // Optional for static options
+        className?: any; // Optional className for styling
+    }
+
 
 
 
@@ -476,60 +484,60 @@ const TaskMaster: React.FC = () => {
                             </Droppable>
                         </thead>
                         <tbody>
-                            {tasks.length > 0 ? (
-                                tasks.map((task, index) => (
+                            {Array.isArray(tasks) && tasks.length > 0 ? (
+                                tasks.slice(0, 10).map((task, index) => (
                                     <tr key={task.id}>
-                                        <td>{index + 1}</td>
+                                        <td>{(currentPage - 1) * 10 + index + 1}</td>
                                         {columns
-
                                             .filter((col) => col.visible)
                                             .map((col) => (
-                                                <td key={col.id}
+                                                <td
+                                                    key={col.id}
                                                     className={
-                                                        col.id === 'moduleName' ? 'fw-bold  text-dark text-nowrap py-2' :
-                                                            col.id === 'taskName' ? 'fw-bold    text-wrap' :
-                                                                ''
+                                                        col.id === 'moduleName'
+                                                            ? 'fw-bold text-dark text-nowrap py-2'
+                                                            : col.id === 'taskName'
+                                                                ? 'fw-bold text-wrap'
+                                                                : ''
                                                     }
                                                 >
-
-                                                    {col.id && (
-                                                        task[col.id as keyof Task]
-                                                    )}
+                                                    {col.id && task[col.id as keyof Task]}
                                                 </td>
                                             ))}
-
-                                        {
-                                            role === 'Admin' && (
-                                                <>
-                                                    <td>
-                                                        <Button
-                                                            variant="primary"
-                                                            onClick={() => { handleJsonModal(task.task_Json); }}
-                                                            className='text-nowrap'
-                                                        >
-                                                            <i className="ri-eye-line"></i>
-                                                        </Button>
-                                                    </td>
-                                                    <td>
-                                                        <Button
-                                                            variant="primary"
-                                                            onClick={() => handleShowModal(task.id)}
-                                                            className="text-nowrap"
-                                                        >
-                                                            <i className="ri-pencil-line"></i>
-                                                        </Button>
-                                                    </td>
-                                                    <td className='text-center'>
-                                                        <Button variant="primary" onClick={() => handleCondition(task.id, task.task_Number)}>
-                                                            <i className="ri-braces-line"></i>
-                                                        </Button>
-                                                    </td>
-                                                </>
-
-
-                                            )
-                                        }
-
+                                        {role === 'Admin' && (
+                                            <>
+                                                <td>
+                                                    <Button
+                                                        variant="primary"
+                                                        onClick={() => {
+                                                            handleJsonModal(task.task_Json);
+                                                        }}
+                                                        className="text-nowrap"
+                                                    >
+                                                        <i className="ri-eye-line"></i>
+                                                    </Button>
+                                                </td>
+                                                <td>
+                                                    <Button
+                                                        variant="primary"
+                                                        onClick={() => handleShowModal(task.id)}
+                                                        className="text-nowrap"
+                                                    >
+                                                        <i className="ri-pencil-line"></i>
+                                                    </Button>
+                                                </td>
+                                                <td className="text-center">
+                                                    <Button
+                                                        variant="primary"
+                                                        onClick={() =>
+                                                            handleCondition(task.id, task.task_Number)
+                                                        }
+                                                    >
+                                                        <i className="ri-braces-line"></i>
+                                                    </Button>
+                                                </td>
+                                            </>
+                                        )}
                                     </tr>
                                 ))
                             ) : (
@@ -548,6 +556,7 @@ const TaskMaster: React.FC = () => {
                                     </td>
                                 </tr>
                             )}
+
                         </tbody>
                     </Table>
                     {Array.isArray(tasks) && tasks.map((task) => (
@@ -570,8 +579,12 @@ const TaskMaster: React.FC = () => {
                                             <Form.Label>Problem Solver</Form.Label>
                                             <Select
                                                 name="problemSolver"
-                                                value={employeeList.find((emp) => emp.employeeName === task.problem_Solver) || null}
-                                                onChange={(selectedOption) => {
+                                                value={[
+                                                    { employeeName: "Project Coordinator", className: "special-option" },
+                                                    { employeeName: "Project Incharge", className: "special-option" },
+                                                    ...employeeList.map(emp => ({ employeeName: emp.employeeName, employeeId: emp.empId })),
+                                                ].find(emp => emp.employeeName === task.problem_Solver) || null}
+                                                onChange={(selectedOption: CustomOption | null) => {
                                                     setTasks((prevTasks) =>
                                                         prevTasks.map((t) =>
                                                             t.id === task.id
@@ -579,19 +592,22 @@ const TaskMaster: React.FC = () => {
                                                                 : t
                                                         )
                                                     );
-                                                    setProblemSolver(selectedOption?.employeeName || '')
+                                                    setProblemSolver(selectedOption?.employeeName || '');
                                                 }}
-                                                getOptionLabel={(emp) => emp.employeeName}
-                                                getOptionValue={(emp) => emp.employeeName}
-                                                options={employeeList}
+                                                getOptionLabel={(emp: CustomOption) => emp.employeeName}
+                                                getOptionValue={(emp: CustomOption) => emp.employeeName}
+                                                options={[
+                                                    { employeeName: "Project Coordinator", className: "special-option" },
+                                                    { employeeName: "Project Incharge", className: "special-option" },
+                                                    ...employeeList.map(emp => ({ employeeName: emp.employeeName, employeeId: emp.empId })),
+                                                ]}
+                                                classNames={{
+                                                    option: (state) => state.data.className || "",
+                                                }}
                                                 isSearchable={true}
                                                 placeholder="Select Problem Solver"
                                             />
-
                                         </Form.Group>
-
-
-
 
                                         {taskData && taskData.task_Json && (
                                             <div className="container mt-4 row">
@@ -782,13 +798,27 @@ const TaskMaster: React.FC = () => {
             }
 
             <div className="d-flex justify-content-center align-items-center bg-white w-20 rounded-5 m-auto py-1 pb-1 my-2 pagination-rounded">
-                <Pagination >
-                    <Pagination.First onClick={() => setCurrentPage(1)} disabled={currentPage === 1} />
-                    <Pagination.Prev onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))} disabled={currentPage === 1} />
-                    <Pagination.Item active>{currentPage}</Pagination.Item>
-                    <Pagination.Next onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))} disabled={currentPage === totalPages} />
-                    <Pagination.Last onClick={() => setCurrentPage(totalPages)} disabled={currentPage === totalPages} />
-                </Pagination>
+            <div className="d-flex justify-content-center align-items-center bg-white w-20 rounded-5 m-auto py-1 pb-1 my-2 pagination-rounded">
+      <Pagination>
+        <Pagination.First
+          onClick={() => setCurrentPage(1)}
+          disabled={currentPage === 1}
+        />
+        <Pagination.Prev
+          onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+          disabled={currentPage === 1}
+        />
+        <Pagination.Item active>{currentPage}</Pagination.Item>
+        <Pagination.Next
+          onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+          disabled={currentPage === totalPages}
+        />
+        <Pagination.Last
+          onClick={() => setCurrentPage(totalPages)}
+          disabled={currentPage === totalPages}
+        />
+      </Pagination>
+    </div>
             </div>
 
         </div>
