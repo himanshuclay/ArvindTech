@@ -258,7 +258,7 @@ const TaskCondition: React.FC<ProcessCanvasProps> = ({ show, setShow, taskID, ta
     useEffect(() => {
         const fetchProcessName = async () => {
             try {
-                const response = await axios.get(`${config.API_URL_ACCOUNT}/ProcessTaskMaster/GetProcessTaskByIds?Flag=2&ModuleId=${ModuleId}&ProcessId=${ProcessId}`);
+                const response = await axios.get(`${config.API_URL_ACCOUNT}/ProcessTaskMaster/GetProcessTaskByIds?Flag=4&ModuleId=${ModuleId}&ProcessId=${ProcessId}`);
                 if (response.data.isSuccess) {
                     setTasks(response.data.getProcessTaskByIds);
                 } else {
@@ -470,6 +470,8 @@ const TaskCondition: React.FC<ProcessCanvasProps> = ({ show, setShow, taskID, ta
         task_Number: option.value,
         task_Label: option.label,
     }));
+
+    console.log(formattedTasks)
 
     const combinedOptions: TaskOption[] = [...formattedTasks, ...formattedOptionsTaskNumber];
 

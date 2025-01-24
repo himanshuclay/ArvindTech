@@ -204,56 +204,58 @@ const TaskMaster: React.FC = () => {
         // if (taskIdToEdit !== null) {
         console.log('Updated taskIdToEdit:', taskIdToEdit);
         // console.log('Updated problemSolver:', problemSolver);
-
-        const fetchTaskData = async (taskIdToEdit: number) => {
-            try {
-                const { data } = await axios.get(`${config.API_URL_ACCOUNT}/ProcessTaskMaster/GetProcessTaskByIds?Flag=3&ID=${taskIdToEdit}`
-                );
-                const task = data.getProcessTaskByIds[0];
-                console.log(task)
-
-                // Check if task and task.inputs are defined before proceeding
-                if (task && task.task_Json) {
-                    try {
-                        // Parse the task_Json string if it's a stringified JSON object
-                        const parsedTaskJson = typeof task.task_Json === 'string' ? JSON.parse(task.task_Json) : task.task_Json;
-
-                        // Ensure inputs is an array
-                        if (Array.isArray(parsedTaskJson.inputs)) {
-                            setTaskData(task); // Store the fetched task data in state
-                            console.log(task);
-
-                            // Initialize updatedFields to keep track of the updated values
-                            const initialUpdatedFields = parsedTaskJson.inputs.reduce((acc: any, input: any) => {
-                                acc[input.inputId] = {
-                                    label: input.label,
-                                    placeholder: input.placeholder,
-                                    visibility: input.visibility,
-                                    required: input.required,
-                                };
-                                return acc;
-                            }, {});
-
-                            // Set initial updated fields
-                            setUpdatedFields(initialUpdatedFields);
-
-                            console.log(updatedFields)
-                        } else {
-                            console.error('Task data "inputs" is missing or is not an array.');
+        if(taskIdToEdit)
+        {
+            const fetchTaskData = async (taskIdToEdit: number) => {
+                try {
+                    const { data } = await axios.get(`${config.API_URL_ACCOUNT}/ProcessTaskMaster/GetProcessTaskByIds?Flag=3&ID=${taskIdToEdit}`
+                    );
+                    const task = data.getProcessTaskByIds[0];
+                    console.log(task)
+    
+                    // Check if task and task.inputs are defined before proceeding
+                    if (task && task.task_Json) {
+                        try {
+                            // Parse the task_Json string if it's a stringified JSON object
+                            const parsedTaskJson = typeof task.task_Json === 'string' ? JSON.parse(task.task_Json) : task.task_Json;
+    
+                            // Ensure inputs is an array
+                            if (Array.isArray(parsedTaskJson.inputs)) {
+                                setTaskData(task); // Store the fetched task data in state
+                                console.log(task);
+    
+                                // Initialize updatedFields to keep track of the updated values
+                                const initialUpdatedFields = parsedTaskJson.inputs.reduce((acc: any, input: any) => {
+                                    acc[input.inputId] = {
+                                        label: input.label,
+                                        placeholder: input.placeholder,
+                                        visibility: input.visibility,
+                                        required: input.required,
+                                    };
+                                    return acc;
+                                }, {});
+    
+                                // Set initial updated fields
+                                setUpdatedFields(initialUpdatedFields);
+    
+                                console.log(updatedFields)
+                            } else {
+                                console.error('Task data "inputs" is missing or is not an array.');
+                            }
+                        } catch (error) {
+                            console.error('Error parsing task_Json:', error);
                         }
-                    } catch (error) {
-                        console.error('Error parsing task_Json:', error);
+                    } else {
+                        console.error('Task data is missing "task_Json".');
                     }
-                } else {
-                    console.error('Task data is missing "task_Json".');
+    
+                } catch (error) {
+                    console.error('Error fetching task data:', error);
                 }
-
-            } catch (error) {
-                console.error('Error fetching task data:', error);
-            }
-        };
-
-        fetchTaskData(taskIdToEdit);
+            };
+    
+            fetchTaskData(taskIdToEdit);
+        }
         // }
     }, [taskIdToEdit]);
 
