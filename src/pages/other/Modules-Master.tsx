@@ -305,11 +305,14 @@ const App: React.FC = () => {
       };
     });
 
+    console.log(masterId,mastersName)
+
     if (masterId) {
       try {
         const response = await axios.get(
-          `${config.API_URL_APPLICATION}/CommonDropdown/GettableHeaderName?flag=${masterId}`
+          `${config.API_URL_APPLICATION}/CommonDropdown/GettableHeaderName?ID=${masterId}`
         );
+        console.log(response)
         if (response.data.isSuccess) {
           setHeadersList(response.data.gettableHeaderNames);
         } else {
@@ -665,7 +668,7 @@ const App: React.FC = () => {
     setLoading(true);
 
     try {
-      const response = await fetch(`${config.API_URL_ACCOUNT}/ProcessTaskMaster/InsertUpdateProcessTaskandDoers`, {
+      const response = await fetch(`${config.API_URL_ACCOUNT}/ProcessTaskMaster/InsertUpdateProcessTaskandDoer`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
