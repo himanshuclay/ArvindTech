@@ -424,8 +424,7 @@ const AccountProcess = () => {
                                 </Form.Group>
                             </Col>
 
-                            {
-                                role === 'DME' &&
+                            {(role === 'Admin' || role === 'DME') &&
                                 <Col lg={6}>
                                     <Form.Group controlId="processOwnerName" className="mb-3">
                                         <Form.Label>Adhoc Applicable</Form.Label>

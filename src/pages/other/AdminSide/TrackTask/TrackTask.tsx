@@ -621,7 +621,12 @@ const LnMaster: React.FC = () => {
                                                     <td className="text-end pr-3">
                                                         <Button
                                                             onClick={() => toggleExpandRow(item.id)}
-                                                            variant={isCompletedLate(item.planDate, item.completedDate) ? "danger" : "primary"}
+                                                            variant={isCompletedLate(
+                                                                item.task_Number === 'ACC.01.T1'
+                                                                    ? calculatePlannedDate(item.createdDate)
+                                                                    : getPlannedDate(item.createdDate, item.planDate),
+                                                                item.completedDate
+                                                            ) ? "danger" : "primary"}
                                                         >
                                                             {expandedRow === item.id ? (
                                                                 <i className="fs-16 ri-arrow-up-s-line"></i>
@@ -630,6 +635,7 @@ const LnMaster: React.FC = () => {
                                                             )}
                                                         </Button>
                                                     </td>
+
 
                                                 </tr>
 

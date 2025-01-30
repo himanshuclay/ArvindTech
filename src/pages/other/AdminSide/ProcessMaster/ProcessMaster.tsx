@@ -225,7 +225,7 @@ const ModuleMaster = () => {
                     `"${mod.moduleName}"`,
                     mod.moduleID,
                     mod.processID,
-                    mod.processDisplayName,
+                    `"${mod.processDisplayName}"`,
                     `"${mod.processObjective}"`,
                     mod.processOwnerName || '',
                     mod.userUpdatedMobileNumber || '',

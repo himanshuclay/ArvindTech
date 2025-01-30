@@ -175,7 +175,7 @@ const ModuleMaster = () => {
             ['ID', 'Module Display Name', 'FMS Type', 'Module ID', 'MIS Exempt Status', 'Status', 'Created By', 'Updated By', 'Created Date', 'Updated Date'],
             ...data.map(mod => [
                 mod.id,
-                mod.moduleDisplayName,
+                `"${mod.moduleDisplayName}"`,
                 mod.fmsType,
                 mod.moduleID,
                 mod.misExempt,

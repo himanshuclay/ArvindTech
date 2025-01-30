@@ -463,16 +463,16 @@ const ProjectAssignTable: React.FC = () => {
                                         : getPlannedDate(item.createdDate, item.planDate)}
                                     </>
                                   ) :
-                                  
-                                  col.id === 'projectName' ? (
-                                    <>
-                                      <i className="ri-building-line"></i> {item.projectName}-{item.projectId}
-                                    </>
-                                  ) : (
-                                    <>
-                                      {item[col.id as keyof ProjectAssignListWithDoer]}
-                                    </>
-                                  )
+
+                                    col.id === 'projectName' ? (
+                                      <>
+                                        <i className="ri-building-line"></i> {item.projectName}-{item.projectId}
+                                      </>
+                                    ) : (
+                                      <>
+                                        {item[col.id as keyof ProjectAssignListWithDoer]}
+                                      </>
+                                    )
                                 }
                               </div>
 
