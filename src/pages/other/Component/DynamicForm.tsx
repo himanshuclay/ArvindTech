@@ -488,12 +488,13 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
     const options: OptionType[] = [
         { value: 'approved', label: 'Approved' },
         { value: 'rejected', label: 'Rejected' },
+        { value: 'approvalWithAmid', label: 'approvalWithAmid' },
     ];
 
     const handleSelectChange = (selectedOption: SingleValue<OptionType>) => {
+        console.log("Selected Option:", selectedOption); // Debugging
         setApprovalStatus(selectedOption);
     };
-
 
     useEffect(() => {
         const fetchMessData = async () => {
@@ -519,6 +520,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
     const localStorageKey = 'messFormData'; // Key for localStorage
 
     const [approvalStatus, setApprovalStatus] = useState<OptionType | null>(null);
+    console.log(approvalStatus?.value)
 
 
     const submitMessData = async (event: React.FormEvent) => {
@@ -787,26 +789,63 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                 console.error('Error submitting module:', error.message || error);
             }
         }
-        if (fromComponent === 'PendingTask') {
+        if (fromComponent === 'PendingTask' || 'ApprovalConsole') {
+
+            console.log(approval_Console)
 
             // const taskData = data.find((task: Task) => task.task_Number === taskNumber);
             const requestData = {
                 // ...formData,
                 id: ProcessInitiationID || 0,
                 doerID: role || '',
-                task_Json: processId === "ACC.01" ? JSON.stringify(finalData) : JSON.stringify(globalTaskJson),
+                task_Json: processId === "ACC.01"
+                    ? (typeof finalData === "string" ? finalData : JSON.stringify(finalData))
+                    : (typeof globalTaskJson === "string" ? globalTaskJson : JSON.stringify(globalTaskJson)),
                 isExpired: 0,
-                isCompleted: formState['Pending'] || 'Completed',
+                isCompleted: (() => {
+                    console.log("approval_Console:", approval_Console);
+                    console.log("taskStatus:", taskStatus);
+                    console.log("approvalStatus?.value:", approvalStatus?.value);
+
+                    // Ensure taskStatus is preserved correctly
+                    const currentStatus = typeof taskStatus === "string" && taskStatus.trim() !== ""
+                    ? taskStatus.trim()
+                    : "Pending";                
+
+                    console.log("Current Status:", currentStatus);
+
+                    // Step 1: If approval_Console is 'Select Approval_Console', force 'Waiting for Approval'
+                    if (approval_Console === "Select Approval_Console" && approvalStatus?.value === undefined) return "Waiting for Approval";
+
+                    // Step 2: If taskStatus is 'Waiting for Approval', handle approval decisions
+                    const approvalValue = approvalStatus?.value?.trim().toLowerCase() || "";
+                    if (currentStatus === "Waiting for Approval") {
+                        if (approvalValue === "rejected") return "Pending";
+                        if (["approvalwithamid", "approved"].includes(approvalValue)) return "Completed";
+                    }
+
+                    return currentStatus;
+                })(),
+
                 task_Number: taskNumber,
                 summary: formState['summary'] || 'Task Summary',
                 condition_Json: parsedCondition,
                 taskCommonId: taskCommonIDRow,
                 taskStatus: taskStatus,
                 taskName: taskName,
+                rejectedJson: approvalStatus?.value?.trim().toLowerCase() === "rejected"
+                    ? globalTaskJson
+                    : "",
+
+                endprocessStatus: "string",
+                file: "",
                 updatedBy: role,
                 problemSolver: problemSolver,
-                projectName: projectName
+                projectName: projectName,
             };
+
+
+
             console.log(requestData)
 
             try {
@@ -1167,10 +1206,6 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                     </div>
                 )
                 }
-
-
-
-
                 {/* {location.pathname === '/pages/ApprovalConsole' && 
                     ( */}
                 <div>
@@ -1209,14 +1244,12 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                                                     {messList.map((mess, index) => {
                                                         const isCompleted = index < currentStep;
                                                         const isActive = index === currentStep;
-
                                                         return (
                                                             <div
                                                                 key={mess.messID}
                                                                 className={`stepper-item text-center ${isCompleted ? "completed" : isActive ? "active" : "pending"
                                                                     }`}
                                                             >
-                                                                {/* Step Circle */}
                                                                 <div
                                                                     className={`step-circle ${isCompleted
                                                                         ? "bg-success"
@@ -1232,7 +1265,6 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                                                                     )}
                                                                 </div>
 
-                                                                {/* Step Label */}
                                                                 <div
                                                                     className={`step-label ${isActive ? "text-primary" : "text-muted"
                                                                         }`}
@@ -1246,7 +1278,6 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                                                 </div>
                                             </div>
                                         </div>
-
                                     )
                                     }
                                 </div>
@@ -1254,8 +1285,19 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                                     <div className="my-task">
                                         {formData.inputs.map((input: Input) => (
                                             (fromComponent === 'TaskMaster' && 'PendingTask' || shouldDisplayInput(input)) && (
-                                                <div className={input.visibility === false ? 'd-none' : 'form-group'}
+                                                <div className={`${!input.visibility ? 'd-none' : 'form-group'} 
+                                                ${fromComponent === 'ApprovalConsole' &&
+                                                    (approval_Console === 'Select Approval_Console'
+                                                        ? approvalStatus?.value === 'approvalWithAmid'
+                                                            ? 'cursor-pointer'
+                                                            : 'cursor-not-allowed'
+                                                        : '')
+                                                    }`
+                                                }
+
+
                                                     key={input.inputId} style={{ marginBottom: '1rem' }}>
+
                                                     <label className='label'>{input.label}</label>
                                                     {input.type === 'text'
                                                         &&
@@ -1264,9 +1306,10 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                                                                 type="text"
                                                                 className="form-control"
                                                                 placeholder={input.placeholder}
-                                                                value={formState[input.inputId] || ''}
+                                                                value={formState[input.inputId] ?? input.value ?? ""}
                                                                 onChange={e => handleChange(input.inputId, e.target.value)}
                                                             />
+
                                                         )}
                                                     {input.type === 'number' &&
                                                         //  input.visibility !== false && 
@@ -1284,7 +1327,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                                                             type="text"
                                                             className="form-control"
                                                             placeholder={input.placeholder || '0.00'}
-                                                            value={formState[input.inputId] || ''}
+                                                            value={input.value !== "" ? input.value : formState[input.inputId] || ""}
                                                             onChange={(e) => {
                                                                 const value = e.target.value;
                                                                 const regex = /^(\d+(\.\d{0,2})?)?$/;
@@ -1313,7 +1356,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                                                             type="text"
                                                             className="form-control"
                                                             placeholder={input.placeholder || 'Enter a positive integer'}
-                                                            value={formState[input.inputId] || ''}
+                                                            value={input.value !== "" ? input.value : formState[input.inputId] || ""}
                                                             onChange={(e) => {
                                                                 const value = e.target.value;
 
@@ -1342,7 +1385,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                                                             type="text"
                                                             className="form-control"
                                                             placeholder={input.placeholder || 'Enter a positive integer greater than 0'}
-                                                            value={formState[input.inputId] || ''}
+                                                            value={input.value !== "" ? input.value : formState[input.inputId] || ""}
                                                             onChange={(e) => {
                                                                 const value = e.target.value;
 
@@ -1367,15 +1410,12 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                                                             }}
                                                         />
                                                     )}
-
-
-
                                                     {input.type === 'email' && (
                                                         <input
                                                             type="email"
                                                             className='form-control'
                                                             placeholder={input.placeholder}
-                                                            value={formState[input.inputId]}
+                                                            value={input.value !== "" ? input.value : formState[input.inputId] || ""}
                                                             onChange={e => handleChange(input.inputId, e.target.value)}
                                                         />
                                                     )}
@@ -1384,7 +1424,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                                                             type="tel"
                                                             className='form-control'
                                                             placeholder={input.placeholder}
-                                                            value={formState[input.inputId]}
+                                                            value={input.value !== "" ? input.value : formState[input.inputId] || ""}
                                                             onChange={e => handleChange(input.inputId, e.target.value)}
                                                         />
                                                     )}
@@ -1401,7 +1441,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                                                         <select
                                                             id={input.inputId}
                                                             className="form-select form-control"
-                                                            value={formState[input.inputId] || ''} // Ensure formState holds the selected value (id)
+                                                            value={input.value !== "" ? input.value : formState[input.inputId] || ""}
                                                             onChange={e => handleChange(input.inputId, e.target.value)} // Passing the id to handleChange
                                                             style={{ display: 'block', width: '100%', padding: '0.5rem' }}
                                                         >
@@ -1413,13 +1453,10 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                                                             ))}
                                                         </select>
                                                     )}
-
-
-
                                                     {input.type === 'multiselect' && (
                                                         <select
                                                             className='form-select form-control'
-                                                            value={formState[input.inputId]}
+                                                            value={input.value !== "" ? input.value : formState[input.inputId] || ""}
                                                             onChange={e => handleChange(input.inputId, e.target.value)}
                                                             style={{ display: 'block', width: '100%', padding: '0.5rem' }}
 
@@ -1436,7 +1473,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                                                         <select
                                                             key={input.inputId}
                                                             className="form-control"
-                                                            value={formState[input.inputId] || ""}
+                                                            value={input.value !== "" ? input.value : formState[input.inputId] || ""}
                                                             onChange={(e) => handleChange(input.inputId, e.target.value)}
                                                             style={{ display: 'block', width: '100%', padding: '0.5rem' }}
                                                         >
@@ -1466,8 +1503,6 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                                                             }}
                                                         />
                                                     )} */}
-
-
                                                     {input.type === 'checkbox' && (
 
                                                         <span className="form-check">
@@ -1500,12 +1535,13 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                                                     {input.type === 'date' && (
                                                         <input
                                                             type="date"
-                                                            value={formState[input.inputId]}
+                                                            value={input.value !== "" ? input.value : formState[input.inputId] || ""}
                                                             onChange={e => handleChange(input.inputId, e.target.value)}
                                                             style={{ display: 'block', width: '100%', padding: '0.5rem' }}
 
                                                         />
                                                     )}
+
                                                 </div>
                                             )
                                         ))}
@@ -1523,8 +1559,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                                             </div>
                                         )}
 
-
-                                        {approval_Console === "Select Approval_Console" && (
+                                        {fromComponent === "ApprovalConsole" && (
                                             <div>
                                                 <label>Is Approved</label>
                                                 <Select
