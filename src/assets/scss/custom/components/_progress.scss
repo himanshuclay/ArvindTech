@@ -997,3 +997,9 @@ input.numInput.cur-year:hover {
 .special-option:focus {
   background-color: lightyellow;
 }
+.cursor-not-allowed
+{
+  cursor: not-allowed;
+  pointer-events: none;
+  opacity: 0.8;
+}

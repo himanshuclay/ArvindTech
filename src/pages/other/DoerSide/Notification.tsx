@@ -96,6 +96,8 @@ const ProjectAssignTable: React.FC = () => {
 
   const [expandedRow, setExpandedRow] = useState<number | null>(null); // For row expansion
 
+  console.log(data)
+
 
   const toggleExpandRow = (id: number) => {
     setExpandedRow(expandedRow === id ? null : id);
@@ -119,10 +121,6 @@ const ProjectAssignTable: React.FC = () => {
     setColumns(reorderedColumns);
   };
   // ==============================================================
-
-
-
-
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -293,8 +291,6 @@ const ProjectAssignTable: React.FC = () => {
   //   }
   // };
 
-
-
   if (loading) {
     return <div className="loader-fixed">
       <div className="loader"></div>
@@ -302,17 +298,13 @@ const ProjectAssignTable: React.FC = () => {
     </div>;
   }
 
-
   const handleShow = () => setShow(true);
 
   const handleEdit = (taskCommonId: number) => {
     setTaskCommonIdRow(taskCommonId);
     fetchPreData(taskCommonId);
     handleShow();
-    // if (taskCommonId) {
-    //   fetchSingleDataById(taskCommonId);
 
-    // }
   };
 
   let conditionArray = [];

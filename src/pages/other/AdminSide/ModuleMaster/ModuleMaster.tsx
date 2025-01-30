@@ -71,18 +71,21 @@ const ModuleMaster = () => {
 
     const handleSearch = (e?: React.FormEvent) => {
         if (e) e.preventDefault();
-        let query = `?`;
-        if (moduleDisplayName) query += `ModuleDisplayName=${moduleDisplayName}&`;
-        if (searchStatus) query += `status=${searchStatus}&`;
-        query += `PageIndex=${currentPage}`;
-        query = query.endsWith('&') ? query.slice(0, -1) : query;
 
-        const apiUrl = `${config.API_URL_APPLICATION}/ModuleMaster/SearchModuleList${query}`;
-        console.log(apiUrl)
+        let queryParams = new URLSearchParams();
+
+        if (moduleDisplayName) queryParams.append("ModuleDisplayName", moduleDisplayName);
+        if (searchStatus) queryParams.append("status", searchStatus);
+        queryParams.append("PageIndex", String(currentPage));
+
+        const apiUrl = `${config.API_URL_APPLICATION}/ModuleMaster/SearchModuleList?${queryParams.toString()}`;
+
+        console.log(apiUrl);
+
         axios.get(apiUrl, { headers: { 'accept': '*/*' } })
             .then((response) => {
-                console.log(response.data.moduleMasterListResponses)
-                setModules(response.data.moduleMasterListResponses)
+                console.log(response.data.moduleMasterListResponses);
+                setModules(response.data.moduleMasterListResponses);
                 setTotalPages(Math.ceil(response.data.totalCount / 10));
             })
             .catch((error) => {
