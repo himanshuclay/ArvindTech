@@ -106,7 +106,6 @@ type Option = {
 // Global counter to keep track of unique IDs
 let formFieldCounter = 1;
 
-// Function to generate unique form field ID
 const generateFormFieldId = (): string => `${formFieldCounter++}`;
 
 
@@ -461,13 +460,20 @@ const App: React.FC = () => {
     // If the ModuleName is selected, fetch related processes
     if (name === 'ModuleName') {
       const selectedModule = modules.find((module) => module.moduleName === value);
+      const moduleNameStr = String(selectedModule) // Ensure ModuleName is a string
 
       if (selectedModule) {
         setSelectedModule(selectedModule);
         localStorage.setItem('selectedModuleId', selectedModule.moduleID); // Save selectedModuleId to localStorage
         localStorage.setItem('selectedModuleName', selectedModule.moduleName); // Save selectedModuleName to localStorage
 
-        fetch(`${config.API_URL_APPLICATION}/CommonDropdown/GetProcessNameByModuleName?ModuleName=${value}`)
+        fetch(
+					`${
+						config.API_URL_APPLICATION
+					}/CommonDropdown/GetProcessNameByModuleName?ModuleName=${encodeURIComponent(
+						moduleNameStr
+					)}`
+				)
           .then((response) => response.json())
           .then((data) => {
             if (data.isSuccess) {
