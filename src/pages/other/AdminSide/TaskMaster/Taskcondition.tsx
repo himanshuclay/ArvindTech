@@ -950,7 +950,7 @@ const TaskCondition: React.FC<ProcessCanvasProps> = ({
 											<>
 												<Col lg={4}>
 													<Form.Group controlId="Days" className="mb-3">
-														<Form.Label>Hours:</Form.Label>
+														<Form.Label>Days:</Form.Label>
 														<Form.Control
 															type="number"
 															name="Days"
@@ -1150,7 +1150,7 @@ const TaskCondition: React.FC<ProcessCanvasProps> = ({
 										<>
 											<Col lg={4}>
 												<Form.Group controlId="Days" className="mb-3">
-													<Form.Label>Hours:</Form.Label>
+													<Form.Label>Days:</Form.Label>
 													<Form.Control
 														type="number"
 														name="Days"
@@ -1241,6 +1241,55 @@ const TaskCondition: React.FC<ProcessCanvasProps> = ({
 														getOptionLabel={(item) => item.name}
 														getOptionValue={(item) => item.name}
 														placeholder="Select Time"
+													/>
+												</Form.Group>
+											</Col>
+										</>
+									)}
+									{taskSelections[0]?.taskTiming === 'FromTask' && (
+										<>
+											<Col md={4}>
+												<Form.Group controlId="previousTask" className="mb-2">
+													<Form.Label>Previous Task Number</Form.Label>
+													<Select
+														options={desiredTaskOptions}
+														value={
+															previousTask
+																? desiredTaskOptions.find(
+																		(option) => option.value === previousTask
+																  )
+																: null
+														}
+														onChange={(selectedOption) => {
+															handleTaskNumberChange(selectedOption)
+															handleChange(
+																0,
+																'PreviousTask',
+																selectedOption?.value || ''
+															)
+														}}
+														placeholder="Select Previous Task Number"
+													/>
+												</Form.Group>
+											</Col>
+											<Col md={6}>
+												<Form.Group controlId="inputFields" className="mb-2">
+													<Form.Label>Input Field</Form.Label>
+													<Select
+														options={inputFieldOptions.map((option) => ({
+															label: option, // Label for display
+															value: option, // Value for internal use
+														}))}
+														value={selectedInputField} // Bind selected value
+														onChange={(selectedOption1) => {
+															handleSelectedInputFieldChange(selectedOption1)
+															handleChange(
+																0,
+																'FromDate',
+																selectedOption1?.value || ''
+															)
+														}}
+														placeholder="Select Input Field"
 													/>
 												</Form.Group>
 											</Col>
@@ -1355,7 +1404,7 @@ const TaskCondition: React.FC<ProcessCanvasProps> = ({
 										<>
 											<Col lg={4}>
 												<Form.Group controlId="Days" className="mb-3">
-													<Form.Label>Hours:</Form.Label>
+													<Form.Label>Days:</Form.Label>
 													<Form.Control
 														type="number"
 														name="Days"
@@ -1446,6 +1495,55 @@ const TaskCondition: React.FC<ProcessCanvasProps> = ({
 														getOptionLabel={(item) => item.name}
 														getOptionValue={(item) => item.name}
 														placeholder="Select Time"
+													/>
+												</Form.Group>
+											</Col>
+										</>
+									)}
+									{taskSelections[index]?.taskTiming === 'FromTask' && (
+										<>
+											<Col md={4}>
+												<Form.Group controlId="previousTask" className="mb-2">
+													<Form.Label>Previous Task Number</Form.Label>
+													<Select
+														options={desiredTaskOptions}
+														value={
+															previousTask
+																? desiredTaskOptions.find(
+																		(option) => option.value === previousTask
+																  )
+																: null
+														}
+														onChange={(selectedOption) => {
+															handleTaskNumberChange(selectedOption)
+															handleChange(
+																index,
+																'PreviousTask',
+																selectedOption?.value || ''
+															)
+														}}
+														placeholder="Select Previous Task Number"
+													/>
+												</Form.Group>
+											</Col>
+											<Col md={6}>
+												<Form.Group controlId="inputFields" className="mb-2">
+													<Form.Label>Input Field</Form.Label>
+													<Select
+														options={inputFieldOptions.map((option) => ({
+															label: option, // Label for display
+															value: option, // Value for internal use
+														}))}
+														value={selectedInputField} // Bind selected value
+														onChange={(selectedOption1) => {
+															handleSelectedInputFieldChange(selectedOption1)
+															handleChange(
+																index,
+																'FromDate',
+																selectedOption1?.value || ''
+															)
+														}}
+														placeholder="Select Input Field"
 													/>
 												</Form.Group>
 											</Col>

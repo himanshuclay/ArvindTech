@@ -93,6 +93,7 @@ const ModuleMaster = () => {
 		{ id: 'identifier1', label: 'Second Identifier', visible: true },
 		{ id: 'inputValue1', label: 'Input Value two', visible: true },
 		{ id: 'empName', label: 'Employee Name', visible: true },
+		{ id: 'approvalConsoleDoerName', label: 'Approval Name', visible: true },
 		{ id: 'status', label: 'Status', visible: true },
 	])
 

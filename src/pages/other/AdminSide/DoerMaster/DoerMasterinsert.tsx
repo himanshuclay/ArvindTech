@@ -48,6 +48,7 @@ const YourComponent = () => {
             const response = await axios.get(`${config.API_URL_APPLICATION}/DoerMaster/GetDoerByIdentifier`, {
                 params: { PageIndex: currentPage }
             });
+            console.log(response);
             if (response.data.isSuccess) {
                 setDoerMasterList(response.data.getDoerByIdentifiers);
                 setTotalPages(Math.ceil(response.data.totalCount / 10));
@@ -59,6 +60,10 @@ const YourComponent = () => {
             console.error('Error fetching doer master list:', error);
         }
     };
+    
+    useEffect(() => {
+        fetchDoerMasterList();
+    }, [currentPage]);
 
     type SelectOption = {
         label: string;
@@ -169,7 +174,7 @@ const YourComponent = () => {
     useEffect(() => {
         const fetchInputFieldOptions = async () => {
             try {
-                const response = await axios.get(`${config.API_URL_ACCOUNT}/DynamicDoerAllocation/GetLabelFromType`, {
+                const response = await axios.get(`${config.API_URL_ACCOUNT}/DynamicDoerAllocation/GetLabelFromType?Flag=1`, {
                     params: { PreviousTaskNumber: previousTask }
                 });
 
