@@ -99,9 +99,8 @@ const ModuleMaster = () => {
 		if (searchStatus) queryParams.append('Status', searchStatus)
 		queryParams.append('PageIndex', String(currentPage))
 
-		const apiUrl = `${
-			config.API_URL_APPLICATION
-		}/ProcessMaster/SearchProcessList?${queryParams.toString()}`
+		const apiUrl = `${config.API_URL_APPLICATION
+			}/ProcessMaster/SearchProcessList?${queryParams.toString()}`
 
 		console.log(apiUrl)
 		axios
@@ -182,29 +181,20 @@ const ModuleMaster = () => {
 			}
 		}
 
-		fetchData(
-			'CommonDropdown/GetModuleList',
-			setModuleList,
-			'moduleNameListResponses'
-		)
-		fetchData(
-			'CommonDropdown/GetProcessOwnerName',
-			setEmployeeList,
-			'processOwnerNames'
-		)
+		fetchData('CommonDropdown/GetModuleList', setModuleList, 'moduleNameListResponses')
+		fetchData('CommonDropdown/GetProcessOwnerName', setEmployeeList, 'processOwnerNames')
 		fetchData('ProcessMaster/GetProcess', setDownloadCsv, 'processMasterList')
 	}, [show])
 
 
 
-    
+
 	useEffect(() => {
 		const fetchProcessName = async () => {
 			try {
 				const moduleNameStr = String(ModuleName) // Ensure ModuleName is a string
 				const response = await axios.get(
-					`${
-						config.API_URL_APPLICATION
+					`${config.API_URL_APPLICATION
 					}/CommonDropdown/GetProcessNameByModuleName?ModuleName=${encodeURIComponent(
 						moduleNameStr
 					)}`
@@ -521,8 +511,8 @@ const ModuleMaster = () => {
 																					)}
 																					{column.id ===
 																						'processDisplayName' && (
-																						<i className="ri-user-follow-fill"></i>
-																					)}
+																							<i className="ri-user-follow-fill"></i>
+																						)}
 																					{column.id === 'processObjective' && (
 																						<i className="ri-information-fill"></i>
 																					)}
@@ -565,14 +555,14 @@ const ModuleMaster = () => {
 																				? ' text-nowrap'
 																				: // col.id === 'moduleName' ? 'fw-bold text-dark   text-nowrap' :
 																				col.id === 'status' &&
-																				  item[col.id] === 'Enabled'
-																				? 'task1'
-																				: col.id === 'status' &&
-																				  item[col.id] === 'Disabled'
-																				? 'task4'
-																				: col.id === 'processObjective'
-																				? 'w-200px'
-																				: ''
+																					item[col.id] === 'Enabled'
+																					? 'task1'
+																					: col.id === 'status' &&
+																						item[col.id] === 'Disabled'
+																						? 'task4'
+																						: col.id === 'processObjective'
+																							? 'w-200px'
+																							: ''
 																		}>
 																		{col.id === 'processOwnerName' ? (
 																			<td>

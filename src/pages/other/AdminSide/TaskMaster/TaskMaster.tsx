@@ -204,26 +204,25 @@ const TaskMaster: React.FC = () => {
         // if (taskIdToEdit !== null) {
         console.log('Updated taskIdToEdit:', taskIdToEdit);
         // console.log('Updated problemSolver:', problemSolver);
-        if(taskIdToEdit)
-        {
+        if (taskIdToEdit) {
             const fetchTaskData = async (taskIdToEdit: number) => {
                 try {
                     const { data } = await axios.get(`${config.API_URL_ACCOUNT}/ProcessTaskMaster/GetProcessTaskByIds?Flag=3&ID=${taskIdToEdit}`
                     );
                     const task = data.getProcessTaskByIds[0];
                     console.log(task)
-    
+
                     // Check if task and task.inputs are defined before proceeding
                     if (task && task.task_Json) {
                         try {
                             // Parse the task_Json string if it's a stringified JSON object
                             const parsedTaskJson = typeof task.task_Json === 'string' ? JSON.parse(task.task_Json) : task.task_Json;
-    
+
                             // Ensure inputs is an array
                             if (Array.isArray(parsedTaskJson.inputs)) {
                                 setTaskData(task); // Store the fetched task data in state
                                 console.log(task);
-    
+
                                 // Initialize updatedFields to keep track of the updated values
                                 const initialUpdatedFields = parsedTaskJson.inputs.reduce((acc: any, input: any) => {
                                     acc[input.inputId] = {
@@ -234,10 +233,10 @@ const TaskMaster: React.FC = () => {
                                     };
                                     return acc;
                                 }, {});
-    
+
                                 // Set initial updated fields
                                 setUpdatedFields(initialUpdatedFields);
-    
+
                                 console.log(updatedFields)
                             } else {
                                 console.error('Task data "inputs" is missing or is not an array.');
@@ -248,12 +247,12 @@ const TaskMaster: React.FC = () => {
                     } else {
                         console.error('Task data is missing "task_Json".');
                     }
-    
+
                 } catch (error) {
                     console.error('Error fetching task data:', error);
                 }
             };
-    
+
             fetchTaskData(taskIdToEdit);
         }
         // }
@@ -327,11 +326,34 @@ const TaskMaster: React.FC = () => {
             .catch((error) => console.error('Error fetching modules:', error));
     }, []);
 
+    const [downloadCsv, setDownloadCsv] = useState<Task[]>([]);
+
+    useEffect(() => {
+        const fetchData = async (endpoint: string, setter: Function) => {
+          try {
+            const response = await axios.get(`${config.API_URL_ACCOUNT}/${endpoint}`);
+            console.log('API Response:', response);
+            if (response.data.isSuccess && response.data.getProcessTaskByIds) {
+              setter(response.data.getProcessTaskByIds);
+            } else {
+              console.error('Expected data not found in response', response.data);
+            }
+          } catch (error) {
+            console.error(`Error fetching data from ${endpoint}:`, error);
+          }
+        };
+      
+        fetchData('ProcessTaskMaster/GetProcessTaskByIds?Flag=5', setDownloadCsv);
+      }, [show]);
+
     // Fetch Processes based on selected module
     useEffect(() => {
         if (selectedModule) {
+            const moduleNameStr = String(selectedModule)
             axios
-                .get(`${config.API_URL_APPLICATION}/CommonDropdown/GetProcessNameByModuleName?ModuleName=${selectedModule}`)
+                .get(`${config.API_URL_APPLICATION}/CommonDropdown/GetProcessNameByModuleName?ModuleName=${encodeURIComponent(
+                    moduleNameStr
+                  )}`)
                 .then((response) => {
                     if (response.data.isSuccess) {
                         setProcesses(response.data.processListResponses);
@@ -342,6 +364,7 @@ const TaskMaster: React.FC = () => {
     }, [selectedModule]);
 
     const fetchTasks = () => {
+        
         const endpoint = selectedModuleId && selectedProcess
             ? `${config.API_URL_ACCOUNT}/ProcessTaskMaster/GetProcessTaskByIds?Flag=2&ModuleId=${selectedModuleId}&ProcessId=${selectedProcess}&PageIndex=${currentPage}`
             : `${config.API_URL_ACCOUNT}/ProcessTaskMaster/GetProcessTaskByIds?Flag=1&PageIndex=${currentPage}`;
@@ -357,6 +380,7 @@ const TaskMaster: React.FC = () => {
             })
             .catch((error) => console.error('Error fetching tasks:', error));
     };
+    
 
     useEffect(() => {
         fetchTasks();
@@ -366,6 +390,70 @@ const TaskMaster: React.FC = () => {
         fetchTasks();
     }, [selectedModuleId, selectedProcess]);
 
+    const convertToCSV = (data: Task[]) => {
+        const csvRows = [
+          [
+            'ID',
+            'Module Name',
+            'Module ID',
+            'Process ID',
+            'Process Name',
+            'Role ID',
+            'Role Name',
+            'Task Number',
+            'Task Status',
+            'Task Type',
+            'Problem Solver',
+            'Finish Point',
+            'Is Expired',
+            'Created By',
+            'Created Date',
+            'Updated By',
+            'Updated Date',
+            'Task Name'
+          ],
+          ...data?.map((task) => {
+      
+            return [
+              task.id,
+              `"${task.moduleName}"`,
+              task.moduleID,
+              task.processID,
+              `"${task.processName}"`,
+              task.roleId,
+              task.roleName,
+              task.task_Number,
+              task.task_Status,
+              task.taskType,
+              `"${task.problem_Solver}"`,
+              task.finishPoint,
+              task.isExpired,
+              task.createdBy,
+              task.createdDate,
+              task.updatedBy,
+              task.updatedDate,
+              `"${task.task_Name}"`
+            ];
+          })
+        ];
+      
+        return csvRows.map((row) => row.join(',')).join('\n');
+      };
+      
+      const downloadCSV = () => {
+        const csvData = convertToCSV(downloadCsv);
+        const blob = new Blob([csvData], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement('a');
+        if (link.download !== undefined) {
+          const url = URL.createObjectURL(blob);
+          link.setAttribute('href', url);
+          link.setAttribute('download', 'Process_Master.csv');
+          link.style.visibility = 'hidden';
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+        }
+      };
 
 
 
@@ -400,6 +488,9 @@ const TaskMaster: React.FC = () => {
             <div className="d-flex bg-white p-2 my-2 justify-content-between align-items-center fs-20">
                 <span><i className="ri-file-list-line me-2"></i><span className='fw-bold test-nowrap'>Task List</span></span>
                 <div className="col-md-4  d-flex justify-content-end">
+                    <Button variant="primary" onClick={downloadCSV} className="me-2">
+                        Download CSV
+                    </Button>
                     {role === "Admin" && (
                         <Link to="/pages/Modules-Master">
                             <Button variant="primary">Create Task</Button>
@@ -558,7 +649,6 @@ const TaskMaster: React.FC = () => {
                                     </td>
                                 </tr>
                             )}
-
                         </tbody>
                     </Table>
                     {Array.isArray(tasks) && tasks.map((task) => (
@@ -800,27 +890,27 @@ const TaskMaster: React.FC = () => {
             }
 
             <div className="d-flex justify-content-center align-items-center bg-white w-20 rounded-5 m-auto py-1 pb-1 my-2 pagination-rounded">
-            <div className="d-flex justify-content-center align-items-center bg-white w-20 rounded-5 m-auto py-1 pb-1 my-2 pagination-rounded">
-      <Pagination>
-        <Pagination.First
-          onClick={() => setCurrentPage(1)}
-          disabled={currentPage === 1}
-        />
-        <Pagination.Prev
-          onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-          disabled={currentPage === 1}
-        />
-        <Pagination.Item active>{currentPage}</Pagination.Item>
-        <Pagination.Next
-          onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
-          disabled={currentPage === totalPages}
-        />
-        <Pagination.Last
-          onClick={() => setCurrentPage(totalPages)}
-          disabled={currentPage === totalPages}
-        />
-      </Pagination>
-    </div>
+                <div className="d-flex justify-content-center align-items-center bg-white w-20 rounded-5 m-auto py-1 pb-1 my-2 pagination-rounded">
+                    <Pagination>
+                        <Pagination.First
+                            onClick={() => setCurrentPage(1)}
+                            disabled={currentPage === 1}
+                        />
+                        <Pagination.Prev
+                            onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                            disabled={currentPage === 1}
+                        />
+                        <Pagination.Item active>{currentPage}</Pagination.Item>
+                        <Pagination.Next
+                            onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+                            disabled={currentPage === totalPages}
+                        />
+                        <Pagination.Last
+                            onClick={() => setCurrentPage(totalPages)}
+                            disabled={currentPage === totalPages}
+                        />
+                    </Pagination>
+                </div>
             </div>
 
         </div>
