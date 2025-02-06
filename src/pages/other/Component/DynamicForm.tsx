@@ -5,7 +5,7 @@ import { Col, Modal, Row } from 'react-bootstrap'
 // import { useNavigate } from 'react-router-dom';
 import { useNavigate, useLocation } from 'react-router-dom'
 import config from '@/config'
-import Select, { SingleValue } from 'react-select'
+import Select, { SingleValue, MultiValue } from 'react-select'
 import MessCards from './Previous&Completed'
 import { toast } from 'react-toastify'
 
@@ -506,6 +506,11 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
         }
     }
 
+    interface Option {
+        value: string;
+        label: string;
+    }
+
     const handleClose = () => {
         setShow(false)
     }
@@ -679,13 +684,19 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
 
             // Handle multiselect input type
             if (input.type === 'multiselect') {
-                updatedValue = (value as string[]).map((label) => {
-                    const selectedOption = input.options?.find(
-                        (option) => option.label === label
-                    )
-                    return selectedOption ? selectedOption.id : label
-                })
+                if (Array.isArray(value)) {
+                    updatedValue = value.map((selectedItem) => {
+                        const selectedOption = input.options?.find(
+                            (option) => option.label === selectedItem || option.id === selectedItem
+                        );
+                        return selectedOption ? selectedOption.id : selectedItem;  // Return ID if found, else fallback to the original value
+                    });
+                } else {
+                    console.warn('Expected an array for multiselect input, but received:', value);
+                    updatedValue = [];  // Fallback to an empty array if value is not an array
+                }
             }
+
 
             // Handle other input types
             switch (input.type) {
@@ -1309,17 +1320,17 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                                                             <div
                                                                 key={mess.messID}
                                                                 className={`stepper-item text-center ${isCompleted
-                                                                        ? 'completed'
-                                                                        : isActive
-                                                                            ? 'active'
-                                                                            : 'pending'
+                                                                    ? 'completed'
+                                                                    : isActive
+                                                                        ? 'active'
+                                                                        : 'pending'
                                                                     }`}>
                                                                 <div
                                                                     className={`step-circle ${isCompleted
-                                                                            ? 'bg-success'
-                                                                            : isActive
-                                                                                ? 'bg-primary'
-                                                                                : 'bg-light'
+                                                                        ? 'bg-success'
+                                                                        : isActive
+                                                                            ? 'bg-primary'
+                                                                            : 'bg-light'
                                                                         }`}>
                                                                     {isCompleted ? (
                                                                         <i className="ri-check-line text-white"></i>
@@ -1605,31 +1616,41 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                                                                 ))}
                                                             </select>
                                                         )}
+
+
                                                         {input.type === 'multiselect' && (
-                                                            <select
-                                                                className="form-select form-control"
+                                                            <Select<Option, true> // <Option, true> indicates multi-select with flat options
+                                                                isMulti
+                                                                id={input.inputId}
+                                                                className="form-select"
                                                                 value={
-                                                                    input.value !== ''
-                                                                        ? input.value
-                                                                        : formState[input.inputId] || ''
+                                                                    input.value && input.value.length > 0
+                                                                        ? (input.options || []).filter(option => input.value.includes(option.id)).map(option => ({
+                                                                            value: option.id,
+                                                                            label: option.label,
+                                                                        }))
+                                                                        : (input.options || []).filter(option => (formState[input.inputId] || []).includes(option.id)).map(option => ({
+                                                                            value: option.id,
+                                                                            label: option.label,
+                                                                        }))
                                                                 }
-                                                                onChange={(e) =>
-                                                                    handleChange(input.inputId, e.target.value)
-                                                                }
-                                                                style={{
-                                                                    display: 'block',
-                                                                    width: '100%',
-                                                                    padding: '0.5rem',
-                                                                }}>
-                                                                <option value="" disabled>
-                                                                    Select an option
-                                                                </option>
-                                                                {input.options?.map((option) => (
-                                                                    <option key={option.id} value={option.label}>
-                                                                        {option.label}
-                                                                    </option>
-                                                                ))}
-                                                            </select>
+                                                                onChange={(selectedOptions: MultiValue<Option>) => {
+                                                                    const selectedValues = selectedOptions.map(option => option.value);
+                                                                    handleChange(input.inputId, selectedValues); // Save array of selected option IDs
+                                                                }}
+                                                                options={(input.options || []).map(option => ({
+                                                                    value: option.id,
+                                                                    label: option.label,
+                                                                }))}
+                                                                placeholder="Select options"
+                                                                styles={{
+                                                                    control: (base) => ({
+                                                                        ...base,
+                                                                        padding: '0.5rem',
+                                                                        width: '100%',
+                                                                    }),
+                                                                }}
+                                                            />
                                                         )}
                                                         {input.type === 'CustomSelect' && (
                                                             <select
