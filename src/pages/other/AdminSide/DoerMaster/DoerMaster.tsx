@@ -30,6 +30,7 @@ interface Doer {
 	status: string
 	empName: any
 	createdBy: string
+	approval_Console: string
 	updatedBy: string
 }
 
@@ -64,7 +65,7 @@ const ModuleMaster = () => {
 	const [showModal, setShowModal] = useState(false)
 	const [selectedEmpId, setSelectedEmpId] = useState('')
 	const [selectedEmpName, setSelectedEmpName] = useState('')
-    const [selectedApprovalId, setSelectedApprovalId] = useState('')
+	const [selectedApprovalId, setSelectedApprovalId] = useState('')
 	const [selectedApprovalName, setSelectedApprovalName] = useState('')
 	const [doerStatus, setDoerStatus] = useState('')
 	const [currentId, setCurrentId] = useState<number | null>(null)
@@ -94,6 +95,7 @@ const ModuleMaster = () => {
 		{ id: 'inputValue1', label: 'Input Value two', visible: true },
 		{ id: 'empName', label: 'Employee Name', visible: true },
 		{ id: 'approvalConsoleDoerName', label: 'Approval Name', visible: true },
+		{ id: 'approval_Console', label: 'Approval Name', visible: false },
 		{ id: 'status', label: 'Status', visible: true },
 	])
 
@@ -133,8 +135,8 @@ const ModuleMaster = () => {
 				id: currentId,
 				empID: selectedEmpId,
 				empName: selectedEmpName,
-                ApprovalConsoleDoerId: selectedApprovalId,
-                ApprovalConsoleDoerName: selectedApprovalName,
+				ApprovalConsoleDoerId: selectedApprovalId,
+				ApprovalConsoleDoerName: selectedApprovalName,
 				status: doerStatus,
 				updatedBy: storedEmpName,
 			}
@@ -209,7 +211,12 @@ const ModuleMaster = () => {
 					params: { PageIndex: currentPage },
 				}
 			)
+			
 			if (response.data.isSuccess) {
+				// response.data.doerMasterList.map((doers:any) => {
+				// 	doers["approval_Console"] = "himanshu"
+				// })
+				// console.log(response);
 				setDoers(response.data.doerMasterList)
 				setTotalPages(Math.ceil(response.data.totalCount / 10))
 			} else {
@@ -531,13 +538,17 @@ const ModuleMaster = () => {
 												</Form.Label>
 												<Select
 													name="employeeName"
-													// value={combinedOptions.find((item) => item.employeeName === doers.empName) || null}
+													value={
+														combinedOptions.find(
+															(item) => item.empId === selectedEmpId
+														) || null
+													} // Set the selected value
 													onChange={(selectedOption) => {
 														if (selectedOption) {
-															setSelectedEmpId(selectedOption.empId)
-															setSelectedEmpName(selectedOption.employeeName)
+															setSelectedEmpId(selectedOption.empId) // Update state with selected empId
+															setSelectedEmpName(selectedOption.employeeName) // Update state with selected employeeName
 														} else {
-															setSelectedEmpId('')
+															setSelectedEmpId('') // Reset state if no option is selected
 															setSelectedEmpName('')
 														}
 													}}
@@ -546,27 +557,30 @@ const ModuleMaster = () => {
 													getOptionValue={(item) => item.empId}
 													isSearchable={true}
 													placeholder="Select Employee"
-													// className={validationErrors.employeeName ? " input-border h45" : "   h45"}
 												/>
-												{/* {validationErrors.employeeName && (
-                                                    <small className="text-danger">{validationErrors.employeeName}</small>
-                                                )} */}
 											</Form.Group>
 										</Col>
-                                        <Col lg={4}>
+	
+										<Col lg={4}>
 											<Form.Group>
 												<Form.Label>
 													Approval Name <span className="text-danger">*</span>
 												</Form.Label>
 												<Select
-													name="employeeName"
-													// value={combinedOptions.find((item) => item.employeeName === doers.empName) || null}
+													name="approvalName"
+													value={
+														combinedOptions.find(
+															(item) => item.empId === selectedApprovalId
+														) || null
+													} // Set the selected value
 													onChange={(selectedOption) => {
 														if (selectedOption) {
-															setSelectedApprovalId(selectedOption.empId)
-															setSelectedApprovalName(selectedOption.employeeName)
+															setSelectedApprovalId(selectedOption.empId) // Update state with selected empId
+															setSelectedApprovalName(
+																selectedOption.employeeName
+															) // Update state with selected employeeName
 														} else {
-															setSelectedApprovalId('')
+															setSelectedApprovalId('') // Reset state if no option is selected
 															setSelectedApprovalName('')
 														}
 													}}
@@ -575,14 +589,10 @@ const ModuleMaster = () => {
 													getOptionValue={(item) => item.empId}
 													isSearchable={true}
 													placeholder="Select Approval Name"
-													// className={validationErrors.employeeName ? " input-border h45" : "   h45"}
 												/>
-												{/* {validationErrors.employeeName && (
-                                                    <small className="text-danger">{validationErrors.employeeName}</small>
-                                                )} */}
 											</Form.Group>
 										</Col>
-
+                             
 										<Col lg={4}>
 											<Form.Group controlId="status" className="mb-3">
 												<Form.Label>
@@ -725,18 +735,23 @@ const ModuleMaster = () => {
 																		: ''
 																}>
 																<div>
-																	{col.id === 'empName' ? (
+																	{[
+																		'empName',
+																		'approvalConsoleDoerName',
+																	].includes(col.id) ? (
 																		<div
 																			style={{
 																				display: 'flex',
 																				alignItems: 'center',
 																			}}>
-																			{item.empName ? (
-																				<>{item.empName} </>
+																			{item[col.id as keyof Doer] ? (
+																				<>{item[col.id as keyof Doer]}</>
 																			) : (
 																				<span>
 																					<i className="ri-user-search-fill text-secondary fs-16 me-2"></i>
-																					No Doer Assigned
+																					{col.id === 'empName'
+																						? 'No Doer Assigned'
+																						: 'Not Assigned'}
 																				</span>
 																			)}
 																		</div>

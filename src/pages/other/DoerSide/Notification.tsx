@@ -432,7 +432,7 @@ const ProjectAssignTable: React.FC = () => {
                 <tbody>
 
                   {data.length > 0 ? (
-                    data.slice(0, 10).map((item, index) => (
+                    data.slice(0, 20).map((item, index) => (
                       <React.Fragment key={item.id}>
                         <tr>
                           {columns.filter(col => col.visible).map((col) => (
