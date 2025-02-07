@@ -18,6 +18,7 @@ const Dashboard = React.lazy(() => import('../pages/Dashboard'))
 
 // // pages
 const ProfilePages = React.lazy(() => import('../pages/other/Profile/'))
+const MisReport = React.lazy(() => import('../pages/other/Component/MisReport.tsx'))
 const AdhocTempleteList = React.lazy(() => import('../pages/other/AdminSide/AdhocTempleteList.tsx'))
 const FAQPages = React.lazy(() => import('../pages/other/FAQ'))
 const PricingPages = React.lazy(() => import('../pages/other/Pricing'))
@@ -163,6 +164,13 @@ const customPagesRoutes = {
 			element: <AdhocTempleteList />,
 			route: PrivateRoute,
 		},
+		{
+			path: '/pages/MisReport',
+			name: 'MisReport',
+			element: <MisReport />,
+			route: PrivateRoute,
+		},
+		
 		{
 			path: '/pages/faq',
 			name: 'FAQ',

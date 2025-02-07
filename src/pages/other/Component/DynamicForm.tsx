@@ -890,6 +890,11 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                         if (['approvalwithamid', 'approved'].includes(approvalValue))
                             return 'Completed'
                     }
+                    if(approval_Console === '' &&
+                        approvalStatus?.value === undefined)
+                        {
+                            return 'Completed'
+                        }
 
                     return currentStatus
                 })(),
