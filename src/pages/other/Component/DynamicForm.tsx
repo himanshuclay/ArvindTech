@@ -1064,15 +1064,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
         await fetchBankByIFSC(ifsc)
     }
 
-<<<<<<< Updated upstream
     const handleClose2 = () => setShowBankModal(false)
-=======
-    // const handleShow2 = () => {
-    //     setShowBankModal(true); // Show the modal
-    // };
-
-	const handleClose2 = () => setShowBankModal(false)
->>>>>>> Stashed changes
 
     const handleSelectMessImpChange = (selectedValue: string) => {
         setSelectedManager(selectedValue)
