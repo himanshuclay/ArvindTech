@@ -7,7 +7,7 @@ import {
   DroppableProvided,
 } from 'react-beautiful-dnd';
 import Select from 'react-select';
-import { Button, Form, Modal, ListGroup, Toast, Popover } from 'react-bootstrap';
+import { Button, Form, Modal, ListGroup, Toast } from 'react-bootstrap';
 import axios from 'axios';
 import { useLocation } from 'react-router-dom';
 import config from '@/config';
@@ -206,7 +206,7 @@ const App: React.FC = () => {
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [selectedEmployee, setSelectedEmployee] = useState<string>('');
   const [isApprovalConsoleActive, setApprovalConsoleActive] = useState(false);
-  const [approvalSelectedEmployee, setApprovalSelectedEmployee] = useState<string>('');  // For approval field
+  // const [approvalSelectedEmployee, setApprovalSelectedEmployee] = useState<string>('');  // For approval field
   const [selectedFieldIdx, setSelectedFieldIdx] = useState<number | null>(null);
   const [showToast, setShowToast] = useState(false);
   const [roles, setRoles] = useState<Role[]>([]);
@@ -229,9 +229,9 @@ const App: React.FC = () => {
 
   const location = useLocation();
 
-  const handleApprovalEmployeeSelect = (selectedOption: any) => {
-    setApprovalSelectedEmployee(selectedOption?.value || null); // Handle employee selection
-  };
+  // const handleApprovalEmployeeSelect = (selectedOption: any) => {
+  //   setApprovalSelectedEmployee(selectedOption?.value || null); // Handle employee selection
+  // };
 
 
   const handleCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -523,21 +523,21 @@ const App: React.FC = () => {
     }
   };
 
-  const handleApprovalConsoleId = (e: ChangeEvent<any>) => {
-    const { name, value } = e.target as HTMLSelectElement | HTMLInputElement;
+  // const handleApprovalConsoleId = (e: ChangeEvent<any>) => {
+  //   const { name, value } = e.target as HTMLSelectElement | HTMLInputElement;
 
-    // Update the form data state
-    setFormData(prevFormData => ({
-      ...prevFormData,
-      [name]: value
-    }));
+  //   // Update the form data state
+  //   setFormData(prevFormData => ({
+  //     ...prevFormData,
+  //     [name]: value
+  //   }));
 
-    // Store the selected approvalConsoleId in localStorage
-    if (name === 'approvalConsoleId') {
-      localStorage.setItem('selectedApprovalConsoleId', value);
-      console.log(value); // You can remove this log later
-    }
-  };
+  //   // Store the selected approvalConsoleId in localStorage
+  //   if (name === 'approvalConsoleId') {
+  //     localStorage.setItem('selectedApprovalConsoleId', value);
+  //     console.log(value); // You can remove this log later
+  //   }
+  // };
 
   const handlefinishID = (e: ChangeEvent<any>) => {
     const { name, value } = e.target as HTMLSelectElement | HTMLInputElement;
@@ -649,7 +649,7 @@ const App: React.FC = () => {
     };
 
     const selectedEmployeeObj = employees.find(emp => emp.empId === selectedEmployee)
-    const selectedapprovalEmployee = employees.find(emp => emp.empId === approvalSelectedEmployee);
+    // const selectedapprovalEmployee = employees.find(emp => emp.empId === approvalSelectedEmployee);
 
     // Include finishID (finishPoint) in the payload
     const payload = {

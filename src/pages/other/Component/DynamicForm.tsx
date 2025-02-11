@@ -128,7 +128,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
 	const [currentStep, setCurrentStep] = useState<number>(0) // Track the current step
 	const [messForbank, setMessForbank] = useState('') // Track the current step
 
-	const [isTenderMaster, setIsTenderMaster] = useState(false);
+	// const [isTenderMaster, setIsTenderMaster] = useState(false);
 
     const location = useLocation()
 
@@ -231,7 +231,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
 			// Reset modals before checking for the new state
 			setShowBankModal(false) // Reset Bank Modal
 			setShowMessManagerSelect(false) // Reset Mess Manager Select
-			setIsTenderMaster(false);
+			// setIsTenderMaster(false);
 
             if (currentData) {
                 const taskJson = currentData.taskJson || {}
@@ -733,7 +733,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
 
 				setShowMessManagerSelect(Object.values(newState).includes('11-1'))
 				setShowBankModal(Object.values(newState).includes('11-1'))
-				setIsTenderMaster(Object.values(newState).includes('11-1'))
+				// setIsTenderMaster(Object.values(newState).includes('11-1'))
 
                 return newState
             })

@@ -26,8 +26,8 @@ const TenderMaster = () => {
 		entryEmployeeName: '',
 		entryDate: '',
 	})
-    const [isTenderMaster, setIsTenderMaster] = useState(false);
-	const handleClose3 = () => setIsTenderMaster(false)
+    // const [isTenderMaster, setIsTenderMaster] = useState(false);
+	// const handleClose3 = () => setIsTenderMaster(false)
 
     const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
             const { name, value } = event.target
@@ -336,7 +336,8 @@ const TenderMaster = () => {
                         <button
                             className="btn btn-secondary"
                             type="button"
-                            onClick={handleClose3}>
+                            // onClick={handleClose3}
+                            >
                             Close
                         </button>
                     </div>
