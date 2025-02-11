@@ -157,7 +157,7 @@ const EmployeeInsert = () => {
             await axios.post(`${config.API_URL_APPLICATION}/IdentifierMaster/InsertUpdateIdentifier`, payload);
             navigate('/pages/IdentifierMaster', {
                 state: {
-                    successMessage: editMode ? 'Identifier Updated Successfully! ' : 'Identifier Added Successfully!',
+                    successMessage: editMode ? 'Identifier Updated Successfully!' : 'Identifier Added Successfully!',
                 }
             });
         } catch (error: any) {

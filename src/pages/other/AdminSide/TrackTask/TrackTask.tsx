@@ -565,7 +565,7 @@ const LnMaster: React.FC = () => {
                                         data.slice(0, 10).map((item, index) => (
                                             <>
                                                 <tr key={item.id}>
-                                                    <td>{index + 1}</td>
+                                                    <td>{(currentPage - 1) * 10 + index + 1}</td>
                                                     {columns.filter(col => col.visible).map((col) => (
                                                         <td key={col.id}
                                                             className={

@@ -11,7 +11,6 @@ interface ProcessCanvasProps {
 
 interface AssignProjecttoProcess {
     id: number;
-    title: string;
     subject: string;
     content: string;
     createdBy: string;
@@ -24,14 +23,12 @@ const CreatePopup: React.FC<ProcessCanvasProps> = ({ show, setShow }) => {
     const [wordCount, setWordCount] = useState(0);
     const [notification, setNotification] = useState<AssignProjecttoProcess>({
         id: 0,
-        title: '',
         subject: '',
         content: '',
         createdBy: '',
         updatedBy: empName || '',
     });
 
-    // Set employee name on component mount
     useEffect(() => {
         const storedEmpName = localStorage.getItem('EmpName');
         const storedEmpID = localStorage.getItem('EmpId');
@@ -71,7 +68,6 @@ const CreatePopup: React.FC<ProcessCanvasProps> = ({ show, setShow }) => {
         setShow(false);
     };
 
-    // Handle form submission (just logging data for now)
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         try {
@@ -101,18 +97,6 @@ const CreatePopup: React.FC<ProcessCanvasProps> = ({ show, setShow }) => {
                 </Modal.Header>
                 <Modal.Body>
                     <Form onSubmit={handleSubmit}>
-                        <Col lg={12}>
-                            <Form.Group controlId="title" className="mb-3">
-                                <Form.Label>Title <span className='text-danger'>*</span></Form.Label>
-                                <Form.Control
-                                    type="text"
-                                    name="title"
-                                    value={notification.title}
-                                    onChange={handleChange}
-                                    placeholder="Enter title"
-                                />
-                            </Form.Group>
-                        </Col>
                         <Col lg={12}>
                             <Form.Group controlId="subject" className="mb-3">
                                 <Form.Label>Subject <span className='text-danger'>*</span></Form.Label>
