@@ -193,7 +193,7 @@ const getFilteredMenuItems = () => {
         {
           key: 'MIS',
           label: 'MIS Report',
-          url: '/pages',
+          url: '/pages/MisReport',
           icon: 'ri-slideshow-line',
           parentKey: 'Analytics',
         }

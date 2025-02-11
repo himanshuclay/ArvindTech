@@ -332,6 +332,7 @@ const TaskMaster: React.FC = () => {
         const fetchData = async (endpoint: string, setter: Function) => {
           try {
             const response = await axios.get(`${config.API_URL_ACCOUNT}/${endpoint}`);
+            console.log(response);
             console.log('API Response:', response);
             if (response.data.isSuccess && response.data.getProcessTaskByIds) {
               setter(response.data.getProcessTaskByIds);

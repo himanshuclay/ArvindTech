@@ -12,6 +12,7 @@ import axios from 'axios';
 import { useLocation } from 'react-router-dom';
 import config from '@/config';
 import CustomFlatpickr from '@/components/CustomFlatpickr';
+import { toast } from 'react-toastify';
 
 type FormField = {
   inputId: string;
@@ -34,7 +35,8 @@ type FormField = {
   labelsubtask?: string;  // Label for a subtask
   subtask?: string;       // Subtask input
   paragraph?: string;     // Paragraph input
-  CustomSelect?: string;  // Custom select input
+  CustomSelect?: string;
+  hyperlink?: string;  // Custom select input
   required?: boolean;     // Indicates if the field is required
   placeholder?: string;   // Placeholder for inputs
   options?: FormFieldOption[];     // Options for select, multiselect, or radio inputs
@@ -136,6 +138,16 @@ const initialInventory: FormField[] = [
     inputId: generateFormFieldId(),
     type: 'radio',
     labeltext: 'Radio',
+    options: [
+    ],
+    conditionalField: false,
+    conditionalFieldId: 'someid',
+    visibility: true
+  },
+  {
+    inputId: generateFormFieldId(),
+    type: 'hyperlink',
+    labeltext: 'Link',
     options: [
     ],
     conditionalField: false,
@@ -304,7 +316,7 @@ const App: React.FC = () => {
       };
     });
 
-    console.log(masterId,mastersName)
+    console.log(masterId, mastersName)
 
     if (masterId) {
       try {
@@ -461,7 +473,7 @@ const App: React.FC = () => {
     if (name === 'ModuleName') {
       const selectedModule = modules.find((module) => module.moduleName === value);
       const moduleNameStr = String(value)
-     console.log(moduleNameStr);
+      console.log(moduleNameStr);
       if (selectedModule) {
         setSelectedModule(selectedModule);
         localStorage.setItem('selectedModuleId', selectedModule.moduleID); // Save selectedModuleId to localStorage
@@ -552,12 +564,10 @@ const App: React.FC = () => {
     // Ensure selectedModule, processID, processName, and finishID are available
     if (!selectedModule || !processID || !processName || !finishID) {
       console.error('Module, process, or finish point information is missing');
+      toast.error('Module, Process, problem Solver or finish point information is missing');
       return;
     }
 
-    // const startDate = new Date().toISOString();
-
-    // Create the final JSON object for the form
     const transformedFields = taskFields.map((field) => {
       const inputId = field.inputId; // Use the existing inputId from the field
       const options = field.options?.map((option, optIndex) => ({
@@ -1001,6 +1011,12 @@ const App: React.FC = () => {
             </div>
           );
         case 'tel':
+          return (
+            <div className='col-6 col-new'>
+              <div>{field.labeltext}</div>
+            </div>
+          );
+        case 'hyperlink':
           return (
             <div className='col-6 col-new'>
               <div>{field.labeltext}</div>
@@ -1790,7 +1806,6 @@ const App: React.FC = () => {
                   </Form.Group>
                 )}
 
-
                 {editField.type === 'CustomSelect' && (
                   <Form.Group key={editField.inputId}>
                     {/* Select Master */}
@@ -1888,10 +1903,49 @@ const App: React.FC = () => {
                     )}
                   </Form.Group>
                 )}
+                {editField.type === 'hyperlink' && (
+                  <Form.Group key={editField.inputId}>
+
+                    <div className='form-group mt-2'>
+                      <label className="form-label">
+                        <input className='me-1' type="checkbox"
+                          checked={conditionalField}
+                          onChange={handleCheckboxChange} />
+                        Is Conditionally bound?
+                      </label>
+                    </div>
+                    {conditionalField == true &&
+                      <Form.Control
+                        as="select"
+                        className="mt-2"
+                        value={editField.conditionalFieldId || ''}
+                        onChange={handleSelectChange}
+                      >
+                        <option value="">Select an option</option>
+                        {taskFields.map((field) => (
+                          <React.Fragment key={field.inputId}>
+                            <option value={field.inputId}>{field.labeltext}</option>
+                            {field.options?.map((option) => (
+                              <option
+                                key={option.id}
+                                value={option.id}
+                                data-color={option.color || ""}
+                                style={{ color: option.color || "inherit" }}
+                              >
+                                {option.label}
+                              </option>
+                            ))}
+                          </React.Fragment>
+                        ))}
+                      </Form.Control>
+                    }
+
+                  </Form.Group>
+                )}
                 {editField.type === 'paragraph' && (
                   <Form.Group key={editField.inputId}>
 
-<div className='form-group mt-2'>
+                    <div className='form-group mt-2'>
                       <label className="form-label">
                         <input className='me-1' type="checkbox"
                           checked={conditionalField}
