@@ -8,6 +8,8 @@ import config from '@/config'
 import Select, { SingleValue, MultiValue } from 'react-select'
 import MessCards from './Previous&Completed'
 import { toast } from 'react-toastify'
+import TenderMaster from './Form/TenderMaster'
+import { FileUploader } from '@/components/FileUploader'
 
 interface Option {
     id: string
@@ -128,8 +130,10 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
     const [selectedCondition, setSelectedCondition] = useState<any[]>([])
     const [ifscError, setIfscError] = useState('')
 
-    const [currentStep, setCurrentStep] = useState<number>(0) // Track the current step
-    const [messForbank, setMessForbank] = useState('') // Track the current step
+	const [currentStep, setCurrentStep] = useState<number>(0) // Track the current step
+	const [messForbank, setMessForbank] = useState('') // Track the current step
+
+	const [isTenderMaster, setIsTenderMaster] = useState(false);
 
     const location = useLocation()
 
@@ -224,9 +228,10 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                 (data) => data.messID === messList[currentStep]?.messID
             )
 
-            // Reset modals before checking for the new state
-            setShowBankModal(false) // Reset Bank Modal
-            setShowMessManagerSelect(false) // Reset Mess Manager Select
+			// Reset modals before checking for the new state
+			setShowBankModal(false) // Reset Bank Modal
+			setShowMessManagerSelect(false) // Reset Mess Manager Select
+			setIsTenderMaster(false);
 
             if (currentData) {
                 const taskJson = currentData.taskJson || {}
@@ -236,11 +241,12 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                     (acc: { [key: string]: string }, input: Input) => {
                         acc[input.inputId] = input.value || '' // Set default value if no value is found
 
-                        // Check if input.inputId is 11 and input.value is '11-1'
-                        if (input.inputId === '11' && input.value === '11-1') {
-                            setShowBankModal(true) // Trigger the Bank Modal
-                            setShowMessManagerSelect(true) // Trigger the Mess Manager Select
-                        }
+						// Check if input.inputId is 11 and input.value is '11-1'
+						// console.log('ss',input.inputId)
+						if (input.inputId === '11' && input.value === '11-1') {
+							setShowBankModal(true) // Trigger the Bank Modal
+							setShowMessManagerSelect(true) // Trigger the Mess Manager Select
+						}
 
                         return acc
                     },
@@ -631,14 +637,14 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                 }
             }
 
-            // Handle select and CustomSelect input types
-            if (input.type === 'select' || input.type === 'CustomSelect') {
-                console.log('i am inside')
-                const selectedOption = input.options?.find(
-                    (option) => option.label === value
-                )
-                console.log(parsedCondition)
-                console.log(selectedOption)
+			// Handle select and CustomSelect input types
+			if (input.type === 'select' || input.type === 'CustomSelect') {
+				console.log('i am inside')
+				const selectedOption = input.options?.find(
+					(option) => option.label === value
+				)
+				console.log(parsedCondition)
+				console.log(selectedOption, value)
 
                 if (selectedOption) {
                     updatedValue = selectedOption.id
@@ -741,8 +747,9 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                 reEvaluateConditions(newState) // Re-evaluate conditions with updated state
                 console.log(newState)
 
-                setShowMessManagerSelect(Object.values(newState).includes('11-1'))
-                setShowBankModal(Object.values(newState).includes('11-1'))
+				setShowMessManagerSelect(Object.values(newState).includes('11-1'))
+				setShowBankModal(Object.values(newState).includes('11-1'))
+				setIsTenderMaster(Object.values(newState).includes('11-1'))
 
                 return newState
             })
@@ -848,24 +855,24 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
         if (fromComponent === 'PendingTask' || 'ApprovalConsole') {
             console.log(approval_Console)
 
-            // const taskData = data.find((task: Task) => task.task_Number === taskNumber);
-            const requestData = {
-                // ...formData,
-                id: ProcessInitiationID || 0,
-                doerID: role || '',
-                task_Json:
-                    processId === 'ACC.01'
-                        ? typeof finalData === 'string'
-                            ? finalData
-                            : JSON.stringify(finalData)
-                        : typeof globalTaskJson === 'string'
-                            ? globalTaskJson
-                            : JSON.stringify(globalTaskJson),
-                isExpired: 0,
-                isCompleted: (() => {
-                    console.log('approval_Console:', approval_Console)
-                    console.log('taskStatus:', taskStatus)
-                    console.log('approvalStatus?.value:', approvalStatus?.value)
+			// const taskData = data.find((task: Task) => task.task_Number === taskNumber);
+			const requestData = {
+				// ...formData,
+				id: ProcessInitiationID || 0,
+				doerID: role || '',
+				task_Json:
+					processId === 'ACC.01'
+						? typeof finalData === 'string'
+							? finalData
+							: JSON.stringify(finalData)
+						: typeof globalTaskJson === 'string'
+							? globalTaskJson
+							: JSON.stringify(globalTaskJson),
+				isExpired: 0,
+				isCompleted: (() => {
+					console.log('approval_Console:', approval_Console)
+					console.log('taskStatus:', taskStatus)
+					console.log('approvalStatus?.value:', approvalStatus?.value)
 
                     // Ensure taskStatus is preserved correctly
                     const currentStatus =
@@ -1062,15 +1069,17 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
 
     const [showBankModal, setShowBankModal] = useState(false)
 
-    const [bankDetails, setBankDetails] = useState({
-        reimbursementBankAccountNumber: '',
-        reimbursementBankName: '',
-        reimbursementBranchName: '',
-        reimbursementBankIfsc: '',
-        managerName: '',
-        messName: '',
-        userUpdateMobileNumber: '',
-    })
+	const [bankDetails, setBankDetails] = useState({
+		reimbursementBankAccountNumber: '',
+		reimbursementBankName: '',
+		reimbursementBranchName: '',
+		reimbursementBankIfsc: '',
+		managerName: '',
+		messName: '',
+		userUpdateMobileNumber: '',
+	})
+
+
 
     useEffect(() => {
         const fetchBankDetails = async () => {
@@ -1185,7 +1194,8 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
     //     setShowBankModal(true); // Show the modal
     // };
 
-    const handleClose2 = () => setShowBankModal(false)
+	const handleClose2 = () => setShowBankModal(false)
+	const handleClose3 = () => setIsTenderMaster(false)
 
     const handleSelectMessImpChange = (selectedValue: string) => {
         setSelectedManager(selectedValue)
@@ -1345,32 +1355,33 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                                                                     )}
                                                                 </div>
 
-                                                                <div
-                                                                    className={`step-label ${isActive ? 'text-primary' : 'text-muted'
-                                                                        }`}
-                                                                    title={mess.messName} // Tooltip for longer names
-                                                                >
-                                                                    {mess.messName}
-                                                                </div>
-                                                            </div>
-                                                        )
-                                                    })}
-                                                </div>
-                                            </div>
-                                        </div>
-                                    )}
-                                </div>
-                                <div
-                                    className="form-section"
-                                    style={{ width: '90%', padding: '0px 20px' }}>
-                                    <div className="my-task">
-                                        {formData.inputs.map(
-                                            (input: Input) =>
-                                                ((fromComponent === 'TaskMaster' && 'PendingTask') ||
-                                                    shouldDisplayInput(input)) && (
-                                                    <div
-                                                        className={`${!input.visibility ? 'd-none' : 'form-group'
-                                                            } 
+																<div
+																	className={`step-label ${isActive ? 'text-primary' : 'text-muted'
+																		}`}
+																	title={mess.messName} // Tooltip for longer names
+																>
+																	{mess.messName}
+																</div>
+															</div>
+														)
+													})}
+												</div>
+											</div>
+										</div>
+									)}
+
+								</div>
+								<div
+									className="form-section"
+									style={{ width: '90%', padding: '0px 20px' }}>
+									<div className="my-task">
+										{formData.inputs.map(
+											(input: Input) =>
+												((fromComponent === 'TaskMaster' && 'PendingTask') ||
+													shouldDisplayInput(input)) && (
+													<div
+														className={`${!input.visibility ? 'd-none' : 'form-group'
+															} 
                                                 ${fromComponent ===
                                                             'ApprovalConsole' &&
                                                             (approval_Console ===
@@ -1710,7 +1721,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                                                                 )}
                                                             </select>
                                                         )}
-                                                        {/* {input.type === 'file' && (
+                                                        {input.type === 'file' && (
                                                         <FileUploader
                                                             icon="ri-upload-cloud-2-line"
                                                             text="Drop files here or click to upload."
@@ -1727,217 +1738,228 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                                                                 console.log('Files uploaded:', files);
                                                             }}
                                                         />
-                                                    )} */}
-                                                        {input.type === 'checkbox' && (
-                                                            <span className="form-check">
-                                                                <input
-                                                                    className="form-check-input"
-                                                                    type="checkbox"
-                                                                    checked={formState[input.inputId]}
-                                                                    onChange={(e) =>
-                                                                        handleChange(
-                                                                            input.inputId,
-                                                                            e.target.checked
-                                                                        )
-                                                                    }
-                                                                />
-                                                            </span>
-                                                        )}
-                                                        {input.type === 'radio' && (
-                                                            <input
-                                                                type="radio"
-                                                                checked={formState[input.inputId]}
-                                                                onChange={(e) =>
-                                                                    handleChange(input.inputId, e.target.checked)
-                                                                }
-                                                            />
-                                                        )}
-                                                        {input.type === 'status' && (
-                                                            <input
-                                                                type="text"
-                                                                checked={formState[input.inputId]}
-                                                                onChange={(e) =>
-                                                                    handleChange(input.inputId, e.target.checked)
-                                                                }
-                                                            />
-                                                        )}
-                                                        {input.type === 'successorTask' && (
-                                                            <input
-                                                                type="text"
-                                                                checked={formState[input.inputId]}
-                                                                onChange={(e) =>
-                                                                    handleChange(input.inputId, e.target.checked)
-                                                                }
-                                                            />
-                                                        )}
-                                                        {input.type === 'date' && (
-                                                            <input
-                                                                type="date"
-                                                                value={
-                                                                    input.value !== ''
-                                                                        ? input.value
-                                                                        : formState[input.inputId] || ''
-                                                                }
-                                                                onChange={(e) =>
-                                                                    handleChange(input.inputId, e.target.value)
-                                                                }
-                                                                style={{
-                                                                    display: 'block',
-                                                                    width: '100%',
-                                                                    padding: '0.5rem',
-                                                                }}
-                                                            />
-                                                        )}
-                                                    </div>
-                                                )
-                                        )}
-                                        {processId === 'ACC.01' && (
-                                            <>
-                                                {showMessManagerSelect && (
-                                                    <div className="form-group my-2 position-relative">
-                                                        <label>Select Mess Manager</label>
-                                                        <Select
-                                                            className="react-select-container"
-                                                            classNamePrefix="react-select"
-                                                            options={messManagers}
-                                                            value={
-                                                                messManagers.find(
-                                                                    (manager) =>
-                                                                        manager.value === selectedManager
-                                                                ) || null
-                                                            }
-                                                            onChange={(selectedOption) =>
-                                                                handleSelectMessImpChange(
-                                                                    selectedOption?.value || ''
-                                                                )
-                                                            }
-                                                            placeholder="Select an Employee"
-                                                        />
-                                                    </div>
-                                                )}
-                                                {showBankModal && (
-                                                    <div className="modal-overlay">
-                                                        <div className="modal-content">
-                                                            <h4>Bank Details</h4>
-                                                            <form>
-                                                                <Row>
-                                                                    <Col lg={6}>
-                                                                        {' '}
-                                                                        <div className="mt-3">
-                                                                            <label>Reimbursement IFSC Code</label>
-                                                                            <input
-                                                                                className="form-control"
-                                                                                type="text"
-                                                                                name="reimbursementBankIfsc"
-                                                                                value={bankDetails.reimbursementBankIfsc}
-                                                                                placeholder="Enter IFSC code"
-                                                                                onChange={handleInputChange}
-                                                                                onBlur={handleIfscBlur}
-                                                                            />
-                                                                        </div>
-                                                                        {ifscError && (
-                                                                            <div className="text-danger mt-1">
-                                                                                {ifscError}
-                                                                            </div>
-                                                                        )}
-                                                                    </Col>
-                                                                    <Col lg={6}>
-                                                                        <div className="mt-3">
-                                                                            <label>Reimbursement Account</label>
-                                                                            <input
-                                                                                className="form-control"
-                                                                                type="text"
-                                                                                name="reimbursementBankAccountNumber"
-                                                                                value={
-                                                                                    bankDetails.reimbursementBankAccountNumber
-                                                                                }
-                                                                                placeholder="Enter account number"
-                                                                                onChange={handleInputChange}
-                                                                            />
-                                                                        </div>
-                                                                    </Col>
-                                                                    <Col lg={6}>
-                                                                        {' '}
-                                                                        <div className="mt-3 ">
-                                                                            <label>Reimbursement Bank</label>
-                                                                            <input
-                                                                                className="form-control"
-                                                                                type="text"
-                                                                                name="reimbursementBankName"
-                                                                                value={bankDetails.reimbursementBankName}
-                                                                                placeholder="Enter bank name"
-                                                                                onChange={handleInputChange}
-                                                                            />
-                                                                        </div>
-                                                                    </Col>
-                                                                    <Col lg={6}>
-                                                                        <div className="mt-3 ">
-                                                                            <label>Reimbursement Bank Branch</label>
-                                                                            <input
-                                                                                className="form-control"
-                                                                                type="text"
-                                                                                name="reimbursementBranchName"
-                                                                                value={bankDetails.reimbursementBranchName}
-                                                                                placeholder="Enter branch name"
-                                                                                onChange={handleInputChange}
-                                                                            />
-                                                                        </div>
-                                                                    </Col>
-                                                                    <Col lg={6}>
-                                                                        <div className="mt-3 ">
-                                                                            <label>Mess Manager</label>
-                                                                            <input
-                                                                                className="form-control"
-                                                                                type="text"
-                                                                                name="managerName"
-                                                                                value={bankDetails.managerName}
-                                                                                placeholder="Enter manager name"
-                                                                                onChange={handleInputChange}
-                                                                            />
-                                                                        </div>
-                                                                    </Col>
-                                                                    <Col lg={6}>
-                                                                        <div className="mt-3 ">
-                                                                            <label>Mess Manager Mobile Number</label>
-                                                                            <input
-                                                                                className="form-control"
-                                                                                type="text"
-                                                                                name="userUpdateMobileNumber"
-                                                                                value={bankDetails.userUpdateMobileNumber}
-                                                                                placeholder="Enter mobile number"
-                                                                                onChange={handleInputChange}
-                                                                            />
-                                                                        </div>
-                                                                    </Col>
-                                                                </Row>
+                                                    )}
+														{input.type === 'checkbox' && (
+															<span className="form-check">
+																<input
+																	className="form-check-input"
+																	type="checkbox"
+																	checked={formState[input.inputId]}
+																	onChange={(e) =>
+																		handleChange(
+																			input.inputId,
+																			e.target.checked
+																		)
+																	}
+																/>
+															</span>
+														)}
+														{input.type === 'radio' && (
+															<input
+																type="radio"
+																checked={formState[input.inputId]}
+																onChange={(e) =>
+																	handleChange(input.inputId, e.target.checked)
+																}
+															/>
+														)}
+														{input.type === 'status' && (
+															<input
+																type="text"
+																checked={formState[input.inputId]}
+																onChange={(e) =>
+																	handleChange(input.inputId, e.target.checked)
+																}
+															/>
+														)}
+														{input.type === 'successorTask' && (
+															<input
+																type="text"
+																checked={formState[input.inputId]}
+																onChange={(e) =>
+																	handleChange(input.inputId, e.target.checked)
+																}
+															/>
+														)}
+														{input.type === 'date' && (
+															<input
+																type="date"
+																value={
+																	input.value !== ''
+																		? input.value
+																		: formState[input.inputId] || ''
+																}
+																onChange={(e) =>
+																	handleChange(input.inputId, e.target.value)
+																}
+																style={{
+																	display: 'block',
+																	width: '100%',
+																	padding: '0.5rem',
+																}}
+															/>
+														)}
+													</div>
+												)
+										)}
+										{processId === 'ACC.01' && (
+											<>
+												{showMessManagerSelect && (
+													<div className="form-group my-2 position-relative">
+														<label>Select Mess Manager</label>
+														<Select
+															className="react-select-container"
+															classNamePrefix="react-select"
+															options={messManagers}
+															value={
+																messManagers.find(
+																	(manager) =>
+																		manager.value === selectedManager
+																) || null
+															}
+															onChange={(selectedOption) =>
+																handleSelectMessImpChange(
+																	selectedOption?.value || ''
+																)
+															}
+															placeholder="Select an Employee"
+														/>
+													</div>
+												)}
+												{showBankModal && (
+													<div className="modal-overlay">
+														<div className="modal-content">
+															<h4>Bank Details</h4>
+															<form>
+																<Row>
+																	<Col lg={6}>
+																		{' '}
+																		<div className="mt-3">
+																			<label>Reimbursement IFSC Code</label>
+																			<input
+																				className="form-control"
+																				type="text"
+																				name="reimbursementBankIfsc"
+																				value={bankDetails.reimbursementBankIfsc}
+																				placeholder="Enter IFSC code"
+																				onChange={handleInputChange}
+																				onBlur={handleIfscBlur}
+																			/>
+																		</div>
+																		{ifscError && (
+																			<div className="text-danger mt-1">
+																				{ifscError}
+																			</div>
+																		)}
+																	</Col>
+																	<Col lg={6}>
+																		<div className="mt-3">
+																			<label>Reimbursement Account</label>
+																			<input
+																				className="form-control"
+																				type="text"
+																				name="reimbursementBankAccountNumber"
+																				value={
+																					bankDetails.reimbursementBankAccountNumber
+																				}
+																				placeholder="Enter account number"
+																				onChange={handleInputChange}
+																			/>
+																		</div>
+																	</Col>
+																	<Col lg={6}>
+																		{' '}
+																		<div className="mt-3 ">
+																			<label>Reimbursement Bank</label>
+																			<input
+																				className="form-control"
+																				type="text"
+																				name="reimbursementBankName"
+																				value={bankDetails.reimbursementBankName}
+																				placeholder="Enter bank name"
+																				onChange={handleInputChange}
+																			/>
+																		</div>
+																	</Col>
+																	<Col lg={6}>
+																		<div className="mt-3 ">
+																			<label>Reimbursement Bank Branch</label>
+																			<input
+																				className="form-control"
+																				type="text"
+																				name="reimbursementBranchName"
+																				value={bankDetails.reimbursementBranchName}
+																				placeholder="Enter branch name"
+																				onChange={handleInputChange}
+																			/>
+																		</div>
+																	</Col>
+																	<Col lg={6}>
+																		<div className="mt-3 ">
+																			<label>Mess Manager</label>
+																			<input
+																				className="form-control"
+																				type="text"
+																				name="managerName"
+																				value={bankDetails.managerName}
+																				placeholder="Enter manager name"
+																				onChange={handleInputChange}
+																			/>
+																		</div>
+																	</Col>
+																	<Col lg={6}>
+																		<div className="mt-3 ">
+																			<label>Mess Manager Mobile Number</label>
+																			<input
+																				className="form-control"
+																				type="text"
+																				name="userUpdateMobileNumber"
+																				value={bankDetails.userUpdateMobileNumber}
+																				placeholder="Enter mobile number"
+																				onChange={handleInputChange}
+																			/>
+																		</div>
+																	</Col>
+																</Row>
 
-                                                                <div className="modal-buttons mt-3 d-flex justify-content-end">
-                                                                    <button
-                                                                        className="btn btn-secondary"
-                                                                        type="button"
-                                                                        onClick={handleClose2}>
-                                                                        Close
-                                                                    </button>
-                                                                </div>
-                                                            </form>
-                                                        </div>
-                                                    </div>
-                                                )}
-                                            </>
-                                        )}
+																<div className="modal-buttons mt-3 d-flex justify-content-end">
+																	<button
+																		className="btn btn-secondary"
+																		type="button"
+																		onClick={handleClose2}>
+																		Close
+																	</button>
+																</div>
+															</form>
+														</div>
+													</div>
+												)}
+											</>
+										)}
 
-                                        {fromComponent === 'ApprovalConsole' && (
-                                            <div>
-                                                <label>Is Approved</label>
-                                                <Select
-                                                    options={options} // Set options for the dropdown
-                                                    value={approvalStatus} // Bind the selected option
-                                                    onChange={handleSelectChange} // Update state on selection
-                                                    placeholder="Select Approval Status" // Placeholder text
-                                                />
-                                            </div>
-                                        )}
-                                    </div>
+										{fromComponent === 'ApprovalConsole' && (
+											<div>
+												<label>Is Approved</label>
+												<Select
+													options={options} // Set options for the dropdown
+													value={approvalStatus} // Bind the selected option
+													onChange={handleSelectChange} // Update state on selection
+													placeholder="Select Approval Status" // Placeholder text
+												/>
+											</div>
+										)}
+										{processId === 'TD.01' && (
+											<>
+												{isTenderMaster && (
+													<TenderMaster/>
+													
+												)}
+											</>
+
+										)}
+									</div>
+
+
 
                                     {/* <div className="form-group mb-2">
                                     <label htmlFor="taskSummary">Comments</label>

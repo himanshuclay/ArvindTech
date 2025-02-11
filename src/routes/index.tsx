@@ -3,6 +3,7 @@ import { Route, RouteProps } from 'react-router-dom'
 
 // components
 import PrivateRoute from './PrivateRoute'
+import FormBuilder from '@/pages/FormBuilder/FormBuilder.tsx'
 
 // lazy load all the views
 
@@ -847,6 +848,12 @@ const customPagesRoutes = {
 			path: 'pages/error-404-alt',
 			name: 'Error - 404-alt',
 			element: <Error404Alt />,
+			route: PrivateRoute,
+		},
+		{
+			path: 'pages/formBuilder',
+			name: 'Form Builder',
+			element: <FormBuilder />,
 			route: PrivateRoute,
 		},
 	],
