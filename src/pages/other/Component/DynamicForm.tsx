@@ -890,11 +890,10 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                         if (['approvalwithamid', 'approved'].includes(approvalValue))
                             return 'Completed'
                     }
-                    if(approval_Console === '' &&
-                        approvalStatus?.value === undefined)
-                        {
-                            return 'Completed'
-                        }
+                    if (approval_Console === '' &&
+                        approvalStatus?.value === undefined) {
+                        return 'Completed'
+                    }
 
                     return currentStatus
                 })(),
@@ -1409,6 +1408,31 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                                                                     handleChange(input.inputId, e.target.value)
                                                                 }
                                                             />
+                                                        )}
+                                                        {input.type === 'hyperlink' && (
+                                                            //  input.visibility !== false &&
+                                                            <div className="flex flex-col gap-2">
+                                                                {/* Input field for hyperlink */}
+                                                                <input
+                                                                    type="url"
+                                                                    className="form-control p-2 border rounded"
+                                                                    placeholder={input.placeholder || "Enter hyperlink"}
+                                                                    value={formState[input.inputId] || ""}
+                                                                    onChange={(e) => handleChange(input.inputId, e.target.value)}
+                                                                />
+
+                                                                {/* Display hyperlink if input is not empty */}
+                                                                {formState[input.inputId] && (
+                                                                    <a
+                                                                        href={formState[input.inputId]}
+                                                                        target="_blank"
+                                                                        rel="noopener noreferrer"
+                                                                        className="text-blue-500 underline hover:text-blue-700"
+                                                                    >
+                                                                        {formState[input.inputId]}
+                                                                    </a>
+                                                                )}
+                                                            </div>
                                                         )}
                                                         {input.type === 'decimal' && (
                                                             <input

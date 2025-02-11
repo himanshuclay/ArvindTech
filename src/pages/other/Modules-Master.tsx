@@ -35,7 +35,8 @@ type FormField = {
   labelsubtask?: string;  // Label for a subtask
   subtask?: string;       // Subtask input
   paragraph?: string;     // Paragraph input
-  CustomSelect?: string;  // Custom select input
+  CustomSelect?: string;
+  hyperlink?: string;  // Custom select input
   required?: boolean;     // Indicates if the field is required
   placeholder?: string;   // Placeholder for inputs
   options?: FormFieldOption[];     // Options for select, multiselect, or radio inputs
@@ -137,6 +138,16 @@ const initialInventory: FormField[] = [
     inputId: generateFormFieldId(),
     type: 'radio',
     labeltext: 'Radio',
+    options: [
+    ],
+    conditionalField: false,
+    conditionalFieldId: 'someid',
+    visibility: true
+  },
+  {
+    inputId: generateFormFieldId(),
+    type: 'hyperlink',
+    labeltext: 'Link',
     options: [
     ],
     conditionalField: false,
@@ -1000,6 +1011,12 @@ const App: React.FC = () => {
             </div>
           );
         case 'tel':
+          return (
+            <div className='col-6 col-new'>
+              <div>{field.labeltext}</div>
+            </div>
+          );
+        case 'hyperlink':
           return (
             <div className='col-6 col-new'>
               <div>{field.labeltext}</div>
@@ -1884,6 +1901,45 @@ const App: React.FC = () => {
                         ))}
                       </Form.Control>
                     )}
+                  </Form.Group>
+                )}
+                {editField.type === 'hyperlink' && (
+                  <Form.Group key={editField.inputId}>
+
+                    <div className='form-group mt-2'>
+                      <label className="form-label">
+                        <input className='me-1' type="checkbox"
+                          checked={conditionalField}
+                          onChange={handleCheckboxChange} />
+                        Is Conditionally bound?
+                      </label>
+                    </div>
+                    {conditionalField == true &&
+                      <Form.Control
+                        as="select"
+                        className="mt-2"
+                        value={editField.conditionalFieldId || ''}
+                        onChange={handleSelectChange}
+                      >
+                        <option value="">Select an option</option>
+                        {taskFields.map((field) => (
+                          <React.Fragment key={field.inputId}>
+                            <option value={field.inputId}>{field.labeltext}</option>
+                            {field.options?.map((option) => (
+                              <option
+                                key={option.id}
+                                value={option.id}
+                                data-color={option.color || ""}
+                                style={{ color: option.color || "inherit" }}
+                              >
+                                {option.label}
+                              </option>
+                            ))}
+                          </React.Fragment>
+                        ))}
+                      </Form.Control>
+                    }
+
                   </Form.Group>
                 )}
                 {editField.type === 'paragraph' && (
