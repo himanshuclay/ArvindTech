@@ -1,11 +1,10 @@
 import axios from 'axios';
-import { useEffect, useState, ChangeEvent } from 'react';
-import { Button, Col, Form, Row, ButtonGroup } from 'react-bootstrap';
+import { useEffect, useRef, useState } from 'react';
+import { Button, Col, Form, Row, ButtonGroup, Overlay, Popover } from 'react-bootstrap';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import config from '@/config';
-import Select from 'react-select';
-import { toast } from 'react-toastify';
 
+import { toast } from 'react-toastify';
 
 
 interface Process {
@@ -38,16 +37,14 @@ interface Process {
     updatedBy: string;
 }
 
-interface GetTypeDayTimeList {
-    id: number;
-    name: string;
-}
 
-const HumanResource = () => {
-    const { id } = useParams<{ id: string }>();
+
+
+const AccountProcess = () => {
+    const { id, processID } = useParams<{ id: string, processID: string }>();
+    const [show, setShow] = useState(false);
 
     const navigate = useNavigate();
-
     const [empName, setEmpName] = useState<string | null>('')
     const [process, setProcess] = useState<Process>({
         id: 0,
@@ -79,20 +76,21 @@ const HumanResource = () => {
         updatedBy: ''
     });
 
-    const [dropdownValuesFlag1, setDropdownValuesFlag1] = useState<GetTypeDayTimeList[]>([]);
-    const [dropdownValuesFlag2, setDropdownValuesFlag2] = useState<GetTypeDayTimeList[]>([]);
-    const [dropdownValuesFlag3, setDropdownValuesFlag3] = useState<GetTypeDayTimeList[]>([]);
-    const [dropdownValuesFlag4, setDropdownValuesFlag4] = useState<GetTypeDayTimeList[]>([]);
 
+    const [target, setTarget] = useState<HTMLElement | null>(null);
+    const ref = useRef(null);
 
-
+    const handleClick = (event: React.MouseEvent<HTMLElement>) => {
+        setShow(!show);
+        setTarget(event.target as HTMLElement);
+    };
 
     useEffect(() => {
-        toast.dismiss()
-
+        toast.dismiss();
         const storedEmpName = localStorage.getItem('EmpName');
-        if (storedEmpName) {
-            setEmpName(storedEmpName);
+        const storedEmpID = localStorage.getItem('EmpId');
+        if (storedEmpName || storedEmpID) {
+            setEmpName(`${storedEmpName} - ${storedEmpID}`);
         }
     }, []);
 
@@ -102,18 +100,7 @@ const HumanResource = () => {
         }
     }, [id]);
 
-    // useEffect(() => {
 
-    //     fetchMessDetails(process.moduleName, process.processID);
-
-    // }, [process.moduleName, process.processID]);
-
-    useEffect(() => {
-        GetTypeDayTimeList(1, setDropdownValuesFlag1);
-        GetTypeDayTimeList(2, setDropdownValuesFlag2);
-        GetTypeDayTimeList(3, setDropdownValuesFlag3);
-        GetTypeDayTimeList(4, setDropdownValuesFlag4);
-    }, []);
 
     const fetchModuleById = async (id: string) => {
         try {
@@ -132,57 +119,6 @@ const HumanResource = () => {
         }
     };
 
-
-
-
-
-
-    const GetTypeDayTimeList = async (flag: any, setStateCallback: any) => {
-        try {
-            const response = await axios.get(`${config.API_URL_APPLICATION}/CommonDropdown/GetTypeDayTimeList?flag=${flag}`);
-            if (response.data.isSuccess) {
-                setStateCallback(response.data.typeListResponses);
-            } else {
-                console.error(response.data.message);
-            }
-        } catch (error) {
-            console.error('Error fetching modules:', error);
-        }
-
-    };
-
-
-
-
-    // Handle form field changes
-    const handleChange = (e: ChangeEvent<any> | null, name?: string, value?: any) => {
-        if (e) {
-            const { name: eventName, type } = e.target;
-
-            if (type === 'checkbox') {
-                const checked = (e.target as HTMLInputElement).checked;
-                setProcess({
-                    ...process,
-                    [eventName]: checked
-                });
-            } else {
-                const inputValue = (e.target as HTMLInputElement | HTMLSelectElement).value;
-                setProcess({
-                    ...process,
-                    [eventName]: inputValue
-                });
-            }
-        } else if (name) {
-            setProcess({
-                ...process,
-                [name]: value
-            });
-        }
-    };
-
-
-
-
     useEffect(() => {
         if (["Daily"].includes(process.intervalType)) {
             setProcess(process => ({
@@ -195,18 +131,27 @@ const HumanResource = () => {
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
 
         const payload = {
-            ...process,
-            updatedBy: empName
+            moduleName: process.moduleName,
+            taskNumber: processID,
+            createdBy: empName
         };
         console.log(payload)
         e.preventDefault();
         try {
-            await axios.post(`${config.API_URL_APPLICATION}/InitiationMaster/UpdateAccountIInitiation`, payload);
-            navigate('/pages/ProcessMaster', {
-                state: {
-                    successMessage: "Process Initiated successfully!",
-                }
-            });
+            const response = await axios.post(
+                `${config.API_URL_ACCOUNT}/ProcessInitiation/ManualProcessTaskInitiation`,
+                payload
+            );
+            if (response.status >= 200 && response.status < 300) {
+                navigate('/pages/ProcessInitiation', {
+                    state: {
+                        successMessage: "Process Initiated successfully!",
+                    }
+                });
+            } else {
+                toast.warning("Process initiated with unexpected status code.");
+                console.warn('Unexpected response:', response);
+            }
 
         } catch (error: any) {
             toast.error(error || "Error Adding/Updating");
@@ -214,12 +159,6 @@ const HumanResource = () => {
         }
     };
 
-
-    const intervalTypeValidIDs = ['HR.01', 'HR.02', 'HR.03', 'HR.04', 'HR.05', 'HR.06', 'HR.07'];
-    const timeValidIDs = ['HR.01', 'HR.02', 'HR.03', 'HR.04', 'HR.05', 'HR.06', 'HR.07'];
-    const shopIDValidIDs = ['HR.02'];
-    const shopNameValidIDs = ['HR.02'];
-    const processAmountValidIDs = ['HR.02'];
 
     return (
         <div>
@@ -233,6 +172,10 @@ const HumanResource = () => {
                 <div className='bg-white p-2 rounded-3 border'>
                     <Form onSubmit={handleSubmit}>
                         <Row>
+
+
+
+
                             <Col lg={6}>
                                 <Form.Group controlId="moduleDisplayName" className="mb-3">
                                     <Form.Label>Module Name</Form.Label>
@@ -258,6 +201,9 @@ const HumanResource = () => {
                                     />
                                 </Form.Group>
                             </Col>
+
+
+
 
                             <Col lg={6}>
                                 <Form.Group controlId="processObjective" className="mb-3">
@@ -295,6 +241,7 @@ const HumanResource = () => {
                                     )}
                                 </Form.Group>
                             </Col>
+
 
                             <Col lg={6}>
                                 <Form.Group controlId="misExempt" className="mb-3">
@@ -334,183 +281,169 @@ const HumanResource = () => {
                                     />
                                 </Form.Group>
                             </Col>
+                        </Row>
 
-                            <Col lg={12}>
-
-                                <Row>
-                                    <h4>Specific Time</h4>
-
-                                    {intervalTypeValidIDs.includes(process.processID) && (
-                                        <Col lg={6}>
-                                            <Form.Group controlId="intervalType" className="mb-3">
-                                                <Form.Label>Interval Type:</Form.Label>
-                                                <Select
-                                                    name="intervalType"
-                                                    value={dropdownValuesFlag1.find((item) => item.name === process.intervalType)}
-                                                    onChange={(selectedOption) => {
-                                                        setProcess({
-                                                            ...process,
-                                                            intervalType: selectedOption?.name || '',
-                                                        });
-                                                    }}
-                                                    getOptionLabel={(item) => item.name}
-                                                    getOptionValue={(item) => item.name}
-                                                    options={dropdownValuesFlag1}
-                                                    isSearchable={true}
-                                                    placeholder="Select Interval Type"
-                                                    required
-                                                />
-                                            </Form.Group>
-                                        </Col>
-                                    )}
-
-
-                                    {["Weekly"].includes(process.intervalType) && (['HR.01', 'HR.02', 'HR.03', 'HR.04', 'HR.05', 'HR.06', 'HR.07'].includes(process.processID)) && (
-                                        <Col lg={6}>
-                                            <Form.Group controlId="intervalType" className="mb-3">
-                                                <Form.Label>Day:</Form.Label>
-                                                <Select
-                                                    name="day"
-                                                    value={dropdownValuesFlag2.find((item) => item.name === process.day)}
-                                                    onChange={(selectedOption) => {
-                                                        setProcess({
-                                                            ...process,
-                                                            day: selectedOption?.name || '',
-                                                        });
-                                                    }}
-                                                    getOptionLabel={(item) => item.name}
-                                                    getOptionValue={(item) => item.name}
-                                                    options={dropdownValuesFlag2}
-                                                    isSearchable={true}
-                                                    placeholder="Select Day"
-                                                    required
-                                                />
-                                            </Form.Group>
-                                        </Col>
-                                    )}
-
-                                    {["Monthly"].includes(process.intervalType) && (['HR.01', 'HR.02', 'HR.03', 'HR.04', 'HR.05', 'HR.06', 'HR.07'].includes(process.processID)) && (
-                                        <Col lg={6}>
-                                            <Form.Group controlId="date" className="mb-3">
-                                                <Form.Label>Date:</Form.Label>
-                                                <Select
-                                                    name="date"
-                                                    value={dropdownValuesFlag4.find((item) => item.name === process.day)}
-                                                    onChange={(selectedOption) => {
-                                                        setProcess({
-                                                            ...process,
-                                                            date: selectedOption?.name || '',
-                                                        });
-                                                    }}
-                                                    getOptionLabel={(item) => item.name}
-                                                    getOptionValue={(item) => item.name}
-                                                    options={dropdownValuesFlag4}
-                                                    isSearchable={true}
-                                                    placeholder="Select Date"
-                                                    required
-                                                />
-                                            </Form.Group>
-                                        </Col>
-                                    )}
-
-                                    {timeValidIDs.includes(process.processID) && (
-                                        < Col lg={6}>
-                                            <Form.Group controlId="time" className="mb-3">
-                                                <Form.Label>Time:</Form.Label>
-                                                <Select
-                                                    name="time"
-                                                    value={dropdownValuesFlag3.find((item) => item.name === process.time)}
-                                                    onChange={(selectedOption) => {
-                                                        setProcess({
-                                                            ...process,
-                                                            time: selectedOption?.name || '',
-                                                        });
-                                                    }}
-                                                    getOptionLabel={(item) => item.name}
-                                                    getOptionValue={(item) => item.name}
-                                                    options={dropdownValuesFlag3}
-                                                    isSearchable={true}
-                                                    placeholder="Select Time"
-                                                    required
-                                                />
-                                            </Form.Group>
-                                        </Col>
-                                    )}
-                                </Row>
-
-                            </Col>
-
-
-                            {shopIDValidIDs.includes(process.processID) && (
-                                <Col lg={6}>
-                                    <Form.Group controlId="shopID" className="mb-3">
-                                        <Form.Label>Shop ID</Form.Label>
-                                        <Form.Control
-                                            type="text"
-                                            name="shopID"
-                                            value={process.shopID}
-                                            onChange={handleChange}
-                                            required
-                                            placeholder='Enter Shop ID'
-
-                                        />
-                                    </Form.Group>
-                                </Col>
-                            )}
-                            {shopNameValidIDs.includes(process.processID) && (
-                                <Col lg={6}>
-                                    <Form.Group controlId="shopName" className="mb-3">
-                                        <Form.Label>Shop Name</Form.Label>
-                                        <Form.Control
-                                            type="text"
-                                            name="shopName"
-                                            value={process.shopName}
-                                            onChange={handleChange}
-                                            required
-                                            placeholder='Enter Shop Name'
-                                        />
-                                    </Form.Group>
-                                </Col>
-                            )}
-
-                            {processAmountValidIDs.includes(process.processID) && (
-                                <Col lg={6}>
-                                    <Form.Group controlId="processedAmount" className="mb-3">
-                                        <Form.Label>Processed Amount</Form.Label>
-                                        <Form.Control
-                                            type="text"
-                                            name="processedAmount"
-                                            value={process.shopName}
-                                            onChange={handleChange}
-                                            required
-                                            placeholder='Enter Processed Amount'
-                                        />
-                                    </Form.Group>
-                                </Col>
-                            )}
-
-
-                            <Col></Col>
-                            <Col lg={2} className='align-items-end d-flex justify-content-end mb-3'>
+                        <Row>
+                            <Col lg={3} className='align-items-end d-flex justify-content-end mb-3'>
                                 <ButtonGroup aria-label="Basic example" className='w-100'>
-                                    <Link to={'/pages/ProcessMaster'} className="btn btn-primary">
+                                    <Link to={'/pages/ProcessInitiation'} className="btn btn-primary">
                                         Back
                                     </Link>
                                     &nbsp;
+                                    <Button variant="primary" onClick={handleClick}>
+                                        View Initiation Fields
+                                    </Button>
+                                </ButtonGroup>
+                            </Col>
+                            <Col></Col>
+
+                            <Col lg={3} className='align-items-end d-flex justify-content-end mb-3'>
+                                <ButtonGroup aria-label="Basic example" className='w-100'>
+
                                     <Button variant="primary" type="submit">
                                         Initate Process
                                     </Button>
                                 </ButtonGroup>
                             </Col>
-
                         </Row>
 
                     </Form>
                 </div>
+                <Overlay
+                    show={show}
+                    target={target}
+                    placement="right"
+                    container={ref.current}
+                    rootClose
+                    onHide={() => setShow(false)}
+                >
+                    <Popover id="popover-basic" className='initiation-popup'>
+                        <Popover.Header as="h3" className="text-dark">
+                            Initiation  Fields
+                        </Popover.Header>
+                        <Popover.Body>
+                            {
+                                processID === 'HR.01' ? <ul className="fs-15 text-dark">
+                                    <li>Project Master</li>
+                                    <li>Project</li>
+                                    <li>Month[MMMYY]</li>
+                                    <li>UID[AutoGenerate]</li>
+                                </ul> :
+                                    processID === 'HR.02' ?
+                                        <ul className="fs-15 text-dark">
+                                            <li>Designation Master.ProcessType = L2</li>
+                                            <li>ReqID</li>
+                                            <li>EntryDate</li>
+                                            <li>Project</li>
+                                            <li>Department</li>
+                                            <li>Core Designation</li>
+                                            <li>Specialized Designation</li>
+                                            <li>Source</li>
+                                            <li>Count</li>
+                                            <li>Requested By</li>
+                                        </ul> :
+                                        processID === 'HR.03' ?
+                                            <ul className="fs-15 text-dark">
+                                                <li>Designation Master.ProcessType = L1</li>
+                                                <li>ReqID</li>
+                                                <li>EntryDate</li>
+                                                <li>Project</li>
+                                                <li>Department</li>
+                                                <li>Core Designation</li>
+                                                <li>Specialized Designation</li>
+                                                <li>Source</li>
+                                                <li>Count</li>
+                                                <li>Requested By</li>
+                                            </ul> :
+                                            processID === 'HR.04' ?
+                                                <ul className="fs-15 text-dark">
+                                                    <li>Employee ID</li>
+                                                    <li>Employee Name</li>
+                                                    <li>Project</li>
+                                                    <li>Date Of Joining</li>
+                                                    <li>Record Creation Date</li>
+                                                    <li>DL Required</li>
+                                                </ul> :
+                                                processID === 'HR.05' ?
+                                                    <ul className="fs-15 text-dark">
+                                                        <li>UID[AutoGenerate]</li>
+                                                        <li>Employee ID</li>
+                                                        <li>Employee Name</li>
+                                                        <li>Project</li>
+                                                        <li>Fitness Validity</li>
+                                                    </ul> :
+                                                    processID === 'HR.06' ?
+                                                        <ul className="fs-15 text-dark">
+                                                            <li>Employee ID</li>
+                                                            <li>Employee Name</li>
+                                                            <li>Current Project</li>
+                                                            <li>Designation</li>
+                                                            <li>Date of joining</li>
+                                                        </ul> :
+                                                        processID === 'HR.07' ?
+                                                            <ul className="fs-15 text-dark">
+                                                                <li>Employee ID</li>
+                                                                <li>Project</li>
+                                                                <li>Issue Type</li>
+                                                                <li>Approval Status</li>
+                                                                <li>Last Working Day</li>
+                                                                <li>Record Date[DDMMMYY]</li>
+                                                                <li>Type[System]</li>
+                                                            </ul> :
+                                                            processID === 'HR.08' ?
+                                                                <ul className="fs-15 text-dark">
+                                                                    <li>Project</li>
+                                                                    <li>Date[DDMMMYY]</li>
+                                                                    <li>Type[System]</li>
+                                                                    <li>UID [ Autogenerate ]</li>
+                                                                </ul> :
+                                                                processID === 'HR.09' ?
+                                                                    <ul className="fs-15 text-dark">
+                                                                        <li>Project</li>
+                                                                        <li>Date[DDMMMYY]</li>
+                                                                        <li>UID [ Autogenerate ]</li>
+                                                                    </ul> :
+                                                                    processID === 'HR.10' ?
+                                                                        <ul className="fs-15 text-dark">
+                                                                            <li>Project</li>
+                                                                            <li>Month[MMMYY]</li>
+                                                                            <li>UID [ Autogenerate ]</li>
+                                                                        </ul> :
+                                                                        processID === 'HR.11' ?
+                                                                            <ul className="fs-15 text-dark">
+                                                                                <li>UID [ Autogenerate ]</li>
+                                                                            </ul> :
+                                                                            processID === 'HR.12' ?
+                                                                                <ul className="fs-15 text-dark">
+                                                                                    <li>Date</li>
+                                                                                    <li>Project</li>
+                                                                                    <li>LicenseType</li>
+                                                                                    <li>Requirment Update Date</li>
+                                                                                    <li>Expiry Date</li>
+                                                                                    <li>UID</li>
+                                                                                </ul> :
+                                                                                processID === 'HR.13' ?
+                                                                                    <ul className="fs-15 text-dark">
+                                                                                        <li>Asset ID</li>
+                                                                                        <li>Asset Code</li>
+                                                                                        <li>Asset Name</li>
+                                                                                        <li>Current Project</li>
+                                                                                        <li>Asset OwnerShip</li>
+                                                                                        <li>Asset Condition</li>
+                                                                                    </ul> :
+
+                                                                                    null
+
+                            }
+
+
+                        </Popover.Body>
+                    </Popover>
+                </Overlay>
 
             </div>
         </div >
     );
 };
 
-export default HumanResource;
+export default AccountProcess;

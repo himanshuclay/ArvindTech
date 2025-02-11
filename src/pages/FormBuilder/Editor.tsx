@@ -1,56 +1,28 @@
 import React, { useEffect, useState } from 'react';
+
+import config from '@/config';
+import axios from 'axios';
+import { getBlockById, manageShowHide } from './Constant/Functions';
+import { BASIC_FIELD, FIELD, PROPERTY} from './Constant/Interface';
 import TextInput from './Components/TextInput';
 import NumberInput from './Components/NumberInput';
 import EmailInput from './Components/EmailInput';
 import PhoneInput from './Components/PhoneInput';
 import Password from './Components/Password';
 import Select from './Components/Select';
-import config from '@/config';
-import axios from 'axios';
-import { getBlockById, manageShowHide } from './Constant/Functions';
-import { BASIC_FIELD } from './Constant/Interface';
 
-interface FIELD {
-    name: string;
-    is: string;
-    blocks: BasicField[];
-    editMode: boolean;
-    rules: RULE[];  // Rules is an array of RULE objects
-    advance: ADVANCE;
 
-}
-interface RULE {
-    start1: string;
-    start2: string;
-    start3: string;
-    start4: string;
-}
-interface PROPERTY {
-    label: string;
-    id: string;
-    advance: ADVANCE;
+type FormControlElement = HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement;
 
-}
 
-interface ADVANCE {
-    backgroundColor: string;
-}
 
-interface BasicField {
-    id: string;
-    name: string;
-    is: keyof typeof componentsMap; // Ensuring 'is' matches the keys in componentsMap
-    property: {
-        label: string;
-        value?: string;
-        required?: string;  // Add required field here
-        advance: ADVANCE;
-    };
-}
+
 
 interface BLOCK_VALUE {
-    [key: string]: string;  // Key is dynamic, and value is a string
+    [key: string]: string;
 }
+
+
 
 interface EditorProps {
     form: FIELD;
@@ -58,21 +30,20 @@ interface EditorProps {
     property: PROPERTY;
     setProperty: React.Dispatch<React.SetStateAction<PROPERTY>>;
     blockValue: BLOCK_VALUE;
-    setBlockValue: React.Dispatch<React.SetStateAction<BLOCK_VALUE>>;  // Added colon here
+    setBlockValue: React.Dispatch<React.SetStateAction<BLOCK_VALUE>>;
 }
 
 
 interface DynamicComponentProps {
     componentType: keyof typeof componentsMap;
-    block: BasicField;
+    block: BASIC_FIELD;
     form: FIELD;
     handleChange: (e: React.ChangeEvent<HTMLInputElement>, id: string) => void;
-    validationErrors: { [key: string]: string };  // Add validationErrors prop
+    validationErrors: { [key: string]: string };
     blockValue: BLOCK_VALUE;
-    setBlockValue: React.Dispatch<React.SetStateAction<BLOCK_VALUE>>;  // Added colon here
+    setBlockValue: React.Dispatch<React.SetStateAction<BLOCK_VALUE>>;
 }
 
-// Mapping component types to actual React components
 const componentsMap = {
     TextInput,
     NumberInput,
@@ -107,7 +78,7 @@ const DynamicComponentRenderer: React.FC<DynamicComponentProps> = ({ form, compo
 const Editor: React.FC<EditorProps> = ({ form, setForm, property, setProperty, blockValue, setBlockValue }) => {
     const [validationErrors, setValidationErrors] = useState<{ [key: string]: string }>({});
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement>, id: string) => {
+    const handleChange = (e: React.ChangeEvent<FormControlElement>, id: string) => {
         const newValue = e.target.value;
 
         setForm(prevForm => ({
@@ -155,7 +126,7 @@ const Editor: React.FC<EditorProps> = ({ form, setForm, property, setProperty, b
 
         const fieldData = e.dataTransfer.getData('application/json');
         if (fieldData) {
-            const droppedField: BasicField = JSON.parse(fieldData);
+            const droppedField: BASIC_FIELD = JSON.parse(fieldData);
             droppedField.id = `Block_${form.blocks.length}`;
             setForm(prevForm => ({
                 ...prevForm,
@@ -180,7 +151,7 @@ const Editor: React.FC<EditorProps> = ({ form, setForm, property, setProperty, b
         }
     };
 
-    const handleProperty = (block: BasicField, index: number) => {
+    const handleProperty = (block: BASIC_FIELD, index: number) => {
         if (form.editMode) {
             setProperty({ ...block.property, id: `Block_${index}` });
         }
@@ -189,7 +160,7 @@ const Editor: React.FC<EditorProps> = ({ form, setForm, property, setProperty, b
     useEffect(() => {
         const fetchData = async () => {
             try {
-                
+
                 const response = await axios.post(
                     `${config.API_URL_APPLICATION}/FormBuilder/GetTenderID`, form.rules);
                 console.log('response', response)
@@ -201,19 +172,21 @@ const Editor: React.FC<EditorProps> = ({ form, setForm, property, setProperty, b
                             case 'show_hide':
                                 rule.rule = JSON.parse(rule.rule);
                                 let block = getBlockById(form, rule.rule.end3);
-                                let newBlock = manageShowHide(block, rule.rule, blockValue);
+                                if (block) {
 
-                                // Make sure newBlock is a BasicField (type-casting)
-                                newBlock = newBlock as BASIC_FIELD;
+                                    let newBlock = manageShowHide(block, rule.rule, blockValue);
 
-                                console.log('newBlock', newBlock);
+                                    newBlock = newBlock as BASIC_FIELD;
 
-                                setForm((prevForm) => ({
-                                    ...prevForm,
-                                    blocks: prevForm.blocks.map((block) =>
-                                        block.id === newBlock.id ? (newBlock as BasicField) : block
-                                    ) // Replace the block with the matching ID with newBlock
-                                }));
+                                    console.log('newBlock', newBlock);
+
+                                    setForm((prevForm) => ({
+                                        ...prevForm,
+                                        blocks: prevForm.blocks.map((block) =>
+                                            block.id === newBlock.id ? (newBlock as BASIC_FIELD) : block
+                                        ) // Replace the block with the matching ID with newBlock
+                                    }));
+                                }
 
                                 break;
                             case 'bind':

@@ -4,15 +4,13 @@ import { BASIC_FIELD, BLOCK_VALUE } from '../Constant/Interface';
 
 
 interface Props {
-    block: BASIC_FIELD; 
+    block: BASIC_FIELD;
     handleChange: (e: React.ChangeEvent<HTMLInputElement>, id: string) => void;
-    validationErrors?: { [key: string]: string };  
-    editMode?: boolean;  
+    validationErrors?: { [key: string]: string };
+    editMode?: boolean;
     blockValue: BLOCK_VALUE;
     setBlockValue: React.Dispatch<React.SetStateAction<BLOCK_VALUE>>;
 }
-
-
 
 const Select: React.FC<Props> = ({ block, handleChange, validationErrors = {}, editMode = false, blockValue, setBlockValue }) => {
     const isRequired = block.property.required === "true";
@@ -22,10 +20,12 @@ const Select: React.FC<Props> = ({ block, handleChange, validationErrors = {}, e
 
         setBlockValue((prevState) => ({
             ...prevState,
-            [block.property.id]: value, 
+            [block.property.id]: value,
         }));
 
-        handleChange(e, block.property.id);
+        handleChange(e as unknown as React.ChangeEvent<HTMLInputElement>, block.property.id);
+
+
     };
 
     return (
@@ -39,9 +39,9 @@ const Select: React.FC<Props> = ({ block, handleChange, validationErrors = {}, e
                 </Form.Label>
                 <Form.Select
                     name={block.property.id}
-                    value={blockValue[block.property.id] || ''}  
-                    onChange={handleSelectChange}  
-                    disabled={editMode}  
+                    value={blockValue[block.property.id] || ''}
+                    onChange={handleSelectChange}
+                    disabled={editMode}
                     className={validationErrors[block.property.id] ? "is-invalid" : ""}
                 >
                     <option value="">Please select</option>

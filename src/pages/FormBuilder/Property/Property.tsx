@@ -1,60 +1,25 @@
 import React from 'react';
-import { Accordion, Button, Col, Form, Row } from 'react-bootstrap';
-
-interface Option {
-    label: string;
-    value: string;
-}
-
-interface ADVANCE {
-    backgroundColor: string;
-    color: string;
-}
-
-interface PROPERTY {
-    label: string;
-    id: string;
-    placeholder: string;
-    required: boolean;
-    options: Option[];
-    advance: ADVANCE;
-}
-
-interface FIELD {
-    name: string;
-    is: string;
-    blocks: BasicField[];
-    editMode: boolean;
-    advance: ADVANCE;
-
-}
-
-interface BasicField {
-    id: string;
-    property: PROPERTY;
-}
+import { Accordion, Col, Form, Row } from 'react-bootstrap';
+import { FIELD, PROPERTY } from '../Constant/Interface';
 
 interface Props {
     form: FIELD;
     setForm: React.Dispatch<React.SetStateAction<FIELD>>;
     property: PROPERTY;
     setProperty: React.Dispatch<React.SetStateAction<PROPERTY>>;
-    removeFormBlock: (id: string) => void; // Updated to take a string argument
+    removeFormBlock: (id: string) => void;
 }
 
 const Property: React.FC<Props> = ({ form, setForm, property, setProperty, removeFormBlock }) => {
-
-    // Handles changes in input fields and updates the corresponding values in the property
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
-
         if (name === 'required') {
             setProperty(prevProperty => ({
                 ...prevProperty,
-                [name]: value === 'true', // Convert string 'true' to boolean true
+                [name]: value,
             }));
+            
         } else if (name === 'backgroundColor' || name === 'color') {
-            // Directly updating 'advance' properties
             setProperty(prevProperty => ({
                 ...prevProperty,
                 advance: {

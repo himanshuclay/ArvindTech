@@ -1,13 +1,8 @@
 import React from 'react';
 import { FIELD_LIST } from '../Constant/Constant';
+import { FIELD } from '../Constant/Interface';
 
-interface FIELD {
-    name: string,
-    is: string,
-    blocks: never[],
-    editMode: boolean,
-    
-}
+
 
 interface FieldProps {
     form: FIELD;

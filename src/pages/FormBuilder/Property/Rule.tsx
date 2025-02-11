@@ -1,20 +1,14 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { Button, Form, Modal } from 'react-bootstrap';
 import { END1, SHOW_HIDE, START1, TABLE_FIELD, TABLE_NAME } from '../Constant/Constant';
 import { getBlockById } from '../Constant/Functions';
+import { FIELD } from '../Constant/Interface';
 
 interface Option {
     label: string;
     value: string;
 }
 
-interface PROPERTY {
-    label: string;
-    id: string;
-    placeholder: string;
-    required: boolean;
-    options: Option[];
-}
 
 interface RULE {
     start1: string;
@@ -25,25 +19,8 @@ interface RULE {
     end2: string;
     end3: string;
 }
-interface ADVANCE {
-    backgroundColor: string;
-    color: string;
-}
-interface FIELD {
-    name: string;
-    is: string;
-    blocks: BasicField[];
-    editMode: boolean;
-    rules: RULE[];  // Rules is an array of RULE objects
-    advance: ADVANCE;
 
-}
 
-interface BasicField {
-    id: string;
-    property: PROPERTY;
-    is: string;
-}
 
 interface Props {
     showRule: boolean;

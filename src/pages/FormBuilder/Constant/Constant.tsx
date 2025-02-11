@@ -26,7 +26,9 @@ const FIELD_LIST = [
                 backgroundColor: '',
                 color: '',
 
-            }
+            },
+            isShow: true,
+
         }
     },
     {
@@ -41,7 +43,9 @@ const FIELD_LIST = [
                 backgroundColor: '',
                 color: '',
 
-            }
+            },
+            isShow: true,
+
         }
     },
     {
@@ -56,7 +60,9 @@ const FIELD_LIST = [
                 backgroundColor: '',
                 color: '',
 
-            }
+            },
+            isShow: true,
+
         }
     },
     {
@@ -71,7 +77,9 @@ const FIELD_LIST = [
                 backgroundColor: '',
                 color: '',
 
-            }
+            },
+            isShow: true,
+
         }
     },
     {
@@ -87,7 +95,9 @@ const FIELD_LIST = [
                 backgroundColor: '',
                 color: '',
 
-            }
+            },
+            isShow: true,
+
         }
     }
 ]

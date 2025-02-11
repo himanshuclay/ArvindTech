@@ -1,27 +1,13 @@
 import React from 'react';
+import { FIELD, PROPERTY } from './Constant/Interface';
 
-interface FIELD {
-    name: string,
-    is: string,
-    blocks: never[],
-    editMode: boolean,
-    advance: ADVANCE;
-
-}
-
-interface PROPERTY {
-    label: string;
-    id: string;
-    placeholder: string;
-    required: boolean;
-}
 
 interface Props {
     form: FIELD;
     setForm: React.Dispatch<React.SetStateAction<FIELD>>;
     property: PROPERTY;
     setProperty: React.Dispatch<React.SetStateAction<PROPERTY>>;
-    showRule: string;
+    showRule: boolean;
     setShowRule: (id: boolean) => void;
 }
 
@@ -31,7 +17,19 @@ const Action: React.FC<Props> = ({ form, setForm, property, setProperty, showRul
             ...prevForm,
             editMode: !form.editMode,
         }))
-        setProperty({ label: '', id: '', placeholder: '', required: false });
+        setProperty({ 
+            label: '', 
+            id: '', 
+            placeholder: '', 
+            required: "false", 
+            value: '', 
+            options: [{label: '', value: ''}],
+            advance: {
+                backgroundColor: '',
+                color: ''
+            },
+            isShow: false,
+         });
         // setProperty({ label: '', id: ''})
     }
     const handleRule = () => {

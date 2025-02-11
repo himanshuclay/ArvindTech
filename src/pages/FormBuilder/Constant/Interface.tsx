@@ -1,27 +1,47 @@
+import EmailInput from "../Components/EmailInput";
+import NumberInput from "../Components/NumberInput";
+import Password from "../Components/Password";
+import PhoneInput from "../Components/PhoneInput";
+import Select from "../Components/Select";
+import TextInput from "../Components/TextInput";
+
+const componentsMap = {
+    TextInput,
+    NumberInput,
+    EmailInput,
+    PhoneInput,
+    Password,
+    Select,
+};
+
 interface FIELD {
-    name: string;  // Name of the form
-    is: string;    // Type of the form (e.g., "form", "survey", etc.)
-    blocks: BasicField[];  // Array of blocks in the form
-    editMode: boolean;  // Flag to indicate if the form is in edit mode
-    rules: RULE[];  // Array of rules applied to the form
-    advance: ADVANCE;  // Advanced settings like background color
+    name: string;  
+    blocks: BASIC_FIELD[];  
+    editMode: boolean;  
+    rules: RULE[];  
+    advance: ADVANCE;  
 }
 
 interface BASIC_FIELD {
-    id: string;  // Unique ID for each block
-    name: string;  // Name of the block (e.g., "Block_1")
+    id: string;
+    name: string;  
+    is: keyof typeof componentsMap;
     property: PROPERTY;
 }
 
 interface RULE {
-    start1: string;  // Condition start1
-    start2: string;  // Condition start2
-    start3: string;  // Condition start3
-    start4: string;  // Condition start4
+    start1: string;
+    start2: string;
+    start3: string;
+    start4: string;
+    end1: string;
+    end2: string;
+    end3: string;
 }
 
 interface ADVANCE {
-    backgroundColor: string;  // Background color for the block
+    backgroundColor: string; 
+    color: string;
 }
 
 interface PROPERTY {
@@ -30,14 +50,13 @@ interface PROPERTY {
     placeholder: string;
     value: string;
     required: string;  
-    options: [{
-        label: string;
-        value: string;
-    }];
+    options: { label: string; value: string }[];
+    advance: ADVANCE;  
+    isShow: boolean;
+
 }
 interface BLOCK_VALUE {
-    [key: string]: string;  // Key is dynamic, and value is a string
+    [key: string]: string;  
 }
-// Exporting FIELD interface for use in other files
-export type { FIELD, PROPERTY, BASIC_FIELD, RULE, BLOCK_VALUE };
+export type { FIELD, PROPERTY, BASIC_FIELD, RULE, BLOCK_VALUE, ADVANCE };
 

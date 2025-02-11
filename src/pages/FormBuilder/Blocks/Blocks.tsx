@@ -1,13 +1,8 @@
 import React from 'react';
 import Fields from './Fields';
+import { FIELD } from '../Constant/Interface';
 
-interface FIELD {
-    name: string,
-    is: string,
-    blocks: never[],
-    editMode: boolean,
-    
-}
+
 
 interface BlocksProps {
   form: FIELD;

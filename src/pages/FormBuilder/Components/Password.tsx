@@ -21,7 +21,7 @@ interface BasicField {
     property: PROPERTY;
 }
 
-const TextInput: React.FC<Props> = ({ block, handleChange, validationErrors = {}, editMode = false }) => {
+const Password: React.FC<Props> = ({ block, handleChange, validationErrors = {}, editMode = false }) => {
     const isRequired = block.property.required === "true";
 
     return (
@@ -37,7 +37,7 @@ const TextInput: React.FC<Props> = ({ block, handleChange, validationErrors = {}
                     type="password"
                     name={block.property.id}
                     value={block.property.value}
-                    onChange={(e) => handleChange(e, block.property.id)}  // Handle change with ID
+                    onChange={(e) => handleChange(e as React.ChangeEvent<HTMLInputElement>, block.property.id)}  // Handle change with ID
                     placeholder={block.property.placeholder}
                     disabled={editMode}  // Disable input if in edit mode
                     className={validationErrors[block.property.id] ? "is-invalid" : ""}
@@ -52,4 +52,4 @@ const TextInput: React.FC<Props> = ({ block, handleChange, validationErrors = {}
     );
 };
 
-export default TextInput;
+export default Password;
