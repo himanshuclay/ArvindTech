@@ -1,52 +1,55 @@
-import React, { useEffect, useState } from 'react';
-import axios from 'axios';
-import { Col, Modal, Row } from 'react-bootstrap';
+import React, { useEffect, useState } from 'react'
+import axios from 'axios'
+import { Col, Modal, Row } from 'react-bootstrap'
 // import { FileUploader } from '@/components/FileUploader'
 // import { useNavigate } from 'react-router-dom';
-import { useNavigate, useLocation } from 'react-router-dom';
-import config from '@/config';
-import Select, { SingleValue } from 'react-select';
-import MessCards from './Previous&Completed';
-import { toast } from 'react-toastify';
+import { useNavigate, useLocation } from 'react-router-dom'
+import config from '@/config'
+import Select, { SingleValue, MultiValue } from 'react-select'
+import MessCards from './Previous&Completed'
+import { toast } from 'react-toastify'
+import { useRef } from 'react';
+import FileUploader, { FileUploaderHandle } from './FileUploader'
+
 
 interface Option {
-    id: string;
-    label: string;
-    color?: string;
+    id: string
+    label: string
+    color?: string
 }
 
 interface Input {
-    inputId: any;
-    fieldId: string;
-    type: string;
-    label: string;
-    formName: string;
-    formId: string;
-    placeholder: string;
-    options?: Option[];
-    required: boolean;
-    conditionalFieldId?: string;
-    value?: any;
-    selectedMaster?: string;
-    selectedHeader?: string;
-    visibility?: boolean;
+    inputId: any
+    fieldId: string
+    type: string
+    label: string
+    formName: string
+    formId: string
+    placeholder: string
+    options?: Option[]
+    required: boolean
+    conditionalFieldId?: string
+    value?: any
+    selectedMaster?: string
+    selectedHeader?: string
+    visibility?: boolean
 }
 
 interface DynamicFormProps {
     formData: {
-        formId: string; // Add formId
-        formName: string; // Add formName
-        approval_Console: string;
-        inputs: Input[];
-    };
-    taskNumber: any;
-    data: any;
-    show: boolean;
-    parsedCondition: any;
-    taskName: any;
-    setShow: any;
-    preData: any;
-    projectName: any;
+        formId: string // Add formId
+        formName: string // Add formName
+        approval_Console: string
+        inputs: Input[]
+    }
+    taskNumber: any
+    data: any
+    show: boolean
+    parsedCondition: any
+    taskName: any
+    setShow: any
+    preData: any
+    projectName: any
     taskCommonIDRow: any
     taskStatus: any
     processId: any
@@ -55,36 +58,28 @@ interface DynamicFormProps {
     approval_Console: any
     problemSolver: any
     fromComponent: string
-    finishPoint: any;
+    finishPoint: any
 }
 
 
-// interface MessData {
-//     messID: string;
-//     taskJson: any;
-//     comments: string;
-// }
 interface FormState {
-    [key: string]: any; // or more specific types
-}
-// interface Task {
-//     task_Number: any;
-// }
-interface DropdownItem {
-    name: string;
+    [key: string]: any
 }
 
+interface DropdownItem {
+    name: string
+}
 
 type InputConfig = {
-    inputId: string;
-    type?: string;
-    label?: string;
-    placeholder?: string;
-    options?: any[];
-    required?: boolean;
-    conditionalFieldId?: string;
-    fieldId?: string;
-};
+    inputId: string
+    type?: string
+    label?: string
+    placeholder?: string
+    options?: any[]
+    required?: boolean
+    conditionalFieldId?: string
+    fieldId?: string
+}
 const DynamicForm: React.FC<DynamicFormProps> = ({
     taskNumber,
     processId,
@@ -105,63 +100,83 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
     problemSolver,
     ProcessInitiationID,
 }) => {
+    const [formState, setFormState] = useState<FormState>({})
+    const [summary, setSummary] = useState('')
+    const [globalTaskJson, setglobalTaskJson] = useState<any>(
+        JSON.stringify(formData)
+    )
+    const [messManagers, setMessManagers] = useState<
+        { value: string; label: string }[]
+    >([])
+    const [selectedManager, setSelectedManager] = useState<string>(
+        'Avisineni Pavan Kumar_LLP05337'
+    ) // Initialize with default value
+    const [showMessManagerSelect, setShowMessManagerSelect] = useState(false)
+    const [messList, setMessList] = useState<
+        {
+            messID: string
+            messName: string
+            managerEmpID: string
+            managerName: string
+            mobileNumber: string
+        }[]
+    >([])
 
-    const [formState, setFormState] = useState<FormState>({});
-    const [summary, setSummary] = useState('');
-    const [globalTaskJson, setglobalTaskJson] = useState<any>(JSON.stringify(formData));
-    const [messManagers, setMessManagers] = useState<{ value: string, label: string }[]>([]);
-    const [selectedManager, setSelectedManager] = useState<string>("Avisineni Pavan Kumar_LLP05337"); // Initialize with default value
-    const [showMessManagerSelect, setShowMessManagerSelect] = useState(false);
-    const [messList, setMessList] = useState<{ messID: string; messName: string; managerEmpID: string; managerName: string; mobileNumber: string }[]>([]);
+    const [selectedCondition, setSelectedCondition] = useState<any[]>([])
+    const [ifscError, setIfscError] = useState('')
 
-    const [selectedCondition, setSelectedCondition] = useState<any[]>([]);
-    const [ifscError, setIfscError] = useState('');
+	const [currentStep, setCurrentStep] = useState<number>(0) // Track the current step
+	const [messForbank, setMessForbank] = useState('') // Track the current step
 
+	// const [isTenderMaster, setIsTenderMaster] = useState(false);
 
-    const [currentStep, setCurrentStep] = useState<number>(0); // Track the current step
-    const [messForbank, setMessForbank] = useState(''); // Track the current step
-
-    const location = useLocation();
+    const location = useLocation()
 
     const navigate = useNavigate()
 
 
-
+    const fileUploaderRef = useRef<FileUploaderHandle>(null);
 
 
 
     const saveDataToLocalStorage = () => {
-        const savedData = JSON.parse(localStorage.getItem(localStorageKey) || '[]');
-        const updatedData = [...savedData];
+        const savedData = JSON.parse(localStorage.getItem(localStorageKey) || '[]')
+        const updatedData = [...savedData]
 
-        const currentMessID = messList[currentStep]?.messID;
-        const currentMessName = messList[currentStep]?.messName;
-        const currentMessManagerName = messList[currentStep]?.managerName;
-        const currentMessManagerId = messList[currentStep]?.managerEmpID;
-        const currentMessManagerNumber = messList[currentStep]?.mobileNumber;
-        const messTaskNumber = taskNumber;
+        const currentMessID = messList[currentStep]?.messID
+        const currentMessName = messList[currentStep]?.messName
+        const currentMessManagerName = messList[currentStep]?.managerName
+        const currentMessManagerId = messList[currentStep]?.managerEmpID
+        const currentMessManagerNumber = messList[currentStep]?.mobileNumber
+        const messTaskNumber = taskNumber
 
         const taskJson = {
             approvalStatus: approval_Console,
-            inputs: Object.keys(formState).filter(inputId => inputId !== 'formId' && inputId !== 'formName').map(inputId => {
-                const inputConfig = formData?.inputs?.find(config => config.inputId === inputId) || {} as InputConfig;
-                return {
-                    inputId,
-                    value: formState[inputId],
-                    type: inputConfig.type || 'text',
-                    label: inputConfig.label || '',
-                    fieldId: inputConfig.fieldId,
-                    placeholder: inputConfig.placeholder || '',
-                    options: inputConfig.options || [],
-                    required: inputConfig.required || false,
-                    conditionalFieldId: inputConfig.conditionalFieldId || '',
-                };
-            }),
-        };
+            inputs: Object.keys(formState)
+                .filter((inputId) => inputId !== 'formId' && inputId !== 'formName')
+                .map((inputId) => {
+                    const inputConfig =
+                        formData?.inputs?.find((config) => config.inputId === inputId) ||
+                        ({} as InputConfig)
+                    return {
+                        inputId,
+                        value: formState[inputId],
+                        type: inputConfig.type || 'text',
+                        label: inputConfig.label || '',
+                        fieldId: inputConfig.fieldId,
+                        placeholder: inputConfig.placeholder || '',
+                        options: inputConfig.options || [],
+                        required: inputConfig.required || false,
+                        conditionalFieldId: inputConfig.conditionalFieldId || '',
+                    }
+                }),
+        }
 
-        const messStatus = formState['11'] === '11-2' ? false : true;
+        const messStatus = formState['11'] === '11-2' ? false : true
 
-        const existingIndex = updatedData.findIndex((data) => data.messID === currentMessID);
+        const existingIndex = updatedData.findIndex(
+            (data) => data.messID === currentMessID
+        )
         if (existingIndex >= 0) {
             updatedData[existingIndex] = {
                 messID: currentMessID,
@@ -176,7 +191,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                 comments: summary,
                 taskName: taskName,
                 messStatus: messStatus,
-            };
+            }
         } else {
             updatedData.push({
                 messID: currentMessID,
@@ -191,99 +206,109 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                 comments: summary,
                 taskName: taskName,
                 messStatus: messStatus,
-            });
+            })
         }
 
-        localStorage.setItem(localStorageKey, JSON.stringify(updatedData));
-    };
-
+        localStorage.setItem(localStorageKey, JSON.stringify(updatedData))
+    }
 
     useEffect(() => {
         // Ensure messList and currentStep are valid before accessing messID
-        if (messList && messList.length > 0 && currentStep >= 0 && currentStep < messList.length) {
-            const savedDataString = localStorage.getItem(localStorageKey);
-            const savedData: SavedData[] = JSON.parse(savedDataString || '[]');
+        if (
+            messList &&
+            messList.length > 0 &&
+            currentStep >= 0 &&
+            currentStep < messList.length
+        ) {
+            const savedDataString = localStorage.getItem(localStorageKey)
+            const savedData: SavedData[] = JSON.parse(savedDataString || '[]')
 
             // Find the saved data for the current messID
-            const currentData = savedData.find((data) => data.messID === messList[currentStep]?.messID);
+            const currentData = savedData.find(
+                (data) => data.messID === messList[currentStep]?.messID
+            )
 
-            // Reset modals before checking for the new state
-            setShowBankModal(false);  // Reset Bank Modal
-            setShowMessManagerSelect(false);  // Reset Mess Manager Select
+			// Reset modals before checking for the new state
+			setShowBankModal(false) // Reset Bank Modal
+			setShowMessManagerSelect(false) // Reset Mess Manager Select
+			// setIsTenderMaster(false);
 
             if (currentData) {
-                const taskJson = currentData.taskJson || {};
+                const taskJson = currentData.taskJson || {}
 
                 // Convert taskJson inputs into formState
-                const loadedFormState = taskJson.inputs?.reduce((acc: { [key: string]: string }, input: Input) => {
-                    acc[input.inputId] = input.value || ''; // Set default value if no value is found
+                const loadedFormState = taskJson.inputs?.reduce(
+                    (acc: { [key: string]: string }, input: Input) => {
+                        acc[input.inputId] = input.value || '' // Set default value if no value is found
 
-                    // Check if input.inputId is 11 and input.value is '11-1'
-                    if (input.inputId === '11' && input.value === '11-1') {
-                        setShowBankModal(true);   // Trigger the Bank Modal
-                        setShowMessManagerSelect(true); // Trigger the Mess Manager Select
-                    }
+						// Check if input.inputId is 11 and input.value is '11-1'
+						// console.log('ss',input.inputId)
+						if (input.inputId === '11' && input.value === '11-1') {
+							setShowBankModal(true) // Trigger the Bank Modal
+							setShowMessManagerSelect(true) // Trigger the Mess Manager Select
+						}
 
-                    return acc;
-                }, {});
+                        return acc
+                    },
+                    {}
+                )
 
                 // Update form state with the loaded data or set to an empty object
-                setFormState(loadedFormState || {});
-                setSummary(currentData.comments || '');
+                setFormState(loadedFormState || {})
+                setSummary(currentData.comments || '')
             } else {
                 // If no saved data is found, reset the form state and summary
-                setFormState({});
-                setSummary('');
+                setFormState({})
+                setSummary('')
             }
         } else {
             // Handle the case when messList or currentStep is invalid
-            setFormState({});
-            setSummary('');
+            setFormState({})
+            setSummary('')
         }
-    }, [currentStep, messList]);
-
-
-
-
-
-
-
-
+    }, [currentStep, messList])
 
     useEffect(() => {
-        const messName = messList[currentStep]?.messName;
-        if (!messName) return;
+        const messName = messList[currentStep]?.messName
+        if (!messName) return
 
         setMessForbank(messName)
 
         axios
-            .get(`${config.API_URL_APPLICATION}/CommonDropdown/GetMessManagerNameByMessName`, {
-                params: { MessName: messName },
-            })
+            .get(
+                `${config.API_URL_APPLICATION}/CommonDropdown/GetMessManagerNameByMessName`,
+                {
+                    params: { MessName: messName },
+                }
+            )
             .then((response) => {
-                if (response.data.isSuccess && response.data.messManagerNameByMessName) {
-                    setSelectedManager(response.data.messManagerNameByMessName.id);
+                if (
+                    response.data.isSuccess &&
+                    response.data.messManagerNameByMessName
+                ) {
+                    setSelectedManager(response.data.messManagerNameByMessName.id)
                     // console.log(response.data.messManagerNameByMessName.id);
                 } else {
-                    console.error("Failed to fetch manager details");
+                    console.error('Failed to fetch manager details')
                 }
             })
             .catch((error) => {
-                console.error("Error fetching manager details:", error);
-            });
-    }, [messList[currentStep]?.messName]);
+                console.error('Error fetching manager details:', error)
+            })
+    }, [messList[currentStep]?.messName])
 
-
-
-    const [vendorsMap, setVendorsMap] = useState<Record<string, DropdownItem[]>>({});
-
+    const [vendorsMap, setVendorsMap] = useState<Record<string, DropdownItem[]>>(
+        {}
+    )
 
     useEffect(() => {
         const fetchVendorsForInputs = async () => {
-            const customSelectInputs = formData.inputs?.filter((input) => input.type === "CustomSelect");
+            const customSelectInputs = formData.inputs?.filter(
+                (input) => input.type === 'CustomSelect'
+            )
 
             if (customSelectInputs?.length) {
-                const newVendorsMap: Record<string, DropdownItem[]> = {};
+                const newVendorsMap: Record<string, DropdownItem[]> = {}
 
                 await Promise.all(
                     customSelectInputs.map(async (input) => {
@@ -297,246 +322,249 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                                             HeaderName: input.selectedHeader,
                                         },
                                     }
-                                );
+                                )
 
                                 if (response.data.isSuccess) {
-                                    newVendorsMap[input.inputId] = response.data.dropDownLists;
+                                    newVendorsMap[input.inputId] = response.data.dropDownLists
                                 } else {
-                                    console.error(`Failed to fetch vendors for ${input.inputId}:`, response.data.message);
+                                    console.error(
+                                        `Failed to fetch vendors for ${input.inputId}:`,
+                                        response.data.message
+                                    )
                                 }
                             } catch (error) {
-                                console.error(`Error fetching vendor data for ${input.inputId}:`, error);
+                                console.error(
+                                    `Error fetching vendor data for ${input.inputId}:`,
+                                    error
+                                )
                             }
                         }
                     })
-                );
+                )
 
-                setVendorsMap(newVendorsMap);
+                setVendorsMap(newVendorsMap)
             } else {
-                console.warn("No CustomSelect inputs with valid MasterName and HeaderName found.");
+                console.warn(
+                    'No CustomSelect inputs with valid MasterName and HeaderName found.'
+                )
             }
-        };
+        }
 
-        fetchVendorsForInputs();
-    }, [formData]);
+        fetchVendorsForInputs()
+    }, [formData])
 
-
-
-
-
-
-
-
-
-    // useEffect(() => {
-    //     // Function to run on reload or component mount
-    //     const runOnReload = () => {
-    //         // console.log("Page reloaded or component mounted");
-    //         localStorage.removeItem(localStorageKey);
-    //         // Your logic here
-    //     };
-
-    //     // Call the function when the component mounts
-    //     runOnReload();
-
-    //     // Optionally, return a cleanup function (if needed)
-    //     return () => {
-    //         // Cleanup code if required
-    //     };
-    // }, []);
 
     type TaskJson = {
-        inputs: Input[];
-    };
+        inputs: Input[]
+    }
 
     type SavedData = {
-        messID: string;
-        messName: string;
-        messManager: string;
-        messManagerId: string;
-        mobileNumber: string;
-        taskJson: TaskJson;
-        messStatus: boolean;
-        comments?: string;
-    };
-
+        messID: string
+        messName: string
+        messManager: string
+        messManagerId: string
+        mobileNumber: string
+        taskJson: TaskJson
+        messStatus: boolean
+        comments?: string
+    }
 
     const handleNextStep = () => {
-        saveDataToLocalStorage();
+        saveDataToLocalStorage()
 
         // Retrieve saved data from localStorage
-        const savedData: SavedData[] = JSON.parse(localStorage.getItem(localStorageKey) || '[]');
-        const currentMessID = messList[currentStep].messID;
-        const currentData = savedData.find((data: SavedData) => data.messID === currentMessID);
+        const savedData: SavedData[] = JSON.parse(
+            localStorage.getItem(localStorageKey) || '[]'
+        )
+        const currentMessID = messList[currentStep].messID
+        const currentData = savedData.find(
+            (data: SavedData) => data.messID === currentMessID
+        )
 
         if (currentData && currentData.taskJson) {
-            const { taskJson } = currentData;
+            const { taskJson } = currentData
 
             if (taskJson.inputs && Array.isArray(taskJson.inputs)) {
                 const finishPointInput = taskJson.inputs.find(
                     (input) => input.inputId === String(finishPoint) // Ensure finishPoint is a string for comparison
-                );
+                )
                 console.log(finishPointInput)
                 console.log(taskJson.inputs)
 
                 if (!finishPointInput) {
-                    console.error('No matching input found for finishPoint:', finishPoint);
-                    console.log('Available inputIds:', taskJson.inputs.map((input) => input.inputId));
+                    console.error('No matching input found for finishPoint:', finishPoint)
+                    console.log(
+                        'Available inputIds:',
+                        taskJson.inputs.map((input) => input.inputId)
+                    )
                     toast.dismiss()
-                    toast.error(`Please fill the required field`);
-                    return; // Prevent moving to the next step
+                    toast.error(`Please fill the required field`)
+                    return // Prevent moving to the next step
                 }
 
                 // Ensure the value is checked properly
                 if (!finishPointInput.value || finishPointInput.value.trim() === '') {
                     toast.dismiss()
-                    toast.error(`Please fill the required field: ${finishPointInput.label}`);
-                    return; // Prevent moving to the next step
+                    toast.error(
+                        `Please fill the required field: ${finishPointInput.label}`
+                    )
+                    return // Prevent moving to the next step
                 }
             }
         }
 
         if (currentStep < messList.length - 1) {
-            const nextStep = currentStep + 1;
-            setCurrentStep(nextStep);
+            const nextStep = currentStep + 1
+            setCurrentStep(nextStep)
 
-            const nextMessID = messList[nextStep].messID;
+            const nextMessID = messList[nextStep].messID
 
             // Find saved data for the next step
-            const nextData = savedData.find((data: SavedData) => data.messID === nextMessID);
+            const nextData = savedData.find(
+                (data: SavedData) => data.messID === nextMessID
+            )
 
             if (nextData && nextData.taskJson) {
-                const { taskJson } = nextData;
+                const { taskJson } = nextData
 
                 if (taskJson.inputs && Array.isArray(taskJson.inputs)) {
                     // Update formState with the saved taskJson
                     const newFormState = taskJson.inputs.reduce(
                         (acc: { [key: string]: string }, input: Input) => {
-                            acc[input.inputId] = input.value || ''; // Safely handle missing values
-                            return acc;
+                            acc[input.inputId] = input.value || '' // Safely handle missing values
+                            return acc
                         },
                         {}
-                    );
+                    )
 
-                    setFormState(newFormState); // Set the formState with loaded values
+                    setFormState(newFormState) // Set the formState with loaded values
                 } else {
-                    console.error('Invalid taskJson inputs structure:', taskJson.inputs);
+                    console.error('Invalid taskJson inputs structure:', taskJson.inputs)
                 }
             } else {
-                console.warn('No saved data found for messID:', nextMessID);
+                console.warn('No saved data found for messID:', nextMessID)
             }
 
             // Optionally load the comments for the next step
             if (nextData && nextData.comments) {
-                setSummary(nextData.comments);
+                setSummary(nextData.comments)
             } else {
-                setSummary(''); // Clear the summary if no comments exist
+                setSummary('') // Clear the summary if no comments exist
             }
 
-            setShowBankModal(false);
-            setShowMessManagerSelect(false);
+            setShowBankModal(false)
+            setShowMessManagerSelect(false)
         }
-    };
-
-
-
-
-    const handlePreviousStep = () => {
-        saveDataToLocalStorage();  // Save data before moving to the previous step
-
-        if (currentStep > 0) {
-            const prevStep = currentStep - 1;
-            setCurrentStep(prevStep);
-
-            // Load saved data for the previous step
-            const savedData: SavedData[] = JSON.parse(localStorage.getItem(localStorageKey) || '[]');
-            const prevMessID = messList[prevStep].messID;
-
-            // Find saved data for the previous step
-            const prevData = savedData.find((data: SavedData) => data.messID === prevMessID);
-
-            if (prevData && prevData.taskJson) {
-                const { taskJson } = prevData;
-
-                if (taskJson.inputs && Array.isArray(taskJson.inputs)) {
-                    const newFormState = taskJson.inputs.reduce((acc: { [key: string]: string }, input: Input) => {
-                        acc[input.inputId] = input.value || '';
-                        return acc;
-                    }, {});
-
-                    setFormState(newFormState);
-                }
-            } else {
-                setFormState({});
-                setSummary('');
-            }
-        }
-    };
-
-
-
-
-    const handleClose = () => {
-        setShow(false);
     }
 
+    const handlePreviousStep = () => {
+        saveDataToLocalStorage() // Save data before moving to the previous step
 
-    const projectNames = projectName;
+        if (currentStep > 0) {
+            const prevStep = currentStep - 1
+            setCurrentStep(prevStep)
 
-    type OptionType = { value: string; label: string };
+            // Load saved data for the previous step
+            const savedData: SavedData[] = JSON.parse(
+                localStorage.getItem(localStorageKey) || '[]'
+            )
+            const prevMessID = messList[prevStep].messID
+
+            // Find saved data for the previous step
+            const prevData = savedData.find(
+                (data: SavedData) => data.messID === prevMessID
+            )
+
+            if (prevData && prevData.taskJson) {
+                const { taskJson } = prevData
+
+                if (taskJson.inputs && Array.isArray(taskJson.inputs)) {
+                    const newFormState = taskJson.inputs.reduce(
+                        (acc: { [key: string]: string }, input: Input) => {
+                            acc[input.inputId] = input.value || ''
+                            return acc
+                        },
+                        {}
+                    )
+
+                    setFormState(newFormState)
+                }
+            } else {
+                setFormState({})
+                setSummary('')
+            }
+        }
+    }
+
+    interface Option {
+        value: string;
+        label: string;
+    }
+
+    const handleClose = () => {
+        setShow(false)
+    }
+
+    const projectNames = projectName
+
+    type OptionType = { value: string; label: string }
 
     const options: OptionType[] = [
         { value: 'approved', label: 'Approved' },
         { value: 'rejected', label: 'Rejected' },
-    ];
+        { value: 'approvalWithAmid', label: 'approvalWithAmid' },
+    ]
 
     const handleSelectChange = (selectedOption: SingleValue<OptionType>) => {
-        setApprovalStatus(selectedOption);
-    };
-
+        console.log('Selected Option:', selectedOption) // Debugging
+        setApprovalStatus(selectedOption)
+    }
 
     useEffect(() => {
         const fetchMessData = async () => {
             try {
-                const response = await axios.get(`${config.API_URL_APPLICATION}/CommonDropdown/GetMessandManagerListByProjectName?ProjectName=${projectNames}`);
+                const response = await axios.get(
+                    `${config.API_URL_APPLICATION}/CommonDropdown/GetMessandManagerListByProjectName?ProjectName=${projectNames}`
+                )
                 if (response.data.isSuccess) {
-                    const fetchedMessList = response.data.messProjectListResponses; // Store fetched list
-                    setMessList(fetchedMessList);
+                    const fetchedMessList = response.data.messProjectListResponses // Store fetched list
+                    setMessList(fetchedMessList)
                     // console.log("Fetched mess list:", fetchedMessList); // Log the fetched list directly
                 } else {
-                    console.error('Failed to fetch mess data');
+                    console.error('Failed to fetch mess data')
                 }
             } catch (error) {
-                console.error('Error fetching mess data:', error);
+                console.error('Error fetching mess data:', error)
             }
-        };
+        }
 
         if (projectNames) {
-            fetchMessData();
+            fetchMessData()
         }
-    }, [projectNames]);
+    }, [projectNames])
 
-    const localStorageKey = 'messFormData'; // Key for localStorage
+    const localStorageKey = 'messFormData' // Key for localStorage
 
-    const [approvalStatus, setApprovalStatus] = useState<OptionType | null>(null);
-
+    const [approvalStatus, setApprovalStatus] = useState<OptionType | null>(null)
+    console.log(approvalStatus?.value)
 
     const submitMessData = async (event: React.FormEvent) => {
-        event.preventDefault(); // Prevent page refresh
+        event.preventDefault() // Prevent page refresh
         console.log('hi')
 
         const payload = {
             messName: messForbank,
             managerName: bankDetails.managerName,
             reimbursementBankName: bankDetails.reimbursementBankName,
-            reimbursementBankAccountNumber: bankDetails.reimbursementBankAccountNumber,
+            reimbursementBankAccountNumber:
+                bankDetails.reimbursementBankAccountNumber,
             reimbursementBankIfsc: bankDetails.reimbursementBankIfsc,
             reimbursementBranchName: bankDetails.reimbursementBranchName,
             userUpdatedMobileNumber: bankDetails.userUpdateMobileNumber,
             empID: selectedManager,
-        };
+        }
 
-        console.log('Payload:', payload);
+        console.log('Payload:', payload)
 
         try {
             const response = await fetch(
@@ -545,100 +573,120 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'Accept': '*/*',
+                        Accept: '*/*',
                     },
                     body: JSON.stringify(payload),
                 }
-            );
+            )
 
             if (!response.ok) {
-                throw new Error(`Error: ${response.statusText}`);
+                throw new Error(`Error: ${response.statusText}`)
             }
 
-            const data = await response.json();
-            console.log('Response Data:', data);
+            const data = await response.json()
+            console.log('Response Data:', data)
             // toast.success('Mess Data submitted successfully!');
         } catch (error) {
-            console.error('Error submitting data:', error);
+            console.error('Error submitting data:', error)
         }
-    };
+    }
 
+    const handleChange = (
+        inputId: string,
+        value: string | boolean | string[]
+    ) => {
+        const excludedInputIds = ['99', '100', '102', '103']
+        const input = formData.inputs.find(
+            (input) => String(input.inputId) === String(inputId)
+        )
 
+        let updatedValue = value
+        let selectedLabel: any = input ? input.label : undefined
+        console.log(`Selected label: ${selectedLabel}`)
+        console.log(input)
 
-
-    const handleChange = (inputId: string, value: string | boolean | string[]) => {
-        const excludedInputIds = ['99', '100', '102', '103'];
-        const input = formData.inputs.find(input => String(input.inputId) === String(inputId));
-
-        let updatedValue = value;
-        let selectedLabel: any = input ? input.label : undefined;
-        console.log(`Selected label: ${selectedLabel}`);
-        console.log(input);
-
-        console.log(updatedValue);
+        console.log(updatedValue)
 
         if (input) {
             // Decimal input validation
             if (input.type === 'decimal') {
-                const regex = /^(\d+(\.\d{0,2})?)?$/;
+                const regex = /^(\d+(\.\d{0,2})?)?$/
                 if (regex.test(value as string) && parseFloat(value as string) >= 0) {
-                    updatedValue = value as string;
+                    updatedValue = value as string
                 } else {
-                    console.warn('Invalid decimal value. Value must be 0 or greater with up to 2 decimals.');
-                    return;
+                    console.warn(
+                        'Invalid decimal value. Value must be 0 or greater with up to 2 decimals.'
+                    )
+                    return
                 }
             }
 
-
-            // Handle select and CustomSelect input types
-            if (input.type === 'select' || input.type === 'CustomSelect') {
-                console.log("i am inside")
-                const selectedOption = input.options?.find(option => option.label === value);
-                console.log(parsedCondition)
-                console.log(selectedOption)
+			// Handle select and CustomSelect input types
+			if (input.type === 'select' || input.type === 'CustomSelect') {
+				console.log('i am inside')
+				const selectedOption = input.options?.find(
+					(option) => option.label === value
+				)
+				console.log(parsedCondition)
+				console.log(selectedOption, value)
 
                 if (selectedOption) {
-                    updatedValue = selectedOption.id;
-                    selectedLabel = selectedOption.label;
+                    updatedValue = selectedOption.id
+                    selectedLabel = selectedOption.label
 
                     if (Array.isArray(parsedCondition)) {
-                        const flattenedCondition = parsedCondition.flat();
+                        const flattenedCondition = parsedCondition.flat()
                         console.log(flattenedCondition)
                         flattenedCondition.forEach((condition) => {
                             if (Array.isArray(condition.taskSelections)) {
                                 const filteredTaskSelections = condition.taskSelections.filter(
-                                    (taskSelection: any) => String(taskSelection.inputId) === String(updatedValue)
-                                );
+                                    (taskSelection: any) =>
+                                        String(taskSelection.inputId) === String(updatedValue)
+                                )
 
                                 if (filteredTaskSelections.length > 0) {
-                                    setSelectedCondition({ ...condition, taskSelections: filteredTaskSelections });
+                                    setSelectedCondition({
+                                        ...condition,
+                                        taskSelections: filteredTaskSelections,
+                                    })
                                     console.log(selectedCondition)
                                 } else {
-                                    console.warn('No matching task found for updatedValue:', updatedValue);
+                                    console.warn(
+                                        'No matching task found for updatedValue:',
+                                        updatedValue
+                                    )
                                 }
                             } else {
-                                console.error('taskSelections is not an array or undefined:', condition.taskSelections);
+                                console.error(
+                                    'taskSelections is not an array or undefined:',
+                                    condition.taskSelections
+                                )
                             }
-                        });
+                        })
                     } else {
-                        console.error('parsedCondition is not an array:', parsedCondition);
+                        console.error('parsedCondition is not an array:', parsedCondition)
                     }
                     console.log(selectedOption.id)
-
                 } else {
-                    console.warn(`No option found for the value: ${value}`);
+                    console.warn(`No option found for the value: ${value}`)
                 }
             }
 
-
-
             // Handle multiselect input type
             if (input.type === 'multiselect') {
-                updatedValue = (value as string[]).map(label => {
-                    const selectedOption = input.options?.find(option => option.label === label);
-                    return selectedOption ? selectedOption.id : label;
-                });
+                if (Array.isArray(value)) {
+                    updatedValue = value.map((selectedItem) => {
+                        const selectedOption = input.options?.find(
+                            (option) => option.label === selectedItem || option.id === selectedItem
+                        );
+                        return selectedOption ? selectedOption.id : selectedItem;  // Return ID if found, else fallback to the original value
+                    });
+                } else {
+                    console.warn('Expected an array for multiselect input, but received:', value);
+                    updatedValue = [];  // Fallback to an empty array if value is not an array
+                }
             }
+
 
             // Handle other input types
             switch (input.type) {
@@ -647,117 +695,78 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                 case 'checkbox':
                 case 'radio':
                 case 'date':
-                    updatedValue = value;
-                    selectedLabel = input.label;
-                    break;
+                    updatedValue = value
+                    selectedLabel = input.label
+                    break
                 case 'file':
                     // Handle file separately
-                    break;
+                    break
                 default:
-                    break;
+                    break
             }
 
             // Update formState
-            setFormState(prevState => {
+            setFormState((prevState) => {
                 const newState = {
                     ...prevState,
-                    ...(excludedInputIds.includes(inputId) ? {} : { [inputId]: updatedValue }),
-                };
+                    ...(excludedInputIds.includes(inputId)
+                        ? {}
+                        : { [inputId]: updatedValue }),
+                }
 
                 if (!excludedInputIds.includes(inputId)) {
                     const updatedTaskJson = {
                         ...formData,
-                        inputs: formData.inputs.map(input => ({
-                            ...input, value: newState[input.inputId] !== undefined ? newState[input.inputId] : input.value,
+                        inputs: formData.inputs.map((input) => ({
+                            ...input,
+                            value:
+                                newState[input.inputId] !== undefined
+                                    ? newState[input.inputId]
+                                    : input.value,
                         })),
-                    };
-                    setglobalTaskJson(updatedTaskJson);
+                    }
+                    setglobalTaskJson(updatedTaskJson)
                 }
 
-                reEvaluateConditions(newState); // Re-evaluate conditions with updated state
-                console.log(newState);
+                reEvaluateConditions(newState) // Re-evaluate conditions with updated state
+                console.log(newState)
 
-                setShowMessManagerSelect(Object.values(newState).includes("11-1"));
-                setShowBankModal(Object.values(newState).includes("11-1"));
+				setShowMessManagerSelect(Object.values(newState).includes('11-1'))
+				setShowBankModal(Object.values(newState).includes('11-1'))
+				// setIsTenderMaster(Object.values(newState).includes('11-1'))
 
-                return newState;
-            });
+                return newState
+            })
         }
-    };
-
+    }
 
     const handleSubmit = async (event: React.FormEvent, taskNumber: string) => {
         console.log('found')
-        event.preventDefault();
-        {
-            processId === "ACC.01" && saveDataToLocalStorage();
-        }
-
-        const finalData = JSON.parse(localStorage.getItem(localStorageKey) ?? '[]');
-        localStorage.removeItem(localStorageKey);
-        console.log('Final Submitted Data:', finalData);
-        const role = localStorage.getItem('EmpId') || '';
 
 
-        let found = false;
-        finalData.forEach((mess: any) => {
-            mess.taskJson.inputs.forEach((input: any) => {
-                if (input.value === "11-1") {
-                    found = true;
-                }
-            });
-        });
-
-
-        console.log(found)
-        // console.log(parsedCondition)
-
-        // console.log(globalTaskJson)
-
-        // const input = formData.inputs.find(input => String(input.inputId) === String(inputId));
-
-        // console.log(input)
-
-        // if (input.type === 'select' || input.type === 'CustomSelect') {
-        //     console.log("i am inside")
-        //     const selectedOption = input.options?.find(option => option.label === value);
-        //     console.log(parsedCondition)
-        //     console.log(selectedOption)
-
-        //     if (selectedOption) {
-
-        //         if (Array.isArray(parsedCondition)) {
-        //             const flattenedCondition = parsedCondition.flat();
-        //             console.log(flattenedCondition)
-        //             flattenedCondition.forEach((condition) => {
-        //                 if (Array.isArray(condition.taskSelections)) {
-        //                     const filteredTaskSelections = condition.taskSelections.filter(
-        //                         (taskSelection: any) => String(taskSelection.inputId) === String(updatedValue)
-        //                     );
-
-        //                     if (filteredTaskSelections.length > 0) {
-        //                         setSelectedCondition({ ...condition, taskSelections: filteredTaskSelections });
-        //                         console.log(selectedCondition)
-        //                     } else {
-        //                         console.warn('No matching task found for updatedValue:', updatedValue);
-        //                     }
-        //                 } else {
-        //                     console.error('taskSelections is not an array or undefined:', condition.taskSelections);
-        //                 }
-        //             });
-        //         } else {
-        //             console.error('parsedCondition is not an array:', parsedCondition);
-        //         }
-        //         console.log(selectedOption.id)
-
-        //     } else {
-        //         console.warn(`No option found for the value: ${value}`);
-        //     }
+        // if (fileUploaderRef.current) {
+        //     await fileUploaderRef.current.uploadFiles();
         // }
 
+        event.preventDefault()
+        {
+            processId === 'ACC.01' && saveDataToLocalStorage()
+        }
 
+        const finalData = JSON.parse(localStorage.getItem(localStorageKey) ?? '[]')
+        localStorage.removeItem(localStorageKey)
+        console.log('Final Submitted Data:', finalData)
+        const role = localStorage.getItem('EmpId') || ''
 
-
+        let found = false
+        finalData.forEach((mess: any) => {
+            mess.taskJson.inputs.forEach((input: any) => {
+                if (input.value === '11-1') {
+                    found = true
+                }
+            })
+        })
+        console.log(found)
 
 
 
@@ -773,216 +782,202 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
             }
 
             try {
-                const apiUrl = `${config.API_URL_ACCOUNT}/AdhocForm/InsertAdhocJsonMaster`;
-                const response = await axios.post(apiUrl, adhocRequestedData);
+                const apiUrl = `${config.API_URL_ACCOUNT}/AdhocForm/InsertAdhocJsonMaster`
+                const response = await axios.post(apiUrl, adhocRequestedData)
                 console.log(response)
 
                 if (response.status >= 200 && response.status < 300) {
-                    console.log('ADHOC submitted successfully:', response.data);
-                    navigate('/pages/ProcessMaster');
+                    console.log('ADHOC submitted successfully:', response.data)
+                    navigate('/pages/ProcessMaster')
                 } else {
-                    console.error('Error submitting module:', response.status, response.statusText);
+                    console.error(
+                        'Error submitting module:',
+                        response.status,
+                        response.statusText
+                    )
                 }
             } catch (error: any) {
-                console.error('Error submitting module:', error.message || error);
+                console.error('Error submitting module:', error.message || error)
             }
         }
-        if (fromComponent === 'PendingTask') {
+        if (fromComponent === 'PendingTask' || 'ApprovalConsole') {
+            console.log(approval_Console)
 
-            // const taskData = data.find((task: Task) => task.task_Number === taskNumber);
             const requestData = {
-                // ...formData,
                 id: ProcessInitiationID || 0,
                 doerID: role || '',
-                task_Json: processId === "ACC.01" ? JSON.stringify(finalData) : JSON.stringify(globalTaskJson),
+                task_Json:
+                    processId === 'ACC.01'
+                        ? typeof finalData === 'string' ? finalData : JSON.stringify(finalData)
+                        : typeof globalTaskJson === 'string' ? globalTaskJson : JSON.stringify(globalTaskJson),
                 isExpired: 0,
-                isCompleted: formState['Pending'] || 'Completed',
+                isCompleted: (() => {
+                    console.log('approval_Console:', approval_Console)
+                    console.log('taskStatus:', taskStatus)
+                    console.log('approvalStatus?.value:', approvalStatus?.value)
+
+                    const currentStatus =
+                        typeof taskStatus === 'string' && taskStatus.trim() !== ''
+                            ? taskStatus.trim()
+                            : 'Pending'
+
+                    console.log('Current Status:', currentStatus)
+
+                    if (
+                        approval_Console === 'Select Approval_Console' &&
+                        approvalStatus?.value === undefined
+                    )
+                        return 'Waiting for Approval'
+
+                    const approvalValue =
+                        approvalStatus?.value?.trim().toLowerCase() || ''
+                    if (currentStatus === 'Waiting for Approval') {
+                        if (approvalValue === 'rejected') return 'Pending'
+                        if (['approvalwithamid', 'approved'].includes(approvalValue))
+                            return 'Completed'
+                    }
+                    if (approval_Console === '' &&
+                        approvalStatus?.value === undefined) {
+                        return 'Completed'
+                    }
+
+                    return currentStatus
+                })(),
                 task_Number: taskNumber,
                 summary: formState['summary'] || 'Task Summary',
                 condition_Json: parsedCondition,
                 taskCommonId: taskCommonIDRow,
                 taskStatus: taskStatus,
                 taskName: taskName,
+                rejectedJson:
+                    approvalStatus?.value?.trim().toLowerCase() === 'rejected'
+                        ? globalTaskJson
+                        : '',
+
+                endprocessStatus: 'string',
+                file: '',
                 updatedBy: role,
                 problemSolver: problemSolver,
-                projectName: projectName
-            };
+                projectName: projectName,
+            }
+
             console.log(requestData)
 
             try {
-                const response = await fetch(`${config.API_URL_ACCOUNT}/ProcessInitiation/UpdateDoerTask`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(requestData),
-                });
+                const response = await fetch(
+                    `${config.API_URL_ACCOUNT}/ProcessInitiation/UpdateDoerTask`,
+                    {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(requestData),
+                    }
+                )
 
                 if (response.ok) {
-                    const responseData = await response.json();
+                    const responseData = await response.json()
                     toast.success('Task Completed')
                     navigate('/pages/Notification')
-                    setShow(false);
-                    console.log('Task updated successfully:', responseData);
+                    setShow(false)
+                    console.log('Task updated successfully:', responseData)
                 } else {
-                    console.error('Failed to update the task:', response.statusText);
+                    console.error('Failed to update the task:', response.statusText)
                 }
             } catch (error) {
-                console.error('Error occurred while updating task:', error);
+                console.error('Error occurred while updating task:', error)
             } finally {
-
             }
-
         }
-    };
-
-    // const handleApprovalSubmit = async (event: React.FormEvent, taskNumber: string) => {
-    //     event.preventDefault();
-    //     saveDataToLocalStorage();
-    //     localStorage.removeItem(localStorageKey);
-
-    //     const role = localStorage.getItem('EmpId') || '';
-    //     const taskData = data.find((task: Task) => task.task_Number === taskNumber);
-    //     const conditionToSend = selectedCondition.length > 0 ? selectedCondition : parsedCondition[0];
-
-    //     const taskJson = {
-    //         formId: formData?.formId || '',
-    //         formName: formData?.formName || '',
-    //         inputs: Object.keys(formState)
-    //             .filter(inputId => inputId !== 'formId' && inputId !== 'formName')
-    //             .map(inputId => {
-    //                 const { type = 'text', label = '', placeholder = '', options = [], required = false, conditionalFieldId = '' } = formData?.inputs?.find(config => config.inputId === inputId) || {};
-    //                 return { inputId, value: formState[inputId], type, label, placeholder, options, required, conditionalFieldId };
-    //             }),
-    //     };
-
-
-    //     const fullJson = {
-    //         messID: 'MESS-1717998452037',  // Placeholder value; replace with actual messID
-    //         taskJson,
-    //         comments: formState['comments'] || '',  // Optional comments field
-    //     };
-
-    //     const requestData = {
-    //         id: taskData?.id || 0,
-    //         doerID: role || '',
-    //         task_Json: JSON.stringify(fullJson),  // Use fullJson for approval submission
-    //         isExpired: 0,
-    //         isCompleted: formState['Pending'] || 'Completed',
-    //         task_Number: taskNumber,
-    //         summary: formState['summary'] || 'Task Summary',
-    //         condition_Json: JSON.stringify(conditionToSend),
-    //         taskCommonId: taskCommonIDRow,
-    //         taskStatus: taskStatus,
-    //         updatedBy: role,
-    //     };
-
-    //     console.log(requestData)
-
-    //     setLoading(true);
-
-    //     try {
-    //         const response = await fetch(`${config.API_URL_ACCOUNT}/ProcessInitiation/UpdateApprovalTask`, {
-    //             method: 'POST',
-    //             headers: { 'Content-Type': 'application/json' },
-    //             body: JSON.stringify(requestData),
-    //         });
-
-    //         if (response.ok) {
-    //             const responseData = await response.json();
-    //             navigate('/pages/approvedTasks', { state: { showToast: true, taskName: taskNumber } });
-    //             console.log('Task approved successfully:', responseData);
-    //         } else {
-    //             console.error('Failed to approve the task:', response.statusText);
-    //         }
-    //     } catch (error) {
-    //         console.error('Error occurred while approving task:', error);
-    //     } finally {
-    //         setLoading(false);
-    //     }
-    // };
-
+    }
 
 
     // Function to re-evaluate conditions for showing/hiding fields
     const reEvaluateConditions = (newState: { [key: string]: any }) => {
-        const updatedState = { ...newState };
+        const updatedState = { ...newState }
 
         formData.inputs.forEach((input) => {
             if (input.conditionalFieldId) {
-                const conditionValue = newState[input.conditionalFieldId];
-                const shouldDisplay = conditionValue === input.conditionalFieldId;
+                const conditionValue = newState[input.conditionalFieldId]
+                const shouldDisplay = conditionValue === input.conditionalFieldId
 
                 if (shouldDisplay) {
                     // Ensure the input is displayed if condition is met
-                    updatedState[input.inputId] = newState[input.inputId] || '';
+                    updatedState[input.inputId] = newState[input.inputId] || ''
                 } else {
                     // Optionally reset value if condition is not met
                     // updatedState[input.inputId] = ''; // or keep existing value
                 }
             }
-        });
+        })
 
-        setFormState(updatedState);
-    };
+        setFormState(updatedState)
+    }
 
     const shouldDisplayInput = (input: Input): boolean => {
         // If there's no conditional field, show the input
-        if (!input.conditionalFieldId) return true;
+        if (!input.conditionalFieldId) return true
 
-        const conditionValue = input.conditionalFieldId;
+        const conditionValue = input.conditionalFieldId
 
         // If the condition matches a specific value, show the input
-        if (conditionValue === 'someid') return true;
+        if (conditionValue === 'someid') return true
 
         // Find the input with the conditionalFieldId and check its value
         for (const otherInput of formData.inputs) {
             if (otherInput.inputId === conditionValue) {
                 // Return true if the value is not empty
-                return formState[otherInput.inputId] !== '';
+                return formState[otherInput.inputId] !== ''
             }
 
             // If the input has options, check if the selected option matches the condition
-            if (otherInput.options && otherInput.options.some(option => option.id === conditionValue)) {
-                return formState[otherInput.inputId] === conditionValue;
+            if (
+                otherInput.options &&
+                otherInput.options.some((option) => option.id === conditionValue)
+            ) {
+                return formState[otherInput.inputId] === conditionValue
             }
         }
 
         // Return false if no condition is met
-        return false;
-    };
+        return false
+    }
+
+    const [showBankModal, setShowBankModal] = useState(false)
+
+	const [bankDetails, setBankDetails] = useState({
+		reimbursementBankAccountNumber: '',
+		reimbursementBankName: '',
+		reimbursementBranchName: '',
+		reimbursementBankIfsc: '',
+		managerName: '',
+		messName: '',
+		userUpdateMobileNumber: '',
+	})
 
 
-    const [showBankModal, setShowBankModal] = useState(false);
-
-    const [bankDetails, setBankDetails] = useState({
-        reimbursementBankAccountNumber: '',
-        reimbursementBankName: '',
-        reimbursementBranchName: '',
-        reimbursementBankIfsc: '',
-        managerName: '',
-        messName: '',
-        userUpdateMobileNumber: ''
-    });
 
     useEffect(() => {
         const fetchBankDetails = async () => {
             try {
-                const response = await axios.get(`${config.API_URL_ACCOUNT}/ProcessInitiation/GetMessDataByMessManagerEmpID?EmpID=${selectedManager}`);
-                const data = response.data?.getMessDataByMessManagerEmpID?.[0];
+                const response = await axios.get(
+                    `${config.API_URL_ACCOUNT}/ProcessInitiation/GetMessDataByMessManagerEmpID?EmpID=${selectedManager}`
+                )
+                const data = response.data?.getMessDataByMessManagerEmpID?.[0]
 
                 if (data) {
-                    console.log(data);
+                    console.log(data)
 
                     setBankDetails({
-                        reimbursementBankAccountNumber: data.reimbursementBankAccountNumber || '',
+                        reimbursementBankAccountNumber:
+                            data.reimbursementBankAccountNumber || '',
                         reimbursementBankName: data.reimbursementBankName || '',
                         reimbursementBranchName: data.reimbursementBranchName || '',
                         reimbursementBankIfsc: data.reimbursementBankIfsc || '',
                         managerName: data.managerName || '',
                         messName: messForbank || '',
                         userUpdateMobileNumber: data.userUpdateMobileNumber || '',
-                    });
+                    })
                 } else {
-                    console.warn('Data is null, clearing all fields.');
+                    console.warn('Data is null, clearing all fields.')
 
                     setBankDetails({
                         reimbursementBankAccountNumber: '',
@@ -992,10 +987,10 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                         managerName: '',
                         messName: messForbank || '',
                         userUpdateMobileNumber: '',
-                    });
+                    })
                 }
             } catch (error) {
-                console.error('Error fetching bank details:', error);
+                console.error('Error fetching bank details:', error)
 
                 setBankDetails({
                     reimbursementBankAccountNumber: '',
@@ -1005,658 +1000,791 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                     managerName: '',
                     messName: messForbank || '',
                     userUpdateMobileNumber: '',
-                });
+                })
             }
-        };
+        }
 
         if (selectedManager) {
-            fetchBankDetails();
+            fetchBankDetails()
         }
-    }, [selectedManager]);
-
+    }, [selectedManager])
 
     const fetchBankByIFSC = async (ifsc: string) => {
         try {
-            const response = await axios.get(`${config.API_URL_APPLICATION}/BankMaster/GetBank`, {
-                params: { ifsc },
-            });
+            const response = await axios.get(
+                `${config.API_URL_APPLICATION}/BankMaster/GetBank`,
+                {
+                    params: { ifsc },
+                }
+            )
 
-            if (response.data.isSuccess && response.data.bankMasterListResponses.length > 0) {
-                const fetchedBankDetails = response.data.bankMasterListResponses[0];
-                console.log(fetchedBankDetails);
+            if (
+                response.data.isSuccess &&
+                response.data.bankMasterListResponses.length > 0
+            ) {
+                const fetchedBankDetails = response.data.bankMasterListResponses[0]
+                console.log(fetchedBankDetails)
                 setBankDetails((prevState) => ({
                     ...prevState,
                     reimbursementBankName: fetchedBankDetails.bank,
                     reimbursementBranchName: fetchedBankDetails.branch,
-                }));
+                }))
             } else {
-                setIfscError('Bank details not found for the given IFSC code.');
+                setIfscError('Bank details not found for the given IFSC code.')
                 setBankDetails((prevState) => ({
                     ...prevState,
                     reimbursementBankName: '',
                     reimbursementBranchName: '',
-                }));
+                }))
             }
         } catch (error) {
-            console.error('Error fetching bank details:', error);
-            setIfscError('Error fetching bank details.');
+            console.error('Error fetching bank details:', error)
+            setIfscError('Error fetching bank details.')
         }
-    };
+    }
 
     const handleIfscBlur = async (e: React.FocusEvent<HTMLInputElement>) => {
-        const ifsc = e.target.value.trim();
+        const ifsc = e.target.value.trim()
 
         if (!ifsc || ifsc.length !== 11) {
-            setIfscError(ifsc ? 'Invalid IFSC code. Please enter an 11-character code.' : 'IFSC code is required.');
+            setIfscError(
+                ifsc
+                    ? 'Invalid IFSC code. Please enter an 11-character code.'
+                    : 'IFSC code is required.'
+            )
             setBankDetails((prevState) => ({
                 ...prevState,
                 reimbursementBankName: '',
                 reimbursementBranchName: '',
-            }));
-            return;
+            }))
+            return
         }
 
-        setIfscError('');
-        await fetchBankByIFSC(ifsc);
-    };
+        setIfscError('')
+        await fetchBankByIFSC(ifsc)
+    }
 
-
-    // const handleShow2 = () => {
-    //     setShowBankModal(true); // Show the modal
-    // };
-
-
-    const handleClose2 = () => setShowBankModal(false);
+    const handleClose2 = () => setShowBankModal(false)
 
     const handleSelectMessImpChange = (selectedValue: string) => {
-        setSelectedManager(selectedValue);
-    };
+        setSelectedManager(selectedValue)
+    }
 
 
-
-    // useEffect(() => {
-    //     const fetchMessManagers = async () => {
-    //         try {
-    //             const response = await axios.get(`${config.API_URL_APPLICATION}/CommonDropdown/GetMessManagerNameListWithId`);
-    //             const data = response.data.messManagerNameLists;
-
-    //             // Map the response data to the format required for the <select> component
-    //             const formattedData = data.map((manager: { messManagerEmpId: string, messManagerName: string }) => ({
-    //                 value: manager.messManagerEmpId,
-    //                 label: manager.messManagerName
-    //             }));
-
-    //             setMessManagers(formattedData);
-    //         } catch (error) {
-    //             console.error('Error fetching mess managers:', error);
-    //         }
-    //     };
-
-    //     fetchMessManagers();
-    // }, []);
     useEffect(() => {
         const fetchEmployees = async () => {
             try {
-                const response = await axios.get(`${config.API_URL_APPLICATION}/CommonDropdown/GetEmployeeListWithId`);
-                const data = response.data.employeeLists;
+                const response = await axios.get(
+                    `${config.API_URL_APPLICATION}/CommonDropdown/GetEmployeeListWithId`
+                )
+                const data = response.data.employeeLists
 
                 // Map the response data to the format required for the <select> component
-                const formattedData = data.map((employee: { empId: string, employeeName: string }) => ({
-                    value: employee.empId,
-                    label: employee.employeeName
-                }));
+                const formattedData = data.map(
+                    (employee: { empId: string; employeeName: string }) => ({
+                        value: employee.empId,
+                        label: employee.employeeName,
+                    })
+                )
 
-                setMessManagers(formattedData);
+                setMessManagers(formattedData)
             } catch (error) {
-                console.error('Error fetching employee list:', error);
+                console.error('Error fetching employee list:', error)
             }
-        };
+        }
 
-        fetchEmployees();
-    }, []);
-
-
-
+        fetchEmployees()
+    }, [])
 
     const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        const { name, value } = event.target;
+        const { name, value } = event.target
         setBankDetails((prevDetails) => ({
             ...prevDetails,
-            [name]: value
-        }));
-    };
+            [name]: value,
+        }))
+    }
 
-
-    // useEffect(() => {
-    //     const savedDataString = localStorage.getItem(localStorageKey);
-    //     const savedData: MessData[] = JSON.parse(savedDataString || '[]');
-
-    //     const currentData = savedData.find((data) => data.messID === messList[currentStep].messID);
-    //     if (currentData) {
-    //         setFormState(currentData.taskJson || []);
-    //         setSummary(currentData.comments || '');
-    //     } else {
-    //         setFormState([]);
-    //         setSummary('');
-    //     }
-    // }, [currentStep, messList]);
 
     return (
         <>
-            <Modal size='xl' className="p-3" show={show} placement="end" onHide={handleClose} >
-                <Modal.Header closeButton className=' '>
-                    <Modal.Title className='text-dark'>Task Details</Modal.Title>
+            <Modal
+                size="xl"
+                className="p-3"
+                show={show}
+                placement="end"
+                onHide={handleClose}>
+                <Modal.Header closeButton className=" ">
+                    <Modal.Title className="text-dark">Task Details</Modal.Title>
                 </Modal.Header>
 
                 {location.pathname != '/pages/ApprovalConsole' && (
-                    <div className='px-3'>
-
-
+                    <div className="px-3">
                         {location.pathname !== '/pages/ApprovalConsole' && (
                             <div className="d-flex flex-wrap mx-3">
-                                {preData && preData.length > 0 &&
-                                    (
-                                        <MessCards data={preData} />
-                                    )
-                                }
+                                {preData && preData.length > 0 && <MessCards data={preData} />}
                             </div>
                         )}
-
-
-
                     </div>
-                )
-                }
-
-
-
-
+                )}
                 {/* {location.pathname === '/pages/ApprovalConsole' && 
                     ( */}
                 <div>
-
-                    {formData && formData.inputs &&
-                        <form className='side-scroll' onSubmit={(event) => handleSubmit(event, taskNumber)}>
-
+                    {formData && formData.inputs && (
+                        <form
+                            className="side-scroll"
+                            onSubmit={(event) => handleSubmit(event, taskNumber)}>
                             <Modal.Body className=" p-4">
-                                <div className="stepper-vertical" style={{
-                                    width: '100%',
-                                    paddingRight: '10px',
-                                    position: 'relative',
-                                    display: 'flex',
-                                    justifyContent: 'center',
-                                    marginBottom: '20px'
-
-                                }}>
-                                    {processId === "ACC.01" && (
+                                <div
+                                    className="stepper-vertical"
+                                    style={{
+                                        width: '100%',
+                                        paddingRight: '10px',
+                                        position: 'relative',
+                                        display: 'flex',
+                                        justifyContent: 'center',
+                                        marginBottom: '20px',
+                                    }}>
+                                    {processId === 'ACC.01' && (
                                         <div className="stepper-container position-relative">
                                             {/* Active Mess Name */}
                                             <div className="active-mess text-center">
-                                                <strong>Current Mess:</strong> {messList[currentStep]?.messName || "N/A"}
+                                                <strong>Current Mess:</strong>{' '}
+                                                {messList[currentStep]?.messName || 'N/A'}
                                             </div>
 
                                             {/* Stepper */}
                                             <div
                                                 className="stepper-wrapper"
                                                 style={{
-                                                    ['--progress' as string]: `${currentStep / (messList.length - 1)}`,
-                                                }}
-                                            >
-                                                <div className="stepper-line"></div> {/* Background line */}
-                                                <div className="stepper-line-filled"></div> {/* Filled line */}
-
+                                                    ['--progress' as string]: `${currentStep / (messList.length - 1)
+                                                        }`,
+                                                }}>
+                                                <div className="stepper-line"></div>{' '}
+                                                {/* Background line */}
+                                                <div className="stepper-line-filled"></div>{' '}
+                                                {/* Filled line */}
                                                 <div className="stepper d-flex justify-content-between">
                                                     {messList.map((mess, index) => {
-                                                        const isCompleted = index < currentStep;
-                                                        const isActive = index === currentStep;
-
+                                                        const isCompleted = index < currentStep
+                                                        const isActive = index === currentStep
                                                         return (
                                                             <div
                                                                 key={mess.messID}
-                                                                className={`stepper-item text-center ${isCompleted ? "completed" : isActive ? "active" : "pending"
-                                                                    }`}
-                                                            >
-                                                                {/* Step Circle */}
+                                                                className={`stepper-item text-center ${isCompleted
+                                                                    ? 'completed'
+                                                                    : isActive
+                                                                        ? 'active'
+                                                                        : 'pending'
+                                                                    }`}>
                                                                 <div
                                                                     className={`step-circle ${isCompleted
-                                                                        ? "bg-success"
+                                                                        ? 'bg-success'
                                                                         : isActive
-                                                                            ? "bg-primary"
-                                                                            : "bg-light"
-                                                                        }`}
-                                                                >
+                                                                            ? 'bg-primary'
+                                                                            : 'bg-light'
+                                                                        }`}>
                                                                     {isCompleted ? (
                                                                         <i className="ri-check-line text-white"></i>
                                                                     ) : (
-                                                                        <span className="step-number">{index + 1}</span>
+                                                                        <span className="step-number">
+                                                                            {index + 1}
+                                                                        </span>
                                                                     )}
                                                                 </div>
 
-                                                                {/* Step Label */}
-                                                                <div
-                                                                    className={`step-label ${isActive ? "text-primary" : "text-muted"
-                                                                        }`}
-                                                                    title={mess.messName} // Tooltip for longer names
-                                                                >
-                                                                    {mess.messName}
-                                                                </div>
-                                                            </div>
-                                                        );
-                                                    })}
-                                                </div>
-                                            </div>
-                                        </div>
+																<div
+																	className={`step-label ${isActive ? 'text-primary' : 'text-muted'
+																		}`}
+																	title={mess.messName} // Tooltip for longer names
+																>
+																	{mess.messName}
+																</div>
+															</div>
+														)
+													})}
+												</div>
+											</div>
+										</div>
+									)}
 
-                                    )
-                                    }
-                                </div>
-                                <div className="form-section" style={{ width: '90%', padding: '0px 20px' }}>
-                                    <div className="my-task">
-                                        {formData.inputs.map((input: Input) => (
-                                            (fromComponent === 'TaskMaster' && 'PendingTask' || shouldDisplayInput(input)) && (
-                                                <div className={input.visibility === false ? 'd-none' : 'form-group'}
-                                                    key={input.inputId} style={{ marginBottom: '1rem' }}>
-                                                    <label className='label'>{input.label}</label>
-                                                    {input.type === 'text'
-                                                        &&
-                                                        (
+								</div>
+								<div
+									className="form-section"
+									style={{ width: '90%', padding: '0px 20px' }}>
+									<div className="my-task">
+										{formData.inputs.map(
+											(input: Input) =>
+												((fromComponent === 'TaskMaster' && 'PendingTask') ||
+													shouldDisplayInput(input)) && (
+													<div
+														className={`${!input.visibility ? 'd-none' : 'form-group'
+															} 
+                                                ${fromComponent ===
+                                                            'ApprovalConsole' &&
+                                                            (approval_Console ===
+                                                                'Select Approval_Console'
+                                                                ? approvalStatus?.value ===
+                                                                    'approvalWithAmid'
+                                                                    ? 'cursor-pointer'
+                                                                    : 'cursor-not-allowed'
+                                                                : '')
+                                                            }`}
+                                                        key={input.inputId}
+                                                        style={{ marginBottom: '1rem' }}>
+                                                        <label className="label">{input.label}</label>
+                                                        {input.type === 'text' && (
                                                             <input
                                                                 type="text"
                                                                 className="form-control"
                                                                 placeholder={input.placeholder}
-                                                                value={formState[input.inputId] || ''}
-                                                                onChange={e => handleChange(input.inputId, e.target.value)}
+                                                                value={
+                                                                    formState[input.inputId] ?? input.value ?? ''
+                                                                }
+                                                                onChange={(e) =>
+                                                                    handleChange(input.inputId, e.target.value)
+                                                                }
                                                             />
                                                         )}
-                                                    {input.type === 'number' &&
-                                                        //  input.visibility !== false && 
-                                                        (
+                                                        {input.type === 'number' && (
+                                                            //  input.visibility !== false &&
                                                             <input
                                                                 type="number"
-                                                                className='form-control'
+                                                                className="form-control"
                                                                 placeholder={input.placeholder}
                                                                 value={formState[input.inputId]}
-                                                                onChange={e => handleChange(input.inputId, e.target.value)}
+                                                                onChange={(e) =>
+                                                                    handleChange(input.inputId, e.target.value)
+                                                                }
                                                             />
                                                         )}
-                                                    {input.type === 'decimal' && (
-                                                        <input
-                                                            type="text"
-                                                            className="form-control"
-                                                            placeholder={input.placeholder || '0.00'}
-                                                            value={formState[input.inputId] || ''}
-                                                            onChange={(e) => {
-                                                                const value = e.target.value;
-                                                                const regex = /^(\d+(\.\d{0,2})?)?$/;
+                                                        {input.type === 'hyperlink' && (
+                                                            //  input.visibility !== false &&
+                                                            <div className="flex flex-col gap-2">
+                                                                {/* Input field for hyperlink */}
+                                                                <input
+                                                                    type="url"
+                                                                    className="form-control p-2 border rounded"
+                                                                    placeholder={input.placeholder || "Enter hyperlink"}
+                                                                    value={formState[input.inputId] || ""}
+                                                                    onChange={(e) => handleChange(input.inputId, e.target.value)}
+                                                                />
 
-                                                                // Validate the input value for decimals with up to 2 places
-                                                                if (regex.test(value) && (parseFloat(value) >= 0 || value === '')) {
-                                                                    handleChange(input.inputId, value);
-                                                                } else {
-                                                                    console.warn('Invalid decimal input. Must be 0 or greater with up to 2 decimal places.');
+                                                                {/* Display hyperlink if input is not empty */}
+                                                                {formState[input.inputId] && (
+                                                                    <a
+                                                                        href={formState[input.inputId]}
+                                                                        target="_blank"
+                                                                        rel="noopener noreferrer"
+                                                                        className="text-blue-500 underline hover:text-blue-700"
+                                                                    >
+                                                                        {formState[input.inputId]}
+                                                                    </a>
+                                                                )}
+                                                            </div>
+                                                        )}
+                                                        {input.type === 'decimal' && (
+                                                            <input
+                                                                type="text"
+                                                                className="form-control"
+                                                                placeholder={input.placeholder || '0.00'}
+                                                                value={
+                                                                    input.value !== ''
+                                                                        ? input.value
+                                                                        : formState[input.inputId] || ''
                                                                 }
-                                                            }}
-                                                            onBlur={() => {
-                                                                // Ensure the value is properly formatted or reset on blur
-                                                                const formattedValue = parseFloat(formState[input.inputId] || '0').toFixed(2);
-                                                                if (!isNaN(Number(formattedValue)) && Number(formattedValue) >= 0) {
-                                                                    handleChange(input.inputId, formattedValue);
-                                                                } else {
-                                                                    alert('Enter a valid decimal value (0 or greater, up to 2 decimals).');
-                                                                    handleChange(input.inputId, '0.00');
-                                                                }
-                                                            }}
-                                                        />
-                                                    )}
-                                                    {input.type === 'Non Negative Integer' && (
-                                                        <input
-                                                            type="text"
-                                                            className="form-control"
-                                                            placeholder={input.placeholder || 'Enter a positive integer'}
-                                                            value={formState[input.inputId] || ''}
-                                                            onChange={(e) => {
-                                                                const value = e.target.value;
+                                                                onChange={(e) => {
+                                                                    const value = e.target.value
+                                                                    const regex = /^(\d+(\.\d{0,2})?)?$/
 
-                                                                // Validation: Positive integers only
-                                                                const regex = /^[0-9]*$/;
-                                                                if (regex.test(value) && (parseInt(value, 10) >= 0 || value === '')) {
-                                                                    handleChange(input.inputId, value);
-                                                                } else {
-                                                                    console.warn('Invalid input. Only positive integers are allowed.');
+                                                                    // Validate the input value for decimals with up to 2 places
+                                                                    if (
+                                                                        regex.test(value) &&
+                                                                        (parseFloat(value) >= 0 || value === '')
+                                                                    ) {
+                                                                        handleChange(input.inputId, value)
+                                                                    } else {
+                                                                        console.warn(
+                                                                            'Invalid decimal input. Must be 0 or greater with up to 2 decimal places.'
+                                                                        )
+                                                                    }
+                                                                }}
+                                                                onBlur={() => {
+                                                                    // Ensure the value is properly formatted or reset on blur
+                                                                    const formattedValue = parseFloat(
+                                                                        formState[input.inputId] || '0'
+                                                                    ).toFixed(2)
+                                                                    if (
+                                                                        !isNaN(Number(formattedValue)) &&
+                                                                        Number(formattedValue) >= 0
+                                                                    ) {
+                                                                        handleChange(input.inputId, formattedValue)
+                                                                    } else {
+                                                                        alert(
+                                                                            'Enter a valid decimal value (0 or greater, up to 2 decimals).'
+                                                                        )
+                                                                        handleChange(input.inputId, '0.00')
+                                                                    }
+                                                                }}
+                                                            />
+                                                        )}
+                                                        {input.type === 'Non Negative Integer' && (
+                                                            <input
+                                                                type="text"
+                                                                className="form-control"
+                                                                placeholder={
+                                                                    input.placeholder ||
+                                                                    'Enter a positive integer'
                                                                 }
-                                                            }}
-                                                            onBlur={() => {
-                                                                // Ensure the value is properly formatted or reset on blur
-                                                                const parsedValue = parseInt(formState[input.inputId] || '0', 10);
-                                                                if (!isNaN(parsedValue) && parsedValue >= 0) {
-                                                                    handleChange(input.inputId, parsedValue.toString());
-                                                                } else {
-                                                                    alert('Enter a valid positive integer.');
-                                                                    handleChange(input.inputId, '0');
+                                                                value={
+                                                                    input.value !== ''
+                                                                        ? input.value
+                                                                        : formState[input.inputId] || ''
                                                                 }
-                                                            }}
-                                                        />
-                                                    )}
-                                                    {input.type === 'Positive-integer-greater-zero' && (
-                                                        <input
-                                                            type="text"
-                                                            className="form-control"
-                                                            placeholder={input.placeholder || 'Enter a positive integer greater than 0'}
-                                                            value={formState[input.inputId] || ''}
-                                                            onChange={(e) => {
-                                                                const value = e.target.value;
+                                                                onChange={(e) => {
+                                                                    const value = e.target.value
 
-                                                                // Prevent entering 0
-                                                                if (value === '0') {
-                                                                    handleChange(input.inputId, ''); // Reset to empty string instead of undefined
-                                                                    return;
+                                                                    // Validation: Positive integers only
+                                                                    const regex = /^[0-9]*$/
+                                                                    if (
+                                                                        regex.test(value) &&
+                                                                        (parseInt(value, 10) >= 0 || value === '')
+                                                                    ) {
+                                                                        handleChange(input.inputId, value)
+                                                                    } else {
+                                                                        console.warn(
+                                                                            'Invalid input. Only positive integers are allowed.'
+                                                                        )
+                                                                    }
+                                                                }}
+                                                                onBlur={() => {
+                                                                    // Ensure the value is properly formatted or reset on blur
+                                                                    const parsedValue = parseInt(
+                                                                        formState[input.inputId] || '0',
+                                                                        10
+                                                                    )
+                                                                    if (!isNaN(parsedValue) && parsedValue >= 0) {
+                                                                        handleChange(
+                                                                            input.inputId,
+                                                                            parsedValue.toString()
+                                                                        )
+                                                                    } else {
+                                                                        alert('Enter a valid positive integer.')
+                                                                        handleChange(input.inputId, '0')
+                                                                    }
+                                                                }}
+                                                            />
+                                                        )}
+                                                        {input.type === 'Positive-integer-greater-zero' && (
+                                                            <input
+                                                                type="text"
+                                                                className="form-control"
+                                                                placeholder={
+                                                                    input.placeholder ||
+                                                                    'Enter a positive integer greater than 0'
                                                                 }
-
-                                                                // Allow only positive integers greater than 0
-                                                                const regex = /^[1-9][0-9]*$/;
-                                                                if (regex.test(value) || value === '') {
-                                                                    handleChange(input.inputId, value === '' ? '' : value);
+                                                                value={
+                                                                    input.value !== ''
+                                                                        ? input.value
+                                                                        : formState[input.inputId] || ''
                                                                 }
-                                                            }}
-                                                            onBlur={() => {
-                                                                const value = parseInt(formState[input.inputId] || '0', 10);
-                                                                if (isNaN(value) || value <= 0) {
-                                                                    alert('Enter a valid positive integer greater than 0.');
-                                                                    handleChange(input.inputId, ''); // Reset to undefined if invalid
+                                                                onChange={(e) => {
+                                                                    const value = e.target.value
+
+                                                                    // Prevent entering 0
+                                                                    if (value === '0') {
+                                                                        handleChange(input.inputId, '') // Reset to empty string instead of undefined
+                                                                        return
+                                                                    }
+
+                                                                    // Allow only positive integers greater than 0
+                                                                    const regex = /^[1-9][0-9]*$/
+                                                                    if (regex.test(value) || value === '') {
+                                                                        handleChange(
+                                                                            input.inputId,
+                                                                            value === '' ? '' : value
+                                                                        )
+                                                                    }
+                                                                }}
+                                                                onBlur={() => {
+                                                                    const value = parseInt(
+                                                                        formState[input.inputId] || '0',
+                                                                        10
+                                                                    )
+                                                                    if (isNaN(value) || value <= 0) {
+                                                                        alert(
+                                                                            'Enter a valid positive integer greater than 0.'
+                                                                        )
+                                                                        handleChange(input.inputId, '') // Reset to undefined if invalid
+                                                                    }
+                                                                }}
+                                                            />
+                                                        )}
+                                                        {input.type === 'email' && (
+                                                            <input
+                                                                type="email"
+                                                                className="form-control"
+                                                                placeholder={input.placeholder}
+                                                                value={
+                                                                    input.value !== ''
+                                                                        ? input.value
+                                                                        : formState[input.inputId] || ''
                                                                 }
-                                                            }}
-                                                        />
-                                                    )}
-
-
-
-                                                    {input.type === 'email' && (
-                                                        <input
-                                                            type="email"
-                                                            className='form-control'
-                                                            placeholder={input.placeholder}
-                                                            value={formState[input.inputId]}
-                                                            onChange={e => handleChange(input.inputId, e.target.value)}
-                                                        />
-                                                    )}
-                                                    {input.type === 'tel' && (
-                                                        <input
-                                                            type="tel"
-                                                            className='form-control'
-                                                            placeholder={input.placeholder}
-                                                            value={formState[input.inputId]}
-                                                            onChange={e => handleChange(input.inputId, e.target.value)}
-                                                        />
-                                                    )}
-                                                    {input.type === 'custom' && (
-                                                        <input
-                                                            type="text"
-                                                            placeholder={input.placeholder}
-                                                            value={formState[input.inputId]}
-                                                            onChange={e => handleChange(input.inputId, e.target.value)}
-                                                            style={{ display: 'block', width: '100%', padding: '0.5rem' }}
-                                                        />
-                                                    )}
-                                                    {input.type === 'select' && (
-                                                        <select
-                                                            id={input.inputId}
-                                                            className="form-select form-control"
-                                                            value={formState[input.inputId] || ''} // Ensure formState holds the selected value (id)
-                                                            onChange={e => handleChange(input.inputId, e.target.value)} // Passing the id to handleChange
-                                                            style={{ display: 'block', width: '100%', padding: '0.5rem' }}
-                                                        >
-                                                            <option value="" disabled>Select an option</option>
-                                                            {input.options?.map(option => (
-                                                                <option key={option.id} value={option.id}> {/* Set value to option.id */}
-                                                                    {option.label}
+                                                                onChange={(e) =>
+                                                                    handleChange(input.inputId, e.target.value)
+                                                                }
+                                                            />
+                                                        )}
+                                                        {input.type === 'tel' && (
+                                                            <input
+                                                                type="tel"
+                                                                className="form-control"
+                                                                placeholder={input.placeholder}
+                                                                value={
+                                                                    input.value !== ''
+                                                                        ? input.value
+                                                                        : formState[input.inputId] || ''
+                                                                }
+                                                                onChange={(e) =>
+                                                                    handleChange(input.inputId, e.target.value)
+                                                                }
+                                                            />
+                                                        )}
+                                                        {input.type === 'custom' && (
+                                                            <input
+                                                                type="text"
+                                                                placeholder={input.placeholder}
+                                                                value={formState[input.inputId]}
+                                                                onChange={(e) =>
+                                                                    handleChange(input.inputId, e.target.value)
+                                                                }
+                                                                style={{
+                                                                    display: 'block',
+                                                                    width: '100%',
+                                                                    padding: '0.5rem',
+                                                                }}
+                                                            />
+                                                        )}
+                                                        {input.type === 'select' && (
+                                                            <select
+                                                                id={input.inputId}
+                                                                className="form-select form-control"
+                                                                value={
+                                                                    input.value !== ''
+                                                                        ? input.value
+                                                                        : formState[input.inputId] || ''
+                                                                }
+                                                                onChange={(e) =>
+                                                                    handleChange(input.inputId, e.target.value)
+                                                                } // Passing the id to handleChange
+                                                                style={{
+                                                                    display: 'block',
+                                                                    width: '100%',
+                                                                    padding: '0.5rem',
+                                                                }}>
+                                                                <option value="" disabled>
+                                                                    Select an option
                                                                 </option>
-                                                            ))}
-                                                        </select>
-                                                    )}
+                                                                {input.options?.map((option) => (
+                                                                    <option key={option.id} value={option.id}>
+                                                                        {' '}
+                                                                        {/* Set value to option.id */}
+                                                                        {option.label}
+                                                                    </option>
+                                                                ))}
+                                                            </select>
+                                                        )}
 
 
-
-                                                    {input.type === 'multiselect' && (
-                                                        <select
-                                                            className='form-select form-control'
-                                                            value={formState[input.inputId]}
-                                                            onChange={e => handleChange(input.inputId, e.target.value)}
-                                                            style={{ display: 'block', width: '100%', padding: '0.5rem' }}
-
-                                                        >
-                                                            <option value="" disabled>Select an option</option>
-                                                            {input.options?.map(option => (
-                                                                <option key={option.id} value={option.label}>
-                                                                    {option.label}
+                                                        {input.type === 'multiselect' && (
+                                                            <Select<Option, true> // <Option, true> indicates multi-select with flat options
+                                                                isMulti
+                                                                id={input.inputId}
+                                                                className="form-select"
+                                                                value={
+                                                                    input.value && input.value.length > 0
+                                                                        ? (input.options || []).filter(option => input.value.includes(option.id)).map(option => ({
+                                                                            value: option.id,
+                                                                            label: option.label,
+                                                                        }))
+                                                                        : (input.options || []).filter(option => (formState[input.inputId] || []).includes(option.id)).map(option => ({
+                                                                            value: option.id,
+                                                                            label: option.label,
+                                                                        }))
+                                                                }
+                                                                onChange={(selectedOptions: MultiValue<Option>) => {
+                                                                    const selectedValues = selectedOptions.map(option => option.value);
+                                                                    handleChange(input.inputId, selectedValues); // Save array of selected option IDs
+                                                                }}
+                                                                options={(input.options || []).map(option => ({
+                                                                    value: option.id,
+                                                                    label: option.label,
+                                                                }))}
+                                                                placeholder="Select options"
+                                                                styles={{
+                                                                    control: (base) => ({
+                                                                        ...base,
+                                                                        padding: '0.5rem',
+                                                                        width: '100%',
+                                                                    }),
+                                                                }}
+                                                            />
+                                                        )}
+                                                        {input.type === 'CustomSelect' && (
+                                                            <select
+                                                                key={input.inputId}
+                                                                className="form-control"
+                                                                value={
+                                                                    input.value !== ''
+                                                                        ? input.value
+                                                                        : formState[input.inputId] || ''
+                                                                }
+                                                                onChange={(e) =>
+                                                                    handleChange(input.inputId, e.target.value)
+                                                                }
+                                                                style={{
+                                                                    display: 'block',
+                                                                    width: '100%',
+                                                                    padding: '0.5rem',
+                                                                }}>
+                                                                <option value="" disabled>
+                                                                    Select an option
                                                                 </option>
-                                                            ))}
-                                                        </select>
-                                                    )}
-                                                    {input.type === 'CustomSelect' && (
-                                                        <select
-                                                            key={input.inputId}
-                                                            className="form-control"
-                                                            value={formState[input.inputId] || ""}
-                                                            onChange={(e) => handleChange(input.inputId, e.target.value)}
-                                                            style={{ display: 'block', width: '100%', padding: '0.5rem' }}
-                                                        >
-                                                            <option value="" disabled>Select an option</option>
-                                                            {(vendorsMap[input.inputId] || []).map((vendor, index) => (
-                                                                <option key={index} value={vendor.name}>
-                                                                    {vendor.name}
-                                                                </option>
-                                                            ))}
-                                                        </select>
-                                                    )}
-                                                    {/* {input.type === 'file' && (
-                                                        <FileUploader
-                                                            icon="ri-upload-cloud-2-line"
-                                                            text="Drop files here or click to upload."
-                                                            additionalData={{
-                                                                ModuleID: moduleId,
-                                                                CreatedBy: 'yourUserID',
-                                                                TaskCommonID: taskCommonIDRow,
-                                                                Task_Number: taskNumber,
-                                                                ProcessInitiationID: ProcessInitiationID,
-                                                                ProcessID: processId,
-                                                                UpdatedBy: 'yourUpdatedBy',
-                                                            }}
-                                                            onFileUpload={(files) => {
-                                                                console.log('Files uploaded:', files);
-                                                            }}
-                                                        />
-                                                    )} */}
-
-
-                                                    {input.type === 'checkbox' && (
-
-                                                        <span className="form-check">
-                                                            <input className="form-check-input" type="checkbox"
+                                                                {(vendorsMap[input.inputId] || []).map(
+                                                                    (vendor, index) => (
+                                                                        <option key={index} value={vendor.name}>
+                                                                            {vendor.name}
+                                                                        </option>
+                                                                    )
+                                                                )}
+                                                            </select>
+                                                        )}
+                                                        {input.type === 'file' && (
+                                                            <FileUploader
+                                                                ref={fileUploaderRef}
+                                                                additionalData={{
+                                                                    ModuleID: moduleId,
+                                                                    CreatedBy: 'yourUserID',
+                                                                    TaskCommonID: taskCommonIDRow,
+                                                                    Task_Number: taskNumber,
+                                                                    ProcessInitiationID: ProcessInitiationID,
+                                                                    ProcessID: processId,
+                                                                    UpdatedBy: 'yourUpdatedBy'
+                                                                }}
+                                                                onFileSelect={(files) => console.log('Selected Files:', files)}
+                                                            />
+                                                        )}
+                                                        {input.type === 'checkbox' && (
+                                                            <span className="form-check">
+                                                                <input
+                                                                    className="form-check-input"
+                                                                    type="checkbox"
+                                                                    checked={formState[input.inputId]}
+                                                                    onChange={(e) =>
+                                                                        handleChange(
+                                                                            input.inputId,
+                                                                            e.target.checked
+                                                                        )
+                                                                    }
+                                                                />
+                                                            </span>
+                                                        )}
+                                                        {input.type === 'radio' && (
+                                                            <input
+                                                                type="radio"
                                                                 checked={formState[input.inputId]}
-                                                                onChange={e => handleChange(input.inputId, e.target.checked)} />
-                                                        </span>
-                                                    )}
-                                                    {input.type === 'radio' && (
-                                                        <input
-                                                            type="radio"
-                                                            checked={formState[input.inputId]}
-                                                            onChange={e => handleChange(input.inputId, e.target.checked)}
-                                                        />
-                                                    )}
-                                                    {input.type === 'status' && (
-                                                        <input
-                                                            type="text"
-                                                            checked={formState[input.inputId]}
-                                                            onChange={e => handleChange(input.inputId, e.target.checked)}
-                                                        />
-                                                    )}
-                                                    {input.type === 'successorTask' && (
-                                                        <input
-                                                            type="text"
-                                                            checked={formState[input.inputId]}
-                                                            onChange={e => handleChange(input.inputId, e.target.checked)}
-                                                        />
-                                                    )}
-                                                    {input.type === 'date' && (
-                                                        <input
-                                                            type="date"
-                                                            value={formState[input.inputId]}
-                                                            onChange={e => handleChange(input.inputId, e.target.value)}
-                                                            style={{ display: 'block', width: '100%', padding: '0.5rem' }}
-
-                                                        />
-                                                    )}
-                                                </div>
-                                            )
-                                        ))}
-                                        {showMessManagerSelect && (
-                                            <div className="form-group my-2 position-relative">
-                                                <label>Select Mess Manager</label>
-                                                <Select
-                                                    className="react-select-container"
-                                                    classNamePrefix="react-select"
-                                                    options={messManagers}
-                                                    value={messManagers.find((manager) => manager.value === selectedManager) || null}
-                                                    onChange={(selectedOption) => handleSelectMessImpChange(selectedOption?.value || '')}
-                                                    placeholder="Select an Employee"
-                                                />
-                                            </div>
+                                                                onChange={(e) =>
+                                                                    handleChange(input.inputId, e.target.checked)
+                                                                }
+                                                            />
+                                                        )}
+                                                        {input.type === 'status' && (
+                                                            <input
+                                                                type="text"
+                                                                checked={formState[input.inputId]}
+                                                                onChange={(e) =>
+                                                                    handleChange(input.inputId, e.target.checked)
+                                                                }
+                                                            />
+                                                        )}
+                                                        {input.type === 'successorTask' && (
+                                                            <input
+                                                                type="text"
+                                                                checked={formState[input.inputId]}
+                                                                onChange={(e) =>
+                                                                    handleChange(input.inputId, e.target.checked)
+                                                                }
+                                                            />
+                                                        )}
+                                                        {input.type === 'date' && (
+                                                            <input
+                                                                type="date"
+                                                                value={
+                                                                    input.value !== ''
+                                                                        ? input.value
+                                                                        : formState[input.inputId] || ''
+                                                                }
+                                                                onChange={(e) =>
+                                                                    handleChange(input.inputId, e.target.value)
+                                                                }
+                                                                style={{
+                                                                    display: 'block',
+                                                                    width: '100%',
+                                                                    padding: '0.5rem',
+                                                                }}
+                                                            />
+                                                        )}
+                                                    </div>
+                                                )
                                         )}
+                                        {processId === 'ACC.01' && (
+                                            <>
+                                                {showMessManagerSelect && (
+                                                    <div className="form-group my-2 position-relative">
+                                                        <label>Select Mess Manager</label>
+                                                        <Select
+                                                            className="react-select-container"
+                                                            classNamePrefix="react-select"
+                                                            options={messManagers}
+                                                            value={
+                                                                messManagers.find(
+                                                                    (manager) =>
+                                                                        manager.value === selectedManager
+                                                                ) || null
+                                                            }
+                                                            onChange={(selectedOption) =>
+                                                                handleSelectMessImpChange(
+                                                                    selectedOption?.value || ''
+                                                                )
+                                                            }
+                                                            placeholder="Select an Employee"
+                                                        />
+                                                    </div>
+                                                )}
+                                                {showBankModal && (
+                                                    <div className="modal-overlay">
+                                                        <div className="modal-content">
+                                                            <h4>Bank Details</h4>
+                                                            <form>
+                                                                <Row>
+                                                                    <Col lg={6}>
+                                                                        {' '}
+                                                                        <div className="mt-3">
+                                                                            <label>Reimbursement IFSC Code</label>
+                                                                            <input
+                                                                                className="form-control"
+                                                                                type="text"
+                                                                                name="reimbursementBankIfsc"
+                                                                                value={bankDetails.reimbursementBankIfsc}
+                                                                                placeholder="Enter IFSC code"
+                                                                                onChange={handleInputChange}
+                                                                                onBlur={handleIfscBlur}
+                                                                            />
+                                                                        </div>
+                                                                        {ifscError && (
+                                                                            <div className="text-danger mt-1">
+                                                                                {ifscError}
+                                                                            </div>
+                                                                        )}
+                                                                    </Col>
+                                                                    <Col lg={6}>
+                                                                        <div className="mt-3">
+                                                                            <label>Reimbursement Account</label>
+                                                                            <input
+                                                                                className="form-control"
+                                                                                type="text"
+                                                                                name="reimbursementBankAccountNumber"
+                                                                                value={
+                                                                                    bankDetails.reimbursementBankAccountNumber
+                                                                                }
+                                                                                placeholder="Enter account number"
+                                                                                onChange={handleInputChange}
+                                                                            />
+                                                                        </div>
+                                                                    </Col>
+                                                                    <Col lg={6}>
+                                                                        {' '}
+                                                                        <div className="mt-3 ">
+                                                                            <label>Reimbursement Bank</label>
+                                                                            <input
+                                                                                className="form-control"
+                                                                                type="text"
+                                                                                name="reimbursementBankName"
+                                                                                value={bankDetails.reimbursementBankName}
+                                                                                placeholder="Enter bank name"
+                                                                                onChange={handleInputChange}
+                                                                            />
+                                                                        </div>
+                                                                    </Col>
+                                                                    <Col lg={6}>
+                                                                        <div className="mt-3 ">
+                                                                            <label>Reimbursement Bank Branch</label>
+                                                                            <input
+                                                                                className="form-control"
+                                                                                type="text"
+                                                                                name="reimbursementBranchName"
+                                                                                value={bankDetails.reimbursementBranchName}
+                                                                                placeholder="Enter branch name"
+                                                                                onChange={handleInputChange}
+                                                                            />
+                                                                        </div>
+                                                                    </Col>
+                                                                    <Col lg={6}>
+                                                                        <div className="mt-3 ">
+                                                                            <label>Mess Manager</label>
+                                                                            <input
+                                                                                className="form-control"
+                                                                                type="text"
+                                                                                name="managerName"
+                                                                                value={bankDetails.managerName}
+                                                                                placeholder="Enter manager name"
+                                                                                onChange={handleInputChange}
+                                                                            />
+                                                                        </div>
+                                                                    </Col>
+                                                                    <Col lg={6}>
+                                                                        <div className="mt-3 ">
+                                                                            <label>Mess Manager Mobile Number</label>
+                                                                            <input
+                                                                                className="form-control"
+                                                                                type="text"
+                                                                                name="userUpdateMobileNumber"
+                                                                                value={bankDetails.userUpdateMobileNumber}
+                                                                                placeholder="Enter mobile number"
+                                                                                onChange={handleInputChange}
+                                                                            />
+                                                                        </div>
+                                                                    </Col>
+                                                                </Row>
 
+																<div className="modal-buttons mt-3 d-flex justify-content-end">
+																	<button
+																		className="btn btn-secondary"
+																		type="button"
+																		onClick={handleClose2}>
+																		Close
+																	</button>
+																</div>
+															</form>
+														</div>
+													</div>
+												)}
+											</>
+										)}
 
-                                        {approval_Console === "Select Approval_Console" && (
+                                        {fromComponent === 'ApprovalConsole' && (
                                             <div>
                                                 <label>Is Approved</label>
                                                 <Select
-                                                    options={options}                         // Set options for the dropdown
-                                                    value={approvalStatus}                    // Bind the selected option
-                                                    onChange={handleSelectChange}             // Update state on selection
-                                                    placeholder="Select Approval Status"      // Placeholder text
+                                                    options={options} // Set options for the dropdown
+                                                    value={approvalStatus} // Bind the selected option
+                                                    onChange={handleSelectChange} // Update state on selection
+                                                    placeholder="Select Approval Status" // Placeholder text
                                                 />
                                             </div>
                                         )}
                                     </div>
-
-                                    {showBankModal && (
-                                        <div className="modal-overlay">
-                                            <div className="modal-content">
-                                                <h4>Bank Details</h4>
-                                                <form >
-
-                                                    <Row>
-                                                        <Col lg={6}>  <div className="mt-3">
-                                                            <label>Reimbursement IFSC Code</label>
-                                                            <input
-                                                                className="form-control"
-                                                                type="text"
-                                                                name="reimbursementBankIfsc"
-                                                                value={bankDetails.reimbursementBankIfsc}
-                                                                placeholder="Enter IFSC code"
-                                                                onChange={handleInputChange}
-                                                                onBlur={handleIfscBlur}
-                                                            />
-                                                        </div>
-                                                            {ifscError && <div className="text-danger mt-1">{ifscError}</div>}</Col>
-                                                        <Col lg={6}>
-                                                            <div className="mt-3">
-                                                                <label>Reimbursement Account</label>
-                                                                <input
-                                                                    className="form-control"
-                                                                    type="text"
-                                                                    name="reimbursementBankAccountNumber"
-                                                                    value={bankDetails.reimbursementBankAccountNumber}
-                                                                    placeholder="Enter account number"
-                                                                    onChange={handleInputChange}
-                                                                />
-                                                            </div>
-                                                        </Col>
-                                                        <Col lg={6}>   <div className="mt-3 ">
-                                                            <label>Reimbursement Bank</label>
-                                                            <input
-                                                                className="form-control"
-                                                                type="text"
-                                                                name="reimbursementBankName"
-                                                                value={bankDetails.reimbursementBankName}
-                                                                placeholder="Enter bank name"
-                                                                onChange={handleInputChange}
-                                                            />
-                                                        </div></Col>
-                                                        <Col lg={6}>
-                                                            <div className="mt-3 ">
-                                                                <label>Reimbursement Bank Branch</label>
-                                                                <input
-                                                                    className="form-control"
-                                                                    type="text"
-                                                                    name="reimbursementBranchName"
-                                                                    value={bankDetails.reimbursementBranchName}
-                                                                    placeholder="Enter branch name"
-                                                                    onChange={handleInputChange}
-                                                                />
-                                                            </div></Col>
-                                                        <Col lg={6}>
-                                                            <div className="mt-3 ">
-                                                                <label>Mess Manager</label>
-                                                                <input
-                                                                    className="form-control"
-                                                                    type="text"
-                                                                    name="managerName"
-                                                                    value={bankDetails.managerName}
-                                                                    placeholder="Enter manager name"
-                                                                    onChange={handleInputChange}
-                                                                />
-                                                            </div></Col>
-                                                        <Col lg={6}>
-                                                            <div className="mt-3 ">
-                                                                <label>Mess Manager Mobile Number</label>
-                                                                <input
-                                                                    className="form-control"
-                                                                    type="text"
-                                                                    name="userUpdateMobileNumber"
-                                                                    value={bankDetails.userUpdateMobileNumber}
-                                                                    placeholder="Enter mobile number"
-                                                                    onChange={handleInputChange}
-                                                                />
-                                                            </div>
-                                                        </Col>
-
-                                                    </Row>
-
-
-
-
-
-
-
-
-
-
-
-                                                    <div className="modal-buttons mt-3 d-flex justify-content-end">
-                                                        <button className="btn btn-secondary" type="button" onClick={handleClose2}>
-                                                            Close
-                                                        </button>
-                                                    </div>
-                                                </form>
-                                            </div>
-                                        </div>
-                                    )}
-
-                                    {/* <div className="form-group mb-2">
-                                    <label htmlFor="taskSummary">Comments</label>
-                                    <input
-                                        type="text"
-                                        className='form-control'
-                                        id="taskSummary"
-                                        value={summary}  // Bind the input to the state
-                                        onChange={(e) => setSummary(e.target.value)}  // Update the state on input change
-                                        style={{ display: 'block', width: '100%', padding: '0.5rem' }}
-                                    />
-                                </div> */}
-                                    {/* </div>
-                                        )
-                                    ))} */}
                                     <div>
-                                        {processId === "ACC.01" ? (
+                                        {processId === 'ACC.01' ? (
                                             <div className="d-flex justify-content-end align-items-center mt-2 gap-2">
                                                 {/* Previous Button */}
                                                 {currentStep > 0 && (
@@ -1664,8 +1792,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                                                         type="button"
                                                         className="btn btn-outline-secondary"
                                                         onClick={handlePreviousStep}
-                                                        title="Previous"
-                                                    >
+                                                        title="Previous">
                                                         <i className="ri-arrow-left-line"></i>
                                                     </button>
                                                 )}
@@ -1675,13 +1802,12 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                                                     type="button"
                                                     className="btn btn-outline-secondary"
                                                     onClick={() => {
-                                                        setFormState({});
-                                                        setSummary("");
-                                                        setShowBankModal(false);
-                                                        setShowMessManagerSelect(false);
+                                                        setFormState({})
+                                                        setSummary('')
+                                                        setShowBankModal(false)
+                                                        setShowMessManagerSelect(false)
                                                     }}
-                                                    title="Refresh Form"
-                                                >
+                                                    title="Refresh Form">
                                                     <i className="ri-refresh-line"></i>
                                                 </button>
 
@@ -1691,13 +1817,12 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                                                         type="button"
                                                         className="btn btn-outline-primary"
                                                         onClick={(e) => {
-                                                            handleNextStep();
-                                                            if (processId === "ACC.01") {
-                                                                submitMessData(e);
+                                                            handleNextStep()
+                                                            if (processId === 'ACC.01') {
+                                                                submitMessData(e)
                                                             }
                                                         }}
-                                                        title="Next"
-                                                    >
+                                                        title="Next">
                                                         <i className="ri-arrow-right-line"></i>
                                                     </button>
                                                 )}
@@ -1708,46 +1833,40 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                                                         type="submit"
                                                         className="btn btn-outline-success"
                                                         onClick={(e) => {
-                                                            if (processId === "ACC.01") {
-                                                                submitMessData(e);
+                                                            if (processId === 'ACC.01') {
+                                                                submitMessData(e)
                                                             }
-                                                            handleSubmit(e, taskNumber);
+                                                            handleSubmit(e, taskNumber)
                                                         }}
-                                                        title="Submit"
-                                                    >
+                                                        title="Submit">
                                                         <i className="ri-check-line"></i>
                                                     </button>
                                                 )}
                                             </div>
                                         ) : (
                                             <>
-                                                {fromComponent !== "TaskMaster" && (
+                                                {fromComponent !== 'TaskMaster' && (
                                                     <button
                                                         type="submit" // This button will submit the form
-                                                        className="btn btn-success mt-2"
-                                                    >
+                                                        className="btn btn-success mt-2">
                                                         Submit
                                                     </button>
                                                 )}
                                             </>
                                         )}
                                     </div>
-
                                 </div>
                             </Modal.Body>
                         </form>
-                    }
+                    )}
                 </div>
                 {/* )
 
 
                 } */}
-
-            </Modal >
+            </Modal>
         </>
-    );
-};
-
-
+    )
+}
 
 export default DynamicForm

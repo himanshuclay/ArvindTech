@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { Button, Table, Container, Row, Col, Alert, Collapse } from 'react-bootstrap'; // Assuming DynamicForm is in the same directory
+import { Button, Table, Container, Row, Col, Alert, Collapse, Pagination } from 'react-bootstrap'; // Assuming DynamicForm is in the same directory
 import { format } from 'date-fns';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import DynamicForm from '../Component/DynamicForm';
@@ -86,6 +86,8 @@ interface Column {
 const ProjectAssignTable: React.FC = () => {
   const [data, setData] = useState<ProjectAssignListWithDoer[]>([]);
   const [preData, setPreData] = useState<FilteredTask[]>([]);
+  const [currentPage, setCurrentPage] = useState(1)
+  const [totalPages, setTotalPages] = useState(1)
   const [loading, setLoading] = useState<boolean>(true);
   const [parsedCondition, setParsedCondition] = useState<string>('');
   const [taskCommonIDRow, setTaskCommonIdRow] = useState<number | null>(null);
@@ -95,6 +97,8 @@ const ProjectAssignTable: React.FC = () => {
   const [manageId, setManageID] = useState<number>();
 
   const [expandedRow, setExpandedRow] = useState<number | null>(null); // For row expansion
+
+  console.log(data)
 
 
   const toggleExpandRow = (id: number) => {
@@ -119,33 +123,39 @@ const ProjectAssignTable: React.FC = () => {
     setColumns(reorderedColumns);
   };
   // ==============================================================
-
-
-
-
   useEffect(() => {
     const fetchData = async () => {
+      setLoading(true);
       try {
         const role = localStorage.getItem('EmpId') || '';
-        const response = await axios.get<ApiResponse>(
-          `${config.API_URL_ACCOUNT}/ProcessInitiation/GetFilterTask?Flag=1&DoerId=${role}`
+        const response = await axios.get(
+          `${config.API_URL_ACCOUNT}/ProcessInitiation/GetFilterTask`,
+          {
+            params: {
+              Flag: 1,
+              DoerId: role,
+              PageIndex: currentPage,
+            },
+          }
         );
+        console.log(response)
 
         if (response.data && response.data.isSuccess) {
           const fetchedData = response.data.getFilterTasks || [];
           setData(fetchedData);
+          setTotalPages(Math.ceil(response.data.totalCount / 10));
         } else {
           console.error('API Response Error:', response.data?.message || 'Unknown error');
         }
-      } catch (error: any) {
-        toast.error(error)
+      } catch (error) {
+        toast.error('Error fetching data');
       } finally {
         setLoading(false);
       }
     };
 
     fetchData();
-  }, []);
+  }, [currentPage]);
 
 
   const fetchPreData = async (taskCommonId: number) => {
@@ -293,8 +303,6 @@ const ProjectAssignTable: React.FC = () => {
   //   }
   // };
 
-
-
   if (loading) {
     return <div className="loader-fixed">
       <div className="loader"></div>
@@ -302,17 +310,13 @@ const ProjectAssignTable: React.FC = () => {
     </div>;
   }
 
-
   const handleShow = () => setShow(true);
 
   const handleEdit = (taskCommonId: number) => {
     setTaskCommonIdRow(taskCommonId);
     fetchPreData(taskCommonId);
     handleShow();
-    // if (taskCommonId) {
-    //   fetchSingleDataById(taskCommonId);
 
-    // }
   };
 
   let conditionArray = [];
@@ -440,7 +444,7 @@ const ProjectAssignTable: React.FC = () => {
                 <tbody>
 
                   {data.length > 0 ? (
-                    data.slice(0, 10).map((item, index) => (
+                    data.slice(0, 20).map((item, index) => (
                       <React.Fragment key={item.id}>
                         <tr>
                           {columns.filter(col => col.visible).map((col) => (
@@ -462,15 +466,17 @@ const ProjectAssignTable: React.FC = () => {
                                         ? calculatePlannedDate(item.createdDate)
                                         : getPlannedDate(item.createdDate, item.planDate)}
                                     </>
-                                  ) : col.id === 'projectName' ? (
-                                    <>
-                                      <i className="ri-building-line"></i> {item.projectName}-{item.projectId}
-                                    </>
-                                  ) : (
-                                    <>
-                                      {item[col.id as keyof ProjectAssignListWithDoer]}
-                                    </>
-                                  )
+                                  ) :
+
+                                    col.id === 'projectName' ? (
+                                      <>
+                                        <i className="ri-building-line"></i> {item.projectName}-{item.projectId}
+                                      </>
+                                    ) : (
+                                      <>
+                                        {item[col.id as keyof ProjectAssignListWithDoer]}
+                                      </>
+                                    )
                                 }
                               </div>
 
@@ -662,16 +668,12 @@ const ProjectAssignTable: React.FC = () => {
                                       </div>
                                     </Col>
                                   </Row>
-
-
-
                                 </div>
                               </Collapse>
                             </td>
                           </tr>
                           : ''
                         }
-
                       </React.Fragment>
                     ))
                   ) : (
@@ -694,6 +696,29 @@ const ProjectAssignTable: React.FC = () => {
         )}
         <HeirarchyView showView={showView} setShowView={setShowView} id={manageId} />
         <ViewOutput showViewOutput={showViewOutput} setShowViewOutput={setShowViewOutput} preData={preData} />
+      </div>
+      <div className="d-flex justify-content-center align-items-center bg-white w-20 rounded-5 m-auto py-1 pb-1 my-2 pagination-rounded">
+      <Pagination>
+							<Pagination.First
+								onClick={() => setCurrentPage(1)}
+								disabled={currentPage === 1}
+							/>
+							<Pagination.Prev
+								onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+								disabled={currentPage === 1}
+							/>
+							<Pagination.Item active>{currentPage}</Pagination.Item>
+							<Pagination.Next
+								onClick={() =>
+									setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+								}
+								disabled={currentPage === totalPages}
+							/>
+							<Pagination.Last
+								onClick={() => setCurrentPage(totalPages)}
+								disabled={currentPage === totalPages}
+							/>
+						</Pagination>
       </div>
     </>
 

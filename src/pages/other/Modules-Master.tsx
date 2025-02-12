@@ -1,4 +1,4 @@
-import React, { ChangeEvent, useState, useEffect } from 'react';
+import React, { ChangeEvent, useState, useEffect, useMemo } from 'react';
 import {
   DragDropContext,
   Droppable,
@@ -7,10 +7,12 @@ import {
   DroppableProvided,
 } from 'react-beautiful-dnd';
 import Select from 'react-select';
-import { Button, Form, Modal, ListGroup, Toast, Popover } from 'react-bootstrap';
+import { Button, Form, Modal, ListGroup, Toast } from 'react-bootstrap';
 import axios from 'axios';
 import { useLocation } from 'react-router-dom';
 import config from '@/config';
+import CustomFlatpickr from '@/components/CustomFlatpickr';
+import { toast } from 'react-toastify';
 
 type FormField = {
   inputId: string;
@@ -33,7 +35,8 @@ type FormField = {
   labelsubtask?: string;  // Label for a subtask
   subtask?: string;       // Subtask input
   paragraph?: string;     // Paragraph input
-  CustomSelect?: string;  // Custom select input
+  CustomSelect?: string;
+  hyperlink?: string;  // Custom select input
   required?: boolean;     // Indicates if the field is required
   placeholder?: string;   // Placeholder for inputs
   options?: FormFieldOption[];     // Options for select, multiselect, or radio inputs
@@ -41,7 +44,8 @@ type FormField = {
   value?: string;
   fileType?: string;        // The value of the input
   fileSize?: string;
-  visibility: boolean,
+  visibility: boolean;
+  condition?: number;
 };
 
 interface FormFieldOption {
@@ -104,7 +108,6 @@ type Option = {
 // Global counter to keep track of unique IDs
 let formFieldCounter = 1;
 
-// Function to generate unique form field ID
 const generateFormFieldId = (): string => `${formFieldCounter++}`;
 
 
@@ -135,6 +138,16 @@ const initialInventory: FormField[] = [
     inputId: generateFormFieldId(),
     type: 'radio',
     labeltext: 'Radio',
+    options: [
+    ],
+    conditionalField: false,
+    conditionalFieldId: 'someid',
+    visibility: true
+  },
+  {
+    inputId: generateFormFieldId(),
+    type: 'hyperlink',
+    labeltext: 'Link',
     options: [
     ],
     conditionalField: false,
@@ -184,11 +197,16 @@ const App: React.FC = () => {
     options: [],
     visibility: true
   });
+  const [dateSelection, setDateSelection] = useState<FormField>({
+    inputId: 'example',
+    options: [],
+    visibility: true
+  });
   const [selectedTaskIdx, setSelectedTaskIdx] = useState<number | null>(null);
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [selectedEmployee, setSelectedEmployee] = useState<string>('');
   const [isApprovalConsoleActive, setApprovalConsoleActive] = useState(false);
-  const [approvalSelectedEmployee, setApprovalSelectedEmployee] = useState<string>('');  // For approval field
+  // const [approvalSelectedEmployee, setApprovalSelectedEmployee] = useState<string>('');  // For approval field
   const [selectedFieldIdx, setSelectedFieldIdx] = useState<number | null>(null);
   const [showToast, setShowToast] = useState(false);
   const [roles, setRoles] = useState<Role[]>([]);
@@ -211,9 +229,9 @@ const App: React.FC = () => {
 
   const location = useLocation();
 
-  const handleApprovalEmployeeSelect = (selectedOption: any) => {
-    setApprovalSelectedEmployee(selectedOption?.value || null); // Handle employee selection
-  };
+  // const handleApprovalEmployeeSelect = (selectedOption: any) => {
+  //   setApprovalSelectedEmployee(selectedOption?.value || null); // Handle employee selection
+  // };
 
 
   const handleCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -303,11 +321,14 @@ const App: React.FC = () => {
       };
     });
 
+    console.log(masterId, mastersName)
+
     if (masterId) {
       try {
         const response = await axios.get(
-          `${config.API_URL_APPLICATION}/CommonDropdown/GettableHeaderName?flag=${masterId}`
+          `${config.API_URL_APPLICATION}/CommonDropdown/GettableHeaderName?ID=${masterId}`
         );
+        console.log(response)
         if (response.data.isSuccess) {
           setHeadersList(response.data.gettableHeaderNames);
         } else {
@@ -321,8 +342,6 @@ const App: React.FC = () => {
     }
   };
 
-
-
   const handleHeaderChange = (header: string) => {
     setEditField((prevField) => {
       if (!prevField) return prevField;
@@ -333,11 +352,6 @@ const App: React.FC = () => {
       };
     });
   };
-
-
-
-
-
 
   const handleFormSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -390,10 +404,6 @@ const App: React.FC = () => {
     }
   };
 
-
-
-
-
   const reorder = (list: FormField[], startIndex: number, endIndex: number): FormField[] => {
     const result = Array.from(list);
     const [removed] = result.splice(startIndex, 1);
@@ -432,15 +442,11 @@ const App: React.FC = () => {
       }
     };
 
-
-
     fetchRoles();
   }, []);
 
 
   console.log(formData)
-
-
 
   const handleRoleSelect = (selectedOption: { id: number; roleName: string } | null) => {
     if (selectedOption) {
@@ -452,7 +458,11 @@ const App: React.FC = () => {
     }
   };
 
-
+  interface CustomOption {
+    value: string;
+    label: string;
+    className?: string; // Optional property for custom class
+  }
 
 
   const handleFormChange = (e: { target: { name: string; value: string; } }) => {
@@ -467,13 +477,16 @@ const App: React.FC = () => {
     // If the ModuleName is selected, fetch related processes
     if (name === 'ModuleName') {
       const selectedModule = modules.find((module) => module.moduleName === value);
-
+      const moduleNameStr = String(value)
+      console.log(moduleNameStr);
       if (selectedModule) {
         setSelectedModule(selectedModule);
         localStorage.setItem('selectedModuleId', selectedModule.moduleID); // Save selectedModuleId to localStorage
         localStorage.setItem('selectedModuleName', selectedModule.moduleName); // Save selectedModuleName to localStorage
 
-        fetch(`${config.API_URL_APPLICATION}/CommonDropdown/GetProcessNameByModuleName?ModuleName=${value}`)
+        fetch(`${config.API_URL_APPLICATION}/CommonDropdown/GetProcessNameByModuleName?ModuleName=${encodeURIComponent(
+          moduleNameStr
+        )}`)
           .then((response) => response.json())
           .then((data) => {
             if (data.isSuccess) {
@@ -510,21 +523,21 @@ const App: React.FC = () => {
     }
   };
 
-  const handleApprovalConsoleId = (e: ChangeEvent<any>) => {
-    const { name, value } = e.target as HTMLSelectElement | HTMLInputElement;
+  // const handleApprovalConsoleId = (e: ChangeEvent<any>) => {
+  //   const { name, value } = e.target as HTMLSelectElement | HTMLInputElement;
 
-    // Update the form data state
-    setFormData(prevFormData => ({
-      ...prevFormData,
-      [name]: value
-    }));
+  //   // Update the form data state
+  //   setFormData(prevFormData => ({
+  //     ...prevFormData,
+  //     [name]: value
+  //   }));
 
-    // Store the selected approvalConsoleId in localStorage
-    if (name === 'approvalConsoleId') {
-      localStorage.setItem('selectedApprovalConsoleId', value);
-      console.log(value); // You can remove this log later
-    }
-  };
+  //   // Store the selected approvalConsoleId in localStorage
+  //   if (name === 'approvalConsoleId') {
+  //     localStorage.setItem('selectedApprovalConsoleId', value);
+  //     console.log(value); // You can remove this log later
+  //   }
+  // };
 
   const handlefinishID = (e: ChangeEvent<any>) => {
     const { name, value } = e.target as HTMLSelectElement | HTMLInputElement;
@@ -542,6 +555,9 @@ const App: React.FC = () => {
     }
   };
 
+  const [condition, setCondition] = React.useState<number>(3);
+
+
 
 
 
@@ -553,12 +569,10 @@ const App: React.FC = () => {
     // Ensure selectedModule, processID, processName, and finishID are available
     if (!selectedModule || !processID || !processName || !finishID) {
       console.error('Module, process, or finish point information is missing');
+      toast.error('Module, Process, problem Solver or finish point information is missing');
       return;
     }
 
-    // const startDate = new Date().toISOString();
-
-    // Create the final JSON object for the form
     const transformedFields = taskFields.map((field) => {
       const inputId = field.inputId; // Use the existing inputId from the field
       const options = field.options?.map((option, optIndex) => ({
@@ -597,6 +611,20 @@ const App: React.FC = () => {
           visibility: field.visibility ?? true, // Default to true if visibility is undefined
         };
       }
+      if (field.type === 'date') {
+        console.log(field.condition)
+        return {
+          inputId,
+          type: field.type,
+          label: field.labeltext || "Default Label",
+          fieldId: field.fieldId || "", // Default to an empty string if fieldId is undefined
+          required: !!field.required, // Convert to boolean, defaulting to false
+          conditionalFieldId: field.conditionalFieldId || "", // Use existing conditionalFieldId or default to an empty string
+          value: field.value || "", // Default to an empty string if value is undefined
+          condition: field.condition,
+          visibility: field.visibility ?? true, // Default to true if visibility is undefined
+        };
+      }
 
 
       // Default return for other input types
@@ -621,7 +649,7 @@ const App: React.FC = () => {
     };
 
     const selectedEmployeeObj = employees.find(emp => emp.empId === selectedEmployee)
-    const selectedapprovalEmployee = employees.find(emp => emp.empId === approvalSelectedEmployee);
+    // const selectedapprovalEmployee = employees.find(emp => emp.empId === approvalSelectedEmployee);
 
     // Include finishID (finishPoint) in the payload
     const payload = {
@@ -644,10 +672,10 @@ const App: React.FC = () => {
       task_Json: JSON.stringify(formJSON),
       createdBy: storedEmpName, // Replace with actual username or dynamic value
       finishPoint: parseFloat(finishID), // Convert finishID to float before sending
-      approval_Console: isApprovalConsoleActive ? "Select Approval_Console" : "",
-      approvalConsoleDoerID: approvalSelectedEmployee,
-      approvalConsoleDoerName: selectedapprovalEmployee ? selectedapprovalEmployee.employeeName : "", // Use employee name from selectedapprovalEmployee
-      approvalConsoleInputID: formData.approvalConsoleId,
+      approval_Console: isApprovalConsoleActive ? "Select Approval_Console" : '',
+      approvalConsoleDoerID: '',
+      approvalConsoleDoerName: '',
+      approvalConsoleInputID: '',
     };
 
 
@@ -993,6 +1021,12 @@ const App: React.FC = () => {
               <div>{field.labeltext}</div>
             </div>
           );
+        case 'hyperlink':
+          return (
+            <div className='col-6 col-new'>
+              <div>{field.labeltext}</div>
+            </div>
+          );
         case 'checkbox':
           return <div>{field.labeltext}</div>;
         case 'select':
@@ -1100,6 +1134,8 @@ const App: React.FC = () => {
       }
     };
 
+
+
     return (
       <ListGroup.Item className="row m-0 justify-content-between align-items-center d-flex custom-shadow position-relative" id='task-area'>
         <div className='ri-add-circle-fill cursor-pointer text-primary add-more'></div>
@@ -1117,20 +1153,98 @@ const App: React.FC = () => {
     );
   };
 
+  const minDate = () => {
+    let minDate = undefined;
+    if (condition === 1 || condition === 2) {
+      minDate = 'today'
+    } else if (condition === 5) {
+      minDate = new Date();
+    } else if (condition === 6) {
+      minDate = dateSelection.date;
+    } else if (condition === 7) {
+      minDate = new Date(Date.now() + 1 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+    } 
+    return minDate;
+  }
+
+  const maxDate = () => {
+    let maxDate = undefined;
+    if (condition === 2) {
+      maxDate = new Date(Date.now() + 15 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+    } else if (condition === 4 || condition === 6) {
+      maxDate = new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+    } else if (condition === 5) {
+      maxDate = new Date()
+    } else if (condition === 7) {
+      maxDate = dateSelection.date;
+    }
+    return maxDate;
+  }
+  const dateOptions = useMemo(() => ({
+    enableTime: false,
+    dateFormat: 'Y-m-d',
+    minDate: minDate(),  // Dynamically computed minDate
+    maxDate: maxDate(),  // Dynamically computed maxDate
+    disable: [
+      function(date: any) {
+        const today = new Date();
+        // Disable only today's date
+        if(condition === 8){
+          return date.toDateString() === today.toDateString();
+        }else if(condition === 9){
+          return date.toDateString() === new Date(dateSelection.date || '').toDateString();
+        }else if (condition === 10 && dateSelection.date) {
+          const selectedDate = new Date(dateSelection.date);
+  
+          // Get start and end of the week (assuming week starts on Sunday)
+          const startOfWeek = new Date(selectedDate);
+          startOfWeek.setDate(selectedDate.getDate() - selectedDate.getDay());
+  
+          const endOfWeek = new Date(startOfWeek);
+          endOfWeek.setDate(startOfWeek.getDate() + 6);
+  
+          // Disable if the date is within the selected week
+          return date >= startOfWeek && date <= endOfWeek;
+        }else if (condition === 11 && dateSelection.date) {
+          const selectedDate = new Date(dateSelection.date);
+          const selectedMonth = selectedDate.getMonth();
+          const selectedYear = selectedDate.getFullYear();
+  
+          // Disable if the date is in the same month and year as the selected date
+          return date.getMonth() === selectedMonth && date.getFullYear() === selectedYear;
+        }else  if (condition === 12 && dateSelection.date) {
+          const selectedYear = new Date(dateSelection.date).getFullYear();
+  
+          // Disable if the date is in the same year as the selected date
+          return date.getFullYear() === selectedYear;
+        }else  if (condition === 13 && dateSelection.date) {
+          const selectedDate = new Date(dateSelection.date);
+          const startOfWeek = new Date(selectedDate);
+          startOfWeek.setDate(selectedDate.getDate() - selectedDate.getDay());  // Start on Sunday
+          const endOfWeek = new Date(startOfWeek);
+          endOfWeek.setDate(startOfWeek.getDate() + 6);  // End on Saturday
+  
+          const allowedDays = [1, 3];  // 1 = Monday, 3 = Wednesday
+  
+          // If the date is within the same week but not on an allowed day, disable it
+          if (date >= startOfWeek && date <= endOfWeek) {
+            return !allowedDays.includes(date.getDay());
+          }
+  
+          // Disable dates outside the current week
+          return true;
+        }
+  
+      }
+    ],
+  }), [condition, dateSelection]);  // Recompute options on these changes
+
   return (
     <div className="App" id="taskTop">
       <div className="container mt-4">
         <div className="d-flex p-2 bg-white mt-2 mb-2 fw-bold text-dark fs-5">
-          {
-
-            (location.pathname === '/pages/CreateTemplates' ? '  Create Templates' : '  Create Task')
-
-          }
-
-
+          {(location.pathname === '/pages/CreateTemplates' ? '  Create Templates' : '  Create Task')}
         </div>
-
-
         <DragDropContext onDragEnd={handleDragEnd}>
           <div className='row m-0'>
             <Form className='row col-md-12 p-2 bg-white rounded align-items-end m-0' onSubmit={handleFormSubmit}>
@@ -1180,35 +1294,33 @@ const App: React.FC = () => {
                   required
                 />
               </Form.Group>
-
-              <Form.Group className="col-md-3 my-1">
-                <Form.Label>Role Name</Form.Label>
-                <Select
-                  name="RoleName"
-                  value={roles.find((role) => role.id === selectedRole?.id) || null}
-                  onChange={(selectedOption) => handleRoleSelect(selectedOption)}
-                  getOptionLabel={(role) => role.roleName}
-                  getOptionValue={(role) => String(role.id)}
-                  options={roles}
-                  isSearchable={true}
-                  placeholder="Select Role"
-                  className="h45"
-                  required
-                />
-
-
-
-              </Form.Group>
-
+              {location.pathname != '/pages/CreateTemplates' &&
+                (
+                  <Form.Group className="col-md-3 my-1">
+                    <Form.Label>Role Name</Form.Label>
+                    <Select
+                      name="RoleName"
+                      value={roles.find((role) => role.id === selectedRole?.id) || null}
+                      onChange={(selectedOption) => handleRoleSelect(selectedOption)}
+                      getOptionLabel={(role) => role.roleName}
+                      getOptionValue={(role) => String(role.id)}
+                      options={roles}
+                      isSearchable={true}
+                      placeholder="Select Role"
+                      className="h45"
+                    />
+                  </Form.Group>
+                )
+              }
               <Form.Group className='col-md-3 my-1'>
-                <Form.Label>Task Name</Form.Label>
+                <Form.Label>{(location.pathname === '/pages/CreateTemplates' ? 'Template Name' : 'Task Name')}</Form.Label>
                 <Form.Control
                   type="text"
                   name="taskName"
                   value={formData.taskName}
                   onChange={handleFormChange}
                   required
-                  placeholder='Enter Task Name'
+                  placeholder={(location.pathname === '/pages/CreateTemplates' ? 'Enter Template Name' : 'Enter Task Name')}
                 />
               </Form.Group>
 
@@ -1225,7 +1337,12 @@ const App: React.FC = () => {
                 </Button>
               </div>
             </Form>
-            <div className="col-md-12 p-2 bg-white my-1">
+          </div>
+          <div className='bg-white mt-1 p-1 text-end'>
+            <i className="ri-delete-bin-6-fill cursor-pointer" title='Clear Form'></i>
+          </div>
+          <div className='d-flex'>
+            <div className="col-md-3 p-2 bg-white my-1 border">
               <h4>Available Fields</h4>
               <Droppable droppableId="inventory">
                 {(provided: DroppableProvided) => (
@@ -1233,12 +1350,12 @@ const App: React.FC = () => {
                     {inventory.map((field, index) => (
                       <Draggable key={field.inputId} draggableId={field.inputId} index={index}>
                         {(provided: DraggableProvided) => (
-                          <div className='' style={{ width: 'max-content' }}>
+                          <div className=''>
                             <div
                               ref={provided.innerRef}
                               {...provided.draggableProps}
                               {...provided.dragHandleProps}
-                              className="card my-1 drag-field"
+                              className="card drag-field border m-1"
                             >
                               {field.labeltext}
                             </div>
@@ -1251,171 +1368,182 @@ const App: React.FC = () => {
                 )}
               </Droppable>
             </div>
-          </div>
-          <div className="row bg-white p-2 rounded m-0">
-            <div className='col-12'>
-              <h4 style={{ height: '40px' }}>Build Your Task</h4>
-              <Droppable droppableId="taskFields">
-                {(provided: DroppableProvided) => (
-                  <div
-                    ref={provided.innerRef}
-                    {...provided.droppableProps}
-                    className="list-group position-relative m-0"
-                  >
-                    {taskFields.length === 0 && (
-                      <div className='col-12 align-items-center justify-content-center d-flex flex-column' style={{ height: '200px' }}>
-                        <i className="ri-arrow-turn-back-line fs-1"></i>
-                        <span>Please Select Task Fields</span>
-                      </div>
-                    )}
-                    {taskFields.map((field, index) => (
-                      <Draggable key={field.inputId} draggableId={field.inputId} index={index}>
-                        {(provided: DraggableProvided) => (
-                          <div
-                            ref={provided.innerRef}
-                            {...provided.draggableProps}
-                            {...provided.dragHandleProps}
-                            className={
-                              ['99', '100', '102', '103'].includes(field.inputId)
-                                ? 'custom-details list-group-item col-md-12 col-sm-12 border-none my-1 p-0 timeliner d-flex'
-                                : 'list-group-item col-md-12 col-sm-12 border-none my-1 p-1 timeliner d-flex'
-                            }
-                          >
-                            {renderField(field, -1, index)}
-                            <div className='top-round'></div>
-                            <div className='bottom-round'></div>
-                          </div>
-                        )}
-                      </Draggable>
-                    ))}
-                    {provided.placeholder}
-                  </div>
-                )}
-              </Droppable>
-
-            </div>
-            <Form.Group className="col-3 my-1">
-              <Form.Label>Problem Solver</Form.Label>
-              <Select
-                value={employees
-                  .map(employee => ({ value: employee.empId, label: employee.employeeName }))
-                  .find(option => option.value === selectedEmployee)
-                }
-                onChange={handleEmployeeChange}
-                options={employees.map(employee => ({
-                  value: employee.empId,
-                  label: employee.employeeName,
-                }))}
-                placeholder="Select an employee"
-                isSearchable
-              />
-            </Form.Group>
-            <Form.Group className="col-3 my-1">
-              <Form.Label>Set Finish Point</Form.Label>
-              <Form.Control
-                as="select"
-                name="finishID"  // Changed from processID to finishID
-                value={formData.finishID}  // Updated to finishID
-                onChange={handlefinishID}
-                required
-              >
-                <option value="">Select Field</option>
-                {taskFields
-                  .filter(field => !['99', '100', '102', '103'].includes(field.inputId))
-                  .map((field) => (
-                    <option key={field.inputId} value={field.inputId}>
-                      {field.labeltext}
-                    </option>
-                  ))}
-              </Form.Control>
-            </Form.Group>
-            <div className="col-3 my-1">
-              <div className="row col-12 position-relative">
-                {/* Approval console checkbox */}
-                <Form.Group className="my-1">
-                  <Form.Label>Is approval is applicable?</Form.Label>
-                  <Form.Check
-                    type="checkbox"
-                    label="Activate Approval Console"
-                    checked={isApprovalConsoleActive}
-                    onChange={handleApprovalCheckboxChange}
-                  />
-                </Form.Group>
-
-                {/* Conditionally render the Approval Console popover */}
-                {isApprovalConsoleActive && (
-                  <Popover id="approval-popover" style={{ position: 'absolute', bottom: '100%' }}>
-                    <Popover.Header as="h3">Select Doer for Approval</Popover.Header>
-                    <Popover.Body>
-                      <Form.Group>
-                        <Form.Label>Employee Name</Form.Label>
-                        <Select
-                          value={employees
-                            .map(employee => ({ value: employee.empId, label: employee.employeeName }))
-                            .find(option => option.value === approvalSelectedEmployee) || null
-                          }
-                          onChange={handleApprovalEmployeeSelect}
-                          options={employees.map(employee => ({
-                            value: employee.empId,
-                            label: employee.employeeName,
-                          }))}
-                          placeholder="Select an employee"
-                          isSearchable
-                        />
-                      </Form.Group>
-                      <Form.Group className="mt-2">
-                        <Form.Label>Select Approval Input</Form.Label>
-                        <Form.Control
-                          as="select"
-                          name="approvalConsoleId"  // Changed from finishID to approvalConsoleId
-                          value={formData.approvalConsoleId}  // Updated to approvalConsoleId
-                          onChange={handleApprovalConsoleId}  // Updated handler
-                          required
-                        >
-                          <option value="">Select Field</option>
-                          {taskFields
-                            .filter(field => !['99', '100', '102', '103'].includes(field.inputId)) // Filter out specific fields
-                            .map((field) => (
-                              <option key={field.inputId} value={field.inputId}>
-                                {field.labeltext}
-                              </option>
-                            ))}
-                        </Form.Control>
-                      </Form.Group>
-                    </Popover.Body>
-                  </Popover>
-                )}
+            <div className="col-md-6 p-2 bg-white my-1 border">
+              <div className='col-12 h-100'>
+                <h4 style={{ height: '40px' }}>Build Your Task</h4>
+                <Droppable droppableId="taskFields">
+                  {(provided: DroppableProvided) => (
+                    <div
+                      ref={provided.innerRef}
+                      {...provided.droppableProps}
+                      className="list-group position-relative m-0 border w-100 vh-100 overflow-auto border"
+                    >
+                      {taskFields.length === 0 && (
+                        <div className='col-12 align-items-center justify-content-center d-flex flex-column' style={{ height: '200px' }}>
+                          <i className="ri-arrow-turn-back-line fs-1"></i>
+                          <span>Please Select Task Fields</span>
+                        </div>
+                      )}
+                      {taskFields.map((field, index) => (
+                        <Draggable key={field.inputId} draggableId={field.inputId} index={index}>
+                          {(provided: DraggableProvided) => (
+                            <div
+                              ref={provided.innerRef}
+                              {...provided.draggableProps}
+                              {...provided.dragHandleProps}
+                              className={
+                                ['99', '100', '102', '103'].includes(field.inputId)
+                                  ? 'custom-details list-group-item col-md-12 col-sm-12 border-none my-1 p-0 timeliner d-flex'
+                                  : 'list-group-item col-md-12 col-sm-12 border-none my-1 p-1 timeliner d-flex'
+                              }
+                            >
+                              {renderField(field, -1, index)}
+                              <div className='top-round'></div>
+                              <div className='bottom-round'></div>
+                            </div>
+                          )}
+                        </Draggable>
+                      ))}
+                      {provided.placeholder}
+                    </div>
+                  )}
+                </Droppable>
               </div>
-            </div>
-            {location.pathname != '/pages/CreateTemplates' &&
 
-              (
-                <Form.Group className="col-3 my-1">
-                  <Form.Label>Select Template</Form.Label>
-                  <Form.Control
-                    as="select"
-                    name="templateName"  // Name for the select input
-                    onChange={handleSelectTemplateChange}  // On change handler
-                    required
-                  >
-                    <option value="">Select Template</option>
-                    {templates.map((template) => (
-                      <option key={template.id} value={template.formName}>
-                        {template.formName}
+
+            </div>
+            <div className='col-md-3 p-2 bg-white my-1 border'>
+
+              <Form.Group className="col-12 my-1">
+                <Form.Label>Problem Solver</Form.Label>
+                <Select
+                  value={[
+                    { value: "ProjectCoordinator", label: "Project Coordinator", className: "special-option" },
+                    { value: "ProjectIncharge", label: "Project Incharge", className: "special-option" },
+                    ...employees.map(employee => ({ value: employee.empId, label: employee.employeeName })),
+                  ].find(option => option.value === selectedEmployee) as CustomOption}
+                  onChange={handleEmployeeChange}
+                  options={[
+                    { value: "ProjectCoordinator", label: "Project Coordinator", className: "special-option" },
+                    { value: "ProjectIncharge", label: "Project Incharge", className: "special-option" },
+                    ...employees.map(employee => ({ value: employee.empId, label: employee.employeeName })),
+                  ] as CustomOption[]}
+                  placeholder="Select an employee"
+                  isSearchable
+                  classNames={{
+                    option: (state) => state.data.className || "",
+                  }}
+                />
+              </Form.Group>
+
+
+
+              <Form.Group className="col-12 my-1">
+                <Form.Label>Set Finish Point</Form.Label>
+                <Form.Control
+                  as="select"
+                  name="finishID"  // Changed from processID to finishID
+                  value={formData.finishID}  // Updated to finishID
+                  onChange={handlefinishID}
+                  required
+                >
+                  <option value="">Select Field</option>
+                  {taskFields
+                    .filter(field => !['99', '100', '102', '103'].includes(field.inputId))
+                    .map((field) => (
+                      <option key={field.inputId} value={field.inputId}>
+                        {field.labeltext}
                       </option>
                     ))}
-                  </Form.Control>
+                </Form.Control>
+              </Form.Group>
+              <div className="col-12 my-1">
+                <div className="row col-12 position-relative">
+                  {/* Approval console checkbox */}
+                  <Form.Group className="my-1">
+                    <Form.Label>Is approval is applicable?</Form.Label>
+                    <Form.Check
+                      type="checkbox"
+                      label="Activate Approval Console"
+                      checked={isApprovalConsoleActive}
+                      onChange={handleApprovalCheckboxChange}
+                    />
+                  </Form.Group>
 
-                  {/* For debugging, showing selected templateJson */}
-                  <div>
-                    <h5>Selected Template JSON:</h5>
-                    <pre>{selectedTemplateJson}</pre>
-                  </div>
-                </Form.Group>
-              )
+                  {/* Conditionally render the Approval Console popover */}
+                  {/* {isApprovalConsoleActive && (
+                    <Popover id="approval-popover" style={{ position: 'absolute', bottom: '100%' }}>
+                      <Popover.Header as="h3">Select Doer for Approval</Popover.Header>
+                      <Popover.Body>
+                        <Form.Group>
+                          <Form.Label>Employee Name</Form.Label>
+                          <Select
+                            value={employees
+                              .map(employee => ({ value: employee.empId, label: employee.employeeName }))
+                              .find(option => option.value === approvalSelectedEmployee) || null
+                            }
+                            onChange={handleApprovalEmployeeSelect}
+                            options={employees.map(employee => ({
+                              value: employee.empId,
+                              label: employee.employeeName,
+                            }))}
+                            placeholder="Select an employee"
+                            isSearchable
+                          />
+                        </Form.Group>
+                        <Form.Group className="mt-2">
+                          <Form.Label>Select Approval Input</Form.Label>
+                          <Form.Control
+                            as="select"
+                            name="approvalConsoleId"  // Changed from finishID to approvalConsoleId
+                            value={formData.approvalConsoleId}  // Updated to approvalConsoleId
+                            onChange={handleApprovalConsoleId}  // Updated handler
+                            required
+                          >
+                            <option value="">Select Field</option>
+                            {taskFields
+                              .filter(field => !['99', '100', '102', '103'].includes(field.inputId)) // Filter out specific fields
+                              .map((field) => (
+                                <option key={field.inputId} value={field.inputId}>
+                                  {field.labeltext}
+                                </option>
+                              ))}
+                          </Form.Control>
+                        </Form.Group>
+                      </Popover.Body>
+                    </Popover>
+                  )} */}
+                </div>
+              </div>
+              {location.pathname != '/pages/CreateTemplates' &&
 
-            }
+                (
+                  <Form.Group className="col-12 my-1">
+                    <Form.Label>Select Template</Form.Label>
+                    <Form.Control
+                      as="select"
+                      name="templateName"  // Name for the select input
+                      onChange={handleSelectTemplateChange}  // On change handler
+                      required
+                    >
+                      <option value="">Select Template</option>
+                      {templates.map((template) => (
+                        <option key={template.id} value={template.formName}>
+                          {template.formName}
+                        </option>
+                      ))}
+                    </Form.Control>
 
+                    {/* For debugging, showing selected templateJson */}
+                    <div>
+                      <h5>Selected Template JSON:</h5>
+                      <pre>{selectedTemplateJson}</pre>
+                    </div>
+                  </Form.Group>
+                )
+
+              }
+            </div>
           </div>
         </DragDropContext>
         <div className="d-flex justify-content-end p-2 col-12">
@@ -1427,11 +1555,6 @@ const App: React.FC = () => {
             Save Task
           </Button>)
           }
-
-
-
-
-
         </div>
 
         <Modal size='lg' show={isModalOpen} onHide={() => setIsModalOpen(false)}>
@@ -1783,7 +1906,6 @@ const App: React.FC = () => {
                   </Form.Group>
                 )}
 
-
                 {editField.type === 'CustomSelect' && (
                   <Form.Group key={editField.inputId}>
                     {/* Select Master */}
@@ -1881,12 +2003,81 @@ const App: React.FC = () => {
                     )}
                   </Form.Group>
                 )}
+                {editField.type === 'hyperlink' && (
+                  <Form.Group key={editField.inputId}>
 
+                    <div className='form-group mt-2'>
+                      <label className="form-label">
+                        <input className='me-1' type="checkbox"
+                          checked={conditionalField}
+                          onChange={handleCheckboxChange} />
+                        Is Conditionally bound?
+                      </label>
+                    </div>
+                    {conditionalField == true &&
+                      <Form.Control
+                        as="select"
+                        className="mt-2"
+                        value={editField.conditionalFieldId || ''}
+                        onChange={handleSelectChange}
+                      >
+                        <option value="">Select an option</option>
+                        {taskFields.map((field) => (
+                          <React.Fragment key={field.inputId}>
+                            <option value={field.inputId}>{field.labeltext}</option>
+                            {field.options?.map((option) => (
+                              <option
+                                key={option.id}
+                                value={option.id}
+                                data-color={option.color || ""}
+                                style={{ color: option.color || "inherit" }}
+                              >
+                                {option.label}
+                              </option>
+                            ))}
+                          </React.Fragment>
+                        ))}
+                      </Form.Control>
+                    }
 
-
-
+                  </Form.Group>
+                )}
                 {editField.type === 'paragraph' && (
                   <Form.Group key={editField.inputId}>
+
+                    <div className='form-group mt-2'>
+                      <label className="form-label">
+                        <input className='me-1' type="checkbox"
+                          checked={conditionalField}
+                          onChange={handleCheckboxChange} />
+                        Is Conditionally bound?
+                      </label>
+                    </div>
+                    {conditionalField == true &&
+                      <Form.Control
+                        as="select"
+                        className="mt-2"
+                        value={editField.conditionalFieldId || ''}
+                        onChange={handleSelectChange}
+                      >
+                        <option value="">Select an option</option>
+                        {taskFields.map((field) => (
+                          <React.Fragment key={field.inputId}>
+                            <option value={field.inputId}>{field.labeltext}</option>
+                            {field.options?.map((option) => (
+                              <option
+                                key={option.id}
+                                value={option.id}
+                                data-color={option.color || ""}
+                                style={{ color: option.color || "inherit" }}
+                              >
+                                {option.label}
+                              </option>
+                            ))}
+                          </React.Fragment>
+                        ))}
+                      </Form.Control>
+                    }
 
                   </Form.Group>
                 )}
@@ -1990,7 +2181,6 @@ const App: React.FC = () => {
                           </React.Fragment>
                         ))}
                       </Form.Control>
-
                     }
 
                   </Form.Group>
@@ -1998,26 +2188,67 @@ const App: React.FC = () => {
 
                 {editField.type === 'date' && (
                   <Form.Group>
+                    {/* Date Field */}
                     <Form.Label>Date</Form.Label>
-                    <Form.Control
-                      type="date"
-                      value={editField.date}
-                      onChange={(e) =>
-                        setEditField({
-                          ...editField,
-                          date: editField.date ? e.target.value : undefined
-                        })
-                      }
+                    <Form.Select
+                      className="mb-3"
+                      value={editField.condition}
+                      onChange={(e) => setCondition(Number(e.target.value))}
+                    >
+                      <option value={1}>Future Date Only (Including Today)</option>
+                      <option value={2}>Future Date Only (Max 15 Days)</option>
+                      <option value={3}>Simple Date Selection</option>
+                      <option value={4}>Any past date selection</option>
+                      <option value={5}>Only today</option>
+                      <option value={6}>Any past date with a not beyond past date</option>
+                      <option value={7}>Any future date wit a not beyond future date</option>
+                      <option value={8}>Not today</option>
+                      <option value={9}>Not this date</option>
+                      <option value={10}>Block week</option>
+                      <option value={11}>Block month</option>
+                      <option value={12}>Block Year</option>
+                    </Form.Select>
+                    {(condition === 6 || condition === 7 || condition === 9 || condition === 10 || condition === 11 || condition === 12) && (<CustomFlatpickr className='form-control' options={{ enableTime: false, dateFormat: 'Y-m-d', minDate: undefined, maxDate: undefined }}
+                      value={dateSelection.date ? new Date(dateSelection.date) : undefined}
+                      onChange={(selectedDates) => {
+                        if (selectedDates && selectedDates.length > 0) {
+                          // Update the date only if a valid selection is made
+                          setDateSelection({
+                            ...dateSelection,
+                            date: selectedDates[0].toISOString().split('T')[0], // Format as 'YYYY-MM-DD'
+                          });
+                        }
+                      }} />)}
+                    <CustomFlatpickr
+                      className='form-control'
+                      options={dateOptions}  // Use memoized options
+                      value={editField.date ? new Date(editField.date) : undefined} // Ensure the value is a valid Date object
+                      onChange={(selectedDates) => {
+                        if (selectedDates && selectedDates.length > 0) {
+                          // Update the date only if a valid selection is made
+                          setEditField({
+                            ...editField,
+                            date: selectedDates[0].toISOString().split('T')[0], // Format as 'YYYY-MM-DD'
+                          });
+                        }
+                      }}
                     />
-                    <div className='form-group mt-2'>
+
+                    {/* Conditional Checkbox */}
+                    <div className="form-group mt-2">
                       <label className="form-label">
-                        <input className='me-1' type="checkbox"
+                        <input
+                          className="me-1"
+                          type="checkbox"
                           checked={conditionalField}
-                          onChange={handleCheckboxChange} />
+                          onChange={handleCheckboxChange}
+                        />
                         Is Conditionally bound?
                       </label>
                     </div>
-                    {conditionalField == true &&
+
+                    {/* Conditional Dropdown */}
+                    {conditionalField && (
                       <Form.Control
                         as="select"
                         className="mt-2"
@@ -2032,8 +2263,8 @@ const App: React.FC = () => {
                               <option
                                 key={option.id}
                                 value={option.id}
-                                data-color={option.color || ""}
-                                style={{ color: option.color || "inherit" }}
+                                data-color={option.color || ''}
+                                style={{ color: option.color || 'inherit' }}
                               >
                                 {option.label}
                               </option>
@@ -2041,10 +2272,11 @@ const App: React.FC = () => {
                           </React.Fragment>
                         ))}
                       </Form.Control>
-
-                    }
+                    )}
                   </Form.Group>
                 )}
+
+
                 <Form.Group className='mt-2'>
                   <Form.Check
                     type="switch"

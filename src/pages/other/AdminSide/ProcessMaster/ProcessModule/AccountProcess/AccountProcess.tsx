@@ -194,13 +194,14 @@ const AccountProcess = () => {
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
 
         const payload = {
-            ...process,
-            updatedBy: empName
+            moduleName: process.moduleName,
+            taskNumber: processID,
+            createdBy: empName
         };
         console.log(payload)
         e.preventDefault();
         try {
-            await axios.post(`${config.API_URL_APPLICATION}/InitiationMaster/UpdateAccountIInitiation`, payload);
+            await axios.post(`${config.API_URL_ACCOUNT}/ProcessInitiation/ManualProcessTaskInitiation`, payload);
             navigate('/pages/ProcessInitiation', {
                 state: {
                     successMessage: "Process Initiated successfully!",
@@ -424,8 +425,7 @@ const AccountProcess = () => {
                                 </Form.Group>
                             </Col>
 
-                            {
-                                role === 'DME' &&
+                            {(role === 'Admin' || role === 'DME') &&
                                 <Col lg={6}>
                                     <Form.Group controlId="processOwnerName" className="mb-3">
                                         <Form.Label>Adhoc Applicable</Form.Label>
@@ -552,11 +552,6 @@ const AccountProcess = () => {
                                 </Row>
 
                             </Col>
-
-
-
-
-
                             <Col lg={3} className='align-items-end d-flex justify-content-end mb-3'>
                                 <ButtonGroup aria-label="Basic example" className='w-100'>
                                     <Link to={'/pages/ProcessInitiation'} className="btn btn-primary">

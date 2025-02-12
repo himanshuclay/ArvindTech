@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { useEffect, useState } from 'react';
-import { Button, Pagination, Col, Form, Row, Table } from 'react-bootstrap';
+import { Button, Pagination, Col, Form, Row, Table, Modal } from 'react-bootstrap';
 import config from '@/config';
 import Select from 'react-select';
 import { toast } from 'react-toastify';
@@ -48,6 +48,7 @@ const YourComponent = () => {
             const response = await axios.get(`${config.API_URL_APPLICATION}/DoerMaster/GetDoerByIdentifier`, {
                 params: { PageIndex: currentPage }
             });
+            console.log(response);
             if (response.data.isSuccess) {
                 setDoerMasterList(response.data.getDoerByIdentifiers);
                 setTotalPages(Math.ceil(response.data.totalCount / 10));
@@ -59,6 +60,10 @@ const YourComponent = () => {
             console.error('Error fetching doer master list:', error);
         }
     };
+    
+    useEffect(() => {
+        fetchDoerMasterList();
+    }, [currentPage]);
 
     type SelectOption = {
         label: string;
@@ -137,10 +142,39 @@ const YourComponent = () => {
         }
     };
 
+    const [showModal, setShowModal] = useState(false);
+    const [selectedTaskID, setSelectedTaskID] = useState<string | null>(null);
+
+    const handleDeleteCombination = async (taskID: string) => {
+        try {
+            const response = await axios.delete(
+                `${config.API_URL_APPLICATION}/DoerMaster/DeleteCombinationByTaskID?TaskID=${taskID}`
+            );
+            console.log(response)
+            console.log('Deletion successful:', response.data);
+            alert('Combination deleted successfully!');
+        } catch (error) {
+            console.error('Error deleting combination:', error);
+            alert('Failed to delete the combination. Please try again.');
+        } finally {
+            setShowModal(false); // Close the modal
+        }
+    };
+
+    const handleConfirmDelete = (taskID: string) => {
+        setSelectedTaskID(taskID);
+        setShowModal(true);
+    };
+
+    const handleCloseModal = () => {
+        setShowModal(false);
+        setSelectedTaskID(null);
+    };
+
     useEffect(() => {
         const fetchInputFieldOptions = async () => {
             try {
-                const response = await axios.get(`${config.API_URL_ACCOUNT}/DynamicDoerAllocation/GetLabelFromType`, {
+                const response = await axios.get(`${config.API_URL_ACCOUNT}/DynamicDoerAllocation/GetLabelFromType?Flag=1`, {
                     params: { PreviousTaskNumber: previousTask }
                 });
 
@@ -423,17 +457,38 @@ const YourComponent = () => {
                                     )}
                                 </td>
                                 <td >
-                                    <Link to={`/pages/DoerMasterinsert/${item.taskID}`}>
-                                        <Button variant='primary' className='p-0 text-white'>
-                                            <i className='btn ri-edit-line text-white' ></i>
+                                        <Button
+                                            variant=''
+                                            className="p-0 text-white"
+                                            onClick={() => handleConfirmDelete(item.taskID)}
+                                        >
+                                            <i className="btn ri-delete-bin-6-line fs-20 text-danger"></i>
                                         </Button>
-                                    </Link>
                                 </td>
                             </tr>
                         ))}
                     </tbody>
                 </Table>
             </div>
+            <Modal show={showModal} onHide={handleCloseModal}>
+                <Modal.Header closeButton>
+                    <Modal.Title>Confirm Deletion</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    Are you sure you want to delete this combination? This action cannot be undone.
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="secondary" onClick={handleCloseModal}>
+                        Cancel
+                    </Button>
+                    <Button
+                        variant="danger"
+                        onClick={() => selectedTaskID && handleDeleteCombination(selectedTaskID)}
+                    >
+                        Delete
+                    </Button>
+                </Modal.Footer>
+            </Modal>
             <div className="d-flex justify-content-center align-items-center bg-white w-20 rounded-5 m-auto py-1 pb-1 my-2 pagination-rounded">
                 <Pagination >
                     <Pagination.First onClick={() => setCurrentPage(1)} disabled={currentPage === 1} />

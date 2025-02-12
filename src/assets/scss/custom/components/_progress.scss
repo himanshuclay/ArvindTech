@@ -384,20 +384,6 @@
 }
 
 
-
-/* Container Styling */
-.stepper-container {
-    padding: 10px;
-    max-width: 100%;
-    overflow-x: hidden;
-}
-
-/* Active Mess Name */
-.active-mess {
-    font-size: 14px;
-    color: #333;
-}
-
 /* Container Styling */
 .stepper-container {
   padding: 10px;
@@ -414,33 +400,39 @@
 /* Wrapper for Stepper */
 .stepper-wrapper {
   position: relative;
-  overflow-x: auto; /* Prevent horizontal scroll on small screens */
-  white-space: nowrap; /* Prevent content wrapping */
+  overflow-x: auto;
+  /* Prevent horizontal scroll on small screens */
+  white-space: nowrap;
+  /* Prevent content wrapping */
 }
 
 /* Background Line */
 /* Background Line */
 .stepper-line {
   position: absolute;
-  top: 22px; /* Align with the center of circles */
+  top: 22px;
+  /* Align with the center of circles */
   height: 4px;
   background-color: #d3d3d3;
   z-index: 1;
   border-radius: 2px;
-  left: 30px; /* Half the width of the circle to align with the first step */
-  right: 30px; /* Same as left to align with the last step */
+  left: 30px;
+  /* Half the width of the circle to align with the first step */
+  right: 30px;
+  /* Same as left to align with the last step */
 }
 
 /* Filled Line */
 .stepper-line-filled {
   position: absolute;
-  top: 22px; /* Align with the center of circles */
+  top: 22px;
+  /* Align with the center of circles */
   height: 4px;
   background-color: #0d6efd;
   z-index: 2;
   border-radius: 2px;
-  left: 30px; 
-  width: calc((100% - 60px) * var(--progress)); 
+  left: 30px;
+  width: calc((100% - 60px) * var(--progress));
   transition: width 0.3s ease;
 }
 
@@ -449,7 +441,8 @@
 .stepper {
   display: flex;
   align-items: center;
-  gap: 15px; /* Reduced spacing between steps */
+  gap: 15px;
+  /* Reduced spacing between steps */
   position: relative;
   z-index: 3;
   padding: 10px 0;
@@ -459,13 +452,15 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  min-width: 80px; /* Smaller width to fit more items */
+  min-width: 80px;
+  /* Smaller width to fit more items */
 }
 
 /* Step Circle */
 .step-circle {
   width: 25px;
-  height: 25px; /* Smaller size */
+  height: 25px;
+  /* Smaller size */
   display: flex;
   justify-content: center;
   align-items: center;
@@ -491,11 +486,15 @@
 /* Step Labels */
 .step-label {
   margin-top: 6px;
-  font-size: 10px; /* Smaller font size */
-  white-space: nowrap; /* Prevent wrapping */
+  font-size: 10px;
+  /* Smaller font size */
+  white-space: nowrap;
+  /* Prevent wrapping */
   overflow: hidden;
-  text-overflow: ellipsis; /* Ellipsis for long names */
-  max-width: 60px; /* Adjust label width */
+  text-overflow: ellipsis;
+  /* Ellipsis for long names */
+  max-width: 60px;
+  /* Adjust label width */
   text-align: center;
 }
 
@@ -518,14 +517,14 @@
 /* For Small Screens */
 @media (max-width: 768px) {
   .step-circle {
-      width: 20px;
-      height: 20px;
-      font-size: 10px;
+    width: 20px;
+    height: 20px;
+    font-size: 10px;
   }
 
   .step-label {
-      font-size: 8px;
-      max-width: 50px;
+    font-size: 8px;
+    max-width: 50px;
   }
 }
 
@@ -977,4 +976,39 @@ input.numInput.cur-year:hover {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+.truncated-text-500 div {
+  max-width: 500px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.special-option {
+  color: blue;
+  font-weight: bold;
+}
+
+.special-option:hover {
+  background-color: lightblue;
+}
+
+.special-option:focus {
+  background-color: lightyellow;
+}
+.cursor-not-allowed
+{
+  cursor: not-allowed;
+  pointer-events: none;
+  opacity: 0.8;
+}
+
+
+// form builder
+.editor {
+  height: calc(100vh - 135px); 
+}
+.border-green{
+  border: 2px solid green!important;
 }

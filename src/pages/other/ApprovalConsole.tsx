@@ -65,11 +65,15 @@ const ApprovalPage: React.FC = () => {
 
   useEffect(() => {
     const fetchData = async () => {
+      console.log("just like a wow")
       try {
         const role = localStorage.getItem('EmpId') || '';
+        console.log("just like a wow2")
         const response = await axios.get<{ isSuccess: boolean; getFilterTasks: Task[] }>(
           `${config.API_URL_ACCOUNT}/ProcessInitiation/GetFilterTask?Flag=8&DoerId=${role}`
         );
+
+        console.log(response)
 
         if (response.data.isSuccess) {
           setTasks(response.data.getFilterTasks);
@@ -97,66 +101,66 @@ const ApprovalPage: React.FC = () => {
     setShow(true);
   };
 
-  const handleSubmit = async () => {
-    try {
-      const requests = tasks.map(async (task) => {
-        const approvalStatus = approvalStatuses[task.id]?.value; // approved, rejected, or amendment
-        const isApprovalConsole = task.approval_Console === "Select Approval_Console";
-        let parsedTaskJson;
+  // const handleSubmit = async () => {
+  //   try {
+  //     const requests = tasks.map(async (task) => {
+  //       const approvalStatus = approvalStatuses[task.id]?.value; // approved, rejected, or amendment
+  //       const isApprovalConsole = task.approval_Console === "Select Approval_Console";
+  //       let parsedTaskJson;
 
-        try {
-          parsedTaskJson = JSON.parse(task.task_Json);
-        } catch (error) {
-          console.error('Error parsing task_Json:', error);
-          return null;
-        }
+  //       try {
+  //         parsedTaskJson = JSON.parse(task.task_Json);
+  //       } catch (error) {
+  //         console.error('Error parsing task_Json:', error);
+  //         return null;
+  //       }
 
-        let updatedTaskJson = [...parsedTaskJson];
-        let updatedIsCompleted = task.isCompleted;
+  //       let updatedTaskJson = [...parsedTaskJson];
+  //       let updatedIsCompleted = task.isCompleted;
 
-        if (isApprovalConsole) {
-          if (approvalStatus === "rejected") {
-            updatedIsCompleted = "Pending";
-          } else if (approvalStatus === "approved") {
-            updatedIsCompleted = "Completed";
-          } else if (approvalStatus === "amendment") {
-            updatedTaskJson = updatedTaskJson.map((field) => {
-              if (field.inputId === "specificFieldId") {
-                return { ...field, value: "Amended Value" };
-              }
-              return field;
-            });
-            updatedIsCompleted = "Pending for Approval";
-          }
-        } else {
-          updatedIsCompleted = isApprovalConsole ? "Pending for Approval" : "Completed";
-        }
+  //       if (isApprovalConsole) {
+  //         if (approvalStatus === "rejected") {
+  //           updatedIsCompleted = "Pending";
+  //         } else if (approvalStatus === "approved") {
+  //           updatedIsCompleted = "Completed";
+  //         } else if (approvalStatus === "amendment") {
+  //           updatedTaskJson = updatedTaskJson.map((field) => {
+  //             if (field.inputId === "specificFieldId") {
+  //               return { ...field, value: "Amended Value" };
+  //             }
+  //             return field;
+  //           });
+  //           updatedIsCompleted = "Pending for Approval";
+  //         }
+  //       } else {
+  //         updatedIsCompleted = isApprovalConsole ? "Pending for Approval" : "Completed";
+  //       }
 
-        const payload = {
-          id: task.id,
-          doerID: task.doerId,
-          task_Json: JSON.stringify(updatedTaskJson),
-          doer_task_Json: task.task_Json,
-          approval_task_Json: isApprovalConsole ? JSON.stringify(updatedTaskJson) : null,
-          isCompleted: updatedIsCompleted,
-          task_Number: task.task_Number,
-          summary: task.expiredSummary || '',
-          condition_Json: task.condition_Json,
-          taskCommonID: task.taskCommonId,
-          taskExpired: task.isExpired,
-          updatedBy: task.createdBy,
-        };
+  //       const payload = {
+  //         id: task.id,
+  //         doerID: task.doerId,
+  //         task_Json: JSON.stringify(updatedTaskJson),
+  //         doer_task_Json: task.task_Json,
+  //         approval_task_Json: isApprovalConsole ? JSON.stringify(updatedTaskJson) : null,
+  //         isCompleted: updatedIsCompleted,
+  //         task_Number: task.task_Number,
+  //         summary: task.expiredSummary || '',
+  //         condition_Json: task.condition_Json,
+  //         taskCommonID: task.taskCommonId,
+  //         taskExpired: task.isExpired,
+  //         updatedBy: task.createdBy,
+  //       };
 
-        const response = await axios.post(`${config.API_URL_ACCOUNT}/ProcessInitiation/UpdateDoerTask`, payload);
-        return response.data;
-      });
+  //       const response = await axios.post(`${config.API_URL_ACCOUNT}/ProcessInitiation/UpdateDoerTask`, payload);
+  //       return response.data;
+  //     });
 
-      const responses = await Promise.all(requests);
-      console.log('Tasks submitted successfully:', responses);
-    } catch (error) {
-      console.error('Error submitting tasks:', error);
-    }
-  };
+  //     const responses = await Promise.all(requests);
+  //     console.log('Tasks submitted successfully:', responses);
+  //   } catch (error) {
+  //     console.error('Error submitting tasks:', error);
+  //   }
+  // };
 
   return (
     <>
@@ -212,9 +216,9 @@ const ApprovalPage: React.FC = () => {
         ))
       )}
 
-      <Button variant="primary" onClick={handleSubmit} className="mt-4">
+      {/* <Button variant="primary" onClick={handleSubmit} className="mt-4">
         Submit Approvals
-      </Button>
+      </Button> */}
 
       {selectedTask && show && (
         <DynamicForm
@@ -226,7 +230,7 @@ const ApprovalPage: React.FC = () => {
           taskName
           finishPoint
           setShow={setShow}
-          parsedCondition={[]}
+          parsedCondition={selectedTask.condition_Json}
           preData={[]}
           // selectedTasknumber={selectedTask.task_Number}
           // setLoading={() => { }}
@@ -237,8 +241,8 @@ const ApprovalPage: React.FC = () => {
           ProcessInitiationID={selectedTask.id}
           approval_Console={selectedTask.approval_Console}
           // approvalConsoleInputID={selectedTask.approvalConsoleInputID}
-          projectName
-          problemSolver
+          projectName = {selectedTask.projectName}
+          problemSolver = {selectedTask.problemSolver}
 
         />
       )}
