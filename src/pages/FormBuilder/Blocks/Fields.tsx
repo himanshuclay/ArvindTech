@@ -25,7 +25,7 @@ const Fields: React.FC<FieldProps> = ({ form, setForm }) => {
     };
 
     return (
-        <div className='bg-white p-2'>
+        <div className='bg-white p-2 rounded'>
             {FieldsList.map((field) => (
                 <div className='p-1 border m-1 rounded cursor-pointer' key={field.is} draggable={true} onDragStart={(e) => handleDragStart(e, field)}>
                     {field.name}

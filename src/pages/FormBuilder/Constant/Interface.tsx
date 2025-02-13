@@ -1,3 +1,4 @@
+import Date from "../Components/Date";
 import EmailInput from "../Components/EmailInput";
 import NumberInput from "../Components/NumberInput";
 import Password from "../Components/Password";
@@ -12,19 +13,19 @@ const componentsMap = {
     PhoneInput,
     Password,
     Select,
+    Date,
 };
 
 interface FIELD {
-    name: string;  
-    blocks: BASIC_FIELD[];  
-    editMode: boolean;  
-    rules: RULE[];  
-    advance: ADVANCE;  
+    name: string;
+    blocks: BASIC_FIELD[];
+    editMode: boolean;
+    rules: RULE[];
+    advance: ADVANCE;
 }
 
 interface BASIC_FIELD {
-    id: string;
-    name: string;  
+    name: string;
     is: keyof typeof componentsMap;
     property: PROPERTY;
 }
@@ -40,7 +41,7 @@ interface RULE {
 }
 
 interface ADVANCE {
-    backgroundColor: string; 
+    backgroundColor: string;
     color: string;
 }
 
@@ -49,14 +50,27 @@ interface PROPERTY {
     id: string;
     placeholder: string;
     value: string;
-    required: string;  
-    options: { label: string; value: string }[];
-    advance: ADVANCE;  
+    required: string;
+    options: OPTION[];
+    advance: ADVANCE;
     isShow: boolean;
+    disabled: boolean;
 
 }
+interface OPTION { label: string; value: string }
 interface BLOCK_VALUE {
-    [key: string]: string;  
+    [key: string]: string;
 }
-export type { FIELD, PROPERTY, BASIC_FIELD, RULE, BLOCK_VALUE, ADVANCE };
+interface TRIGGER_ACTION {
+    type: string;   // e.g., 'show_hide' or 'bind'
+    key: string;
+    block: BASIC_FIELD;
+    bindBlock: BASIC_FIELD;
+    rule: {
+        rule: RULE;
+        value: string | OPTION[];
+    };
+  }
+
+export type { FIELD, PROPERTY, BASIC_FIELD, RULE, BLOCK_VALUE, ADVANCE, OPTION, TRIGGER_ACTION };
 

@@ -1,6 +1,5 @@
 const FIELD_LIST = [
     {
-        id: "",
         name: "Text Input",
         is: "TextInput",
         property: {
@@ -8,14 +7,14 @@ const FIELD_LIST = [
             placeholder: "placeholder",
             required: "false",
             advance: {
-                backgroundColor: '',
-                color: '',
+                backgroundColor: '#fff',
+                color: '#000',
             },
             isShow: true,
+            disabled: false,
         }
     },
     {
-        id: "",
         name: "Number Input",
         is: "NumberInput",
         property: {
@@ -23,16 +22,17 @@ const FIELD_LIST = [
             placeholder: "placeholder",
             required: "false",
             advance: {
-                backgroundColor: '',
-                color: '',
+                backgroundColor: '#fff',
+                color: '#000',
 
             },
             isShow: true,
+            disabled: false,
+
 
         }
     },
     {
-        id: "",
         name: "Email",
         is: "EmailInput",
         property: {
@@ -40,16 +40,16 @@ const FIELD_LIST = [
             placeholder: "placeholder",
             required: "false",
             advance: {
-                backgroundColor: '',
-                color: '',
+                backgroundColor: '#fff',
+                color: '#000',
 
             },
             isShow: true,
+            disabled: false,
 
         }
     },
     {
-        id: "",
         name: "Phone Number",
         is: "PhoneInput",
         property: {
@@ -57,16 +57,16 @@ const FIELD_LIST = [
             placeholder: "placeholder",
             required: "false",
             advance: {
-                backgroundColor: '',
-                color: '',
+                backgroundColor: '#fff',
+                color: '#000',
 
             },
             isShow: true,
+            disabled: false,
 
         }
     },
     {
-        id: "",
         name: "Password",
         is: "Password",
         property: {
@@ -74,16 +74,33 @@ const FIELD_LIST = [
             placeholder: "placeholder",
             required: "false",
             advance: {
-                backgroundColor: '',
-                color: '',
+                backgroundColor: '#fff',
+                color: '#000',
 
             },
             isShow: true,
+            disabled: false,
 
         }
     },
     {
-        id: "",
+        name: "Date",
+        is: "Date",
+        property: {
+            label: "Label",
+            placeholder: "placeholder",
+            required: "false",
+            advance: {
+                backgroundColor: '#fff',
+                color: '#000',
+
+            },
+            isShow: true,
+            disabled: false,
+
+        }
+    },
+    {
         name: "Select",
         is: "Select",
         property: {
@@ -92,11 +109,12 @@ const FIELD_LIST = [
             required: "false",
             options: [],
             advance: {
-                backgroundColor: '',
-                color: '',
+                backgroundColor: '#fff',
+                color: '#000',
 
             },
             isShow: true,
+            disabled: false,
 
         }
     }
@@ -105,20 +123,24 @@ const FIELD_LIST = [
 const START1 = [
     { label: "If", value: 'IF' },
     { label: "Bind", value: 'BIND' },
+    { label: "Map", value: 'MAP' },
 ]
 
 const END1 = [
     { label: "Then", value: "THEN" },
+    { label: "Where", value: "WHERE" },
 ]
 
 // List of tables with labels and values
 const TABLE_NAME = [
-    { label: 'Table Tender Master', value: "tbl_tendermaster" }
+    { label: 'Table Tender Master', value: "tbl_tendermaster" },
+    { label: 'Table Country Master', value: "tbl_countrymaster" },
 ];
 
 // Map table names to their corresponding fields
 const TABLE_FIELD: { [key: string]: { label: string, value: string }[] } = {
-    'tbl_tendermaster': [{ label: 'Tender ID', value: 'TenderID' }]
+    'tbl_tendermaster': [{ label: 'Tender ID', value: 'TenderID' }],
+    'tbl_countrymaster': [{ label: 'Country List', value: 'CountryName' }],
 };
 
 const SHOW_HIDE = [

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Form } from 'react-bootstrap';
 import { BASIC_FIELD, BLOCK_VALUE } from '../Constant/Interface';
 
@@ -12,24 +12,25 @@ interface Props {
     setBlockValue: React.Dispatch<React.SetStateAction<BLOCK_VALUE>>;
 }
 
-const Select: React.FC<Props> = ({ block, handleChange, validationErrors = {}, editMode = false, blockValue, setBlockValue }) => {
+const Select: React.FC<Props> = ({ block, handleChange, validationErrors = {}, editMode, blockValue, setBlockValue }) => {
     const isRequired = block.property.required === "true";
 
     const handleSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
         const { value } = e.target;
-
         setBlockValue((prevState) => ({
             ...prevState,
             [block.property.id]: value,
         }));
-
         handleChange(e as unknown as React.ChangeEvent<HTMLInputElement>, block.property.id);
-
-
     };
+
+    // useEffect(() => {
+    //     console.log('11111111111111111111block', block)
+    // })
 
     return (
         <div>
+            {(block.property.isShow || editMode) && (
             <Form.Group controlId={block.property.id} className="mb-3">
                 <Form.Label>
                     {block.property.label}
@@ -65,6 +66,7 @@ const Select: React.FC<Props> = ({ block, handleChange, validationErrors = {}, e
                     </div>
                 )}
             </Form.Group>
+            )}
         </div>
     );
 };

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Button, Form, Modal } from 'react-bootstrap';
 import { END1, SHOW_HIDE, START1, TABLE_FIELD, TABLE_NAME } from '../Constant/Constant';
 import { getBlockById } from '../Constant/Functions';
@@ -82,8 +82,8 @@ const Rule: React.FC<Props> = ({ showRule, setShowRule, form, setForm }) => {
     const handleStart2 = (rule: RULE) => {
         if (['BIND', 'IF'].includes(rule.start1)) {
             const options: Option[] = form.blocks.map(block => ({
-                label: `${block.property.label} (${block.id})`,
-                value: block.id,
+                label: `${block.property.label} (${block.property.id})`,
+                value: block.property.id,
             }));
             return { isShow: true, options };
         }
@@ -132,10 +132,10 @@ const Rule: React.FC<Props> = ({ showRule, setShowRule, form, setForm }) => {
             if (rule.end1 === 'THEN') {
                 if (rule.end2) {
                     const options: Option[] = form.blocks
-                        .filter(block => block.id !== rule.start2) // Filter blocks based on the condition
+                        .filter(block => block.property.id !== rule.start2) // Filter blocks based on the condition
                         .map(block => ({
-                            label: `${block.property.label} (${block.id})`,
-                            value: block.id,
+                            label: `${block.property.label} (${block.property.id})`,
+                            value: block.property.id,
                         }));
 
                     return { isShow: true, options };
@@ -144,6 +144,10 @@ const Rule: React.FC<Props> = ({ showRule, setShowRule, form, setForm }) => {
         }
         return { isShow: false, options: [] };
     };
+
+    useEffect(() => {
+        setRules(form.rules || [])
+    },[form.rules])
 
 
 

@@ -208,6 +208,13 @@ const getFilteredMenuItems = () => {
       icon: 'ri-settings-fill',
       children: [
         {
+          key: 'systemmaster-FormList',
+          label: 'Form Master',
+          url: '/pages/FormList',
+          icon: 'ri-slideshow-line',
+          parentKey: 'pages',
+        },
+        {
           key: 'systemmaster-ModuleMaster',
           label: 'Module Master',
           url: '/pages/ModuleMaster',

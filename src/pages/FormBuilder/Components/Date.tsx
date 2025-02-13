@@ -10,7 +10,7 @@ interface Props {
     blockValue: BLOCK_VALUE;
 }
 
-const TextInput: React.FC<Props> = ({ block, handleChange, validationErrors = {}, editMode, blockValue }) => {
+const Date: React.FC<Props> = ({ block, handleChange, validationErrors = {}, editMode, blockValue }) => {
     const isRequired = block.property.required === "true";
     
     // Adding condition to disable based on editMode or block property
@@ -28,7 +28,7 @@ const TextInput: React.FC<Props> = ({ block, handleChange, validationErrors = {}
                     </Form.Label>
                     {isDisabled}
                     <Form.Control
-                        type="text"
+                        type="date"
                         name={block.property.id}
                         value={blockValue[block.property.id] || ''}
                         onChange={(e) => handleChange(e as React.ChangeEvent<HTMLInputElement>, block.property.id)}  
@@ -47,4 +47,4 @@ const TextInput: React.FC<Props> = ({ block, handleChange, validationErrors = {}
 };
 
 
-export default TextInput;
+export default Date;
