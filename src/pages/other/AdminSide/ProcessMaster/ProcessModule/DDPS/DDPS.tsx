@@ -41,7 +41,7 @@ interface Process {
 
 
 
-const AccountProcess = () => {
+const DDPS = () => {
     const { id, processID } = useParams<{ id: string, processID: string }>();
     const [show, setShow] = useState(false);
 
@@ -328,6 +328,7 @@ const AccountProcess = () => {
 
                                 </Form.Group>
                             </Col>
+
                         </Row>
 
                         <Row>
@@ -356,7 +357,6 @@ const AccountProcess = () => {
 
                     </Form>
                 </div>
-
                 <Modal className="p-0" show={showLink} onHide={handleClose} size="xl">
                     <Modal.Body>
                         {iframeUrl ? (
@@ -375,7 +375,6 @@ const AccountProcess = () => {
                             urlError}
                     </Modal.Body>
                 </Modal>
-
                 <Overlay
                     show={show}
                     target={target}
@@ -390,81 +389,59 @@ const AccountProcess = () => {
                         </Popover.Header>
                         <Popover.Body>
                             {
-                                processID === 'MDO.01' ? <ul className="fs-15 text-dark">
-                                    <li>Delegation form as and when it is filled with the Fields as mentioned in Form Fields</li>
-
-                                </ul> :
-                                    processID === 'MDO.02' ?
+                                processID === 'DDPS.01' ?
+                                    <ul className="fs-15 text-dark">
+                                        <li> Project </li>
+                                        <li>Structure ID</li>
+                                        <li>Structure Type</li>
+                                        <li>PMS Start Date</li>
+                                        <li> Type of Design</li>
+                                        <li>Pier/Span/Chainage Number</li>
+                                        <li>Drawing Broad Category</li>
+                                        <li>DTN ID[Auto Generate]</li>
+                                        <li>DTN Generation Date [ Upload Date]</li>
+                                    </ul> :
+                                    processID === 'DDPS.02' ?
                                         <ul className="fs-15 text-dark">
-                                            <li>Helpticket form as and when it is filled with the Fields as mentioned in Form Fields</li>
+                                            <li>Project</li>
+                                            <li>Type of Drawing</li>
+                                            <li>Location of Structure</li>
+                                            <li>DTN ID</li>
+                                            <li>Drawing Title</li>
+                                            <li>Drawing Number</li>
+                                            <li>Drawing Revision Number</li>
+                                            <li>Number of Sheets in Drawing</li>
+                                            <li>GFC Date</li>
 
                                         </ul> :
-                                        processID === 'MDO.03' ?
+                                        processID === 'DDPS.03' ?
                                             <ul className="fs-15 text-dark">
-                                                <li>Initiation through Help form filled either at Task Level / App Level / Login Level</li>
-
+                                                <li>Project</li>
+                                                <li>Week [ddMMMyy - ddMMMyy]</li>
                                             </ul> :
-                                            processID === 'MDO.04' ?
+                                            processID === 'DDPS.04' || processID === 'DDPS.05' ?
                                                 <ul className="fs-15 text-dark">
-                                                    <li>Reported Date</li>
-                                                    <li>Employee Name</li>
-                                                    <li>Employee ID</li>
-                                                    <li>Project [Employee Master]</li>
-                                                    <li>Designation [Employee Master]</li>
-                                                    <li>HR Updated Mobile [Employee Master]</li>
-                                                    <li>User Updated Mobile [Employee Master]</li>
-                                                    <li>ObservationID Count [EMP ID][Repeat]</li>
-
+                                                    <li>Project</li>
+                                                    <li>Period [18MMMyy - 17MMMyy]</li>
                                                 </ul> :
-                                                processID === 'MDO.05' ?
+                                                processID === 'DDPS.06' ?
                                                     <ul className="fs-15 text-dark">
-                                                        <li>Task Creation Date</li>
-                                                        <li>LNID</li>
-                                                        <li>TaskID</li>
-                                                        <li>TaskName</li>
-                                                        <li>TaskDoer [No Doer Assigned]</li>
-                                                        <li>Last Doer Changed by</li>
-                                                        <li>Last Doer Change Datetime</li>
-                                                        <li>Last Doer Change Reason </li>
-                                                        <li>Identifiers and the respective values</li>
-                                                        <li>Issue Type</li>
+                                                        <li>Project</li>
+                                                        <li>UniqueID</li>
+                                                        <li>Safety Person</li>
+                                                        <li>Assign Date</li>
+                                                        <li>Observation Type</li>
+                                                        <li>Observation</li>
+                                                        <li>Site & Exact Location</li>
+                                                        <li>Responsible Contractor</li>
+                                                        <li>Recommendation</li>
+                                                        <li>Target Date</li>
+                                                        <li>Allocated LineIncharge</li>
+                                                        <li>Severity Rate Level</li>
+                                                        <li>Upload PhotoGraph</li>
 
                                                     </ul> :
-                                                    processID === 'MDO.06' ?
-                                                        <ul className="fs-15 text-dark">
-                                                            <li>Training Requirement Date</li>
-                                                            <li>Employee Name</li>
-                                                            <li>Employee ID</li>
-                                                            <li>Project [Employee Master]</li>
-                                                            <li>HR Updated Mobile [Employee Master]</li>
-                                                            <li>User Updated Mobile [Employee Master]</li>
-                                                            <li>Training Requirement Description</li>
-                                                            <li>TrainingID [Auto]</li>
-                                                        </ul> :
-                                                        processID === 'MDO.07' ?
-                                                            <ul className="fs-15 text-dark">
-                                                                <li>Project</li>
-                                                                <li>Month [MMMYY]</li>
-                                                                <li>UID</li>
-
-                                                            </ul> :
-                                                            processID === 'MDO.08' ?
-                                                                <ul className="fs-15 text-dark">
-                                                                    <li>Date</li>
-                                                                    <li>Project</li>
-                                                                    <li>LicenseType</li>
-                                                                    <li>Requirment Update Date</li>
-                                                                    <li>Expiry Date</li>
-                                                                    <li>UID</li>
-                                                                </ul> :
-                                                                processID === 'MDO.09' ?
-                                                                    <ul className="fs-15 text-dark">
-                                                                        <li>Project [Ongoing]</li>
-                                                                        <li>UID</li>
-                                                                        <li>Month [MMMYY]</li>
-                                                                        <li>Auditor Employee Name [Employee Master]</li>
-                                                                    </ul> :
-                                                                    null
+                                                    null
 
                             }
 
@@ -473,9 +450,9 @@ const AccountProcess = () => {
                     </Popover>
                 </Overlay>
 
-            </div>
+            </div >
         </div >
     );
 };
 
-export default AccountProcess;
+export default DDPS;

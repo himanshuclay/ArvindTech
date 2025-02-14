@@ -41,7 +41,7 @@ interface Process {
 
 
 
-const AccountProcess = () => {
+const Demobilization = () => {
     const { id, processID } = useParams<{ id: string, processID: string }>();
     const [show, setShow] = useState(false);
 
@@ -328,6 +328,7 @@ const AccountProcess = () => {
 
                                 </Form.Group>
                             </Col>
+
                         </Row>
 
                         <Row>
@@ -356,7 +357,6 @@ const AccountProcess = () => {
 
                     </Form>
                 </div>
-
                 <Modal className="p-0" show={showLink} onHide={handleClose} size="xl">
                     <Modal.Body>
                         {iframeUrl ? (
@@ -375,7 +375,6 @@ const AccountProcess = () => {
                             urlError}
                     </Modal.Body>
                 </Modal>
-
                 <Overlay
                     show={show}
                     target={target}
@@ -390,81 +389,34 @@ const AccountProcess = () => {
                         </Popover.Header>
                         <Popover.Body>
                             {
-                                processID === 'MDO.01' ? <ul className="fs-15 text-dark">
-                                    <li>Delegation form as and when it is filled with the Fields as mentioned in Form Fields</li>
-
+                                processID === 'DEMOB.01' ||
+                                    processID === 'DEMOB.02' ||
+                                    processID === 'DEMOB.03' ||
+                                    processID === 'DEMOB.06' ||
+                                    processID === 'DEMOB.08' ||
+                                    processID === 'DEMOB.09' ||
+                                    processID === 'DEMOB.10' ||
+                                    processID === 'DEMOB.11' ||
+                                    processID === 'DEMOB.12' ||
+                                    processID === 'DEMOB.13' ||
+                                    processID === 'DEMOB.14' ||
+                                    processID === 'DEMOB.15' ||
+                                    processID === 'DEMOB.16' ||
+                                    processID === 'DEMOB.07' ? <ul className="fs-15 text-dark">
+                                    <li> Project Name</li>
+                                    <li>Month [MMMYY]</li>
+                                    <li>Percentage of Work Done</li>
+                                    <li>UID [Autogenerate]</li>
                                 </ul> :
-                                    processID === 'MDO.02' ?
+                                    processID === 'DEMOB.04' || processID === 'DEMOB.05' ?
                                         <ul className="fs-15 text-dark">
-                                            <li>Helpticket form as and when it is filled with the Fields as mentioned in Form Fields</li>
+                                            <li>Project</li>
+                                            <li>Quarter [QX 20ZZ-20YY]</li>
+                                            <li>Percentage of Work Done</li>
+                                            <li>UID [Autogenerate]</li>
 
                                         </ul> :
-                                        processID === 'MDO.03' ?
-                                            <ul className="fs-15 text-dark">
-                                                <li>Initiation through Help form filled either at Task Level / App Level / Login Level</li>
-
-                                            </ul> :
-                                            processID === 'MDO.04' ?
-                                                <ul className="fs-15 text-dark">
-                                                    <li>Reported Date</li>
-                                                    <li>Employee Name</li>
-                                                    <li>Employee ID</li>
-                                                    <li>Project [Employee Master]</li>
-                                                    <li>Designation [Employee Master]</li>
-                                                    <li>HR Updated Mobile [Employee Master]</li>
-                                                    <li>User Updated Mobile [Employee Master]</li>
-                                                    <li>ObservationID Count [EMP ID][Repeat]</li>
-
-                                                </ul> :
-                                                processID === 'MDO.05' ?
-                                                    <ul className="fs-15 text-dark">
-                                                        <li>Task Creation Date</li>
-                                                        <li>LNID</li>
-                                                        <li>TaskID</li>
-                                                        <li>TaskName</li>
-                                                        <li>TaskDoer [No Doer Assigned]</li>
-                                                        <li>Last Doer Changed by</li>
-                                                        <li>Last Doer Change Datetime</li>
-                                                        <li>Last Doer Change Reason </li>
-                                                        <li>Identifiers and the respective values</li>
-                                                        <li>Issue Type</li>
-
-                                                    </ul> :
-                                                    processID === 'MDO.06' ?
-                                                        <ul className="fs-15 text-dark">
-                                                            <li>Training Requirement Date</li>
-                                                            <li>Employee Name</li>
-                                                            <li>Employee ID</li>
-                                                            <li>Project [Employee Master]</li>
-                                                            <li>HR Updated Mobile [Employee Master]</li>
-                                                            <li>User Updated Mobile [Employee Master]</li>
-                                                            <li>Training Requirement Description</li>
-                                                            <li>TrainingID [Auto]</li>
-                                                        </ul> :
-                                                        processID === 'MDO.07' ?
-                                                            <ul className="fs-15 text-dark">
-                                                                <li>Project</li>
-                                                                <li>Month [MMMYY]</li>
-                                                                <li>UID</li>
-
-                                                            </ul> :
-                                                            processID === 'MDO.08' ?
-                                                                <ul className="fs-15 text-dark">
-                                                                    <li>Date</li>
-                                                                    <li>Project</li>
-                                                                    <li>LicenseType</li>
-                                                                    <li>Requirment Update Date</li>
-                                                                    <li>Expiry Date</li>
-                                                                    <li>UID</li>
-                                                                </ul> :
-                                                                processID === 'MDO.09' ?
-                                                                    <ul className="fs-15 text-dark">
-                                                                        <li>Project [Ongoing]</li>
-                                                                        <li>UID</li>
-                                                                        <li>Month [MMMYY]</li>
-                                                                        <li>Auditor Employee Name [Employee Master]</li>
-                                                                    </ul> :
-                                                                    null
+                                        null
 
                             }
 
@@ -473,9 +425,9 @@ const AccountProcess = () => {
                     </Popover>
                 </Overlay>
 
-            </div>
+            </div >
         </div >
     );
 };
 
-export default AccountProcess;
+export default Demobilization;
