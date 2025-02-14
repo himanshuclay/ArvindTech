@@ -40,7 +40,7 @@ interface Process {
 
 
 
-const AccountProcess = () => {
+const MDO = () => {
     const { id, processID } = useParams<{ id: string, processID: string }>();
     const [show, setShow] = useState(false);
 
@@ -323,56 +323,81 @@ const AccountProcess = () => {
                         </Popover.Header>
                         <Popover.Body>
                             {
-                                processID === 'BD.01' || processID === 'BD.02' ? <ul className="fs-15 text-dark">
-                                    <li>Project Name</li>
+                                processID === 'MDO.01' ? <ul className="fs-15 text-dark">
+                                    <li>Delegation form as and when it is filled with the Fields as mentioned in Form Fields</li>
+
                                 </ul> :
-                                    processID === 'BD.03' ?
+                                    processID === 'MDO.02' ?
                                         <ul className="fs-15 text-dark">
-                                            <li>Tender ID</li>
-                                            <li>Tender Status</li>
-                                            <li>Work Name</li>
-                                            <li>Status Last Updated Date</li>
-                                            <li>Dept/Principal Employer</li>
-                                            <li>AT Bid [Cr]</li>
-                                            <li>L1 Bidder Name</li>
-                                            <li>L1 Bid [Cr]</li>
+                                            <li>Helpticket form as and when it is filled with the Fields as mentioned in Form Fields</li>
+
                                         </ul> :
-                                        processID === 'BD.04' ?
+                                        processID === 'MDO.03' ?
                                             <ul className="fs-15 text-dark">
-                                                <li>Project</li>
-                                                <li>Quarter QX[20ZZ-20YY]</li>
+                                                <li>Initiation through Help form filled either at Task Level / App Level / Login Level</li>
+
                                             </ul> :
-                                            processID === 'BD.05' ?
+                                            processID === 'MDO.04' ?
                                                 <ul className="fs-15 text-dark">
-                                                    <li>Project_Master</li>
-                                                    <li>Project</li>
-                                                    <li>Month [MMMYY]</li>
-                                                    <li>Contractual Work</li>
-                                                    <li>Value[Cr]</li>
-                                                    <li>Contractual Start Date</li>
-                                                    <li>Contractual Completion</li>
-                                                    <li>Date</li>
+                                                    <li>Reported Date</li>
+                                                    <li>Employee Name</li>
+                                                    <li>Employee ID</li>
+                                                    <li>Project [Employee Master]</li>
+                                                    <li>Designation [Employee Master]</li>
+                                                    <li>HR Updated Mobile [Employee Master]</li>
+                                                    <li>User Updated Mobile [Employee Master]</li>
+                                                    <li>ObservationID Count [EMP ID][Repeat]</li>
+
                                                 </ul> :
-                                                processID === 'BD.06' ?
+                                                processID === 'MDO.05' ?
                                                     <ul className="fs-15 text-dark">
-                                                        <li>Project</li>
-                                                        <li>Quarter QX[20ZZ-20YY]</li>
-                                                        <li>Revised Contractual value of work[Cr]</li>
-                                                        <li>Contractual Start Date</li>
-                                                        <li>Contractual Completion</li>
-                                                        <li>Value Recorded [MMMYY]</li>
-                                                        <li>Total Work Done Value Upto Mentioned Month[Cr]</li>
-                                                        <li>Percentage of Work Done</li>
+                                                        <li>Task Creation Date</li>
+                                                        <li>LNID</li>
+                                                        <li>TaskID</li>
+                                                        <li>TaskName</li>
+                                                        <li>TaskDoer [No Doer Assigned]</li>
+                                                        <li>Last Doer Changed by</li>
+                                                        <li>Last Doer Change Datetime</li>
+                                                        <li>Last Doer Change Reason </li>
+                                                        <li>Identifiers and the respective values</li>
+                                                        <li>Issue Type</li>
+
                                                     </ul> :
-                                                    processID === 'BD.07' ?
+                                                    processID === 'MDO.06' ?
                                                         <ul className="fs-15 text-dark">
-                                                            <li>Project</li>
-                                                            <li>Quarter QX[20ZZ-20YY]</li>
+                                                            <li>Training Requirement Date</li>
+                                                            <li>Employee Name</li>
+                                                            <li>Employee ID</li>
+                                                            <li>Project [Employee Master]</li>
+                                                            <li>HR Updated Mobile [Employee Master]</li>
+                                                            <li>User Updated Mobile [Employee Master]</li>
+                                                            <li>Training Requirement Description</li>
+                                                            <li>TrainingID [Auto]</li>
                                                         </ul> :
+                                                        processID === 'MDO.07' ?
+                                                            <ul className="fs-15 text-dark">
+                                                                <li>Project</li>
+                                                                <li>Month [MMMYY]</li>
+                                                                <li>UID</li>
 
-
-
-                                                        null
+                                                            </ul> :
+                                                            processID === 'MDO.08' ?
+                                                                <ul className="fs-15 text-dark">
+                                                                    <li>Date</li>
+                                                                    <li>Project</li>
+                                                                    <li>LicenseType</li>
+                                                                    <li>Requirment Update Date</li>
+                                                                    <li>Expiry Date</li>
+                                                                    <li>UID</li>
+                                                                </ul> :
+                                                                processID === 'MDO.09' ?
+                                                                    <ul className="fs-15 text-dark">
+                                                                        <li>Project [Ongoing]</li>
+                                                                        <li>UID</li>
+                                                                        <li>Month [MMMYY]</li>
+                                                                        <li>Auditor Employee Name [Employee Master]</li>
+                                                                    </ul> :
+                                                                    null
 
                             }
 
@@ -386,4 +411,4 @@ const AccountProcess = () => {
     );
 };
 
-export default AccountProcess;
+export default MDO;
