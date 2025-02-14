@@ -354,6 +354,13 @@ const getFilteredMenuItems = () => {
           parentKey: 'master',
         },
         {
+          key: 'Contact',
+          label: 'Contact Master',
+          url: '/pages/ContactMaster',
+          icon: 'ri-bank-line',
+          parentKey: 'master',
+        },
+        {
           key: 'AddressMaster',
           label: 'Address Master',
           url: '/pages/AddressMaster',

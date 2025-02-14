@@ -80,6 +80,8 @@ const AddressMaster = React.lazy(() => import('../pages/other/AdminSide/AddressM
 const AddressMasterinsert = React.lazy(() => import('../pages/other/AdminSide/AddressMaster/AddressMasterinsert.tsx'))
 const BankMaster = React.lazy(() => import('../pages/other/AdminSide/BankMaster/BankMaster.tsx'))
 const BankMasterinsert = React.lazy(() => import('../pages/other/AdminSide/BankMaster/BankMasterinsert.tsx'))
+const ContactMaster = React.lazy(() => import('../pages/other/AdminSide/ContactMaster/ContactMaster.tsx'))
+const ContactMasterinsert = React.lazy(() => import('../pages/other/AdminSide/ContactMaster/ContactMasterInsert.tsx'))
 const FillingFrequencyMaster = React.lazy(() => import('../pages/other/AdminSide/CommonMaster/FillingFrequencyMaster/FillingFrequencyMaster.tsx'))
 const FillingFrequencyMasterinsert = React.lazy(() => import('../pages/other/AdminSide/CommonMaster/FillingFrequencyMaster/FillingFrequencyMasterinsert.tsx'))
 const ManagementContractMaster = React.lazy(() => import('../pages/other/AdminSide/CommonMaster/ManagementContractMaster/ManagementContractMaster.tsx'))
@@ -684,9 +686,15 @@ const customPagesRoutes = {
 			route: PrivateRoute,
 		},
 		{
-			path: '/pages/BankMasterinsert/:id',
-			name: 'BankMasterinsert ',
-			element: <BankMasterinsert />,
+			path: '/pages/ContactMaster',
+			name: 'ContactMaster',
+			element: <ContactMaster />,
+			route: PrivateRoute,
+		},
+		{
+			path: '/pages/ContactMasterinsert/:id',
+			name: 'ContactMasterinsert ',
+			element: <ContactMasterinsert />,
 			route: PrivateRoute,
 		},
 		{
