@@ -3,7 +3,6 @@ import { useEffect, useState, useRef } from 'react';
 import { Button, Col, Form, Row, ButtonGroup, Overlay, Popover, Modal, Table } from 'react-bootstrap';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import config from '@/config';
-import Select from 'react-select';
 import DynamicForm from '@/pages/other/Component/DynamicForm';
 import { toast } from 'react-toastify';
 
@@ -39,10 +38,7 @@ interface Process {
     problemSolver: any;
 }
 
-interface GetTypeDayTimeList {
-    id: number;
-    name: string;
-}
+
 interface AdhocList {
     id: number;
     formName: string;
@@ -96,11 +92,6 @@ const AccountProcess = () => {
         problemSolver: ''
     });
 
-    const [dropdownValuesFlag1, setDropdownValuesFlag1] = useState<GetTypeDayTimeList[]>([]);
-    const [dropdownValuesFlag2, setDropdownValuesFlag2] = useState<GetTypeDayTimeList[]>([]);
-    const [dropdownValuesFlag3, setDropdownValuesFlag3] = useState<GetTypeDayTimeList[]>([]);
-    const [dropdownValuesFlag4, setDropdownValuesFlag4] = useState<GetTypeDayTimeList[]>([]);
-
 
     useEffect(() => {
         toast.dismiss()
@@ -118,12 +109,6 @@ const AccountProcess = () => {
     }, [id]);
 
 
-    useEffect(() => {
-        GetTypeDayTimeList(1, setDropdownValuesFlag1);
-        GetTypeDayTimeList(2, setDropdownValuesFlag2);
-        GetTypeDayTimeList(3, setDropdownValuesFlag3);
-        GetTypeDayTimeList(4, setDropdownValuesFlag4);
-    }, []);
 
     const fetchModuleById = async (id: string) => {
         try {
@@ -141,22 +126,6 @@ const AccountProcess = () => {
         }
     };
 
-
-
-
-    const GetTypeDayTimeList = async (flag: any, setStateCallback: any) => {
-        try {
-            const response = await axios.get(`${config.API_URL_APPLICATION}/CommonDropdown/GetTypeDayTimeList?flag=${flag}`);
-            if (response.data.isSuccess) {
-                setStateCallback(response.data.typeListResponses);
-            } else {
-                console.error(response.data.message);
-            }
-        } catch (error) {
-            console.error('Error fetching modules:', error);
-        }
-
-    };
 
 
     useEffect(() => {
@@ -178,10 +147,6 @@ const AccountProcess = () => {
     }, [showAdhoc]);
 
 
-    console.log(process)
-
-
-
     useEffect(() => {
         if (["Daily"].includes(process.intervalType)) {
             setProcess(process => ({
@@ -191,7 +156,7 @@ const AccountProcess = () => {
         }
     }, [process.intervalType]);
 
-    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    const handleSubmit = async () => {
 
         const payload = {
             moduleName: process.moduleName,
@@ -199,7 +164,6 @@ const AccountProcess = () => {
             createdBy: empName
         };
         console.log(payload)
-        e.preventDefault();
         try {
             await axios.post(`${config.API_URL_ACCOUNT}/ProcessInitiation/ManualProcessTaskInitiation`, payload);
             navigate('/pages/ProcessInitiation', {
@@ -232,7 +196,6 @@ const AccountProcess = () => {
         setShowAdhoc(false);
         setShowLink(false)
     };
-
 
     const handleOpenLink = () => {
         setShowLink(true)
@@ -300,163 +263,162 @@ const AccountProcess = () => {
                     <span><i className="ri-file-list-line me-2"></i><span className='fw-bold'>Process Initiation </span></span>
                 </div>
                 <div className='bg-white p-2 rounded-3 border'>
-                    <Form onSubmit={handleSubmit}>
-                        <Row>
-                            <Col lg={6}>
-                                <Form.Group controlId="moduleDisplayName" className="mb-3">
-                                    <Form.Label>Module Name</Form.Label>
-                                    <Form.Control
-                                        type="text"
-                                        name="moduleDisplayName"
-                                        value={process.moduleName}
-                                        readOnly
-                                        disabled
-                                    />
-                                </Form.Group>
-                            </Col>
+                    <Row>
+                        <Col lg={6}>
+                            <Form.Group controlId="moduleDisplayName" className="mb-3">
+                                <Form.Label>Module Name</Form.Label>
+                                <Form.Control
+                                    type="text"
+                                    name="moduleDisplayName"
+                                    value={process.moduleName}
+                                    readOnly
+                                    disabled
+                                />
+                            </Form.Group>
+                        </Col>
 
-                            <Col lg={6}>
-                                <Form.Group controlId="processDisplayName" className="mb-3">
-                                    <Form.Label>Process Name</Form.Label>
-                                    <Form.Control
-                                        type="text"
-                                        name="processDisplayName"
-                                        value={process.processDisplayName}
-                                        disabled
-                                        readOnly
-                                    />
-                                </Form.Group>
-                            </Col>
+                        <Col lg={6}>
+                            <Form.Group controlId="processDisplayName" className="mb-3">
+                                <Form.Label>Process Name</Form.Label>
+                                <Form.Control
+                                    type="text"
+                                    name="processDisplayName"
+                                    value={process.processDisplayName}
+                                    disabled
+                                    readOnly
+                                />
+                            </Form.Group>
+                        </Col>
 
-                            <Col lg={6}>
-                                <Form.Group controlId="processObjective" className="mb-3">
-                                    <Form.Label>Process Objective:</Form.Label>
-                                    <Form.Control
-                                        type="textarea"
-                                        name="processObjective"
-                                        value={process.processObjective ? process.processObjective : 'No File Avilable'}
-                                        readOnly
-                                        disabled
-                                    />
-                                </Form.Group>
-                            </Col>
+                        <Col lg={6}>
+                            <Form.Group controlId="processObjective" className="mb-3">
+                                <Form.Label>Process Objective:</Form.Label>
+                                <Form.Control
+                                    type="textarea"
+                                    name="processObjective"
+                                    value={process.processObjective ? process.processObjective : 'No File Avilable'}
+                                    readOnly
+                                    disabled
+                                />
+                            </Form.Group>
+                        </Col>
 
-                            <Col lg={6}>
-                                <Form.Group controlId="processFlowchart" className="mb-3 position-relative">
-                                    <Form.Label>Process Flowchart:</Form.Label>
-                                    <Form.Control
-                                        type="text"
-                                        name="processFlowchart"
-                                        readOnly
-                                        disabled
-                                    />
+                        <Col lg={6}>
+                            <Form.Group controlId="processFlowchart" className="mb-3 position-relative">
+                                <Form.Label>Process Flowchart:</Form.Label>
+                                <Form.Control
+                                    type="text"
+                                    name="processFlowchart"
+                                    readOnly
+                                    disabled
+                                />
 
-                                    {process.processFlowchart && (
-                                        <div className="mt-2 position-absolute download-file">
-                                            <a
-                                                href={`path_to_your_files/${process.processFlowchart}`}
-                                                download={process.processFlowchart}
-                                                className="btn btn-link"
-                                            >
-                                                <i className="ri-download-fill"></i>
-                                            </a>
-                                        </div>
-                                    )}
-                                </Form.Group>
-                            </Col>
+                                {process.processFlowchart && (
+                                    <div className="mt-2 position-absolute download-file">
+                                        <a
+                                            href={`path_to_your_files/${process.processFlowchart}`}
+                                            download={process.processFlowchart}
+                                            className="btn btn-link"
+                                        >
+                                            <i className="ri-download-fill"></i>
+                                        </a>
+                                    </div>
+                                )}
+                            </Form.Group>
+                        </Col>
 
-                            <Col lg={6}>
-                                <Form.Group controlId="misExempt" className="mb-3">
-                                    <Form.Label>MIS Exempt:</Form.Label>
-                                    <Form.Control
-                                        type="text"
-                                        name="misExempt"
-                                        value={process.misExempt}
-                                        disabled
-                                        readOnly
-                                    />
-                                </Form.Group>
-                            </Col>
+                        <Col lg={6}>
+                            <Form.Group controlId="misExempt" className="mb-3">
+                                <Form.Label>MIS Exempt:</Form.Label>
+                                <Form.Control
+                                    type="text"
+                                    name="misExempt"
+                                    value={process.misExempt}
+                                    disabled
+                                    readOnly
+                                />
+                            </Form.Group>
+                        </Col>
 
-                            <Col lg={6}>
-                                <Form.Group controlId="status1" className="mb-3">
-                                    <Form.Label>Status:</Form.Label>
-                                    <Form.Control
-                                        type="text"
-                                        name="status1"
-                                        value={process.status}
-                                        disabled
-                                        readOnly
-                                    />
-                                </Form.Group>
-                            </Col>
+                        <Col lg={6}>
+                            <Form.Group controlId="status1" className="mb-3">
+                                <Form.Label>Status:</Form.Label>
+                                <Form.Control
+                                    type="text"
+                                    name="status1"
+                                    value={process.status}
+                                    disabled
+                                    readOnly
+                                />
+                            </Form.Group>
+                        </Col>
 
+                        <Col lg={6}>
+                            <Form.Group controlId="processOwnerName" className="mb-3">
+                                <Form.Label>Process Owner Name</Form.Label>
+                                <Form.Control
+                                    type="text"
+                                    name="processOwnerName"
+                                    value={process.processOwnerName}
+                                    disabled
+                                    readOnly
+                                />
+                            </Form.Group>
+                        </Col>
+
+
+
+
+                        <Col lg={6}>
+                            <Form.Group controlId="link" className="mb-3 position-relative">
+                                <Form.Label>Link</Form.Label>
+                                <Form.Control
+                                    type="text"
+                                    name="link"
+                                    value={process.link}
+                                    placeholder="e.g., https://www.example.com"
+                                    disabled
+
+                                />
+                                <Form.Control.Feedback type="invalid">{urlError}</Form.Control.Feedback>
+                                <div onClick={handleOpenLink} className="mt-2 link-btn p-1"><i className="ri-eye-fill"></i></div>
+
+
+                            </Form.Group>
+                        </Col>
+
+                        {(role === 'Admin' || role === 'DME') &&
                             <Col lg={6}>
                                 <Form.Group controlId="processOwnerName" className="mb-3">
-                                    <Form.Label>Process Owner Name</Form.Label>
-                                    <Form.Control
-                                        type="text"
-                                        name="processOwnerName"
-                                        value={process.processOwnerName}
-                                        disabled
-                                        readOnly
-                                    />
+                                    <Form.Label>Adhoc Applicable</Form.Label>
+                                    <div className='d-flex'>
+                                        <Form.Check
+                                            inline
+                                            type="radio"
+                                            id="statusDeactive"
+                                            name="isExpirable"
+                                            value={0}
+                                            label="No"
+                                            checked={adhocApplicable === 0}
+                                            onChange={() => handleChangeExpirable(0)}
+                                        />
+                                        <Form.Check
+                                            inline
+                                            type="radio"
+                                            id="statusActive"
+                                            name="isExpirable"
+                                            value={1}
+                                            label="Yes"
+                                            checked={adhocApplicable === 1}
+                                            onChange={() => handleChangeExpirable(1)}
+                                        />
+                                    </div>
                                 </Form.Group>
                             </Col>
+                        }
 
 
-
-
-                            <Col lg={6}>
-                                <Form.Group controlId="link" className="mb-3 position-relative">
-                                    <Form.Label>Link</Form.Label>
-                                    <Form.Control
-                                        type="text"
-                                        name="link"
-                                        value={process.link}
-                                        placeholder="e.g., https://www.example.com"
-                                        disabled
-
-                                    />
-                                    <Form.Control.Feedback type="invalid">{urlError}</Form.Control.Feedback>
-                                    <div onClick={handleOpenLink} className="mt-2 link-btn p-1"><i className="ri-eye-fill"></i></div>
-
-
-                                </Form.Group>
-                            </Col>
-
-                            {(role === 'Admin' || role === 'DME') &&
-                                <Col lg={6}>
-                                    <Form.Group controlId="processOwnerName" className="mb-3">
-                                        <Form.Label>Adhoc Applicable</Form.Label>
-                                        <div className='d-flex'>
-                                            <Form.Check
-                                                inline
-                                                type="radio"
-                                                id="statusDeactive"
-                                                name="isExpirable"
-                                                value={0}
-                                                label="No"
-                                                checked={adhocApplicable === 0}
-                                                onChange={() => handleChangeExpirable(0)}
-                                            />
-                                            <Form.Check
-                                                inline
-                                                type="radio"
-                                                id="statusActive"
-                                                name="isExpirable"
-                                                value={1}
-                                                label="Yes"
-                                                checked={adhocApplicable === 1}
-                                                onChange={() => handleChangeExpirable(1)}
-                                            />
-                                        </div>
-                                    </Form.Group>
-                                </Col>
-                            }
-
-
-                            <Col lg={12}>
+                        {/* <Col lg={12}>
                                 <Row>
                                     <h4>Specific Time</h4>
                                     <Col lg={6}>
@@ -551,7 +513,8 @@ const AccountProcess = () => {
                                     </Col>
                                 </Row>
 
-                            </Col>
+                            </Col> */}
+                        <Row>
                             <Col lg={3} className='align-items-end d-flex justify-content-end mb-3'>
                                 <ButtonGroup aria-label="Basic example" className='w-100'>
                                     <Link to={'/pages/ProcessInitiation'} className="btn btn-primary">
@@ -576,14 +539,14 @@ const AccountProcess = () => {
                                     }
                                     {
                                         role === 'Admin' &&
-                                        <Button variant="primary" type="submit">
+                                        <Button variant="primary" onClick={handleSubmit}>
                                             Initate Process
                                         </Button>
                                     }
                                 </ButtonGroup>
                             </Col>
                         </Row>
-                    </Form>
+                    </Row>
                 </div>
             </div>
 

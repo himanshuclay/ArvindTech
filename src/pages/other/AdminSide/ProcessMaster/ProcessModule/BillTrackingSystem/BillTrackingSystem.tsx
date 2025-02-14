@@ -41,7 +41,7 @@ interface Process {
 
 
 
-const AccountProcess = () => {
+const BillTrackingSystem = () => {
     const { id, processID } = useParams<{ id: string, processID: string }>();
     const [show, setShow] = useState(false);
 
@@ -328,6 +328,7 @@ const AccountProcess = () => {
 
                                 </Form.Group>
                             </Col>
+
                         </Row>
 
                         <Row>
@@ -356,7 +357,6 @@ const AccountProcess = () => {
 
                     </Form>
                 </div>
-
                 <Modal className="p-0" show={showLink} onHide={handleClose} size="xl">
                     <Modal.Body>
                         {iframeUrl ? (
@@ -375,7 +375,6 @@ const AccountProcess = () => {
                             urlError}
                     </Modal.Body>
                 </Modal>
-
                 <Overlay
                     show={show}
                     target={target}
@@ -390,81 +389,112 @@ const AccountProcess = () => {
                         </Popover.Header>
                         <Popover.Body>
                             {
-                                processID === 'MDO.01' ? <ul className="fs-15 text-dark">
-                                    <li>Delegation form as and when it is filled with the Fields as mentioned in Form Fields</li>
 
+                                processID === 'BTS.01' ? <ul className="fs-15 text-dark">
+                                    <li> ReqID</li>
+                                    <li> Entry Date</li>
+                                    <li> Project Name</li>
+                                    <li> Vendor Name</li>
+                                    <li> Item & Specificatio</li>
+                                    <li> Receipt Type</li>
+                                    <li> No.[ReceiptType]</li>
+                                    <li> Amount[ReceiptType]</li>
+                                    <li> Date[ReceiptType]</li>
+                                    <li> Bill against</li>
+                                    <li> No[Bill Against]</li>
+                                    <li> Amount[Bill Against]</li>
+                                    <li> Date[Bill Against]</li>
+                                    <li>Source</li>
                                 </ul> :
-                                    processID === 'MDO.02' ?
-                                        <ul className="fs-15 text-dark">
-                                            <li>Helpticket form as and when it is filled with the Fields as mentioned in Form Fields</li>
+                                    processID === 'BTS.02' || processID === 'BTS.03' ? <ul className="fs-15 text-dark">
+                                        <li> ReqID</li>
+                                        <li> Entry Date</li>
+                                        <li> Project Name</li>
+                                        <li> Vendor Name&Code</li>
+                                        <li> Item Name</li>
+                                        <li> Bill against</li>
+                                        <li> No</li>
+                                        <li> Date</li>
+                                        <li> Date</li>
+                                        <li> Bill Start Month[MMMYY]</li>
+                                        <li> Bill-Month[MMMYY]</li>
+                                    </ul> :
+                                        processID === 'BTS.04' ? <ul className="fs-15 text-dark">
+                                            <li> Project Name</li>
 
                                         </ul> :
-                                        processID === 'MDO.03' ?
-                                            <ul className="fs-15 text-dark">
-                                                <li>Initiation through Help form filled either at Task Level / App Level / Login Level</li>
+                                            processID === 'BTS.05' ? <ul className="fs-15 text-dark">
+                                                <li> ReqID</li>
+                                                <li> BTS ID</li>
+                                                <li> BillEntryDate</li>
+                                                <li> Project Name</li>
+                                                <li> Client_JV Name</li>
+                                                <li> ReceiptType</li>
+                                                <li> Bill No</li>
+                                                <li> Bill Amount</li>
+                                                <li> Bill Date</li>
+                                                <li> Payment Requested For</li>
+                                                <li> Payment Due Date</li>
 
                                             </ul> :
-                                            processID === 'MDO.04' ?
-                                                <ul className="fs-15 text-dark">
-                                                    <li>Reported Date</li>
-                                                    <li>Employee Name</li>
-                                                    <li>Employee ID</li>
-                                                    <li>Project [Employee Master]</li>
-                                                    <li>Designation [Employee Master]</li>
-                                                    <li>HR Updated Mobile [Employee Master]</li>
-                                                    <li>User Updated Mobile [Employee Master]</li>
-                                                    <li>ObservationID Count [EMP ID][Repeat]</li>
-
-                                                </ul> :
-                                                processID === 'MDO.05' ?
+                                                processID === 'BTS.06' || processID === 'BTS.05' ?
                                                     <ul className="fs-15 text-dark">
-                                                        <li>Task Creation Date</li>
-                                                        <li>LNID</li>
-                                                        <li>TaskID</li>
-                                                        <li>TaskName</li>
-                                                        <li>TaskDoer [No Doer Assigned]</li>
-                                                        <li>Last Doer Changed by</li>
-                                                        <li>Last Doer Change Datetime</li>
-                                                        <li>Last Doer Change Reason </li>
-                                                        <li>Identifiers and the respective values</li>
-                                                        <li>Issue Type</li>
+                                                        <li> ReqID</li>
+                                                        <li> BTS ID</li>
+                                                        <li> Project Name</li>
+                                                        <li> Client_JV Name</li>
+                                                        <li> Vendor Name</li>
+                                                        <li> FR/IOM Number</li>
+                                                        <li> FR Date</li>
+                                                        <li> Retention Hold Amount</li>
 
                                                     </ul> :
-                                                    processID === 'MDO.06' ?
+                                                    processID === 'BTS.06' ?
                                                         <ul className="fs-15 text-dark">
-                                                            <li>Training Requirement Date</li>
-                                                            <li>Employee Name</li>
-                                                            <li>Employee ID</li>
-                                                            <li>Project [Employee Master]</li>
-                                                            <li>HR Updated Mobile [Employee Master]</li>
-                                                            <li>User Updated Mobile [Employee Master]</li>
-                                                            <li>Training Requirement Description</li>
-                                                            <li>TrainingID [Auto]</li>
+                                                            <li> ReqID</li>
+                                                            <li> BTS ID</li>
+                                                            <li> Project Name</li>
+                                                            <li> Client_JV Name</li>
+                                                            <li> Vendor Name</li>
+                                                            <li> FR/IOM Number</li>
+                                                            <li> FR Date</li>
+                                                            <li> Retention Hold Amount</li>
+
                                                         </ul> :
-                                                        processID === 'MDO.07' ?
+                                                        processID === 'BTS.07' ?
                                                             <ul className="fs-15 text-dark">
-                                                                <li>Project</li>
-                                                                <li>Month [MMMYY]</li>
-                                                                <li>UID</li>
+                                                                <li> BTS ID</li>
+                                                                <li> Project Name</li>
+                                                                <li> Vendor Code&Name</li>
+                                                                <li> Bill Date</li>
+                                                                <li> GST Hold Amount</li>
+                                                                <li> GST Month</li>
 
                                                             </ul> :
-                                                            processID === 'MDO.08' ?
+                                                            processID === 'BTS.08' || processID === 'BTS.09' ?
                                                                 <ul className="fs-15 text-dark">
-                                                                    <li>Date</li>
-                                                                    <li>Project</li>
-                                                                    <li>LicenseType</li>
-                                                                    <li>Requirment Update Date</li>
-                                                                    <li>Expiry Date</li>
-                                                                    <li>UID</li>
+                                                                    <li> Project Name</li>
+                                                                    <li> Receipt Type</li>
+                                                                    <li> Month[MMMYY][Previous Month]</li>
                                                                 </ul> :
-                                                                processID === 'MDO.09' ?
+                                                                processID === 'BTS.10' ?
                                                                     <ul className="fs-15 text-dark">
-                                                                        <li>Project [Ongoing]</li>
-                                                                        <li>UID</li>
-                                                                        <li>Month [MMMYY]</li>
-                                                                        <li>Auditor Employee Name [Employee Master]</li>
+                                                                        <li> Project Name</li>
+                                                                        <li> Receipt Type</li>
+                                                                        <li> Month[MM-YYYY]</li>
                                                                     </ul> :
-                                                                    null
+                                                                    processID === 'BTS.11' ?
+                                                                        <ul className="fs-15 text-dark">
+                                                                            <li> BTS ID</li>
+                                                                            <li> BillEntryDate</li>
+                                                                            <li> Project Name</li>
+                                                                            <li> Client_JV Name</li>
+                                                                            <li> Vendor Name</li>
+                                                                            <li> FR No.</li>
+                                                                            <li> FR Date</li>
+                                                                            <li> FR Amount</li>
+                                                                        </ul> :
+                                                                        null
 
                             }
 
@@ -473,9 +503,9 @@ const AccountProcess = () => {
                     </Popover>
                 </Overlay>
 
-            </div>
+            </div >
         </div >
     );
 };
 
-export default AccountProcess;
+export default BillTrackingSystem;

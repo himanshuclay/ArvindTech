@@ -41,7 +41,7 @@ interface Process {
 
 
 
-const AccountProcess = () => {
+const StoreManagement = () => {
     const { id, processID } = useParams<{ id: string, processID: string }>();
     const [show, setShow] = useState(false);
 
@@ -328,6 +328,7 @@ const AccountProcess = () => {
 
                                 </Form.Group>
                             </Col>
+
                         </Row>
 
                         <Row>
@@ -356,7 +357,6 @@ const AccountProcess = () => {
 
                     </Form>
                 </div>
-
                 <Modal className="p-0" show={showLink} onHide={handleClose} size="xl">
                     <Modal.Body>
                         {iframeUrl ? (
@@ -375,7 +375,6 @@ const AccountProcess = () => {
                             urlError}
                     </Modal.Body>
                 </Modal>
-
                 <Overlay
                     show={show}
                     target={target}
@@ -390,80 +389,74 @@ const AccountProcess = () => {
                         </Popover.Header>
                         <Popover.Body>
                             {
-                                processID === 'MDO.01' ? <ul className="fs-15 text-dark">
-                                    <li>Delegation form as and when it is filled with the Fields as mentioned in Form Fields</li>
-
+                                processID === 'SM.01' || processID === 'SM.03' || processID === 'SM.04' ? <ul className="fs-15 text-dark">
+                                    <li> Project Name</li>
+                                    <li>Month [MMMYY]</li>
+                                    <li>Type [System]</li>
+                                    <li>UID [Autogenerate]</li>
                                 </ul> :
-                                    processID === 'MDO.02' ?
+                                    processID === 'SM.02' ?
                                         <ul className="fs-15 text-dark">
-                                            <li>Helpticket form as and when it is filled with the Fields as mentioned in Form Fields</li>
+                                            <li>Project</li>
+                                            <li>Month [ MMMYY ]</li>
+                                            <li>Material Category</li>
+                                            <li>Material Owner</li>
+                                            <li>Cumulative Balance Quantity</li>
+                                            <li>UID [Autogenerate]</li>
 
                                         </ul> :
-                                        processID === 'MDO.03' ?
+
+                                        processID === 'SM.05' || processID === 'SM.06' || processID === 'SM.09' || processID === 'SM.11' ?
                                             <ul className="fs-15 text-dark">
-                                                <li>Initiation through Help form filled either at Task Level / App Level / Login Level</li>
-
+                                                <li>Project</li>
+                                                <li>Quarter QX[20ZZ-20YY]</li>
+                                                <li>UID [Autogenerate]</li>
                                             </ul> :
-                                            processID === 'MDO.04' ?
+                                            processID === 'SM.07' ?
                                                 <ul className="fs-15 text-dark">
-                                                    <li>Reported Date</li>
-                                                    <li>Employee Name</li>
-                                                    <li>Employee ID</li>
-                                                    <li>Project [Employee Master]</li>
-                                                    <li>Designation [Employee Master]</li>
-                                                    <li>HR Updated Mobile [Employee Master]</li>
-                                                    <li>User Updated Mobile [Employee Master]</li>
-                                                    <li>ObservationID Count [EMP ID][Repeat]</li>
-
+                                                    <li>Project</li>
+                                                    <li>Material</li>
+                                                    <li>Quarter QX[20ZZ-20YY]</li>
+                                                    <li>UID [Autogenerate]</li>
                                                 </ul> :
-                                                processID === 'MDO.05' ?
+                                                processID === 'SM.08' ?
                                                     <ul className="fs-15 text-dark">
-                                                        <li>Task Creation Date</li>
-                                                        <li>LNID</li>
-                                                        <li>TaskID</li>
-                                                        <li>TaskName</li>
-                                                        <li>TaskDoer [No Doer Assigned]</li>
-                                                        <li>Last Doer Changed by</li>
-                                                        <li>Last Doer Change Datetime</li>
-                                                        <li>Last Doer Change Reason </li>
-                                                        <li>Identifiers and the respective values</li>
-                                                        <li>Issue Type</li>
+                                                        <li>Project</li>
+                                                        <li>Weigh Bridge Name</li>
+                                                        <li>Weigh Bridge ID</li>
+                                                        <li>Quarter QX[20ZZ-20YY]</li>
+                                                        <li>UID [Autogenerate]</li>
 
                                                     </ul> :
-                                                    processID === 'MDO.06' ?
+                                                    processID === 'SM.10' ?
                                                         <ul className="fs-15 text-dark">
-                                                            <li>Training Requirement Date</li>
-                                                            <li>Employee Name</li>
-                                                            <li>Employee ID</li>
-                                                            <li>Project [Employee Master]</li>
-                                                            <li>HR Updated Mobile [Employee Master]</li>
-                                                            <li>User Updated Mobile [Employee Master]</li>
-                                                            <li>Training Requirement Description</li>
-                                                            <li>TrainingID [Auto]</li>
+                                                            <li>Project</li>
+                                                            <li>Material Type</li>
+                                                            <li>Month [ MMMYY]</li>
+                                                            <li>UID [Autogenerate]</li>
                                                         </ul> :
-                                                        processID === 'MDO.07' ?
+                                                        processID === 'SM.12' ?
                                                             <ul className="fs-15 text-dark">
                                                                 <li>Project</li>
-                                                                <li>Month [MMMYY]</li>
-                                                                <li>UID</li>
-
+                                                                <li>Half Yearly[H1-20ZZ]</li>
+                                                                <li>Type [System]</li>
+                                                                <li>UID [Autogenerate]</li>
                                                             </ul> :
-                                                            processID === 'MDO.08' ?
+                                                            processID === 'SM.13' ?
                                                                 <ul className="fs-15 text-dark">
-                                                                    <li>Date</li>
                                                                     <li>Project</li>
-                                                                    <li>LicenseType</li>
-                                                                    <li>Requirment Update Date</li>
-                                                                    <li>Expiry Date</li>
-                                                                    <li>UID</li>
+                                                                    <li>Week [DDMMMYY- DDMMMYY]</li>
+                                                                    <li>UID [Autogenerate]</li>
                                                                 </ul> :
-                                                                processID === 'MDO.09' ?
+                                                                processID === 'SM.14' ?
                                                                     <ul className="fs-15 text-dark">
-                                                                        <li>Project [Ongoing]</li>
-                                                                        <li>UID</li>
-                                                                        <li>Month [MMMYY]</li>
-                                                                        <li>Auditor Employee Name [Employee Master]</li>
+                                                                        <li>Project</li>
+                                                                        <li>Month [ MMMYY]</li>
+                                                                        <li>UID [Autogenerate]</li>
                                                                     </ul> :
+
+
+
                                                                     null
 
                             }
@@ -473,9 +466,9 @@ const AccountProcess = () => {
                     </Popover>
                 </Overlay>
 
-            </div>
+            </div >
         </div >
     );
 };
 
-export default AccountProcess;
+export default StoreManagement;
