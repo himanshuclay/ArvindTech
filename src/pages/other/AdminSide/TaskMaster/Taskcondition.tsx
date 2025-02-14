@@ -41,8 +41,10 @@ interface TaskData {
 }
 
 interface TaskOption {
-	task_Number: string
-	task_Label: string
+	value?: string;
+	label?: string;
+	task_Number?: string;
+	task_Label?: string;
 }
 interface GetTypeDayTimeList {
 	id: number
@@ -330,6 +332,7 @@ const TaskCondition: React.FC<ProcessCanvasProps> = ({
 				`${config.API_URL_ACCOUNT}/DynamicDoerAllocation/GetTaskListfromTaskNumber`,
 				{ params: { TaskNumber: taskNumber } }
 			)
+			console.log(response)
 			if (response.data.isSuccess && response.data.getTaskListfromTaskNumbers) {
 				const options = response.data.getTaskListfromTaskNumbers.map(
 					(item: { taskID: string }) => ({
@@ -338,6 +341,7 @@ const TaskCondition: React.FC<ProcessCanvasProps> = ({
 					})
 				)
 				setDesiredTaskOptions(options)
+				console.log(desiredTaskOptions)
 			}
 		} catch (error) {
 			console.error('Error fetching desired task options:', error)
@@ -575,18 +579,34 @@ const TaskCondition: React.FC<ProcessCanvasProps> = ({
 	const formattedTasks = tasks.map((task: TaskData) => ({
 		task_Number: task.task_Number,
 		task_Label: task.task_Number,
-	}))
+	}));
 	const formattedOptionsTaskNumber = optionsTaskNumber.map((option) => ({
 		task_Number: option.value,
 		task_Label: option.label,
-	}))
-
-	console.log(formattedTasks)
+	}));
 
 	const combinedOptions: TaskOption[] = [
-		...formattedTasks,
-		...formattedOptionsTaskNumber,
-	]
+		...desiredTaskOptions, // Merge existing task options
+		...formattedTasks, // Add formatted tasks
+		...formattedOptionsTaskNumber // Add formatted options from task numbers
+	];
+
+	// Ensure TypeScript knows that either `value` or `task_Label` exists
+	const extractedValues: string[] = combinedOptions
+		.map((option) => option.value ?? option.task_Label) // Use nullish coalescing to avoid undefined
+		.filter((item): item is string => Boolean(item)); // Type-safe filtering to remove empty values
+
+	// Convert extractedValues (array of strings) into an array of objects for <Select>
+	const extractedOptions = extractedValues.map((item) => ({
+		value: item,
+		label: item
+	}));
+
+	console.log("Extracted Values:", extractedValues);
+	console.log("Extracted Options:", extractedOptions);
+
+
+
 
 	return (
 		<div>
@@ -615,7 +635,7 @@ const TaskCondition: React.FC<ProcessCanvasProps> = ({
 									<span>
 										<strong>Is Expirable:</strong>{' '}
 										{parseConditionData &&
-										parseConditionData[0]?.isExpirable === 1
+											parseConditionData[0]?.isExpirable === 1
 											? 'Yes'
 											: 'No'}
 									</span>
@@ -624,11 +644,11 @@ const TaskCondition: React.FC<ProcessCanvasProps> = ({
 								<li className="list-group-item">
 									<strong>Expiration Time:</strong>{' '}
 									{parseConditionData[0]?.expiryLogic ===
-									'Expire On Defined Time'
+										'Expire On Defined Time'
 										? `${parseConditionData[0]?.expirationTime} hr`
 										: parseConditionData[0]?.expiryLogic
-										? 'Expire On Next Task Initiation'
-										: 'N/A'}
+											? 'Expire On Next Task Initiation'
+											: 'N/A'}
 								</li>
 								{/* )} */}
 								<li className="list-group-item">
@@ -806,27 +826,20 @@ const TaskCondition: React.FC<ProcessCanvasProps> = ({
 
 												<Select
 													name="taskNumber"
-													value={
-														combinedOptions.find(
-															(item) =>
-																item.task_Number ===
-																taskSelections[index]?.taskNumber
-														) || null
-													}
+													value={extractedOptions.find(
+														(item) => item.value === taskSelections[index]?.taskNumber
+													) || null}
 													onChange={(selectedOption) =>
-														handleChange(
-															index,
-															'taskNumber',
-															selectedOption?.task_Number
-														)
+														handleChange(index, 'taskNumber', selectedOption?.value)
 													}
-													options={combinedOptions}
-													getOptionLabel={(item) => item.task_Label}
-													getOptionValue={(item) => item.task_Number}
+													options={extractedOptions} // Use the converted array
+													getOptionLabel={(item) => item.label} // Extract label
+													getOptionValue={(item) => item.value} // Extract value
 													isSearchable={true}
 													placeholder="Select Option"
 													className="h45"
 												/>
+
 											</Form.Group>
 										</Col>
 
@@ -906,8 +919,8 @@ const TaskCondition: React.FC<ProcessCanvasProps> = ({
 															value={
 																previousTask
 																	? desiredTaskOptions.find(
-																			(option) => option.value === previousTask
-																	  )
+																		(option) => option.value === previousTask
+																	)
 																	: null
 															}
 															onChange={(selectedOption) => {
@@ -1069,21 +1082,15 @@ const TaskCondition: React.FC<ProcessCanvasProps> = ({
 											<Form.Label>Select Successor Task For</Form.Label>
 											<Select
 												name="taskNumber"
-												value={
-													combinedOptions.find(
-														(item) =>
-															item.task_Number === taskSelections[0]?.taskNumber
-													) || null
-												}
+												value={extractedOptions.find(
+													(item) => item.value === taskSelections[0]?.taskNumber
+												) || null}
 												onChange={(selectedOption) =>
-													updateTaskSelection(
-														'taskNumber',
-														selectedOption?.task_Number
-													)
+													handleChange(0, 'taskNumber', selectedOption?.value)
 												}
-												options={combinedOptions}
-												getOptionLabel={(item) => item.task_Label}
-												getOptionValue={(item) => item.task_Number}
+												options={extractedOptions} // Use the converted array
+												getOptionLabel={(item) => item.label} // Extract label
+												getOptionValue={(item) => item.value} // Extract value
 												isSearchable={true}
 												placeholder="Select Option"
 												className="h45"
@@ -1256,8 +1263,8 @@ const TaskCondition: React.FC<ProcessCanvasProps> = ({
 														value={
 															previousTask
 																? desiredTaskOptions.find(
-																		(option) => option.value === previousTask
-																  )
+																	(option) => option.value === previousTask
+																)
 																: null
 														}
 														onChange={(selectedOption) => {
@@ -1308,24 +1315,25 @@ const TaskCondition: React.FC<ProcessCanvasProps> = ({
 											<Select
 												name="taskNumber"
 												value={
-													combinedOptions.find(
-														(item) => item.task_Number === taskRow.taskNumber
+													extractedOptions.find(
+														(item) => item.value === taskRow.taskNumber
 													) || null
 												}
 												onChange={(selectedOption) =>
 													handleTaskFieldChange(
 														index,
 														'taskNumber',
-														selectedOption?.task_Number
+														selectedOption?.value // Use `value` since we're now using `extractedOptions`
 													)
 												}
-												options={combinedOptions}
-												getOptionLabel={(item) => item.task_Label}
-												getOptionValue={(item) => item.task_Number}
+												options={extractedOptions} // Use the cleaned-up `extractedOptions`
+												getOptionLabel={(item) => item.label} // Use `label` instead of `task_Label`
+												getOptionValue={(item) => item.value} // Use `value` instead of `task_Number`
 												isSearchable={true}
 												placeholder="Select Option"
 												className="h45"
 											/>
+
 										</Form.Group>
 									</Col>
 
@@ -1510,8 +1518,8 @@ const TaskCondition: React.FC<ProcessCanvasProps> = ({
 														value={
 															previousTask
 																? desiredTaskOptions.find(
-																		(option) => option.value === previousTask
-																  )
+																	(option) => option.value === previousTask
+																)
 																: null
 														}
 														onChange={(selectedOption) => {
