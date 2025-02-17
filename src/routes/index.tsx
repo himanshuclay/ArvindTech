@@ -172,7 +172,7 @@ const customPagesRoutes = {
 			element: <MisReport />,
 			route: PrivateRoute,
 		},
-		
+
 		{
 			path: '/pages/faq',
 			name: 'FAQ',
@@ -689,6 +689,12 @@ const customPagesRoutes = {
 			path: '/pages/ContactMaster',
 			name: 'ContactMaster',
 			element: <ContactMaster />,
+			route: PrivateRoute,
+		},
+		{
+			path: '/pages/ContactMasterinsert',
+			name: 'ContactMasterinsert ',
+			element: <ContactMasterinsert />,
 			route: PrivateRoute,
 		},
 		{
