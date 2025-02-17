@@ -411,30 +411,30 @@ const AccountProcess = () => {
                                             </ul> :
                                             processID === 'BD.05' ?
                                                 <ul className="fs-15 text-dark">
-                                                    <li>Project_Master</li>
+                                                    {/* <li>Project_Master</li> */}
                                                     <li>Project</li>
                                                     <li>Month </li>
                                                     <li>Contractual Work</li>
                                                     <li>Value[Cr]</li>
                                                     <li>Contractual Start Date</li>
-                                                    <li>Contractual Completion</li>
-                                                    <li>Date</li>
+                                                    <li>Contractual Completion Date</li>
+                                                    {/* <li>Date</li> */}
                                                 </ul> :
                                                 processID === 'BD.06' ?
                                                     <ul className="fs-15 text-dark">
                                                         <li>Project</li>
-                                                        <li>Quarter QX[20ZZ-20YY]</li>
+                                                        <li>Quarter QX</li>
                                                         <li>Revised Contractual value of work[Cr]</li>
                                                         <li>Contractual Start Date</li>
-                                                        <li>Contractual Completion</li>
-                                                        <li>Value Recorded [MMMYY]</li>
+                                                        <li>Contractual Completion Date</li>
+                                                        <li>Value Recorded</li>
                                                         <li>Total Work Done Value Upto Mentioned Month[Cr]</li>
                                                         <li>Percentage of Work Done</li>
                                                     </ul> :
                                                     processID === 'BD.07' ?
                                                         <ul className="fs-15 text-dark">
                                                             <li>Project</li>
-                                                            <li>Quarter QX[20ZZ-20YY]</li>
+                                                            <li>Quarter QX</li>
                                                         </ul> :
 
 

@@ -392,7 +392,7 @@ const StoreManagement = () => {
                                 processID === 'SM.01' || processID === 'SM.03' || processID === 'SM.04' ? <ul className="fs-15 text-dark">
                                     <li> Project Name</li>
                                     <li>Month </li>
-                                    <li>Type </li>
+                                    <li>Type of Material</li>
                                     <li>UID </li>
                                 </ul> :
                                     processID === 'SM.02' ?
@@ -409,14 +409,14 @@ const StoreManagement = () => {
                                         processID === 'SM.05' || processID === 'SM.06' || processID === 'SM.09' || processID === 'SM.11' ?
                                             <ul className="fs-15 text-dark">
                                                 <li>Project</li>
-                                                <li>Quarter QX[20ZZ-20YY]</li>
+                                                <li>Quarter QX</li>
                                                 <li>UID </li>
                                             </ul> :
                                             processID === 'SM.07' ?
                                                 <ul className="fs-15 text-dark">
                                                     <li>Project</li>
                                                     <li>Material</li>
-                                                    <li>Quarter QX[20ZZ-20YY]</li>
+                                                    <li>Quarter QX</li>
                                                     <li>UID </li>
                                                 </ul> :
                                                 processID === 'SM.08' ?
@@ -424,7 +424,7 @@ const StoreManagement = () => {
                                                         <li>Project</li>
                                                         <li>Weigh Bridge Name</li>
                                                         <li>Weigh Bridge ID</li>
-                                                        <li>Quarter QX[20ZZ-20YY]</li>
+                                                        <li>Quarter QX</li>
                                                         <li>UID </li>
 
                                                     </ul> :
@@ -438,7 +438,7 @@ const StoreManagement = () => {
                                                         processID === 'SM.12' ?
                                                             <ul className="fs-15 text-dark">
                                                                 <li>Project</li>
-                                                                <li>Half Yearly[H1-20ZZ]</li>
+                                                                <li>Half Yearly</li>
                                                                 <li>Type </li>
                                                                 <li>UID </li>
                                                             </ul> :

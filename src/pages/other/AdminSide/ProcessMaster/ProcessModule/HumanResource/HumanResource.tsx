@@ -391,7 +391,7 @@ const HumanResource = () => {
                         <Popover.Body>
                             {
                                 processID === 'HR.01' ? <ul className="fs-15 text-dark">
-                                    <li>Project Master</li>
+                                    {/* <li>Project Master</li> */}
                                     <li>Project</li>
                                     <li>Month</li>
                                     <li>UID</li>
