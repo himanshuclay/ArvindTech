@@ -23,6 +23,7 @@ const AddressMasterinsert = () => {
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
     const [editMode, setEditMode] = useState<boolean>(false);
+    const [errors, setErrors] = useState<{ [key: string]: string }>({});
     const [empName, setEmpName] = useState<string | null>()
     const [contact, setContact] = useState<ContactMaster>({
         contactID: 0,
@@ -77,38 +78,53 @@ const AddressMasterinsert = () => {
     };
 
 
+    const handleChange = (e: ChangeEvent<any>) => {
+        const { name, value } = e.target;
+        let updatedErrors = { ...errors };
 
-    const handleChange = (e: ChangeEvent<any> | null, name?: string, value?: any) => {
-        if (e) {
-            const { name: eventName, type } = e.target;
-
-            if (type === 'checkbox') {
-                const checked = (e.target as HTMLInputElement).checked;
-                setContact({
-                    ...contact,
-                    [eventName]: checked
-                });
+        // Mobile Number Validation: Start with 6-9 and max 10 digits
+        if (name === "contactMobileOfficial" || name === "contactMobilePersonal") {
+            if (!/^[6-9]/.test(value)) {
+                updatedErrors[name] = "Mobile number must start with 6, 7, 8, or 9.";
+            } else if (value.length > 10) {
+                updatedErrors[name] = "Mobile number cannot exceed 10 digits.";
+            } else if (!/^[6-9]\d{0,9}$/.test(value)) {
+                updatedErrors[name] = "Only numeric values allowed.";
             } else {
-                const inputValue = (e.target as HTMLInputElement | HTMLSelectElement).value;
-
-                setContact({
-                    ...contact,
-                    [eventName]: inputValue
-                });
+                delete updatedErrors[name]; // Remove error when valid
             }
-        } else if (name) {
-            setContact({
-                ...contact,
-                [name]: value
-            });
         }
+
+        // Email Validation
+        if (name === "contactEmailOfficial" || name === "contactEmailPersonal") {
+            const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+            if (!emailRegex.test(value)) {
+                updatedErrors[name] = "Please enter a valid email address.";
+            } else {
+                delete updatedErrors[name];
+            }
+        }
+
+        // Update State
+        setErrors(updatedErrors);
+        setContact({
+            ...contact,
+            [name]: value
+        });
     };
+
+
 
 
 
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
+        // Check if there are any errors before submission
+        if (Object.keys(errors).length > 0) {
+            toast.error("Please fix the errors before submitting.");
+            return;
+        }
 
         toast.dismiss()
 
@@ -178,10 +194,13 @@ const AddressMasterinsert = () => {
                                         required
                                         placeholder='Enter Official Mobile Number'
                                     />
+                                    {errors.contactMobileOfficial && <small className="text-danger">{errors.contactMobileOfficial}</small>}
                                 </Form.Group>
                             </Col>
 
+
                             <Col lg={6}>
+
                                 <Form.Group controlId="contactMobilePersonal" className="mb-3">
                                     <Form.Label>Personal Mobile</Form.Label>
                                     <Form.Control
@@ -191,8 +210,10 @@ const AddressMasterinsert = () => {
                                         onChange={handleChange}
                                         placeholder='Enter Personal Mobile Number'
                                     />
+                                    {errors.contactMobilePersonal && <small className="text-danger">{errors.contactMobilePersonal}</small>}
                                 </Form.Group>
                             </Col>
+
 
                             <Col lg={6}>
                                 <Form.Group controlId="contactEmailOfficial" className="mb-3">

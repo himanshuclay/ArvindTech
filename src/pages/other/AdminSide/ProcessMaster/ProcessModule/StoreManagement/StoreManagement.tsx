@@ -391,18 +391,18 @@ const StoreManagement = () => {
                             {
                                 processID === 'SM.01' || processID === 'SM.03' || processID === 'SM.04' ? <ul className="fs-15 text-dark">
                                     <li> Project Name</li>
-                                    <li>Month [MMMYY]</li>
-                                    <li>Type [System]</li>
-                                    <li>UID [Autogenerate]</li>
+                                    <li>Month </li>
+                                    <li>Type </li>
+                                    <li>UID </li>
                                 </ul> :
                                     processID === 'SM.02' ?
                                         <ul className="fs-15 text-dark">
                                             <li>Project</li>
-                                            <li>Month [ MMMYY ]</li>
+                                            <li>Month </li>
                                             <li>Material Category</li>
                                             <li>Material Owner</li>
                                             <li>Cumulative Balance Quantity</li>
-                                            <li>UID [Autogenerate]</li>
+                                            <li>UID </li>
 
                                         </ul> :
 
@@ -410,14 +410,14 @@ const StoreManagement = () => {
                                             <ul className="fs-15 text-dark">
                                                 <li>Project</li>
                                                 <li>Quarter QX[20ZZ-20YY]</li>
-                                                <li>UID [Autogenerate]</li>
+                                                <li>UID </li>
                                             </ul> :
                                             processID === 'SM.07' ?
                                                 <ul className="fs-15 text-dark">
                                                     <li>Project</li>
                                                     <li>Material</li>
                                                     <li>Quarter QX[20ZZ-20YY]</li>
-                                                    <li>UID [Autogenerate]</li>
+                                                    <li>UID </li>
                                                 </ul> :
                                                 processID === 'SM.08' ?
                                                     <ul className="fs-15 text-dark">
@@ -425,34 +425,34 @@ const StoreManagement = () => {
                                                         <li>Weigh Bridge Name</li>
                                                         <li>Weigh Bridge ID</li>
                                                         <li>Quarter QX[20ZZ-20YY]</li>
-                                                        <li>UID [Autogenerate]</li>
+                                                        <li>UID </li>
 
                                                     </ul> :
                                                     processID === 'SM.10' ?
                                                         <ul className="fs-15 text-dark">
                                                             <li>Project</li>
                                                             <li>Material Type</li>
-                                                            <li>Month [ MMMYY]</li>
-                                                            <li>UID [Autogenerate]</li>
+                                                            <li>Month </li>
+                                                            <li>UID </li>
                                                         </ul> :
                                                         processID === 'SM.12' ?
                                                             <ul className="fs-15 text-dark">
                                                                 <li>Project</li>
                                                                 <li>Half Yearly[H1-20ZZ]</li>
-                                                                <li>Type [System]</li>
-                                                                <li>UID [Autogenerate]</li>
+                                                                <li>Type </li>
+                                                                <li>UID </li>
                                                             </ul> :
                                                             processID === 'SM.13' ?
                                                                 <ul className="fs-15 text-dark">
                                                                     <li>Project</li>
-                                                                    <li>Week [DDMMMYY- DDMMMYY]</li>
-                                                                    <li>UID [Autogenerate]</li>
+                                                                    <li>Week </li>
+                                                                    <li>UID </li>
                                                                 </ul> :
                                                                 processID === 'SM.14' ?
                                                                     <ul className="fs-15 text-dark">
                                                                         <li>Project</li>
-                                                                        <li>Month [ MMMYY]</li>
-                                                                        <li>UID [Autogenerate]</li>
+                                                                        <li>Month </li>
+                                                                        <li>UID</li>
                                                                     </ul> :
 
 

@@ -413,7 +413,7 @@ const AccountProcess = () => {
                                                 <ul className="fs-15 text-dark">
                                                     <li>Project_Master</li>
                                                     <li>Project</li>
-                                                    <li>Month [MMMYY]</li>
+                                                    <li>Month </li>
                                                     <li>Contractual Work</li>
                                                     <li>Value[Cr]</li>
                                                     <li>Contractual Start Date</li>

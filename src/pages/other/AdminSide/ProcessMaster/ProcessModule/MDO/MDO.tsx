@@ -439,7 +439,7 @@ const AccountProcess = () => {
                                                             <li>HR Updated Mobile [Employee Master]</li>
                                                             <li>User Updated Mobile [Employee Master]</li>
                                                             <li>Training Requirement Description</li>
-                                                            <li>TrainingID [Auto]</li>
+                                                            <li>TrainingID </li>
                                                         </ul> :
                                                         processID === 'MDO.07' ?
                                                             <ul className="fs-15 text-dark">
@@ -461,7 +461,7 @@ const AccountProcess = () => {
                                                                     <ul className="fs-15 text-dark">
                                                                         <li>Project [Ongoing]</li>
                                                                         <li>UID</li>
-                                                                        <li>Month [MMMYY]</li>
+                                                                        <li>Month </li>
                                                                         <li>Auditor Employee Name [Employee Master]</li>
                                                                     </ul> :
                                                                     null

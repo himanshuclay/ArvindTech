@@ -416,8 +416,8 @@ const BillTrackingSystem = () => {
                                         <li> No</li>
                                         <li> Date</li>
                                         <li> Date</li>
-                                        <li> Bill Start Month[MMMYY]</li>
-                                        <li> Bill-Month[MMMYY]</li>
+                                        <li> Bill Start Month</li>
+                                        <li> Bill-Month</li>
                                     </ul> :
                                         processID === 'BTS.04' ? <ul className="fs-15 text-dark">
                                             <li> Project Name</li>
@@ -475,7 +475,7 @@ const BillTrackingSystem = () => {
                                                                 <ul className="fs-15 text-dark">
                                                                     <li> Project Name</li>
                                                                     <li> Receipt Type</li>
-                                                                    <li> Month[MMMYY][Previous Month]</li>
+                                                                    <li> Month[Previous Month]</li>
                                                                 </ul> :
                                                                 processID === 'BTS.10' ?
                                                                     <ul className="fs-15 text-dark">

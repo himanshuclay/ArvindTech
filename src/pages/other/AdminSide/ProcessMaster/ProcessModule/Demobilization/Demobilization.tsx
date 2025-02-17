@@ -404,16 +404,16 @@ const Demobilization = () => {
                                     processID === 'DEMOB.16' ||
                                     processID === 'DEMOB.07' ? <ul className="fs-15 text-dark">
                                     <li> Project Name</li>
-                                    <li>Month [MMMYY]</li>
+                                    <li>Month </li>
                                     <li>Percentage of Work Done</li>
-                                    <li>UID [Autogenerate]</li>
+                                    <li>UID </li>
                                 </ul> :
                                     processID === 'DEMOB.04' || processID === 'DEMOB.05' ?
                                         <ul className="fs-15 text-dark">
                                             <li>Project</li>
-                                            <li>Quarter [QX 20ZZ-20YY]</li>
+                                            <li>Quarter </li>
                                             <li>Percentage of Work Done</li>
-                                            <li>UID [Autogenerate]</li>
+                                            <li>UID </li>
 
                                         </ul> :
                                         null

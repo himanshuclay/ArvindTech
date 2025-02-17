@@ -393,12 +393,11 @@ const HumanResource = () => {
                                 processID === 'HR.01' ? <ul className="fs-15 text-dark">
                                     <li>Project Master</li>
                                     <li>Project</li>
-                                    <li>Month[MMMYY]</li>
-                                    <li>UID[AutoGenerate]</li>
+                                    <li>Month</li>
+                                    <li>UID</li>
                                 </ul> :
                                     processID === 'HR.02' ?
                                         <ul className="fs-15 text-dark">
-                                            <li>Designation Master.ProcessType = L2</li>
                                             <li>ReqID</li>
                                             <li>EntryDate</li>
                                             <li>Project</li>
@@ -411,7 +410,6 @@ const HumanResource = () => {
                                         </ul> :
                                         processID === 'HR.03' ?
                                             <ul className="fs-15 text-dark">
-                                                <li>Designation Master.ProcessType = L1</li>
                                                 <li>ReqID</li>
                                                 <li>EntryDate</li>
                                                 <li>Project</li>
@@ -433,7 +431,7 @@ const HumanResource = () => {
                                                 </ul> :
                                                 processID === 'HR.05' ?
                                                     <ul className="fs-15 text-dark">
-                                                        <li>UID[AutoGenerate]</li>
+                                                        <li>UID</li>
                                                         <li>Employee ID</li>
                                                         <li>Employee Name</li>
                                                         <li>Project</li>
@@ -454,31 +452,31 @@ const HumanResource = () => {
                                                                 <li>Issue Type</li>
                                                                 <li>Approval Status</li>
                                                                 <li>Last Working Day</li>
-                                                                <li>Record Date[DDMMMYY]</li>
-                                                                <li>Type[System]</li>
+                                                                <li>Record Date</li>
+                                                                <li>Type</li>
                                                             </ul> :
                                                             processID === 'HR.08' ?
                                                                 <ul className="fs-15 text-dark">
                                                                     <li>Project</li>
-                                                                    <li>Date[DDMMMYY]</li>
-                                                                    <li>Type[System]</li>
-                                                                    <li>UID [ Autogenerate ]</li>
+                                                                    <li>Date</li>
+                                                                    <li>Type</li>
+                                                                    <li>UID </li>
                                                                 </ul> :
                                                                 processID === 'HR.09' ?
                                                                     <ul className="fs-15 text-dark">
                                                                         <li>Project</li>
-                                                                        <li>Date[DDMMMYY]</li>
-                                                                        <li>UID [ Autogenerate ]</li>
+                                                                        <li>Date</li>
+                                                                        <li>UID </li>
                                                                     </ul> :
                                                                     processID === 'HR.10' ?
                                                                         <ul className="fs-15 text-dark">
                                                                             <li>Project</li>
-                                                                            <li>Month[MMMYY]</li>
-                                                                            <li>UID [ Autogenerate ]</li>
+                                                                            <li>Month</li>
+                                                                            <li>UID </li>
                                                                         </ul> :
                                                                         processID === 'HR.11' ?
                                                                             <ul className="fs-15 text-dark">
-                                                                                <li>UID [ Autogenerate ]</li>
+                                                                                <li>UID </li>
                                                                             </ul> :
                                                                             processID === 'HR.12' ?
                                                                                 <ul className="fs-15 text-dark">

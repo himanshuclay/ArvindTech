@@ -398,8 +398,8 @@ const DDPS = () => {
                                         <li> Type of Design</li>
                                         <li>Pier/Span/Chainage Number</li>
                                         <li>Drawing Broad Category</li>
-                                        <li>DTN ID[Auto Generate]</li>
-                                        <li>DTN Generation Date [ Upload Date]</li>
+                                        <li>DTN ID</li>
+                                        <li>DTN Generation Date </li>
                                     </ul> :
                                     processID === 'DDPS.02' ?
                                         <ul className="fs-15 text-dark">
@@ -417,12 +417,12 @@ const DDPS = () => {
                                         processID === 'DDPS.03' ?
                                             <ul className="fs-15 text-dark">
                                                 <li>Project</li>
-                                                <li>Week [ddMMMyy - ddMMMyy]</li>
+                                                <li>Week</li>
                                             </ul> :
                                             processID === 'DDPS.04' || processID === 'DDPS.05' ?
                                                 <ul className="fs-15 text-dark">
                                                     <li>Project</li>
-                                                    <li>Period [18MMMyy - 17MMMyy]</li>
+                                                    <li>Period </li>
                                                 </ul> :
                                                 processID === 'DDPS.06' ?
                                                     <ul className="fs-15 text-dark">
