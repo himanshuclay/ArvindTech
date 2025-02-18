@@ -850,7 +850,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                         : '',
 
                 endprocessStatus: 'string',
-                file: '',
+                // file: '',
                 updatedBy: role,
                 problemSolver: problemSolver,
                 projectName: projectName,
@@ -867,6 +867,8 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                         body: JSON.stringify(requestData),
                     }
                 )
+
+                console.log(response);
 
                 if (response.ok) {
                     const responseData = await response.json()
