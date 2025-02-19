@@ -30,11 +30,12 @@ const manageBind = (block: BASIC_FIELD, blockValue: BLOCK_VALUE, rule: Rule): BA
     } else {
         const updatedBlockValue: BLOCK_VALUE = {
             ...blockValue,
-            [rule.rule.start2]: rule.value as string 
+            [rule.rule.start2]: rule.value as string
         };
         return updatedBlockValue;
     }
 };
+
 
 
 

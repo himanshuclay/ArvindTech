@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import config from '@/config';
 import axios from 'axios';
 import { getBlockById, manageBind, manageShowHide } from './Constant/Functions';
-import { BASIC_FIELD, FIELD, PROPERTY, TRIGGER_ACTION } from './Constant/Interface';
+import { BASIC_FIELD, FIELD, PROPERTY, RULE, TRIGGER_ACTION } from './Constant/Interface';
 import TextInput from './Components/TextInput';
 import NumberInput from './Components/NumberInput';
 import EmailInput from './Components/EmailInput';
@@ -177,6 +177,24 @@ const Editor: React.FC<EditorProps> = ({ form, setForm, property, setProperty, b
     const [prevBlockValue, setPrevBlockValue] = useState<any>({});
     const isFirstRun = useRef(true);
 
+    const managePartiallyBind = async (blockValue: BLOCK_VALUE, rule: RULE) => {
+        
+        const response = await axios.post(
+            `${config.API_URL_APPLICATION}/FormBuilder/GetPartiallyBindValue`,
+            rule,
+        );
+        const updatedActions = response.data.rules.map((rule: any) => {
+            rule.rule = JSON.parse(rule.rule);
+            return {
+                type: rule.action,
+                key: rule.rule.start2,
+                block: getBlockById(form, rule.rule.end3),
+                bindBlock: getBlockById(form, rule.rule.start2),
+                rule: rule
+            };
+        });
+        setTriggeredActions(updatedActions);
+    };
     const someRule = () => {
         triggeredActions.forEach(action => {
             if (action.type === 'show_hide' && action.block) {
@@ -199,6 +217,8 @@ const Editor: React.FC<EditorProps> = ({ form, setForm, property, setProperty, b
                 } else {
                     setBlockValue(updatedBlockValue as BLOCK_VALUE);
                 }
+            } else if(action.type === 'partially_bind' && action.bindBlock){
+                managePartiallyBind(blockValue, action.rule.rule);
             }
         });
     }

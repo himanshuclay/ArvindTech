@@ -108,6 +108,7 @@ const FIELD_LIST = [
             placeholder: "placeholder",
             required: "false",
             options: [],
+            
             advance: {
                 backgroundColor: '#fff',
                 color: '#000',
@@ -126,10 +127,15 @@ const START1 = [
     { label: "Map", value: 'MAP' },
 ]
 
-const END1 = [
-    { label: "Then", value: "THEN" },
-    { label: "Where", value: "WHERE" },
-]
+const END1 = {
+    THEN:[
+        { label: "Then", value: "THEN" },
+    ],
+    WHERE: [
+        { label: "Where", value: "WHERE" },
+    ]
+}
+
 
 // List of tables with labels and values
 const TABLE_NAME = [
@@ -148,6 +154,14 @@ const SHOW_HIDE = [
     {label: 'Hide', value: 'HIDE'},
 ]
 
+const END2 = {
+    SHOW_HIDE: [{label:"Show",value:'SHOW'},{label: 'Hide', value: 'HIDE'}],
+    COUNTRY: [{label:"Country",value:'COUNTRY'}],
+}
+const START3 = [
+    { label: 'state', value: 'STATE'}
+]
+
 
 
 export {
@@ -157,4 +171,6 @@ export {
     TABLE_FIELD,
     END1,
     SHOW_HIDE,
+    END2,
+    START3
 }

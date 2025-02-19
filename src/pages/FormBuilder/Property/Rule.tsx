@@ -1,14 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import { Button, Form, Modal } from 'react-bootstrap';
-import { END1, SHOW_HIDE, START1, TABLE_FIELD, TABLE_NAME } from '../Constant/Constant';
+import { END1, END2, START1, START3 } from '../Constant/Constant';
 import { getBlockById } from '../Constant/Functions';
 import { FIELD } from '../Constant/Interface';
+import axios from 'axios';
+import config from '@/config';
 
 interface Option {
     label: string;
     value: string;
 }
-
 
 interface RULE {
     start1: string;
@@ -20,8 +21,6 @@ interface RULE {
     end3: string;
 }
 
-
-
 interface Props {
     showRule: boolean;
     setShowRule: (id: boolean) => void;
@@ -30,7 +29,9 @@ interface Props {
 }
 
 const Rule: React.FC<Props> = ({ showRule, setShowRule, form, setForm }) => {
-    const [rules, setRules] = useState<RULE[]>(form.rules || []);  // Initialize rules from form.rules
+    const [rules, setRules] = useState<RULE[]>(form.rules || []);
+    const [mastersLists, setMasterLists] = useState<Option[]>([]);
+    const [columnLists, setColumnLists] = useState<{ [key: string]: Option[] }>({}); // Store column options
 
     const handleClose = () => {
         setShowRule(false);
@@ -46,22 +47,17 @@ const Rule: React.FC<Props> = ({ showRule, setShowRule, form, setForm }) => {
                 end1: '',
                 end2: '',
                 end3: '',
-            }]); // Add a new rule
+            }]);
         } else if (action === 'remove' && typeof index === 'number') {
-            setRules(prevRules => prevRules.filter((_, i) => i !== index)); // Remove rule by index
+            setRules(prevRules => prevRules.filter((_, i) => i !== index));
         }
     };
 
-    // Handle changes for dynamic start1, start2, start3, and start4 fields
-    const handleRuleChange = (
-        e: React.ChangeEvent<HTMLSelectElement>,
-        index: number,
-        field: keyof RULE
-    ) => {
+    const handleRuleChange = (e: React.ChangeEvent<HTMLSelectElement>, index: number, field: keyof RULE) => {
         const { value } = e.target;
         setRules(prevRules => {
             const updatedRules = [...prevRules];
-            updatedRules[index][field] = value;  // Update the specific field (start1, start2, etc.)
+            updatedRules[index][field] = value;
             return updatedRules;
         });
     };
@@ -69,18 +65,13 @@ const Rule: React.FC<Props> = ({ showRule, setShowRule, form, setForm }) => {
     const saveChanges = () => {
         setForm(prevForm => ({
             ...prevForm,
-            rules: rules,  // Update the form's rules state with the new rules
+            rules: rules,
         }));
-        handleClose(); // Close the modal after saving changes
+        handleClose();
     };
 
-    // const getBlockById = (id: string) => {
-    //     return form.blocks.find(block => block.id === id);
-    // }
-
-    // Dynamically determine options for start2 based on start1 value
     const handleStart2 = (rule: RULE) => {
-        if (['BIND', 'IF'].includes(rule.start1)) {
+        if (['BIND', 'IF', 'MAP'].includes(rule.start1)) {
             const options: Option[] = form.blocks.map(block => ({
                 label: `${block.property.label} (${block.property.id})`,
                 value: block.property.id,
@@ -90,46 +81,51 @@ const Rule: React.FC<Props> = ({ showRule, setShowRule, form, setForm }) => {
         return { isShow: false, options: [] };
     };
 
-    // Dynamically determine options for start3 based on start1 and start2 values
     const handleStart3 = (rule: RULE) => {
         if (rule.start1 === 'BIND' && rule.start2) {
-            return { isShow: true, options: TABLE_NAME };
+            // if (rule.start2.includes('Select')) {
+            return { isShow: true, options: mastersLists };
+            // } else if (rule.start2.includes('Text')) {
+            // return { isShow: true, options: TABLE_NAME.TEXT };
+            // }
         } else if (rule.start1 === 'IF' && rule.start2) {
             let block = getBlockById(form, rule.start2);
             if (block?.is === 'Select') {
                 return { isShow: true, options: block.property.options }
             }
-        }
-        return { isShow: false, options: [] };
-    };
-
-    // Dynamically determine options for start4 based on start1, start2, and start3 values
-    const handleStart4 = (rule: RULE) => {
-        if (rule.start1 === 'BIND' && rule.start2 && rule.start3) {
-            const options: Option[] = TABLE_FIELD[rule.start3] || []; // Ensure it's always an array
+        } else if (rule.start1 === 'MAP' && rule.start2) {
+            const options: Option[] = START3 || [];
             return { isShow: true, options };
         }
         return { isShow: false, options: [] };
     };
     const handleEnd1 = (rule: RULE) => {
         if (rule.start1 === 'IF') {
-            const options: Option[] = END1 || []; // Ensure it's always an array
+            const options: Option[] = END1.THEN || [];
+            return { isShow: true, options };
+        } else if (rule.start1 === 'MAP') {
+            const options: Option[] = END1.WHERE || [];
             return { isShow: true, options };
         }
         return { isShow: false, options: [] };
-    };
+    }
     const handleEnd2 = (rule: RULE) => {
         if (rule.start1 === 'IF') {
             if (rule.end1 === 'THEN') {
-                const options: Option[] = [...SHOW_HIDE]; // Ensure it's always an array
+                const options: Option[] = END2.SHOW_HIDE || [];
+                return { isShow: true, options };
+            }
+        } else if (rule.start1 === 'MAP') {
+            if (rule.end1 === 'WHERE') {
+                const options: Option[] = END2.COUNTRY || [];
                 return { isShow: true, options };
             }
         }
         return { isShow: false, options: [] };
-    };
+    }
     const handleEnd3 = (rule: RULE) => {
-        if (rule.start1 === 'IF') {
-            if (rule.end1 === 'THEN') {
+        if (['IF', 'MAP'].includes(rule.start1)) {
+            if (['THEN', 'WHERE'].includes(rule.end1)) {
                 if (rule.end2) {
                     const options: Option[] = form.blocks
                         .filter(block => block.property.id !== rule.start2) // Filter blocks based on the condition
@@ -143,13 +139,23 @@ const Rule: React.FC<Props> = ({ showRule, setShowRule, form, setForm }) => {
             }
         }
         return { isShow: false, options: [] };
+    }
+
+
+    const fetchColumnNames = async (id: string) => {
+        if (!columnLists[id]) {
+            const response = await axios.get(`${config.API_URL_APPLICATION}/FormBuilder/GetColumnList`, { params: { id } });
+            console.log(response)
+            setColumnLists(prev => ({ ...prev, [id]: response.data.columnFormLists }));
+        }
     };
 
     useEffect(() => {
-        setRules(form.rules || [])
-    },[form.rules])
-
-
+        setRules(form.rules || []);
+        axios.get(`${config.API_URL_APPLICATION}/FormBuilder/GetMasterList`).then(response => {
+            setMasterLists(response.data.masterForms);
+        });
+    }, [form.rules]);
 
     return (
         <Modal show={showRule} onHide={handleClose} size="xl">
@@ -157,7 +163,7 @@ const Rule: React.FC<Props> = ({ showRule, setShowRule, form, setForm }) => {
                 <Modal.Title className="col-6">Conditions Form</Modal.Title>
                 <div className="col-5 d-flex justify-content-end">
                     <button onClick={() => handleRule('add')} className="border">
-                        <i className="ri-add-fill "></i> Add Rule
+                        <i className="ri-add-fill"></i> Add Rule
                     </button>
                 </div>
             </Modal.Header>
@@ -181,6 +187,7 @@ const Rule: React.FC<Props> = ({ showRule, setShowRule, form, setForm }) => {
                                         ))}
                                     </Form.Select>
                                 </Form.Group>
+
                                 {/* START2 */}
                                 {handleStart2(rule).isShow && (
                                     <Form.Group controlId={`rule-${index}-start2`} className="mr-1">
@@ -198,13 +205,17 @@ const Rule: React.FC<Props> = ({ showRule, setShowRule, form, setForm }) => {
                                         </Form.Select>
                                     </Form.Group>
                                 )}
+
                                 {/* START3 */}
                                 {handleStart3(rule).isShow && (
                                     <Form.Group controlId={`rule-${index}-start3`} className="mr-1">
                                         <Form.Select
                                             name="start3"
                                             value={rule.start3}
-                                            onChange={(e) => handleRuleChange(e, index, 'start3')}
+                                            onChange={(e) => {
+                                                handleRuleChange(e, index, 'start3');
+                                                fetchColumnNames(e.target.value);
+                                            }}
                                         >
                                             <option value="">Please select</option>
                                             {handleStart3(rule).options.map((option, optionIndex) => (
@@ -215,8 +226,9 @@ const Rule: React.FC<Props> = ({ showRule, setShowRule, form, setForm }) => {
                                         </Form.Select>
                                     </Form.Group>
                                 )}
+
                                 {/* START4 */}
-                                {handleStart4(rule).isShow && (
+                                {columnLists[rule.start3] && (
                                     <Form.Group controlId={`rule-${index}-start4`} className="mr-1">
                                         <Form.Select
                                             name="start4"
@@ -224,7 +236,7 @@ const Rule: React.FC<Props> = ({ showRule, setShowRule, form, setForm }) => {
                                             onChange={(e) => handleRuleChange(e, index, 'start4')}
                                         >
                                             <option value="">Please select</option>
-                                            {handleStart4(rule).options.map((option, optionIndex) => (
+                                            {columnLists[rule.start3].map((option, optionIndex) => (
                                                 <option key={optionIndex} value={option.value}>
                                                     {option.label}
                                                 </option>
@@ -234,7 +246,7 @@ const Rule: React.FC<Props> = ({ showRule, setShowRule, form, setForm }) => {
                                 )}
                                 {/* END1 */}
                                 {handleEnd1(rule).isShow && (
-                                    <Form.Group controlId={`rule-${index}-end1`} className="mr-1">
+                                    <Form.Group controlId={`rule - ${index}- end1`} className="mr-1">
                                         <Form.Select
                                             name="end1"
                                             value={rule.end1}
@@ -251,7 +263,7 @@ const Rule: React.FC<Props> = ({ showRule, setShowRule, form, setForm }) => {
                                 )}
                                 {/* END2 */}
                                 {handleEnd2(rule).isShow && (
-                                    <Form.Group controlId={`rule-${index}-end2`} className="mr-1">
+                                    <Form.Group controlId={`rule - ${index}- end2`} className="mr-1">
                                         <Form.Select
                                             name="end2"
                                             value={rule.end2}
@@ -268,7 +280,7 @@ const Rule: React.FC<Props> = ({ showRule, setShowRule, form, setForm }) => {
                                 )}
                                 {/* END3 */}
                                 {handleEnd3(rule).isShow && (
-                                    <Form.Group controlId={`rule-${index}-end3`} className="mr-1">
+                                    <Form.Group controlId={`rule - ${index}- end3`} className="mr-1">
                                         <Form.Select
                                             name="end3"
                                             value={rule.end3}
@@ -291,8 +303,8 @@ const Rule: React.FC<Props> = ({ showRule, setShowRule, form, setForm }) => {
                             </div>
                         </div>
                     ))}
-                </div>
-            </Modal.Body>
+                </div >
+            </Modal.Body >
             <Modal.Footer>
                 <Button variant="secondary" onClick={handleClose}>
                     Close
@@ -301,7 +313,7 @@ const Rule: React.FC<Props> = ({ showRule, setShowRule, form, setForm }) => {
                     Save Changes
                 </Button>
             </Modal.Footer>
-        </Modal>
+        </Modal >
     );
 };
 
