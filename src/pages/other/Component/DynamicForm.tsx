@@ -1458,7 +1458,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                                                                 }}
                                                             />
                                                         )}
-                                                        {input.type === 'select' && (
+                                                        {input.type === 'select' && 'radio' && (
                                                             <select
                                                                 id={input.inputId}
                                                                 className="form-select form-control"
