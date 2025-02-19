@@ -8,11 +8,17 @@ import { FIELD, PROPERTY } from './Constant/Interface';
 import axios from 'axios';
 import config from '@/config';
 import { toast } from 'react-toastify';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 
-interface FormBuilderProps { }
+interface FormBuilderProps { 
+    formDetails?:{
+        templateJson?: string;
+        id?: number;
+    },
+    handleClose?: () => void;
+ }
 
-const FormBuilder: React.FC<FormBuilderProps> = () => {
+const FormBuilder: React.FC<FormBuilderProps> = ({formDetails, handleClose}) => {
     const { id } = useParams<{ id: string }>();
 
     const [form, setForm] = useState<FIELD>({
@@ -45,6 +51,7 @@ const FormBuilder: React.FC<FormBuilderProps> = () => {
     const [showRule, setShowRule] = useState(false)
     const [blockValue, setBlockValue] = useState({})
     const [formSize, setFormSize] = useState(3);
+    const navigate = useNavigate();
 
 
     const removeFormBlock = (blockId: string) => {
@@ -77,12 +84,48 @@ const FormBuilder: React.FC<FormBuilderProps> = () => {
             console.log('form', form)
             const response = await axios.post(
                 `${config.API_URL_APPLICATION}/FormBuilder/InsertUpdateForm`, form,
-                { params: { id: id || ''}}
+                { params: { id: id || '' } }
             );
             if (response.data.isSuccess) {
                 toast.success(response.data.message);
-            }else{
+            } else {
                 toast.error(response.data.message)
+            }
+        } catch (error) {
+            console.error(error)
+        }
+    }
+    const handleAdhocSaveForm = async () => {
+        try {
+            if (!form.name) {
+                toast.info("Please Fill Form Name");
+                return;
+            }
+            const payload = {
+                formName: form.name,
+                templateJson: JSON.stringify(form),
+                createdBy: "HimanshuPant",
+                id: formDetails?.id,
+            };
+            console.log(payload)
+            const response = await fetch(`${config.API_URL_ACCOUNT}/ProcessTaskMaster/InsertTemplateJson`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': '*/*',
+                },
+                body: JSON.stringify(payload),
+            });
+            const responseText = await response.text();
+
+            if (responseText) {
+                const data = JSON.parse(responseText);
+                console.log(data)
+                if(data.isSuccess){
+                    toast.success(data.message);
+                    navigate('/pages/AdhocMaster');
+                    handleClose?.();
+                }
             }
         } catch (error) {
             console.error(error)
@@ -96,10 +139,11 @@ const FormBuilder: React.FC<FormBuilderProps> = () => {
         showRule,
         setShowRule,
         handleSaveForm,
+        handleAdhocSaveForm,
         // setFormSize,
     }
 
-    const fetchFormById = async(id: string) => {
+    const fetchFormById = async (id: string) => {
         const response = await axios.get(`${config.API_URL_APPLICATION}/FormBuilder/GetForm`, {
             params: { id: id }
         });
@@ -108,7 +152,9 @@ const FormBuilder: React.FC<FormBuilderProps> = () => {
     useEffect(() => {
         if (id) {
             fetchFormById(id);
-        } 
+        }else if(formDetails?.templateJson){
+            setForm(JSON.parse(formDetails.templateJson));
+        }
     }, [id]);
 
 

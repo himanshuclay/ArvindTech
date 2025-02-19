@@ -293,33 +293,7 @@ const getFilteredMenuItems = () => {
           icon: 'ri-notification-line',
           parentKey: 'systemmaster',
         },
-        {
-          key: 'FormMaster',
-          label: 'Form Master',
-          url: '/pages/AdhocTempleteList',
-          // icon: 'ri-survey-line',
-          parentKey: 'systemmaster',
-          children: [
-            {
-              key: 'Mess-Master',
-              label: 'HR Templete Master',
-              url: '/pages/AdhocTempleteList',
-              parentKey: 'FormMaster',
-            },
-            {
-              key: 'Mess-Master',
-              label: 'Account Templete Master',
-              url: '/pages/AdhocTempleteList',
-              parentKey: 'FormMaster',
-            },
-            {
-              key: 'Mess-Master',
-              label: 'BD Templete Master',
-              url: '/pages/AdhocTempleteList',
-              parentKey: 'FormMaster',
-            },
-          ],
-        },
+        
       ],
     },
 
@@ -451,6 +425,39 @@ const getFilteredMenuItems = () => {
         },
       ],
     },
+    {
+      key: 'FormMaster',
+      label: 'Form Master',
+      url: '/pages/AdhocTempleteList',
+      // icon: 'ri-survey-line',
+      // parentKey: 'systemmaster',
+      children: [
+        {
+          key: 'Mess-Master',
+          label: 'HR Templete Master',
+          url: '/pages/AdhocTempleteList',
+          parentKey: 'FormMaster',
+        },
+        {
+          key: 'Mess-Master',
+          label: 'Account Templete Master',
+          url: '/pages/AdhocTempleteList',
+          parentKey: 'FormMaster',
+        },
+        {
+          key: 'Mess-Master',
+          label: 'BD Templete Master',
+          url: '/pages/AdhocTempleteList',
+          parentKey: 'FormMaster',
+        },
+        {
+          key: 'Mess-Master',
+          label: 'Adhoc Master',
+          url: '/pages/AdhocMaster',
+          parentKey: 'FormMaster',
+        },
+      ],
+    },
 
   ];
 
@@ -499,7 +506,8 @@ const getFilteredMenuItems = () => {
       item.key === 'systemmaster' ||
       item.key === 'Process' ||
       item.key === 'ProcessDataMaster' ||
-      item.key === 'Modules'
+      item.key === 'Modules' || 
+      item.key === 'FormMaster'
     );
   }
   return MENU_ITEMS.filter(item => {

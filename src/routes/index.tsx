@@ -3,6 +3,7 @@ import { Route, RouteProps } from 'react-router-dom'
 
 // components
 import PrivateRoute from './PrivateRoute'
+import AdhocMaster from '@/pages/other/AdminSide/AdhocMaster.tsx'
 // import FormBuilder from '@/pages/FormBuilder/FormBuilder.tsx'
 
 // lazy load all the views
@@ -283,6 +284,12 @@ const customPagesRoutes = {
 			path: '/pages/FormMaster',
 			name: 'Form Master',
 			element: <FormMaster />,
+			route: PrivateRoute,
+		},
+		{
+			path: '/pages/AdhocMaster',
+			name: 'Adhoc Master',
+			element: <AdhocMaster />,
 			route: PrivateRoute,
 		},
 		{
