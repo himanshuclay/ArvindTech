@@ -178,10 +178,14 @@ const Editor: React.FC<EditorProps> = ({ form, setForm, property, setProperty, b
     const isFirstRun = useRef(true);
 
     const managePartiallyBind = async (blockValue: BLOCK_VALUE, rule: RULE) => {
-        
+        const query = {
+            ...rule,
+            partiallyBind: blockValue[rule.end3]
+        }
+        console.log(query)
         const response = await axios.post(
             `${config.API_URL_APPLICATION}/FormBuilder/GetPartiallyBindValue`,
-            rule,
+            query
         );
         const updatedActions = response.data.rules.map((rule: any) => {
             rule.rule = JSON.parse(rule.rule);
