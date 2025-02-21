@@ -182,7 +182,7 @@ const Topbar = ({ toggleMenu, navOpen }: TopbarProps) => {
 	const { updateSidebar } = useThemeContext()
 	// State to store the employee name
 	const [empName, setEmpName] = useState<string | null>('Admin')
-	const [empID, setEmpID] =  useState<string | null>('Admin')
+	const [empID, setEmpID] = useState<string | null>('Admin')
 
 	// Fetch employee name from localStorage when component mounts
 	useEffect(() => {

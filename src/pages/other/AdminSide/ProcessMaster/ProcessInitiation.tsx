@@ -162,8 +162,6 @@ const ProcessInitiation = () => {
         fetchData('CommonDropdown/GetProcessOwnerName', setEmployeeList, 'processOwnerNames');
     }, []);
 
-
-
     useEffect(() => {
         const fetchProcessName = async () => {
             try {

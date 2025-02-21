@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import axios from 'axios'
-import { Col, Modal, Row } from 'react-bootstrap'
+import { Col, Modal, Row, Form } from 'react-bootstrap'
 // import { FileUploader } from '@/components/FileUploader'
 // import { useNavigate } from 'react-router-dom';
 import { useNavigate, useLocation } from 'react-router-dom'
@@ -855,7 +855,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                         : '',
 
                 endprocessStatus: 'string',
-                file: '',
+                // file: '',
                 updatedBy: role,
                 problemSolver: problemSolver,
                 projectName: projectName,
@@ -872,6 +872,8 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                         body: JSON.stringify(requestData),
                     }
                 )
+
+                console.log(response);
 
                 if (response.ok) {
                     const responseData = await response.json()
@@ -1588,14 +1590,25 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                                                                 />
                                                             </span>
                                                         )}
-                                                        {input.type === 'radio' && (
-                                                            <input
-                                                                type="radio"
-                                                                checked={formState[input.inputId]}
-                                                                onChange={(e) =>
-                                                                    handleChange(input.inputId, e.target.checked)
-                                                                }
-                                                            />
+                                                        {input.type === "radio" && input.visibility && (
+                                                            <Form.Group className="mb-3">
+                                                                {/* <Form.Label className="d-block mb-2">{input.label}</Form.Label>  */}
+                                                                {input.options?.map((option) => (
+                                                                    <Form.Check
+                                                                        key={option.id}
+                                                                        type="radio"
+                                                                        id={`${input.inputId}-${option.id}`}
+                                                                        name={input.inputId}
+                                                                        value={option.id}
+                                                                        checked={formState[input.inputId] === option.id}
+                                                                        onChange={(e) => handleChange(input.inputId, e.target.value)}
+                                                                        required={input.required}
+                                                                        className="my-2" // Adds spacing between options
+                                                                        label={option.label} 
+                                                                        style={{ color: option.color || "#000000" }}
+                                                                    />
+                                                                ))}
+                                                            </Form.Group>
                                                         )}
                                                         {input.type === 'status' && (
                                                             <input
