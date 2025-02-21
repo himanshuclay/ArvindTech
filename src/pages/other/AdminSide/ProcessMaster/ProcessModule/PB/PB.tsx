@@ -457,7 +457,7 @@ const PB = () => {
 
 
                             <Col lg={12}>
-                                <Row>
+                                {/* <Row>
                                     <h4>Specific Time</h4>
                                     <Col lg={6}>
                                         <Form.Group controlId="intervalType" className="mb-3">
@@ -549,7 +549,7 @@ const PB = () => {
                                             />
                                         </Form.Group>
                                     </Col>
-                                </Row>
+                                </Row> */}
 
                             </Col>
                             <Col lg={3} className='align-items-end d-flex justify-content-end mb-3'>
