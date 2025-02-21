@@ -3,6 +3,7 @@ import AccountProcess from './ProcessModule/AccountProcess/AccountProcess';
 import BuisnessDevelopmentProcess from './ProcessModule/BuisnessDevelopmentProcess/BuisnessDevelopmentProcess';
 import HumanResource from './ProcessModule/HumanResource/HumanResource';
 import MDO from './ProcessModule/MDO/MDO';
+import PB from './ProcessModule/PB/PB';
 
 
 const ProcessManualInitiation = () => {
@@ -15,7 +16,8 @@ const ProcessManualInitiation = () => {
                 moduleID === 'BD' ? <BuisnessDevelopmentProcess /> :
                     moduleID === 'HR' ? <HumanResource /> :
                         moduleID === 'MDO' ? <MDO /> :
-                            null}
+                            moduleID === 'PB' ? <PB /> :
+                                null}
 
         </>
     );

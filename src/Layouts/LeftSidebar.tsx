@@ -429,7 +429,7 @@ const getFilteredMenuItems = () => {
       key: 'FormMaster',
       label: 'Form Master',
       url: '/pages/AdhocTempleteList',
-      // icon: 'ri-survey-line',
+      icon: 'ri-survey-line',
       // parentKey: 'systemmaster',
       children: [
         {
