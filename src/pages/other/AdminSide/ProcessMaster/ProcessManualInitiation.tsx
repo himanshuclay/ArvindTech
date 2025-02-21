@@ -3,6 +3,10 @@ import AccountProcess from './ProcessModule/AccountProcess/AccountProcess';
 import BuisnessDevelopmentProcess from './ProcessModule/BuisnessDevelopmentProcess/BuisnessDevelopmentProcess';
 import HumanResource from './ProcessModule/HumanResource/HumanResource';
 import MDO from './ProcessModule/MDO/MDO';
+import StoreManagement from './ProcessModule/StoreManagement/StoreManagement';
+import Demobilization from './ProcessModule/Demobilization/Demobilization';
+import DDPS from './ProcessModule/DDPS/DDPS';
+import BillTrackingSystem from './ProcessModule/BillTrackingSystem/BillTrackingSystem';
 
 
 const ProcessManualInitiation = () => {
@@ -15,7 +19,11 @@ const ProcessManualInitiation = () => {
                 moduleID === 'BD' ? <BuisnessDevelopmentProcess /> :
                     moduleID === 'HR' ? <HumanResource /> :
                         moduleID === 'MDO' ? <MDO /> :
-                            null}
+                            moduleID === 'SM' ? <StoreManagement /> :
+                                moduleID === 'DDPS' ? <DDPS /> :
+                                    moduleID === 'DEMOB' ? <Demobilization /> :
+                                        moduleID === 'BTS' ? <BillTrackingSystem /> :
+                                            null}
 
         </>
     );
