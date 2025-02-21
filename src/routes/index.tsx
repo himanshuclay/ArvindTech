@@ -3,6 +3,8 @@ import { Route, RouteProps } from 'react-router-dom'
 
 // components
 import PrivateRoute from './PrivateRoute'
+import AdhocMaster from '@/pages/other/AdminSide/AdhocMaster.tsx'
+// import FormBuilder from '@/pages/FormBuilder/FormBuilder.tsx'
 
 // lazy load all the views
 
@@ -42,6 +44,8 @@ const ExpireTask = React.lazy(() => import('../pages/other/DoerSide/ExpireTask.t
 const PendingTask = React.lazy(() => import('../pages/other/DoerSide/PendingTask.tsx'))
 const RunningTask = React.lazy(() => import('../pages/other/RunningTask.tsx'))
 const ModuleMasterNew = React.lazy(() => import('../pages/other/AdminSide/ModuleMaster/ModuleMaster.tsx'))
+const FormList = React.lazy(() => import('../pages/other/AdminSide/FormBuilderMaster/FormList.tsx'))
+const FormBuilder = React.lazy(() => import('../pages/FormBuilder/FormBuilder.tsx'))
 const ModuleMasterinsert = React.lazy(() => import('../pages/other/AdminSide/ModuleMaster/ModuleMasterInsert.tsx'))
 const ProcessMasterNew = React.lazy(() => import('../pages/other/AdminSide/ProcessMaster/ProcessMaster.tsx'))
 const ProcessMasterinsert = React.lazy(() => import('../pages/other/AdminSide/ProcessMaster/ProcessMasterInsert.tsx'))
@@ -285,6 +289,12 @@ const customPagesRoutes = {
 			route: PrivateRoute,
 		},
 		{
+			path: '/pages/AdhocMaster',
+			name: 'Adhoc Master',
+			element: <AdhocMaster />,
+			route: PrivateRoute,
+		},
+		{
 			path: '/pages/LnMaster',
 			name: 'LnMaster',
 			element: <LnMaster />,
@@ -363,6 +373,24 @@ const customPagesRoutes = {
 			path: '/pages/ModuleMaster',
 			name: 'ModuleMaster ',
 			element: <ModuleMasterNew />,
+			route: PrivateRoute,
+		},
+		{
+			path: '/pages/FormList',
+			name: 'FormList ',
+			element: <FormList />,
+			route: PrivateRoute,
+		},
+		{
+			path: '/pages/FormBuilder/:id',
+			name: 'FormBuilder ',
+			element: <FormBuilder />,
+			route: PrivateRoute,
+		},
+		{
+			path: '/pages/FormBuilder',
+			name: 'FormBuilder ',
+			element: <FormBuilder />,
 			route: PrivateRoute,
 		},
 		{
@@ -863,6 +891,12 @@ const customPagesRoutes = {
 			element: <Error404Alt />,
 			route: PrivateRoute,
 		},
+		// {
+		// 	path: 'pages/formBuilder',
+		// 	name: 'Form Builder',
+		// 	element: <FormBuilder />,
+		// 	route: PrivateRoute,
+		// },
 	],
 }
 
