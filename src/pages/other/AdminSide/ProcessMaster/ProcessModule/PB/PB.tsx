@@ -39,10 +39,10 @@ interface Process {
     problemSolver: any;
 }
 
-interface GetTypeDayTimeList {
-    id: number;
-    name: string;
-}
+// interface GetTypeDayTimeList {
+//     id: number;
+//     name: string;
+// }
 interface AdhocList {
     id: number;
     formName: string;
@@ -96,10 +96,10 @@ const PB = () => {
         problemSolver: ''
     });
 
-    const [dropdownValuesFlag1, setDropdownValuesFlag1] = useState<GetTypeDayTimeList[]>([]);
-    const [dropdownValuesFlag2, setDropdownValuesFlag2] = useState<GetTypeDayTimeList[]>([]);
-    const [dropdownValuesFlag3, setDropdownValuesFlag3] = useState<GetTypeDayTimeList[]>([]);
-    const [dropdownValuesFlag4, setDropdownValuesFlag4] = useState<GetTypeDayTimeList[]>([]);
+    // const [dropdownValuesFlag1, setDropdownValuesFlag1] = useState<GetTypeDayTimeList[]>([]);
+    // const [dropdownValuesFlag2, setDropdownValuesFlag2] = useState<GetTypeDayTimeList[]>([]);
+    // const [dropdownValuesFlag3, setDropdownValuesFlag3] = useState<GetTypeDayTimeList[]>([]);
+    // const [dropdownValuesFlag4, setDropdownValuesFlag4] = useState<GetTypeDayTimeList[]>([]);
 
 
     useEffect(() => {
@@ -118,12 +118,12 @@ const PB = () => {
     }, [id]);
 
 
-    useEffect(() => {
-        GetTypeDayTimeList(1, setDropdownValuesFlag1);
-        GetTypeDayTimeList(2, setDropdownValuesFlag2);
-        GetTypeDayTimeList(3, setDropdownValuesFlag3);
-        GetTypeDayTimeList(4, setDropdownValuesFlag4);
-    }, []);
+    // useEffect(() => {
+    //     GetTypeDayTimeList(1, setDropdownValuesFlag1);
+    //     GetTypeDayTimeList(2, setDropdownValuesFlag2);
+    //     GetTypeDayTimeList(3, setDropdownValuesFlag3);
+    //     GetTypeDayTimeList(4, setDropdownValuesFlag4);
+    // }, []);
 
     const fetchModuleById = async (id: string) => {
         try {
@@ -144,19 +144,19 @@ const PB = () => {
 
 
 
-    const GetTypeDayTimeList = async (flag: any, setStateCallback: any) => {
-        try {
-            const response = await axios.get(`${config.API_URL_APPLICATION}/CommonDropdown/GetTypeDayTimeList?flag=${flag}`);
-            if (response.data.isSuccess) {
-                setStateCallback(response.data.typeListResponses);
-            } else {
-                console.error(response.data.message);
-            }
-        } catch (error) {
-            console.error('Error fetching modules:', error);
-        }
+    // const GetTypeDayTimeList = async (flag: any, setStateCallback: any) => {
+    //     try {
+    //         const response = await axios.get(`${config.API_URL_APPLICATION}/CommonDropdown/GetTypeDayTimeList?flag=${flag}`);
+    //         if (response.data.isSuccess) {
+    //             setStateCallback(response.data.typeListResponses);
+    //         } else {
+    //             console.error(response.data.message);
+    //         }
+    //     } catch (error) {
+    //         console.error('Error fetching modules:', error);
+    //     }
 
-    };
+    // };
 
 
     useEffect(() => {
