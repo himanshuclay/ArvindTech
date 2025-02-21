@@ -587,15 +587,15 @@ const ProjectAssignTable: React.FC = () => {
                                             </h5></td>
                                           </tr>
 
-                                          <tr>
+                                          {/* <tr>
                                             <td><h5>Approval :</h5></td>
                                             <td> <h5 className='text-primary'>{item.approval_Console !== null ? 'Yes' : 'No'}</h5></td>
-                                          </tr>
+                                          </tr> */}
 
-                                          {item.approval_Console !== null &&
+                                          {item.approval_Console === 'Select Approval_Console' &&
                                             <tr>
                                               <td><h5>Approver :</h5></td>
-                                              <td><h5 className='text-primary'>NA</h5>
+                                              <td><h5 className='text-primary'>{item.approvalConsoleDoerName}</h5>
                                               </td>
                                             </tr>}
 
@@ -606,19 +606,22 @@ const ProjectAssignTable: React.FC = () => {
 
                                   <hr className='my-1' />
                                   <Row className=''>
-                                    <Col lg={4}>
-                                      <tr>
-                                        <td> <h5 >Initiation period : </h5></td>
-                                        <td><h5 className='text-primary'>{formatPeriod(item.createdDate)}</h5></td>
-                                      </tr>
-                                      <tr>
-                                        <td> <h5 >Source : </h5></td>
-                                        <td><h5 className='text-primary'>Source</h5>
-                                        </td>
-                                      </tr>
-
-                                    </Col>
-                                    <Col lg={4}>
+                                    {item.processID === 'ACC.01' && 
+                                       <Col lg={4}>
+                                       <tr>
+                                         <td> <h5 >Initiation period : </h5></td>
+                                         <td><h5 className='text-primary'>{formatPeriod(item.createdDate)}</h5></td>
+                                       </tr>
+                                       {/* <tr>
+                                         <td> <h5 >Source : </h5></td>
+                                         <td><h5 className='text-primary'>Source</h5>
+                                         </td>
+                                       </tr> */}
+ 
+                                     </Col>
+                                    }
+                                    
+                                    {/* <Col lg={4}>
                                       <tr>
                                         <td> <h5 >Week : </h5></td>
                                         <td><h5 className='text-primary'>Source</h5></td>
@@ -629,19 +632,22 @@ const ProjectAssignTable: React.FC = () => {
                                         </td>
                                       </tr>
 
-                                    </Col>
-                                    <Col lg={4}>
-                                      <tr>
-                                        <td> <h5>Mess Manager : </h5></td>
-                                        <td><h5 className='text-primary'>Mess Manager Name</h5></td>
-                                      </tr>
-                                      <tr>
-                                        <td> <h5 className='mb-1'>Var Field 2 : </h5></td>
-                                        <td><h5 className='text-primary'>Var Field 2</h5>
-                                        </td>
-                                      </tr>
+                                    </Col> */}
+                                    {item.processID === 'ACC.01' &&
+                                      <Col lg={4}>
+                                        <tr>
+                                          <td> <h5>Mess Manager : </h5></td>
+                                          <td><h5 className='text-primary'>Mess Manager Name</h5></td>
+                                        </tr>
+                                        {/* <tr>
+                                          <td> <h5 className='mb-1'>Var Field 2 : </h5></td>
+                                          <td><h5 className='text-primary'>Var Field 2</h5>
+                                          </td>
+                                        </tr> */}
 
-                                    </Col>
+                                      </Col>
+                                    }
+
                                   </Row>
                                   <hr className='my-1' />
                                   <Row>
@@ -698,27 +704,27 @@ const ProjectAssignTable: React.FC = () => {
         <ViewOutput showViewOutput={showViewOutput} setShowViewOutput={setShowViewOutput} preData={preData} />
       </div>
       <div className="d-flex justify-content-center align-items-center bg-white w-20 rounded-5 m-auto py-1 pb-1 my-2 pagination-rounded">
-      <Pagination>
-							<Pagination.First
-								onClick={() => setCurrentPage(1)}
-								disabled={currentPage === 1}
-							/>
-							<Pagination.Prev
-								onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-								disabled={currentPage === 1}
-							/>
-							<Pagination.Item active>{currentPage}</Pagination.Item>
-							<Pagination.Next
-								onClick={() =>
-									setCurrentPage((prev) => Math.min(prev + 1, totalPages))
-								}
-								disabled={currentPage === totalPages}
-							/>
-							<Pagination.Last
-								onClick={() => setCurrentPage(totalPages)}
-								disabled={currentPage === totalPages}
-							/>
-						</Pagination>
+        <Pagination>
+          <Pagination.First
+            onClick={() => setCurrentPage(1)}
+            disabled={currentPage === 1}
+          />
+          <Pagination.Prev
+            onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+            disabled={currentPage === 1}
+          />
+          <Pagination.Item active>{currentPage}</Pagination.Item>
+          <Pagination.Next
+            onClick={() =>
+              setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+            }
+            disabled={currentPage === totalPages}
+          />
+          <Pagination.Last
+            onClick={() => setCurrentPage(totalPages)}
+            disabled={currentPage === totalPages}
+          />
+        </Pagination>
       </div>
     </>
 

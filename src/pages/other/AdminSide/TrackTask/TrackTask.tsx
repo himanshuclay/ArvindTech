@@ -285,7 +285,7 @@ const LnMaster: React.FC = () => {
             console.error('Invalid date format');
             return ''; // Return an empty string if the date is invalid
         }
-        const plannedDate = new Date(parsedDate.getTime() + 86 * 60 * 60 * 1000);
+        const plannedDate = new Date(parsedDate.getTime() + 24 * 60 * 60 * 1000);
         const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
         const month = months[plannedDate.getMonth()];
         const day = String(plannedDate.getDate()).padStart(2, '0');
@@ -582,7 +582,7 @@ const LnMaster: React.FC = () => {
                                                                 {
                                                                     col.id === 'planDate' ? (
                                                                         <>
-                                                                            {item.task_Number === 'ACC.01.T1' ? (
+                                                                            {item.task_Number.split(".")[2]?.toLowerCase() === "t1" ? (
                                                                                 calculatePlannedDate(item.createdDate)
                                                                             ) : (
                                                                                 getPlannedDate(item.createdDate, item.planDate)
