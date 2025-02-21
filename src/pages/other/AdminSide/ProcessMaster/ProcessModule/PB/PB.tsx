@@ -3,7 +3,7 @@ import { useEffect, useState, useRef } from 'react';
 import { Button, Col, Form, Row, ButtonGroup, Overlay, Popover, Modal, Table } from 'react-bootstrap';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import config from '@/config';
-import Select from 'react-select';
+// import Select from 'react-select';
 import DynamicForm from '@/pages/other/Component/DynamicForm';
 import { toast } from 'react-toastify';
 
