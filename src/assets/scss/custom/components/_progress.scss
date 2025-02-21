@@ -1003,3 +1003,12 @@ input.numInput.cur-year:hover {
   pointer-events: none;
   opacity: 0.8;
 }
+
+
+// form builder
+.editor {
+  height: calc(100vh - 135px); 
+}
+.border-green{
+  border: 2px solid green!important;
+}

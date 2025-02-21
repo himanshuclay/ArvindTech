@@ -125,8 +125,10 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
     const [selectedCondition, setSelectedCondition] = useState<any[]>([])
     const [ifscError, setIfscError] = useState('')
 
-    const [currentStep, setCurrentStep] = useState<number>(0) // Track the current step
-    const [messForbank, setMessForbank] = useState('') // Track the current step
+	const [currentStep, setCurrentStep] = useState<number>(0) // Track the current step
+	const [messForbank, setMessForbank] = useState('') // Track the current step
+
+	// const [isTenderMaster, setIsTenderMaster] = useState(false);
 
     const location = useLocation()
 
@@ -226,9 +228,10 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                 (data) => data.messID === messList[currentStep]?.messID
             )
 
-            // Reset modals before checking for the new state
-            setShowBankModal(false) // Reset Bank Modal
-            setShowMessManagerSelect(false) // Reset Mess Manager Select
+			// Reset modals before checking for the new state
+			setShowBankModal(false) // Reset Bank Modal
+			setShowMessManagerSelect(false) // Reset Mess Manager Select
+			// setIsTenderMaster(false);
 
             if (currentData) {
                 const taskJson = currentData.taskJson || {}
@@ -238,11 +241,12 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                     (acc: { [key: string]: string }, input: Input) => {
                         acc[input.inputId] = input.value || '' // Set default value if no value is found
 
-                        // Check if input.inputId is 11 and input.value is '11-1'
-                        if (input.inputId === '11' && input.value === '11-1') {
-                            setShowBankModal(true) // Trigger the Bank Modal
-                            setShowMessManagerSelect(true) // Trigger the Mess Manager Select
-                        }
+						// Check if input.inputId is 11 and input.value is '11-1'
+						// console.log('ss',input.inputId)
+						if (input.inputId === '11' && input.value === '11-1') {
+							setShowBankModal(true) // Trigger the Bank Modal
+							setShowMessManagerSelect(true) // Trigger the Mess Manager Select
+						}
 
                         return acc
                     },
@@ -617,14 +621,14 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                 }
             }
 
-            // Handle select and CustomSelect input types
-            if (input.type === 'select' || input.type === 'CustomSelect') {
-                console.log('i am inside')
-                const selectedOption = input.options?.find(
-                    (option) => option.label === value
-                )
-                console.log(parsedCondition)
-                console.log(selectedOption)
+			// Handle select and CustomSelect input types
+			if (input.type === 'select' || input.type === 'CustomSelect') {
+				console.log('i am inside')
+				const selectedOption = input.options?.find(
+					(option) => option.label === value
+				)
+				console.log(parsedCondition)
+				console.log(selectedOption, value)
 
                 if (selectedOption) {
                     updatedValue = selectedOption.id
@@ -727,8 +731,9 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                 reEvaluateConditions(newState) // Re-evaluate conditions with updated state
                 console.log(newState)
 
-                setShowMessManagerSelect(Object.values(newState).includes('11-1'))
-                setShowBankModal(Object.values(newState).includes('11-1'))
+				setShowMessManagerSelect(Object.values(newState).includes('11-1'))
+				setShowBankModal(Object.values(newState).includes('11-1'))
+				// setIsTenderMaster(Object.values(newState).includes('11-1'))
 
                 return newState
             })
@@ -940,15 +945,17 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
 
     const [showBankModal, setShowBankModal] = useState(false)
 
-    const [bankDetails, setBankDetails] = useState({
-        reimbursementBankAccountNumber: '',
-        reimbursementBankName: '',
-        reimbursementBranchName: '',
-        reimbursementBankIfsc: '',
-        managerName: '',
-        messName: '',
-        userUpdateMobileNumber: '',
-    })
+	const [bankDetails, setBankDetails] = useState({
+		reimbursementBankAccountNumber: '',
+		reimbursementBankName: '',
+		reimbursementBranchName: '',
+		reimbursementBankIfsc: '',
+		managerName: '',
+		messName: '',
+		userUpdateMobileNumber: '',
+	})
+
+
 
     useEffect(() => {
         const fetchBankDetails = async () => {
@@ -1187,32 +1194,33 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                                                                     )}
                                                                 </div>
 
-                                                                <div
-                                                                    className={`step-label ${isActive ? 'text-primary' : 'text-muted'
-                                                                        }`}
-                                                                    title={mess.messName} // Tooltip for longer names
-                                                                >
-                                                                    {mess.messName}
-                                                                </div>
-                                                            </div>
-                                                        )
-                                                    })}
-                                                </div>
-                                            </div>
-                                        </div>
-                                    )}
-                                </div>
-                                <div
-                                    className="form-section"
-                                    style={{ width: '90%', padding: '0px 20px' }}>
-                                    <div className="my-task">
-                                        {formData.inputs.map(
-                                            (input: Input) =>
-                                                ((fromComponent === 'TaskMaster' && 'PendingTask') ||
-                                                    shouldDisplayInput(input)) && (
-                                                    <div
-                                                        className={`${!input.visibility ? 'd-none' : 'form-group'
-                                                            } 
+																<div
+																	className={`step-label ${isActive ? 'text-primary' : 'text-muted'
+																		}`}
+																	title={mess.messName} // Tooltip for longer names
+																>
+																	{mess.messName}
+																</div>
+															</div>
+														)
+													})}
+												</div>
+											</div>
+										</div>
+									)}
+
+								</div>
+								<div
+									className="form-section"
+									style={{ width: '90%', padding: '0px 20px' }}>
+									<div className="my-task">
+										{formData.inputs.map(
+											(input: Input) =>
+												((fromComponent === 'TaskMaster' && 'PendingTask') ||
+													shouldDisplayInput(input)) && (
+													<div
+														className={`${!input.visibility ? 'd-none' : 'form-group'
+															} 
                                                 ${fromComponent ===
                                                             'ApprovalConsole' &&
                                                             (approval_Console ===
@@ -1761,20 +1769,20 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                                                                     </Col>
                                                                 </Row>
 
-                                                                <div className="modal-buttons mt-3 d-flex justify-content-end">
-                                                                    <button
-                                                                        className="btn btn-secondary"
-                                                                        type="button"
-                                                                        onClick={handleClose2}>
-                                                                        Close
-                                                                    </button>
-                                                                </div>
-                                                            </form>
-                                                        </div>
-                                                    </div>
-                                                )}
-                                            </>
-                                        )}
+																<div className="modal-buttons mt-3 d-flex justify-content-end">
+																	<button
+																		className="btn btn-secondary"
+																		type="button"
+																		onClick={handleClose2}>
+																		Close
+																	</button>
+																</div>
+															</form>
+														</div>
+													</div>
+												)}
+											</>
+										)}
 
                                         {fromComponent === 'ApprovalConsole' && (
                                             <div>
