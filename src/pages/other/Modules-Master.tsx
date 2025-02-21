@@ -1375,41 +1375,7 @@ const App: React.FC = () => {
                   <Popover id="approval-popover" style={{ position: 'absolute', bottom: '100%' }}>
                     <Popover.Header as="h3">Select Doer for Approval</Popover.Header>
                     <Popover.Body>
-                      <Form.Group>
-                        <Form.Label>Employee Name</Form.Label>
-                        <Select
-                          value={employees
-                            .map(employee => ({ value: employee.empId, label: employee.employeeName }))
-                            .find(option => option.value === approvalSelectedEmployee) || null
-                          }
-                          onChange={handleApprovalEmployeeSelect}
-                          options={employees.map(employee => ({
-                            value: employee.empId,
-                            label: employee.employeeName,
-                          }))}
-                          placeholder="Select an employee"
-                          isSearchable
-                        />
-                      </Form.Group>
-                      <Form.Group className="mt-2">
-                        <Form.Label>Select Approval Input</Form.Label>
-                        <Form.Control
-                          as="select"
-                          name="approvalConsoleId"  // Changed from finishID to approvalConsoleId
-                          value={formData.approvalConsoleId}  // Updated to approvalConsoleId
-                          onChange={handleApprovalConsoleId}  // Updated handler
-                          required
-                        >
-                          <option value="">Select Field</option>
-                          {taskFields
-                            .filter(field => !['99', '100', '102', '103'].includes(field.inputId)) // Filter out specific fields
-                            .map((field) => (
-                              <option key={field.inputId} value={field.inputId}>
-                                {field.labeltext}
-                              </option>
-                            ))}
-                        </Form.Control>
-                      </Form.Group>
+                      
                     </Popover.Body>
                   </Popover>
                 )}
