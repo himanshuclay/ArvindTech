@@ -125,10 +125,10 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
     const [selectedCondition, setSelectedCondition] = useState<any[]>([])
     const [ifscError, setIfscError] = useState('')
 
-	const [currentStep, setCurrentStep] = useState<number>(0) // Track the current step
-	const [messForbank, setMessForbank] = useState('') // Track the current step
+    const [currentStep, setCurrentStep] = useState<number>(0) // Track the current step
+    const [messForbank, setMessForbank] = useState('') // Track the current step
 
-	// const [isTenderMaster, setIsTenderMaster] = useState(false);
+    // const [isTenderMaster, setIsTenderMaster] = useState(false);
 
     const location = useLocation()
 
@@ -228,10 +228,10 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                 (data) => data.messID === messList[currentStep]?.messID
             )
 
-			// Reset modals before checking for the new state
-			setShowBankModal(false) // Reset Bank Modal
-			setShowMessManagerSelect(false) // Reset Mess Manager Select
-			// setIsTenderMaster(false);
+            // Reset modals before checking for the new state
+            setShowBankModal(false) // Reset Bank Modal
+            setShowMessManagerSelect(false) // Reset Mess Manager Select
+            // setIsTenderMaster(false);
 
             if (currentData) {
                 const taskJson = currentData.taskJson || {}
@@ -241,12 +241,12 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                     (acc: { [key: string]: string }, input: Input) => {
                         acc[input.inputId] = input.value || '' // Set default value if no value is found
 
-						// Check if input.inputId is 11 and input.value is '11-1'
-						// console.log('ss',input.inputId)
-						if (input.inputId === '11' && input.value === '11-1') {
-							setShowBankModal(true) // Trigger the Bank Modal
-							setShowMessManagerSelect(true) // Trigger the Mess Manager Select
-						}
+                        // Check if input.inputId is 11 and input.value is '11-1'
+                        // console.log('ss',input.inputId)
+                        if (input.inputId === '11' && input.value === '11-1') {
+                            setShowBankModal(true) // Trigger the Bank Modal
+                            setShowMessManagerSelect(true) // Trigger the Mess Manager Select
+                        }
 
                         return acc
                     },
@@ -621,56 +621,55 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                 }
             }
 
-			// Handle select and CustomSelect input types
-			if (input.type === 'select' || input.type === 'CustomSelect') {
-				console.log('i am inside')
-				const selectedOption = input.options?.find(
-					(option) => option.label === value
-				)
-				console.log(parsedCondition)
-				console.log(selectedOption, value)
+            // Handle select and CustomSelect input types
+            if (input.type === 'select' || input.type === 'CustomSelect') {
+                console.log('I am inside');
+
+                const selectedOption = input.options?.find((option) => option.id === value);
+                console.log('Parsed Condition:', parsedCondition);
+                console.log('Selected Option:', selectedOption, 'Value:', value);
 
                 if (selectedOption) {
-                    updatedValue = selectedOption.id
-                    selectedLabel = selectedOption.label
+                    updatedValue = selectedOption.id;
+                    selectedLabel = selectedOption.label;
 
-                    if (Array.isArray(parsedCondition)) {
-                        const flattenedCondition = parsedCondition.flat()
-                        console.log(flattenedCondition)
-                        flattenedCondition.forEach((condition) => {
-                            if (Array.isArray(condition.taskSelections)) {
-                                const filteredTaskSelections = condition.taskSelections.filter(
-                                    (taskSelection: any) =>
-                                        String(taskSelection.inputId) === String(updatedValue)
-                                )
+                    // Ensure parsedCondition is parsed correctly and handled as an array
+                    const conditionsArray = Array.isArray(parsedCondition) ? parsedCondition : [parsedCondition];
 
-                                if (filteredTaskSelections.length > 0) {
-                                    setSelectedCondition({
-                                        ...condition,
-                                        taskSelections: filteredTaskSelections,
-                                    })
-                                    console.log(selectedCondition)
-                                } else {
-                                    console.warn(
-                                        'No matching task found for updatedValue:',
-                                        updatedValue
-                                    )
-                                }
+                    console.log('Conditions Array:', conditionsArray);
+
+                    conditionsArray.forEach((condition) => {
+                        condition = JSON.parse(condition);
+                        console.log(typeof condition)
+
+                        if (Array.isArray(condition[0].taskSelections)) {
+                            const filteredTaskSelections = condition[0].taskSelections.filter(
+                                (taskSelection: any) => String(taskSelection.inputId) === String(updatedValue)
+                            );
+
+                            const copyCondition = condition;
+                            copyCondition[0].taskSelections = filteredTaskSelections;
+
+                            if (filteredTaskSelections.length > 0) {
+                                setSelectedCondition(copyCondition);
+
+                                console.log('selectedCondition', selectedCondition);
+
                             } else {
-                                console.error(
-                                    'taskSelections is not an array or undefined:',
-                                    condition.taskSelections
-                                )
+                                console.warn('No matching task found for updatedValue:', updatedValue);
                             }
-                        })
-                    } else {
-                        console.error('parsedCondition is not an array:', parsedCondition)
-                    }
-                    console.log(selectedOption.id)
+                        } else {
+                            console.warn('taskSelections is not an array or undefined:', condition.taskSelections);
+                        }
+                    });
                 } else {
-                    console.warn(`No option found for the value: ${value}`)
+                    console.warn(`No option found for the value: ${value}`);
                 }
             }
+
+
+
+
 
             // Handle multiselect input type
             if (input.type === 'multiselect') {
@@ -731,9 +730,9 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                 reEvaluateConditions(newState) // Re-evaluate conditions with updated state
                 console.log(newState)
 
-				setShowMessManagerSelect(Object.values(newState).includes('11-1'))
-				setShowBankModal(Object.values(newState).includes('11-1'))
-				// setIsTenderMaster(Object.values(newState).includes('11-1'))
+                setShowMessManagerSelect(Object.values(newState).includes('11-1'))
+                setShowBankModal(Object.values(newState).includes('11-1'))
+                // setIsTenderMaster(Object.values(newState).includes('11-1'))
 
                 return newState
             })
@@ -876,14 +875,36 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                 console.log(response);
 
                 if (response.ok) {
-                    const responseData = await response.json()
-                    toast.success('Task Completed')
-                    navigate('/pages/Notification')
-                    setShow(false)
-                    console.log('Task updated successfully:', responseData)
+                    const responseData = await response.json();
+
+                    const statusMessageMap: { [key: string]: string } = {
+                        'approval_pending': 'Task has been sent for approval',
+                        'approval_rejected': 'Task has been rejected',
+                        'task_completed': 'Task Completed'
+                    };
+
+                    const messageKey =
+                        approval_Console === 'Select Approval_Console' && approvalStatus?.value === undefined
+                            ? 'approval_pending'
+                            : approval_Console === 'Select Approval_Console' && approvalStatus?.value === 'rejected'
+                                ? 'approval_rejected'
+                                : approval_Console === '' && approvalStatus?.value === undefined
+                                    ? 'task_completed'
+                                    : '';
+
+                    if (messageKey === 'task_completed') {
+                        toast.success(statusMessageMap[messageKey]);
+                        navigate('/pages/Notification');
+                    } else if (messageKey) {
+                        toast.warning(statusMessageMap[messageKey]);
+                    }
+
+                    setShow(false);
+                    console.log('Task updated successfully:', responseData);
                 } else {
-                    console.error('Failed to update the task:', response.statusText)
+                    console.error('Failed to update the task:', response.statusText);
                 }
+
             } catch (error) {
                 console.error('Error occurred while updating task:', error)
             } finally {
@@ -945,15 +966,15 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
 
     const [showBankModal, setShowBankModal] = useState(false)
 
-	const [bankDetails, setBankDetails] = useState({
-		reimbursementBankAccountNumber: '',
-		reimbursementBankName: '',
-		reimbursementBranchName: '',
-		reimbursementBankIfsc: '',
-		managerName: '',
-		messName: '',
-		userUpdateMobileNumber: '',
-	})
+    const [bankDetails, setBankDetails] = useState({
+        reimbursementBankAccountNumber: '',
+        reimbursementBankName: '',
+        reimbursementBranchName: '',
+        reimbursementBankIfsc: '',
+        managerName: '',
+        messName: '',
+        userUpdateMobileNumber: '',
+    })
 
 
 
@@ -1194,33 +1215,33 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                                                                     )}
                                                                 </div>
 
-																<div
-																	className={`step-label ${isActive ? 'text-primary' : 'text-muted'
-																		}`}
-																	title={mess.messName} // Tooltip for longer names
-																>
-																	{mess.messName}
-																</div>
-															</div>
-														)
-													})}
-												</div>
-											</div>
-										</div>
-									)}
+                                                                <div
+                                                                    className={`step-label ${isActive ? 'text-primary' : 'text-muted'
+                                                                        }`}
+                                                                    title={mess.messName} // Tooltip for longer names
+                                                                >
+                                                                    {mess.messName}
+                                                                </div>
+                                                            </div>
+                                                        )
+                                                    })}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    )}
 
-								</div>
-								<div
-									className="form-section"
-									style={{ width: '90%', padding: '0px 20px' }}>
-									<div className="my-task">
-										{formData.inputs.map(
-											(input: Input) =>
-												((fromComponent === 'TaskMaster' && 'PendingTask') ||
-													shouldDisplayInput(input)) && (
-													<div
-														className={`${!input.visibility ? 'd-none' : 'form-group'
-															} 
+                                </div>
+                                <div
+                                    className="form-section"
+                                    style={{ width: '90%', padding: '0px 20px' }}>
+                                    <div className="my-task">
+                                        {formData.inputs.map(
+                                            (input: Input) =>
+                                                ((fromComponent === 'TaskMaster' && 'PendingTask') ||
+                                                    shouldDisplayInput(input)) && (
+                                                    <div
+                                                        className={`${!input.visibility ? 'd-none' : 'form-group'
+                                                            } 
                                                 ${fromComponent ===
                                                             'ApprovalConsole' &&
                                                             (approval_Console ===
@@ -1437,20 +1458,33 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                                                             />
                                                         )}
                                                         {input.type === 'tel' && (
-                                                            <input
-                                                                type="tel"
-                                                                className="form-control"
-                                                                placeholder={input.placeholder}
-                                                                value={
-                                                                    input.value !== ''
-                                                                        ? input.value
-                                                                        : formState[input.inputId] || ''
-                                                                }
-                                                                onChange={(e) =>
-                                                                    handleChange(input.inputId, e.target.value)
-                                                                }
-                                                            />
+                                                            <>
+                                                                <input
+                                                                    type="tel"
+                                                                    className="form-control"
+                                                                    placeholder={input.placeholder}
+                                                                    value={
+                                                                        input.value !== ''
+                                                                            ? input.value
+                                                                            : formState[input.inputId] || ''
+                                                                    }
+                                                                    onChange={(e) => {
+                                                                        const inputValue = e.target.value;
+                                                                        const regex = /^[6-9]\d{0,9}$/; // Allows only digits starting from 6-9 and up to 10 digits
+
+                                                                        if (regex.test(inputValue) || inputValue === '') {
+                                                                            handleChange(input.inputId, inputValue);
+                                                                        }
+                                                                    }}
+                                                                />
+                                                                {!/^[6-9]\d{9}$/.test(formState[input.inputId] || '') && (
+                                                                    <span className="text-danger">
+                                                                        Please enter a valid 10-digit Indian mobile number.
+                                                                    </span>
+                                                                )}
+                                                            </>
                                                         )}
+
                                                         {input.type === 'custom' && (
                                                             <input
                                                                 type="text"
@@ -1604,7 +1638,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                                                                         onChange={(e) => handleChange(input.inputId, e.target.value)}
                                                                         required={input.required}
                                                                         className="my-2" // Adds spacing between options
-                                                                        label={option.label} 
+                                                                        label={option.label}
                                                                         style={{ color: option.color || "#000000" }}
                                                                     />
                                                                 ))}
@@ -1769,20 +1803,20 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                                                                     </Col>
                                                                 </Row>
 
-																<div className="modal-buttons mt-3 d-flex justify-content-end">
-																	<button
-																		className="btn btn-secondary"
-																		type="button"
-																		onClick={handleClose2}>
-																		Close
-																	</button>
-																</div>
-															</form>
-														</div>
-													</div>
-												)}
-											</>
-										)}
+                                                                <div className="modal-buttons mt-3 d-flex justify-content-end">
+                                                                    <button
+                                                                        className="btn btn-secondary"
+                                                                        type="button"
+                                                                        onClick={handleClose2}>
+                                                                        Close
+                                                                    </button>
+                                                                </div>
+                                                            </form>
+                                                        </div>
+                                                    </div>
+                                                )}
+                                            </>
+                                        )}
 
                                         {fromComponent === 'ApprovalConsole' && (
                                             <div>

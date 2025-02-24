@@ -27,7 +27,8 @@ type FormField = {
   email?: string;         // Email input
   selection?: string;     // Dropdown selection input
   radio?: number;         // Radio button input
-  file?: string;          // File upload input
+  file?: string;
+  checkbox?: string;         // File upload input
   labeldate?: string;     // Label for date input
   conditionalField?: boolean;
   conditionalFieldId?: string;
@@ -1028,7 +1029,9 @@ const App: React.FC = () => {
             </div>
           );
         case 'checkbox':
-          return <div>{field.labeltext}</div>;
+          return (
+            <div>{field.labeltext}</div>
+          );
         case 'select':
         case 'radio':
         case 'multiselect':
@@ -1163,7 +1166,7 @@ const App: React.FC = () => {
       minDate = dateSelection.date;
     } else if (condition === 7) {
       minDate = new Date(Date.now() + 1 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
-    } 
+    }
     return minDate;
   }
 
@@ -1186,55 +1189,55 @@ const App: React.FC = () => {
     minDate: minDate(),  // Dynamically computed minDate
     maxDate: maxDate(),  // Dynamically computed maxDate
     disable: [
-      function(date: any) {
+      function (date: any) {
         const today = new Date();
         // Disable only today's date
-        if(condition === 8){
+        if (condition === 8) {
           return date.toDateString() === today.toDateString();
-        }else if(condition === 9){
+        } else if (condition === 9) {
           return date.toDateString() === new Date(dateSelection.date || '').toDateString();
-        }else if (condition === 10 && dateSelection.date) {
+        } else if (condition === 10 && dateSelection.date) {
           const selectedDate = new Date(dateSelection.date);
-  
+
           // Get start and end of the week (assuming week starts on Sunday)
           const startOfWeek = new Date(selectedDate);
           startOfWeek.setDate(selectedDate.getDate() - selectedDate.getDay());
-  
+
           const endOfWeek = new Date(startOfWeek);
           endOfWeek.setDate(startOfWeek.getDate() + 6);
-  
+
           // Disable if the date is within the selected week
           return date >= startOfWeek && date <= endOfWeek;
-        }else if (condition === 11 && dateSelection.date) {
+        } else if (condition === 11 && dateSelection.date) {
           const selectedDate = new Date(dateSelection.date);
           const selectedMonth = selectedDate.getMonth();
           const selectedYear = selectedDate.getFullYear();
-  
+
           // Disable if the date is in the same month and year as the selected date
           return date.getMonth() === selectedMonth && date.getFullYear() === selectedYear;
-        }else  if (condition === 12 && dateSelection.date) {
+        } else if (condition === 12 && dateSelection.date) {
           const selectedYear = new Date(dateSelection.date).getFullYear();
-  
+
           // Disable if the date is in the same year as the selected date
           return date.getFullYear() === selectedYear;
-        }else  if (condition === 13 && dateSelection.date) {
+        } else if (condition === 13 && dateSelection.date) {
           const selectedDate = new Date(dateSelection.date);
           const startOfWeek = new Date(selectedDate);
           startOfWeek.setDate(selectedDate.getDate() - selectedDate.getDay());  // Start on Sunday
           const endOfWeek = new Date(startOfWeek);
           endOfWeek.setDate(startOfWeek.getDate() + 6);  // End on Saturday
-  
+
           const allowedDays = [1, 3];  // 1 = Monday, 3 = Wednesday
-  
+
           // If the date is within the same week but not on an allowed day, disable it
           if (date >= startOfWeek && date <= endOfWeek) {
             return !allowedDays.includes(date.getDay());
           }
-  
+
           // Disable dates outside the current week
           return true;
         }
-  
+
       }
     ],
   }), [condition, dateSelection]);  // Recompute options on these changes
@@ -1470,18 +1473,18 @@ const App: React.FC = () => {
                     />
                   </Form.Group>
 
-                {/* Conditionally render the Approval Console popover */}
-                {isApprovalConsoleActive && (
-                  <Popover id="approval-popover" style={{ position: 'absolute', bottom: '100%' }}>
-                    <Popover.Header as="h3">Select Doer for Approval</Popover.Header>
-                    <Popover.Body>
-                      
-                    </Popover.Body>
-                  </Popover>
-                )}
+                  {/* Conditionally render the Approval Console popover */}
+                  {isApprovalConsoleActive && (
+                    <Popover id="approval-popover" style={{ position: 'absolute', bottom: '100%' }}>
+                      <Popover.Header as="h3">Select Doer for Approval</Popover.Header>
+                      <Popover.Body>
+
+                      </Popover.Body>
+                    </Popover>
+                  )}
+                </div>
               </div>
-            </div>
-            {location.pathname != '/pages/CreateTemplates' &&
+              {location.pathname != '/pages/CreateTemplates' &&
 
                 (
                   <Form.Group className="col-12 my-1">
@@ -1788,6 +1791,46 @@ const App: React.FC = () => {
                     </Form.Group>
 
                   )}
+
+                {editField.type === 'checkbox' && (
+                  <Form.Group key={editField.inputId}>
+
+                    <div className='form-group mt-2'>
+                      <label className="form-label">
+                        <input className='me-1' type="checkbox"
+                          checked={conditionalField}
+                          onChange={handleCheckboxChange} />
+                        Is Conditionally bound?
+                      </label>
+                    </div>
+                    {conditionalField == true &&
+                      <Form.Control
+                        as="select"
+                        className="mt-2"
+                        value={editField.conditionalFieldId || ''}
+                        onChange={handleSelectChange}
+                      >
+                        <option value="">Select an option</option>
+                        {taskFields.map((field) => (
+                          <React.Fragment key={field.inputId}>
+                            <option value={field.inputId}>{field.labeltext}</option>
+                            {field.options?.map((option) => (
+                              <option
+                                key={option.id}
+                                value={option.id}
+                                data-color={option.color || ""}
+                                style={{ color: option.color || "inherit" }}
+                              >
+                                {option.label}
+                              </option>
+                            ))}
+                          </React.Fragment>
+                        ))}
+                      </Form.Control>
+                    }
+
+                  </Form.Group>
+                )}
 
 
 

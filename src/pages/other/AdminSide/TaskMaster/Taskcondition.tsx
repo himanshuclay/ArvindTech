@@ -711,6 +711,25 @@ const TaskCondition: React.FC<ProcessCanvasProps> = ({
 															</span>
 														</>
 													)}
+													{task.taskTiming === 'Days' && (
+														<>
+															<span>
+																<strong>Days:</strong>{' '}
+																After {task.Days || 'N/A'} {Number(task.Days) > 1 ? 'Days' : 'Day'}{' '}
+																<strong>Time:</strong> {task.time || 'N/A'}
+															</span>
+														</>
+													)}
+													{task.taskTiming === 'FromTask' && (
+														<>
+															<span>
+																<strong>Days:</strong>{' '}
+																After {task.Days || 'N/A'} {Number(task.Days) > 1 ? 'Days' : 'Day'}{' '}
+																<strong>Time:</strong> {task.time || 'N/A'}
+															</span>
+														</>
+													)}
+
 												</div>
 											))}
 										</Row>
