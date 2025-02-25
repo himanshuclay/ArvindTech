@@ -644,8 +644,9 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
 
                         if (Array.isArray(condition[0].taskSelections)) {
                             const filteredTaskSelections = condition[0].taskSelections.filter(
-                                (taskSelection: any) => String(taskSelection.inputId) === String(updatedValue)
+                                (taskSelection: any) => (String(taskSelection.inputId) === String(updatedValue) || String(taskSelection.inputId) === '')
                             );
+                            console.log(filteredTaskSelections);
 
                             const copyCondition = condition;
                             copyCondition[0].taskSelections = filteredTaskSelections;
@@ -666,11 +667,6 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                     console.warn(`No option found for the value: ${value}`);
                 }
             }
-
-
-
-
-
             // Handle multiselect input type
             if (input.type === 'multiselect') {
                 if (Array.isArray(value)) {
@@ -844,7 +840,9 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                 })(),
                 task_Number: taskNumber,
                 summary: formState['summary'] || 'Task Summary',
-                condition_Json: parsedCondition,
+                condition_Json: fromComponent === 'PendingTask' && processId !== 'ACC.01'
+                    ? JSON.stringify(selectedCondition)
+                    : parsedCondition,
                 taskCommonId: taskCommonIDRow,
                 taskStatus: taskStatus,
                 taskName: taskName,
@@ -863,6 +861,21 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
             console.log(requestData)
 
             try {
+
+                const parsedGlobalTaskJson = typeof globalTaskJson === "string" ? JSON.parse(globalTaskJson) : globalTaskJson;
+
+                if (!parsedGlobalTaskJson?.inputs?.length) {
+                    console.error("Invalid globalTaskJson structure or 'inputs' is missing:", parsedGlobalTaskJson);
+                    return;
+                }
+                
+                const finishPointInput = parsedGlobalTaskJson.inputs.find((input: any) => String(input.inputId) === String(finishPoint));
+                
+                if (processId !== "ACC.01" && !finishPointInput?.value?.trim()) {
+                    toast.dismiss();
+                    toast.error(`Please fill the required field: ${finishPointInput?.label || "Unknown Field"}`);
+                    return;
+                }                
                 const response = await fetch(
                     `${config.API_URL_ACCOUNT}/ProcessInitiation/UpdateDoerTask`,
                     {
