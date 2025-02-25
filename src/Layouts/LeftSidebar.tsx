@@ -349,73 +349,115 @@ const getFilteredMenuItems = () => {
       isTitle: false,
       icon: 'ri-settings-fill',
       children: [
-
         {
-          key: 'Account Masters',
-          label: 'Account Masters',
+          key: 'ModulesDropdown',
+          label: 'Modules Master ',
           parentKey: 'ProcessDataMaster',
+          url: '/pages/ModulesMaster',
           icon: 'ri-list-check-3',
-          children: [
-            {
-              key: 'Mess-Master',
-              label: 'Mess Master',
-              url: '/pages/MessMaster',
-              parentKey: 'Account Masters',
-            },
+        },
+        // {
+        //   key: 'Account Masters',
+        //   label: 'Account Masters',
+        //   parentKey: 'ProcessDataMaster',
+        //   icon: 'ri-list-check-3',
+        //   children: [
+        //     {
+        //       key: 'Mess-Master',
+        //       label: 'Mess Master',
+        //       url: '/pages/MessMaster',
+        //       parentKey: 'Account Masters',
+        //     },
 
-          ],
-        },
-        {
-          key: 'BD Masters',
-          label: 'BD Masters',
-          parentKey: 'ProcessDataMaster',
-          icon: 'ri-list-check-3',
-          children: [
-            {
-              key: 'Tender-Master',
-              label: 'Tender Master',
-              url: '/pages/TenderMaster',
-              parentKey: 'BD Masters',
-            },
+        //   ],
+        // },
+        // {
+        //   key: 'BD Masters',
+        //   label: 'BD Masters',
+        //   parentKey: 'ProcessDataMaster',
+        //   icon: 'ri-list-check-3',
+        //   children: [
+        //     {
+        //       key: 'Tender-Master',
+        //       label: 'Tender Master',
+        //       url: '/pages/TenderMaster',
+        //       parentKey: 'BD Masters',
+        //     },
 
-          ],
-        },
-        {
-          key: 'HR Masters',
-          label: 'HR Masters',
-          parentKey: 'ProcessDataMaster',
-          icon: 'ri-list-check-3',
-          children: [
-            {
-              key: 'RequirementMaster',
-              label: 'Staff Requirement Master',
-              url: '/pages/RequirementMaster',
-              parentKey: 'HR Masters',
-              // icon: 'ri-list-check-3',
-            },
-            {
-              key: 'DesignationMaster',
-              label: 'Designation Master',
-              url: '/pages/DesignationMaster',
-              parentKey: 'HR Masters',
-              // icon: 'ri-list-check-3',
-            },
-            {
-              key: 'CandidateMaster',
-              label: 'Candidate Master',
-              url: '/pages/HrCandidateMaster',
-              parentKey: 'HR Masters',
-              // icon: 'ri-list-check-3',
-            },
-            {
-              key: 'HrResumeMaster',
-              label: 'Hr Resume Master',
-              url: '/pages/HrResumeMaster',
-              parentKey: 'HR Masters',
-              // icon: 'ri-list-check-3',
-            },
-          ],
-        },
+        //   ],
+        // },
+        // {
+        //   key: 'HR Masters',
+        //   label: 'HR Masters',
+        //   parentKey: 'ProcessDataMaster',
+        //   icon: 'ri-list-check-3',
+        //   children: [
+        //     {
+        //       key: 'RequirementMaster',
+        //       label: 'Staff Requirement Master',
+        //       url: '/pages/RequirementMaster',
+        //       parentKey: 'HR Masters',
+        //       // icon: 'ri-list-check-3',
+        //     },
+        //     {
+        //       key: 'DesignationMaster',
+        //       label: 'Designation Master',
+        //       url: '/pages/DesignationMaster',
+        //       parentKey: 'HR Masters',
+        //       // icon: 'ri-list-check-3',
+        //     },
+        //     {
+        //       key: 'CandidateMaster',
+        //       label: 'Candidate Master',
+        //       url: '/pages/HrCandidateMaster',
+        //       parentKey: 'HR Masters',
+        //       // icon: 'ri-list-check-3',
+        //     },
+        //     {
+        //       key: 'HrResumeMaster',
+        //       label: 'Hr Resume Master',
+        //       url: '/pages/HrResumeMaster',
+        //       parentKey: 'HR Masters',
+        //       // icon: 'ri-list-check-3',
+        //     },
+        //   ],
+        // },
+        // {
+        //   key: 'BTS Masters',
+        //   label: 'BTS Masters',
+        //   parentKey: 'ProcessDataMaster',
+        //   icon: 'ri-list-check-3',
+        //   children: [
+        //     {
+        //       key: 'RequirementMaster',
+        //       label: 'Staff Requirement Master',
+        //       url: '/pages/RequirementMaster',
+        //       parentKey: 'BTS Masters',
+        //       // icon: 'ri-list-check-3',
+        //     },
+        //     {
+        //       key: 'DesignationMaster',
+        //       label: 'Designation Master',
+        //       url: '/pages/DesignationMaster',
+        //       parentKey: 'BTS Masters',
+        //       // icon: 'ri-list-check-3',
+        //     },
+        //     {
+        //       key: 'CandidateMaster',
+        //       label: 'Candidate Master',
+        //       url: '/pages/HrCandidateMaster',
+        //       parentKey: 'BTS Masters',
+        //       // icon: 'ri-list-check-3',
+        //     },
+        //     {
+        //       key: 'HrResumeMaster',
+        //       label: 'Hr Resume Master',
+        //       url: '/pages/HrResumeMaster',
+        //       parentKey: 'BTS Masters',
+        //       // icon: 'ri-list-check-3',
+        //     },
+        //   ],
+        // },
         {
           key: 'CommonDropdown',
           label: 'Common Master ',

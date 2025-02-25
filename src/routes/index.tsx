@@ -4,6 +4,16 @@ import { Route, RouteProps } from 'react-router-dom'
 // components
 import PrivateRoute from './PrivateRoute'
 import AdhocMaster from '@/pages/other/AdminSide/AdhocMaster.tsx'
+import ModulesMaster from '@/pages/other/ModulesMaster/ModulesMaster.tsx'
+import BTSPaymentMaster from '@/pages/other/AdminSide/ModulesMaster/BTSMaster/BTSPaymentMaster/BTSPaymentMaster.tsx'
+import BTSPaymentMasterAddEdit from '@/pages/other/AdminSide/ModulesMaster/BTSMaster/BTSPaymentMaster/AddEditMaster.tsx'
+import ChallanMaster from '@/pages/other/AdminSide/ModulesMaster/BTSMaster/ChallanMaster/ChallanMaster.tsx'
+import ChallanMasterAddEdit from '@/pages/other/AdminSide/ModulesMaster/BTSMaster/ChallanMaster/AddEditMaster.tsx'
+import FRMaster from '@/pages/other/AdminSide/ModulesMaster/BTSMaster/FRMaster/FRMaster.tsx'
+import FRMasterAddEdit from '@/pages/other/AdminSide/ModulesMaster/BTSMaster/FRMaster/AddEditMaster.tsx'
+import DrawingMaster from '@/pages/other/AdminSide/ModulesMaster/DDPSMasters/DrawingMaster/DrawingMaster.tsx'
+import DrawingMasterAddEdit from '@/pages/other/AdminSide/ModulesMaster/DDPSMasters/DrawingMaster/AddEditMaster.tsx'
+import { MODULES_MASTER } from './ModulesMaster.tsx'
 // import FormBuilder from '@/pages/FormBuilder/FormBuilder.tsx'
 
 // lazy load all the views
@@ -834,6 +844,12 @@ const customPagesRoutes = {
 			route: PrivateRoute,
 		},
 		{
+			path: '/pages/ModulesMaster',
+			name: 'ModulesMaster',
+			element: <ModulesMaster />,
+			route: PrivateRoute,
+		},
+		{
 			path: '/pages/Module',
 			name: 'CommonModule',
 			element: <CommonModule />,
@@ -883,6 +899,255 @@ const customPagesRoutes = {
 		// 	element: <FormBuilder />,
 		// 	route: PrivateRoute,
 		// },
+
+		// MODULES_MASTER
+		
+		{
+			path: '/pages/HSEObervationMaster',
+			name: 'HSEObervation Master',
+			element: <MessMaster />,
+			route: PrivateRoute,
+		},
+		{
+			path: '/pages/AssetCategoryMaster',
+			name: 'Asset Category Master',
+			element: <MessMaster />,
+			route: PrivateRoute,
+		},
+		{
+			path: '/pages/AssetMaster',
+			name: 'Asset Master',
+			element: <MessMaster />,
+			route: PrivateRoute,
+		},
+		{
+			path: '/pages/AssetTrackingMaster',
+			name: 'Asset Tracking Master',
+			element: <MessMaster />,
+			route: PrivateRoute,
+		},
+		{
+			path: '/pages/AssetConditionMaster',
+			name: 'Asset Condition Master',
+			element: <MessMaster />,
+			route: PrivateRoute,
+		},
+		{
+			path: '/pages/MobilizationMaster',
+			name: 'Mobilization Master',
+			element: <MessMaster />,
+			route: PrivateRoute,
+		},
+		{
+			path: '/pages/CampMaster',
+			name: 'Camp Master',
+			element: <MessMaster />,
+			route: PrivateRoute,
+		},
+		{
+			path: '/pages/PreliminaryWorkMaster',
+			name: 'Preliminary Work Master',
+			element: <MessMaster />,
+			route: PrivateRoute,
+		},
+		{
+			path: '/pages/RequirementMaster',
+			name: 'Requirement Master',
+			element: <MessMaster />,
+			route: PrivateRoute,
+		},
+		{
+			path: '/pages/InwardCorrespondanceMaster',
+			name: 'Inward Correspondance Master',
+			element: <MessMaster />,
+			route: PrivateRoute,
+		},
+		{
+			path: '/pages/MaterialMaster',
+			name: 'Material Master',
+			element: <MessMaster />,
+			route: PrivateRoute,
+		},
+		{
+			path: '/pages/MaterialRequisitionMaster',
+			name: 'Material Requisition Master',
+			element: <MessMaster />,
+			route: PrivateRoute,
+		},
+		{
+			path: '/pages/ComparativeMaster',
+			name: 'Comparative Master',
+			element: <MessMaster />,
+			route: PrivateRoute,
+		},
+		{
+			path: '/pages/PMRequisitionMaster',
+			name: 'PM Requisition Master',
+			element: <MessMaster />,
+			route: PrivateRoute,
+		},
+		{
+			path: '/pages/TransportationMaster',
+			name: 'Transportation Master',
+			element: <MessMaster />,
+			route: PrivateRoute,
+		},
+		{
+			path: '/pages/HORequisitionMaster',
+			name: 'HO Requisition Master',
+			element: <MessMaster />,
+			route: PrivateRoute,
+		},
+		{
+			path: '/pages/FAHOMaster',
+			name: 'FA HO Master',
+			element: <MessMaster />,
+			route: PrivateRoute,
+		},
+		{
+			path: '/pages/ProcurementBBEJMaster',
+			name: 'Procurement BBEJ Master',
+			element: <MessMaster />,
+			route: PrivateRoute,
+		},
+		{
+			path: '/pages/LowInventoryTrackingMaster',
+			name: 'Low Inventory Tracking Master',
+			element: <MessMaster />,
+			route: PrivateRoute,
+		},
+		{
+			path: '/pages/AssetCategorMaster',
+			name: 'Asset Categor Master',
+			element: <MessMaster />,
+			route: PrivateRoute,
+		},
+		{
+			path: '/pages/AssetMaster',
+			name: 'Asset Master',
+			element: <MessMaster />,
+			route: PrivateRoute,
+		},
+		{
+			path: '/pages/TABillMaster',
+			name: 'TA Bill Master',
+			element: <MessMaster />,
+			route: PrivateRoute,
+		},
+		{
+			path: '/pages/PRWRequirementMaster',
+			name: 'PRW Requirement Master',
+			element: <MessMaster />,
+			route: PrivateRoute,
+		},
+		{
+			path: '/pages/PRWAllocationMaster',
+			name: 'PRW Allocation Master',
+			element: <MessMaster />,
+			route: PrivateRoute,
+		},
+		{
+			path: '/pages/PRWContractorMaster',
+			name: 'PRW Contractor Master',
+			element: <MessMaster />,
+			route: PrivateRoute,
+		},
+		{
+			path: '/pages/PRWSubContractorMaster',
+			name: 'PRW Sub Contractor Master',
+			element: <MessMaster />,
+			route: PrivateRoute,
+		},
+		{
+			path: '/pages/ScrapMaster',
+			name: 'Scrap Master',
+			element: <MessMaster />,
+			route: PrivateRoute,
+		},
+		{
+			path: '/pages/PurchaseRateReviewMaster',
+			name: 'Purchase Rate Review Master',
+			element: <MessMaster />,
+			route: PrivateRoute,
+		},
+		{
+			path: '/pages/PhysicalReconciliationMaster',
+			name: 'Physical Reconciliation Master',
+			element: <MessMaster />,
+			route: PrivateRoute,
+		},
+		{
+			path: '/pages/MaterialMaster',
+			name: 'Material Master',
+			element: <MessMaster />,
+			route: PrivateRoute,
+		},
+		{
+			path: '/pages/DelegationMaster',
+			name: 'Delegation Master',
+			element: <MessMaster />,
+			route: PrivateRoute,
+		},
+		{
+			path: '/pages/HelpTicketMaster',
+			name: 'Help Ticket Master',
+			element: <MessMaster />,
+			route: PrivateRoute,
+		},
+		{
+			path: '/pages/AppHelpMaster',
+			name: 'App Help Master',
+			element: <MessMaster />,
+			route: PrivateRoute,
+		},
+		{
+			path: '/pages/TrainingRequirementMaster',
+			name: 'Training Requirement Master',
+			element: <MessMaster />,
+			route: PrivateRoute,
+		},
+		{
+			path: '/pages/SCMaster',
+			name: 'SC Master',
+			element: <MessMaster />,
+			route: PrivateRoute,
+		},
+		
+		
+		...MODULES_MASTER,
+
+		{
+			path: '/pages/FRMaster',
+			name: 'FR Master',
+			element: <FRMaster />,
+			route: PrivateRoute,
+		},
+		{
+			path: '/pages/FRMasterAddEdit',
+			name: 'FR Master',
+			element: <FRMasterAddEdit />,
+			route: PrivateRoute,
+		},
+		{
+			path: '/pages/FRMasterAddEdit/:id',
+			name: 'FR Master',
+			element: <FRMasterAddEdit />,
+			route: PrivateRoute,
+		},
+		{
+			path: '/pages/RecurringBillMaster',
+			name: 'Recurring Bill Master',
+			element: <MessMaster />,
+			route: PrivateRoute,
+		},
+		{
+			path: '/pages/MismatchMaster',
+			name: 'Mismatch Master',
+			element: <MessMaster />,
+			route: PrivateRoute,
+		},
+
+
 	],
 }
 
