@@ -14,16 +14,22 @@ interface Mess {
     id: number,
     projectID: string,
     projectName: string,
-    vendorCodeName: string,
-    billDate: string,
-    gstHoldAmount: string,
-    gstMonth: string,
-    gstR2AFiling: string,
-    filingFrequency: string,
-    createdDate: string,
+    safetyPerson: string,
+    assignDate: string,
+    observationType: string,
+    observation: string,
+    site_ExactLocation: string,
+    responsibleContractor: string,
+    recommendation: string,
+    targetDate: string,
+    allocatedLineIncharge: string,
+    severityRateLevel: string,
+    uploadPhotograph: string,
+    approvedCorrectionPhotograph: string,
     createdBy: string,
-    updatedDate: string,
+    createdDate: string,
     updatedBy: string,
+    updatedDate: string
 
 }
 
@@ -45,7 +51,7 @@ interface MessList {
 // }
 
 
-const MisMatchMaster = () => {
+const HSEObservationMaster = () => {
     const role = localStorage.getItem('role');
 
     const [messes, setMesses] = useState<Mess[]>([]);
@@ -77,16 +83,22 @@ const MisMatchMaster = () => {
 
         { id: 'projectID', label: 'projectID', visible: true },
         { id: 'projectName', label: 'projectName', visible: true },
-        { id: 'vendorCodeName', label: 'vendorCodeName', visible: true },
-        { id: 'billDate', label: 'billDate', visible: true },
-        { id: 'gstHoldAmount', label: 'gstHoldAmount', visible: true },
-        { id: 'gstMonth', label: 'gstMonth', visible: true },
-        { id: 'gstR2AFiling', label: 'gstR2AFiling', visible: true },
-        { id: 'filingFrequency', label: 'filingFrequency', visible: true },
-        { id: 'createdDate', label: 'createdDate', visible: true },
+        { id: 'safetyPerson', label: 'safetyPerson', visible: true },
+        { id: 'assignDate', label: 'assignDate', visible: true },
+        { id: 'observationType', label: 'observationType', visible: true },
+        { id: 'observation', label: 'observation', visible: true },
+        { id: 'site_ExactLocation', label: 'site_ExactLocation', visible: true },
+        { id: 'responsibleContractor', label: 'responsibleContractor', visible: true },
+        { id: 'recommendation', label: 'recommendation', visible: true },
+        { id: 'targetDate', label: 'targetDate', visible: true },
+        { id: 'allocatedLineIncharge', label: 'allocatedLineIncharge', visible: true },
+        { id: 'severityRateLevel', label: 'severityRateLevel', visible: true },
+        { id: 'uploadPhotograph', label: 'uploadPhotograph', visible: true },
+        { id: 'approvedCorrectionPhotograph', label: 'approvedCorrectionPhotograph', visible: true },
         { id: 'createdBy', label: 'createdBy', visible: true },
-        { id: 'updatedDate', label: 'updatedDate', visible: true },
+        { id: 'createdDate', label: 'createdDate', visible: true },
         { id: 'updatedBy', label: 'updatedBy', visible: true },
+        { id: 'updatedDate', label: 'updatedDate', visible: true },
     ]);
 
     const handleOnDragEnd = (result: any) => {
@@ -124,12 +136,12 @@ const MisMatchMaster = () => {
         query += `PageIndex=${currentPage}`;
 
         query = query.endsWith('&') ? query.slice(0, -1) : query;
-        const apiUrl = `${config.API_URL_APPLICATION1}/MisMatchMaster/GetMisMatch${query}`;
+        const apiUrl = `${config.API_URL_APPLICATION1}/HSEObservation/GetHSEObservation/${query}`;
         console.log(apiUrl)
         axios.get(apiUrl, { headers: { 'accept': '*/*' } })
             .then((response) => {
-                console.log("search response ", response.data.misMatchMasters);
-                setMesses(response.data.misMatchMasters)
+                console.log("search response ", response.data.hSEObservationMasters);
+                setMesses(response.data.hSEObservationMasters)
                 setTotalPages(Math.ceil(response.data.totalCount / 10));
             })
             .catch((error) => {
@@ -140,12 +152,12 @@ const MisMatchMaster = () => {
     const fetchRoles = async () => {
         setLoading(true);
         try {
-            const response = await axios.get(`${config.API_URL_APPLICATION1}/MisMatchMaster/GetMisMatch`, {
+            const response = await axios.get(`${config.API_URL_APPLICATION1}/HSEObservation/GetHSEObservation`, {
                 params: { PageIndex: currentPage }
             });
             console.log('response', response)
             if (response.data.isSuccess) {
-                setMesses(response.data.misMatchMasters);
+                setMesses(response.data.HSEObservationMasters);
                 setTotalPages(Math.ceil(response.data.totalCount / 10));
             } else {
                 console.error(response.data.message);
@@ -176,7 +188,7 @@ const MisMatchMaster = () => {
             }
         };
 
-        fetchData('MisMatchMaster/GetMisMatch', setMessList, 'misMatchMasters');
+        fetchData('HSEObservation/GetHSEObservation', setMessList, 'hSEObservationMasters');
         // fetchData('CommonDropdown/GetProjectList', setProjectList, 'projectListResponses');
         // fetchData('MessMaster/GetMess', setDownloadCsv, 'messMasterList');
 
@@ -252,16 +264,16 @@ const MisMatchMaster = () => {
     return (
         <>
             <div className="d-flex bg-white p-2 my-2 justify-content-between align-items-center">
-                <span><i className="ri-file-list-line me-2 text-dark fs-16"></i><span className='fw-bold text-dark fs-15'>Mis Match Master</span></span>
+                <span><i className="ri-file-list-line me-2 text-dark fs-16"></i><span className='fw-bold text-dark fs-15'>HSEObservation Master</span></span>
                 <div className="d-flex justify-content-end  ">
                     {/* <Button variant="primary" onClick={downloadCSV} className="me-2">
                         Download CSV
                     </Button> */}
                     {(role === 'Admin' || role === 'DME') && (
 
-                        <Link to='/pages/MisMatchMasterAddEdit'>
+                        <Link to='/pages/HSEObservationMasterAddEdit'>
                             <Button variant="primary" className="me-2">
-                                Add Mis Match Master
+                                Add HSEObservation Master
                             </Button>
                         </Link>)}
 
@@ -449,7 +461,7 @@ const MisMatchMaster = () => {
                                                 {(role === 'Admin' || role === 'DME') && (
 
 
-                                                    <td><Link to={`/pages/MisMatchMasterAddEdit/${item.id}`}>
+                                                    <td><Link to={`/pages/HSEObservationMasterAddEdit/${item.id}`}>
                                                         <Button variant='primary' className='p-0 text-white'>
                                                             <i className='btn ri-edit-line text-white' ></i>
                                                         </Button>
@@ -496,4 +508,4 @@ const MisMatchMaster = () => {
     );
 };
 
-export default MisMatchMaster;
+export default HSEObservationMaster;

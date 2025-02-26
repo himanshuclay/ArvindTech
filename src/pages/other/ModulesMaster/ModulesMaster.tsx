@@ -1,9 +1,9 @@
-import { Button, Table } from 'react-bootstrap';
+import {  Table } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import React, { useState } from 'react';
 
 const ModulesMaster = () => {
-    const role = localStorage.getItem('role');
+    // const role = localStorage.getItem('role');
 
     const ModuleList = [
         { name: 'Account Masters', child: [{ name: 'Mess Master', to: '/pages/MessMaster' }] },
@@ -19,7 +19,7 @@ const ModulesMaster = () => {
         {
             name: 'DDPS Masters', child: [
                 { name: 'Drawing Master', to: '/pages/DrawingMaster' },
-                { name: 'HSE Obervation Master', to: '/pages/HSEObervationMaster' },
+                { name: 'HSE Obervation Master', to: '/pages/HSEObservationMaster' },
             ]
         },
         {

@@ -1,28 +1,31 @@
 import axios from 'axios';
 import { useState, useEffect } from 'react';
-import { Button, Pagination, Table, Container, Row, Col, Alert, Form, ButtonGroup, DropdownButton } from 'react-bootstrap';
+import { Button, Pagination, Table, Container, Row, Col, Alert, Form, DropdownButton } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import config from '@/config';
-import Select from 'react-select';
+// import Select from 'react-select';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 
 
 
 interface Mess {
-    id: number
-    messID: number;
-    messName: string;
-    managerEmpID: string;
-    managerName: string;
-    mobileNumber: string;
-    projectName: string;
-    status: string;
-    createdBy: string;
-    updatedBy: string;
-    updatedDate: string;
-    createdDate: string;
+    id: number,
+    btsid: string,
+    billEntryDate: string,
+    projectID: string,
+    projectName: string,
+    clientJVName: string,
+    vendorName: string,
+    receiptType: string,
+    fRorIOMNumber: string,
+    frAmount: string,
+    paidAmount: string,
+    createdDate: string,
+    createdBy: string,
+    updatedDate: string,
+    updatedBy: string
 
 }
 
@@ -37,11 +40,11 @@ interface MessList {
     messName: string;
 }
 
-interface ModuleProjectList {
-    id: string;
-    projectName: string
-    moduleName: string
-}
+// interface ModuleProjectList {
+//     id: string;
+//     projectName: string
+//     moduleName: string
+// }
 
 
 const FRMaster = () => {
@@ -51,10 +54,10 @@ const FRMaster = () => {
     const [loading, setLoading] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
-    const [downloadCsv, setDownloadCsv] = useState<Mess[]>([]);
-    const [messList, setMessList] = useState<MessList[]>([]);
-    const [projectList, setProjectList] = useState<ModuleProjectList[]>([])
-    const [searchTriggered, setSearchTriggered] = useState(false);
+    // const [downloadCsv, setDownloadCsv] = useState<Mess[]>([]);
+    const [, setMessList] = useState<MessList[]>([]);
+    // const [projectList, setProjectList] = useState<ModuleProjectList[]>([])
+    const [searchTriggered, ] = useState(false);
 
 
 
@@ -72,12 +75,21 @@ const FRMaster = () => {
 
     // both are required to make dragable column of table 
     const [columns, setColumns] = useState<Column[]>([
-        { id: 'messID', label: 'Mess ID', visible: true },
-        { id: 'messName', label: 'Mess Name', visible: true },
-        { id: 'managerName', label: 'Manager Name', visible: true },
-        { id: 'projectName', label: 'Project Name', visible: true },
-        { id: 'mobileNumber', label: 'Mess Contact No', visible: true },
-        { id: 'status', label: 'Status', visible: true },
+
+        { id: 'btsid', label: 'btsid', visible: true },
+        { id: 'billEntryDate', label: 'billEntryDate', visible: true },
+        { id: 'projectID', label: 'projectID', visible: true },
+        { id: 'projectName', label: 'projectName', visible: true },
+        { id: 'clientJVName', label: 'clientJVName', visible: true },
+        { id: 'vendorName', label: 'vendorName', visible: true },
+        { id: 'receiptType', label: 'receiptType', visible: true },
+        { id: 'fRorIOMNumber', label: 'fRorIOMNumber', visible: true },
+        { id: 'frAmount', label: 'frAmount', visible: true },
+        { id: 'paidAmount', label: 'paidAmount', visible: true },
+        { id: 'createdDate', label: 'createdDate', visible: true },
+        { id: 'createdBy', label: 'createdBy', visible: true },
+        { id: 'updatedDate', label: 'updatedDate', visible: true },
+        { id: 'updatedBy', label: 'updatedBy', visible: true },
     ]);
 
     const handleOnDragEnd = (result: any) => {
@@ -101,9 +113,9 @@ const FRMaster = () => {
     }, [currentPage, searchTriggered]);
 
 
-    const [searchMessName, setSearchMessName] = useState('')
-    const [searchStatus, setSearchStatus] = useState('')
-    const [searchProjectName, setSearchProjectName] = useState('')
+    const [searchMessName, ] = useState('')
+    const [searchStatus, ] = useState('')
+    const [searchProjectName, ] = useState('')
 
 
     const handleSearch = (e?: React.FormEvent) => {
@@ -115,12 +127,12 @@ const FRMaster = () => {
         query += `PageIndex=${currentPage}`;
 
         query = query.endsWith('&') ? query.slice(0, -1) : query;
-        const apiUrl = `${config.API_URL_APPLICATION}/MessMaster/SearchMess${query}`;
+        const apiUrl = `${config.API_URL_APPLICATION1}/FRMaster/GetFR${query}`;
         console.log(apiUrl)
         axios.get(apiUrl, { headers: { 'accept': '*/*' } })
             .then((response) => {
-                console.log("search response ", response.data.messMasterList);
-                setMesses(response.data.messMasterList)
+                console.log("search response ", response.data.fRMasters);
+                setMesses(response.data.fRMasters)
                 setTotalPages(Math.ceil(response.data.totalCount / 10));
             })
             .catch((error) => {
@@ -131,11 +143,12 @@ const FRMaster = () => {
     const fetchRoles = async () => {
         setLoading(true);
         try {
-            const response = await axios.get(`${config.API_URL_APPLICATION}/MessMaster/GetMess`, {
+            const response = await axios.get(`${config.API_URL_APPLICATION1}/FRMaster/GetFR`, {
                 params: { PageIndex: currentPage }
             });
+            console.log('response', response)
             if (response.data.isSuccess) {
-                setMesses(response.data.messMasterList);
+                setMesses(response.data.frMasters);
                 setTotalPages(Math.ceil(response.data.totalCount / 10));
             } else {
                 console.error(response.data.message);
@@ -154,7 +167,8 @@ const FRMaster = () => {
     useEffect(() => {
         const fetchData = async (endpoint: string, setter: Function, listName: string) => {
             try {
-                const response = await axios.get(`${config.API_URL_APPLICATION}/${endpoint}`);
+                const response = await axios.get(`${config.API_URL_APPLICATION1}/${endpoint}`);
+                console.log('response', response)
                 if (response.data.isSuccess) {
                     setter(response.data[listName]);
                 } else {
@@ -165,68 +179,68 @@ const FRMaster = () => {
             }
         };
 
-        fetchData('MessMaster/GetMess', setMessList, 'messMasterList');
-        fetchData('CommonDropdown/GetProjectList', setProjectList, 'projectListResponses');
-        fetchData('MessMaster/GetMess', setDownloadCsv, 'messMasterList');
+        fetchData('FRMaster/GetFR', setMessList, 'frMasters');
+        // fetchData('CommonDropdown/GetProjectList', setProjectList, 'projectListResponses');
+        // fetchData('MessMaster/GetMess', setDownloadCsv, 'messMasterList');
 
     }, []);
 
 
-    const handleClear = async () => {
-        setSearchMessName('')
-        setSearchProjectName('')
-        setSearchStatus('');
-        setCurrentPage(1);
-        setSearchTriggered(false);
-        await fetchRoles();
-    };
+    // const handleClear = async () => {
+    //     setSearchMessName('')
+    //     setSearchProjectName('')
+    //     setSearchStatus('');
+    //     setCurrentPage(1);
+    //     setSearchTriggered(false);
+    //     await fetchRoles();
+    // };
 
 
-    const convertToCSV = (data: Mess[]) => {
-        const csvRows = [
-            ['Mess ID', 'Mess Name', 'Manager Emp ID', 'Manager Name',
-                'Mess Contact No', 'Project Name', 'Status',
-                'Created By', 'Updated By', 'Created Date', 'Updated Date'],
-            ...data.map(mess => [
-                mess.messID.toString(),
-                mess.messName,
-                mess.managerEmpID,
-                mess.managerName,
-                mess.mobileNumber,
-                mess.projectName,
-                mess.status,
-                mess.createdBy,
-                mess.updatedBy,
-                mess.createdDate,
-                mess.updatedDate,
+    // const convertToCSV = (data: Mess[]) => {
+    //     const csvRows = [
+    //         ['Mess ID', 'Mess Name', 'Manager Emp ID', 'Manager Name',
+    //             'Mess Contact No', 'Project Name', 'Status',
+    //             'Created By', 'Updated By', 'Created Date', 'Updated Date'],
+    //         ...data.map(mess => [
+    //             mess.messID.toString(),
+    //             mess.messName,
+    //             mess.managerEmpID,
+    //             mess.managerName,
+    //             mess.mobileNumber,
+    //             mess.projectName,
+    //             mess.status,
+    //             mess.createdBy,
+    //             mess.updatedBy,
+    //             mess.createdDate,
+    //             mess.updatedDate,
 
-            ])
-        ];
+    //         ])
+    //     ];
 
-        return csvRows.map(row => row.join(',')).join('\n');
-    };
-
-
-    const downloadCSV = () => {
-        const csvData = convertToCSV(downloadCsv);
-        const blob = new Blob([csvData], { type: 'text/csv;charset=utf-8;' });
-        const link = document.createElement('a');
-        if (link.download !== undefined) {
-            const url = URL.createObjectURL(blob);
-            link.setAttribute('href', url);
-            link.setAttribute('download', 'Messes.csv');
-            link.style.visibility = 'hidden';
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-        }
-    };
+    //     return csvRows.map(row => row.join(',')).join('\n');
+    // };
 
 
-    const optionsStatus = [
-        { value: 'Enabled', label: 'Enabled' },
-        { value: 'Disabled', label: 'Disabled' }
-    ];
+    // const downloadCSV = () => {
+    //     const csvData = convertToCSV(downloadCsv);
+    //     const blob = new Blob([csvData], { type: 'text/csv;charset=utf-8;' });
+    //     const link = document.createElement('a');
+    //     if (link.download !== undefined) {
+    //         const url = URL.createObjectURL(blob);
+    //         link.setAttribute('href', url);
+    //         link.setAttribute('download', 'Messes.csv');
+    //         link.style.visibility = 'hidden';
+    //         document.body.appendChild(link);
+    //         link.click();
+    //         document.body.removeChild(link);
+    //     }
+    // };
+
+
+    // const optionsStatus = [
+    //     { value: 'Enabled', label: 'Enabled' },
+    //     { value: 'Disabled', label: 'Disabled' }
+    // ];
 
 
     const handleVisibilityChange = (columnId: string) => {
@@ -243,14 +257,14 @@ const FRMaster = () => {
             <div className="d-flex bg-white p-2 my-2 justify-content-between align-items-center">
                 <span><i className="ri-file-list-line me-2 text-dark fs-16"></i><span className='fw-bold text-dark fs-15'>FR Master</span></span>
                 <div className="d-flex justify-content-end  ">
-                    <Button variant="primary" onClick={downloadCSV} className="me-2">
+                    {/* <Button variant="primary" onClick={downloadCSV} className="me-2">
                         Download CSV
-                    </Button>
+                    </Button> */}
                     {(role === 'Admin' || role === 'DME') && (
 
                         <Link to='/pages/FRMasterAddEdit'>
                             <Button variant="primary" className="me-2">
-                                Add Mess
+                                Add FR Master
                             </Button>
                         </Link>)}
 
@@ -258,7 +272,7 @@ const FRMaster = () => {
             </div>
 
             <div className='bg-white p-2 pb-2'>
-                <Form
+                {/* <Form
                     onSubmit={(e) => {
                         e.preventDefault();
                         setCurrentPage(1);
@@ -332,7 +346,7 @@ const FRMaster = () => {
                             </ButtonGroup>
                         </Col>
                     </Row>
-                </Form>
+                </Form> */}
 
 
 
@@ -392,12 +406,12 @@ const FRMaster = () => {
                                                                 <div ref={provided.innerRef}
                                                                     {...provided.draggableProps}
                                                                     {...provided.dragHandleProps}>
-                                                                    {column.id === 'messID' && (<i className="ri-user-add-line"></i>)}
+                                                                    {/* {column.id === 'messID' && (<i className="ri-user-add-line"></i>)}
                                                                     {column.id === 'messName' && (<i className="ri-building-line"></i>)}
                                                                     {column.id === 'managerEmpID' && (<i className="ri-user-3-line"></i>)}
                                                                     {column.id === 'managerName' && (<i className="ri-user-2-line"></i>)}
                                                                     {column.id === 'projectName' && (<i className="ri-folder-line"></i>)}
-                                                                    {column.id === 'status' && (<i className="ri-time-line"></i>)}
+                                                                    {column.id === 'status' && (<i className="ri-time-line"></i>)} */}
 
 
                                                                     &nbsp; {column.label}
@@ -421,13 +435,8 @@ const FRMaster = () => {
                                                 <td>{(currentPage - 1) * 10 + index + 1}</td>
                                                 {columns.filter(col => col.visible).map((col) => (
                                                     <td key={col.id}
-                                                        className={
-                                                            (col.id === 'status' && item[col.id] === 'Enabled') ? 'task1' :
-                                                                (col.id === 'status' && item[col.id] === 'Disabled') ? 'task4' :
-
-                                                                    ''
-                                                        }>
-                                                        <div> {col.id === 'managerName' ? (
+                                                    >
+                                                        {/* <div> {col.id === 'managerName' ? (
                                                             <div style={{ display: 'flex', alignItems: 'center' }}>
                                                                 {item.managerName}
                                                             </div>
@@ -435,7 +444,8 @@ const FRMaster = () => {
                                                             <>
                                                                 {item[col.id as keyof Mess]}
                                                             </>
-                                                        )}</div>
+                                                        )}</div> */}
+                                                        {item[col.id as keyof Mess]}
 
                                                     </td>
                                                 ))}

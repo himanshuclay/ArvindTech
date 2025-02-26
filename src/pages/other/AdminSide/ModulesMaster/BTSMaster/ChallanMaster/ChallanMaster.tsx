@@ -1,28 +1,38 @@
 import axios from 'axios';
 import { useState, useEffect } from 'react';
-import { Button, Pagination, Table, Container, Row, Col, Alert, Form, ButtonGroup, DropdownButton } from 'react-bootstrap';
+import { Button, Pagination, Table, Container, Row, Col, Alert, Form, DropdownButton } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import config from '@/config';
-import Select from 'react-select';
+// import Select from 'react-select';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 
 
 
 interface Mess {
-    id: number
-    messID: number;
-    messName: string;
-    managerEmpID: string;
-    managerName: string;
-    mobileNumber: string;
-    projectName: string;
-    status: string;
-    createdBy: string;
-    updatedBy: string;
-    updatedDate: string;
-    createdDate: string;
+    id: number,
+    EntryDate: string,
+    ProjectID: string,
+    ProjectName: string,
+    ItemSpecification: string,
+    ReceiptType: string,
+    ChallanNo: string,
+    ChallanAmount: string,
+    ChallanDate: string,
+    BillAgainst: string,
+    No: string,
+    Amount: string,
+    Date: string,
+    VendorCode: string,
+    VendorName: string,
+    BillNo: string,
+    BillAmount: string,
+    Source: string,
+    CreatedDate: string,
+    CreatedBy: string,
+    UpdatedDate: string,
+    UpdatedBy: string,
 
 }
 
@@ -37,11 +47,11 @@ interface MessList {
     messName: string;
 }
 
-interface ModuleProjectList {
-    id: string;
-    projectName: string
-    moduleName: string
-}
+// interface ModuleProjectList {
+//     id: string;
+//     projectName: string
+//     moduleName: string
+// }
 
 
 const ChallanMaster = () => {
@@ -51,10 +61,10 @@ const ChallanMaster = () => {
     const [loading, setLoading] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
-    const [downloadCsv, setDownloadCsv] = useState<Mess[]>([]);
-    const [messList, setMessList] = useState<MessList[]>([]);
-    const [projectList, setProjectList] = useState<ModuleProjectList[]>([])
-    const [searchTriggered, setSearchTriggered] = useState(false);
+    // const [downloadCsv, setDownloadCsv] = useState<Mess[]>([]);
+    const [, setMessList] = useState<MessList[]>([]);
+    // const [projectList, setProjectList] = useState<ModuleProjectList[]>([])
+    const [searchTriggered, ] = useState(false);
 
 
 
@@ -78,55 +88,18 @@ const ChallanMaster = () => {
         { id: 'billNo', label: 'Bill No', visible: true },
         { id: 'challanAmount', label: 'Challan Amount', visible: true },
         { id: 'challanDate', label: 'Challan Date', visible: true },
-        
-// challanNo
-// : 
-// "CHL-98765"
-// createdBy
-// : 
-// "JohnDoe"
-// createdDate
-// : 
-// "2025-02-24T09:59:47"
-// date
-// : 
-// "2025-02-19"
-// entryDate
-// : 
-// "2025-02-20 00:00:00.000000"
-// id
-// : 
-// 1
-// itemSpecification
-// : 
-// "Steel Rods 12mm"
-// no
-// : 
-// "INV-2025-456"
-// projectID
-// : 
-// "PRJ-2025-001"
-// projectName
-// : 
-// "Metro Expansion Phase 2"
-// receiptType
-// : 
-// "Invoice"
-// source
-// : 
-// "Direct Purchase"
-// updatedBy
-// : 
-// "JaneSmith"
-// updatedDate
-// : 
-// "2025-02-24T10:15:31"
-// vendorCode
-// : 
-// "VND-1024"
-// vendorName
-// : 
-// "ABC Constructions Ltd."
+        { id: 'challanNo', label: 'Challan No', visible: true },
+        { id: 'createdBy', label: 'Created By', visible: true },
+        { id: 'date', label: 'Date', visible: true },
+        { id: 'itemSpecification', label: 'Item Specification', visible: true },
+        { id: 'no', label: 'Number', visible: true },
+        { id: 'projectID', label: 'Project ID', visible: true },
+        { id: 'projectName', label: 'Project Name', visible: true },
+        { id: 'receiptType', label: 'Receipt Type', visible: true },
+        { id: 'source', label: 'Source', visible: true },
+        { id: 'updatedBy', label: 'Updated By', visible: true },
+        { id: 'vendorCode', label: 'Vendor Code', visible: true },
+        { id: 'vendorName', label: 'Vendor Name', visible: true },
     ]);
 
     const handleOnDragEnd = (result: any) => {
@@ -150,9 +123,9 @@ const ChallanMaster = () => {
     }, [currentPage, searchTriggered]);
 
 
-    const [searchMessName, setSearchMessName] = useState('')
-    const [searchStatus, setSearchStatus] = useState('')
-    const [searchProjectName, setSearchProjectName] = useState('')
+    const [searchMessName, ] = useState('')
+    const [searchStatus, ] = useState('')
+    const [searchProjectName, ] = useState('')
 
 
     const handleSearch = (e?: React.FormEvent) => {
@@ -164,12 +137,12 @@ const ChallanMaster = () => {
         query += `PageIndex=${currentPage}`;
 
         query = query.endsWith('&') ? query.slice(0, -1) : query;
-        const apiUrl = `${config.API_URL_APPLICATION}/MessMaster/SearchMess${query}`;
+        const apiUrl = `${config.API_URL_APPLICATION1}/ChallanMaster/GetChallan${query}`;
         console.log(apiUrl)
         axios.get(apiUrl, { headers: { 'accept': '*/*' } })
             .then((response) => {
-                console.log("search response ", response.data.messMasterList);
-                setMesses(response.data.messMasterList)
+                console.log("search response ", response.data.challanMasters);
+                setMesses(response.data.challanMasters)
                 setTotalPages(Math.ceil(response.data.totalCount / 10));
             })
             .catch((error) => {
@@ -185,7 +158,7 @@ const ChallanMaster = () => {
             });
             console.log('response', response)
             if (response.data.isSuccess) {
-                setMesses(response.data.messMasterList);
+                setMesses(response.data.challanMasters);
                 setTotalPages(Math.ceil(response.data.totalCount / 10));
             } else {
                 console.error(response.data.message);
@@ -223,61 +196,61 @@ const ChallanMaster = () => {
     }, []);
 
 
-    const handleClear = async () => {
-        setSearchMessName('')
-        setSearchProjectName('')
-        setSearchStatus('');
-        setCurrentPage(1);
-        setSearchTriggered(false);
-        await fetchRoles();
-    };
+    // const handleClear = async () => {
+    //     setSearchMessName('')
+    //     setSearchProjectName('')
+    //     setSearchStatus('');
+    //     setCurrentPage(1);
+    //     setSearchTriggered(false);
+    //     await fetchRoles();
+    // };
 
 
-    const convertToCSV = (data: Mess[]) => {
-        const csvRows = [
-            ['Mess ID', 'Mess Name', 'Manager Emp ID', 'Manager Name',
-                'Mess Contact No', 'Project Name', 'Status',
-                'Created By', 'Updated By', 'Created Date', 'Updated Date'],
-            ...data.map(mess => [
-                mess.messID.toString(),
-                mess.messName,
-                mess.managerEmpID,
-                mess.managerName,
-                mess.mobileNumber,
-                mess.projectName,
-                mess.status,
-                mess.createdBy,
-                mess.updatedBy,
-                mess.createdDate,
-                mess.updatedDate,
+    // const convertToCSV = (data: Mess[]) => {
+    //     const csvRows = [
+    //         ['Mess ID', 'Mess Name', 'Manager Emp ID', 'Manager Name',
+    //             'Mess Contact No', 'Project Name', 'Status',
+    //             'Created By', 'Updated By', 'Created Date', 'Updated Date'],
+    //         ...data.map(mess => [
+    //             mess.messID.toString(),
+    //             mess.messName,
+    //             mess.managerEmpID,
+    //             mess.managerName,
+    //             mess.mobileNumber,
+    //             mess.projectName,
+    //             mess.status,
+    //             mess.createdBy,
+    //             mess.updatedBy,
+    //             mess.createdDate,
+    //             mess.updatedDate,
 
-            ])
-        ];
+    //         ])
+    //     ];
 
-        return csvRows.map(row => row.join(',')).join('\n');
-    };
-
-
-    const downloadCSV = () => {
-        const csvData = convertToCSV(downloadCsv);
-        const blob = new Blob([csvData], { type: 'text/csv;charset=utf-8;' });
-        const link = document.createElement('a');
-        if (link.download !== undefined) {
-            const url = URL.createObjectURL(blob);
-            link.setAttribute('href', url);
-            link.setAttribute('download', 'Messes.csv');
-            link.style.visibility = 'hidden';
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-        }
-    };
+    //     return csvRows.map(row => row.join(',')).join('\n');
+    // };
 
 
-    const optionsStatus = [
-        { value: 'Enabled', label: 'Enabled' },
-        { value: 'Disabled', label: 'Disabled' }
-    ];
+    // const downloadCSV = () => {
+    //     const csvData = convertToCSV(downloadCsv);
+    //     const blob = new Blob([csvData], { type: 'text/csv;charset=utf-8;' });
+    //     const link = document.createElement('a');
+    //     if (link.download !== undefined) {
+    //         const url = URL.createObjectURL(blob);
+    //         link.setAttribute('href', url);
+    //         link.setAttribute('download', 'Messes.csv');
+    //         link.style.visibility = 'hidden';
+    //         document.body.appendChild(link);
+    //         link.click();
+    //         document.body.removeChild(link);
+    //     }
+    // };
+
+
+    // const optionsStatus = [
+    //     { value: 'Enabled', label: 'Enabled' },
+    //     { value: 'Disabled', label: 'Disabled' }
+    // ];
 
 
     const handleVisibilityChange = (columnId: string) => {
@@ -294,14 +267,14 @@ const ChallanMaster = () => {
             <div className="d-flex bg-white p-2 my-2 justify-content-between align-items-center">
                 <span><i className="ri-file-list-line me-2 text-dark fs-16"></i><span className='fw-bold text-dark fs-15'>Challan Master</span></span>
                 <div className="d-flex justify-content-end  ">
-                    <Button variant="primary" onClick={downloadCSV} className="me-2">
+                    {/* <Button variant="primary" onClick={downloadCSV} className="me-2">
                         Download CSV
-                    </Button>
+                    </Button> */}
                     {(role === 'Admin' || role === 'DME') && (
 
                         <Link to='/pages/ChallanMasterAddEdit'>
                             <Button variant="primary" className="me-2">
-                                Add Mess
+                                Add Challan Master
                             </Button>
                         </Link>)}
 
@@ -309,7 +282,7 @@ const ChallanMaster = () => {
             </div>
 
             <div className='bg-white p-2 pb-2'>
-                <Form
+                {/* <Form
                     onSubmit={(e) => {
                         e.preventDefault();
                         setCurrentPage(1);
@@ -383,7 +356,7 @@ const ChallanMaster = () => {
                             </ButtonGroup>
                         </Col>
                     </Row>
-                </Form>
+                </Form> */}
 
 
 
@@ -443,12 +416,12 @@ const ChallanMaster = () => {
                                                                 <div ref={provided.innerRef}
                                                                     {...provided.draggableProps}
                                                                     {...provided.dragHandleProps}>
-                                                                    {column.id === 'messID' && (<i className="ri-user-add-line"></i>)}
+                                                                    {/* {column.id === 'messID' && (<i className="ri-user-add-line"></i>)}
                                                                     {column.id === 'messName' && (<i className="ri-building-line"></i>)}
                                                                     {column.id === 'managerEmpID' && (<i className="ri-user-3-line"></i>)}
                                                                     {column.id === 'managerName' && (<i className="ri-user-2-line"></i>)}
                                                                     {column.id === 'projectName' && (<i className="ri-folder-line"></i>)}
-                                                                    {column.id === 'status' && (<i className="ri-time-line"></i>)}
+                                                                    {column.id === 'status' && (<i className="ri-time-line"></i>)} */}
 
 
                                                                     &nbsp; {column.label}
@@ -472,13 +445,8 @@ const ChallanMaster = () => {
                                                 <td>{(currentPage - 1) * 10 + index + 1}</td>
                                                 {columns.filter(col => col.visible).map((col) => (
                                                     <td key={col.id}
-                                                        className={
-                                                            (col.id === 'status' && item[col.id] === 'Enabled') ? 'task1' :
-                                                                (col.id === 'status' && item[col.id] === 'Disabled') ? 'task4' :
-
-                                                                    ''
-                                                        }>
-                                                        <div> {col.id === 'managerName' ? (
+                                                        >
+                                                        {/* <div> {col.id === 'managerName' ? (
                                                             <div style={{ display: 'flex', alignItems: 'center' }}>
                                                                 {item.managerName}
                                                             </div>
@@ -486,7 +454,8 @@ const ChallanMaster = () => {
                                                             <>
                                                                 {item[col.id as keyof Mess]}
                                                             </>
-                                                        )}</div>
+                                                        )}</div> */}
+                                                        {item[col.id as keyof Mess]}
 
                                                     </td>
                                                 ))}

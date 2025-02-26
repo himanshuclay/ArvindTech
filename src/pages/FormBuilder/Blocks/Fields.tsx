@@ -10,7 +10,6 @@ interface FieldProps {
 }
 
 interface BasicField {
-    id: string,
     name: string;
     is: string;
     property: object;

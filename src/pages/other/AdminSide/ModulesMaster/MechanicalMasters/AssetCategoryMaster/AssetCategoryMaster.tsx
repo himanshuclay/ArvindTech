@@ -12,18 +12,21 @@ import { toast } from 'react-toastify';
 
 interface Mess {
     id: number,
-    projectID: string,
-    projectName: string,
-    vendorCodeName: string,
-    billDate: string,
-    gstHoldAmount: string,
-    gstMonth: string,
-    gstR2AFiling: string,
-    filingFrequency: string,
+    assetGroupCode: string,
+    coreCategory: string,
+    assetGroup: string,
+    preventiveAndChecklist: boolean,
+    dailyChecklist: boolean,
+    weeklyChecklist: boolean,
+    monthlyChecklist: boolean,
+    condition: boolean,
+    service: boolean,
+    assetCustodian: string,
+    sparePartsInventoryApplicable: string,
     createdDate: string,
     createdBy: string,
     updatedDate: string,
-    updatedBy: string,
+    updatedBy: string
 
 }
 
@@ -45,7 +48,7 @@ interface MessList {
 // }
 
 
-const MisMatchMaster = () => {
+const AssetCategoryMaster = () => {
     const role = localStorage.getItem('role');
 
     const [messes, setMesses] = useState<Mess[]>([]);
@@ -75,18 +78,18 @@ const MisMatchMaster = () => {
     const [columns, setColumns] = useState<Column[]>([
 
 
-        { id: 'projectID', label: 'projectID', visible: true },
-        { id: 'projectName', label: 'projectName', visible: true },
-        { id: 'vendorCodeName', label: 'vendorCodeName', visible: true },
-        { id: 'billDate', label: 'billDate', visible: true },
-        { id: 'gstHoldAmount', label: 'gstHoldAmount', visible: true },
-        { id: 'gstMonth', label: 'gstMonth', visible: true },
-        { id: 'gstR2AFiling', label: 'gstR2AFiling', visible: true },
-        { id: 'filingFrequency', label: 'filingFrequency', visible: true },
-        { id: 'createdDate', label: 'createdDate', visible: true },
-        { id: 'createdBy', label: 'createdBy', visible: true },
-        { id: 'updatedDate', label: 'updatedDate', visible: true },
-        { id: 'updatedBy', label: 'updatedBy', visible: true },
+        { id: 'assetGroupCode', label: 'assetGroupCode', visible: true},
+        { id: 'coreCategory', label: 'coreCategory', visible: true},
+        { id: 'assetGroup', label: 'assetGroup', visible: true},
+        { id: 'preventiveAndChecklist', label: 'preventiveAndChecklist', visible: true},
+        { id: 'dailyChecklist', label: 'dailyChecklist', visible: true},
+        { id: 'weeklyChecklist', label: 'weeklyChecklist', visible: true},
+        { id: 'monthlyChecklist', label: 'monthlyChecklist', visible: true},
+        { id: 'condition', label: 'condition', visible: true},
+        { id: 'service', label: 'service', visible: true},
+        { id: 'assetCustodian', label: 'assetCustodian', visible: true},
+        { id: 'sparePartsInventoryApplicable', label: 'sparePartsInventoryApplicable', visible: true},
+        
     ]);
 
     const handleOnDragEnd = (result: any) => {
@@ -124,12 +127,12 @@ const MisMatchMaster = () => {
         query += `PageIndex=${currentPage}`;
 
         query = query.endsWith('&') ? query.slice(0, -1) : query;
-        const apiUrl = `${config.API_URL_APPLICATION1}/MisMatchMaster/GetMisMatch${query}`;
+        const apiUrl = `${config.API_URL_APPLICATION1}/AssetCategoryMaster/GetAssetCategory/${query}`;
         console.log(apiUrl)
         axios.get(apiUrl, { headers: { 'accept': '*/*' } })
             .then((response) => {
-                console.log("search response ", response.data.misMatchMasters);
-                setMesses(response.data.misMatchMasters)
+                console.log("search response ", response.data.assetCategoryMasters);
+                setMesses(response.data.assetCategoryMasters)
                 setTotalPages(Math.ceil(response.data.totalCount / 10));
             })
             .catch((error) => {
@@ -140,12 +143,12 @@ const MisMatchMaster = () => {
     const fetchRoles = async () => {
         setLoading(true);
         try {
-            const response = await axios.get(`${config.API_URL_APPLICATION1}/MisMatchMaster/GetMisMatch`, {
+            const response = await axios.get(`${config.API_URL_APPLICATION1}/AssetCategoryMaster/GetAssetCategory`, {
                 params: { PageIndex: currentPage }
             });
             console.log('response', response)
             if (response.data.isSuccess) {
-                setMesses(response.data.misMatchMasters);
+                setMesses(response.data.assetCategoryMasters);
                 setTotalPages(Math.ceil(response.data.totalCount / 10));
             } else {
                 console.error(response.data.message);
@@ -176,7 +179,7 @@ const MisMatchMaster = () => {
             }
         };
 
-        fetchData('MisMatchMaster/GetMisMatch', setMessList, 'misMatchMasters');
+        fetchData('AssetCategoryMaster/GetAssetCategory', setMessList, 'assetCategoryMasters');
         // fetchData('CommonDropdown/GetProjectList', setProjectList, 'projectListResponses');
         // fetchData('MessMaster/GetMess', setDownloadCsv, 'messMasterList');
 
@@ -252,16 +255,16 @@ const MisMatchMaster = () => {
     return (
         <>
             <div className="d-flex bg-white p-2 my-2 justify-content-between align-items-center">
-                <span><i className="ri-file-list-line me-2 text-dark fs-16"></i><span className='fw-bold text-dark fs-15'>Mis Match Master</span></span>
+                <span><i className="ri-file-list-line me-2 text-dark fs-16"></i><span className='fw-bold text-dark fs-15'>AssetCategory Master</span></span>
                 <div className="d-flex justify-content-end  ">
                     {/* <Button variant="primary" onClick={downloadCSV} className="me-2">
                         Download CSV
                     </Button> */}
                     {(role === 'Admin' || role === 'DME') && (
 
-                        <Link to='/pages/MisMatchMasterAddEdit'>
+                        <Link to='/pages/AssetCategoryMasterAddEdit'>
                             <Button variant="primary" className="me-2">
-                                Add Mis Match Master
+                                Add AssetCategory Master
                             </Button>
                         </Link>)}
 
@@ -449,7 +452,7 @@ const MisMatchMaster = () => {
                                                 {(role === 'Admin' || role === 'DME') && (
 
 
-                                                    <td><Link to={`/pages/MisMatchMasterAddEdit/${item.id}`}>
+                                                    <td><Link to={`/pages/AssetCategoryMasterAddEdit/${item.id}`}>
                                                         <Button variant='primary' className='p-0 text-white'>
                                                             <i className='btn ri-edit-line text-white' ></i>
                                                         </Button>
@@ -496,4 +499,4 @@ const MisMatchMaster = () => {
     );
 };
 
-export default MisMatchMaster;
+export default AssetCategoryMaster;

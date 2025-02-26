@@ -9,16 +9,15 @@ import { toast } from 'react-toastify';
 
 interface BTS_PAYMENT {
     id: number,
-    btsid: string,
-    billEntryDate: string,
-    projectID: string,
-    projectName: string,
-    clientJVName: string,
-    vendorName: string,
-    receiptType: string,
-    fRorIOMNumber: string,
-    frAmount: string,
-    paidAmount: string,
+    assetGroupCode: string,
+    assetCategory: string,
+    assetGroup: string,
+    assetName: string,
+    specification: string,
+    applicableServices: string,
+    wHrsorKMorDays: string,
+    measureType: string,
+    unit: string,
     createdDate: string,
     createdBy: string,
     updatedDate: string,
@@ -38,7 +37,7 @@ interface EmployeeList {
     employeeName: string
 }
 
-const FRMasterAddEdit = () => {
+const AssetMasterAddEdit = () => {
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
     const [editMode, setEditMode] = useState<boolean>(false);
@@ -48,16 +47,15 @@ const FRMasterAddEdit = () => {
     const [, setEmployeeList] = useState<EmployeeList[]>([])
     const [messes, setMesses] = useState<BTS_PAYMENT>({
         id: 0,
-        btsid: '',
-        billEntryDate: '',
-        projectID: '',
-        projectName: '',
-        clientJVName: '',
-        vendorName: '',
-        receiptType: '',
-        fRorIOMNumber: '',
-        frAmount: '',
-        paidAmount: '',
+        assetGroupCode: '',
+        assetCategory: '',
+        assetGroup: '',
+        assetName: '',
+        specification: '',
+        applicableServices: '',
+        wHrsorKMorDays: '',
+        measureType: '',
+        unit: '',
         createdDate: '',
         createdBy: '',
         updatedDate: '',
@@ -91,10 +89,10 @@ const FRMasterAddEdit = () => {
 
     const fetchDoerById = async (id: string) => {
         try {
-            const response = await axios.get(`${config.API_URL_APPLICATION1}/FRMaster/GetFR/${id}`);
+            const response = await axios.get(`${config.API_URL_APPLICATION1}/AssetMaster/GetAsset/${id}`);
             console.log('response', response)
             if (response.data.isSuccess) {
-                const fetchedModule = response.data.fRMasters[0];
+                const fetchedModule = response.data.assetMasters[0];
                 setMesses(fetchedModule);
             } else {
                 console.error(response.data.message);
@@ -127,17 +125,21 @@ const FRMasterAddEdit = () => {
 
     const validateFields = (): boolean => {
         const errors: { [key: string]: string } = {};
+
+
+        if (!messes.assetGroupCode) { errors.assetGroupCode = 'assetGroupCode is required' }
+        if (!messes.assetCategory) { errors.assetCategory = 'assetCategory is required' }
+        if (!messes.assetGroup) { errors.assetGroup = 'assetGroup is required' }
+        if (!messes.assetName) { errors.assetName = 'assetName is required' }
+        if (!messes.specification) { errors.specification = 'specification is required' }
+        if (!messes.applicableServices) { errors.applicableServices = 'applicableServices is required' }
+        if (!messes.wHrsorKMorDays) { errors.wHrsorKMorDays = 'wHrsorKMorDays is required' }
+        if (!messes.measureType) { errors.measureType = 'measureType is required' }
+        if (!messes.unit) { errors.unit = 'unit is required' }
         
-if( !messes.btsid) { errors.btsid = 'btsid is required'}
-if( !messes.billEntryDate) { errors.billEntryDate = 'billEntryDate is required'}
-if( !messes.projectID) { errors.projectID = 'projectID is required'}
-if( !messes.projectName) { errors.projectName = 'projectName is required'}
-if( !messes.clientJVName) { errors.clientJVName = 'clientJVName is required'}
-if( !messes.vendorName) { errors.vendorName = 'vendorName is required'}
-if( !messes.receiptType) { errors.receiptType = 'receiptType is required'}
-if( !messes.fRorIOMNumber) { errors.fRorIOMNumber = 'fRorIOMNumber is required'}
-if( !messes.frAmount) { errors.frAmount = 'frAmount is required'}
-if( !messes.paidAmount) { errors.paidAmount = 'paidAmount is required'}
+
+
+
 
 
 
@@ -196,7 +198,7 @@ if( !messes.paidAmount) { errors.paidAmount = 'paidAmount is required'}
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-
+        console.log(messes)
         if (!validateFields()) {
             toast.dismiss()
             toast.error('Please fill in all required fields.');
@@ -220,15 +222,15 @@ if( !messes.paidAmount) { errors.paidAmount = 'paidAmount is required'}
         };
         try {
             if (editMode) {
-                await axios.put(`${config.API_URL_APPLICATION1}/FRMaster/UpdateFR/${id}`, payload);
-                navigate('/pages/FRMaster', {
+                await axios.put(`${config.API_URL_APPLICATION1}/AssetMaster/UpdateAsset/${id}`, payload);
+                navigate('/pages/AssetMaster', {
                     state: {
                         successMessage: "Challan Master Updated successfully!",
                     }
                 });
             } else {
-                await axios.post(`${config.API_URL_APPLICATION1}/FRMaster/CreateFR`, payload);
-                navigate('/pages/FRMaster', {
+                await axios.post(`${config.API_URL_APPLICATION1}/AssetMaster/CreateAsset`, payload);
+                navigate('/pages/AssetMaster', {
                     state: {
                         successMessage: "Challan Master Added successfully!",
                     }
@@ -243,189 +245,177 @@ if( !messes.paidAmount) { errors.paidAmount = 'paidAmount is required'}
         <div>
             <div className="container">
                 <div className="d-flex bg-white p-2 my-2 justify-content-between align-items-center fs-20 rounded-3 border">
-                    <span><i className="ri-file-list-line me-2"></i><span className='fw-bold'>{editMode ? 'Edit FR Master' : 'Add FR Master'}</span></span>
+                    <span><i className="ri-file-list-line me-2"></i><span className='fw-bold'>{editMode ? 'Edit Asset Master' : 'Add Asset Master'}</span></span>
                 </div>
                 <div className='bg-white p-2 rounded-3 border'>
                     <Form onSubmit={handleSubmit}>
                         <Row>
+
                             <Col lg={6}>
-                                <Form.Group controlId="btsid" className="mb-3">
-                                    <Form.Label>Entry Date</Form.Label>
+                                <Form.Group controlId="assetGroupCode" className="mb-3">
+                                    <Form.Label>assetGroupCode</Form.Label>
                                     <Form.Control
                                         type="text"
-                                        name="btsid"
-                                        value={messes.btsid}
+                                        name="assetGroupCode"
+                                        value={messes.assetGroupCode}
                                         onChange={handleChange}
-                                        placeholder='Enter Entry Date'
-                                        // disabled={editMode}
-                                        className={validationErrors.btsid ? " input-border" : "  "}
-                                    />
-                                    {validationErrors.btsid && (
-                                        <small className="text-danger">{validationErrors.btsid}</small>
-                                    )}
-                                </Form.Group>
-                            </Col>
-                            <Col lg={6}>
-                                <Form.Group controlId="billEntryDate" className="mb-3">
-                                    <Form.Label>billEntryDate</Form.Label>
-                                    <Form.Control
-                                        type="text"
-                                        name="billEntryDate"
-                                        value={messes.billEntryDate}
-                                        onChange={handleChange}
-                                        placeholder='Enter billEntryDate'
+                                        placeholder='Enter assetGroupCode'
                                         disabled={editMode}
-                                        className={validationErrors.billEntryDate ? " input-border" : "  "}
+                                        className={validationErrors.assetGroupCode ? " input-border" : "  "}
                                     />
-                                    {validationErrors.billEntryDate && (
-                                        <small className="text-danger">{validationErrors.billEntryDate}</small>
+                                    {validationErrors.assetGroupCode && (
+                                        <small className="text-danger">{validationErrors.assetGroupCode}</small>
                                     )}
                                 </Form.Group>
                             </Col>
                             <Col lg={6}>
-                                <Form.Group controlId="projectID" className="mb-3">
-                                    <Form.Label>Project ID</Form.Label>
+                                <Form.Group controlId="assetCategory" className="mb-3">
+                                    <Form.Label>assetCategory</Form.Label>
                                     <Form.Control
                                         type="text"
-                                        name="projectID"
-                                        value={messes.projectID}
-                                        onChange={handleChange}
-                                        placeholder='Enter projectID'
-                                        disabled={editMode}
-                                        className={validationErrors.projectID ? " input-border" : "  "}
-                                    />
-                                    {validationErrors.projectID && (
-                                        <small className="text-danger">{validationErrors.projectID}</small>
-                                    )}
-                                </Form.Group>
-                            </Col>
-                            <Col lg={6}>
-                                <Form.Group controlId="projectName" className="mb-3">
-                                    <Form.Label>Project Name</Form.Label>
-                                    <Form.Control
-                                        type="text"
-                                        name="projectName"
-                                        value={messes.projectName}
+                                        name="assetCategory"
+                                        value={messes.assetCategory}
                                         onChange={handleChange}
                                         placeholder='Enter Project ID'
-                                        className={validationErrors.projectName ? " input-border" : "  "}
+                                        className={validationErrors.assetCategory ? " input-border" : "  "}
                                     />
-                                    {validationErrors.projectName && (
-                                        <small className="text-danger">{validationErrors.projectName}</small>
+                                    {validationErrors.assetCategory && (
+                                        <small className="text-danger">{validationErrors.assetCategory}</small>
                                     )}
                                 </Form.Group>
                             </Col>
                             <Col lg={6}>
-                                <Form.Group controlId="clientJVName" className="mb-3">
-                                    <Form.Label>clientJVName</Form.Label>
+                                <Form.Group controlId="assetGroup" className="mb-3">
+                                    <Form.Label>assetGroup</Form.Label>
                                     <Form.Control
                                         type="text"
-                                        name="clientJVName"
-                                        value={messes.clientJVName}
+                                        name="assetGroup"
+                                        value={messes.assetGroup}
                                         onChange={handleChange}
                                         placeholder='Enter Project Name'
-                                        className={validationErrors.clientJVName ? " input-border" : "  "}
+                                        className={validationErrors.assetGroup ? " input-border" : "  "}
                                     />
-                                    {validationErrors.clientJVName && (
-                                        <small className="text-danger">{validationErrors.clientJVName}</small>
+                                    {validationErrors.assetGroup && (
+                                        <small className="text-danger">{validationErrors.assetGroup}</small>
                                     )}
                                 </Form.Group>
                             </Col>
                             <Col lg={6}>
-                                <Form.Group controlId="vendorName" className="mb-3">
-                                    <Form.Label>vendorName</Form.Label>
+                                <Form.Group controlId="assetName" className="mb-3">
+                                    <Form.Label>assetName</Form.Label>
                                     <Form.Control
                                         type="text"
-                                        name="vendorName"
-                                        value={messes.vendorName}
+                                        name="assetName"
+                                        value={messes.assetName}  // ✅ Use checked instead of value
                                         onChange={handleChange}
-                                        placeholder='Enter Payment Requested For'
-                                        className={validationErrors.vendorName ? " input-border" : "  "}
+                                        className={validationErrors.assetName ? "input-border" : ""}
                                     />
-                                    {validationErrors.vendorName && (
-                                        <small className="text-danger">{validationErrors.vendorName}</small>
-                                    )}
-                                </Form.Group>
-                            </Col>
-                            <Col lg={6}>
-                                <Form.Group controlId="receiptType" className="mb-3">
-                                    <Form.Label>receiptType</Form.Label>
-                                    <Form.Control
-                                        type="text"
-                                        name="receiptType"
-                                        value={messes.receiptType}
-                                        onChange={handleChange}
-                                        placeholder='Enter receiptType'
-                                        className={validationErrors.receiptType ? " input-border" : "  "}
-                                    />
-                                    {validationErrors.receiptType && (
-                                        <small className="text-danger">{validationErrors.receiptType}</small>
-                                    )}
-                                </Form.Group>
-                            </Col>
-                            <Col lg={6}>
-                                <Form.Group controlId="fRorIOMNumber" className="mb-3">
-                                    <Form.Label>fRorIOMNumber</Form.Label>
-                                    <Form.Control
-                                        type="text"
-                                        name="fRorIOMNumber"
-                                        value={messes.fRorIOMNumber}
-                                        onChange={handleChange}
-                                        placeholder='Enter Number'
-                                        className={validationErrors.fRorIOMNumber ? " input-border" : "  "}
-                                    />
-                                    {validationErrors.fRorIOMNumber && (
-                                        <small className="text-danger">{validationErrors.fRorIOMNumber}</small>
-                                    )}
-                                </Form.Group>
-                            </Col>
-                            <Col lg={6}>
-                                <Form.Group controlId="frAmount" className="mb-3">
-                                    <Form.Label>frAmount</Form.Label>
-                                    <Form.Control
-                                        type="text"
-                                        name="frAmount"
-                                        value={messes.frAmount}
-                                        onChange={handleChange}
-                                        placeholder='Enter frAmount'
-                                        className={validationErrors.frAmount ? " input-border" : "  "}
-                                    />
-                                    {validationErrors.frAmount && (
-                                        <small className="text-danger">{validationErrors.frAmount}</small>
-                                    )}
-                                </Form.Group>
-                            </Col>
-                            <Col lg={6}>
-                                <Form.Group controlId="paidAmount" className="mb-3">
-                                    <Form.Label>paidAmount</Form.Label>
-                                    <Form.Control
-                                        type="text"
-                                        name="paidAmount"
-                                        value={messes.paidAmount}
-                                        onChange={handleChange}
-                                        placeholder='Enter paidAmount'
-                                        className={validationErrors.paidAmount ? " input-border" : "  "}
-                                    />
-                                    {validationErrors.paidAmount && (
-                                        <small className="text-danger">{validationErrors.paidAmount}</small>
+
+                                    {validationErrors.assetName && (
+                                        <small className="text-danger">{validationErrors.assetName}</small>
                                     )}
                                 </Form.Group>
                             </Col>
                             
+                            <Col lg={6}>
+                                <Form.Group controlId="specification" className="mb-3">
+                                    <Form.Label>specification</Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        name="specification"
+                                        value={messes.specification}
+                                        onChange={handleChange}
+                                        placeholder='Enter specification'
+                                        className={validationErrors.specification ? " input-border" : "  "}
+                                    />
+                                    {validationErrors.specification && (
+                                        <small className="text-danger">{validationErrors.specification}</small>
+                                    )}
+                                </Form.Group>
+                            </Col>
+                            <Col lg={6}>
+                                <Form.Group controlId="applicableServices" className="mb-3">
+                                    <Form.Label>applicableServices</Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        name="applicableServices"
+                                        value={messes.applicableServices}
+                                        onChange={handleChange}
+                                        placeholder='Enter applicableServices'
+                                        className={validationErrors.applicableServices ? " input-border" : "  "}
+                                    />
+                                    {validationErrors.applicableServices && (
+                                        <small className="text-danger">{validationErrors.applicableServices}</small>
+                                    )}
+                                </Form.Group>
+                            </Col>
+                            <Col lg={6}>
+                                <Form.Group controlId="wHrsorKMorDays" className="mb-3">
+                                    <Form.Label>wHrsorKMorDays</Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        name="wHrsorKMorDays"
+                                        value={messes.wHrsorKMorDays}
+                                        onChange={handleChange}
+                                        placeholder='Enter wHrsorKMorDays'
+                                        className={validationErrors.wHrsorKMorDays ? " input-border" : "  "}
+                                    />
+                                    {validationErrors.wHrsorKMorDays && (
+                                        <small className="text-danger">{validationErrors.wHrsorKMorDays}</small>
+                                    )}
+                                </Form.Group>
+                            </Col>
+                            <Col lg={6}>
+                                <Form.Group controlId="measureType" className="mb-3">
+                                    <Form.Label>measureType</Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        name="measureType"
+                                        value={messes.measureType}
+                                        onChange={handleChange}
+                                        placeholder='Enter measureType'
+                                        className={validationErrors.measureType ? " input-border" : "  "}
+                                    />
+                                    {validationErrors.measureType && (
+                                        <small className="text-danger">{validationErrors.measureType}</small>
+                                    )}
+                                </Form.Group>
+                            </Col>
+                            <Col lg={6}>
+                                <Form.Group controlId="unit" className="mb-3">
+                                    <Form.Label>unit</Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        name="unit"
+                                        value={messes.unit}
+                                        onChange={handleChange}
+                                        placeholder='Enter unit'
+                                        className={validationErrors.unit ? " input-border" : "  "}
+                                    />
+                                    {validationErrors.unit && (
+                                        <small className="text-danger">{validationErrors.unit}</small>
+                                    )}
+                                </Form.Group>
+                            </Col>
+                           
+
+
+
+
 
                             <Col className='align-items-end d-flex justify-content-between mb-3'>
                                 <div>
                                     <span className='fs-5 '>This field is required*</span>
                                 </div>
                                 <div>
-                                    <Link to={'/pages/ChallanMaster'}>
+                                    <Link to={'/pages/AssetMaster'}>
                                         <Button variant="primary" >
                                             Back
                                         </Button>
                                     </Link>
                                     &nbsp;
                                     <Button variant="primary" type="submit">
-                                        {editMode ? 'Update BTS Payment' : 'Add BTS Payment'}
+                                        {editMode ? 'Update Asset' : 'Add Asset'}
                                     </Button>
                                 </div>
                             </Col>
@@ -437,4 +427,4 @@ if( !messes.paidAmount) { errors.paidAmount = 'paidAmount is required'}
     );
 };
 
-export default FRMasterAddEdit;
+export default AssetMasterAddEdit;

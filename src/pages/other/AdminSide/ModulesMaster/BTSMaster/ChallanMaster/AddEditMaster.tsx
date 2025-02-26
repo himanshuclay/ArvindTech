@@ -3,33 +3,33 @@ import { useEffect, useState, ChangeEvent } from 'react';
 import { Button, Col, Form, Row } from 'react-bootstrap';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import config from '@/config';
-import Select from 'react-select';
+// import Select from 'react-select';
 import { toast } from 'react-toastify';
 
 
 interface BTS_PAYMENT {
-    ID: number,
-    EntryDate: string,
-    ProjectID: string,
-    ProjectName: string,
-    ItemSpecification: string,
-    ReceiptType: string,
-    ChallanNo: string,
-    ChallanAmount: string,
-    ChallanDate: string,
-    BillAgainst: string,
-    No: string,
-    Amount: string,
-    Date: string,
-    VendorCode: string,
-    VendorName: string,
-    BillNo: string,
-    BillAmount: string,
-    Source: string,
-    CreatedDate: string,
-    CreatedBy: string,
-    UpdatedDate: string,
-    UpdatedBy: string,
+    id: number,
+    entryDate: string,
+    projectID: string,
+    projectName: string,
+    itemSpecification: string,
+    receiptType: string,
+    challanNo: string,
+    challanAmount: string,
+    challanDate: string,
+    billAgainst: string,
+    no: string,
+    amount: string,
+    date: string,
+    vendorCode: string,
+    vendorName: string,
+    billNo: string,
+    billAmount: string,
+    source: string,
+    createdDate: string,
+    createdBy: string,
+    updatedDate: string,
+    updatedBy: string,
 }
 
 interface ProjectList {
@@ -50,32 +50,32 @@ const ChallanMasterAddEdit = () => {
     const navigate = useNavigate();
     const [editMode, setEditMode] = useState<boolean>(false);
     const [empName, setEmpName] = useState<string | null>('')
-    const [projectList, setProjectList] = useState<ProjectList[]>([])
-    const [statusList, setStatusList] = useState<Status[]>([])
-    const [employeeList, setEmployeeList] = useState<EmployeeList[]>([])
+    const [, setProjectList] = useState<ProjectList[]>([])
+    const [, setStatusList] = useState<Status[]>([])
+    const [, setEmployeeList] = useState<EmployeeList[]>([])
     const [messes, setMesses] = useState<BTS_PAYMENT>({
-        ID: 0,
-        EntryDate: '',
-        ProjectID: '',
-        ProjectName: '',
-        ItemSpecification: '',
-        ReceiptType: '',
-        ChallanNo: '',
-        ChallanAmount: '',
-        ChallanDate: '',
-        BillAgainst: '',
-        No: '',
-        Amount: '',
-        Date: '',
-        VendorCode: '',
-        VendorName: '',
-        BillNo: '',
-        BillAmount: '',
-        Source: '',
-        CreatedDate: '',
-        CreatedBy: '',
-        UpdatedDate: '',
-        UpdatedBy: '',
+        id: 0,
+        entryDate: '',
+        projectID: '',
+        projectName: '',
+        itemSpecification: '',
+        receiptType: '',
+        challanNo: '',
+        challanAmount: '',
+        challanDate: '',
+        billAgainst: '',
+        no: '',
+        amount: '',
+        date: '',
+        vendorCode: '',
+        vendorName: '',
+        billNo: '',
+        billAmount: '',
+        source: '',
+        createdDate: '',
+        createdBy: '',
+        updatedDate: '',
+        updatedBy: '',
     }
     );
 
@@ -105,11 +105,10 @@ const ChallanMasterAddEdit = () => {
 
     const fetchDoerById = async (id: string) => {
         try {
-            const response = await axios.get(`${config.API_URL_APPLICATION}/MessMaster/GetMess`, {
-                params: { id: id }
-            });
+            const response = await axios.get(`${config.API_URL_APPLICATION1}/ChallanMaster/GetChallan/${id}`);
+            console.log('response',response)
             if (response.data.isSuccess) {
-                const fetchedModule = response.data.messMasterList[0];
+                const fetchedModule = response.data.challanMasters[0];
                 setMesses(fetchedModule);
             } else {
                 console.error(response.data.message);
@@ -142,13 +141,27 @@ const ChallanMasterAddEdit = () => {
 
     const validateFields = (): boolean => {
         const errors: { [key: string]: string } = {};
-
-        // if (!messes.BillEntryDate) { errors.BillEntryDate = 'Bill Entry Date is required'; }
-        // if (!messes.BTSID) { errors.BTSID = 'BTS ID is required'; }
-        // if (!messes.ProjectID) { errors.ProjectID = 'Project ID is required'; }
-        // if (!messes.PaymentRequestedFor) { errors.PaymentRequestedFor = 'Payment Requested For is required'; }
-        // if (!messes.No) { errors.No = 'No is required'; }
-        // if (!messes.ReceiptType) { errors.ReceiptType = 'Receipt Type is required'; }
+        if (!messes.entryDate) { errors.entryDate = 'entryDate is required' ;}
+        if (!messes.projectID) { errors.projectID = 'projectID is required' ;}
+        if (!messes.projectName) { errors.projectName = 'projectName is required' ;}
+        if (!messes.itemSpecification) { errors.itemSpecification = 'itemSpecification is required' ;}
+        if (!messes.receiptType) { errors.receiptType = 'receiptType is required' ;}
+        if (!messes.challanNo) { errors.challanNo = 'challanNo is required' ;}
+        if (!messes.challanAmount) { errors.challanAmount = 'challanAmount is required' ;}
+        if (!messes.challanDate) { errors.challanDate = 'challanDate is required' ;}
+        if (!messes.billAgainst) { errors.billAgainst = 'billAgainst is required' ;}
+        if (!messes.no) { errors.no = 'no is required' ;}
+        if (!messes.amount) { errors.amount = 'amount is required' ;}
+        if (!messes.date) { errors.date = 'date is required' ;}
+        if (!messes.vendorCode) { errors.vendorCode = 'vendorCode is required' ;}
+        if (!messes.vendorName) { errors.vendorName = 'vendorName is required' ;}
+        if (!messes.billNo) { errors.billNo = 'billNo is required' ;}
+        if (!messes.billAmount) { errors.billAmount = 'billAmount is required' ;}
+        if (!messes.source) { errors.source = 'source is required' ;}
+        if (!messes.createdDate) { errors.createdDate = 'createdDate is required' ;}
+        if (!messes.createdBy) { errors.createdBy = 'createdBy is required' ;}
+        if (!messes.updatedDate) { errors.updatedDate = 'updatedDate is required' ;}
+        if (!messes.updatedBy) { errors.updatedBy = 'updatedBy is required' ;}
 
 
         setValidationErrors(errors);
@@ -223,22 +236,24 @@ const ChallanMasterAddEdit = () => {
         }
         const payload = {
             ...messes,
-            createdBy: editMode ? messes.CreatedBy : empName,
+            createdDate: new Date(),
+            createdBy: editMode ? messes.createdBy : empName,
             updatedBy: editMode ? empName : '',
+            updatedDate: new Date(),
         };
         try {
             if (editMode) {
-                await axios.post(`${config.API_URL_APPLICATION}/MessMaster/UpdateMess`, payload);
-                navigate('/pages/MessMaster', {
+                await axios.put(`${config.API_URL_APPLICATION1}/ChallanMaster/UpdateChallan/${id}`, payload);
+                navigate('/pages/ChallanMaster', {
                     state: {
-                        successMessage: "Doer Updated successfully!",
+                        successMessage: "Challan Master Updated successfully!",
                     }
                 });
             } else {
-                await axios.post(`${config.API_URL_APPLICATION}/MessMaster/InsertMess`, payload);
-                navigate('/pages/MessMaster', {
+                await axios.post(`${config.API_URL_APPLICATION1}/ChallanMaster/CreateChallan`, payload);
+                navigate('/pages/ChallanMaster', {
                     state: {
-                        successMessage: "Doer Added successfully!",
+                        successMessage: "Challan Master Added successfully!",
                     }
                 });
             }
@@ -257,276 +272,276 @@ const ChallanMasterAddEdit = () => {
                     <Form onSubmit={handleSubmit}>
                         <Row>
                             <Col lg={6}>
-                                <Form.Group controlId="EntryDate" className="mb-3">
-                                    <Form.Label>BTS ID</Form.Label>
-                                    <Form.Control
-                                        type="text"
-                                        name="EntryDate"
-                                        value={messes.EntryDate}
-                                        onChange={handleChange}
-                                        placeholder='Enter BTS ID'
-                                        disabled={editMode}
-                                        className={validationErrors.EntryDate ? " input-border" : "  "}
-                                    />
-                                    {validationErrors.EntryDate && (
-                                        <small className="text-danger">{validationErrors.EntryDate}</small>
-                                    )}
-                                </Form.Group>
-                            </Col>
-                            <Col lg={6}>
-                                <Form.Group controlId="ProjectID" className="mb-3">
-                                    <Form.Label>Bill Entry Date</Form.Label>
+                                <Form.Group controlId="entryDate" className="mb-3">
+                                    <Form.Label>Entry Date</Form.Label>
                                     <Form.Control
                                         type="date"
-                                        name="ProjectID"
-                                        value={messes.ProjectID}
+                                        name="entryDate"
+                                        value={messes.entryDate}
                                         onChange={handleChange}
-                                        placeholder='Enter Bill Entry Date'
-                                        disabled={editMode}
-                                        className={validationErrors.ProjectID ? " input-border" : "  "}
+                                        placeholder='Enter Entry Date'
+                                        // disabled={editMode}
+                                        className={validationErrors.entryDate ? " input-border" : "  "}
                                     />
-                                    {validationErrors.ProjectID && (
-                                        <small className="text-danger">{validationErrors.ProjectID}</small>
+                                    {validationErrors.entryDate && (
+                                        <small className="text-danger">{validationErrors.entryDate}</small>
                                     )}
                                 </Form.Group>
                             </Col>
                             <Col lg={6}>
-                                <Form.Group controlId="ProjectName " className="mb-3">
+                                <Form.Group controlId="projectID" className="mb-3">
                                     <Form.Label>Project ID</Form.Label>
                                     <Form.Control
                                         type="text"
-                                        name="ProjectName "
-                                        value={messes.ProjectName}
+                                        name="projectID"
+                                        value={messes.projectID}
                                         onChange={handleChange}
-                                        placeholder='Enter Project ID'
-                                        className={validationErrors.ProjectName ? " input-border" : "  "}
+                                        placeholder='Enter projectID'
+                                        disabled={editMode}
+                                        className={validationErrors.projectID ? " input-border" : "  "}
                                     />
-                                    {validationErrors.ProjectName && (
-                                        <small className="text-danger">{validationErrors.ProjectName}</small>
+                                    {validationErrors.projectID && (
+                                        <small className="text-danger">{validationErrors.projectID}</small>
                                     )}
                                 </Form.Group>
                             </Col>
                             <Col lg={6}>
-                                <Form.Group controlId="ItemSpecification" className="mb-3">
+                                <Form.Group controlId="projectName" className="mb-3">
                                     <Form.Label>Project Name</Form.Label>
                                     <Form.Control
                                         type="text"
-                                        name="ItemSpecification"
-                                        value={messes.ItemSpecification}
+                                        name="projectName"
+                                        value={messes.projectName}
                                         onChange={handleChange}
-                                        placeholder='Enter Project Name'
-                                        className={validationErrors.ItemSpecification ? " input-border" : "  "}
+                                        placeholder='Enter Project ID'
+                                        className={validationErrors.projectName ? " input-border" : "  "}
                                     />
-                                    {validationErrors.ItemSpecification && (
-                                        <small className="text-danger">{validationErrors.ItemSpecification}</small>
+                                    {validationErrors.projectName && (
+                                        <small className="text-danger">{validationErrors.projectName}</small>
                                     )}
                                 </Form.Group>
                             </Col>
                             <Col lg={6}>
-                                <Form.Group controlId="ReceiptType" className="mb-3">
-                                    <Form.Label>Payment Requested For</Form.Label>
+                                <Form.Group controlId="itemSpecification" className="mb-3">
+                                    <Form.Label>Item Specification</Form.Label>
                                     <Form.Control
                                         type="text"
-                                        name="ReceiptType"
-                                        value={messes.ReceiptType}
+                                        name="itemSpecification"
+                                        value={messes.itemSpecification}
                                         onChange={handleChange}
-                                        placeholder='Enter Payment Requested For'
-                                        className={validationErrors.ReceiptType ? " input-border" : "  "}
+                                        placeholder='Enter Project Name'
+                                        className={validationErrors.itemSpecification ? " input-border" : "  "}
                                     />
-                                    {validationErrors.ReceiptType && (
-                                        <small className="text-danger">{validationErrors.ReceiptType}</small>
+                                    {validationErrors.itemSpecification && (
+                                        <small className="text-danger">{validationErrors.itemSpecification}</small>
                                     )}
                                 </Form.Group>
                             </Col>
                             <Col lg={6}>
-                                <Form.Group controlId="ChallanNo" className="mb-3">
+                                <Form.Group controlId="receiptType" className="mb-3">
                                     <Form.Label>Receipt Type</Form.Label>
                                     <Form.Control
                                         type="text"
-                                        name="ChallanNo"
-                                        value={messes.ChallanNo}
+                                        name="receiptType"
+                                        value={messes.receiptType}
                                         onChange={handleChange}
-                                        placeholder='Enter ChallanNo'
-                                        className={validationErrors.ChallanNo ? " input-border" : "  "}
+                                        placeholder='Enter Payment Requested For'
+                                        className={validationErrors.receiptType ? " input-border" : "  "}
                                     />
-                                    {validationErrors.ChallanNo && (
-                                        <small className="text-danger">{validationErrors.ChallanNo}</small>
+                                    {validationErrors.receiptType && (
+                                        <small className="text-danger">{validationErrors.receiptType}</small>
                                     )}
                                 </Form.Group>
                             </Col>
                             <Col lg={6}>
-                                <Form.Group controlId="ChallanAmount" className="mb-3">
-                                    <Form.Label>Number</Form.Label>
+                                <Form.Group controlId="challanNo" className="mb-3">
+                                    <Form.Label>Challan No</Form.Label>
                                     <Form.Control
                                         type="text"
-                                        name="ChallanAmount"
-                                        value={messes.ChallanAmount}
+                                        name="challanNo"
+                                        value={messes.challanNo}
+                                        onChange={handleChange}
+                                        placeholder='Enter challanNo'
+                                        className={validationErrors.challanNo ? " input-border" : "  "}
+                                    />
+                                    {validationErrors.challanNo && (
+                                        <small className="text-danger">{validationErrors.challanNo}</small>
+                                    )}
+                                </Form.Group>
+                            </Col>
+                            <Col lg={6}>
+                                <Form.Group controlId="challanAmount" className="mb-3">
+                                    <Form.Label>Challan Amount</Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        name="challanAmount"
+                                        value={messes.challanAmount}
                                         onChange={handleChange}
                                         placeholder='Enter Number'
-                                        className={validationErrors.ChallanAmount ? " input-border" : "  "}
+                                        className={validationErrors.challanAmount ? " input-border" : "  "}
                                     />
-                                    {validationErrors.ChallanAmount && (
-                                        <small className="text-danger">{validationErrors.ChallanAmount}</small>
+                                    {validationErrors.challanAmount && (
+                                        <small className="text-danger">{validationErrors.challanAmount}</small>
                                     )}
                                 </Form.Group>
                             </Col>
                             <Col lg={6}>
-                                <Form.Group controlId="ChallanDate" className="mb-3">
-                                    <Form.Label>ChallanDate</Form.Label>
+                                <Form.Group controlId="challanDate" className="mb-3">
+                                    <Form.Label>Challan Date</Form.Label>
                                     <Form.Control
                                         type="text"
-                                        name="ChallanDate"
-                                        value={messes.ChallanDate}
+                                        name="challanDate"
+                                        value={messes.challanDate}
                                         onChange={handleChange}
-                                        placeholder='Enter ChallanDate'
-                                        className={validationErrors.ChallanDate ? " input-border" : "  "}
+                                        placeholder='Enter challanDate'
+                                        className={validationErrors.challanDate ? " input-border" : "  "}
                                     />
-                                    {validationErrors.ChallanDate && (
-                                        <small className="text-danger">{validationErrors.ChallanDate}</small>
+                                    {validationErrors.challanDate && (
+                                        <small className="text-danger">{validationErrors.challanDate}</small>
                                     )}
                                 </Form.Group>
                             </Col>
                             <Col lg={6}>
-                                <Form.Group controlId="BillAgainst" className="mb-3">
-                                    <Form.Label>BillAgainst</Form.Label>
+                                <Form.Group controlId="billAgainst" className="mb-3">
+                                    <Form.Label>Bill Against</Form.Label>
                                     <Form.Control
-                                        type="BillAgainst"
-                                        name="BillAgainst"
-                                        value={messes.BillAgainst}
+                                        type="billAgainst"
+                                        name="billAgainst"
+                                        value={messes.billAgainst}
                                         onChange={handleChange}
-                                        placeholder='Enter BillAgainst'
-                                        className={validationErrors.BillAgainst ? " input-border" : "  "}
+                                        placeholder='Enter billAgainst'
+                                        className={validationErrors.billAgainst ? " input-border" : "  "}
                                     />
-                                    {validationErrors.BillAgainst && (
-                                        <small className="text-danger">{validationErrors.BillAgainst}</small>
+                                    {validationErrors.billAgainst && (
+                                        <small className="text-danger">{validationErrors.billAgainst}</small>
                                     )}
                                 </Form.Group>
                             </Col>
                             <Col lg={6}>
-                                <Form.Group controlId="No" className="mb-3">
+                                <Form.Group controlId="no" className="mb-3">
                                     <Form.Label>No</Form.Label>
                                     <Form.Control
                                         type="date"
-                                        name="No"
-                                        value={messes.No}
+                                        name="no"
+                                        value={messes.no}
                                         onChange={handleChange}
                                         placeholder='Enter Payment Due Date'
-                                        className={validationErrors.No ? " input-border" : "  "}
+                                        className={validationErrors.no ? " input-border" : "  "}
                                     />
-                                    {validationErrors.No && (
-                                        <small className="text-danger">{validationErrors.No}</small>
+                                    {validationErrors.no && (
+                                        <small className="text-danger">{validationErrors.no}</small>
                                     )}
                                 </Form.Group>
                             </Col>
                             <Col lg={6}>
-                                <Form.Group controlId="Amount" className="mb-3">
+                                <Form.Group controlId="amount" className="mb-3">
                                     <Form.Label>Amount</Form.Label>
                                     <Form.Control
                                         type="text"
-                                        name="Amount"
-                                        value={messes.Amount}
+                                        name="amount"
+                                        value={messes.amount}
                                         onChange={handleChange}
-                                        placeholder='Enter GST Hold Amount'
-                                        className={validationErrors.Amount ? " input-border" : "  "}
+                                        placeholder='Enter GST Hold amount'
+                                        className={validationErrors.amount ? " input-border" : "  "}
                                     />
-                                    {validationErrors.Amount && (
-                                        <small className="text-danger">{validationErrors.Amount}</small>
+                                    {validationErrors.amount && (
+                                        <small className="text-danger">{validationErrors.amount}</small>
                                     )}
                                 </Form.Group>
                             </Col>
                             <Col lg={6}>
-                                <Form.Group controlId="Date" className="mb-3">
+                                <Form.Group controlId="date" className="mb-3">
                                     <Form.Label>Date</Form.Label>
                                     <Form.Control
                                         type="text"
-                                        name="Date"
-                                        value={messes.Date}
+                                        name="date"
+                                        value={messes.date}
                                         onChange={handleChange}
                                         placeholder='Enter Retention Hold Amount'
-                                        className={validationErrors.Date ? " input-border" : "  "}
+                                        className={validationErrors.date ? " input-border" : "  "}
                                     />
-                                    {validationErrors.Date && (
-                                        <small className="text-danger">{validationErrors.Date}</small>
+                                    {validationErrors.date && (
+                                        <small className="text-danger">{validationErrors.date}</small>
                                     )}
                                 </Form.Group>
                             </Col>
                             <Col lg={6}>
-                                <Form.Group controlId="VendorCode" className="mb-3">
-                                    <Form.Label>VendorCode</Form.Label>
+                                <Form.Group controlId="vendorCode" className="mb-3">
+                                    <Form.Label>Vendor Code</Form.Label>
                                     <Form.Control
                                         type="text"
-                                        name="VendorCode"
-                                        value={messes.VendorCode}
+                                        name="vendorCode"
+                                        value={messes.vendorCode}
                                         onChange={handleChange}
                                         placeholder='Enter Royalty Deduction'
-                                        className={validationErrors.VendorCode ? " input-border" : "  "}
+                                        className={validationErrors.vendorCode ? " input-border" : "  "}
                                     />
-                                    {validationErrors.VendorCode && (
-                                        <small className="text-danger">{validationErrors.VendorCode}</small>
+                                    {validationErrors.vendorCode && (
+                                        <small className="text-danger">{validationErrors.vendorCode}</small>
                                     )}
                                 </Form.Group>
                             </Col>
                             <Col lg={6}>
-                                <Form.Group controlId="VendorName" className="mb-3">
-                                    <Form.Label>VendorName</Form.Label>
+                                <Form.Group controlId="vendorName" className="mb-3">
+                                    <Form.Label>Vendor Name</Form.Label>
                                     <Form.Control
                                         type="text"
-                                        name="VendorName"
-                                        value={messes.VendorName}
+                                        name="vendorName"
+                                        value={messes.vendorName}
                                         onChange={handleChange}
                                         placeholder='Enter Other Deduction Amount'
-                                        className={validationErrors.VendorName ? " input-border" : "  "}
+                                        className={validationErrors.vendorName ? " input-border" : "  "}
                                     />
-                                    {validationErrors.VendorName && (
-                                        <small className="text-danger">{validationErrors.VendorName}</small>
+                                    {validationErrors.vendorName && (
+                                        <small className="text-danger">{validationErrors.vendorName}</small>
                                     )}
                                 </Form.Group>
                             </Col>
                             <Col lg={6}>
-                                <Form.Group controlId="BillNo" className="mb-3">
-                                    <Form.Label>BillNo</Form.Label>
+                                <Form.Group controlId="billNo" className="mb-3">
+                                    <Form.Label>Bill No</Form.Label>
                                     <Form.Control
                                         type="text"
-                                        name="BillNo"
-                                        value={messes.BillNo}
+                                        name="billNo"
+                                        value={messes.billNo}
                                         onChange={handleChange}
                                         placeholder='Enter Net Payable Amount'
-                                        className={validationErrors.BillNo ? " input-border" : "  "}
+                                        className={validationErrors.billNo ? " input-border" : "  "}
                                     />
-                                    {validationErrors.BillNo && (
-                                        <small className="text-danger">{validationErrors.BillNo}</small>
+                                    {validationErrors.billNo && (
+                                        <small className="text-danger">{validationErrors.billNo}</small>
                                     )}
                                 </Form.Group>
                             </Col>
                             <Col lg={6}>
-                                <Form.Group controlId="BillAmount" className="mb-3">
-                                    <Form.Label>BillAmount</Form.Label>
+                                <Form.Group controlId="billAmount" className="mb-3">
+                                    <Form.Label>Bill Amount</Form.Label>
                                     <Form.Control
                                         type="text"
-                                        name="BillAmount"
-                                        value={messes.BillAmount}
+                                        name="billAmount"
+                                        value={messes.billAmount}
                                         onChange={handleChange}
                                         placeholder='Enter Pending Amount'
-                                        className={validationErrors.BillAmount ? " input-border" : "  "}
+                                        className={validationErrors.billAmount ? " input-border" : "  "}
                                     />
-                                    {validationErrors.BillAmount && (
-                                        <small className="text-danger">{validationErrors.BillAmount}</small>
+                                    {validationErrors.billAmount && (
+                                        <small className="text-danger">{validationErrors.billAmount}</small>
                                     )}
                                 </Form.Group>
                             </Col>
                             <Col lg={6}>
-                                <Form.Group controlId="Source" className="mb-3">
+                                <Form.Group controlId="source" className="mb-3">
                                     <Form.Label>Source</Form.Label>
                                     <Form.Control
                                         type="text"
-                                        name="Source"
-                                        value={messes.Source}
+                                        name="source"
+                                        value={messes.source}
                                         onChange={handleChange}
                                         placeholder='Enter Courier Dispatch Date'
-                                        className={validationErrors.Source ? " input-border" : "  "}
+                                        className={validationErrors.source ? " input-border" : "  "}
                                     />
-                                    {validationErrors.Source && (
-                                        <small className="text-danger">{validationErrors.Source}</small>
+                                    {validationErrors.source && (
+                                        <small className="text-danger">{validationErrors.source}</small>
                                     )}
                                 </Form.Group>
                             </Col>

@@ -50,7 +50,6 @@ const FormBuilder: React.FC<FormBuilderProps> = ({formDetails, handleClose}) => 
 
     const [showRule, setShowRule] = useState(false)
     const [blockValue, setBlockValue] = useState({})
-    const [formSize, setFormSize] = useState(3);
     const navigate = useNavigate();
 
 

@@ -12,18 +12,52 @@ import { toast } from 'react-toastify';
 
 interface Mess {
     id: number,
+    tenderID: string,
+    clientID: string,
+    client_JVName: string,
+    contractType: string,
+    executionModel: string,
+    workName: string,
+    country: string,
+    state: string,
     projectID: string,
     projectName: string,
-    vendorCodeName: string,
-    billDate: string,
-    gstHoldAmount: string,
-    gstMonth: string,
-    gstR2AFiling: string,
-    filingFrequency: string,
+    workStartDate: string,
+    contractualCompletionDate: string,
+    projectCoordinatorEmpID: string,
+    projectCoordinatorName: string,
+    projectCoordinatorNumber: string,
+    projectInchargeEmpID: string,
+    projectInchargeName: string,
+    projectInchargeNumber: string,
+    projectInchargeEmpID2: string,
+    projectInchargeName2: string,
+    projectInchargeNumber2: string,
+    decisionToMobilize: string,
+    expectedMobilizationDate: string,
+    expectedDateofKickofMeeting: string,
+    keyMobTeamDeployedTeam1: string,
+    keyMobTeamDeployedTeam1Date: string,
+    keyMobTeamDeployedTeam2: string,
+    keyMobTeamDeployedTeam2Date: string,
+    constructionProgramSubmitted: string,
+    constructionProgramSubmittedDate: string,
+    layoutPlanFinalized: string,
+    campConstructionCompleted: string,
+    electricalPlanFinalized: string,
+    electricalPlanFinalizationDate: string,
+    topographicReportShared: string,
+    alignmentReportShared: string,
+    hindranceListReviewed: string,
+    bankAccountOpened: string,
+    guestHouseFinalized: string,
+    labCommissioned: string,
+    labCommissioningDate: string,
+    campLandFinalized: string,
     createdDate: string,
     createdBy: string,
     updatedDate: string,
-    updatedBy: string,
+    updatedBy: string
 
 }
 
@@ -33,10 +67,10 @@ interface Column {
     visible: boolean;
 }
 
-interface MessList {
-    messId: string;
-    messName: string;
-}
+// interface MessList {
+//     messId: string;
+//     messName: string;
+// }
 
 // interface ModuleProjectList {
 //     id: string;
@@ -45,7 +79,7 @@ interface MessList {
 // }
 
 
-const MisMatchMaster = () => {
+const MobilizationMaster = () => {
     const role = localStorage.getItem('role');
 
     const [messes, setMesses] = useState<Mess[]>([]);
@@ -53,9 +87,9 @@ const MisMatchMaster = () => {
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
     // const [downloadCsv, setDownloadCsv] = useState<Mess[]>([]);
-    const [, setMessList] = useState<MessList[]>([]);
+    // const [messList, setMessList] = useState<MessList[]>([]);
     // const [projectList, setProjectList] = useState<ModuleProjectList[]>([])
-    const [searchTriggered, ] = useState(false);
+    const [searchTriggered] = useState(false);
 
 
 
@@ -74,19 +108,53 @@ const MisMatchMaster = () => {
     // both are required to make dragable column of table 
     const [columns, setColumns] = useState<Column[]>([
 
+        { id: 'tenderID', label: 'tenderID', visible: true},
+        { id: 'clientID', label: 'clientID', visible: true},
+        { id: 'client_JVName', label: 'client_JVName', visible: true},
+        { id: 'contractType', label: 'contractType', visible: true},
+        { id: 'executionModel', label: 'executionModel', visible: true},
+        { id: 'workName', label: 'workName', visible: true},
+        { id: 'country', label: 'country', visible: true},
+        { id: 'state', label: 'state', visible: true},
+        { id: 'projectID', label: 'projectID', visible: true},
+        { id: 'projectName', label: 'projectName', visible: true},
+        { id: 'workStartDate', label: 'workStartDate', visible: true},
+        { id: 'contractualCompletionDate', label: 'contractualCompletionDate', visible: true},
+        { id: 'projectCoordinatorEmpID', label: 'projectCoordinatorEmpID', visible: true},
+        { id: 'projectCoordinatorName', label: 'projectCoordinatorName', visible: true},
+        { id: 'projectCoordinatorNumber', label: 'projectCoordinatorNumber', visible: true},
+        { id: 'projectInchargeEmpID', label: 'projectInchargeEmpID', visible: true},
+        { id: 'projectInchargeName', label: 'projectInchargeName', visible: true},
+        { id: 'projectInchargeNumber', label: 'projectInchargeNumber', visible: true},
+        { id: 'projectInchargeEmpID2', label: 'projectInchargeEmpID2', visible: true},
+        { id: 'projectInchargeName2', label: 'projectInchargeName2', visible: true},
+        { id: 'projectInchargeNumber2', label: 'projectInchargeNumber2', visible: true},
+        { id: 'decisionToMobilize', label: 'decisionToMobilize', visible: true},
+        { id: 'expectedMobilizationDate', label: 'expectedMobilizationDate', visible: true},
+        { id: 'expectedDateofKickofMeeting', label: 'expectedDateofKickofMeeting', visible: true},
+        { id: 'keyMobTeamDeployedTeam1', label: 'keyMobTeamDeployedTeam1', visible: true},
+        { id: 'keyMobTeamDeployedTeam1Date', label: 'keyMobTeamDeployedTeam1Date', visible: true},
+        { id: 'keyMobTeamDeployedTeam2', label: 'keyMobTeamDeployedTeam2', visible: true},
+        { id: 'keyMobTeamDeployedTeam2Date', label: 'keyMobTeamDeployedTeam2Date', visible: true},
+        { id: 'constructionProgramSubmitted', label: 'constructionProgramSubmitted', visible: true},
+        { id: 'constructionProgramSubmittedDate', label: 'constructionProgramSubmittedDate', visible: true},
+        { id: 'layoutPlanFinalized', label: 'layoutPlanFinalized', visible: true},
+        { id: 'campConstructionCompleted', label: 'campConstructionCompleted', visible: true},
+        { id: 'electricalPlanFinalized', label: 'electricalPlanFinalized', visible: true},
+        { id: 'electricalPlanFinalizationDate', label: 'electricalPlanFinalizationDate', visible: true},
+        { id: 'topographicReportShared', label: 'topographicReportShared', visible: true},
+        { id: 'alignmentReportShared', label: 'alignmentReportShared', visible: true},
+        { id: 'hindranceListReviewed', label: 'hindranceListReviewed', visible: true},
+        { id: 'bankAccountOpened', label: 'bankAccountOpened', visible: true},
+        { id: 'guestHouseFinalized', label: 'guestHouseFinalized', visible: true},
+        { id: 'labCommissioned', label: 'labCommissioned', visible: true},
+        { id: 'labCommissioningDate', label: 'labCommissioningDate', visible: true},
+        { id: 'campLandFinalized', label: 'campLandFinalized', visible: true},
+        { id: 'createdDate', label: 'createdDate', visible: true},
+        { id: 'createdBy', label: 'createdBy', visible: true},
+        { id: 'updatedDate', label: 'updatedDate', visible: true},
+        { id: 'updatedBy', label: 'updatedBy', visible: true},
 
-        { id: 'projectID', label: 'projectID', visible: true },
-        { id: 'projectName', label: 'projectName', visible: true },
-        { id: 'vendorCodeName', label: 'vendorCodeName', visible: true },
-        { id: 'billDate', label: 'billDate', visible: true },
-        { id: 'gstHoldAmount', label: 'gstHoldAmount', visible: true },
-        { id: 'gstMonth', label: 'gstMonth', visible: true },
-        { id: 'gstR2AFiling', label: 'gstR2AFiling', visible: true },
-        { id: 'filingFrequency', label: 'filingFrequency', visible: true },
-        { id: 'createdDate', label: 'createdDate', visible: true },
-        { id: 'createdBy', label: 'createdBy', visible: true },
-        { id: 'updatedDate', label: 'updatedDate', visible: true },
-        { id: 'updatedBy', label: 'updatedBy', visible: true },
     ]);
 
     const handleOnDragEnd = (result: any) => {
@@ -110,9 +178,9 @@ const MisMatchMaster = () => {
     }, [currentPage, searchTriggered]);
 
 
-    const [searchMessName, ] = useState('')
-    const [searchStatus, ] = useState('')
-    const [searchProjectName, ] = useState('')
+    const [searchMessName] = useState('')
+    const [searchStatus] = useState('')
+    const [searchProjectName] = useState('')
 
 
     const handleSearch = (e?: React.FormEvent) => {
@@ -124,12 +192,12 @@ const MisMatchMaster = () => {
         query += `PageIndex=${currentPage}`;
 
         query = query.endsWith('&') ? query.slice(0, -1) : query;
-        const apiUrl = `${config.API_URL_APPLICATION1}/MisMatchMaster/GetMisMatch${query}`;
+        const apiUrl = `${config.API_URL_APPLICATION1}/MobilizationMaster/GetMobilization/${query}`;
         console.log(apiUrl)
         axios.get(apiUrl, { headers: { 'accept': '*/*' } })
             .then((response) => {
-                console.log("search response ", response.data.misMatchMasters);
-                setMesses(response.data.misMatchMasters)
+                console.log("search response ", response.data.mobilizationMasters);
+                setMesses(response.data.mobilizationMasters)
                 setTotalPages(Math.ceil(response.data.totalCount / 10));
             })
             .catch((error) => {
@@ -140,12 +208,12 @@ const MisMatchMaster = () => {
     const fetchRoles = async () => {
         setLoading(true);
         try {
-            const response = await axios.get(`${config.API_URL_APPLICATION1}/MisMatchMaster/GetMisMatch`, {
+            const response = await axios.get(`${config.API_URL_APPLICATION1}/MobilizationMaster/GetMobilization`, {
                 params: { PageIndex: currentPage }
             });
             console.log('response', response)
             if (response.data.isSuccess) {
-                setMesses(response.data.misMatchMasters);
+                setMesses(response.data.mobilizationMasters);
                 setTotalPages(Math.ceil(response.data.totalCount / 10));
             } else {
                 console.error(response.data.message);
@@ -162,21 +230,21 @@ const MisMatchMaster = () => {
 
 
     useEffect(() => {
-        const fetchData = async (endpoint: string, setter: Function, listName: string) => {
-            try {
-                const response = await axios.get(`${config.API_URL_APPLICATION1}/${endpoint}`);
-                console.log('response', response)
-                if (response.data.isSuccess) {
-                    setter(response.data[listName]);
-                } else {
-                    console.error(response.data.message);
-                }
-            } catch (error) {
-                console.error(`Error fetching data from ${endpoint}:`, error);
-            }
-        };
+        // const fetchData = async (endpoint: string, setter: Function, listName: string) => {
+        //     try {
+        //         const response = await axios.get(`${config.API_URL_APPLICATION1}/${endpoint}`);
+        //         console.log('response', response)
+        //         if (response.data.isSuccess) {
+        //             setter(response.data[listName]);
+        //         } else {
+        //             console.error(response.data.message);
+        //         }
+        //     } catch (error) {
+        //         console.error(`Error fetching data from ${endpoint}:`, error);
+        //     }
+        // };
 
-        fetchData('MisMatchMaster/GetMisMatch', setMessList, 'misMatchMasters');
+        // fetchData('MobilizationMaster/GetMobilization', setMessList, 'mobilizationMasters');
         // fetchData('CommonDropdown/GetProjectList', setProjectList, 'projectListResponses');
         // fetchData('MessMaster/GetMess', setDownloadCsv, 'messMasterList');
 
@@ -252,16 +320,16 @@ const MisMatchMaster = () => {
     return (
         <>
             <div className="d-flex bg-white p-2 my-2 justify-content-between align-items-center">
-                <span><i className="ri-file-list-line me-2 text-dark fs-16"></i><span className='fw-bold text-dark fs-15'>Mis Match Master</span></span>
+                <span><i className="ri-file-list-line me-2 text-dark fs-16"></i><span className='fw-bold text-dark fs-15'>Mobilization Master</span></span>
                 <div className="d-flex justify-content-end  ">
                     {/* <Button variant="primary" onClick={downloadCSV} className="me-2">
                         Download CSV
                     </Button> */}
                     {(role === 'Admin' || role === 'DME') && (
 
-                        <Link to='/pages/MisMatchMasterAddEdit'>
+                        <Link to='/pages/MobilizationMasterAddEdit'>
                             <Button variant="primary" className="me-2">
-                                Add Mis Match Master
+                                Add Mobilization Master
                             </Button>
                         </Link>)}
 
@@ -449,7 +517,7 @@ const MisMatchMaster = () => {
                                                 {(role === 'Admin' || role === 'DME') && (
 
 
-                                                    <td><Link to={`/pages/MisMatchMasterAddEdit/${item.id}`}>
+                                                    <td><Link to={`/pages/MobilizationMasterAddEdit/${item.id}`}>
                                                         <Button variant='primary' className='p-0 text-white'>
                                                             <i className='btn ri-edit-line text-white' ></i>
                                                         </Button>
@@ -496,4 +564,4 @@ const MisMatchMaster = () => {
     );
 };
 
-export default MisMatchMaster;
+export default MobilizationMaster;

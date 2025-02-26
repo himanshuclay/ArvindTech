@@ -12,18 +12,47 @@ import { toast } from 'react-toastify';
 
 interface Mess {
     id: number,
-    projectID: string,
-    projectName: string,
-    vendorCodeName: string,
-    billDate: string,
-    gstHoldAmount: string,
-    gstMonth: string,
-    gstR2AFiling: string,
-    filingFrequency: string,
+    assetCode: string,
+    dateOfDeployment: string,
+    assetCategory: string,
+    assetGroup: string,
+    assetName: string,
+    specification: string,
+    assetMake: string,
+    currentProject: string,
+    assetOwnership: string,
+    currentStatusATProject: string,
+    transferredTo: string,
+    forHSD: string,
+    imsSpareInventory: string,
+    assetServiceSchedule: string,
+    rtoCompliance: string,
+    preventiveMaintainance: string,
+    preventiveMaintainanceFrequency: string,
+    triggerValue: string,
+    nextPMDate: string,
+    operatorDriver: string,
+    engineNo: string,
+    chasisNo: string,
+    dateOfRegistration: string,
+    roadTaxValidTill: string,
+    nationalPermitValidTill: string,
+    statePermitValidTill: string,
+    nationalPermitGoodsValidTill: string,
+    fitnessValidTill: string,
+    insuranceValidTill: string,
+    pollutionValidTill: string,
+    assetStatus: string,
+    assetStatusUpdatedOn: string,
+    updatedByTaskID: string,
+    modifiedBy: string,
+    editBy: string,
+    latestServicingDate: string,
+    pmChecklist: string,
     createdDate: string,
     createdBy: string,
     updatedDate: string,
-    updatedBy: string,
+    updatedBy: string
 
 }
 
@@ -45,7 +74,7 @@ interface MessList {
 // }
 
 
-const MisMatchMaster = () => {
+const AssetTrackingMaster = () => {
     const role = localStorage.getItem('role');
 
     const [messes, setMesses] = useState<Mess[]>([]);
@@ -55,7 +84,7 @@ const MisMatchMaster = () => {
     // const [downloadCsv, setDownloadCsv] = useState<Mess[]>([]);
     const [, setMessList] = useState<MessList[]>([]);
     // const [projectList, setProjectList] = useState<ModuleProjectList[]>([])
-    const [searchTriggered, ] = useState(false);
+    const [searchTriggered] = useState(false);
 
 
 
@@ -75,18 +104,50 @@ const MisMatchMaster = () => {
     const [columns, setColumns] = useState<Column[]>([
 
 
-        { id: 'projectID', label: 'projectID', visible: true },
-        { id: 'projectName', label: 'projectName', visible: true },
-        { id: 'vendorCodeName', label: 'vendorCodeName', visible: true },
-        { id: 'billDate', label: 'billDate', visible: true },
-        { id: 'gstHoldAmount', label: 'gstHoldAmount', visible: true },
-        { id: 'gstMonth', label: 'gstMonth', visible: true },
-        { id: 'gstR2AFiling', label: 'gstR2AFiling', visible: true },
-        { id: 'filingFrequency', label: 'filingFrequency', visible: true },
+
+
+        { id: 'assetCode', label: 'assetCode', visible: true },
+        { id: 'dateOfDeployment', label: 'dateOfDeployment', visible: true },
+        { id: 'assetCategory', label: 'assetCategory', visible: true },
+        { id: 'assetGroup', label: 'assetGroup', visible: true },
+        { id: 'assetName', label: 'assetName', visible: true },
+        { id: 'specification', label: 'specification', visible: true },
+        { id: 'assetMake', label: 'assetMake', visible: true },
+        { id: 'currentProject', label: 'currentProject', visible: true },
+        { id: 'assetOwnership', label: 'assetOwnership', visible: true },
+        { id: 'currentStatusATProject', label: 'currentStatusATProject', visible: true },
+        { id: 'transferredTo', label: 'transferredTo', visible: true },
+        { id: 'forHSD', label: 'forHSD', visible: true },
+        { id: 'imsSpareInventory', label: 'imsSpareInventory', visible: true },
+        { id: 'assetServiceSchedule', label: 'assetServiceSchedule', visible: true },
+        { id: 'rtoCompliance', label: 'rtoCompliance', visible: true },
+        { id: 'preventiveMaintainance', label: 'preventiveMaintainance', visible: true },
+        { id: 'preventiveMaintainanceFrequency', label: 'preventiveMaintainanceFrequency', visible: true },
+        { id: 'triggerValue', label: 'triggerValue', visible: true },
+        { id: 'nextPMDate', label: 'nextPMDate', visible: true },
+        { id: 'operatorDriver', label: 'operatorDriver', visible: true },
+        { id: 'engineNo', label: 'engineNo', visible: true },
+        { id: 'chasisNo', label: 'chasisNo', visible: true },
+        { id: 'dateOfRegistration', label: 'dateOfRegistration', visible: true },
+        { id: 'roadTaxValidTill', label: 'roadTaxValidTill', visible: true },
+        { id: 'nationalPermitValidTill', label: 'nationalPermitValidTill', visible: true },
+        { id: 'statePermitValidTill', label: 'statePermitValidTill', visible: true },
+        { id: 'nationalPermitGoodsValidTill', label: 'nationalPermitGoodsValidTill', visible: true },
+        { id: 'fitnessValidTill', label: 'fitnessValidTill', visible: true },
+        { id: 'insuranceValidTill', label: 'insuranceValidTill', visible: true },
+        { id: 'pollutionValidTill', label: 'pollutionValidTill', visible: true },
+        { id: 'assetStatus', label: 'assetStatus', visible: true },
+        { id: 'assetStatusUpdatedOn', label: 'assetStatusUpdatedOn', visible: true },
+        { id: 'updatedByTaskID', label: 'updatedByTaskID', visible: true },
+        { id: 'modifiedBy', label: 'modifiedBy', visible: true },
+        { id: 'editBy', label: 'editBy', visible: true },
+        { id: 'latestServicingDate', label: 'latestServicingDate', visible: true },
+        { id: 'pmChecklist', label: 'pmChecklist', visible: true },
         { id: 'createdDate', label: 'createdDate', visible: true },
         { id: 'createdBy', label: 'createdBy', visible: true },
         { id: 'updatedDate', label: 'updatedDate', visible: true },
         { id: 'updatedBy', label: 'updatedBy', visible: true },
+
     ]);
 
     const handleOnDragEnd = (result: any) => {
@@ -110,9 +171,9 @@ const MisMatchMaster = () => {
     }, [currentPage, searchTriggered]);
 
 
-    const [searchMessName, ] = useState('')
-    const [searchStatus, ] = useState('')
-    const [searchProjectName, ] = useState('')
+    const [searchMessName] = useState('')
+    const [searchStatus] = useState('')
+    const [searchProjectName] = useState('')
 
 
     const handleSearch = (e?: React.FormEvent) => {
@@ -124,12 +185,12 @@ const MisMatchMaster = () => {
         query += `PageIndex=${currentPage}`;
 
         query = query.endsWith('&') ? query.slice(0, -1) : query;
-        const apiUrl = `${config.API_URL_APPLICATION1}/MisMatchMaster/GetMisMatch${query}`;
+        const apiUrl = `${config.API_URL_APPLICATION1}/AssetTrackingMaster/GetAssetTracking/${query}`;
         console.log(apiUrl)
         axios.get(apiUrl, { headers: { 'accept': '*/*' } })
             .then((response) => {
-                console.log("search response ", response.data.misMatchMasters);
-                setMesses(response.data.misMatchMasters)
+                console.log("search response ", response.data.assetTrackingMasters);
+                setMesses(response.data.assetTrackingMasters)
                 setTotalPages(Math.ceil(response.data.totalCount / 10));
             })
             .catch((error) => {
@@ -140,12 +201,12 @@ const MisMatchMaster = () => {
     const fetchRoles = async () => {
         setLoading(true);
         try {
-            const response = await axios.get(`${config.API_URL_APPLICATION1}/MisMatchMaster/GetMisMatch`, {
+            const response = await axios.get(`${config.API_URL_APPLICATION1}/AssetTrackingMaster/GetAssetTracking`, {
                 params: { PageIndex: currentPage }
             });
             console.log('response', response)
             if (response.data.isSuccess) {
-                setMesses(response.data.misMatchMasters);
+                setMesses(response.data.assetTrackingMasters);
                 setTotalPages(Math.ceil(response.data.totalCount / 10));
             } else {
                 console.error(response.data.message);
@@ -176,7 +237,7 @@ const MisMatchMaster = () => {
             }
         };
 
-        fetchData('MisMatchMaster/GetMisMatch', setMessList, 'misMatchMasters');
+        fetchData('AssetTrackingMaster/GetAssetTracking', setMessList, 'assetTrackingMasters');
         // fetchData('CommonDropdown/GetProjectList', setProjectList, 'projectListResponses');
         // fetchData('MessMaster/GetMess', setDownloadCsv, 'messMasterList');
 
@@ -252,16 +313,16 @@ const MisMatchMaster = () => {
     return (
         <>
             <div className="d-flex bg-white p-2 my-2 justify-content-between align-items-center">
-                <span><i className="ri-file-list-line me-2 text-dark fs-16"></i><span className='fw-bold text-dark fs-15'>Mis Match Master</span></span>
+                <span><i className="ri-file-list-line me-2 text-dark fs-16"></i><span className='fw-bold text-dark fs-15'>AssetTracking Master</span></span>
                 <div className="d-flex justify-content-end  ">
                     {/* <Button variant="primary" onClick={downloadCSV} className="me-2">
                         Download CSV
                     </Button> */}
                     {(role === 'Admin' || role === 'DME') && (
 
-                        <Link to='/pages/MisMatchMasterAddEdit'>
+                        <Link to='/pages/AssetTrackingMasterAddEdit'>
                             <Button variant="primary" className="me-2">
-                                Add Mis Match Master
+                                Add AssetTracking Master
                             </Button>
                         </Link>)}
 
@@ -449,7 +510,7 @@ const MisMatchMaster = () => {
                                                 {(role === 'Admin' || role === 'DME') && (
 
 
-                                                    <td><Link to={`/pages/MisMatchMasterAddEdit/${item.id}`}>
+                                                    <td><Link to={`/pages/AssetTrackingMasterAddEdit/${item.id}`}>
                                                         <Button variant='primary' className='p-0 text-white'>
                                                             <i className='btn ri-edit-line text-white' ></i>
                                                         </Button>
@@ -496,4 +557,4 @@ const MisMatchMaster = () => {
     );
 };
 
-export default MisMatchMaster;
+export default AssetTrackingMaster;

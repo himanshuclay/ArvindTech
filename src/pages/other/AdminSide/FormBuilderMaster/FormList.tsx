@@ -27,8 +27,8 @@ const FormList = () => {
     const [loading, setLoading] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
-    const [moduleList, setModuleList] = useState<FORM_LIST[]>([]);
-    const [downloadCsv, setDownloadCsv] = useState<FORM_LIST[]>([]);
+    // const [moduleList, setModuleList] = useState<FORM_LIST[]>([]);
+    // const [downloadCsv, setDownloadCsv] = useState<FORM_LIST[]>([]);
     const [moduleDisplayName, setModuleDisplayName] = useState('');
     const [searchStatus, setSearchStatus] = useState('');
 

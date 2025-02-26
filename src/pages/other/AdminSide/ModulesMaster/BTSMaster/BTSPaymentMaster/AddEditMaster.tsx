@@ -3,85 +3,85 @@ import { useEffect, useState, ChangeEvent } from 'react';
 import { Button, Col, Form, Row } from 'react-bootstrap';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import config from '@/config';
-import Select from 'react-select';
+// import Select from 'react-select';
 import { toast } from 'react-toastify';
 
 
 interface BTS_PAYMENT {
-    id: number
-    BillEntryDate: string;
-    BTSID: string;
-    ProjectID : string;
-    ProjectName: string;
-    PaymentRequestedFor: string;
-    ReceiptType: string;
-    No: string;
-    Amount: string;
-    Date: string;
-    PaymentDueDate: string;
-    GSTHoldAmount: string;
-    RetentionHoldAmount: string;
-    RoyaltyDeduction: string;
-    OtherDeductionAmount: string;
-    NetPayableAmount: string;
-    PendingAmount: string;
-    CourierDispatchDate: string;
-    FRorIOMNumber: string;
-    FRAmount: string;
-    ApprovedAmount: string;
-    CreatedDate: string;
-    CreatedBy: string;
-    UpdatedDate: string;
-    UpdatedBy: string;
+    id: number,
+    btsid: string,
+    billEntryDate: string,
+    projectID: string,
+    projectName: string,
+    paymentRequestedFor: string,
+    receiptType: string,
+    no: string,
+    amount: string,
+    date: string,
+    paymentDueDate: string,
+    gstHoldAmount: string,
+    retentionHoldAmount: string,
+    royaltyDeduction: string,
+    otherDeductionAmount: string,
+    netPayableAmount: string,
+    pendingAmount: string,
+    courierDispatchDate: string,
+    fRorIOMNumber: string,
+    frAmount: string,
+    approvedAmount: string,
+    createdDate: string,
+    createdBy: string,
+    updatedDate: string,
+    updatedBy: string,
 }
 
-interface ProjectList {
-    id: string;
-    BillEntryDate: string
-}
-interface Status {
-    id: string;
-    name: string
-}
-interface EmployeeList {
-    empId: string;
-    employeeName: string
-}
+// interface ProjectList {
+//     id: string;
+//     BillEntryDate: string
+// }
+// interface Status {
+//     id: string;
+//     name: string
+// }
+// interface EmployeeList {
+//     empId: string;
+//     employeeName: string
+// }
 
 const BTSPaymentMasterAddEdit = () => {
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
     const [editMode, setEditMode] = useState<boolean>(false);
     const [empName, setEmpName] = useState<string | null>('')
-    const [projectList, setProjectList] = useState<ProjectList[]>([])
-    const [statusList, setStatusList] = useState<Status[]>([])
-    const [employeeList, setEmployeeList] = useState<EmployeeList[]>([])
+    // const [projectList, setProjectList] = useState<ProjectList[]>([])
+    // const [statusList, setStatusList] = useState<Status[]>([])
+    // const [employeeList, setEmployeeList] = useState<EmployeeList[]>([])
     const [messes, setMesses] = useState<BTS_PAYMENT>({
         id: 0,
-        BillEntryDate: '',
-        BTSID: '',
-        ProjectID : '',
-        ProjectName: '',
-        PaymentRequestedFor: '',
-        ReceiptType: '',
-        No: '',
-        Amount: '',
-        Date: '',
-        PaymentDueDate: '',
-        GSTHoldAmount: '',
-        RetentionHoldAmount: '',
-        RoyaltyDeduction: '',
-        OtherDeductionAmount: '',
-        NetPayableAmount: '',
-        PendingAmount: '',
-        CourierDispatchDate: '',
-        FRorIOMNumber: '',
-        FRAmount: '',
-        ApprovedAmount: '',
-        CreatedDate: '',
-        CreatedBy: '',
-        UpdatedDate: '',
-        UpdatedBy: '',
+        btsid: '',
+        billEntryDate: '',
+        projectID: '',
+        projectName: '',
+        paymentRequestedFor: '',
+        receiptType: '',
+        no: '',
+        amount: '',
+        date: '',
+        paymentDueDate: '',
+        gstHoldAmount: '',
+        retentionHoldAmount: '',
+        royaltyDeduction: '',
+        otherDeductionAmount: '',
+        netPayableAmount: '',
+        pendingAmount: '',
+        courierDispatchDate: '',
+        fRorIOMNumber: '',
+        frAmount: '',
+        approvedAmount: '',
+        createdDate: '',
+        createdBy: '',
+        updatedDate: '',
+        updatedBy: '',
     }
     );
 
@@ -111,11 +111,10 @@ const BTSPaymentMasterAddEdit = () => {
 
     const fetchDoerById = async (id: string) => {
         try {
-            const response = await axios.get(`${config.API_URL_APPLICATION}/MessMaster/GetMess`, {
-                params: { id: id }
-            });
+            const response = await axios.get(`${config.API_URL_APPLICATION1}/BTSPaymentMaster/GetBTSPayment/${id}`);
+            console.log('response', response)
             if (response.data.isSuccess) {
-                const fetchedModule = response.data.messMasterList[0];
+                const fetchedModule = response.data.bTSPaymentMasters[0];
                 setMesses(fetchedModule);
             } else {
                 console.error(response.data.message);
@@ -127,34 +126,48 @@ const BTSPaymentMasterAddEdit = () => {
 
 
     useEffect(() => {
-        const fetchData = async (endpoint: string, setter: Function, listName: string) => {
-            try {
-                const response = await axios.get(`${config.API_URL_APPLICATION}/${endpoint}`);
-                if (response.data.isSuccess) {
-                    setter(response.data[listName]);
-                } else {
-                    console.error(response.data.message);
-                }
-            } catch (error) {
-                console.error(`Error fetching data from ${endpoint}:`, error);
-            }
-        };
-        fetchData('CommonDropdown/GetProjectList', setProjectList, 'projectListResponses');
-        fetchData('CommonDropdown/GetStatus', setStatusList, 'statusListResponses');
-        fetchData('CommonDropdown/GetEmployeeListWithId', setEmployeeList, 'employeeLists');
+        // const fetchData = async (endpoint: string, setter: Function, listName: string) => {
+        //     try {
+        //         const response = await axios.get(`${config.API_URL_APPLICATION}/${endpoint}`);
+        //         if (response.data.isSuccess) {
+        //             setter(response.data[listName]);
+        //         } else {
+        //             console.error(response.data.message);
+        //         }
+        //     } catch (error) {
+        //         console.error(`Error fetching data from ${endpoint}:`, error);
+        //     }
+        // };
+        // fetchData('CommonDropdown/GetProjectList', setProjectList, 'projectListResponses');
+        // fetchData('CommonDropdown/GetStatus', setStatusList, 'statusListResponses');
+        // fetchData('CommonDropdown/GetEmployeeListWithId', setEmployeeList, 'employeeLists');
     }, []);
 
 
 
     const validateFields = (): boolean => {
         const errors: { [key: string]: string } = {};
+        if (!messes.btsid) { errors.btsid = 'BTS Id is required' }
+        if (!messes.billEntryDate) { errors.billEntryDate = 'Bill Entry Date is required' }
+        if (!messes.projectID) { errors.projectID = 'Project ID is required' }
+        if (!messes.projectName) { errors.projectName = 'Project Name is required' }
+        if (!messes.paymentRequestedFor) { errors.paymentRequestedFor = 'Payment Requested For is required' }
+        if (!messes.receiptType) { errors.receiptType = 'Receipt Type is required' }
+        if (!messes.no) { errors.no = 'No is required' }
+        if (!messes.amount) { errors.amount = 'Amount is required' }
+        if (!messes.date) { errors.date = 'Date is required' }
+        if (!messes.paymentDueDate) { errors.paymentDueDate = 'Payment Due Date is required' }
+        if (!messes.gstHoldAmount) { errors.gstHoldAmount = 'Gst Hold Amount is required' }
+        if (!messes.retentionHoldAmount) { errors.retentionHoldAmount = 'Retention Hold Amount is required' }
+        if (!messes.royaltyDeduction) { errors.royaltyDeduction = 'Royalty Deduction is required' }
+        if (!messes.otherDeductionAmount) { errors.otherDeductionAmount = 'Other Deduction Amount is required' }
+        if (!messes.netPayableAmount) { errors.netPayableAmount = 'Net Payable Amount is required' }
+        if (!messes.pendingAmount) { errors.pendingAmount = 'Pending Amount is required' }
+        if (!messes.courierDispatchDate) { errors.courierDispatchDate = 'Courier Dispatch Date is required' }
+        if (!messes.fRorIOMNumber) { errors.fRorIOMNumber = 'FR Or IOM Number is required' }
+        if (!messes.frAmount) { errors.frAmount = 'FR Amount is required' }
+        if (!messes.approvedAmount) { errors.approvedAmount = 'Approved Amount is required' }
 
-        if (!messes.BillEntryDate) { errors.BillEntryDate = 'Bill Entry Date is required'; }
-        if (!messes.BTSID) { errors.BTSID = 'BTS ID is required'; }
-        if (!messes.ProjectID ) { errors.ProjectID  = 'Project ID is required'; }
-        if (!messes.PaymentRequestedFor) { errors.PaymentRequestedFor = 'Payment Requested For is required'; }
-        if (!messes.No) { errors.No = 'No is required'; }
-        if (!messes.ReceiptType) { errors.ReceiptType = 'Receipt Type is required'; }
 
 
         setValidationErrors(errors);
@@ -215,12 +228,13 @@ const BTSPaymentMasterAddEdit = () => {
 
         if (!validateFields()) {
             toast.dismiss()
+            console.log(messes)
             toast.error('Please fill in all required fields.');
             return;
         }
 
 
-        
+
 
         if (isMobileVerified) {
             toast.dismiss()
@@ -229,22 +243,24 @@ const BTSPaymentMasterAddEdit = () => {
         }
         const payload = {
             ...messes,
-            createdBy: editMode ? messes.CreatedBy : empName,
+            createdDate: new Date(),
+            createdBy: editMode ? messes.createdBy : empName,
             updatedBy: editMode ? empName : '',
+            updatedDate: new Date(),
         };
         try {
             if (editMode) {
-                await axios.post(`${config.API_URL_APPLICATION}/MessMaster/UpdateMess`, payload);
-                navigate('/pages/MessMaster', {
+                await axios.put(`${config.API_URL_APPLICATION1}/BTSPaymentMaster/UpdateBTSPayment/${id}`, payload);
+                navigate('/pages/BTSPaymentMaster', {
                     state: {
-                        successMessage: "Doer Updated successfully!",
+                        successMessage: "Challan Master Updated successfully!",
                     }
                 });
             } else {
-                await axios.post(`${config.API_URL_APPLICATION}/MessMaster/InsertMess`, payload);
-                navigate('/pages/MessMaster', {
+                await axios.post(`${config.API_URL_APPLICATION1}/BTSPaymentMaster/CreateBTSPayment`, payload);
+                navigate('/pages/BTSPaymentMaster', {
                     state: {
-                        successMessage: "Doer Added successfully!",
+                        successMessage: "Challan Master Added successfully!",
                     }
                 });
             }
@@ -257,339 +273,339 @@ const BTSPaymentMasterAddEdit = () => {
         <div>
             <div className="container">
                 <div className="d-flex bg-white p-2 my-2 justify-content-between align-items-center fs-20 rounded-3 border">
-                    <span><i className="ri-file-list-line me-2"></i><span className='fw-bold'>{editMode ? 'Edit BTS Payment' : 'Add BTS Payment'}</span></span>
+                    <span><i className="ri-file-list-line me-2"></i><span className='fw-bold'>{editMode ? 'Edit BTS Payment Master' : 'Add BTS Payment Master'}</span></span>
                 </div>
                 <div className='bg-white p-2 rounded-3 border'>
                     <Form onSubmit={handleSubmit}>
                         <Row>
                             <Col lg={6}>
-                                <Form.Group controlId="BTSID" className="mb-3">
-                                    <Form.Label>BTS ID</Form.Label>
+                                <Form.Group controlId="btsid" className="mb-3">
+                                    <Form.Label>BTS Id*</Form.Label>
                                     <Form.Control
-                                        type="text"
-                                        name="BTSID"
-                                        value={messes.BTSID}
+                                        type="number"
+                                        name="btsid"
+                                        value={messes.btsid}
                                         onChange={handleChange}
-                                        placeholder='Enter BTS ID'
+                                        placeholder='Enter BTS Id'
                                         disabled={editMode}
-                                        className={validationErrors.BTSID ? " input-border" : "  "}
+                                        className={validationErrors.btsid ? " input-border" : "  "}
                                     />
-                                    {validationErrors.BTSID && (
-                                        <small className="text-danger">{validationErrors.BTSID}</small>
+                                    {validationErrors.btsid && (
+                                        <small className="text-danger">{validationErrors.btsid}</small>
                                     )}
                                 </Form.Group>
                             </Col>
                             <Col lg={6}>
-                                <Form.Group controlId="BillEntryDate" className="mb-3">
-                                    <Form.Label>Bill Entry Date</Form.Label>
+                                <Form.Group controlId="billEntryDate" className="mb-3">
+                                    <Form.Label>Bill Entry Date*</Form.Label>
                                     <Form.Control
                                         type="date"
-                                        name="BillEntryDate"
-                                        value={messes.BillEntryDate}
+                                        name="billEntryDate"
+                                        value={messes.billEntryDate}
                                         onChange={handleChange}
-                                        placeholder='Enter Bill Entry Date'
-                                        disabled={editMode}
-                                        className={validationErrors.BillEntryDate ? " input-border" : "  "}
+                                        placeholder='Enter billEntryDate'
+                                        className={validationErrors.billEntryDate ? " input-border" : "  "}
                                     />
-                                    {validationErrors.BillEntryDate && (
-                                        <small className="text-danger">{validationErrors.BillEntryDate}</small>
+                                    {validationErrors.billEntryDate && (
+                                        <small className="text-danger">{validationErrors.billEntryDate}</small>
                                     )}
                                 </Form.Group>
                             </Col>
                             <Col lg={6}>
-                                <Form.Group controlId="ProjectID " className="mb-3">
-                                    <Form.Label>Project ID</Form.Label>
+                                <Form.Group controlId="projectID" className="mb-3">
+                                    <Form.Label>Project ID*</Form.Label>
                                     <Form.Control
-                                        type="text"
-                                        name="ProjectID "
-                                        value={messes.ProjectID }
+                                        type="number"
+                                        name="projectID"
+                                        value={messes.projectID}
                                         onChange={handleChange}
                                         placeholder='Enter Project ID'
-                                        className={validationErrors.ProjectID  ? " input-border" : "  "}
+                                        className={validationErrors.projectID ? " input-border" : "  "}
                                     />
-                                    {validationErrors.ProjectID  && (
-                                        <small className="text-danger">{validationErrors.ProjectID }</small>
+                                    {validationErrors.projectID && (
+                                        <small className="text-danger">{validationErrors.projectID}</small>
                                     )}
                                 </Form.Group>
                             </Col>
                             <Col lg={6}>
-                                <Form.Group controlId="ProjectName" className="mb-3">
+                                <Form.Group controlId="projectName" className="mb-3">
                                     <Form.Label>Project Name</Form.Label>
                                     <Form.Control
                                         type="text"
-                                        name="ProjectName"
-                                        value={messes.ProjectName}
+                                        name="projectName"
+                                        value={messes.projectName}
                                         onChange={handleChange}
-                                        placeholder='Enter Project Name'
-                                        className={validationErrors.ProjectName ? " input-border" : "  "}
+                                        placeholder='Enter Project ID'
+                                        className={validationErrors.projectName ? " input-border" : "  "}
                                     />
-                                    {validationErrors.ProjectName && (
-                                        <small className="text-danger">{validationErrors.ProjectName}</small>
+                                    {validationErrors.projectName && (
+                                        <small className="text-danger">{validationErrors.projectName}</small>
                                     )}
                                 </Form.Group>
                             </Col>
                             <Col lg={6}>
-                                <Form.Group controlId="PaymentRequestedFor" className="mb-3">
-                                    <Form.Label>Payment Requested For</Form.Label>
+                                <Form.Group controlId="paymentRequestedFor" className="mb-3">
+                                    <Form.Label>paymentRequestedFor</Form.Label>
                                     <Form.Control
                                         type="text"
-                                        name="PaymentRequestedFor"
-                                        value={messes.PaymentRequestedFor}
+                                        name="paymentRequestedFor"
+                                        value={messes.paymentRequestedFor}
                                         onChange={handleChange}
-                                        placeholder='Enter Payment Requested For'
-                                        className={validationErrors.PaymentRequestedFor ? " input-border" : "  "}
+                                        placeholder='Enter Project Name'
+                                        className={validationErrors.paymentRequestedFor ? " input-border" : "  "}
                                     />
-                                    {validationErrors.PaymentRequestedFor && (
-                                        <small className="text-danger">{validationErrors.PaymentRequestedFor}</small>
+                                    {validationErrors.paymentRequestedFor && (
+                                        <small className="text-danger">{validationErrors.paymentRequestedFor}</small>
                                     )}
                                 </Form.Group>
                             </Col>
                             <Col lg={6}>
-                                <Form.Group controlId="ReceiptType" className="mb-3">
+                                <Form.Group controlId="receiptType" className="mb-3">
                                     <Form.Label>Receipt Type</Form.Label>
                                     <Form.Control
                                         type="text"
-                                        name="ReceiptType"
-                                        value={messes.ReceiptType}
+                                        name="receiptType"
+                                        value={messes.receiptType}
                                         onChange={handleChange}
-                                        placeholder='Enter ReceiptType'
-                                        className={validationErrors.ReceiptType ? " input-border" : "  "}
+                                        placeholder='Enter Payment Requested For'
+                                        className={validationErrors.receiptType ? " input-border" : "  "}
                                     />
-                                    {validationErrors.ReceiptType && (
-                                        <small className="text-danger">{validationErrors.ReceiptType}</small>
+                                    {validationErrors.receiptType && (
+                                        <small className="text-danger">{validationErrors.receiptType}</small>
                                     )}
                                 </Form.Group>
                             </Col>
                             <Col lg={6}>
-                                <Form.Group controlId="No" className="mb-3">
-                                    <Form.Label>Number</Form.Label>
+                                <Form.Group controlId="no" className="mb-3">
+                                    <Form.Label>No</Form.Label>
                                     <Form.Control
                                         type="text"
-                                        name="No"
-                                        value={messes.No}
+                                        name="no"
+                                        value={messes.no}
                                         onChange={handleChange}
-                                        placeholder='Enter Number'
-                                        className={validationErrors.No ? " input-border" : "  "}
+                                        placeholder='Enter no'
+                                        className={validationErrors.no ? " input-border" : "  "}
                                     />
-                                    {validationErrors.No && (
-                                        <small className="text-danger">{validationErrors.No}</small>
+                                    {validationErrors.no && (
+                                        <small className="text-danger">{validationErrors.no}</small>
                                     )}
                                 </Form.Group>
                             </Col>
                             <Col lg={6}>
-                                <Form.Group controlId="Amount" className="mb-3">
+                                <Form.Group controlId="amount" className="mb-3">
                                     <Form.Label>Amount</Form.Label>
                                     <Form.Control
                                         type="text"
-                                        name="Amount"
-                                        value={messes.Amount}
+                                        name="amount"
+                                        value={messes.amount}
                                         onChange={handleChange}
-                                        placeholder='Enter Amount'
-                                        className={validationErrors.Amount ? " input-border" : "  "}
+                                        placeholder='Enter Number'
+                                        className={validationErrors.amount ? " input-border" : "  "}
                                     />
-                                    {validationErrors.Amount && (
-                                        <small className="text-danger">{validationErrors.Amount}</small>
+                                    {validationErrors.amount && (
+                                        <small className="text-danger">{validationErrors.amount}</small>
                                     )}
                                 </Form.Group>
                             </Col>
                             <Col lg={6}>
-                                <Form.Group controlId="Date" className="mb-3">
+                                <Form.Group controlId="date" className="mb-3">
                                     <Form.Label>Date</Form.Label>
                                     <Form.Control
-                                        type="date"
-                                        name="Date"
-                                        value={messes.Date}
+                                        type="text"
+                                        name="date"
+                                        value={messes.date}
                                         onChange={handleChange}
-                                        placeholder='Enter Date'
-                                        className={validationErrors.Date ? " input-border" : "  "}
+                                        placeholder='Enter date'
+                                        className={validationErrors.date ? " input-border" : "  "}
                                     />
-                                    {validationErrors.Date && (
-                                        <small className="text-danger">{validationErrors.Date}</small>
+                                    {validationErrors.date && (
+                                        <small className="text-danger">{validationErrors.date}</small>
                                     )}
                                 </Form.Group>
                             </Col>
                             <Col lg={6}>
-                                <Form.Group controlId="PaymentDueDate" className="mb-3">
-                                    <Form.Label>PaymentDueDate</Form.Label>
+                                <Form.Group controlId="paymentDueDate" className="mb-3">
+                                    <Form.Label>paymentDueDate</Form.Label>
                                     <Form.Control
-                                       type="date"
-                                        name="PaymentDueDate"
-                                        value={messes.PaymentDueDate}
+                                        type="date"
+                                        name="paymentDueDate"
+                                        value={messes.paymentDueDate}
+                                        onChange={handleChange}
+                                        placeholder='Enter paymentDueDate'
+                                        className={validationErrors.paymentDueDate ? " input-border" : "  "}
+                                    />
+                                    {validationErrors.paymentDueDate && (
+                                        <small className="text-danger">{validationErrors.paymentDueDate}</small>
+                                    )}
+                                </Form.Group>
+                            </Col>
+                            <Col lg={6}>
+                                <Form.Group controlId="gstHoldAmount" className="mb-3">
+                                    <Form.Label>gstHoldAmount</Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        name="gstHoldAmount"
+                                        value={messes.gstHoldAmount}
                                         onChange={handleChange}
                                         placeholder='Enter Payment Due Date'
-                                        className={validationErrors.PaymentDueDate ? " input-border" : "  "}
+                                        className={validationErrors.gstHoldAmount ? " input-border" : "  "}
                                     />
-                                    {validationErrors.PaymentDueDate && (
-                                        <small className="text-danger">{validationErrors.PaymentDueDate}</small>
+                                    {validationErrors.gstHoldAmount && (
+                                        <small className="text-danger">{validationErrors.gstHoldAmount}</small>
                                     )}
                                 </Form.Group>
                             </Col>
                             <Col lg={6}>
-                                <Form.Group controlId="GSTHoldAmount" className="mb-3">
-                                    <Form.Label>GSTHoldAmount</Form.Label>
+                                <Form.Group controlId="retentionHoldAmount" className="mb-3">
+                                    <Form.Label>retentionHoldAmount</Form.Label>
                                     <Form.Control
                                         type="text"
-                                        name="GSTHoldAmount"
-                                        value={messes.GSTHoldAmount}
+                                        name="retentionHoldAmount"
+                                        value={messes.retentionHoldAmount}
                                         onChange={handleChange}
-                                        placeholder='Enter GST Hold Amount'
-                                        className={validationErrors.GSTHoldAmount ? " input-border" : "  "}
+                                        placeholder='Enter GST Hold retentionHoldAmount'
+                                        className={validationErrors.retentionHoldAmount ? " input-border" : "  "}
                                     />
-                                    {validationErrors.GSTHoldAmount && (
-                                        <small className="text-danger">{validationErrors.GSTHoldAmount}</small>
+                                    {validationErrors.retentionHoldAmount && (
+                                        <small className="text-danger">{validationErrors.retentionHoldAmount}</small>
                                     )}
                                 </Form.Group>
                             </Col>
                             <Col lg={6}>
-                                <Form.Group controlId="RetentionHoldAmount" className="mb-3">
-                                    <Form.Label>RetentionHoldAmount</Form.Label>
+                                <Form.Group controlId="royaltyDeduction" className="mb-3">
+                                    <Form.Label>royaltyDeduction</Form.Label>
                                     <Form.Control
                                         type="text"
-                                        name="RetentionHoldAmount"
-                                        value={messes.RetentionHoldAmount}
+                                        name="royaltyDeduction"
+                                        value={messes.royaltyDeduction}
                                         onChange={handleChange}
                                         placeholder='Enter Retention Hold Amount'
-                                        className={validationErrors.RetentionHoldAmount ? " input-border" : "  "}
+                                        className={validationErrors.royaltyDeduction ? " input-border" : "  "}
                                     />
-                                    {validationErrors.RetentionHoldAmount && (
-                                        <small className="text-danger">{validationErrors.RetentionHoldAmount}</small>
+                                    {validationErrors.royaltyDeduction && (
+                                        <small className="text-danger">{validationErrors.royaltyDeduction}</small>
                                     )}
                                 </Form.Group>
                             </Col>
                             <Col lg={6}>
-                                <Form.Group controlId="RoyaltyDeduction" className="mb-3">
-                                    <Form.Label>RoyaltyDeduction</Form.Label>
+                                <Form.Group controlId="otherDeductionAmount" className="mb-3">
+                                    <Form.Label>otherDeductionAmount</Form.Label>
                                     <Form.Control
                                         type="text"
-                                        name="RoyaltyDeduction"
-                                        value={messes.RoyaltyDeduction}
+                                        name="otherDeductionAmount"
+                                        value={messes.otherDeductionAmount}
                                         onChange={handleChange}
                                         placeholder='Enter Royalty Deduction'
-                                        className={validationErrors.RoyaltyDeduction ? " input-border" : "  "}
+                                        className={validationErrors.otherDeductionAmount ? " input-border" : "  "}
                                     />
-                                    {validationErrors.RoyaltyDeduction && (
-                                        <small className="text-danger">{validationErrors.RoyaltyDeduction}</small>
+                                    {validationErrors.otherDeductionAmount && (
+                                        <small className="text-danger">{validationErrors.otherDeductionAmount}</small>
                                     )}
                                 </Form.Group>
                             </Col>
                             <Col lg={6}>
-                                <Form.Group controlId="OtherDeductionAmount" className="mb-3">
-                                    <Form.Label>OtherDeductionAmount</Form.Label>
+                                <Form.Group controlId="netPayableAmount" className="mb-3">
+                                    <Form.Label>netPayableAmount</Form.Label>
                                     <Form.Control
                                         type="text"
-                                        name="OtherDeductionAmount"
-                                        value={messes.OtherDeductionAmount}
+                                        name="netPayableAmount"
+                                        value={messes.netPayableAmount}
                                         onChange={handleChange}
                                         placeholder='Enter Other Deduction Amount'
-                                        className={validationErrors.OtherDeductionAmount ? " input-border" : "  "}
+                                        className={validationErrors.netPayableAmount ? " input-border" : "  "}
                                     />
-                                    {validationErrors.OtherDeductionAmount && (
-                                        <small className="text-danger">{validationErrors.OtherDeductionAmount}</small>
+                                    {validationErrors.netPayableAmount && (
+                                        <small className="text-danger">{validationErrors.netPayableAmount}</small>
                                     )}
                                 </Form.Group>
                             </Col>
                             <Col lg={6}>
-                                <Form.Group controlId="NetPayableAmount" className="mb-3">
-                                    <Form.Label>NetPayableAmount</Form.Label>
+                                <Form.Group controlId="pendingAmount" className="mb-3">
+                                    <Form.Label>pendingAmount</Form.Label>
                                     <Form.Control
                                         type="text"
-                                        name="NetPayableAmount"
-                                        value={messes.NetPayableAmount}
+                                        name="pendingAmount"
+                                        value={messes.pendingAmount}
                                         onChange={handleChange}
                                         placeholder='Enter Net Payable Amount'
-                                        className={validationErrors.NetPayableAmount ? " input-border" : "  "}
+                                        className={validationErrors.pendingAmount ? " input-border" : "  "}
                                     />
-                                    {validationErrors.NetPayableAmount && (
-                                        <small className="text-danger">{validationErrors.NetPayableAmount}</small>
+                                    {validationErrors.pendingAmount && (
+                                        <small className="text-danger">{validationErrors.pendingAmount}</small>
                                     )}
                                 </Form.Group>
                             </Col>
                             <Col lg={6}>
-                                <Form.Group controlId="PendingAmount" className="mb-3">
-                                    <Form.Label>PendingAmount</Form.Label>
+                                <Form.Group controlId="courierDispatchDate" className="mb-3">
+                                    <Form.Label>courierDispatchDate</Form.Label>
                                     <Form.Control
                                         type="text"
-                                        name="PendingAmount"
-                                        value={messes.PendingAmount}
+                                        name="courierDispatchDate"
+                                        value={messes.courierDispatchDate}
                                         onChange={handleChange}
                                         placeholder='Enter Pending Amount'
-                                        className={validationErrors.PendingAmount ? " input-border" : "  "}
+                                        className={validationErrors.courierDispatchDate ? " input-border" : "  "}
                                     />
-                                    {validationErrors.PendingAmount && (
-                                        <small className="text-danger">{validationErrors.PendingAmount}</small>
+                                    {validationErrors.courierDispatchDate && (
+                                        <small className="text-danger">{validationErrors.courierDispatchDate}</small>
                                     )}
                                 </Form.Group>
                             </Col>
                             <Col lg={6}>
-                                <Form.Group controlId="CourierDispatchDate" className="mb-3">
-                                    <Form.Label>CourierDispatchDate</Form.Label>
+                                <Form.Group controlId="fRorIOMNumber" className="mb-3">
+                                    <Form.Label>fRorIOMNumber</Form.Label>
                                     <Form.Control
                                         type="text"
-                                        name="CourierDispatchDate"
-                                        value={messes.CourierDispatchDate}
+                                        name="fRorIOMNumber"
+                                        value={messes.fRorIOMNumber}
                                         onChange={handleChange}
                                         placeholder='Enter Courier Dispatch Date'
-                                        className={validationErrors.CourierDispatchDate ? " input-border" : "  "}
+                                        className={validationErrors.fRorIOMNumber ? " input-border" : "  "}
                                     />
-                                    {validationErrors.CourierDispatchDate && (
-                                        <small className="text-danger">{validationErrors.CourierDispatchDate}</small>
+                                    {validationErrors.fRorIOMNumber && (
+                                        <small className="text-danger">{validationErrors.fRorIOMNumber}</small>
                                     )}
                                 </Form.Group>
                             </Col>
                             <Col lg={6}>
-                                <Form.Group controlId="FRorIOMNumber" className="mb-3">
-                                    <Form.Label>FRorIOMNumber</Form.Label>
+                                <Form.Group controlId="frAmount" className="mb-3">
+                                    <Form.Label>frAmount</Form.Label>
                                     <Form.Control
                                         type="text"
-                                        name="FRorIOMNumber"
-                                        value={messes.FRorIOMNumber}
+                                        name="frAmount"
+                                        value={messes.frAmount}
                                         onChange={handleChange}
-                                        placeholder='Enter FRor IOM Number'
-                                        className={validationErrors.FRorIOMNumber ? " input-border" : "  "}
+                                        placeholder='Enter Courier Dispatch Date'
+                                        className={validationErrors.frAmount ? " input-border" : "  "}
                                     />
-                                    {validationErrors.FRorIOMNumber && (
-                                        <small className="text-danger">{validationErrors.FRorIOMNumber}</small>
+                                    {validationErrors.frAmount && (
+                                        <small className="text-danger">{validationErrors.frAmount}</small>
                                     )}
                                 </Form.Group>
                             </Col>
                             <Col lg={6}>
-                                <Form.Group controlId="FRAmount" className="mb-3">
-                                    <Form.Label>FRAmount</Form.Label>
+                                <Form.Group controlId="approvedAmount" className="mb-3">
+                                    <Form.Label>approvedAmount</Form.Label>
                                     <Form.Control
                                         type="text"
-                                        name="FRAmount"
-                                        value={messes.FRAmount}
+                                        name="approvedAmount"
+                                        value={messes.approvedAmount}
                                         onChange={handleChange}
-                                        placeholder='Enter FR Amount'
-                                        className={validationErrors.FRAmount ? " input-border" : "  "}
+                                        placeholder='Enter Courier Dispatch Date'
+                                        className={validationErrors.approvedAmount ? " input-border" : "  "}
                                     />
-                                    {validationErrors.FRAmount && (
-                                        <small className="text-danger">{validationErrors.FRAmount}</small>
+                                    {validationErrors.approvedAmount && (
+                                        <small className="text-danger">{validationErrors.approvedAmount}</small>
                                     )}
                                 </Form.Group>
                             </Col>
-                            <Col lg={6}>
-                                <Form.Group controlId="ApprovedAmount" className="mb-3">
-                                    <Form.Label>ApprovedAmount</Form.Label>
-                                    <Form.Control
-                                        type="text"
-                                        name="ApprovedAmount"
-                                        value={messes.ApprovedAmount}
-                                        onChange={handleChange}
-                                        placeholder='Enter Approved Amount'
-                                        className={validationErrors.ApprovedAmount ? " input-border" : "  "}
-                                    />
-                                    {validationErrors.ApprovedAmount && (
-                                        <small className="text-danger">{validationErrors.ApprovedAmount}</small>
-                                    )}
-                                </Form.Group>
-                            </Col>
+
                             <Col className='align-items-end d-flex justify-content-between mb-3'>
                                 <div>
                                     <span className='fs-5 '>This field is required*</span>
                                 </div>
                                 <div>
-                                    <Link to={'/pages/BTSPaymentMaster'}>
+                                    <Link to={'/pages/ChallanMaster'}>
                                         <Button variant="primary" >
                                             Back
                                         </Button>

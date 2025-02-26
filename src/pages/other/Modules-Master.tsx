@@ -1376,7 +1376,7 @@ const App: React.FC = () => {
                     <div
                       ref={provided.innerRef}
                       {...provided.droppableProps}
-                      className="list-group position-relative m-0 border w-100 vh-100 overflow-auto border"
+                      className="list-group position-relative m-0 w-100 vh-100 overflow-auto border"
                     >
                       {taskFields.length === 0 && (
                         <div className='col-12 align-items-center justify-content-center d-flex flex-column' style={{ height: '200px' }}>

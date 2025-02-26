@@ -5,14 +5,6 @@ import { Route, RouteProps } from 'react-router-dom'
 import PrivateRoute from './PrivateRoute'
 import AdhocMaster from '@/pages/other/AdminSide/AdhocMaster.tsx'
 import ModulesMaster from '@/pages/other/ModulesMaster/ModulesMaster.tsx'
-import BTSPaymentMaster from '@/pages/other/AdminSide/ModulesMaster/BTSMaster/BTSPaymentMaster/BTSPaymentMaster.tsx'
-import BTSPaymentMasterAddEdit from '@/pages/other/AdminSide/ModulesMaster/BTSMaster/BTSPaymentMaster/AddEditMaster.tsx'
-import ChallanMaster from '@/pages/other/AdminSide/ModulesMaster/BTSMaster/ChallanMaster/ChallanMaster.tsx'
-import ChallanMasterAddEdit from '@/pages/other/AdminSide/ModulesMaster/BTSMaster/ChallanMaster/AddEditMaster.tsx'
-import FRMaster from '@/pages/other/AdminSide/ModulesMaster/BTSMaster/FRMaster/FRMaster.tsx'
-import FRMasterAddEdit from '@/pages/other/AdminSide/ModulesMaster/BTSMaster/FRMaster/AddEditMaster.tsx'
-import DrawingMaster from '@/pages/other/AdminSide/ModulesMaster/DDPSMasters/DrawingMaster/DrawingMaster.tsx'
-import DrawingMasterAddEdit from '@/pages/other/AdminSide/ModulesMaster/DDPSMasters/DrawingMaster/AddEditMaster.tsx'
 import { MODULES_MASTER } from './ModulesMaster.tsx'
 // import FormBuilder from '@/pages/FormBuilder/FormBuilder.tsx'
 
@@ -902,42 +894,12 @@ const customPagesRoutes = {
 
 		// MODULES_MASTER
 		
-		{
-			path: '/pages/HSEObervationMaster',
-			name: 'HSEObervation Master',
-			element: <MessMaster />,
-			route: PrivateRoute,
-		},
-		{
-			path: '/pages/AssetCategoryMaster',
-			name: 'Asset Category Master',
-			element: <MessMaster />,
-			route: PrivateRoute,
-		},
-		{
-			path: '/pages/AssetMaster',
-			name: 'Asset Master',
-			element: <MessMaster />,
-			route: PrivateRoute,
-		},
-		{
-			path: '/pages/AssetTrackingMaster',
-			name: 'Asset Tracking Master',
-			element: <MessMaster />,
-			route: PrivateRoute,
-		},
-		{
-			path: '/pages/AssetConditionMaster',
-			name: 'Asset Condition Master',
-			element: <MessMaster />,
-			route: PrivateRoute,
-		},
-		{
-			path: '/pages/MobilizationMaster',
-			name: 'Mobilization Master',
-			element: <MessMaster />,
-			route: PrivateRoute,
-		},
+		
+		
+		
+		
+		
+		
 		{
 			path: '/pages/CampMaster',
 			name: 'Camp Master',
@@ -1022,12 +984,7 @@ const customPagesRoutes = {
 			element: <MessMaster />,
 			route: PrivateRoute,
 		},
-		{
-			path: '/pages/AssetMaster',
-			name: 'Asset Master',
-			element: <MessMaster />,
-			route: PrivateRoute,
-		},
+		
 		{
 			path: '/pages/TABillMaster',
 			name: 'TA Bill Master',
@@ -1116,24 +1073,7 @@ const customPagesRoutes = {
 		
 		...MODULES_MASTER,
 
-		{
-			path: '/pages/FRMaster',
-			name: 'FR Master',
-			element: <FRMaster />,
-			route: PrivateRoute,
-		},
-		{
-			path: '/pages/FRMasterAddEdit',
-			name: 'FR Master',
-			element: <FRMasterAddEdit />,
-			route: PrivateRoute,
-		},
-		{
-			path: '/pages/FRMasterAddEdit/:id',
-			name: 'FR Master',
-			element: <FRMasterAddEdit />,
-			route: PrivateRoute,
-		},
+		
 		{
 			path: '/pages/RecurringBillMaster',
 			name: 'Recurring Bill Master',

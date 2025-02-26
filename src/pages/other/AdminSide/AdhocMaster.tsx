@@ -10,24 +10,22 @@ import FormBuilder from '@/pages/FormBuilder/FormBuilder';
 
 
 // Define interface for form options
-interface Option {
-    id: string;
-    label: string;
-}
+// interface Option {
+//     id: string;
+//     label: string;
+// }
 
 // Define interface for form inputs
-interface Input {
-    inputId: string;
-    label: string;
-    placeholder?: string;
-    type: string;
-    options?: Option[];
-}
+// interface Input {
+//     inputId: string;
+//     label: string;
+//     placeholder?: string;
+//     type: string;
+//     options?: Option[];
+// }
 
 // Interface for form data containing form inputs
-interface FormData {
-    inputs: Input[];
-}
+
 
 // Interface for mess manager dropdown options
 interface MessManager {
@@ -200,14 +198,14 @@ interface DynamicFormProps {
 }
 
 const DynamicForm: React.FC<DynamicFormProps> = ({ formData, messName, showMessManagerSelect, messManagers }) => {
-    const [formState, setFormState] = useState<{ [key: string]: any }>({});
+    // const [formState, setFormState] = useState<{ [key: string]: any }>({});
 
-    const handleChange = (inputId: string, value: any) => {
-        setFormState(prevState => ({
-            ...prevState,
-            [inputId]: value,
-        }));
-    };
+    // const handleChange = (inputId: string, value: any) => {
+    //     setFormState(prevState => ({
+    //         ...prevState,
+    //         [inputId]: value,
+    //     }));
+    // };
     const [form, setForm] = useState<FIELD>({ ...formData, editMode: false });
     const [property, setProperty] = useState<PROPERTY>({
         label: '',
