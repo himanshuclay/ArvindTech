@@ -2,7 +2,7 @@ import configureFakeBackend from './common/api/fake-backend';
 import { AuthProvider, ThemeProvider } from './common/context';
 import AllRoutes from './routes/Routes';
 import { ToastContainer } from 'react-toastify';
-import { Tooltip } from 'react-tooltip';
+// import { Tooltip } from 'react-tooltip';
 
 import 'react-toastify/dist/ReactToastify.css';
 import './assets/scss/app.scss';
@@ -30,7 +30,7 @@ function App() {
           pauseOnHover
           theme="colored"
         />
-        <Tooltip id="tooltip" style={{ zIndex: 1002}} />
+        {/* <Tooltip id="tooltip" style={{ zIndex: 1002}} /> */}
       </AuthProvider>
     </ThemeProvider>
   );

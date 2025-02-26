@@ -1,0 +1,404 @@
+import axios from 'axios';
+import { useState, useEffect } from 'react';
+import { Button, Pagination, Table, Container, Row, Col, Alert, Form, ButtonGroup } from 'react-bootstrap';
+import { Link } from 'react-router-dom';
+import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
+import config from '@/config';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
+
+
+interface ContactMaster {
+    contactID: number;
+    contactName: string;
+    contactMobileOfficial: string;
+    contactMobilePersonal: string;
+    contactEmailOfficial: string;
+    contactEmailPersonal: string;
+    createdBy: string;
+    updatedBy: string;
+    updatedDate: string;
+    createdDate: string;
+}
+
+interface Column {
+    id: string;
+    label: string;
+    visible: boolean;
+}
+
+
+
+
+
+const AddressMaster = () => {
+    const role = localStorage.getItem('role');
+    const [addresses, setAddresses] = useState<ContactMaster[]>([]);
+    const [loading, setLoading] = useState(false);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(1);
+    const [downloadCsv, setDownloadCsv] = useState<ContactMaster[]>([]);
+    const [searchStatus, setSearchStatus] = useState('');
+
+    const location = useLocation();
+    const navigate = useNavigate();
+    useEffect(() => {
+        if (location.state?.successMessage) {
+            toast.dismiss()
+            toast.success(location.state.successMessage);
+            navigate(location.pathname, { replace: true });
+        }
+    }, [location.state, navigate]);
+
+
+
+
+    // both are required to make dragable column of table 
+    const [columns, setColumns] = useState<Column[]>([
+        { id: 'contactName', label: 'Contact Name', visible: true },
+        { id: 'contactMobileOfficial', label: 'Official Mobile', visible: true },
+        { id: 'contactMobilePersonal', label: 'Personal Mobile', visible: true },
+        { id: 'contactEmailOfficial', label: 'Official Email', visible: true },
+        { id: 'contactEmailPersonal', label: 'Personal Email', visible: true },
+
+    ]);
+
+
+    const handleOnDragEnd = (result: any) => {
+        if (!result.destination) return;
+        const reorderedColumns = Array.from(columns);
+        const [movedColumn] = reorderedColumns.splice(result.source.index, 1);
+        reorderedColumns.splice(result.destination.index, 0, movedColumn);
+        setColumns(reorderedColumns);
+    };
+    // ==============================================================
+
+
+
+    const [searchTriggered, setSearchTriggered] = useState(false);
+
+    useEffect(() => {
+        if (searchTriggered && (searchPinCode || searchState || searchStatus)) {
+            handleSearch();
+
+        } else {
+            fetchStaffRequirements();
+        }
+    }, [currentPage, searchTriggered]);
+
+
+    const [searchPinCode, setSearchPinCode] = useState('');
+    const [searchState, setSearchState] = useState(' ');
+
+    const handleSearch = async (e?: React.FormEvent) => {
+        if (e) e.preventDefault();
+
+        let query = `?`;
+        if (searchPinCode) query += `PinCode=${searchPinCode}&`;
+        if (searchState) query += `State=${searchState}&`;
+        if (searchStatus) query += `Status=${searchStatus}&`;
+        query += `PageIndex=${currentPage}`;
+
+        query = query.endsWith('&') ? query.slice(0, -1) : query;
+        const apiUrl = `${config.API_URL_APPLICATION}/ContactMaster/GetContact${query}`;
+
+        setLoading(true);
+        console.log("API URL:", apiUrl);
+
+        try {
+            const { data } = await axios.get(apiUrl, {
+                headers: { 'accept': '*/*' }
+            });
+
+            if (data.isSuccess) {  // Check if the response is successful
+                setAddresses(data.addresses);
+                setTotalPages(Math.ceil(data.totalCount / 10));
+                console.log("Search Response:", data.addresses);
+            } else {
+                console.log("Error in API response:", data.message);  // Handle error message if needed
+            }
+        } catch (error) {
+            console.error('Error fetching data:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+
+    const fetchStaffRequirements = async () => {
+        setLoading(true);
+        try {
+            const response = await axios.get(`${config.API_URL_APPLICATION}/ContactMaster/GetContact`, {
+                params: { PageIndex: currentPage }
+            });
+            if (response.data.isSuccess) {
+                setAddresses(response.data.getContactMasters);
+                setTotalPages(Math.ceil(response.data.totalCount / 10));
+            } else {
+                console.error(response.data.message);
+            }
+        } catch (error) {
+            console.error('Error fetching doers:', error);
+        }
+        finally {
+            setLoading(false);
+        }
+    };
+
+
+
+    useEffect(() => {
+        const fetchData = async (endpoint: string, setter: Function, listName: string) => {
+            try {
+                const response = await axios.get(`${config.API_URL_APPLICATION}/${endpoint}`);
+                if (response.data.isSuccess) {
+                    setter(response.data[listName]);
+                } else {
+                    console.error(response.data.message);
+                }
+            } catch (error) {
+                console.error(`Error fetching data from ${endpoint}:`, error);
+            }
+        };
+        fetchData('AddressMaster/GetAddress', setDownloadCsv, 'addresses');
+    }, []);
+
+
+    const handleClear = async () => {
+        setCurrentPage(1);
+        setSearchState(' ');
+        setSearchPinCode('');
+        setSearchStatus('');
+        setSearchTriggered(false);
+        await fetchStaffRequirements();
+        console.log('ji')
+
+    };
+
+    const convertToCSV = (data: ContactMaster[]) => {
+        const csvRows = [
+            ['Contact ID', 'Contact Name', 'Official Mobile', 'Personal Mobile', 'Official Email', 'Personal Email', 'Created By', 'Updated By', 'Created Date', 'Updated Date'],
+            ...data.map(contact => [
+                contact.contactID,
+                contact.contactName,
+                contact.contactMobileOfficial,
+                contact.contactMobilePersonal,
+                contact.contactEmailOfficial,
+                contact.contactEmailPersonal,
+                contact.createdBy,
+                contact.updatedBy,
+                contact.createdDate,
+                contact.updatedDate,
+            ])
+        ];
+        return csvRows.map(row => row.join(',')).join('\n');
+    };
+
+
+    const downloadCSV = () => {
+        const csvData = convertToCSV(downloadCsv);
+        const blob = new Blob([csvData], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement('a');
+        if (link.download !== undefined) {
+            const url = URL.createObjectURL(blob);
+            link.setAttribute('href', url);
+            link.setAttribute('download', 'Address Master.csv');
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+    };
+
+
+
+    return (
+        <>
+            <div className="d-flex bg-white p-2 my-2 justify-content-between align-items-center">
+                <span><i className="ri-file-list-line me-2 text-dark fs-16"></i><span className='fw-bold text-dark fs-15'>Contact Master</span></span>
+                <div className="d-flex justify-content-end  ">
+
+                    <Button variant="primary" onClick={downloadCSV} className="me-2">
+                        Download CSV
+                    </Button>
+                    {(role === 'Admin' || role === 'DME') && (
+
+                        <Link to='/pages/ContactMasterinsert'>
+                            <Button variant="primary" className="me-2">
+                                Add Contact
+                            </Button>
+                        </Link>)}
+
+                </div>
+            </div>
+
+            <div className='bg-white p-2 pb-2'>
+
+                <Form onSubmit={(e) => {
+                    e.preventDefault();
+                    setSearchTriggered(true);
+                    setCurrentPage(1);
+                }}
+                >
+
+                    <Row>
+                        <Col lg={8} className=''>
+                            <Form.Group controlId="searchPinCode">
+                                <Form.Label>Contact Name</Form.Label>
+                                <Form.Control
+                                    type="text"
+                                    name="searchPinCode"
+                                    value={searchPinCode}
+                                    onChange={(e) => setSearchPinCode(e.target.value)}
+                                    maxLength={6}
+                                    placeholder='Enter Contact Name'
+                                />
+                            </Form.Group>
+                        </Col>
+
+
+                        <Col lg={4} className="align-items-end d-flex justify-content-end mt-2">
+                            <ButtonGroup aria-label="Basic example" className="w-100">
+                                <Button type="button" variant="primary" onClick={handleClear}>
+                                    <i className="ri-loop-left-line"></i>
+                                </Button>
+                                &nbsp;
+                                <Button
+                                    type="submit"
+                                    variant="primary"
+                                >
+                                    Search
+                                </Button>
+                            </ButtonGroup>
+                        </Col>
+
+                    </Row>
+                </Form>
+
+
+
+                <Row className='mt-3'>
+                    <div className="d-flex justify-content-end bg-light p-1">
+                        <div className="app-search d-none d-lg-block me-4">
+                        </div>
+                    </div>
+                </Row>
+            </div>
+
+            {loading ? (
+                <div className='loader-container'>
+                    <div className="loader"></div>
+                    <div className='mt-2'>Please Wait!</div>
+                </div>
+            ) : (
+
+                <>
+
+                    <div className="overflow-auto text-nowrap">
+                        {!addresses ? (
+                            <Container className="mt-5">
+                                <Row className="justify-content-center">
+                                    <Col xs={12} md={8} lg={6}>
+                                        <Alert variant="info" className="text-center">
+                                            <h4>No Data Found</h4>
+                                            <p>You currently don't have Data</p>
+                                        </Alert>
+                                    </Col>
+                                </Row>
+                            </Container>
+                        ) : (
+                            <DragDropContext onDragEnd={handleOnDragEnd}>
+                                <Table hover className='bg-white '>
+                                    <thead>
+                                        <Droppable droppableId="columns" direction="horizontal">
+                                            {(provided) => (
+                                                <tr {...provided.droppableProps} ref={provided.innerRef as React.Ref<HTMLTableRowElement>}>
+                                                    <th><i className="ri-list-ordered-2"></i>  Sr. No</th>
+                                                    {columns.filter(col => col.visible).map((column, index) => (
+                                                        <Draggable key={column.id} draggableId={column.id} index={index}>
+                                                            {(provided) => (
+                                                                <th>
+                                                                    <div ref={provided.innerRef}
+                                                                        {...provided.draggableProps}
+                                                                        {...provided.dragHandleProps}>
+                                                                        {column.id === 'departmentName' && (<i className="ri-group-fill"></i>)}
+                                                                        &nbsp; {column.label}
+                                                                    </div>
+                                                                </th>
+                                                            )}
+                                                        </Draggable>
+                                                    ))}
+                                                    {provided.placeholder}
+                                                    {(role === 'Admin' || role === 'DME') && (
+                                                        <th>Action</th>
+                                                    )}
+                                                </tr>
+                                            )}
+                                        </Droppable>
+                                    </thead>
+                                    <tbody>
+                                        {addresses.length > 0 ? (
+                                            addresses.slice(0, 10).map((item, index) => (
+                                                <tr key={item.contactID}>
+                                                    <td>{(currentPage - 1) * 10 + index + 1}</td>
+                                                    {columns.filter(col => col.visible).map((col) => (
+                                                        <td key={col.id}
+                                                        // className={
+                                                        //     col.id === 'department' ? 'fw-bold fs-13 text-dark task1' :
+                                                        //         (col.id === 'status' && item[col.id] === "Enabled") ? 'task1' :
+                                                        //             (col.id === 'status' && item[col.id] === "Disabled") ? 'task4' : ''
+                                                        // }
+                                                        >
+                                                            <div>{item[col.id as keyof ContactMaster]}</div>
+                                                        </td>
+                                                    ))}
+                                                    {(role === 'Admin' || role === 'DME') && (
+
+                                                        <td><Link to={`/pages/ContactMasterinsert/${item.contactID}`}>
+                                                            <Button variant='primary' className='p-0 text-white'>
+                                                                <i className='btn ri-edit-line text-white' ></i>
+                                                            </Button>
+                                                        </Link>
+                                                        </td>)}
+                                                </tr>
+                                            ))
+                                        ) : (
+                                            <tr>
+                                                <td colSpan={12}>
+                                                    <Container className="mt-5">
+                                                        <Row className="justify-content-center">
+                                                            <Col xs={12} md={8} lg={6}>
+                                                                <Alert variant="info" className="text-center">
+                                                                    <h4>No Data Found</h4>
+                                                                    <p>You currently don't have Data</p>
+                                                                </Alert>
+                                                            </Col>
+                                                        </Row>
+                                                    </Container>
+                                                </td>
+                                            </tr>
+                                        )}
+                                    </tbody>
+                                </Table>
+                            </DragDropContext>
+                        )}
+                    </div>
+                </>
+            )}
+
+            <div className="d-flex justify-content-center align-items-center bg-white w-20 rounded-5 m-auto py-1 pb-1 my-2 pagination-rounded">
+                <Pagination >
+                    <Pagination.First onClick={() => setCurrentPage(1)} disabled={currentPage === 1} />
+                    <Pagination.Prev onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))} disabled={currentPage === 1} />
+                    <Pagination.Item active>{currentPage}</Pagination.Item>
+                    <Pagination.Next onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))} disabled={currentPage === totalPages} />
+                    <Pagination.Last onClick={() => setCurrentPage(totalPages)} disabled={currentPage === totalPages} />
+                </Pagination>
+            </div>
+
+
+        </>
+    );
+};
+
+export default AddressMaster;

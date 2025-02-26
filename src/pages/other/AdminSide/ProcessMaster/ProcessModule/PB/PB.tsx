@@ -3,7 +3,7 @@ import { useEffect, useState, useRef } from 'react';
 import { Button, Col, Form, Row, ButtonGroup, Overlay, Popover, Modal, Table } from 'react-bootstrap';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import config from '@/config';
-import Select from 'react-select';
+// import Select from 'react-select';
 import DynamicForm from '@/pages/other/Component/DynamicForm';
 import { toast } from 'react-toastify';
 
@@ -39,10 +39,10 @@ interface Process {
     problemSolver: any;
 }
 
-interface GetTypeDayTimeList {
-    id: number;
-    name: string;
-}
+// interface GetTypeDayTimeList {
+//     id: number;
+//     name: string;
+// }
 interface AdhocList {
     id: number;
     formName: string;
@@ -96,10 +96,10 @@ const PB = () => {
         problemSolver: ''
     });
 
-    const [dropdownValuesFlag1, setDropdownValuesFlag1] = useState<GetTypeDayTimeList[]>([]);
-    const [dropdownValuesFlag2, setDropdownValuesFlag2] = useState<GetTypeDayTimeList[]>([]);
-    const [dropdownValuesFlag3, setDropdownValuesFlag3] = useState<GetTypeDayTimeList[]>([]);
-    const [dropdownValuesFlag4, setDropdownValuesFlag4] = useState<GetTypeDayTimeList[]>([]);
+    // const [dropdownValuesFlag1, setDropdownValuesFlag1] = useState<GetTypeDayTimeList[]>([]);
+    // const [dropdownValuesFlag2, setDropdownValuesFlag2] = useState<GetTypeDayTimeList[]>([]);
+    // const [dropdownValuesFlag3, setDropdownValuesFlag3] = useState<GetTypeDayTimeList[]>([]);
+    // const [dropdownValuesFlag4, setDropdownValuesFlag4] = useState<GetTypeDayTimeList[]>([]);
 
 
     useEffect(() => {
@@ -118,12 +118,12 @@ const PB = () => {
     }, [id]);
 
 
-    useEffect(() => {
-        GetTypeDayTimeList(1, setDropdownValuesFlag1);
-        GetTypeDayTimeList(2, setDropdownValuesFlag2);
-        GetTypeDayTimeList(3, setDropdownValuesFlag3);
-        GetTypeDayTimeList(4, setDropdownValuesFlag4);
-    }, []);
+    // useEffect(() => {
+    //     GetTypeDayTimeList(1, setDropdownValuesFlag1);
+    //     GetTypeDayTimeList(2, setDropdownValuesFlag2);
+    //     GetTypeDayTimeList(3, setDropdownValuesFlag3);
+    //     GetTypeDayTimeList(4, setDropdownValuesFlag4);
+    // }, []);
 
     const fetchModuleById = async (id: string) => {
         try {
@@ -144,19 +144,19 @@ const PB = () => {
 
 
 
-    const GetTypeDayTimeList = async (flag: any, setStateCallback: any) => {
-        try {
-            const response = await axios.get(`${config.API_URL_APPLICATION}/CommonDropdown/GetTypeDayTimeList?flag=${flag}`);
-            if (response.data.isSuccess) {
-                setStateCallback(response.data.typeListResponses);
-            } else {
-                console.error(response.data.message);
-            }
-        } catch (error) {
-            console.error('Error fetching modules:', error);
-        }
+    // const GetTypeDayTimeList = async (flag: any, setStateCallback: any) => {
+    //     try {
+    //         const response = await axios.get(`${config.API_URL_APPLICATION}/CommonDropdown/GetTypeDayTimeList?flag=${flag}`);
+    //         if (response.data.isSuccess) {
+    //             setStateCallback(response.data.typeListResponses);
+    //         } else {
+    //             console.error(response.data.message);
+    //         }
+    //     } catch (error) {
+    //         console.error('Error fetching modules:', error);
+    //     }
 
-    };
+    // };
 
 
     useEffect(() => {
@@ -457,7 +457,7 @@ const PB = () => {
 
 
                             <Col lg={12}>
-                                <Row>
+                                {/* <Row>
                                     <h4>Specific Time</h4>
                                     <Col lg={6}>
                                         <Form.Group controlId="intervalType" className="mb-3">
@@ -549,7 +549,7 @@ const PB = () => {
                                             />
                                         </Form.Group>
                                     </Col>
-                                </Row>
+                                </Row> */}
 
                             </Col>
                             <Col lg={3} className='align-items-end d-flex justify-content-end mb-3'>

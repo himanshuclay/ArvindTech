@@ -14,6 +14,10 @@ import FormBuilder from '@/pages/FormBuilder/FormBuilder';
 //     id: string;
 //     label: string;
 // }
+// interface Option {
+//     id: string;
+//     label: string;
+// }
 
 // Define interface for form inputs
 // interface Input {
@@ -25,7 +29,9 @@ import FormBuilder from '@/pages/FormBuilder/FormBuilder';
 // }
 
 // Interface for form data containing form inputs
-
+// interface FormData {
+//     inputs: Input[];
+// }
 
 // Interface for mess manager dropdown options
 interface MessManager {

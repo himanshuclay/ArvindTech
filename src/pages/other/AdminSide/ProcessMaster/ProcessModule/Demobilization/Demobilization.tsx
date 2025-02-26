@@ -41,7 +41,7 @@ interface Process {
 
 
 
-const HumanResource = () => {
+const Demobilization = () => {
     const { id, processID } = useParams<{ id: string, processID: string }>();
     const [show, setShow] = useState(false);
 
@@ -328,6 +328,7 @@ const HumanResource = () => {
 
                                 </Form.Group>
                             </Col>
+
                         </Row>
 
                         <Row>
@@ -356,7 +357,6 @@ const HumanResource = () => {
 
                     </Form>
                 </div>
-
                 <Modal className="p-0" show={showLink} onHide={handleClose} size="xl">
                     <Modal.Body>
                         {iframeUrl ? (
@@ -375,7 +375,6 @@ const HumanResource = () => {
                             urlError}
                     </Modal.Body>
                 </Modal>
-
                 <Overlay
                     show={show}
                     target={target}
@@ -390,114 +389,34 @@ const HumanResource = () => {
                         </Popover.Header>
                         <Popover.Body>
                             {
-                                processID === 'HR.01' ? <ul className="fs-15 text-dark">
-                                    {/* <li>Project Master</li> */}
-                                    <li>Project</li>
-                                    <li>Month</li>
-                                    <li>UID</li>
+                                processID === 'DEMOB.01' ||
+                                    processID === 'DEMOB.02' ||
+                                    processID === 'DEMOB.03' ||
+                                    processID === 'DEMOB.06' ||
+                                    processID === 'DEMOB.08' ||
+                                    processID === 'DEMOB.09' ||
+                                    processID === 'DEMOB.10' ||
+                                    processID === 'DEMOB.11' ||
+                                    processID === 'DEMOB.12' ||
+                                    processID === 'DEMOB.13' ||
+                                    processID === 'DEMOB.14' ||
+                                    processID === 'DEMOB.15' ||
+                                    processID === 'DEMOB.16' ||
+                                    processID === 'DEMOB.07' ? <ul className="fs-15 text-dark">
+                                    <li> Project Name</li>
+                                    <li>Month </li>
+                                    <li>Percentage of Work Done</li>
+                                    <li>UID </li>
                                 </ul> :
-                                    processID === 'HR.02' ?
+                                    processID === 'DEMOB.04' || processID === 'DEMOB.05' ?
                                         <ul className="fs-15 text-dark">
-                                            <li>ReqID</li>
-                                            <li>EntryDate</li>
                                             <li>Project</li>
-                                            <li>Department</li>
-                                            <li>Core Designation</li>
-                                            <li>Specialized Designation</li>
-                                            <li>Source</li>
-                                            <li>Count</li>
-                                            <li>Requested By</li>
-                                        </ul> :
-                                        processID === 'HR.03' ?
-                                            <ul className="fs-15 text-dark">
-                                                <li>ReqID</li>
-                                                <li>EntryDate</li>
-                                                <li>Project</li>
-                                                <li>Department</li>
-                                                <li>Core Designation</li>
-                                                <li>Specialized Designation</li>
-                                                <li>Source</li>
-                                                <li>Count</li>
-                                                <li>Requested By</li>
-                                            </ul> :
-                                            processID === 'HR.04' ?
-                                                <ul className="fs-15 text-dark">
-                                                    <li>Employee ID</li>
-                                                    <li>Employee Name</li>
-                                                    <li>Project</li>
-                                                    <li>Date Of Joining</li>
-                                                    <li>Record Creation Date</li>
-                                                    <li>DL Required</li>
-                                                </ul> :
-                                                processID === 'HR.05' ?
-                                                    <ul className="fs-15 text-dark">
-                                                        <li>UID</li>
-                                                        <li>Employee ID</li>
-                                                        <li>Employee Name</li>
-                                                        <li>Project</li>
-                                                        <li>Fitness Validity</li>
-                                                    </ul> :
-                                                    processID === 'HR.06' ?
-                                                        <ul className="fs-15 text-dark">
-                                                            <li>Employee ID</li>
-                                                            <li>Employee Name</li>
-                                                            <li>Current Project</li>
-                                                            <li>Designation</li>
-                                                            <li>Date of joining</li>
-                                                        </ul> :
-                                                        processID === 'HR.07' ?
-                                                            <ul className="fs-15 text-dark">
-                                                                <li>Employee ID</li>
-                                                                <li>Project</li>
-                                                                <li>Issue Type</li>
-                                                                <li>Approval Status</li>
-                                                                <li>Last Working Day</li>
-                                                                <li>Record Date</li>
-                                                                <li>Type</li>
-                                                            </ul> :
-                                                            processID === 'HR.08' ?
-                                                                <ul className="fs-15 text-dark">
-                                                                    <li>Project</li>
-                                                                    <li>Date</li>
-                                                                    <li>Type</li>
-                                                                    <li>UID </li>
-                                                                </ul> :
-                                                                processID === 'HR.09' ?
-                                                                    <ul className="fs-15 text-dark">
-                                                                        <li>Project</li>
-                                                                        <li>Date</li>
-                                                                        <li>UID </li>
-                                                                    </ul> :
-                                                                    processID === 'HR.10' ?
-                                                                        <ul className="fs-15 text-dark">
-                                                                            <li>Project</li>
-                                                                            <li>Month</li>
-                                                                            <li>UID </li>
-                                                                        </ul> :
-                                                                        processID === 'HR.11' ?
-                                                                            <ul className="fs-15 text-dark">
-                                                                                <li>UID </li>
-                                                                            </ul> :
-                                                                            processID === 'HR.12' ?
-                                                                                <ul className="fs-15 text-dark">
-                                                                                    <li>Date</li>
-                                                                                    <li>Project</li>
-                                                                                    <li>LicenseType</li>
-                                                                                    <li>Requirment Update Date</li>
-                                                                                    <li>Expiry Date</li>
-                                                                                    <li>UID</li>
-                                                                                </ul> :
-                                                                                processID === 'HR.13' ?
-                                                                                    <ul className="fs-15 text-dark">
-                                                                                        <li>Asset ID</li>
-                                                                                        <li>Asset Code</li>
-                                                                                        <li>Asset Name</li>
-                                                                                        <li>Current Project</li>
-                                                                                        <li>Asset OwnerShip</li>
-                                                                                        <li>Asset Condition</li>
-                                                                                    </ul> :
+                                            <li>Quarter </li>
+                                            <li>Percentage of Work Done</li>
+                                            <li>UID </li>
 
-                                                                                    null
+                                        </ul> :
+                                        null
 
                             }
 
@@ -506,9 +425,9 @@ const HumanResource = () => {
                     </Popover>
                 </Overlay>
 
-            </div>
+            </div >
         </div >
     );
 };
 
-export default HumanResource;
+export default Demobilization;
