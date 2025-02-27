@@ -225,6 +225,7 @@ const App: React.FC = () => {
     processOptions: [] as ProcessOption[], // Add processOptions to store the list of processes
   });
   const [conditionalField, setConditionalField] = useState(false);
+  const [selectedApprovalActions, setSelectedApprovalActions] = useState<string[]>([]);
   // const [customSelectFields, setCustomSelectFields] = useState<Record<string, { selectedMaster: string, selectedHeader: string, headersList: HeaderItem[] }>>({});
 
 
@@ -237,6 +238,11 @@ const App: React.FC = () => {
 
   const handleCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setConditionalField(event.target.checked);
+  };
+  const handleApprovalActionChange = (action: string) => {
+    setSelectedApprovalActions((prev) =>
+      prev.includes(action) ? prev.filter((a) => a !== action) : [...prev, action]
+    );
   };
   const handleApprovalCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setApprovalConsoleActive(event.target.checked); // Toggle the Approval Console based on checkbox
@@ -283,6 +289,12 @@ const App: React.FC = () => {
     id: number;
     mastersName: string;
   }
+
+  const approvalOptions = [
+    { id: 'approve', label: 'Approve' },
+    { id: 'reject', label: 'Reject' },
+    { id: 'approve_with_amendment', label: 'Approve with Amendment' }
+  ];
 
   const [mastersList, setMastersList] = useState<MasterItem[]>([]); // State to store the fetched options
   // const [selectedMaster, setSelectedMaster] = useState(''); // State to track selected option
@@ -675,8 +687,8 @@ const App: React.FC = () => {
       finishPoint: parseFloat(finishID), // Convert finishID to float before sending
       approval_Console: isApprovalConsoleActive ? "Select Approval_Console" : '',
       approvalConsoleDoerID: '',
-      approvalConsoleDoerName: '',
-      approvalConsoleInputID: '',
+      approvalConsoleDoerName: '', 
+      approvalConsoleInputID: selectedApprovalActions.join(',')
     };
 
 
@@ -686,7 +698,7 @@ const App: React.FC = () => {
     setLoading(true);
 
     try {
-      const response = await fetch(`${config.API_URL_ACCOUNT}/ProcessTaskMaster/InsertUpdateProcessTaskandDoer`, {
+      const response = await fetch(`${config.API_URL_ACCOUNT}/ProcessTaskMaster/InsertUpdateProcessTaskandDoers`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -1478,6 +1490,19 @@ const App: React.FC = () => {
                     <Popover id="approval-popover" style={{ position: 'absolute', bottom: '100%' }}>
                       <Popover.Header as="h3">Select Doer for Approval</Popover.Header>
                       <Popover.Body>
+
+                        <Form.Group className="mb-2">
+                          <Form.Label>Select Approval Actions</Form.Label>
+                          {approvalOptions.map((option) => (
+                            <Form.Check
+                              key={option.id}
+                              type="checkbox"
+                              label={option.label}
+                              checked={selectedApprovalActions.includes(option.id)}
+                              onChange={() => handleApprovalActionChange(option.id)}
+                            />
+                          ))}
+                        </Form.Group>
 
                       </Popover.Body>
                     </Popover>
