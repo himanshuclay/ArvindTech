@@ -46,7 +46,7 @@ const Select: React.FC<Props> = ({ block, handleChange, validationErrors = {}, e
                     className={validationErrors[block.property.id] ? "is-invalid" : ""}
                 >
                     <option value="">Please select</option>
-                    {block.property.options.map((option, index) => (
+                    {block.property.options?.map((option, index) => (
                         <option key={index} value={option.value}>
                             {option.label}
                         </option>
@@ -58,7 +58,7 @@ const Select: React.FC<Props> = ({ block, handleChange, validationErrors = {}, e
                     <Form.Text className="text-danger">{validationErrors[block.property.id]}</Form.Text>
                 )}
 
-                {(block.property.options as any[]).length === 0 && (
+                {(block.property.options as any[])?.length === 0 && (
                     <div className="cursor-pointer" style={{ pointerEvents: 'all' }}>
                         <a data-tooltip-id="tooltip" data-tooltip-content="Add Option First!">
                             <i className="ri-information-line" style={{ color: '#ff0000' }}></i>

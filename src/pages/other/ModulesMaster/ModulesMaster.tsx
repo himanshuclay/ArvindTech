@@ -139,7 +139,7 @@ const ModulesMaster = () => {
                                         </td>
                                         <td className='p-2 fs-6'>
                                             <Link to={child.to} className="text-decoration-none text-dark">
-                                                <button type="button" className="btn btn-primary"> Add Data </button>
+                                                <button type="button" className="btn btn-primary"> Show </button>
                                             </Link>
                                         </td>
                                     </tr>

@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, } from 'react';
 import config from '@/config';
 import axios from 'axios';
 import { getBlockById, manageBind, manageShowHide } from './Constant/Functions';
@@ -152,6 +152,7 @@ const Editor: React.FC<EditorProps> = ({ form, setForm, property, setProperty, b
                         `${config.API_URL_APPLICATION}/FormBuilder/GetValue`,
                         form.rules
                     );
+                    console.log(response);
                     if (response.data.isSuccess) {
                         const updatedActions = response.data.rules.map((rule: any) => {
                             rule.rule = JSON.parse(rule.rule);
@@ -164,6 +165,8 @@ const Editor: React.FC<EditorProps> = ({ form, setForm, property, setProperty, b
                             };
                         });
                         setTriggeredActions(updatedActions);
+        console.log(triggeredActions);
+
                     }
                 }
             } catch (error) {
@@ -175,7 +178,8 @@ const Editor: React.FC<EditorProps> = ({ form, setForm, property, setProperty, b
 
 
     const [prevBlockValue, setPrevBlockValue] = useState<any>({});
-    const isFirstRun = useRef(true);
+    // const [isFirstRun, setFirstRun] = useState(true);
+    let isFirstRun = true;
 
     const managePartiallyBind = async (blockValue: BLOCK_VALUE, rule: RULE) => {
         const query = {
@@ -228,8 +232,10 @@ const Editor: React.FC<EditorProps> = ({ form, setForm, property, setProperty, b
     }
 
     useEffect(() => {
-        if (isFirstRun.current) {
+        console.log('isFirstRun.current', isFirstRun);
+        if (isFirstRun) {
             someRule();
+            isFirstRun = false;
         } else {
             const changedKeys = Object.keys(blockValue).filter(
                 key => blockValue[key] !== prevBlockValue[key]
