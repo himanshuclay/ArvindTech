@@ -7,7 +7,7 @@ import {
   DroppableProvided,
 } from 'react-beautiful-dnd';
 import Select from 'react-select';
-import { Button, Form, Modal, ListGroup, Toast, Popover } from 'react-bootstrap';
+import { Button, Form, Modal, ListGroup, Toast, Popover, OverlayTrigger } from 'react-bootstrap';
 import axios from 'axios';
 import { useLocation } from 'react-router-dom';
 import config from '@/config';
@@ -383,6 +383,10 @@ const App: React.FC = () => {
 
   }
 
+  const removeNonSpecialFields = () => {
+    setTaskFields((prevFields) => prevFields.filter((field) => specialFields.includes(field.inputId)));
+  };
+
 
   const handleDragEnd = (result: any) => {
     if (!result.destination) return;
@@ -422,6 +426,14 @@ const App: React.FC = () => {
     const [removed] = result.splice(startIndex, 1);
     result.splice(endIndex, 0, removed);
     return result;
+  };
+
+  const specialFields = ['99', '100', '102', '103'];
+  const specialFieldsLabels: { [key: string]: string } = {
+    "99": "Task Name",
+    "100": "Module Name",
+    "102": "Process Name",
+    "103": "Role Name",
   };
 
   useEffect(() => {
@@ -687,7 +699,7 @@ const App: React.FC = () => {
       finishPoint: parseFloat(finishID), // Convert finishID to float before sending
       approval_Console: isApprovalConsoleActive ? "Select Approval_Console" : '',
       approvalConsoleDoerID: '',
-      approvalConsoleDoerName: '', 
+      approvalConsoleDoerName: '',
       approvalConsoleInputID: selectedApprovalActions.join(',')
     };
 
@@ -1353,9 +1365,36 @@ const App: React.FC = () => {
               </div>
             </Form>
           </div>
-          <div className='bg-white mt-1 p-1 text-end'>
-            <i className="ri-delete-bin-6-fill cursor-pointer" title='Clear Form'></i>
-          </div>
+          {taskFields.some((field) => specialFields.includes(field.inputId)) && (
+          <Droppable droppableId="specialFields">
+              {(provided) => (
+                <div className='bg-white mt-1 p-1 special-fields-container d-flex col-12 justify-content-between px-2' ref={provided.innerRef} {...provided.droppableProps}>
+                  {taskFields
+                    .filter((field) => specialFields.includes(field.inputId))
+                    .map((field, index) => (
+                      <Draggable key={field.inputId} draggableId={field.inputId} index={index}>
+                        {(provided) => (
+                          <div
+                            ref={provided.innerRef}
+                            {...provided.draggableProps}
+                            {...provided.dragHandleProps}
+                            className=""
+                          >
+                            {/* 🔹 Dynamic Label Mapping */}
+                            <label className="fs-6">
+                              {specialFieldsLabels[field.inputId] || `Task ${field.inputId}`}:
+                            </label>
+
+                            {/* 🔹 Display the Value */}
+                            <div className="fs-5">{field.labeltext || "No Value"}</div>
+                          </div>
+                        )}
+                      </Draggable>
+                    ))}
+                  {provided.placeholder}
+                </div>
+              )}
+          </Droppable> )}   
           <div className='d-flex'>
             <div className="col-md-3 p-2 bg-white my-1 border">
               <h4>Available Fields</h4>
@@ -1385,7 +1424,10 @@ const App: React.FC = () => {
             </div>
             <div className="col-md-6 p-2 bg-white my-1 border">
               <div className='col-12 h-100'>
-                <h4 style={{ height: '40px' }}>Build Your Task</h4>
+                <div className='d-flex justify-content-between align-items-center p-1'>
+                  <h4>Build Your Task</h4>
+                  <i className="ri-delete-bin-6-fill cursor-pointer text-danger col-1" onClick={removeNonSpecialFields} title='Clear Form'></i>
+                </div>
                 <Droppable droppableId="taskFields">
                   {(provided: DroppableProvided) => (
                     <div
@@ -1399,26 +1441,24 @@ const App: React.FC = () => {
                           <span>Please Select Task Fields</span>
                         </div>
                       )}
-                      {taskFields.map((field, index) => (
-                        <Draggable key={field.inputId} draggableId={field.inputId} index={index}>
-                          {(provided: DraggableProvided) => (
-                            <div
-                              ref={provided.innerRef}
-                              {...provided.draggableProps}
-                              {...provided.dragHandleProps}
-                              className={
-                                ['99', '100', '102', '103'].includes(field.inputId)
-                                  ? 'custom-details list-group-item col-md-12 col-sm-12 border-none my-1 p-0 timeliner d-flex'
-                                  : 'list-group-item col-md-12 col-sm-12 border-none my-1 p-1 timeliner d-flex'
-                              }
-                            >
-                              {renderField(field, -1, index)}
-                              <div className='top-round'></div>
-                              <div className='bottom-round'></div>
-                            </div>
-                          )}
-                        </Draggable>
-                      ))}
+                      {taskFields
+                        .filter(field => !specialFields.includes(field.inputId))
+                        .map((field, index) => (
+                          <Draggable key={field.inputId} draggableId={field.inputId} index={index}>
+                            {(provided) => (
+                              <div
+                                ref={provided.innerRef}
+                                {...provided.draggableProps}
+                                {...provided.dragHandleProps}
+                                className="list-group-item col-md-12 col-sm-12 border-none my-1 p-1 timeliner d-flex"
+                              >
+                                {renderField(field, -1, index)}
+                                <div className="top-round"></div>
+                                <div className="bottom-round"></div>
+                              </div>
+                            )}
+                          </Draggable>
+                        ))}
                       {provided.placeholder}
                     </div>
                   )}
@@ -1476,7 +1516,7 @@ const App: React.FC = () => {
                 <div className="row col-12 position-relative">
                   {/* Approval console checkbox */}
                   <Form.Group className="my-1">
-                    <Form.Label>Is approval is applicable?</Form.Label>
+                    {/* <Form.Label>Is approval applicable?</Form.Label> */}
                     <Form.Check
                       type="checkbox"
                       label="Activate Approval Console"
@@ -1485,28 +1525,39 @@ const App: React.FC = () => {
                     />
                   </Form.Group>
 
-                  {/* Conditionally render the Approval Console popover */}
+                  {/* Button to toggle popover */}
                   {isApprovalConsoleActive && (
-                    <Popover id="approval-popover" style={{ position: 'absolute', bottom: '100%' }}>
-                      <Popover.Header as="h3">Select Approval Actions</Popover.Header>
-                      <Popover.Body>
-                        <Form.Group className="mb-2">
-                          {approvalOptions.map((option) => (
-                            <Form.Check
-                              key={option.id}
-                              type="checkbox"
-                              label={option.label}
-                              checked={selectedApprovalActions.includes(option.id)}
-                              onChange={() => handleApprovalActionChange(option.id)}
-                            />
-                          ))}
-                        </Form.Group>
-
-                      </Popover.Body>
-                    </Popover>
+                    <OverlayTrigger
+                      trigger="click"
+                      placement="top"
+                      overlay={
+                        <Popover id="approval-popover">
+                          <Popover.Header as="h3">Select Approval Actions</Popover.Header>
+                          <Popover.Body>
+                            <Form.Group className="mb-2">
+                              {approvalOptions.map((option) => (
+                                <Form.Check
+                                  key={option.id}
+                                  type="checkbox"
+                                  label={option.label}
+                                  checked={selectedApprovalActions.includes(option.id)}
+                                  onChange={() => handleApprovalActionChange(option.id)}
+                                />
+                              ))}
+                            </Form.Group>
+                          </Popover.Body>
+                        </Popover>
+                      }
+                      rootClose
+                    >
+                      <Button variant="primary" className="my-2">
+                        Configure Approval
+                      </Button>
+                    </OverlayTrigger>
                   )}
                 </div>
               </div>
+
               {location.pathname != '/pages/CreateTemplates' &&
 
                 (
@@ -1535,6 +1586,7 @@ const App: React.FC = () => {
                 )
 
               }
+
             </div>
           </div>
         </DragDropContext>
