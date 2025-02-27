@@ -35,7 +35,7 @@ const ModulesMaster = () => {
                 { name: 'Mobilization Master', to: '/pages/MobilizationMaster' },
                 { name: 'Camp Master', to: '/pages/CampMaster' },
                 { name: 'Preliminary Work Master', to: '/pages/PreliminaryWorkMaster' },
-                { name: 'Requirement Master', to: '/pages/RequirementMaster' },
+                { name: 'Requirement Master', to: '/pages/MRequirementMaster' },
             ]
         },
         {
