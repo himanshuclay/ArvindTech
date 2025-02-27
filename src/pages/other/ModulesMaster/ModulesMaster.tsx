@@ -54,7 +54,7 @@ const ModulesMaster = () => {
                 { name: 'FA HO Master', to: '/pages/FAHOMaster' },
                 { name: 'Procurement BBEJ Master', to: '/pages/ProcurementBBEJMaster' },
                 { name: 'Low Inventory Tracking Master', to: '/pages/LowInventoryTrackingMaster' },
-                { name: 'Asset Categor Master', to: '/pages/AssetCategorMaster' },
+                { name: 'Asset Category Master', to: '/pages/AssetCategoryMaster' },
                 { name: 'Asset Master', to: '/pages/AssetMaster' },
             ]
         },
