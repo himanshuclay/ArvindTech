@@ -21,6 +21,22 @@ import AssetTrackingMaster from "@/pages/other/AdminSide/ModulesMaster/Mechanica
 import AssetTrackingMasterAddEdit from "@/pages/other/AdminSide/ModulesMaster/MechanicalMasters/AssetTrackingMaster/AddEditMaster"
 import AssetConditionMasterAddEdit from "@/pages/other/AdminSide/ModulesMaster/MechanicalMasters/AssetConditionMaster/AddEditMaster"
 import AssetConditionMaster from "@/pages/other/AdminSide/ModulesMaster/MechanicalMasters/AssetConditionMaster/AssetMaster"
+import MobilizationMaster from "@/pages/other/AdminSide/ModulesMaster/MobilizationMasters/MobilizationMaster/MobilizationMaster"
+import MobilizationMasterAddEdit from "@/pages/other/AdminSide/ModulesMaster/MobilizationMasters/MobilizationMaster/AddEditMaster"
+import CampMaster from "@/pages/other/AdminSide/ModulesMaster/MobilizationMasters/CampMaster/CampMaster"
+import CampMasterAddEdit from "@/pages/other/AdminSide/ModulesMaster/MobilizationMasters/CampMaster/AddEditMaster"
+import PreliminaryWorkMaster from "@/pages/other/AdminSide/ModulesMaster/MobilizationMasters/PreliminaryWorkMaster/PreliminaryWorkMaster"
+import PreliminaryWorkMasterAddEdit from "@/pages/other/AdminSide/ModulesMaster/MobilizationMasters/PreliminaryWorkMaster/AddEditMaster"
+import MRequirementMaster from "@/pages/other/AdminSide/ModulesMaster/MobilizationMasters/MRequirementMaster/MRequirementMaster"
+import MRequirementMasterAddEdit from "@/pages/other/AdminSide/ModulesMaster/MobilizationMasters/MRequirementMaster/AddEditMaster"
+import InwardCorrespondanceMaster from "@/pages/other/AdminSide/ModulesMaster/PlanningBillingMasters/InwardCorrespondanceMaster/InwardCorrespondanceMaster"
+import InwardCorrespondanceMasterAddEdit from "@/pages/other/AdminSide/ModulesMaster/PlanningBillingMasters/InwardCorrespondanceMaster/AddEditMaster"
+import MaterialMaster from "@/pages/other/AdminSide/ModulesMaster/ProcurementMasters/MaterialMaster/MaterialMaster"
+import MaterialMasterAddEdit from "@/pages/other/AdminSide/ModulesMaster/ProcurementMasters/MaterialMaster/AddEditMaster"
+import MaterialRequisitionMaster from "@/pages/other/AdminSide/ModulesMaster/ProcurementMasters/MaterialRequisitionMaster/MaterialRequisitionMaster"
+import MaterialRequisitionMasterAddEdit from "@/pages/other/AdminSide/ModulesMaster/ProcurementMasters/MaterialRequisitionMaster/AddEditMaster"
+import ComparativeMaster from "@/pages/other/AdminSide/ModulesMaster/ProcurementMasters/ComparativeMaster/ComparativeMaster"
+import ComparativeMasterAddEdit from "@/pages/other/AdminSide/ModulesMaster/ProcurementMasters/ComparativeMaster/AddEditMaster"
 const DDPS_MASTER = [
     {
         path: '/pages/DrawingMaster',
@@ -226,10 +242,164 @@ const BTS_MASTER = [
     },
 ]
 
+const MOBILIZATION_MASTER = [
+    {
+        path: '/pages/MobilizationMaster',
+        name: 'Challan Master',
+        element: <MobilizationMaster />,
+        route: PrivateRoute,
+    },
+    {
+        path: '/pages/MobilizationMasterAddEdit',
+        name: 'Challan Master',
+        element: <MobilizationMasterAddEdit />,
+        route: PrivateRoute,
+    },
+    {
+        path: '/pages/MobilizationMasterAddEdit/:id',
+        name: 'Challan Master',
+        element: <MobilizationMasterAddEdit />,
+        route: PrivateRoute,
+    },
+    {
+        path: '/pages/CampMaster',
+        name: 'Challan Master',
+        element: <CampMaster />,
+        route: PrivateRoute,
+    },
+    {
+        path: '/pages/CampMasterAddEdit',
+        name: 'Challan Master',
+        element: <CampMasterAddEdit />,
+        route: PrivateRoute,
+    },
+    {
+        path: '/pages/CampMasterAddEdit/:id',
+        name: 'Challan Master',
+        element: <CampMasterAddEdit />,
+        route: PrivateRoute,
+    },
+    {
+        path: '/pages/PreliminaryWorkMaster',
+        name: 'Challan Master',
+        element: <PreliminaryWorkMaster />,
+        route: PrivateRoute,
+    },
+    {
+        path: '/pages/PreliminaryWorkMasterAddEdit',
+        name: 'Challan Master',
+        element: <PreliminaryWorkMasterAddEdit />,
+        route: PrivateRoute,
+    },
+    {
+        path: '/pages/PreliminaryWorkMasterAddEdit/:id',
+        name: 'Challan Master',
+        element: <PreliminaryWorkMasterAddEdit />,
+        route: PrivateRoute,
+    },
+    {
+        path: '/pages/MRequirementMaster',
+        name: 'Challan Master',
+        element: <MRequirementMaster />,
+        route: PrivateRoute,
+    },
+    {
+        path: '/pages/MRequirementMasterAddEdit',
+        name: 'Challan Master',
+        element: <MRequirementMasterAddEdit />,
+        route: PrivateRoute,
+    },
+    {
+        path: '/pages/MRequirementMasterAddEdit/:id',
+        name: 'Challan Master',
+        element: <MRequirementMasterAddEdit />,
+        route: PrivateRoute,
+    },
+]
+const PLANNING_BILLING_MASTER = [
+    {
+        path: '/pages/InwardCorrespondanceMaster',
+        name: 'Challan Master',
+        element: <InwardCorrespondanceMaster />,
+        route: PrivateRoute,
+    },
+    {
+        path: '/pages/InwardCorrespondanceMasterAddEdit',
+        name: 'Challan Master',
+        element: <InwardCorrespondanceMasterAddEdit />,
+        route: PrivateRoute,
+    },
+    {
+        path: '/pages/InwardCorrespondanceMasterAddEdit/:id',
+        name: 'Challan Master',
+        element: <InwardCorrespondanceMasterAddEdit />,
+        route: PrivateRoute,
+    },
+]
+const PROCUREMENT_MASTER = [
+    {
+        path: '/pages/MaterialMaster',
+        name: 'Challan Master',
+        element: <MaterialMaster />,
+        route: PrivateRoute,
+    },
+    {
+        path: '/pages/MaterialMasterAddEdit',
+        name: 'Challan Master',
+        element: <MaterialMasterAddEdit />,
+        route: PrivateRoute,
+    },
+    {
+        path: '/pages/MaterialMasterAddEdit/:id',
+        name: 'Challan Master',
+        element: <MaterialMasterAddEdit />,
+        route: PrivateRoute,
+    },
+    {
+        path: '/pages/MaterialRequisitionMaster',
+        name: 'Challan Master',
+        element: <MaterialRequisitionMaster />,
+        route: PrivateRoute,
+    },
+    {
+        path: '/pages/MaterialRequisitionMasterAddEdit',
+        name: 'Challan Master',
+        element: <MaterialRequisitionMasterAddEdit />,
+        route: PrivateRoute,
+    },
+    {
+        path: '/pages/MaterialRequisitionMasterAddEdit/:id',
+        name: 'Challan Master',
+        element: <MaterialRequisitionMasterAddEdit />,
+        route: PrivateRoute,
+    },
+    {
+        path: '/pages/ComparativeMaster',
+        name: 'Challan Master',
+        element: <ComparativeMaster />,
+        route: PrivateRoute,
+    },
+    {
+        path: '/pages/ComparativeMasterAddEdit',
+        name: 'Challan Master',
+        element: <ComparativeMasterAddEdit />,
+        route: PrivateRoute,
+    },
+    {
+        path: '/pages/ComparativeMasterAddEdit/:id',
+        name: 'Challan Master',
+        element: <ComparativeMasterAddEdit />,
+        route: PrivateRoute,
+    },
+]
+
 const MODULES_MASTER = [
     ...DDPS_MASTER,
     ...BTS_MASTER,
     ...MECHANICAL_MASTER,
+    ...MOBILIZATION_MASTER,
+    ...PLANNING_BILLING_MASTER,
+    ...PROCUREMENT_MASTER,
 ]
 
 
