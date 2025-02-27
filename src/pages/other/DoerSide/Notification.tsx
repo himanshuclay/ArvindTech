@@ -515,6 +515,7 @@ const ProjectAssignTable: React.FC = () => {
                                   ProcessInitiationID={item.id}
                                   approval_Console={item.approval_Console}
                                   problemSolver={item.problemSolver}
+                                  approvarActions={item.approvalConsoleInputID}
                                 />
                               }
                             </div>

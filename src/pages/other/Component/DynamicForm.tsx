@@ -57,6 +57,7 @@ interface DynamicFormProps {
     ProcessInitiationID: any
     approval_Console: any
     problemSolver: any
+    approvarActions: any
     fromComponent: string
     finishPoint: any
 }
@@ -98,6 +99,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
     taskStatus,
     fromComponent,
     problemSolver,
+    approvarActions,
     ProcessInitiationID,
 }) => {
     const [formState, setFormState] = useState<FormState>({})
@@ -507,13 +509,25 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
 
     const projectNames = projectName
 
+    const approvalLabels: Record<string, string> = {
+        approve: "Approved",
+        reject: "Rejected",
+        approve_with_amendment: "Approve with Amendment"
+    };
+
+    const options: OptionType[] = approvarActions.split(",").map((action: any) => ({
+        value: action,
+        label: approvalLabels[action] || action // Use readable label if available
+    }));
+    console.log("46356356356", approvarActions);
+
     type OptionType = { value: string; label: string }
 
-    const options: OptionType[] = [
-        { value: 'approved', label: 'Approved' },
-        { value: 'rejected', label: 'Rejected' },
-        { value: 'approvalWithAmid', label: 'approvalWithAmid' },
-    ]
+    // const options: OptionType[] = [
+    //     { value: 'approved', label: 'Approved' },
+    //     { value: 'rejected', label: 'Rejected' },
+    //     { value: 'approvalWithAmid', label: 'approvalWithAmid' },
+    // ]
 
     const handleSelectChange = (selectedOption: SingleValue<OptionType>) => {
         console.log('Selected Option:', selectedOption) // Debugging
@@ -868,14 +882,14 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                     console.error("Invalid globalTaskJson structure or 'inputs' is missing:", parsedGlobalTaskJson);
                     return;
                 }
-                
+
                 const finishPointInput = parsedGlobalTaskJson.inputs.find((input: any) => String(input.inputId) === String(finishPoint));
-                
+
                 if (processId !== "ACC.01" && !finishPointInput?.value?.trim()) {
                     toast.dismiss();
                     toast.error(`Please fill the required field: ${finishPointInput?.label || "Unknown Field"}`);
                     return;
-                }                
+                }
                 const response = await fetch(
                     `${config.API_URL_ACCOUNT}/ProcessInitiation/UpdateDoerTask`,
                     {
@@ -1830,18 +1844,26 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                                                 )}
                                             </>
                                         )}
-
                                         {fromComponent === 'ApprovalConsole' && (
                                             <div>
                                                 <label>Is Approved</label>
                                                 <Select
-                                                    options={options} // Set options for the dropdown
+                                                    styles={{
+                                                        menu: (provided) => ({
+                                                            ...provided,
+                                                            zIndex: 9999 // Ensures dropdown appears above everything
+                                                        }),
+                                                        menuPortal: (base) => ({ ...base, zIndex: 9999 }) // Moves dropdown to top layer
+                                                    }}
+                                                    menuPortalTarget={document.body} // Render dropdown outside modal
+                                                    options={options} // Dynamically generated options
                                                     value={approvalStatus} // Bind the selected option
                                                     onChange={handleSelectChange} // Update state on selection
                                                     placeholder="Select Approval Status" // Placeholder text
                                                 />
                                             </div>
                                         )}
+
                                     </div>
                                     <div>
                                         {processId === 'ACC.01' ? (
