@@ -12,31 +12,28 @@ import { toast } from 'react-toastify';
 
 interface Mess {
     id: number,
-    entryDate: string,
+    flaggedDate: string,
     projectID: string,
     projectName: string,
-    assetName: string,
-    specification: string,
-    otherSpecification: string,
-    requisitionQuantity: string,
+    material: string,
     unit: string,
-    source: string,
-    requesterEmpID: string,
-    requesterEmpName: string,
-    coreCategory: string,
-    acceptedQty: string,
-    code: string,
-    reconcileQtyPR_Local: string,
-    reconsileQtyPO_STPO_Local: string,
-    reconsileScheduleLotQty: string,
-    reconsileDispatchedLotQty: string,
-    reconsileRejectQty: string,
-    reconsileShortCloseQty: string,
-    reconsileReOrderQty: string,
-    createdDate: string,
+    minQty: string,
+    currentQty: string,
+    status: string,
+    imsType: string,
+    red: string,
+    physicalInventoryCorrectAsPerIMSfilled: string,
+    incorrect: string,
+    decision: string,
+    orderQty: string,
+    prPendingForPO: string,
+    poPendingForDispatch: string,
+    incorrectInventory: string,
+    other: string,
     createdBy: string,
-    updatedDate: string,
-    updatedBy: string
+    createdDate: string,
+    updatedBy: string,
+    updatedDate: string
 
 }
 
@@ -58,7 +55,7 @@ interface Column {
 // }
 
 
-const PMRequisitionMaster = () => {
+const LowInventoryTrackingMaster = () => {
     const role = localStorage.getItem('role');
 
     const [messes, setMesses] = useState<Mess[]>([]);
@@ -87,32 +84,29 @@ const PMRequisitionMaster = () => {
     // both are required to make dragable column of table 
     const [columns, setColumns] = useState<Column[]>([
 
-
-        { id: 'entryDate', label: 'entryDate', visible: true},
-        { id: 'projectID', label: 'projectID', visible: true},
-        { id: 'projectName', label: 'projectName', visible: true},
-        { id: 'assetName', label: 'assetName', visible: true},
-        { id: 'specification', label: 'specification', visible: true},
-        { id: 'otherSpecification', label: 'otherSpecification', visible: true},
-        { id: 'requisitionQuantity', label: 'requisitionQuantity', visible: true},
-        { id: 'unit', label: 'unit', visible: true},
-        { id: 'source', label: 'source', visible: true},
-        { id: 'requesterEmpID', label: 'requesterEmpID', visible: true},
-        { id: 'requesterEmpName', label: 'requesterEmpName', visible: true},
-        { id: 'coreCategory', label: 'coreCategory', visible: true},
-        { id: 'acceptedQty', label: 'acceptedQty', visible: true},
-        { id: 'code', label: 'code', visible: true},
-        { id: 'reconcileQtyPR_Local', label: 'reconcileQtyPR_Local', visible: true},
-        { id: 'reconsileQtyPO_STPO_Local', label: 'reconsileQtyPO_STPO_Local', visible: true},
-        { id: 'reconsileScheduleLotQty', label: 'reconsileScheduleLotQty', visible: true},
-        { id: 'reconsileDispatchedLotQty', label: 'reconsileDispatchedLotQty', visible: true},
-        { id: 'reconsileRejectQty', label: 'reconsileRejectQty', visible: true},
-        { id: 'reconsileShortCloseQty', label: 'reconsileShortCloseQty', visible: true},
-        { id: 'reconsileReOrderQty', label: 'reconsileReOrderQty', visible: true},
-        { id: 'createdDate', label: 'createdDate', visible: true},
-        { id: 'createdBy', label: 'createdBy', visible: true},
-        { id: 'updatedDate', label: 'updatedDate', visible: true},
-        { id: 'updatedBy', label: 'updatedBy', visible: true},
+       
+{ id: 'flaggedDate', label: 'flaggedDate', visible: true},
+{ id: 'projectID', label: 'projectID', visible: true},
+{ id: 'projectName', label: 'projectName', visible: true},
+{ id: 'material', label: 'material', visible: true},
+{ id: 'unit', label: 'unit', visible: true},
+{ id: 'minQty', label: 'minQty', visible: true},
+{ id: 'currentQty', label: 'currentQty', visible: true},
+{ id: 'status', label: 'status', visible: true},
+{ id: 'imsType', label: 'imsType', visible: true},
+{ id: 'red', label: 'red', visible: true},
+{ id: 'physicalInventoryCorrectAsPerIMSfilled', label: 'physicalInventoryCorrectAsPerIMSfilled', visible: true},
+{ id: 'incorrect', label: 'incorrect', visible: true},
+{ id: 'decision', label: 'decision', visible: true},
+{ id: 'orderQty', label: 'orderQty', visible: true},
+{ id: 'prPendingForPO', label: 'prPendingForPO', visible: true},
+{ id: 'poPendingForDispatch', label: 'poPendingForDispatch', visible: true},
+{ id: 'incorrectInventory', label: 'incorrectInventory', visible: true},
+{ id: 'other', label: 'other', visible: true},
+{ id: 'createdBy', label: 'createdBy', visible: true},
+{ id: 'createdDate', label: 'createdDate', visible: true},
+{ id: 'updatedBy', label: 'updatedBy', visible: true},
+{ id: 'updatedDate', label: 'updatedDate', visible: true},
 
     ]);
 
@@ -151,12 +145,12 @@ const PMRequisitionMaster = () => {
         query += `PageIndex=${currentPage}`;
 
         query = query.endsWith('&') ? query.slice(0, -1) : query;
-        const apiUrl = `${config.API_URL_APPLICATION1}/PMRequisitionMaster/GetPMRequisition/${query}`;
+        const apiUrl = `${config.API_URL_APPLICATION1}/LowInventoryTrackingMaster/GetLowInventoryTracking/${query}`;
         console.log(apiUrl)
         axios.get(apiUrl, { headers: { 'accept': '*/*' } })
             .then((response) => {
-                console.log("search response ", response.data.pmRequisitionMasters);
-                setMesses(response.data.pmRequisitionMasters)
+                console.log("search response ", response.data);
+                setMesses(response.data.lowInventoryTrackingMasters)
                 setTotalPages(Math.ceil(response.data.totalCount / 10));
             })
             .catch((error) => {
@@ -167,12 +161,12 @@ const PMRequisitionMaster = () => {
     const fetchRoles = async () => {
         setLoading(true);
         try {
-            const response = await axios.get(`${config.API_URL_APPLICATION1}/PMRequisitionMaster/GetPMRequisition`, {
+            const response = await axios.get(`${config.API_URL_APPLICATION1}/LowInventoryTrackingMaster/GetLowInventoryTracking`, {
                 params: { PageIndex: currentPage }
             });
             console.log('response', response)
             if (response.data.isSuccess) {
-                setMesses(response.data.pmRequisitionMasters);
+                setMesses(response.data.lowInventoryTrackingMasters);
                 setTotalPages(Math.ceil(response.data.totalCount / 10));
             } else {
                 console.error(response.data.message);
@@ -203,7 +197,7 @@ const PMRequisitionMaster = () => {
         //     }
         // };
 
-        // fetchData('PMRequisitionMaster/GetPMRequisition', setMessList, 'pmRequisitionMasters');
+        // fetchData('LowInventoryTrackingMaster/GetLowInventoryTracking', setMessList, 'lowInventoryTrackingMasters');
         // fetchData('CommonDropdown/GetProjectList', setProjectList, 'projectListResponses');
         // fetchData('MessMaster/GetMess', setDownloadCsv, 'messMasterList');
 
@@ -279,16 +273,16 @@ const PMRequisitionMaster = () => {
     return (
         <>
             <div className="d-flex bg-white p-2 my-2 justify-content-between align-items-center">
-                <span><i className="ri-file-list-line me-2 text-dark fs-16"></i><span className='fw-bold text-dark fs-15'>PMRequisition Master</span></span>
+                <span><i className="ri-file-list-line me-2 text-dark fs-16"></i><span className='fw-bold text-dark fs-15'>LowInventoryTracking Master</span></span>
                 <div className="d-flex justify-content-end  ">
                     {/* <Button variant="primary" onClick={downloadCSV} className="me-2">
                         Download CSV
                     </Button> */}
                     {(role === 'Admin' || role === 'DME') && (
 
-                        <Link to='/pages/PMRequisitionMasterAddEdit'>
+                        <Link to='/pages/LowInventoryTrackingMasterAddEdit'>
                             <Button variant="primary" className="me-2">
-                                Add PMRequisition Master
+                                Add LowInventoryTracking Master
                             </Button>
                         </Link>)}
 
@@ -476,7 +470,7 @@ const PMRequisitionMaster = () => {
                                                 {(role === 'Admin' || role === 'DME') && (
 
 
-                                                    <td><Link to={`/pages/PMRequisitionMasterAddEdit/${item.id}`}>
+                                                    <td><Link to={`/pages/LowInventoryTrackingMasterAddEdit/${item.id}`}>
                                                         <Button variant='primary' className='p-0 text-white'>
                                                             <i className='btn ri-edit-line text-white' ></i>
                                                         </Button>
@@ -523,4 +517,4 @@ const PMRequisitionMaster = () => {
     );
 };
 
-export default PMRequisitionMaster;
+export default LowInventoryTrackingMaster;

@@ -37,6 +37,22 @@ import MaterialRequisitionMaster from "@/pages/other/AdminSide/ModulesMaster/Pro
 import MaterialRequisitionMasterAddEdit from "@/pages/other/AdminSide/ModulesMaster/ProcurementMasters/MaterialRequisitionMaster/AddEditMaster"
 import ComparativeMaster from "@/pages/other/AdminSide/ModulesMaster/ProcurementMasters/ComparativeMaster/ComparativeMaster"
 import ComparativeMasterAddEdit from "@/pages/other/AdminSide/ModulesMaster/ProcurementMasters/ComparativeMaster/AddEditMaster"
+import PMRequisitionMaster from "@/pages/other/AdminSide/ModulesMaster/ProcurementMasters/PMRequisitionMaster/PMRequisitionMaster"
+import PMRequisitionMasterAddEdit from "@/pages/other/AdminSide/ModulesMaster/ProcurementMasters/PMRequisitionMaster/AddEditMaster"
+import TransportationMaster from "@/pages/other/AdminSide/ModulesMaster/ProcurementMasters/TransportationMaster/TransportationMaster"
+import TransportationMasterAddEdit from "@/pages/other/AdminSide/ModulesMaster/ProcurementMasters/TransportationMaster/AddEditMaster"
+import HORequisitionMaster from "@/pages/other/AdminSide/ModulesMaster/ProcurementMasters/HORequisitionMaster/HORequisitionMaster"
+import HORequisitionMasterAddEdit from "@/pages/other/AdminSide/ModulesMaster/ProcurementMasters/HORequisitionMaster/AddEditMaster"
+import FAHOMaster from "@/pages/other/AdminSide/ModulesMaster/ProcurementMasters/FAHOMaster/FAHOMaster"
+import FAHOMasterAddEdit from "@/pages/other/AdminSide/ModulesMaster/ProcurementMasters/FAHOMaster/AddEditMaster"
+import ProcurementBBEJMaster from "@/pages/other/AdminSide/ModulesMaster/ProcurementMasters/ProcurementBBEJMaster/ProcurementBBEJMaster"
+import ProcurementBBEJMasterAddEdit from "@/pages/other/AdminSide/ModulesMaster/ProcurementMasters/ProcurementBBEJMaster/AddEditMaster"
+import LowInventoryTrackingMaster from "@/pages/other/AdminSide/ModulesMaster/ProcurementMasters/LowInventoryTrackingMaster/LowInventoryTrackingMaster"
+import LowInventoryTrackingMasterAddEdit from "@/pages/other/AdminSide/ModulesMaster/ProcurementMasters/LowInventoryTrackingMaster/AddEditMaster"
+import TABillMaster from "@/pages/other/AdminSide/ModulesMaster/PRWMaster/TABillMaster/TABillMaster"
+import TABillMasterAddEdit from "@/pages/other/AdminSide/ModulesMaster/PRWMaster/TABillMaster/AddEditMaster"
+import PRWRequirementMaster from "@/pages/other/AdminSide/ModulesMaster/PRWMaster/PRWRequirementMaster/PRWRequirementMaster"
+import PRWRequirementMasterAddEdit from "@/pages/other/AdminSide/ModulesMaster/PRWMaster/PRWRequirementMaster/AddEditMaster"
 const DDPS_MASTER = [
     {
         path: '/pages/DrawingMaster',
@@ -391,6 +407,153 @@ const PROCUREMENT_MASTER = [
         element: <ComparativeMasterAddEdit />,
         route: PrivateRoute,
     },
+    {
+        path: '/pages/PMRequisitionMaster',
+        name: 'Challan Master',
+        element: <PMRequisitionMaster />,
+        route: PrivateRoute,
+    },
+    {
+        path: '/pages/PMRequisitionMasterAddEdit',
+        name: 'Challan Master',
+        element: <PMRequisitionMasterAddEdit />,
+        route: PrivateRoute,
+    },
+    {
+        path: '/pages/PMRequisitionMasterAddEdit/:id',
+        name: 'Challan Master',
+        element: <PMRequisitionMasterAddEdit />,
+        route: PrivateRoute,
+    },
+    {
+        path: '/pages/TransportationMaster',
+        name: 'Challan Master',
+        element: <TransportationMaster />,
+        route: PrivateRoute,
+    },
+    {
+        path: '/pages/TransportationMasterAddEdit',
+        name: 'Challan Master',
+        element: <TransportationMasterAddEdit />,
+        route: PrivateRoute,
+    },
+    {
+        path: '/pages/TransportationMasterAddEdit/:id',
+        name: 'Challan Master',
+        element: <TransportationMasterAddEdit />,
+        route: PrivateRoute,
+    },
+    {
+        path: '/pages/HORequisitionMaster',
+        name: 'Challan Master',
+        element: <HORequisitionMaster />,
+        route: PrivateRoute,
+    },
+    {
+        path: '/pages/HORequisitionMasterAddEdit',
+        name: 'Challan Master',
+        element: <HORequisitionMasterAddEdit />,
+        route: PrivateRoute,
+    },
+    {
+        path: '/pages/HORequisitionMasterAddEdit/:id',
+        name: 'Challan Master',
+        element: <HORequisitionMasterAddEdit />,
+        route: PrivateRoute,
+    },
+    {
+        path: '/pages/FAHOMaster',
+        name: 'Challan Master',
+        element: <FAHOMaster />,
+        route: PrivateRoute,
+    },
+    {
+        path: '/pages/FAHOMasterAddEdit',
+        name: 'Challan Master',
+        element: <FAHOMasterAddEdit />,
+        route: PrivateRoute,
+    },
+    {
+        path: '/pages/FAHOMasterAddEdit/:id',
+        name: 'Challan Master',
+        element: <FAHOMasterAddEdit />,
+        route: PrivateRoute,
+    },
+    {
+        path: '/pages/ProcurementBBEJMaster',
+        name: 'Challan Master',
+        element: <ProcurementBBEJMaster />,
+        route: PrivateRoute,
+    },
+    {
+        path: '/pages/ProcurementBBEJMasterAddEdit',
+        name: 'Challan Master',
+        element: <ProcurementBBEJMasterAddEdit />,
+        route: PrivateRoute,
+    },
+    {
+        path: '/pages/ProcurementBBEJMasterAddEdit/:id',
+        name: 'Challan Master',
+        element: <ProcurementBBEJMasterAddEdit />,
+        route: PrivateRoute,
+    },
+    {
+        path: '/pages/LowInventoryTrackingMaster',
+        name: 'Challan Master',
+        element: <LowInventoryTrackingMaster />,
+        route: PrivateRoute,
+    },
+    {
+        path: '/pages/LowInventoryTrackingMasterAddEdit',
+        name: 'Challan Master',
+        element: <LowInventoryTrackingMasterAddEdit />,
+        route: PrivateRoute,
+    },
+    {
+        path: '/pages/LowInventoryTrackingMasterAddEdit/:id',
+        name: 'Challan Master',
+        element: <LowInventoryTrackingMasterAddEdit />,
+        route: PrivateRoute,
+    },
+]
+const PRW_MASTER = [
+    {
+        path: '/pages/TABillMaster',
+        name: 'Challan Master',
+        element: <TABillMaster />,
+        route: PrivateRoute,
+    },
+    {
+        path: '/pages/TABillMasterAddEdit',
+        name: 'Challan Master',
+        element: <TABillMasterAddEdit />,
+        route: PrivateRoute,
+    },
+    {
+        path: '/pages/TABillMasterAddEdit/:id',
+        name: 'Challan Master',
+        element: <TABillMasterAddEdit />,
+        route: PrivateRoute,
+    },
+    {
+        path: '/pages/PRWRequirementMaster',
+        name: 'Challan Master',
+        element: <PRWRequirementMaster />,
+        route: PrivateRoute,
+    },
+    {
+        path: '/pages/PRWRequirementMasterAddEdit',
+        name: 'Challan Master',
+        element: <PRWRequirementMasterAddEdit />,
+        route: PrivateRoute,
+    },
+    {
+        path: '/pages/PRWRequirementMasterAddEdit/:id',
+        name: 'Challan Master',
+        element: <PRWRequirementMasterAddEdit />,
+        route: PrivateRoute,
+    },
+
 ]
 
 const MODULES_MASTER = [
@@ -400,6 +563,7 @@ const MODULES_MASTER = [
     ...MOBILIZATION_MASTER,
     ...PLANNING_BILLING_MASTER,
     ...PROCUREMENT_MASTER,
+    ...PRW_MASTER,
 ]
 
 
