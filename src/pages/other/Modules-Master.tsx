@@ -1488,11 +1488,9 @@ const App: React.FC = () => {
                   {/* Conditionally render the Approval Console popover */}
                   {isApprovalConsoleActive && (
                     <Popover id="approval-popover" style={{ position: 'absolute', bottom: '100%' }}>
-                      <Popover.Header as="h3">Select Doer for Approval</Popover.Header>
+                      <Popover.Header as="h3">Select Approval Actions</Popover.Header>
                       <Popover.Body>
-
                         <Form.Group className="mb-2">
-                          <Form.Label>Select Approval Actions</Form.Label>
                           {approvalOptions.map((option) => (
                             <Form.Check
                               key={option.id}
