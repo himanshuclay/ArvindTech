@@ -234,6 +234,7 @@ const ApprovalPage: React.FC = () => {
           preData={[]}
           // selectedTasknumber={selectedTask.task_Number}
           // setLoading={() => { }}
+          approvarActions={selectedTask.approvalConsoleInputID}
           taskCommonIDRow={selectedTask.taskCommonId}
           taskStatus={selectedTask.isCompleted}
           processId={selectedTask.processID}

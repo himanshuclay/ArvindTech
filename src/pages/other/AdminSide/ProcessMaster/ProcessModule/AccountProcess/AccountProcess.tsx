@@ -607,6 +607,7 @@ const AccountProcess = () => {
                     ProcessInitiationID
                     approval_Console
                     projectName
+                    approvarActions
                     problemSolver
                 />
 

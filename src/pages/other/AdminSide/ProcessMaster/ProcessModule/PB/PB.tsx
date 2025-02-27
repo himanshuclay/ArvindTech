@@ -645,6 +645,7 @@ const PB = () => {
                     approval_Console
                     projectName
                     problemSolver
+                    approvarActions
                 />
 
             }
