@@ -379,7 +379,7 @@ const ProjectAssignTable: React.FC = () => {
                                           <>{format(new Date(item.completedDate), 'dd-MMM-yyyy HH:mm')}</>
                                         ) : col.id === 'taskName' ? (
                                           <>
-                                            {item.isCompleted !== "Completed"
+                                            {item.isCompleted == "Completed"
                                               ? item.taskName
                                               : (() => {
                                                 const taskJson = JSON.parse(item.task_Json);

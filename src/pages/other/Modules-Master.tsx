@@ -293,7 +293,7 @@ const App: React.FC = () => {
   const approvalOptions = [
     { id: 'approve', label: 'Approve' },
     { id: 'reject', label: 'Reject' },
-    { id: 'approve_with_amendment', label: 'Approve with Amendment' }
+    { id: 'approvewithamendment', label: 'Approve with Amendment' }
   ];
 
   const [mastersList, setMastersList] = useState<MasterItem[]>([]); // State to store the fetched options
@@ -1365,36 +1365,25 @@ const App: React.FC = () => {
               </div>
             </Form>
           </div>
-          {taskFields.some((field) => specialFields.includes(field.inputId)) && (
-          <Droppable droppableId="specialFields">
-              {(provided) => (
-                <div className='bg-white mt-1 p-1 special-fields-container d-flex col-12 justify-content-between px-2' ref={provided.innerRef} {...provided.droppableProps}>
-                  {taskFields
-                    .filter((field) => specialFields.includes(field.inputId))
-                    .map((field, index) => (
-                      <Draggable key={field.inputId} draggableId={field.inputId} index={index}>
-                        {(provided) => (
-                          <div
-                            ref={provided.innerRef}
-                            {...provided.draggableProps}
-                            {...provided.dragHandleProps}
-                            className=""
-                          >
-                            {/* 🔹 Dynamic Label Mapping */}
-                            <label className="fs-6">
-                              {specialFieldsLabels[field.inputId] || `Task ${field.inputId}`}:
-                            </label>
 
-                            {/* 🔹 Display the Value */}
-                            <div className="fs-5">{field.labeltext || "No Value"}</div>
-                          </div>
-                        )}
-                      </Draggable>
-                    ))}
-                  {provided.placeholder}
-                </div>
-              )}
-          </Droppable> )}   
+          <div className='bg-white mt-1 p-1 special-fields-container d-flex col-12 justify-content-between px-2'>
+            {taskFields.some((field) => specialFields.includes(field.inputId)) && (
+              <>
+                {taskFields
+                  .filter((field) => specialFields.includes(field.inputId)) // ✅ Filter only special fields
+                  .map((field) => (
+                    <div key={field.inputId} className="field-container">
+                      <span className="fs-6 fw-bold">
+                        {specialFieldsLabels[field.inputId.toString()]}
+                      </span>
+                      <br />
+                      <span className="field-label">{field.labeltext}</span>
+                    </div>
+                  ))}
+              </>
+            )}
+          </div>
+
           <div className='d-flex'>
             <div className="col-md-3 p-2 bg-white my-1 border">
               <h4>Available Fields</h4>
@@ -1442,15 +1431,18 @@ const App: React.FC = () => {
                         </div>
                       )}
                       {taskFields
-                        .filter(field => !specialFields.includes(field.inputId))
                         .map((field, index) => (
+
                           <Draggable key={field.inputId} draggableId={field.inputId} index={index}>
                             {(provided) => (
                               <div
                                 ref={provided.innerRef}
                                 {...provided.draggableProps}
-                                {...provided.dragHandleProps}
-                                className="list-group-item col-md-12 col-sm-12 border-none my-1 p-1 timeliner d-flex"
+                                {...(!specialFields.includes(field.inputId) ? provided.dragHandleProps : {})}
+                                className="list-group-item col-md-12 col-sm-12 border-none my-1 p-1 timeliner"
+                                style={{
+                                  display: specialFields.includes(field.inputId) ? "none" : "flex", // ✅ Correct way to hide elements
+                                }}
                               >
                                 {renderField(field, -1, index)}
                                 <div className="top-round"></div>

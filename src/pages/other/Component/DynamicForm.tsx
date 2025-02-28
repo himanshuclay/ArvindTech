@@ -512,7 +512,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
     const approvalLabels: Record<string, string> = {
         approve: "Approved",
         reject: "Rejected",
-        approve_with_amendment: "Approve with Amendment"
+        approvewithamendment: "Approve with Amendment"
     };
 
     const options: OptionType[] = approvarActions.split(",").map((action: any) => ({
@@ -843,8 +843,8 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                     const approvalValue =
                         approvalStatus?.value?.trim().toLowerCase() || ''
                     if (currentStatus === 'Waiting for Approval') {
-                        if (approvalValue === 'rejected') return 'Pending'
-                        if (['approvalwithamid', 'approved'].includes(approvalValue))
+                        if (approvalValue === 'reject') return 'Pending'
+                        if (['approvewithamendment', 'approve'].includes(approvalValue))
                             return 'Completed'
                     }
                     if (approval_Console === '' &&
@@ -884,22 +884,24 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                     console.error("Invalid globalTaskJson structure or 'inputs' is missing:", parsedGlobalTaskJson);
                     return;
                 }
+                 
+                // const finishPointInput = parsedGlobalTaskJson.inputs.find((input: any) => String(input.inputId) === String(finishPoint));
+                // console.log(finishPoint)
+                // console.log(parsedGlobalTaskJson);
 
-                const finishPointInput = parsedGlobalTaskJson.inputs.find((input: any) => String(input.inputId) === String(finishPoint));
-
-                if (processId !== "ACC.01") {
-                    if(Array.isArray(finishPointInput.value)){
-                        if(!finishPointInput.value.length){
-                            toast.dismiss();
-                            toast.error(`Please fill the required field: ${finishPointInput?.label || "Unknown Field"}`);
-                            return;
-                        }
-                    }else if(!finishPointInput?.value?.trim()){
-                        toast.dismiss();
-                        toast.error(`Please fill the required field: ${finishPointInput?.label || "Unknown Field"}`);
-                        return;
-                    }
-                }
+                // if (processId !== "ACC.01") {
+                //     if(Array.isArray(finishPointInput.value)){
+                //         if(!finishPointInput.value.length){
+                //             toast.dismiss();
+                //             toast.error(`Please fill the required field: ${finishPointInput?.label || "Unknown Field"}`);
+                //             return;
+                //         }
+                //     }else if(!finishPointInput?.value?.trim()){
+                //         toast.dismiss();
+                //         toast.error(`Please fill the required field: ${finishPointInput?.label || "Unknown Field"}`);
+                //         return;
+                //     }
+                // }
                 const response = await fetch(
                     `${config.API_URL_ACCOUNT}/ProcessInitiation/UpdateDoerTask`,
                     {
@@ -1284,7 +1286,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                                                             (approval_Console ===
                                                                 'Select Approval_Console'
                                                                 ? approvalStatus?.value ===
-                                                                    'approvalWithAmid'
+                                                                    'approvewithamendment'
                                                                     ? 'cursor-pointer'
                                                                     : 'cursor-not-allowed'
                                                                 : '')
