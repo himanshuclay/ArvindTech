@@ -71,6 +71,7 @@ const AdhocMaster: React.FC = () => {
     const fetchTemplates = async () => {
         try {
             const response = await axios.get<ApiResponse>(`${config.API_URL_ACCOUNT}/ProcessTaskMaster/GetTemplateJson`);
+            console.log('response', response)
             if (response.data.isSuccess) {
                 setData(response.data.getTemplateJsons);
             } else {
@@ -163,6 +164,7 @@ const AdhocMaster: React.FC = () => {
                             </tr>
                             <tr>
                                 <td colSpan={5}>
+                                    {expandedRow === item.id && (
                                     <Collapse in={expandedRow === item.id}>
                                         <div>
                                             {/* Parse and pass the form data from JSON to the dynamic form */}
@@ -171,9 +173,11 @@ const AdhocMaster: React.FC = () => {
                                                 messName={item.formName}
                                                 showMessManagerSelect={true} // You can add logic to show/hide this
                                                 messManagers={messManagers}
+                                                expandedRow={expandedRow}
                                             />
                                         </div>
                                     </Collapse>
+                                    )}
                                 </td>
                             </tr>
                         </React.Fragment>
@@ -201,9 +205,10 @@ interface DynamicFormProps {
     messName: string;
     showMessManagerSelect: boolean;
     messManagers: MessManager[];
+    expandedRow: number | null;
 }
 
-const DynamicForm: React.FC<DynamicFormProps> = ({ formData, messName, showMessManagerSelect, messManagers }) => {
+const DynamicForm: React.FC<DynamicFormProps> = ({ formData, messName, showMessManagerSelect, messManagers, expandedRow }) => {
     // const [formState, setFormState] = useState<{ [key: string]: any }>({});
 
     // const handleChange = (inputId: string, value: any) => {
@@ -212,7 +217,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({ formData, messName, showMessM
     //         [inputId]: value,
     //     }));
     // };
-    const [form, setForm] = useState<FIELD>({ ...formData, editMode: false });
+    const [form, setForm] = useState<FIELD>({ ...formData, editMode: true });
     const [property, setProperty] = useState<PROPERTY>({
         label: '',
         id: '',
@@ -228,6 +233,12 @@ const DynamicForm: React.FC<DynamicFormProps> = ({ formData, messName, showMessM
         disabled: false,
     })
     const [blockValue, setBlockValue] = useState({})
+    useEffect(() => {
+        setForm((preForm) => ({
+            ...preForm,
+            editMode: false,
+        }))
+    },[])
 
 
     // const handleSelectMessImpChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -238,7 +249,9 @@ const DynamicForm: React.FC<DynamicFormProps> = ({ formData, messName, showMessM
         <React.Fragment>
             <h5>Please Update data for <span className='text-primary'>{messName}</span></h5>
             <div className="my-task">
-                <Editor form={form} setForm={setForm} property={property} setProperty={setProperty} blockValue={blockValue} setBlockValue={setBlockValue} />
+                {formData?.blocks?.length && (
+                    <Editor form={form} setForm={setForm} property={property} setProperty={setProperty} blockValue={blockValue} setBlockValue={setBlockValue} expandedRow={expandedRow} />
+                )}
             </div>
         </React.Fragment>
     );

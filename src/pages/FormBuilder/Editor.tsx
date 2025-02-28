@@ -1,4 +1,4 @@
-import React, { useEffect, useState, } from 'react';
+import React, { useEffect, useRef, useState, } from 'react';
 import config from '@/config';
 import axios from 'axios';
 import { getBlockById, manageBind, manageShowHide } from './Constant/Functions';
@@ -23,6 +23,7 @@ interface EditorProps {
     setProperty: React.Dispatch<React.SetStateAction<PROPERTY>>;
     blockValue: BLOCK_VALUE;
     setBlockValue: React.Dispatch<React.SetStateAction<BLOCK_VALUE>>;
+    expandedRow?: number | null;
 }
 
 interface DynamicComponentProps {
@@ -68,7 +69,7 @@ const DynamicComponentRenderer: React.FC<DynamicComponentProps> = ({ form, compo
     );
 };
 
-const Editor: React.FC<EditorProps> = ({ form, setForm, property, setProperty, blockValue, setBlockValue }) => {
+const Editor: React.FC<EditorProps> = ({ form, setForm, property, setProperty, blockValue, setBlockValue, expandedRow }) => {
     const [validationErrors, setValidationErrors] = useState<{ [key: string]: string }>({});
     const [triggeredActions, setTriggeredActions] = useState<TRIGGER_ACTION[]>([]);
 
@@ -152,7 +153,6 @@ const Editor: React.FC<EditorProps> = ({ form, setForm, property, setProperty, b
                         `${config.API_URL_APPLICATION}/FormBuilder/GetValue`,
                         form.rules
                     );
-                    console.log(response);
                     if (response.data.isSuccess) {
                         const updatedActions = response.data.rules.map((rule: any) => {
                             rule.rule = JSON.parse(rule.rule);
@@ -165,8 +165,6 @@ const Editor: React.FC<EditorProps> = ({ form, setForm, property, setProperty, b
                             };
                         });
                         setTriggeredActions(updatedActions);
-        console.log(triggeredActions);
-
                     }
                 }
             } catch (error) {
@@ -178,8 +176,7 @@ const Editor: React.FC<EditorProps> = ({ form, setForm, property, setProperty, b
 
 
     const [prevBlockValue, setPrevBlockValue] = useState<any>({});
-    // const [isFirstRun, setFirstRun] = useState(true);
-    let isFirstRun = true;
+    const isFirstRun = useRef(true);
 
     const managePartiallyBind = async (blockValue: BLOCK_VALUE, rule: RULE) => {
         const query = {
@@ -204,9 +201,12 @@ const Editor: React.FC<EditorProps> = ({ form, setForm, property, setProperty, b
         setTriggeredActions(updatedActions);
     };
     const someRule = () => {
+        console.log('triggeredActions',triggeredActions)
         triggeredActions.forEach(action => {
+            console.log('action.type', action.type)
             if (action.type === 'show_hide' && action.block) {
                 const updatedBlock = manageShowHide(action.block, action.rule.rule, blockValue) as BASIC_FIELD;
+                console.log('updatedBlock', updatedBlock)
                 setForm(prevForm => ({
                     ...prevForm,
                     blocks: prevForm.blocks.map(block =>
@@ -232,17 +232,19 @@ const Editor: React.FC<EditorProps> = ({ form, setForm, property, setProperty, b
     }
 
     useEffect(() => {
-        console.log('isFirstRun.current', isFirstRun);
-        if (isFirstRun) {
-            someRule();
-            isFirstRun = false;
-        } else {
-            const changedKeys = Object.keys(blockValue).filter(
-                key => blockValue[key] !== prevBlockValue[key]
-            );
-            if (changedKeys.length === 0) return;
-            setPrevBlockValue(blockValue);
-            someRule();
+        if(!form.editMode){
+            if (isFirstRun.current) {
+                console.log('yes')
+                someRule();
+                isFirstRun.current = false;
+            } else {
+                const changedKeys = Object.keys(blockValue).filter(
+                    key => blockValue[key] !== prevBlockValue[key]
+                );
+                if (changedKeys.length === 0) return;
+                setPrevBlockValue(blockValue);
+                someRule();
+            }
         }
     }, [blockValue, triggeredActions]);
 
