@@ -605,6 +605,8 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
         }
     }
 
+    const [fileNames, setFileNames] = useState<string[]>([]);
+
     const handleChange = (
         inputId: string,
         value: string | boolean | string[]
@@ -885,10 +887,18 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
 
                 const finishPointInput = parsedGlobalTaskJson.inputs.find((input: any) => String(input.inputId) === String(finishPoint));
 
-                if (processId !== "ACC.01" && !finishPointInput?.value?.trim()) {
-                    toast.dismiss();
-                    toast.error(`Please fill the required field: ${finishPointInput?.label || "Unknown Field"}`);
-                    return;
+                if (processId !== "ACC.01") {
+                    if(Array.isArray(finishPointInput.value)){
+                        if(!finishPointInput.value.length){
+                            toast.dismiss();
+                            toast.error(`Please fill the required field: ${finishPointInput?.label || "Unknown Field"}`);
+                            return;
+                        }
+                    }else if(!finishPointInput?.value?.trim()){
+                        toast.dismiss();
+                        toast.error(`Please fill the required field: ${finishPointInput?.label || "Unknown Field"}`);
+                        return;
+                    }
                 }
                 const response = await fetch(
                     `${config.API_URL_ACCOUNT}/ProcessInitiation/UpdateDoerTask`,
@@ -1622,20 +1632,42 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                                                             </select>
                                                         )}
                                                         {input.type === 'file' && (
-                                                            <FileUploader
-                                                                ref={fileUploaderRef}
-                                                                additionalData={{
-                                                                    ModuleID: moduleId,
-                                                                    CreatedBy: 'yourUserID',
-                                                                    TaskCommonID: taskCommonIDRow,
-                                                                    Task_Number: taskNumber,
-                                                                    ProcessInitiationID: ProcessInitiationID,
-                                                                    ProcessID: processId,
-                                                                    UpdatedBy: 'yourUpdatedBy'
-                                                                }}
-                                                                onFileSelect={(files) => console.log('Selected Files:', files)}
-                                                            />
+                                                            <div>
+                                                                <FileUploader
+                                                                    ref={fileUploaderRef}
+                                                                    additionalData={{
+                                                                        ModuleID: moduleId,
+                                                                        CreatedBy: 'yourUserID',
+                                                                        TaskCommonID: taskCommonIDRow,
+                                                                        Task_Number: taskNumber,
+                                                                        ProcessInitiationID: ProcessInitiationID,
+                                                                        ProcessID: processId,
+                                                                        UpdatedBy: 'yourUpdatedBy'
+                                                                    }}
+                                                                    onFileSelect={(files) => {
+                                                                        if (files.length > 0) {
+                                                                            setFileNames(files.map(file => file.name)); // Store multiple file names
+                                                                        }
+                                                                    }}
+                                                                />
+                                                                <input type="text"
+                                                                 value={fileNames}
+                                                                />
+
+                                                                {/* Display selected file names */}
+                                                                {fileNames.length > 0 && (
+                                                                    <div className="mt-2">
+                                                                        <p>Selected Files:</p>
+                                                                        <ul>
+                                                                            {fileNames.map((name, index) => (
+                                                                                <li key={index}>{name}</li>
+                                                                            ))}
+                                                                        </ul>
+                                                                    </div>
+                                                                )}
+                                                            </div>
                                                         )}
+
                                                         {input.type === 'checkbox' && (
                                                             <span className="form-check">
                                                                 <input
