@@ -5,7 +5,7 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import config from '@/config';
 // import Select from 'react-select';
 import { toast } from 'react-toastify';
-
+import Flatpickr from 'react-flatpickr';
 
 interface BTS_PAYMENT {
     id: number,
@@ -119,7 +119,6 @@ const AssetTrackingMasterAddEdit = () => {
     }
     );
 
-    const [isMobileVerified, setIsMobileVerified] = useState(false);
     const [validationErrors, setValidationErrors] = useState<{ [key: string]: string }>({});
 
     useEffect(() => {
@@ -183,43 +182,43 @@ const AssetTrackingMasterAddEdit = () => {
         const errors: { [key: string]: string } = {};
 
 
-        if (!messes.assetCode) { errors.assetCode = 'assetCode is required' }
-        if (!messes.dateOfDeployment) { errors.dateOfDeployment = 'dateOfDeployment is required' }
-        if (!messes.assetCategory) { errors.assetCategory = 'assetCategory is required' }
-        if (!messes.assetGroup) { errors.assetGroup = 'assetGroup is required' }
-        if (!messes.assetName) { errors.assetName = 'assetName is required' }
-        if (!messes.specification) { errors.specification = 'specification is required' }
-        if (!messes.assetMake) { errors.assetMake = 'assetMake is required' }
-        if (!messes.currentProject) { errors.currentProject = 'currentProject is required' }
-        if (!messes.assetOwnership) { errors.assetOwnership = 'assetOwnership is required' }
-        if (!messes.currentStatusATProject) { errors.currentStatusATProject = 'currentStatusATProject is required' }
-        if (!messes.transferredTo) { errors.transferredTo = 'transferredTo is required' }
-        if (!messes.forHSD) { errors.forHSD = 'forHSD is required' }
-        if (!messes.imsSpareInventory) { errors.imsSpareInventory = 'imsSpareInventory is required' }
-        if (!messes.assetServiceSchedule) { errors.assetServiceSchedule = 'assetServiceSchedule is required' }
-        if (!messes.rtoCompliance) { errors.rtoCompliance = 'rtoCompliance is required' }
-        if (!messes.preventiveMaintainance) { errors.preventiveMaintainance = 'preventiveMaintainance is required' }
-        if (!messes.preventiveMaintainanceFrequency) { errors.preventiveMaintainanceFrequency = 'preventiveMaintainanceFrequency is required' }
-        if (!messes.triggerValue) { errors.triggerValue = 'triggerValue is required' }
-        if (!messes.nextPMDate) { errors.nextPMDate = 'nextPMDate is required' }
-        if (!messes.operatorDriver) { errors.operatorDriver = 'operatorDriver is required' }
-        if (!messes.engineNo) { errors.engineNo = 'engineNo is required' }
-        if (!messes.chasisNo) { errors.chasisNo = 'chasisNo is required' }
-        if (!messes.dateOfRegistration) { errors.dateOfRegistration = 'dateOfRegistration is required' }
-        if (!messes.roadTaxValidTill) { errors.roadTaxValidTill = 'roadTaxValidTill is required' }
-        if (!messes.nationalPermitValidTill) { errors.nationalPermitValidTill = 'nationalPermitValidTill is required' }
-        if (!messes.statePermitValidTill) { errors.statePermitValidTill = 'statePermitValidTill is required' }
-        if (!messes.nationalPermitGoodsValidTill) { errors.nationalPermitGoodsValidTill = 'nationalPermitGoodsValidTill is required' }
-        if (!messes.fitnessValidTill) { errors.fitnessValidTill = 'fitnessValidTill is required' }
-        if (!messes.insuranceValidTill) { errors.insuranceValidTill = 'insuranceValidTill is required' }
-        if (!messes.pollutionValidTill) { errors.pollutionValidTill = 'pollutionValidTill is required' }
-        if (!messes.assetStatus) { errors.assetStatus = 'assetStatus is required' }
-        if (!messes.assetStatusUpdatedOn) { errors.assetStatusUpdatedOn = 'assetStatusUpdatedOn is required' }
-        if (!messes.updatedByTaskID) { errors.updatedByTaskID = 'updatedByTaskID is required' }
-        if (!messes.modifiedBy) { errors.modifiedBy = 'modifiedBy is required' }
-        if (!messes.editBy) { errors.editBy = 'editBy is required' }
-        if (!messes.latestServicingDate) { errors.latestServicingDate = 'latestServicingDate is required' }
-        if (!messes.pmChecklist) { errors.pmChecklist = 'pmChecklist is required' }
+        if (!messes.assetCode) { errors.assetCode = 'Asset Code is required' }
+        if (!messes.dateOfDeployment) { errors.dateOfDeployment = 'Date Of Deployment is required' }
+        if (!messes.assetCategory) { errors.assetCategory = 'Asset Category is required' }
+        if (!messes.assetGroup) { errors.assetGroup = 'Asset Group is required' }
+        if (!messes.assetName) { errors.assetName = 'Asset Name is required' }
+        if (!messes.specification) { errors.specification = 'Specification is required' }
+        if (!messes.assetMake) { errors.assetMake = 'Asset Make is required' }
+        if (!messes.currentProject) { errors.currentProject = 'Current Project is required' }
+        if (!messes.assetOwnership) { errors.assetOwnership = 'Asset Ownership is required' }
+        if (!messes.currentStatusATProject) { errors.currentStatusATProject = 'Current Status AT Project is required' }
+        if (!messes.transferredTo) { errors.transferredTo = 'Transferred To is required' }
+        if (!messes.forHSD) { errors.forHSD = 'For HSD is required' }
+        if (!messes.imsSpareInventory) { errors.imsSpareInventory = 'Ims Spare Inventory is required' }
+        if (!messes.assetServiceSchedule) { errors.assetServiceSchedule = 'Asset Service Schedule is required' }
+        if (!messes.rtoCompliance) { errors.rtoCompliance = 'Rto Compliance is required' }
+        if (!messes.preventiveMaintainance) { errors.preventiveMaintainance = 'Preventive Maintainance is required' }
+        if (!messes.preventiveMaintainanceFrequency) { errors.preventiveMaintainanceFrequency = 'Preventive Maintainance Frequency is required' }
+        if (!messes.triggerValue) { errors.triggerValue = 'Trigger Value is required' }
+        if (!messes.nextPMDate) { errors.nextPMDate = 'Next PM Date is required' }
+        if (!messes.operatorDriver) { errors.operatorDriver = 'Operator Driver is required' }
+        if (!messes.engineNo) { errors.engineNo = 'Engine No is required' }
+        if (!messes.chasisNo) { errors.chasisNo = 'Chasis No is required' }
+        if (!messes.dateOfRegistration) { errors.dateOfRegistration = 'Date Of Registration is required' }
+        if (!messes.roadTaxValidTill) { errors.roadTaxValidTill = 'Road Tax Valid Till is required' }
+        if (!messes.nationalPermitValidTill) { errors.nationalPermitValidTill = 'National Permit Valid Till is required' }
+        if (!messes.statePermitValidTill) { errors.statePermitValidTill = 'State Permit Valid Till is required' }
+        if (!messes.nationalPermitGoodsValidTill) { errors.nationalPermitGoodsValidTill = 'National Permit Goods Valid Till is required' }
+        if (!messes.fitnessValidTill) { errors.fitnessValidTill = 'Fitness Valid Till is required' }
+        if (!messes.insuranceValidTill) { errors.insuranceValidTill = 'Insurance Valid Till is required' }
+        if (!messes.pollutionValidTill) { errors.pollutionValidTill = 'Pollution Valid Till is required' }
+        if (!messes.assetStatus) { errors.assetStatus = 'Asset Status is required' }
+        if (!messes.assetStatusUpdatedOn) { errors.assetStatusUpdatedOn = 'Asset Status Updated On is required' }
+        if (!messes.updatedByTaskID) { errors.updatedByTaskID = 'Updated By Task ID is required' }
+        if (!messes.modifiedBy) { errors.modifiedBy = 'Modified By is required' }
+        if (!messes.editBy) { errors.editBy = 'Edit By is required' }
+        if (!messes.latestServicingDate) { errors.latestServicingDate = 'Latest Servicing Date is required' }
+        if (!messes.pmChecklist) { errors.pmChecklist = 'Pm Checklist is required' }
 
 
 
@@ -235,6 +234,7 @@ const AssetTrackingMasterAddEdit = () => {
 
     const handleChange = (e: ChangeEvent<any> | null, name?: string, value?: any) => {
         const validateMobileNumber = (fieldName: string, fieldValue: string) => {
+            const errors: { [key: string]: string } = {};
             if (!/^\d{0,10}$/.test(fieldValue)) {
                 return false;
             }
@@ -246,12 +246,13 @@ const AssetTrackingMasterAddEdit = () => {
 
             if (fieldValue.length === 10) {
                 if (!/^[6-9]/.test(fieldValue)) {
-                    toast.error("Mobile number should start with a digit between 6 and 9.");
-                    setIsMobileVerified(true);
+                    errors.no = "Mobile number should start with a digit between 6 and 9.";
                     return false;
                 }
             } else {
-                setIsMobileVerified(false);
+                errors.no = "Mobile number should be 10 digits only"
+                setValidationErrors(errors);
+                return false;
             }
             return true;
         };
@@ -293,11 +294,7 @@ const AssetTrackingMasterAddEdit = () => {
 
 
 
-        if (isMobileVerified) {
-            toast.dismiss()
-            toast.error("Please verify your mobile number before submitting the form.");
-            return;
-        }
+      
         const payload = {
             ...messes,
             createdDate: new Date(),
@@ -326,6 +323,18 @@ const AssetTrackingMasterAddEdit = () => {
         }
 
     };
+    const handleDateChange = (fieldName: string, selectedDates: Date[]) => {
+        if (selectedDates.length > 0) {
+            setMesses((prevData) => ({
+                ...prevData,
+                [fieldName]: selectedDates[0].toISOString().split("T")[0], // ✅ Store as YYYY-MM-DD
+            }));
+        }
+    };
+ const dateOptions = {
+        enableTime: false,
+        dateFormat: 'Y-m-d',
+    }
     return (
         <div>
             <div className="container">
@@ -338,13 +347,13 @@ const AssetTrackingMasterAddEdit = () => {
 
                             <Col lg={6}>
                                 <Form.Group controlId="assetCode" className="mb-3">
-                                    <Form.Label>assetCode</Form.Label>
+                                    <Form.Label>Asset Code*</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="assetCode"
                                         value={messes.assetCode}
                                         onChange={handleChange}
-                                        placeholder='Enter assetCode'
+                                        placeholder='Enter Asset Code'
                                         disabled={editMode}
                                         className={validationErrors.assetCode ? " input-border" : "  "}
                                     />
@@ -355,15 +364,16 @@ const AssetTrackingMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="dateOfDeployment" className="mb-3">
-                                    <Form.Label>dateOfDeployment</Form.Label>
-                                    <Form.Control
+                                    <Form.Label>Date Of Deployment*</Form.Label>
+                                    <Flatpickr
                                         type="date"
                                         name="dateOfDeployment"
                                         value={messes.dateOfDeployment}
-                                        onChange={handleChange}
-                                        placeholder='Enter dateOfDeployment'
+                                        onChange={(selectedDates) => handleDateChange("dateOfDeployment", selectedDates)}
+                                        placeholder='Enter Date Of Deployment'
                                         disabled={editMode}
-                                        className={validationErrors.dateOfDeployment ? " input-border" : "  "}
+                                        options={dateOptions}
+                                        className={validationErrors.dateOfDeployment ? "form-control input-border" : "form-control"}
                                     />
                                     {validationErrors.dateOfDeployment && (
                                         <small className="text-danger">{validationErrors.dateOfDeployment}</small>
@@ -372,13 +382,13 @@ const AssetTrackingMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="assetCategory" className="mb-3">
-                                    <Form.Label>assetCategory</Form.Label>
+                                    <Form.Label>Asset Category*</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="assetCategory"
                                         value={messes.assetCategory}
                                         onChange={handleChange}
-                                        placeholder='Enter Project ID'
+                                        placeholder='Enter Asset Category'
                                         className={validationErrors.assetCategory ? " input-border" : "  "}
                                     />
                                     {validationErrors.assetCategory && (
@@ -388,13 +398,13 @@ const AssetTrackingMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="assetGroup" className="mb-3">
-                                    <Form.Label>assetGroup</Form.Label>
+                                    <Form.Label>Asset Group*</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="assetGroup"
                                         value={messes.assetGroup}
                                         onChange={handleChange}
-                                        placeholder='Enter Project Name'
+                                        placeholder='Enter Asset Group'
                                         className={validationErrors.assetGroup ? " input-border" : "  "}
                                     />
                                     {validationErrors.assetGroup && (
@@ -404,10 +414,11 @@ const AssetTrackingMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="assetName" className="mb-3">
-                                    <Form.Label>assetName</Form.Label>
+                                    <Form.Label>Asset Name*</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="assetName"
+                                        placeholder='Enter Asset Name'
                                         value={messes.assetName}  // ✅ Use checked instead of value
                                         onChange={handleChange}
                                         className={validationErrors.assetName ? "input-border" : ""}
@@ -421,13 +432,13 @@ const AssetTrackingMasterAddEdit = () => {
 
                             <Col lg={6}>
                                 <Form.Group controlId="specification" className="mb-3">
-                                    <Form.Label>specification</Form.Label>
+                                    <Form.Label>Specification*</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="specification"
                                         value={messes.specification}
                                         onChange={handleChange}
-                                        placeholder='Enter specification'
+                                        placeholder='Enter Specification'
                                         className={validationErrors.specification ? " input-border" : "  "}
                                     />
                                     {validationErrors.specification && (
@@ -437,13 +448,13 @@ const AssetTrackingMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="assetMake" className="mb-3">
-                                    <Form.Label>assetMake</Form.Label>
+                                    <Form.Label>Asset Make*</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="assetMake"
                                         value={messes.assetMake}
                                         onChange={handleChange}
-                                        placeholder='Enter assetMake'
+                                        placeholder='Enter Asset Make'
                                         className={validationErrors.assetMake ? " input-border" : "  "}
                                     />
                                     {validationErrors.assetMake && (
@@ -453,13 +464,13 @@ const AssetTrackingMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="currentProject" className="mb-3">
-                                    <Form.Label>currentProject</Form.Label>
+                                    <Form.Label>Current Project*</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="currentProject"
                                         value={messes.currentProject}
                                         onChange={handleChange}
-                                        placeholder='Enter currentProject'
+                                        placeholder='Enter Current Project'
                                         className={validationErrors.currentProject ? " input-border" : "  "}
                                     />
                                     {validationErrors.currentProject && (
@@ -469,13 +480,13 @@ const AssetTrackingMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="assetOwnership" className="mb-3">
-                                    <Form.Label>assetOwnership</Form.Label>
+                                    <Form.Label>Asset Ownership*</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="assetOwnership"
                                         value={messes.assetOwnership}
                                         onChange={handleChange}
-                                        placeholder='Enter assetOwnership'
+                                        placeholder='Enter Asset Ownership'
                                         className={validationErrors.assetOwnership ? " input-border" : "  "}
                                     />
                                     {validationErrors.assetOwnership && (
@@ -485,13 +496,13 @@ const AssetTrackingMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="currentStatusATProject" className="mb-3">
-                                    <Form.Label>currentStatusATProject</Form.Label>
+                                    <Form.Label>Current Status AT Project*</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="currentStatusATProject"
                                         value={messes.currentStatusATProject}
                                         onChange={handleChange}
-                                        placeholder='Enter currentStatusATProject'
+                                        placeholder='Enter Current Status AT Project'
                                         className={validationErrors.currentStatusATProject ? " input-border" : "  "}
                                     />
                                     {validationErrors.currentStatusATProject && (
@@ -501,13 +512,13 @@ const AssetTrackingMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="transferredTo" className="mb-3">
-                                    <Form.Label>transferredTo</Form.Label>
+                                    <Form.Label>Transferred To*</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="transferredTo"
                                         value={messes.transferredTo}
                                         onChange={handleChange}
-                                        placeholder='Enter transferredTo'
+                                        placeholder='Enter Transferred To'
                                         className={validationErrors.transferredTo ? " input-border" : "  "}
                                     />
                                     {validationErrors.transferredTo && (
@@ -517,13 +528,13 @@ const AssetTrackingMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="forHSD" className="mb-3">
-                                    <Form.Label>forHSD</Form.Label>
+                                    <Form.Label>For HSD*</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="forHSD"
                                         value={messes.forHSD}
                                         onChange={handleChange}
-                                        placeholder='Enter forHSD'
+                                        placeholder='Enter For HSD'
                                         className={validationErrors.forHSD ? " input-border" : "  "}
                                     />
                                     {validationErrors.forHSD && (
@@ -533,13 +544,13 @@ const AssetTrackingMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="imsSpareInventory" className="mb-3">
-                                    <Form.Label>imsSpareInventory</Form.Label>
+                                    <Form.Label>Ims Spare Inventory*</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="imsSpareInventory"
                                         value={messes.imsSpareInventory}
                                         onChange={handleChange}
-                                        placeholder='Enter imsSpareInventory'
+                                        placeholder='Enter Ims Spare Inventory'
                                         className={validationErrors.imsSpareInventory ? " input-border" : "  "}
                                     />
                                     {validationErrors.imsSpareInventory && (
@@ -549,13 +560,13 @@ const AssetTrackingMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="assetServiceSchedule" className="mb-3">
-                                    <Form.Label>assetServiceSchedule</Form.Label>
+                                    <Form.Label>Asset Service Schedule*</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="assetServiceSchedule"
                                         value={messes.assetServiceSchedule}
                                         onChange={handleChange}
-                                        placeholder='Enter assetServiceSchedule'
+                                        placeholder='Enter Asset Service Schedule'
                                         className={validationErrors.assetServiceSchedule ? " input-border" : "  "}
                                     />
                                     {validationErrors.assetServiceSchedule && (
@@ -565,13 +576,13 @@ const AssetTrackingMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="rtoCompliance" className="mb-3">
-                                    <Form.Label>rtoCompliance</Form.Label>
+                                    <Form.Label>Rto Compliance*</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="rtoCompliance"
                                         value={messes.rtoCompliance}
                                         onChange={handleChange}
-                                        placeholder='Enter rtoCompliance'
+                                        placeholder='Enter Rto Compliance'
                                         className={validationErrors.rtoCompliance ? " input-border" : "  "}
                                     />
                                     {validationErrors.rtoCompliance && (
@@ -581,13 +592,13 @@ const AssetTrackingMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="preventiveMaintainance" className="mb-3">
-                                    <Form.Label>preventiveMaintainance</Form.Label>
+                                    <Form.Label>Preventive Maintainance*</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="preventiveMaintainance"
                                         value={messes.preventiveMaintainance}
                                         onChange={handleChange}
-                                        placeholder='Enter preventiveMaintainance'
+                                        placeholder='Enter Preventive Maintainance'
                                         className={validationErrors.preventiveMaintainance ? " input-border" : "  "}
                                     />
                                     {validationErrors.preventiveMaintainance && (
@@ -597,13 +608,13 @@ const AssetTrackingMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="preventiveMaintainanceFrequency" className="mb-3">
-                                    <Form.Label>preventiveMaintainanceFrequency</Form.Label>
+                                    <Form.Label>Preventive Maintainance Frequency*</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="preventiveMaintainanceFrequency"
                                         value={messes.preventiveMaintainanceFrequency}
                                         onChange={handleChange}
-                                        placeholder='Enter preventiveMaintainanceFrequency'
+                                        placeholder='Enter Preventive Maintainance Frequency'
                                         className={validationErrors.preventiveMaintainanceFrequency ? " input-border" : "  "}
                                     />
                                     {validationErrors.preventiveMaintainanceFrequency && (
@@ -613,13 +624,13 @@ const AssetTrackingMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="triggerValue" className="mb-3">
-                                    <Form.Label>triggerValue</Form.Label>
+                                    <Form.Label>Trigger Value*</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="triggerValue"
                                         value={messes.triggerValue}
                                         onChange={handleChange}
-                                        placeholder='Enter triggerValue'
+                                        placeholder='Enter Trigger Value'
                                         className={validationErrors.triggerValue ? " input-border" : "  "}
                                     />
                                     {validationErrors.triggerValue && (
@@ -629,14 +640,15 @@ const AssetTrackingMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="nextPMDate" className="mb-3">
-                                    <Form.Label>nextPMDate</Form.Label>
-                                    <Form.Control
+                                    <Form.Label>Next PM Date*</Form.Label>
+                                    <Flatpickr
                                         type="text"
                                         name="nextPMDate"
                                         value={messes.nextPMDate}
-                                        onChange={handleChange}
-                                        placeholder='Enter nextPMDate'
-                                        className={validationErrors.nextPMDate ? " input-border" : "  "}
+                                        onChange={(selectedDates) => handleDateChange("nextPMDate", selectedDates)}
+                                        options={dateOptions}
+                                        placeholder='Enter Next PM Date'
+                                        className={validationErrors.nextPMDate ? "form-control input-border" : "form-control"}
                                     />
                                     {validationErrors.nextPMDate && (
                                         <small className="text-danger">{validationErrors.nextPMDate}</small>
@@ -645,13 +657,13 @@ const AssetTrackingMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="operatorDriver" className="mb-3">
-                                    <Form.Label>operatorDriver</Form.Label>
+                                    <Form.Label>Operator Driver*</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="operatorDriver"
                                         value={messes.operatorDriver}
                                         onChange={handleChange}
-                                        placeholder='Enter operatorDriver'
+                                        placeholder='Enter Operator Driver'
                                         className={validationErrors.operatorDriver ? " input-border" : "  "}
                                     />
                                     {validationErrors.operatorDriver && (
@@ -661,13 +673,13 @@ const AssetTrackingMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="engineNo" className="mb-3">
-                                    <Form.Label>engineNo</Form.Label>
+                                    <Form.Label>Engine No*</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="engineNo"
                                         value={messes.engineNo}
                                         onChange={handleChange}
-                                        placeholder='Enter engineNo'
+                                        placeholder='Enter Engine No'
                                         className={validationErrors.engineNo ? " input-border" : "  "}
                                     />
                                     {validationErrors.engineNo && (
@@ -677,13 +689,13 @@ const AssetTrackingMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="chasisNo" className="mb-3">
-                                    <Form.Label>chasisNo</Form.Label>
+                                    <Form.Label>Chasis No*</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="chasisNo"
                                         value={messes.chasisNo}
                                         onChange={handleChange}
-                                        placeholder='Enter chasisNo'
+                                        placeholder='Enter Chasis No'
                                         className={validationErrors.chasisNo ? " input-border" : "  "}
                                     />
                                     {validationErrors.chasisNo && (
@@ -693,13 +705,13 @@ const AssetTrackingMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="dateOfRegistration" className="mb-3">
-                                    <Form.Label>dateOfRegistration</Form.Label>
+                                    <Form.Label>Date Of Registration*</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="dateOfRegistration"
                                         value={messes.dateOfRegistration}
                                         onChange={handleChange}
-                                        placeholder='Enter dateOfRegistration'
+                                        placeholder='Enter Date Of Registration'
                                         className={validationErrors.dateOfRegistration ? " input-border" : "  "}
                                     />
                                     {validationErrors.dateOfRegistration && (
@@ -709,13 +721,13 @@ const AssetTrackingMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="roadTaxValidTill" className="mb-3">
-                                    <Form.Label>roadTaxValidTill</Form.Label>
+                                    <Form.Label>Road Tax Valid Till*</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="roadTaxValidTill"
                                         value={messes.roadTaxValidTill}
                                         onChange={handleChange}
-                                        placeholder='Enter roadTaxValidTill'
+                                        placeholder='Enter Road Tax Valid Till'
                                         className={validationErrors.roadTaxValidTill ? " input-border" : "  "}
                                     />
                                     {validationErrors.roadTaxValidTill && (
@@ -725,13 +737,13 @@ const AssetTrackingMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="nationalPermitValidTill" className="mb-3">
-                                    <Form.Label>nationalPermitValidTill</Form.Label>
+                                    <Form.Label>National Permit Valid Till*</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="nationalPermitValidTill"
                                         value={messes.nationalPermitValidTill}
                                         onChange={handleChange}
-                                        placeholder='Enter nationalPermitValidTill'
+                                        placeholder='Enter National Permit Valid Till'
                                         className={validationErrors.nationalPermitValidTill ? " input-border" : "  "}
                                     />
                                     {validationErrors.nationalPermitValidTill && (
@@ -741,13 +753,13 @@ const AssetTrackingMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="statePermitValidTill" className="mb-3">
-                                    <Form.Label>statePermitValidTill</Form.Label>
+                                    <Form.Label>State Permit Valid Till*</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="statePermitValidTill"
                                         value={messes.statePermitValidTill}
                                         onChange={handleChange}
-                                        placeholder='Enter statePermitValidTill'
+                                        placeholder='Enter State Permit Valid Till'
                                         className={validationErrors.statePermitValidTill ? " input-border" : "  "}
                                     />
                                     {validationErrors.statePermitValidTill && (
@@ -757,13 +769,13 @@ const AssetTrackingMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="nationalPermitGoodsValidTill" className="mb-3">
-                                    <Form.Label>nationalPermitGoodsValidTill</Form.Label>
+                                    <Form.Label>National Permit Goods Valid Till*</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="nationalPermitGoodsValidTill"
                                         value={messes.nationalPermitGoodsValidTill}
                                         onChange={handleChange}
-                                        placeholder='Enter nationalPermitGoodsValidTill'
+                                        placeholder='Enter National Permit Goods Valid Till'
                                         className={validationErrors.nationalPermitGoodsValidTill ? " input-border" : "  "}
                                     />
                                     {validationErrors.nationalPermitGoodsValidTill && (
@@ -773,13 +785,13 @@ const AssetTrackingMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="fitnessValidTill" className="mb-3">
-                                    <Form.Label>fitnessValidTill</Form.Label>
+                                    <Form.Label>Fitness Valid Till*</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="fitnessValidTill"
                                         value={messes.fitnessValidTill}
                                         onChange={handleChange}
-                                        placeholder='Enter fitnessValidTill'
+                                        placeholder='Enter Fitness Valid Till'
                                         className={validationErrors.fitnessValidTill ? " input-border" : "  "}
                                     />
                                     {validationErrors.fitnessValidTill && (
@@ -789,13 +801,13 @@ const AssetTrackingMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="insuranceValidTill" className="mb-3">
-                                    <Form.Label>insuranceValidTill</Form.Label>
+                                    <Form.Label>Insurance Valid Till*</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="insuranceValidTill"
                                         value={messes.insuranceValidTill}
                                         onChange={handleChange}
-                                        placeholder='Enter insuranceValidTill'
+                                        placeholder='Enter Insurance Valid Till'
                                         className={validationErrors.insuranceValidTill ? " input-border" : "  "}
                                     />
                                     {validationErrors.insuranceValidTill && (
@@ -805,13 +817,13 @@ const AssetTrackingMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="pollutionValidTill" className="mb-3">
-                                    <Form.Label>pollutionValidTill</Form.Label>
+                                    <Form.Label>Pollution Valid Till*</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="pollutionValidTill"
                                         value={messes.pollutionValidTill}
                                         onChange={handleChange}
-                                        placeholder='Enter pollutionValidTill'
+                                        placeholder='Enter Pollution Valid Till'
                                         className={validationErrors.pollutionValidTill ? " input-border" : "  "}
                                     />
                                     {validationErrors.pollutionValidTill && (
@@ -821,13 +833,13 @@ const AssetTrackingMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="assetStatus" className="mb-3">
-                                    <Form.Label>assetStatus</Form.Label>
+                                    <Form.Label>Asset Status*</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="assetStatus"
                                         value={messes.assetStatus}
                                         onChange={handleChange}
-                                        placeholder='Enter assetStatus'
+                                        placeholder='Enter Asset Status'
                                         className={validationErrors.assetStatus ? " input-border" : "  "}
                                     />
                                     {validationErrors.assetStatus && (
@@ -837,13 +849,13 @@ const AssetTrackingMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="assetStatusUpdatedOn" className="mb-3">
-                                    <Form.Label>assetStatusUpdatedOn</Form.Label>
+                                    <Form.Label>Asset Status Updated On*</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="assetStatusUpdatedOn"
                                         value={messes.assetStatusUpdatedOn}
                                         onChange={handleChange}
-                                        placeholder='Enter assetStatusUpdatedOn'
+                                        placeholder='Enter Asset Status Updated On'
                                         className={validationErrors.assetStatusUpdatedOn ? " input-border" : "  "}
                                     />
                                     {validationErrors.assetStatusUpdatedOn && (
@@ -853,13 +865,13 @@ const AssetTrackingMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="updatedByTaskID" className="mb-3">
-                                    <Form.Label>updatedByTaskID</Form.Label>
+                                    <Form.Label>Updated By Task ID*</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="updatedByTaskID"
                                         value={messes.updatedByTaskID}
                                         onChange={handleChange}
-                                        placeholder='Enter updatedByTaskID'
+                                        placeholder='Enter Updated By Task ID'
                                         className={validationErrors.updatedByTaskID ? " input-border" : "  "}
                                     />
                                     {validationErrors.updatedByTaskID && (
@@ -869,13 +881,13 @@ const AssetTrackingMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="modifiedBy" className="mb-3">
-                                    <Form.Label>modifiedBy</Form.Label>
+                                    <Form.Label>ModifiedBy*</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="modifiedBy"
                                         value={messes.modifiedBy}
                                         onChange={handleChange}
-                                        placeholder='Enter modifiedBy'
+                                        placeholder='Enter ModifiedBy'
                                         className={validationErrors.modifiedBy ? " input-border" : "  "}
                                     />
                                     {validationErrors.modifiedBy && (
@@ -885,13 +897,13 @@ const AssetTrackingMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="editBy" className="mb-3">
-                                    <Form.Label>editBy</Form.Label>
+                                    <Form.Label>Edit By*</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="editBy"
                                         value={messes.editBy}
                                         onChange={handleChange}
-                                        placeholder='Enter editBy'
+                                        placeholder='Enter Edit By'
                                         className={validationErrors.editBy ? " input-border" : "  "}
                                     />
                                     {validationErrors.editBy && (
@@ -901,14 +913,15 @@ const AssetTrackingMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="latestServicingDate" className="mb-3">
-                                    <Form.Label>latestServicingDate</Form.Label>
-                                    <Form.Control
+                                    <Form.Label>Latest Servicing Date*</Form.Label>
+                                    <Flatpickr
                                         type="text"
                                         name="latestServicingDate"
                                         value={messes.latestServicingDate}
-                                        onChange={handleChange}
-                                        placeholder='Enter latestServicingDate'
-                                        className={validationErrors.latestServicingDate ? " input-border" : "  "}
+                                        onChange={(selectedDates) => handleDateChange("latestServicingDate", selectedDates)}
+                                        options={dateOptions}
+                                        placeholder='Enter Latest Servicing Date'
+                                        className={validationErrors.latestServicingDate ? "form-control input-border" : "form-control"}
                                     />
                                     {validationErrors.latestServicingDate && (
                                         <small className="text-danger">{validationErrors.latestServicingDate}</small>
@@ -917,13 +930,13 @@ const AssetTrackingMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="pmChecklist" className="mb-3">
-                                    <Form.Label>pmChecklist</Form.Label>
+                                    <Form.Label>Pm Checklist*</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="pmChecklist"
                                         value={messes.pmChecklist}
                                         onChange={handleChange}
-                                        placeholder='Enter pmChecklist'
+                                        placeholder='Enter Pm Checklist'
                                         className={validationErrors.pmChecklist ? " input-border" : "  "}
                                     />
                                     {validationErrors.pmChecklist && (

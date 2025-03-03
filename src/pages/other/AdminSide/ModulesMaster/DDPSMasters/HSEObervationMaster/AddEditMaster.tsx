@@ -5,7 +5,7 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import config from '@/config';
 // import Select from 'react-select';
 import { toast } from 'react-toastify';
-
+import Flatpickr from 'react-flatpickr';
 
 interface BTS_PAYMENT {
     id: number,
@@ -73,7 +73,6 @@ const HSEObservationMasterAddEdit = () => {
     }
     );
 
-    const [isMobileVerified, setIsMobileVerified] = useState(false);
     const [validationErrors, setValidationErrors] = useState<{ [key: string]: string }>({});
 
     useEffect(() => {
@@ -137,20 +136,20 @@ const HSEObservationMasterAddEdit = () => {
         const errors: { [key: string]: string } = {};
 
     
-if(!messes.projectID) { errors.projectID = 'projectID is required'}
-if(!messes.projectName) { errors.projectName = 'projectName is required'}
-if(!messes.safetyPerson) { errors.safetyPerson = 'safetyPerson is required'}
-if(!messes.assignDate) { errors.assignDate = 'assignDate is required'}
-if(!messes.observationType) { errors.observationType = 'observationType is required'}
-if(!messes.observation) { errors.observation = 'observation is required'}
-if(!messes.site_ExactLocation) { errors.site_ExactLocation = 'site_ExactLocation is required'}
-if(!messes.responsibleContractor) { errors.responsibleContractor = 'responsibleContractor is required'}
-if(!messes.recommendation) { errors.recommendation = 'recommendation is required'}
-if(!messes.targetDate) { errors.targetDate = 'targetDate is required'}
-if(!messes.allocatedLineIncharge) { errors.allocatedLineIncharge = 'allocatedLineIncharge is required'}
-if(!messes.severityRateLevel) { errors.severityRateLevel = 'severityRateLevel is required'}
-if(!messes.uploadPhotograph) { errors.uploadPhotograph = 'uploadPhotograph is required'}
-if(!messes.approvedCorrectionPhotograph) { errors.approvedCorrectionPhotograph = 'approvedCorrectionPhotograph is required'}
+if(!messes.projectID) { errors.projectID = 'Project ID is required'}
+if(!messes.projectName) { errors.projectName = 'Project Name is required'}
+if(!messes.safetyPerson) { errors.safetyPerson = 'Safety Person is required'}
+if(!messes.assignDate) { errors.assignDate = 'Assign Date is required'}
+if(!messes.observationType) { errors.observationType = 'Observation Type is required'}
+if(!messes.observation) { errors.observation = 'Observation is required'}
+if(!messes.site_ExactLocation) { errors.site_ExactLocation = 'Site ExactLocation is required'}
+if(!messes.responsibleContractor) { errors.responsibleContractor = 'Responsible Contractor is required'}
+if(!messes.recommendation) { errors.recommendation = 'Rcommendation is required'}
+if(!messes.targetDate) { errors.targetDate = 'Target Date is required'}
+if(!messes.allocatedLineIncharge) { errors.allocatedLineIncharge = 'Allocated Line Incharge is required'}
+if(!messes.severityRateLevel) { errors.severityRateLevel = 'Severity Rate Level is required'}
+if(!messes.uploadPhotograph) { errors.uploadPhotograph = 'Upload Photograph is required'}
+if(!messes.approvedCorrectionPhotograph) { errors.approvedCorrectionPhotograph = 'Approved Correction Photograph is required'}
 
 
 
@@ -163,6 +162,7 @@ if(!messes.approvedCorrectionPhotograph) { errors.approvedCorrectionPhotograph =
 
     const handleChange = (e: ChangeEvent<any> | null, name?: string, value?: any) => {
         const validateMobileNumber = (fieldName: string, fieldValue: string) => {
+            const errors: { [key: string]: string } = {};
             if (!/^\d{0,10}$/.test(fieldValue)) {
                 return false;
             }
@@ -174,13 +174,15 @@ if(!messes.approvedCorrectionPhotograph) { errors.approvedCorrectionPhotograph =
 
             if (fieldValue.length === 10) {
                 if (!/^[6-9]/.test(fieldValue)) {
-                    toast.error("Mobile number should start with a digit between 6 and 9.");
-                    setIsMobileVerified(true);
+                    errors.no = "Mobile number should start with a digit between 6 and 9.";
                     return false;
                 }
             } else {
-                setIsMobileVerified(false);
+                errors.no = "Mobile number should be 10 digits only"
+                setValidationErrors(errors);
+                return false;
             }
+
             return true;
         };
         if (e) {
@@ -193,7 +195,7 @@ if(!messes.approvedCorrectionPhotograph) { errors.approvedCorrectionPhotograph =
                 }));
             } else {
                 const inputValue = (e.target as HTMLInputElement | HTMLSelectElement).value;
-                if (eventName === "mobileNumber") {
+                if (eventName === "no") {
                     validateMobileNumber(eventName, inputValue);
                 } else {
                     setMesses((prevData) => {
@@ -221,11 +223,7 @@ if(!messes.approvedCorrectionPhotograph) { errors.approvedCorrectionPhotograph =
 
 
 
-        if (isMobileVerified) {
-            toast.dismiss()
-            toast.error("Please verify your mobile number before submitting the form.");
-            return;
-        }
+        
         const payload = {
             ...messes,
             createdDate: new Date(),
@@ -254,6 +252,18 @@ if(!messes.approvedCorrectionPhotograph) { errors.approvedCorrectionPhotograph =
         }
 
     };
+    const handleDateChange = (fieldName: string, selectedDates: Date[]) => {
+        if (selectedDates.length > 0) {
+            setMesses((prevData) => ({
+                ...prevData,
+                [fieldName]: selectedDates[0].toISOString().split("T")[0], // ✅ Store as YYYY-MM-DD
+            }));
+        }
+    };
+ const dateOptions = {
+        enableTime: false,
+        dateFormat: 'Y-m-d',
+    }
     return (
         <div>
             <div className="container">
@@ -266,13 +276,13 @@ if(!messes.approvedCorrectionPhotograph) { errors.approvedCorrectionPhotograph =
 
                             <Col lg={6}>
                                 <Form.Group controlId="projectID" className="mb-3">
-                                    <Form.Label>Project ID</Form.Label>
+                                    <Form.Label>Project ID*</Form.Label>
                                     <Form.Control
-                                        type="text"
+                                        type="number"
                                         name="projectID"
                                         value={messes.projectID}
                                         onChange={handleChange}
-                                        placeholder='Enter projectID'
+                                        placeholder='Enter Project ID'
                                         disabled={editMode}
                                         className={validationErrors.projectID ? " input-border" : "  "}
                                     />
@@ -283,13 +293,13 @@ if(!messes.approvedCorrectionPhotograph) { errors.approvedCorrectionPhotograph =
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="projectName" className="mb-3">
-                                    <Form.Label>Project Name</Form.Label>
+                                    <Form.Label>Project Name*</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="projectName"
                                         value={messes.projectName}
                                         onChange={handleChange}
-                                        placeholder='Enter Project ID'
+                                        placeholder='Enter Project Name'
                                         className={validationErrors.projectName ? " input-border" : "  "}
                                     />
                                     {validationErrors.projectName && (
@@ -299,13 +309,13 @@ if(!messes.approvedCorrectionPhotograph) { errors.approvedCorrectionPhotograph =
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="safetyPerson" className="mb-3">
-                                    <Form.Label>safetyPerson</Form.Label>
+                                    <Form.Label>Safety Person*</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="safetyPerson"
                                         value={messes.safetyPerson}
                                         onChange={handleChange}
-                                        placeholder='Enter Project Name'
+                                        placeholder='Enter Safety Person'
                                         className={validationErrors.safetyPerson ? " input-border" : "  "}
                                     />
                                     {validationErrors.safetyPerson && (
@@ -315,14 +325,15 @@ if(!messes.approvedCorrectionPhotograph) { errors.approvedCorrectionPhotograph =
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="assignDate" className="mb-3">
-                                    <Form.Label>assignDate</Form.Label>
-                                    <Form.Control
+                                    <Form.Label>Assign Date*</Form.Label>
+                                    <Flatpickr
                                         type="date"
                                         name="assignDate"
                                         value={messes.assignDate}
-                                        onChange={handleChange}
-                                        placeholder='Enter Payment Requested For'
-                                        className={validationErrors.assignDate ? " input-border" : "  "}
+                                        onChange={(selectedDates) => handleDateChange("assignDate", selectedDates)}
+                                        placeholder='Enter Assign Date'
+                                        options={dateOptions}
+                                        className={validationErrors.assignDate ? "form-control input-border" : "form-control"}
                                     />
                                     {validationErrors.assignDate && (
                                         <small className="text-danger">{validationErrors.assignDate}</small>
@@ -331,13 +342,13 @@ if(!messes.approvedCorrectionPhotograph) { errors.approvedCorrectionPhotograph =
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="observationType" className="mb-3">
-                                    <Form.Label>observationType</Form.Label>
+                                    <Form.Label>Observation Type*</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="observationType"
                                         value={messes.observationType}
                                         onChange={handleChange}
-                                        placeholder='Enter observationType'
+                                        placeholder='Enter Observation Type'
                                         className={validationErrors.observationType ? " input-border" : "  "}
                                     />
                                     {validationErrors.observationType && (
@@ -347,13 +358,13 @@ if(!messes.approvedCorrectionPhotograph) { errors.approvedCorrectionPhotograph =
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="observation" className="mb-3">
-                                    <Form.Label>observation</Form.Label>
+                                    <Form.Label>Observation*</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="observation"
                                         value={messes.observation}
                                         onChange={handleChange}
-                                        placeholder='Enter Number'
+                                        placeholder='Enter Observation'
                                         className={validationErrors.observation ? " input-border" : "  "}
                                     />
                                     {validationErrors.observation && (
@@ -363,13 +374,13 @@ if(!messes.approvedCorrectionPhotograph) { errors.approvedCorrectionPhotograph =
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="site_ExactLocation" className="mb-3">
-                                    <Form.Label>site_ExactLocation</Form.Label>
+                                    <Form.Label>Site ExactLocation*</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="site_ExactLocation"
                                         value={messes.site_ExactLocation}
                                         onChange={handleChange}
-                                        placeholder='Enter site_ExactLocation'
+                                        placeholder='Enter Site ExactLocation'
                                         className={validationErrors.site_ExactLocation ? " input-border" : "  "}
                                     />
                                     {validationErrors.site_ExactLocation && (
@@ -379,13 +390,13 @@ if(!messes.approvedCorrectionPhotograph) { errors.approvedCorrectionPhotograph =
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="responsibleContractor" className="mb-3">
-                                    <Form.Label>responsibleContractor</Form.Label>
+                                    <Form.Label>Responsible Contractor*</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="responsibleContractor"
                                         value={messes.responsibleContractor}
                                         onChange={handleChange}
-                                        placeholder='Enter responsibleContractor'
+                                        placeholder='Enter Responsible Contractor'
                                         className={validationErrors.responsibleContractor ? " input-border" : "  "}
                                     />
                                     {validationErrors.responsibleContractor && (
@@ -395,9 +406,9 @@ if(!messes.approvedCorrectionPhotograph) { errors.approvedCorrectionPhotograph =
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="recommendation" className="mb-3">
-                                    <Form.Label>recommendation</Form.Label>
+                                    <Form.Label>recommendation*</Form.Label>
                                     <Form.Control
-                                        type="number"
+                                        type="text"
                                         name="recommendation"
                                         value={messes.recommendation}
                                         onChange={handleChange}
@@ -411,14 +422,15 @@ if(!messes.approvedCorrectionPhotograph) { errors.approvedCorrectionPhotograph =
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="targetDate" className="mb-3">
-                                    <Form.Label>targetDate</Form.Label>
-                                    <Form.Control
+                                    <Form.Label>Target Date*</Form.Label>
+                                    <Flatpickr
                                         type="date"
                                         name="targetDate"
                                         value={messes.targetDate}
-                                        onChange={handleChange}
-                                        placeholder='Enter targetDate'
-                                        className={validationErrors.targetDate ? " input-border" : "  "}
+                                        onChange={(selectedDates) => handleDateChange("targetDate", selectedDates)}
+                                        options={dateOptions}
+                                        placeholder='Enter Target Date'
+                                        className={validationErrors.targetDate ? "form-control input-border" : "form-control"}
                                     />
                                     {validationErrors.targetDate && (
                                         <small className="text-danger">{validationErrors.targetDate}</small>
@@ -427,13 +439,13 @@ if(!messes.approvedCorrectionPhotograph) { errors.approvedCorrectionPhotograph =
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="allocatedLineIncharge" className="mb-3">
-                                    <Form.Label>allocatedLineIncharge</Form.Label>
+                                    <Form.Label>Allocated Line Incharge*</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="allocatedLineIncharge"
                                         value={messes.allocatedLineIncharge}
                                         onChange={handleChange}
-                                        placeholder='Enter allocatedLineIncharge'
+                                        placeholder='Enter Allocated Line Incharge'
                                         className={validationErrors.allocatedLineIncharge ? " input-border" : "  "}
                                     />
                                     {validationErrors.allocatedLineIncharge && (
@@ -443,13 +455,13 @@ if(!messes.approvedCorrectionPhotograph) { errors.approvedCorrectionPhotograph =
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="severityRateLevel" className="mb-3">
-                                    <Form.Label>severityRateLevel</Form.Label>
+                                    <Form.Label>Severity Rate Level*</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="severityRateLevel"
                                         value={messes.severityRateLevel}
                                         onChange={handleChange}
-                                        placeholder='Enter severityRateLevel'
+                                        placeholder='Enter Severity Rate Level'
                                         className={validationErrors.severityRateLevel ? " input-border" : "  "}
                                     />
                                     {validationErrors.severityRateLevel && (
@@ -459,13 +471,13 @@ if(!messes.approvedCorrectionPhotograph) { errors.approvedCorrectionPhotograph =
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="uploadPhotograph" className="mb-3">
-                                    <Form.Label>uploadPhotograph</Form.Label>
+                                    <Form.Label>Upload Photograph*</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="uploadPhotograph"
                                         value={messes.uploadPhotograph}
                                         onChange={handleChange}
-                                        placeholder='Enter uploadPhotograph'
+                                        placeholder='Enter Upload Photograph'
                                         className={validationErrors.uploadPhotograph ? " input-border" : "  "}
                                     />
                                     {validationErrors.uploadPhotograph && (
@@ -475,13 +487,13 @@ if(!messes.approvedCorrectionPhotograph) { errors.approvedCorrectionPhotograph =
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="approvedCorrectionPhotograph" className="mb-3">
-                                    <Form.Label>approvedCorrectionPhotograph</Form.Label>
+                                    <Form.Label>Approved Correction Photograph*</Form.Label>
                                     <Form.Control
-                                        type="number"
+                                        type="text"
                                         name="approvedCorrectionPhotograph"
                                         value={messes.approvedCorrectionPhotograph}
                                         onChange={handleChange}
-                                        placeholder='Enter approvedCorrectionPhotograph'
+                                        placeholder='Enter Approved Correction Photograph'
                                         className={validationErrors.approvedCorrectionPhotograph ? " input-border" : "  "}
                                     />
                                     {validationErrors.approvedCorrectionPhotograph && (

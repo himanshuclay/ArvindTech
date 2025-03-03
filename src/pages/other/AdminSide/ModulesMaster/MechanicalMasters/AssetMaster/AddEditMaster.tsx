@@ -127,15 +127,15 @@ const AssetMasterAddEdit = () => {
         const errors: { [key: string]: string } = {};
 
 
-        if (!messes.assetGroupCode) { errors.assetGroupCode = 'assetGroupCode is required' }
-        if (!messes.assetCategory) { errors.assetCategory = 'assetCategory is required' }
-        if (!messes.assetGroup) { errors.assetGroup = 'assetGroup is required' }
-        if (!messes.assetName) { errors.assetName = 'assetName is required' }
-        if (!messes.specification) { errors.specification = 'specification is required' }
-        if (!messes.applicableServices) { errors.applicableServices = 'applicableServices is required' }
-        if (!messes.wHrsorKMorDays) { errors.wHrsorKMorDays = 'wHrsorKMorDays is required' }
-        if (!messes.measureType) { errors.measureType = 'measureType is required' }
-        if (!messes.unit) { errors.unit = 'unit is required' }
+        if (!messes.assetGroupCode) { errors.assetGroupCode = 'Asset Group Code is required' }
+        if (!messes.assetCategory) { errors.assetCategory = 'Asset Category is required' }
+        if (!messes.assetGroup) { errors.assetGroup = 'Asset Group is required' }
+        if (!messes.assetName) { errors.assetName = 'Asset Name is required' }
+        if (!messes.specification) { errors.specification = 'Specification is required' }
+        if (!messes.applicableServices) { errors.applicableServices = 'Applicable Services is required' }
+        if (!messes.wHrsorKMorDays) { errors.wHrsorKMorDays = 'WHrs or KM or Days is required' }
+        if (!messes.measureType) { errors.measureType = 'Measure Type is required' }
+        if (!messes.unit) { errors.unit = 'Unit is required' }
         
 
 
@@ -253,13 +253,13 @@ const AssetMasterAddEdit = () => {
 
                             <Col lg={6}>
                                 <Form.Group controlId="assetGroupCode" className="mb-3">
-                                    <Form.Label>assetGroupCode</Form.Label>
+                                    <Form.Label>Asset Group Code*</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="assetGroupCode"
                                         value={messes.assetGroupCode}
                                         onChange={handleChange}
-                                        placeholder='Enter assetGroupCode'
+                                        placeholder='Enter Asset Group Code'
                                         disabled={editMode}
                                         className={validationErrors.assetGroupCode ? " input-border" : "  "}
                                     />
@@ -270,13 +270,13 @@ const AssetMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="assetCategory" className="mb-3">
-                                    <Form.Label>assetCategory</Form.Label>
+                                    <Form.Label>Asset Category*</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="assetCategory"
                                         value={messes.assetCategory}
                                         onChange={handleChange}
-                                        placeholder='Enter Project ID'
+                                        placeholder='Enter Asset Category'
                                         className={validationErrors.assetCategory ? " input-border" : "  "}
                                     />
                                     {validationErrors.assetCategory && (
@@ -286,13 +286,13 @@ const AssetMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="assetGroup" className="mb-3">
-                                    <Form.Label>assetGroup</Form.Label>
+                                    <Form.Label>Asset Group*</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="assetGroup"
                                         value={messes.assetGroup}
                                         onChange={handleChange}
-                                        placeholder='Enter Project Name'
+                                        placeholder='Enter Asset Group'
                                         className={validationErrors.assetGroup ? " input-border" : "  "}
                                     />
                                     {validationErrors.assetGroup && (
@@ -302,12 +302,13 @@ const AssetMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="assetName" className="mb-3">
-                                    <Form.Label>assetName</Form.Label>
+                                    <Form.Label>Asset Name*</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="assetName"
                                         value={messes.assetName}  // ✅ Use checked instead of value
                                         onChange={handleChange}
+                                        placeholder='Enter Asset Name'
                                         className={validationErrors.assetName ? "input-border" : ""}
                                     />
 
@@ -319,13 +320,13 @@ const AssetMasterAddEdit = () => {
                             
                             <Col lg={6}>
                                 <Form.Group controlId="specification" className="mb-3">
-                                    <Form.Label>specification</Form.Label>
+                                    <Form.Label>Specification*</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="specification"
                                         value={messes.specification}
                                         onChange={handleChange}
-                                        placeholder='Enter specification'
+                                        placeholder='Enter Specification'
                                         className={validationErrors.specification ? " input-border" : "  "}
                                     />
                                     {validationErrors.specification && (
@@ -335,13 +336,13 @@ const AssetMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="applicableServices" className="mb-3">
-                                    <Form.Label>applicableServices</Form.Label>
+                                    <Form.Label>Applicable Services*</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="applicableServices"
                                         value={messes.applicableServices}
                                         onChange={handleChange}
-                                        placeholder='Enter applicableServices'
+                                        placeholder='Enter Applicable Services'
                                         className={validationErrors.applicableServices ? " input-border" : "  "}
                                     />
                                     {validationErrors.applicableServices && (
@@ -351,13 +352,13 @@ const AssetMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="wHrsorKMorDays" className="mb-3">
-                                    <Form.Label>wHrsorKMorDays</Form.Label>
+                                    <Form.Label>WHrs or KM or Days*</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="wHrsorKMorDays"
                                         value={messes.wHrsorKMorDays}
                                         onChange={handleChange}
-                                        placeholder='Enter wHrsorKMorDays'
+                                        placeholder='Enter WHrs or KM or Days'
                                         className={validationErrors.wHrsorKMorDays ? " input-border" : "  "}
                                     />
                                     {validationErrors.wHrsorKMorDays && (
@@ -367,13 +368,13 @@ const AssetMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="measureType" className="mb-3">
-                                    <Form.Label>measureType</Form.Label>
+                                    <Form.Label>Measure Type*</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="measureType"
                                         value={messes.measureType}
                                         onChange={handleChange}
-                                        placeholder='Enter measureType'
+                                        placeholder='Enter Measure Type'
                                         className={validationErrors.measureType ? " input-border" : "  "}
                                     />
                                     {validationErrors.measureType && (
@@ -383,13 +384,13 @@ const AssetMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="unit" className="mb-3">
-                                    <Form.Label>unit</Form.Label>
+                                    <Form.Label>Unit*</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="unit"
                                         value={messes.unit}
                                         onChange={handleChange}
-                                        placeholder='Enter unit'
+                                        placeholder='Enter Unit'
                                         className={validationErrors.unit ? " input-border" : "  "}
                                     />
                                     {validationErrors.unit && (

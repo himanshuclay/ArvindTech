@@ -149,7 +149,7 @@ const LowInventoryTrackingMaster = () => {
         console.log(apiUrl)
         axios.get(apiUrl, { headers: { 'accept': '*/*' } })
             .then((response) => {
-                console.log("search response ", response.data);
+                console.log("search response ", response);
                 setMesses(response.data.lowInventoryTrackingMasters)
                 setTotalPages(Math.ceil(response.data.totalCount / 10));
             })

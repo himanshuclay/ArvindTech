@@ -5,7 +5,7 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import config from '@/config';
 // import Select from 'react-select';
 import { toast } from 'react-toastify';
-
+import Flatpickr from 'react-flatpickr';
 
 interface BTS_PAYMENT {
     id: number,
@@ -65,7 +65,6 @@ const FRMasterAddEdit = () => {
     }
     );
 
-    const [isMobileVerified, setIsMobileVerified] = useState(false);
     const [validationErrors, setValidationErrors] = useState<{ [key: string]: string }>({});
 
     useEffect(() => {
@@ -127,17 +126,17 @@ const FRMasterAddEdit = () => {
 
     const validateFields = (): boolean => {
         const errors: { [key: string]: string } = {};
-        
-if( !messes.btsid) { errors.btsid = 'btsid is required'}
-if( !messes.billEntryDate) { errors.billEntryDate = 'billEntryDate is required'}
-if( !messes.projectID) { errors.projectID = 'projectID is required'}
-if( !messes.projectName) { errors.projectName = 'projectName is required'}
-if( !messes.clientJVName) { errors.clientJVName = 'clientJVName is required'}
-if( !messes.vendorName) { errors.vendorName = 'vendorName is required'}
-if( !messes.receiptType) { errors.receiptType = 'receiptType is required'}
-if( !messes.fRorIOMNumber) { errors.fRorIOMNumber = 'fRorIOMNumber is required'}
-if( !messes.frAmount) { errors.frAmount = 'frAmount is required'}
-if( !messes.paidAmount) { errors.paidAmount = 'paidAmount is required'}
+
+        if (!messes.btsid) { errors.btsid = 'BTS Id is required' }
+        if (!messes.billEntryDate) { errors.billEntryDate = 'Bill Entry Date is required' }
+        if (!messes.projectID) { errors.projectID = 'Project ID is required' }
+        if (!messes.projectName) { errors.projectName = 'Project Name is required' }
+        if (!messes.clientJVName) { errors.clientJVName = 'Client JV Name is required' }
+        if (!messes.vendorName) { errors.vendorName = 'Vendor Name is required' }
+        if (!messes.receiptType) { errors.receiptType = 'Receipt Type is required' }
+        if (!messes.fRorIOMNumber) { errors.fRorIOMNumber = 'FR or IOM Number is required' }
+        if (!messes.frAmount) { errors.frAmount = 'FR Amount is required' }
+        if (!messes.paidAmount) { errors.paidAmount = 'Paid Amount is required' }
 
 
 
@@ -148,6 +147,7 @@ if( !messes.paidAmount) { errors.paidAmount = 'paidAmount is required'}
 
     const handleChange = (e: ChangeEvent<any> | null, name?: string, value?: any) => {
         const validateMobileNumber = (fieldName: string, fieldValue: string) => {
+            const errors: { [key: string]: string } = {};
             if (!/^\d{0,10}$/.test(fieldValue)) {
                 return false;
             }
@@ -159,12 +159,13 @@ if( !messes.paidAmount) { errors.paidAmount = 'paidAmount is required'}
 
             if (fieldValue.length === 10) {
                 if (!/^[6-9]/.test(fieldValue)) {
-                    toast.error("Mobile number should start with a digit between 6 and 9.");
-                    setIsMobileVerified(true);
+                    errors.no = "Mobile number should start with a digit between 6 and 9.";
                     return false;
                 }
             } else {
-                setIsMobileVerified(false);
+                errors.no = "Mobile number should be 10 digits only"
+                setValidationErrors(errors);
+                return false;
             }
             return true;
         };
@@ -178,7 +179,7 @@ if( !messes.paidAmount) { errors.paidAmount = 'paidAmount is required'}
                 }));
             } else {
                 const inputValue = (e.target as HTMLInputElement | HTMLSelectElement).value;
-                if (eventName === "mobileNumber") {
+                if (eventName === "no") {
                     validateMobileNumber(eventName, inputValue);
                 } else {
                     setMesses((prevData) => {
@@ -206,11 +207,7 @@ if( !messes.paidAmount) { errors.paidAmount = 'paidAmount is required'}
 
 
 
-        if (isMobileVerified) {
-            toast.dismiss()
-            toast.error("Please verify your mobile number before submitting the form.");
-            return;
-        }
+       
         const payload = {
             ...messes,
             createdDate: new Date(),
@@ -239,6 +236,18 @@ if( !messes.paidAmount) { errors.paidAmount = 'paidAmount is required'}
         }
 
     };
+    const handleDateChange = (fieldName: string, selectedDates: Date[]) => {
+        if (selectedDates.length > 0) {
+            setMesses((prevData) => ({
+                ...prevData,
+                [fieldName]: selectedDates[0].toISOString().split("T")[0], // ✅ Store as YYYY-MM-DD
+            }));
+        }
+    };
+ const dateOptions = {
+        enableTime: false,
+        dateFormat: 'Y-m-d',
+    }
     return (
         <div>
             <div className="container">
@@ -250,13 +259,13 @@ if( !messes.paidAmount) { errors.paidAmount = 'paidAmount is required'}
                         <Row>
                             <Col lg={6}>
                                 <Form.Group controlId="btsid" className="mb-3">
-                                    <Form.Label>Entry Date</Form.Label>
+                                    <Form.Label>BTS ID*</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="btsid"
                                         value={messes.btsid}
                                         onChange={handleChange}
-                                        placeholder='Enter Entry Date'
+                                        placeholder='Enter BTS ID'
                                         // disabled={editMode}
                                         className={validationErrors.btsid ? " input-border" : "  "}
                                     />
@@ -267,15 +276,15 @@ if( !messes.paidAmount) { errors.paidAmount = 'paidAmount is required'}
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="billEntryDate" className="mb-3">
-                                    <Form.Label>billEntryDate</Form.Label>
-                                    <Form.Control
+                                    <Form.Label>Bill Entry Date*</Form.Label>
+                                    <Flatpickr
                                         type="text"
-                                        name="billEntryDate"
                                         value={messes.billEntryDate}
-                                        onChange={handleChange}
-                                        placeholder='Enter billEntryDate'
-                                        disabled={editMode}
-                                        className={validationErrors.billEntryDate ? " input-border" : "  "}
+                                        onChange={(selectedDates) => handleDateChange("billEntryDate", selectedDates)}
+                                        options={dateOptions}
+                                        placeholder='Enter Bill Entry Date'
+                                        // disabled={editMode}
+                                        className={validationErrors.billEntryDate ? "form-control input-border" : "form-control"}
                                     />
                                     {validationErrors.billEntryDate && (
                                         <small className="text-danger">{validationErrors.billEntryDate}</small>
@@ -284,14 +293,14 @@ if( !messes.paidAmount) { errors.paidAmount = 'paidAmount is required'}
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="projectID" className="mb-3">
-                                    <Form.Label>Project ID</Form.Label>
+                                    <Form.Label>Project ID*</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="projectID"
                                         value={messes.projectID}
                                         onChange={handleChange}
-                                        placeholder='Enter projectID'
-                                        disabled={editMode}
+                                        placeholder='Enter Project ID'
+                                        // disabled={editMode}
                                         className={validationErrors.projectID ? " input-border" : "  "}
                                     />
                                     {validationErrors.projectID && (
@@ -301,13 +310,13 @@ if( !messes.paidAmount) { errors.paidAmount = 'paidAmount is required'}
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="projectName" className="mb-3">
-                                    <Form.Label>Project Name</Form.Label>
+                                    <Form.Label>Project Name*</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="projectName"
                                         value={messes.projectName}
                                         onChange={handleChange}
-                                        placeholder='Enter Project ID'
+                                        placeholder='Enter Project Name'
                                         className={validationErrors.projectName ? " input-border" : "  "}
                                     />
                                     {validationErrors.projectName && (
@@ -317,13 +326,13 @@ if( !messes.paidAmount) { errors.paidAmount = 'paidAmount is required'}
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="clientJVName" className="mb-3">
-                                    <Form.Label>clientJVName</Form.Label>
+                                    <Form.Label>Client JV Name*</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="clientJVName"
                                         value={messes.clientJVName}
                                         onChange={handleChange}
-                                        placeholder='Enter Project Name'
+                                        placeholder='Enter Client JV Name'
                                         className={validationErrors.clientJVName ? " input-border" : "  "}
                                     />
                                     {validationErrors.clientJVName && (
@@ -333,13 +342,13 @@ if( !messes.paidAmount) { errors.paidAmount = 'paidAmount is required'}
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="vendorName" className="mb-3">
-                                    <Form.Label>vendorName</Form.Label>
+                                    <Form.Label>Vendor Name*</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="vendorName"
                                         value={messes.vendorName}
                                         onChange={handleChange}
-                                        placeholder='Enter Payment Requested For'
+                                        placeholder='Enter Vendor Name'
                                         className={validationErrors.vendorName ? " input-border" : "  "}
                                     />
                                     {validationErrors.vendorName && (
@@ -349,13 +358,13 @@ if( !messes.paidAmount) { errors.paidAmount = 'paidAmount is required'}
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="receiptType" className="mb-3">
-                                    <Form.Label>receiptType</Form.Label>
+                                    <Form.Label>receipt Type*</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="receiptType"
                                         value={messes.receiptType}
                                         onChange={handleChange}
-                                        placeholder='Enter receiptType'
+                                        placeholder='Enter receipt Type'
                                         className={validationErrors.receiptType ? " input-border" : "  "}
                                     />
                                     {validationErrors.receiptType && (
@@ -365,13 +374,13 @@ if( !messes.paidAmount) { errors.paidAmount = 'paidAmount is required'}
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="fRorIOMNumber" className="mb-3">
-                                    <Form.Label>fRorIOMNumber</Form.Label>
+                                    <Form.Label>FR or IOM Number*</Form.Label>
                                     <Form.Control
-                                        type="text"
+                                        type="number"
                                         name="fRorIOMNumber"
                                         value={messes.fRorIOMNumber}
                                         onChange={handleChange}
-                                        placeholder='Enter Number'
+                                        placeholder='Enter FR or IOM Number'
                                         className={validationErrors.fRorIOMNumber ? " input-border" : "  "}
                                     />
                                     {validationErrors.fRorIOMNumber && (
@@ -381,13 +390,13 @@ if( !messes.paidAmount) { errors.paidAmount = 'paidAmount is required'}
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="frAmount" className="mb-3">
-                                    <Form.Label>frAmount</Form.Label>
+                                    <Form.Label>FR Amount*</Form.Label>
                                     <Form.Control
-                                        type="text"
+                                        type="number"
                                         name="frAmount"
                                         value={messes.frAmount}
                                         onChange={handleChange}
-                                        placeholder='Enter frAmount'
+                                        placeholder='Enter FR Amount'
                                         className={validationErrors.frAmount ? " input-border" : "  "}
                                     />
                                     {validationErrors.frAmount && (
@@ -397,13 +406,13 @@ if( !messes.paidAmount) { errors.paidAmount = 'paidAmount is required'}
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="paidAmount" className="mb-3">
-                                    <Form.Label>paidAmount</Form.Label>
+                                    <Form.Label>Paid Amount*</Form.Label>
                                     <Form.Control
-                                        type="text"
+                                        type="number"
                                         name="paidAmount"
                                         value={messes.paidAmount}
                                         onChange={handleChange}
-                                        placeholder='Enter paidAmount'
+                                        placeholder='Enter Paid Amount'
                                         className={validationErrors.paidAmount ? " input-border" : "  "}
                                     />
                                     {validationErrors.paidAmount && (
@@ -411,7 +420,7 @@ if( !messes.paidAmount) { errors.paidAmount = 'paidAmount is required'}
                                     )}
                                 </Form.Group>
                             </Col>
-                            
+
 
                             <Col className='align-items-end d-flex justify-content-between mb-3'>
                                 <div>

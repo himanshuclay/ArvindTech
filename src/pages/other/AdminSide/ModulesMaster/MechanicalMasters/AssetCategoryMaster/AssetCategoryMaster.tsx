@@ -78,17 +78,17 @@ const AssetCategoryMaster = () => {
     const [columns, setColumns] = useState<Column[]>([
 
 
-        { id: 'assetGroupCode', label: 'assetGroupCode', visible: true},
-        { id: 'coreCategory', label: 'coreCategory', visible: true},
-        { id: 'assetGroup', label: 'assetGroup', visible: true},
-        { id: 'preventiveAndChecklist', label: 'preventiveAndChecklist', visible: true},
-        { id: 'dailyChecklist', label: 'dailyChecklist', visible: true},
-        { id: 'weeklyChecklist', label: 'weeklyChecklist', visible: true},
-        { id: 'monthlyChecklist', label: 'monthlyChecklist', visible: true},
-        { id: 'condition', label: 'condition', visible: true},
-        { id: 'service', label: 'service', visible: true},
-        { id: 'assetCustodian', label: 'assetCustodian', visible: true},
-        { id: 'sparePartsInventoryApplicable', label: 'sparePartsInventoryApplicable', visible: true},
+        { id: 'assetGroupCode', label: 'Asset Group Code', visible: true},
+        { id: 'coreCategory', label: 'Core Category', visible: true},
+        { id: 'assetGroup', label: 'Asset Group', visible: true},
+        { id: 'preventiveAndChecklist', label: 'Preventive And Checklist', visible: true},
+        { id: 'dailyChecklist', label: 'Daily Checklist', visible: true},
+        { id: 'weeklyChecklist', label: 'Weekly Checklist', visible: true},
+        { id: 'monthlyChecklist', label: 'Monthly Checklist', visible: true},
+        { id: 'condition', label: 'Condition', visible: true},
+        { id: 'service', label: 'Service', visible: true},
+        { id: 'assetCustodian', label: 'Asset Custodian', visible: true},
+        { id: 'sparePartsInventoryApplicable', label: 'Spare Parts Inventory Applicable', visible: true},
         
     ]);
 

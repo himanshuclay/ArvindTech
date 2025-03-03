@@ -123,7 +123,7 @@ const AssetConditionMasterAddEdit = () => {
     };
 
 
-    useEffect(() => {
+    useEffect(() => { 
         const fetchData = async (endpoint: string, setter: Function, listName: string) => {
             try {
                 const response = await axios.get(`${config.API_URL_APPLICATION}/${endpoint}`);
@@ -148,25 +148,25 @@ const AssetConditionMasterAddEdit = () => {
 
 
        
-        if(!messes.assetCode) {errors.assetCode = 'assetCode is required'}
-        if(!messes.assetName) {errors.assetName = 'assetName is required'}
-        if(!messes.currentProject) {errors.currentProject = 'currentProject is required'}
-        if(!messes.assetOwnership) {errors.assetOwnership = 'assetOwnership is required'}
-        if(!messes.assetCondition) {errors.assetCondition = 'assetCondition is required'}
-        if(!messes.working_HSDorNonHSD) {errors.working_HSDorNonHSD = 'working_HSDorNonHSD is required'}
-        if(!messes.expectedAssetRelease_ResolutionDate) {errors.expectedAssetRelease_ResolutionDate = 'expectedAssetRelease_ResolutionDate is required'}
-        if(!messes.reasonofBreakdown) {errors.reasonofBreakdown = 'reasonofBreakdown is required'}
-        if(!messes.warrantyStatus) {errors.warrantyStatus = 'warrantyStatus is required'}
-        if(!messes.insuranceStatus) {errors.insuranceStatus = 'insuranceStatus is required'}
-        if(!messes.timeofBreakdown) {errors.timeofBreakdown = 'timeofBreakdown is required'}
-        if(!messes.openingTankBalance) {errors.openingTankBalance = 'openingTankBalance is required'}
-        if(!messes.hsdReceived) {errors.hsdReceived = 'hsdReceived is required'}
-        if(!messes.closingTankBalance) {errors.closingTankBalance = 'closingTankBalance is required'}
-        if(!messes.openingReading) {errors.openingReading = 'openingReading is required'}
-        if(!messes.closingReading) {errors.closingReading = 'closingReading is required'}
-        if(!messes.workingHrs_RunningKM) {errors.workingHrs_RunningKM = 'workingHrs_RunningKM is required'}
-        if(!messes.cummulativeWorkingHrs_RunningKMs) {errors.cummulativeWorkingHrs_RunningKMs = 'cummulativeWorkingHrs_RunningKMs is required'}
-        if(!messes.assetisWorking) {errors.assetisWorking = 'assetisWorking is required'}
+        if(!messes.assetCode) {errors.assetCode = 'Asset Code is required'}
+        if(!messes.assetName) {errors.assetName = 'Asset Name is required'}
+        if(!messes.currentProject) {errors.currentProject = 'Current Project is required'}
+        if(!messes.assetOwnership) {errors.assetOwnership = 'Asset Ownership is required'}
+        if(!messes.assetCondition) {errors.assetCondition = 'Asset Condition is required'}
+        if(!messes.working_HSDorNonHSD) {errors.working_HSDorNonHSD = 'Working HS Dor Non HSD is required'}
+        if(!messes.expectedAssetRelease_ResolutionDate) {errors.expectedAssetRelease_ResolutionDate = 'Expected Asset Release Resolution Date is required'}
+        if(!messes.reasonofBreakdown) {errors.reasonofBreakdown = 'Reason of Breakdown is required'}
+        if(!messes.warrantyStatus) {errors.warrantyStatus = 'Warranty Status is required'}
+        if(!messes.insuranceStatus) {errors.insuranceStatus = 'Insurance Status is required'}
+        if(!messes.timeofBreakdown) {errors.timeofBreakdown = 'Time of Breakdown is required'}
+        if(!messes.openingTankBalance) {errors.openingTankBalance = 'Opening Tank Balance is required'}
+        if(!messes.hsdReceived) {errors.hsdReceived = 'Hsd Received is required'}
+        if(!messes.closingTankBalance) {errors.closingTankBalance = 'Closing Tank Balance is required'}
+        if(!messes.openingReading) {errors.openingReading = 'Opening Reading is required'}
+        if(!messes.closingReading) {errors.closingReading = 'Closing Reading is required'}
+        if(!messes.workingHrs_RunningKM) {errors.workingHrs_RunningKM = 'Working Hrs Running KM is required'}
+        if(!messes.cummulativeWorkingHrs_RunningKMs) {errors.cummulativeWorkingHrs_RunningKMs = 'Cummulative Working Hrs Running KMs is required'}
+        if(!messes.assetisWorking) {errors.assetisWorking = 'Assetis Working is required'}
 
 
 
@@ -286,13 +286,13 @@ const AssetConditionMasterAddEdit = () => {
 
                             <Col lg={6}>
                                 <Form.Group controlId="assetCode" className="mb-3">
-                                    <Form.Label>assetCode</Form.Label>
+                                    <Form.Label>Asset Code</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="assetCode"
                                         value={messes.assetCode}
                                         onChange={handleChange}
-                                        placeholder='Enter assetCode'
+                                        placeholder='Enter Asset Code'
                                         disabled={editMode}
                                         className={validationErrors.assetCode ? " input-border" : "  "}
                                     />
@@ -304,10 +304,11 @@ const AssetConditionMasterAddEdit = () => {
                            
                             <Col lg={6}>
                                 <Form.Group controlId="assetName" className="mb-3">
-                                    <Form.Label>assetName</Form.Label>
+                                    <Form.Label>Asset Name</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="assetName"
+                                        placeholder='Enter Asset Name'
                                         value={messes.assetName}  // ✅ Use checked instead of value
                                         onChange={handleChange}
                                         className={validationErrors.assetName ? "input-border" : ""}
@@ -321,13 +322,13 @@ const AssetConditionMasterAddEdit = () => {
 
                             <Col lg={6}>
                                 <Form.Group controlId="currentProject" className="mb-3">
-                                    <Form.Label>currentProject</Form.Label>
+                                    <Form.Label>Current Project</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="currentProject"
                                         value={messes.currentProject}
                                         onChange={handleChange}
-                                        placeholder='Enter currentProject'
+                                        placeholder='Enter Current Project'
                                         className={validationErrors.currentProject ? " input-border" : "  "}
                                     />
                                     {validationErrors.currentProject && (
@@ -337,13 +338,13 @@ const AssetConditionMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="assetOwnership" className="mb-3">
-                                    <Form.Label>assetOwnership</Form.Label>
+                                    <Form.Label>Asset Ownership</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="assetOwnership"
                                         value={messes.assetOwnership}
                                         onChange={handleChange}
-                                        placeholder='Enter assetOwnership'
+                                        placeholder='Enter Asset Ownership'
                                         className={validationErrors.assetOwnership ? " input-border" : "  "}
                                     />
                                     {validationErrors.assetOwnership && (
@@ -353,13 +354,13 @@ const AssetConditionMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="assetCondition" className="mb-3">
-                                    <Form.Label>assetCondition</Form.Label>
+                                    <Form.Label>Asset Condition</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="assetCondition"
                                         value={messes.assetCondition}
                                         onChange={handleChange}
-                                        placeholder='Enter assetCondition'
+                                        placeholder='Enter Asset Condition'
                                         className={validationErrors.assetCondition ? " input-border" : "  "}
                                     />
                                     {validationErrors.assetCondition && (
@@ -369,13 +370,13 @@ const AssetConditionMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="working_HSDorNonHSD" className="mb-3">
-                                    <Form.Label>working_HSDorNonHSD</Form.Label>
+                                    <Form.Label>Working HSDorNonHSD</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="working_HSDorNonHSD"
                                         value={messes.working_HSDorNonHSD}
                                         onChange={handleChange}
-                                        placeholder='Enter working_HSDorNonHSD'
+                                        placeholder='Enter Working HSDorNonHSD'
                                         className={validationErrors.working_HSDorNonHSD ? " input-border" : "  "}
                                     />
                                     {validationErrors.working_HSDorNonHSD && (
@@ -385,13 +386,13 @@ const AssetConditionMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="expectedAssetRelease_ResolutionDate" className="mb-3">
-                                    <Form.Label>expectedAssetRelease_ResolutionDate</Form.Label>
+                                    <Form.Label>Expected Asset Release Resolution Date</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="expectedAssetRelease_ResolutionDate"
                                         value={messes.expectedAssetRelease_ResolutionDate}
                                         onChange={handleChange}
-                                        placeholder='Enter expectedAssetRelease_ResolutionDate'
+                                        placeholder='Enter Expected Asset Release Resolution Date'
                                         className={validationErrors.expectedAssetRelease_ResolutionDate ? " input-border" : "  "}
                                     />
                                     {validationErrors.expectedAssetRelease_ResolutionDate && (
@@ -401,13 +402,13 @@ const AssetConditionMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="reasonofBreakdown" className="mb-3">
-                                    <Form.Label>reasonofBreakdown</Form.Label>
+                                    <Form.Label>Reason of Breakdown</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="reasonofBreakdown"
                                         value={messes.reasonofBreakdown}
                                         onChange={handleChange}
-                                        placeholder='Enter reasonofBreakdown'
+                                        placeholder='Enter Reason of Breakdown'
                                         className={validationErrors.reasonofBreakdown ? " input-border" : "  "}
                                     />
                                     {validationErrors.reasonofBreakdown && (
@@ -417,13 +418,13 @@ const AssetConditionMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="warrantyStatus" className="mb-3">
-                                    <Form.Label>warrantyStatus</Form.Label>
+                                    <Form.Label>Warranty Status</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="warrantyStatus"
                                         value={messes.warrantyStatus}
                                         onChange={handleChange}
-                                        placeholder='Enter warrantyStatus'
+                                        placeholder='Enter Warranty Status'
                                         className={validationErrors.warrantyStatus ? " input-border" : "  "}
                                     />
                                     {validationErrors.warrantyStatus && (
@@ -433,13 +434,13 @@ const AssetConditionMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="insuranceStatus" className="mb-3">
-                                    <Form.Label>insuranceStatus</Form.Label>
+                                    <Form.Label>Insurance Status</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="insuranceStatus"
                                         value={messes.insuranceStatus}
                                         onChange={handleChange}
-                                        placeholder='Enter insuranceStatus'
+                                        placeholder='Enter Insurance Status'
                                         className={validationErrors.insuranceStatus ? " input-border" : "  "}
                                     />
                                     {validationErrors.insuranceStatus && (
@@ -449,13 +450,13 @@ const AssetConditionMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="timeofBreakdown" className="mb-3">
-                                    <Form.Label>timeofBreakdown</Form.Label>
+                                    <Form.Label>Timeof Breakdown</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="timeofBreakdown"
                                         value={messes.timeofBreakdown}
                                         onChange={handleChange}
-                                        placeholder='Enter timeofBreakdown'
+                                        placeholder='Enter Timeof Breakdown'
                                         className={validationErrors.timeofBreakdown ? " input-border" : "  "}
                                     />
                                     {validationErrors.timeofBreakdown && (
@@ -465,13 +466,13 @@ const AssetConditionMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="openingTankBalance" className="mb-3">
-                                    <Form.Label>openingTankBalance</Form.Label>
+                                    <Form.Label>Opening Tank Balance</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="openingTankBalance"
                                         value={messes.openingTankBalance}
                                         onChange={handleChange}
-                                        placeholder='Enter openingTankBalance'
+                                        placeholder='Enter Opening Tank Balance'
                                         className={validationErrors.openingTankBalance ? " input-border" : "  "}
                                     />
                                     {validationErrors.openingTankBalance && (
@@ -481,13 +482,13 @@ const AssetConditionMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="hsdReceived" className="mb-3">
-                                    <Form.Label>hsdReceived</Form.Label>
+                                    <Form.Label>Hsd Received</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="hsdReceived"
                                         value={messes.hsdReceived}
                                         onChange={handleChange}
-                                        placeholder='Enter hsdReceived'
+                                        placeholder='Enter Hsd Received'
                                         className={validationErrors.hsdReceived ? " input-border" : "  "}
                                     />
                                     {validationErrors.hsdReceived && (
@@ -497,13 +498,13 @@ const AssetConditionMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="closingTankBalance" className="mb-3">
-                                    <Form.Label>closingTankBalance</Form.Label>
+                                    <Form.Label>Closing Tank Balance</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="closingTankBalance"
                                         value={messes.closingTankBalance}
                                         onChange={handleChange}
-                                        placeholder='Enter closingTankBalance'
+                                        placeholder='Enter Closing Tank Balance'
                                         className={validationErrors.closingTankBalance ? " input-border" : "  "}
                                     />
                                     {validationErrors.closingTankBalance && (
@@ -513,13 +514,13 @@ const AssetConditionMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="openingReading" className="mb-3">
-                                    <Form.Label>openingReading</Form.Label>
+                                    <Form.Label>Opening Reading</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="openingReading"
                                         value={messes.openingReading}
                                         onChange={handleChange}
-                                        placeholder='Enter openingReading'
+                                        placeholder='Enter Opening Reading'
                                         className={validationErrors.openingReading ? " input-border" : "  "}
                                     />
                                     {validationErrors.openingReading && (
@@ -529,13 +530,13 @@ const AssetConditionMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="closingReading" className="mb-3">
-                                    <Form.Label>closingReading</Form.Label>
+                                    <Form.Label>Closing Reading</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="closingReading"
                                         value={messes.closingReading}
                                         onChange={handleChange}
-                                        placeholder='Enter closingReading'
+                                        placeholder='Enter Closing Reading'
                                         className={validationErrors.closingReading ? " input-border" : "  "}
                                     />
                                     {validationErrors.closingReading && (
@@ -545,13 +546,13 @@ const AssetConditionMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="workingHrs_RunningKM" className="mb-3">
-                                    <Form.Label>workingHrs_RunningKM</Form.Label>
+                                    <Form.Label>Working Hrs RunningKM</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="workingHrs_RunningKM"
                                         value={messes.workingHrs_RunningKM}
                                         onChange={handleChange}
-                                        placeholder='Enter workingHrs_RunningKM'
+                                        placeholder='Enter Working Hrs RunningKM'
                                         className={validationErrors.workingHrs_RunningKM ? " input-border" : "  "}
                                     />
                                     {validationErrors.workingHrs_RunningKM && (
@@ -561,13 +562,13 @@ const AssetConditionMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="cummulativeWorkingHrs_RunningKMs" className="mb-3">
-                                    <Form.Label>cummulativeWorkingHrs_RunningKMs</Form.Label>
+                                    <Form.Label>Cummulative Working Hrs RunningKMs</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="cummulativeWorkingHrs_RunningKMs"
                                         value={messes.cummulativeWorkingHrs_RunningKMs}
                                         onChange={handleChange}
-                                        placeholder='Enter cummulativeWorkingHrs_RunningKMs'
+                                        placeholder='Enter Cummulative Working Hrs RunningKMs'
                                         className={validationErrors.cummulativeWorkingHrs_RunningKMs ? " input-border" : "  "}
                                     />
                                     {validationErrors.cummulativeWorkingHrs_RunningKMs && (
@@ -577,13 +578,13 @@ const AssetConditionMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="assetisWorking" className="mb-3">
-                                    <Form.Label>assetisWorking</Form.Label>
+                                    <Form.Label>Assetis Working</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="assetisWorking"
                                         value={messes.assetisWorking}
                                         onChange={handleChange}
-                                        placeholder='Enter assetisWorking'
+                                        placeholder='Enter Assetis Working'
                                         className={validationErrors.assetisWorking ? " input-border" : "  "}
                                     />
                                     {validationErrors.assetisWorking && (
