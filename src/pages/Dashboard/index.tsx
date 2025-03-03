@@ -2,6 +2,7 @@ import { Button, Col, Form, Row } from 'react-bootstrap'
 import Flatpickr from 'react-flatpickr';
 import 'flatpickr/dist/themes/material_green.css';
 import Select from 'react-select';
+import { PageBreadcrumb } from '@/components';
 
 
 
@@ -11,23 +12,7 @@ const Dashboard = () => {
 
 	return (
 		<>
-			{/* <PageBreadcrumb title="Welcome!" subName="Dashboards" /> */}
-			{/* <Row>
-				{(statistics || []).map((item, idx) => {
-					return (
-						<Col xxl={3} sm={6} key={idx}>
-							<Statistics
-								title={item.title}
-								stats={item.stats}
-								change={item.change}
-								icon={item.icon}
-								variant={item.variant}
-							/>
-						</Col>
-					)
-				})}
-			</Row> */}
-
+			<PageBreadcrumb title="Welcome!" />
 
 			<Row className="mt-3 text-dark">
 				<Col lg={6}>

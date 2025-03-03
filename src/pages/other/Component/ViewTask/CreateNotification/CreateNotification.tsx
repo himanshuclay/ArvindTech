@@ -46,51 +46,12 @@ const DesignationMaster = () => {
     const [searchStatus, setSearchStatus] = useState('');
     const [searchTriggered, setSearchTriggered] = useState(false);
     const [show, setShow] = useState(false);
-    const [manageId, setManageID] = useState<number>();
+    const [manageId, setManageID] = useState<any | null>(null);
     const [showView, setShowView] = useState(false);
 
 
     const [notifications, setNotifications] = useState<Designation[]>([
-        {
-            id: 1,
-            title: "System Update",
-            subject: "Scheduled Maintenance Notification",
-            content: "The system will undergo maintenance on Saturday from 2 AM to 6 AM. Please save your work beforehand.",
-            allocated: "DME",
-            count: 150
-        },
-        {
-            id: 2,
-            title: "New Policy Announcement",
-            subject: "Remote Work Policy Update",
-            content: "Starting next month, employees are allowed to work remotely twice a week. Please refer to the HR portal for more details.",
-            allocated: "Management",
-            count: 3
-        },
-        {
-            id: 3,
-            title: "Training Reminder",
-            subject: "Mandatory Compliance Training",
-            content: "All employees are required to complete the compliance training by the end of this week.",
-            allocated: "Admin",
-            count: 50
-        },
-        {
-            id: 4,
-            title: "Event Invitation",
-            subject: "Annual Company Meetup",
-            content: "You are cordially invited to our Annual Company Meetup happening next Friday. RSVP by this Wednesday.",
-            allocated: "Employee",
-            count: 500
-        },
-        {
-            id: 5,
-            title: "Security Alert",
-            subject: "Phishing Email Awareness",
-            content: "Please be cautious of phishing emails. Avoid clicking on suspicious links and report them to the IT department immediately.",
-            allocated: "ProjectIncharge",
-            count: 17
-        }
+
     ]);
 
 
@@ -107,11 +68,9 @@ const DesignationMaster = () => {
 
     // both are required to make dragable column of table 
     const [columns, setColumns] = useState<Column[]>([
-        { id: 'title', label: 'Title', visible: true },
         { id: 'subject', label: 'Subject', visible: true },
         { id: 'content', label: 'Content ', visible: true },
-        { id: 'allocated', label: 'Allocated to ', visible: true },
-        { id: 'count', label: 'Count ', visible: true },
+        { id: 'createdDate', label: 'Created Date ', visible: true },
     ]);
 
 
@@ -132,11 +91,11 @@ const DesignationMaster = () => {
     const fetchData = async () => {
         setLoading(true);
         try {
-            const response = await axios.get(`${config.API_URL_APPLICATION}/DepartmentMaster/GetDepartment`, {
+            const response = await axios.get(`${config.API_URL_APPLICATION}/NotificationMaster/GetUserNotification`, {
                 params: { PageIndex: currentPage }
             });
             if (response.data.isSuccess) {
-                // setDesignations(response.data.departments);
+                setNotifications(response.data.notificationMaster);
                 setTotalPages(Math.ceil(response.data.totalCount / 10));
             } else {
                 console.error(response.data.message);
@@ -221,11 +180,11 @@ const DesignationMaster = () => {
 
 
     const handleShowview = () => setShowView(true);
-    const handleViewEdit = (id: any) => {
+    const handleViewEdit = (item: any) => {
         handleShowview();
-        setManageID(id)
-
+        setManageID(item); // ✅ Now passing an object, not just an ID
     };
+
 
     return (
         <>
@@ -264,7 +223,7 @@ const DesignationMaster = () => {
                             <Row>
                                 <Col lg={4}>
                                     <Form.Group controlId="searchDept">
-                                        <Form.Label>Title</Form.Label>
+                                        <Form.Label>Subject</Form.Label>
                                         <Select
                                             name="searchDept"
                                             value={departmentList.find(item => item.departmentName === searchDept) || null}
@@ -380,7 +339,7 @@ const DesignationMaster = () => {
                                                     {(role === 'Admin' || role === 'DME') && (
                                                         <>
                                                             <td className='text-center'>
-                                                                <Button variant='primary' className='text-white' onClick={() => handleViewEdit(item.id)}>
+                                                                <Button variant='primary' className='text-white' onClick={() => handleViewEdit(item)}>
                                                                     {item.count > 0 ? 'Published' : 'Publish'}
                                                                 </Button>
                                                             </td>
@@ -430,7 +389,7 @@ const DesignationMaster = () => {
                 </Pagination>
             </div>
             <CreatePopup show={show} setShow={setShow} />
-            <PushNotification showView={showView} setShowView={setShowView} id={manageId} />
+            <PushNotification showView={showView} setShowView={setShowView} data={manageId} />
 
 
 

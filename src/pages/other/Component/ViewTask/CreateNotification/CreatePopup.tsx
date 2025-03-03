@@ -13,18 +13,21 @@ interface AssignProjecttoProcess {
     id: number;
     subject: string;
     content: string;
+    doerIDs: string[];
+    roleNames: string[];
     createdBy: string;
     updatedBy: string;
 }
 
 const CreatePopup: React.FC<ProcessCanvasProps> = ({ show, setShow }) => {
-
     const [empName, setEmpName] = useState<string | null>('');
     const [wordCount, setWordCount] = useState(0);
     const [notification, setNotification] = useState<AssignProjecttoProcess>({
         id: 0,
         subject: '',
         content: '',
+        doerIDs: [],
+        roleNames: [],
         createdBy: '',
         updatedBy: empName || '',
     });
@@ -46,7 +49,6 @@ const CreatePopup: React.FC<ProcessCanvasProps> = ({ show, setShow }) => {
                 const words = inputValue.trim().split(/\s+/).filter((word: string) => word.length > 0);
                 const wordLimit = 500;
 
-                // Only update if word count is less than or equal to limit
                 if (words.length <= wordLimit) {
                     setNotification({
                         ...notification,
@@ -71,10 +73,13 @@ const CreatePopup: React.FC<ProcessCanvasProps> = ({ show, setShow }) => {
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         try {
-            const payload = { ...notification };
+            const payload = {
+                ...notification,
+                createdBy: empName || '',
+            };
             console.log("Notification Payload:", payload);
 
-            const apiUrl = `${config.API_URL_APPLICATION}/Notification/CreateNotification`;
+            const apiUrl = `${config.API_URL_APPLICATION}/Notificationmaster/InsertorUpdateNotification`;
             const response = await axios.post(apiUrl, payload);
 
             if (response.data.isSuccess) {
@@ -99,7 +104,9 @@ const CreatePopup: React.FC<ProcessCanvasProps> = ({ show, setShow }) => {
                     <Form onSubmit={handleSubmit}>
                         <Col lg={12}>
                             <Form.Group controlId="subject" className="mb-3">
-                                <Form.Label>Subject <span className='text-danger'>*</span></Form.Label>
+                                <Form.Label>
+                                    Subject <span className='text-danger'>*</span>
+                                </Form.Label>
                                 <Form.Control
                                     type="text"
                                     name="subject"
@@ -111,7 +118,9 @@ const CreatePopup: React.FC<ProcessCanvasProps> = ({ show, setShow }) => {
                         </Col>
                         <Col lg={12}>
                             <Form.Group controlId="content" className="mb-3">
-                                <Form.Label>Content <span className='text-danger'>*</span></Form.Label>
+                                <Form.Label>
+                                    Content <span className='text-danger'>*</span>
+                                </Form.Label>
                                 <Form.Control
                                     as="textarea"
                                     name="content"
@@ -126,7 +135,7 @@ const CreatePopup: React.FC<ProcessCanvasProps> = ({ show, setShow }) => {
                             </Form.Group>
                         </Col>
                         <ButtonGroup className="mt-3">
-                            <Button onClick={handleClose} className="me-1" >
+                            <Button onClick={handleClose} className="me-1">
                                 Cancel
                             </Button>
                             <Button type="submit" variant="primary">
