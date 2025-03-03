@@ -75,18 +75,18 @@ const MisMatchMaster = () => {
     const [columns, setColumns] = useState<Column[]>([
 
 
-        { id: 'projectID', label: 'projectID', visible: true },
-        { id: 'projectName', label: 'projectName', visible: true },
-        { id: 'vendorCodeName', label: 'vendorCodeName', visible: true },
-        { id: 'billDate', label: 'billDate', visible: true },
-        { id: 'gstHoldAmount', label: 'gstHoldAmount', visible: true },
-        { id: 'gstMonth', label: 'gstMonth', visible: true },
-        { id: 'gstR2AFiling', label: 'gstR2AFiling', visible: true },
-        { id: 'filingFrequency', label: 'filingFrequency', visible: true },
-        { id: 'createdDate', label: 'createdDate', visible: true },
-        { id: 'createdBy', label: 'createdBy', visible: true },
-        { id: 'updatedDate', label: 'updatedDate', visible: true },
-        { id: 'updatedBy', label: 'updatedBy', visible: true },
+        { id: 'projectID', label: 'Project ID', visible: true },
+        { id: 'projectName', label: 'Project Name', visible: true },
+        { id: 'vendorCodeName', label: 'Vendor Code Name', visible: true },
+        { id: 'billDate', label: 'Bill Date', visible: true },
+        { id: 'gstHoldAmount', label: 'GST Hold Amount', visible: true },
+        { id: 'gstMonth', label: 'GST Month', visible: true },
+        { id: 'gstR2AFiling', label: 'GST R2A Filing', visible: true },
+        { id: 'filingFrequency', label: 'Filing Frequency', visible: true },
+        { id: 'createdDate', label: 'Created Date', visible: true },
+        { id: 'createdBy', label: 'Created By', visible: true },
+        { id: 'updatedDate', label: 'Updated Date', visible: true },
+        { id: 'updatedBy', label: 'Updated By', visible: true },
     ]);
 
     const handleOnDragEnd = (result: any) => {

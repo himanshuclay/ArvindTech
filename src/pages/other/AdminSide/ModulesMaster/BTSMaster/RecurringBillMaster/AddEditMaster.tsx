@@ -5,7 +5,7 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import config from '@/config';
 // import Select from 'react-select';
 import { toast } from 'react-toastify';
-
+import Flatpickr from 'react-flatpickr';
 
 interface BTS_PAYMENT {
     id: number,
@@ -97,7 +97,6 @@ const RecurringBillMasterAddEdit = () => {
     }
     );
 
-    const [isMobileVerified, setIsMobileVerified] = useState(false);
     const [validationErrors, setValidationErrors] = useState<{ [key: string]: string }>({});
 
     useEffect(() => {
@@ -160,32 +159,32 @@ const RecurringBillMasterAddEdit = () => {
     const validateFields = (): boolean => {
         const errors: { [key: string]: string } = {};
 
-        if (!messes.entryDate) { errors.entryDate = 'entryDate is required' }
-        if (!messes.projectID) { errors.projectID = 'projectID is required' }
-        if (!messes.projectName) { errors.projectName = 'projectName is required' }
-        if (!messes.vendorID) { errors.vendorID = 'vendorID is required' }
-        if (!messes.vendorNameAndCode) { errors.vendorNameAndCode = 'vendorNameAndCode is required' }
-        if (!messes.item) { errors.item = 'item is required' }
-        if (!messes.specification) { errors.specification = 'specification is required' }
-        if (!messes.assetGroupCode) { errors.assetGroupCode = 'assetGroupCode is required' }
-        if (!messes.assetCategory) { errors.assetCategory = 'assetCategory is required' }
-        if (!messes.assetGroup) { errors.assetGroup = 'assetGroup is required' }
-        if (!messes.assetMake) { errors.assetMake = 'assetMake is required' }
-        if (!messes.assetOwnership) { errors.assetOwnership = 'assetOwnership is required' }
-        if (!messes.dateOfDeployment) { errors.dateOfDeployment = 'dateOfDeployment is required' }
-        if (!messes.receiptType) { errors.receiptType = 'receiptType is required' }
-        if (!messes.billAgainst) { errors.billAgainst = 'billAgainst is required' }
-        if (!messes.billStatus) { errors.billStatus = 'billStatus is required' }
-        if (!messes.source) { errors.source = 'source is required' }
-        if (!messes.no) { errors.no = 'no is required' }
-        if (!messes.rate) { errors.rate = 'rate is required' }
-        if (!messes.date) { errors.date = 'date is required' }
-        if (!messes.billStartMonth) { errors.billStartMonth = 'billStartMonth is required' }
-        if (!messes.billMonth) { errors.billMonth = 'billMonth is required' }
-        if (!messes.billNo) { errors.billNo = 'billNo is required' }
-        if (!messes.billDate) { errors.billDate = 'billDate is required' }
-        if (!messes.billAmount) { errors.billAmount = 'billAmount is required' }
-        if (!messes.billingRequiredGivenPeriod) { errors.billingRequiredGivenPeriod = 'billingRequiredGivenPeriod is required' }
+        if (!messes.entryDate) { errors.entryDate = 'Entry Date is required' }
+        if (!messes.projectID) { errors.projectID = 'Project ID is required' }
+        if (!messes.projectName) { errors.projectName = 'Project Name is required' }
+        if (!messes.vendorID) { errors.vendorID = 'Vendor ID is required' }
+        if (!messes.vendorNameAndCode) { errors.vendorNameAndCode = 'Vendor Name And Code is required' }
+        if (!messes.item) { errors.item = 'Item is required' }
+        if (!messes.specification) { errors.specification = 'Specification is required' }
+        if (!messes.assetGroupCode) { errors.assetGroupCode = 'Asset Group Code is required' }
+        if (!messes.assetCategory) { errors.assetCategory = 'Asset Category is required' }
+        if (!messes.assetGroup) { errors.assetGroup = 'Asset Group is required' }
+        if (!messes.assetMake) { errors.assetMake = 'Asset Make is required' }
+        if (!messes.assetOwnership) { errors.assetOwnership = 'Asset Ownership is required' }
+        if (!messes.dateOfDeployment) { errors.dateOfDeployment = 'Date Of Deployment is required' }
+        if (!messes.receiptType) { errors.receiptType = 'Receipt Type is required' }
+        if (!messes.billAgainst) { errors.billAgainst = 'Bill Against is required' }
+        if (!messes.billStatus) { errors.billStatus = 'Bill Status is required' }
+        if (!messes.source) { errors.source = 'Source is required' }
+        if (!messes.no) { errors.no = 'No is required' }
+        if (!messes.rate) { errors.rate = 'Rate is required' }
+        if (!messes.date) { errors.date = 'Date is required' }
+        if (!messes.billStartMonth) { errors.billStartMonth = 'Bill Start Month is required' }
+        if (!messes.billMonth) { errors.billMonth = 'Bill Month is required' }
+        if (!messes.billNo) { errors.billNo = 'Bill No is required' }
+        if (!messes.billDate) { errors.billDate = 'Bill Date is required' }
+        if (!messes.billAmount) { errors.billAmount = 'Bill Amount is required' }
+        if (!messes.billingRequiredGivenPeriod) { errors.billingRequiredGivenPeriod = 'Billing Required Given Period is required' }
 
 
 
@@ -197,6 +196,7 @@ const RecurringBillMasterAddEdit = () => {
 
     const handleChange = (e: ChangeEvent<any> | null, name?: string, value?: any) => {
         const validateMobileNumber = (fieldName: string, fieldValue: string) => {
+            const errors: { [key: string]: string } = {};
             if (!/^\d{0,10}$/.test(fieldValue)) {
                 return false;
             }
@@ -208,12 +208,13 @@ const RecurringBillMasterAddEdit = () => {
 
             if (fieldValue.length === 10) {
                 if (!/^[6-9]/.test(fieldValue)) {
-                    toast.error("Mobile number should start with a digit between 6 and 9.");
-                    setIsMobileVerified(true);
+                    errors.no = "Mobile number should start with a digit between 6 and 9.";
                     return false;
                 }
             } else {
-                setIsMobileVerified(false);
+                errors.no = "Mobile number should be 10 digits only"
+                setValidationErrors(errors);
+                return false;
             }
             return true;
         };
@@ -227,7 +228,7 @@ const RecurringBillMasterAddEdit = () => {
                 }));
             } else {
                 const inputValue = (e.target as HTMLInputElement | HTMLSelectElement).value;
-                if (eventName === "mobileNumber") {
+                if (eventName === "no") {
                     validateMobileNumber(eventName, inputValue);
                 } else {
                     setMesses((prevData) => {
@@ -255,11 +256,7 @@ const RecurringBillMasterAddEdit = () => {
 
 
 
-        if (isMobileVerified) {
-            toast.dismiss()
-            toast.error("Please verify your mobile number before submitting the form.");
-            return;
-        }
+       
         const payload = {
             ...messes,
             createdDate: new Date(),
@@ -288,6 +285,18 @@ const RecurringBillMasterAddEdit = () => {
         }
 
     };
+    const handleDateChange = (fieldName: string, selectedDates: Date[]) => {
+        if (selectedDates.length > 0) {
+            setMesses((prevData) => ({
+                ...prevData,
+                [fieldName]: selectedDates[0].toISOString().split("T")[0], // ✅ Store as YYYY-MM-DD
+            }));
+        }
+    };
+ const dateOptions = {
+        enableTime: false,
+        dateFormat: 'Y-m-d',
+    }
     return (
         <div>
             <div className="container">
@@ -299,15 +308,15 @@ const RecurringBillMasterAddEdit = () => {
                         <Row>
                             <Col lg={6}>
                                 <Form.Group controlId="entryDate" className="mb-3">
-                                    <Form.Label>entryDate</Form.Label>
-                                    <Form.Control
+                                    <Form.Label>Entry Date*</Form.Label>
+                                    <Flatpickr
                                         type="date"
-                                        name="entryDate"
                                         value={messes.entryDate}
-                                        onChange={handleChange}
+                                        onChange={(selectedDates) => handleDateChange("entryDate", selectedDates)}
+                                        options={dateOptions}
                                         placeholder='Enter Entry Date'
                                         // disabled={editMode}
-                                        className={validationErrors.entryDate ? " input-border" : "  "}
+                                        className={validationErrors.entryDate ? "form-control input-border" : "form-control"}
                                     />
                                     {validationErrors.entryDate && (
                                         <small className="text-danger">{validationErrors.entryDate}</small>
@@ -317,14 +326,14 @@ const RecurringBillMasterAddEdit = () => {
                             
                             <Col lg={6}>
                                 <Form.Group controlId="projectID" className="mb-3">
-                                    <Form.Label>Project ID</Form.Label>
+                                    <Form.Label>Project ID*</Form.Label>
                                     <Form.Control
-                                        type="text"
+                                        type="Number"
                                         name="projectID"
                                         value={messes.projectID}
                                         onChange={handleChange}
-                                        placeholder='Enter projectID'
-                                        disabled={editMode}
+                                        placeholder='Enter Project ID'
+                                        // disabled={editMode}
                                         className={validationErrors.projectID ? " input-border" : "  "}
                                     />
                                     {validationErrors.projectID && (
@@ -334,13 +343,13 @@ const RecurringBillMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="projectName" className="mb-3">
-                                    <Form.Label>Project Name</Form.Label>
+                                    <Form.Label>Project Name*</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="projectName"
                                         value={messes.projectName}
                                         onChange={handleChange}
-                                        placeholder='Enter Project ID'
+                                        placeholder='Enter Project Name'
                                         className={validationErrors.projectName ? " input-border" : "  "}
                                     />
                                     {validationErrors.projectName && (
@@ -350,13 +359,13 @@ const RecurringBillMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="vendorID" className="mb-3">
-                                    <Form.Label>vendorID</Form.Label>
+                                    <Form.Label>Vendor ID*</Form.Label>
                                     <Form.Control
-                                        type="text"
+                                        type="number"
                                         name="vendorID"
                                         value={messes.vendorID}
                                         onChange={handleChange}
-                                        placeholder='Enter Project Name'
+                                        placeholder='Enter Vendor ID'
                                         className={validationErrors.vendorID ? " input-border" : "  "}
                                     />
                                     {validationErrors.vendorID && (
@@ -366,13 +375,13 @@ const RecurringBillMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="vendorNameAndCode" className="mb-3">
-                                    <Form.Label>vendorNameAndCode</Form.Label>
+                                    <Form.Label>Vendor Name And Code*</Form.Label>
                                     <Form.Control
-                                        type="text"
+                                        type="number"
                                         name="vendorNameAndCode"
                                         value={messes.vendorNameAndCode}
                                         onChange={handleChange}
-                                        placeholder='Enter Payment Requested For'
+                                        placeholder='Enter Vendor Name And Code'
                                         className={validationErrors.vendorNameAndCode ? " input-border" : "  "}
                                     />
                                     {validationErrors.vendorNameAndCode && (
@@ -382,13 +391,13 @@ const RecurringBillMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="item" className="mb-3">
-                                    <Form.Label>item</Form.Label>
+                                    <Form.Label>Item*</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="item"
                                         value={messes.item}
                                         onChange={handleChange}
-                                        placeholder='Enter item'
+                                        placeholder='Enter Item'
                                         className={validationErrors.item ? " input-border" : "  "}
                                     />
                                     {validationErrors.item && (
@@ -398,13 +407,13 @@ const RecurringBillMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="specification" className="mb-3">
-                                    <Form.Label>specification</Form.Label>
+                                    <Form.Label>Specification*</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="specification"
                                         value={messes.specification}
                                         onChange={handleChange}
-                                        placeholder='Enter Number'
+                                        placeholder='Enter Specification'
                                         className={validationErrors.specification ? " input-border" : "  "}
                                     />
                                     {validationErrors.specification && (
@@ -414,13 +423,13 @@ const RecurringBillMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="assetGroupCode" className="mb-3">
-                                    <Form.Label>assetGroupCode</Form.Label>
+                                    <Form.Label>Asset Group Code*</Form.Label>
                                     <Form.Control
-                                        type="text"
+                                        type="number"
                                         name="assetGroupCode"
                                         value={messes.assetGroupCode}
                                         onChange={handleChange}
-                                        placeholder='Enter assetGroupCode'
+                                        placeholder='Enter Asset Group Code'
                                         className={validationErrors.assetGroupCode ? " input-border" : "  "}
                                     />
                                     {validationErrors.assetGroupCode && (
@@ -430,13 +439,13 @@ const RecurringBillMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="assetCategory" className="mb-3">
-                                    <Form.Label>assetCategory</Form.Label>
+                                    <Form.Label>Asset Category*</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="assetCategory"
                                         value={messes.assetCategory}
                                         onChange={handleChange}
-                                        placeholder='Enter assetCategory'
+                                        placeholder='Enter Asset Category'
                                         className={validationErrors.assetCategory ? " input-border" : "  "}
                                     />
                                     {validationErrors.assetCategory && (
@@ -446,13 +455,13 @@ const RecurringBillMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="assetGroup" className="mb-3">
-                                    <Form.Label>assetGroup</Form.Label>
+                                    <Form.Label>Asset Group*</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="assetGroup"
                                         value={messes.assetGroup}
                                         onChange={handleChange}
-                                        placeholder='Enter assetGroup'
+                                        placeholder='Enter Asset Group'
                                         className={validationErrors.assetGroup ? " input-border" : "  "}
                                     />
                                     {validationErrors.assetGroup && (
@@ -462,13 +471,13 @@ const RecurringBillMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="assetMake" className="mb-3">
-                                    <Form.Label>assetMake</Form.Label>
+                                    <Form.Label>Asset Make*</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="assetMake"
                                         value={messes.assetMake}
                                         onChange={handleChange}
-                                        placeholder='Enter assetMake'
+                                        placeholder='Enter Asset Make'
                                         className={validationErrors.assetMake ? " input-border" : "  "}
                                     />
                                     {validationErrors.assetMake && (
@@ -478,13 +487,13 @@ const RecurringBillMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="assetOwnership" className="mb-3">
-                                    <Form.Label>assetOwnership</Form.Label>
+                                    <Form.Label>Asset Ownership*</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="assetOwnership"
                                         value={messes.assetOwnership}
                                         onChange={handleChange}
-                                        placeholder='Enter assetOwnership'
+                                        placeholder='Enter Asset Ownership'
                                         className={validationErrors.assetOwnership ? " input-border" : "  "}
                                     />
                                     {validationErrors.assetOwnership && (
@@ -494,14 +503,14 @@ const RecurringBillMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="dateOfDeployment" className="mb-3">
-                                    <Form.Label>dateOfDeployment</Form.Label>
-                                    <Form.Control
+                                    <Form.Label>Date Of Deployment*</Form.Label>
+                                    <Flatpickr
                                         type="text"
-                                        name="dateOfDeployment"
                                         value={messes.dateOfDeployment}
-                                        onChange={handleChange}
-                                        placeholder='Enter dateOfDeployment'
-                                        className={validationErrors.dateOfDeployment ? " input-border" : "  "}
+                                        onChange={(selectedDates) => handleDateChange("dateOfDeployment", selectedDates)}
+                                        options={dateOptions}
+                                        placeholder='Enter Date Of Deployment'
+                                        className={validationErrors.dateOfDeployment ?"form-control input-border" : "form-control"}
                                     />
                                     {validationErrors.dateOfDeployment && (
                                         <small className="text-danger">{validationErrors.dateOfDeployment}</small>
@@ -510,13 +519,13 @@ const RecurringBillMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="receiptType" className="mb-3">
-                                    <Form.Label>receiptType</Form.Label>
+                                    <Form.Label>Receipt Type*</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="receiptType"
                                         value={messes.receiptType}
                                         onChange={handleChange}
-                                        placeholder='Enter receiptType'
+                                        placeholder='Enter Receipt Type'
                                         className={validationErrors.receiptType ? " input-border" : "  "}
                                     />
                                     {validationErrors.receiptType && (
@@ -526,13 +535,13 @@ const RecurringBillMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="billAgainst" className="mb-3">
-                                    <Form.Label>billAgainst</Form.Label>
+                                    <Form.Label>Bill Against*</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="billAgainst"
                                         value={messes.billAgainst}
                                         onChange={handleChange}
-                                        placeholder='Enter billAgainst'
+                                        placeholder='Enter Bill Against'
                                         className={validationErrors.billAgainst ? " input-border" : "  "}
                                     />
                                     {validationErrors.billAgainst && (
@@ -542,13 +551,13 @@ const RecurringBillMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="billStatus" className="mb-3">
-                                    <Form.Label>billStatus</Form.Label>
+                                    <Form.Label>Bill Status*</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="billStatus"
                                         value={messes.billStatus}
                                         onChange={handleChange}
-                                        placeholder='Enter billStatus'
+                                        placeholder='Enter Bill Status'
                                         className={validationErrors.billStatus ? " input-border" : "  "}
                                     />
                                     {validationErrors.billStatus && (
@@ -558,13 +567,13 @@ const RecurringBillMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="source" className="mb-3">
-                                    <Form.Label>source</Form.Label>
+                                    <Form.Label>Source*</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="source"
                                         value={messes.source}
                                         onChange={handleChange}
-                                        placeholder='Enter source'
+                                        placeholder='Enter Source'
                                         className={validationErrors.source ? " input-border" : "  "}
                                     />
                                     {validationErrors.source && (
@@ -574,13 +583,13 @@ const RecurringBillMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="no" className="mb-3">
-                                    <Form.Label>no</Form.Label>
+                                    <Form.Label>No*</Form.Label>
                                     <Form.Control
-                                        type="text"
+                                        type="number"
                                         name="no"
                                         value={messes.no}
                                         onChange={handleChange}
-                                        placeholder='Enter no'
+                                        placeholder='Enter No'
                                         className={validationErrors.no ? " input-border" : "  "}
                                     />
                                     {validationErrors.no && (
@@ -590,13 +599,13 @@ const RecurringBillMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="rate" className="mb-3">
-                                    <Form.Label>rate</Form.Label>
+                                    <Form.Label>Rate*</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="rate"
                                         value={messes.rate}
                                         onChange={handleChange}
-                                        placeholder='Enter rate'
+                                        placeholder='Enter Rate'
                                         className={validationErrors.rate ? " input-border" : "  "}
                                     />
                                     {validationErrors.rate && (
@@ -606,14 +615,13 @@ const RecurringBillMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="date" className="mb-3">
-                                    <Form.Label>date</Form.Label>
-                                    <Form.Control
+                                    <Form.Label>Date*</Form.Label>
+                                    <Flatpickr
                                         type="date"
-                                        name="date"
                                         value={messes.date}
-                                        onChange={handleChange}
-                                        placeholder='Enter date'
-                                        className={validationErrors.date ? " input-border" : "  "}
+                                        onChange={(selectedDates) => handleDateChange("date", selectedDates)}
+                                        placeholder='Enter Date'
+                                        className={validationErrors.date ? "form-control input-border" : "form-control"}
                                     />
                                     {validationErrors.date && (
                                         <small className="text-danger">{validationErrors.date}</small>
@@ -622,13 +630,13 @@ const RecurringBillMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="billStartMonth" className="mb-3">
-                                    <Form.Label>billStartMonth</Form.Label>
+                                    <Form.Label>Bill Start Month*</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="billStartMonth"
                                         value={messes.billStartMonth}
                                         onChange={handleChange}
-                                        placeholder='Enter billStartMonth'
+                                        placeholder='Enter Bill Start Month'
                                         className={validationErrors.billStartMonth ? " input-border" : "  "}
                                     />
                                     {validationErrors.billStartMonth && (
@@ -638,13 +646,13 @@ const RecurringBillMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="billMonth" className="mb-3">
-                                    <Form.Label>billMonth</Form.Label>
+                                    <Form.Label>Bill Month*</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="billMonth"
                                         value={messes.billMonth}
                                         onChange={handleChange}
-                                        placeholder='Enter billMonth'
+                                        placeholder='Enter Bill Month'
                                         className={validationErrors.billMonth ? " input-border" : "  "}
                                     />
                                     {validationErrors.billMonth && (
@@ -654,13 +662,13 @@ const RecurringBillMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="billNo" className="mb-3">
-                                    <Form.Label>billNo</Form.Label>
+                                    <Form.Label>Bill No*</Form.Label>
                                     <Form.Control
-                                        type="text"
+                                        type="number"
                                         name="billNo"
                                         value={messes.billNo}
                                         onChange={handleChange}
-                                        placeholder='Enter billNo'
+                                        placeholder='Enter Bill No'
                                         className={validationErrors.billNo ? " input-border" : "  "}
                                     />
                                     {validationErrors.billNo && (
@@ -670,14 +678,14 @@ const RecurringBillMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="billDate" className="mb-3">
-                                    <Form.Label>billDate</Form.Label>
-                                    <Form.Control
+                                    <Form.Label>Bill Date*</Form.Label>
+                                    <Flatpickr
                                         type="text"
-                                        name="billDate"
                                         value={messes.billDate}
-                                        onChange={handleChange}
-                                        placeholder='Enter billDate'
-                                        className={validationErrors.billDate ? " input-border" : "  "}
+                                        onChange={(selectedDates) => handleDateChange("billDate", selectedDates)}
+                                        options={dateOptions}
+                                        placeholder='Enter Bill Date'
+                                        className={validationErrors.billDate ? "form-control input-border" : "form-control"}
                                     />
                                     {validationErrors.billDate && (
                                         <small className="text-danger">{validationErrors.billDate}</small>
@@ -686,13 +694,13 @@ const RecurringBillMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="billAmount" className="mb-3">
-                                    <Form.Label>billAmount</Form.Label>
+                                    <Form.Label>Bill Amount*</Form.Label>
                                     <Form.Control
-                                        type="text"
+                                        type="number"
                                         name="billAmount"
                                         value={messes.billAmount}
                                         onChange={handleChange}
-                                        placeholder='Enter billAmount'
+                                        placeholder='Enter Bill Amount'
                                         className={validationErrors.billAmount ? " input-border" : "  "}
                                     />
                                     {validationErrors.billAmount && (
@@ -702,13 +710,13 @@ const RecurringBillMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="billingRequiredGivenPeriod" className="mb-3">
-                                    <Form.Label>billingRequiredGivenPeriod</Form.Label>
+                                    <Form.Label>Billing Required Given Period*</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="billingRequiredGivenPeriod"
                                         value={messes.billingRequiredGivenPeriod}
                                         onChange={handleChange}
-                                        placeholder='Enter billingRequiredGivenPeriod'
+                                        placeholder='Enter Billing Required Given Period'
                                         className={validationErrors.billingRequiredGivenPeriod ? " input-border" : "  "}
                                     />
                                     {validationErrors.billingRequiredGivenPeriod && (

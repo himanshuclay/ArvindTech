@@ -2,6 +2,7 @@ import { Offcanvas, Row, Col, Container, Alert } from 'react-bootstrap';
 import axios from "axios";
 import config from "@/config";
 import { useEffect, useState } from "react";
+import { getPlannedDate } from '../PlanDateFunction';
 
 
 interface ProcessCanvasProps {
@@ -137,7 +138,7 @@ const HeirarchyView: React.FC<ProcessCanvasProps> = ({ showView, setShowView, id
                                                     </tr>
                                                     <tr>
                                                         <td className='text-nowrap'><h5>Plan Date :</h5></td>
-                                                        <td> <h5 className='text-primary'>{task.task_Number === "ACC.01.T1" ? calculatePlannedDate(task.createdDate) : task.planDate}</h5></td>
+                                                        <td> <h5 className='text-primary'>{task.task_Number === "ACC.01.T1" ? calculatePlannedDate(task.createdDate) : getPlannedDate(task.createdDate, task.planDate)}</h5></td>
                                                     </tr>
                                                     <tr>
                                                         <td className='text-nowrap'><h5>Status :</h5></td>

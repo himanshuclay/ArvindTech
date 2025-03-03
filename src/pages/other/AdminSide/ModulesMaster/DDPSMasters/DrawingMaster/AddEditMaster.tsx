@@ -5,7 +5,7 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import config from '@/config';
 // import Select from 'react-select';
 import { toast } from 'react-toastify';
-
+import Flatpickr from 'react-flatpickr';
 
 interface BTS_PAYMENT {
     id: number,
@@ -97,7 +97,6 @@ const DrawingMasterAddEdit = () => {
     }
     );
 
-    const [isMobileVerified, setIsMobileVerified] = useState(false);
     const [validationErrors, setValidationErrors] = useState<{ [key: string]: string }>({});
 
     useEffect(() => {
@@ -160,32 +159,32 @@ const DrawingMasterAddEdit = () => {
     const validateFields = (): boolean => {
         const errors: { [key: string]: string } = {};
 
-        if (!messes.projectID) { errors.projectID = 'projectID is required'}
-        if (!messes.projectName) { errors.projectName = 'projectName is required'}
-        if (!messes.structureID) { errors.structureID = 'structureID is required'}
-        if (!messes.structureType) { errors.structureType = 'structureType is required'}
-        if (!messes.pmsStartDate) { errors.pmsStartDate = 'pmsStartDate is required'}
-        if (!messes.typeofDesign) { errors.typeofDesign = 'typeofDesign is required'}
-        if (!messes.pierorSpanorChainageNo) { errors.pierorSpanorChainageNo = 'pierorSpanorChainageNo is required'}
-        if (!messes.drawingBoardCategory) { errors.drawingBoardCategory = 'drawingBoardCategory is required'}
-        if (!messes.dtni) { errors.dtni = 'dtni is required'}
-        if (!messes.drawingStatus) { errors.drawingStatus = 'drawingStatus is required'}
-        if (!messes.expectedIssuanceDate) { errors.expectedIssuanceDate = 'expectedIssuanceDate is required'}
-        if (!messes.drawingTitle) { errors.drawingTitle = 'drawingTitle is required'}
-        if (!messes.drawingNumber) { errors.drawingNumber = 'drawingNumber is required'}
-        if (!messes.numberofSheet) { errors.numberofSheet = 'numberofSheet is required'}
-        if (!messes.revisionNumbe) { errors.revisionNumbe = 'revisionNumbe is required'}
-        if (!messes.subjectofEmail) { errors.subjectofEmail = 'subjectofEmail is required'}
-        if (!messes.dateofEmail) { errors.dateofEmail = 'dateofEmail is required'}
-        if (!messes.gfcDate) { errors.gfcDate = 'gfcDate is required'}
-        if (!messes.piReview) { errors.piReview = 'piReview is required'}
-        if (!messes.jvReview) { errors.jvReview = 'jvReview is required'}
-        if (!messes.pC1Review) { errors.pC1Review = 'pC1Review is required'}
-        if (!messes.pC2Review) { errors.pC2Review = 'pC2Review is required'}
-        if (!messes.ddcReview) { errors.ddcReview = 'ddcReview is required'}
-        if (!messes.gfcSigned) { errors.gfcSigned = 'gfcSigned is required'}
-        if (!messes.signedGFCShared) { errors.signedGFCShared = 'signedGFCShared is required'}
-        if (!messes.completionDate) { errors.completionDate = 'completionDate is required'}
+        if (!messes.projectID) { errors.projectID = 'Project ID is required'}
+        if (!messes.projectName) { errors.projectName = 'Project Name is required'}
+        if (!messes.structureID) { errors.structureID = 'Structure ID is required'}
+        if (!messes.structureType) { errors.structureType = 'Structure Type is required'}
+        if (!messes.pmsStartDate) { errors.pmsStartDate = 'PMS Start Date is required'}
+        if (!messes.typeofDesign) { errors.typeofDesign = 'Type of Design is required'}
+        if (!messes.pierorSpanorChainageNo) { errors.pierorSpanorChainageNo = 'Pieror Spanor Chainage No is required'}
+        if (!messes.drawingBoardCategory) { errors.drawingBoardCategory = 'Drawing Board Category is required'}
+        if (!messes.dtni) { errors.dtni = 'DTNI is required'}
+        if (!messes.drawingStatus) { errors.drawingStatus = 'Drawing Status is required'}
+        if (!messes.expectedIssuanceDate) { errors.expectedIssuanceDate = 'Expected Issuance Date is required'}
+        if (!messes.drawingTitle) { errors.drawingTitle = 'Drawing Title is required'}
+        if (!messes.drawingNumber) { errors.drawingNumber = 'Drawing Number is required'}
+        if (!messes.numberofSheet) { errors.numberofSheet = 'Number of Sheet is required'}
+        if (!messes.revisionNumbe) { errors.revisionNumbe = 'Revision Numbe is required'}
+        if (!messes.subjectofEmail) { errors.subjectofEmail = 'Subject of Email is required'}
+        if (!messes.dateofEmail) { errors.dateofEmail = 'Date of Email is required'}
+        if (!messes.gfcDate) { errors.gfcDate = 'GFC Date is required'}
+        if (!messes.piReview) { errors.piReview = 'PI Review is required'}
+        if (!messes.jvReview) { errors.jvReview = 'JV Review is required'}
+        if (!messes.pC1Review) { errors.pC1Review = 'P C1 Review is required'}
+        if (!messes.pC2Review) { errors.pC2Review = 'P C2 Review is required'}
+        if (!messes.ddcReview) { errors.ddcReview = 'DDC Review is required'}
+        if (!messes.gfcSigned) { errors.gfcSigned = 'GFC Signed is required'}
+        if (!messes.signedGFCShared) { errors.signedGFCShared = 'Signed GFC Shared is required'}
+        if (!messes.completionDate) { errors.completionDate = 'Completion Date is required'}
     
 
 
@@ -197,6 +196,7 @@ const DrawingMasterAddEdit = () => {
 
     const handleChange = (e: ChangeEvent<any> | null, name?: string, value?: any) => {
         const validateMobileNumber = (fieldName: string, fieldValue: string) => {
+            const errors: { [key: string]: string } = {};
             if (!/^\d{0,10}$/.test(fieldValue)) {
                 return false;
             }
@@ -208,12 +208,13 @@ const DrawingMasterAddEdit = () => {
 
             if (fieldValue.length === 10) {
                 if (!/^[6-9]/.test(fieldValue)) {
-                    toast.error("Mobile number should start with a digit between 6 and 9.");
-                    setIsMobileVerified(true);
+                    errors.no = "Mobile number should start with a digit between 6 and 9.";
                     return false;
                 }
             } else {
-                setIsMobileVerified(false);
+                errors.no = "Mobile number should be 10 digits only"
+                setValidationErrors(errors);
+                return false;
             }
             return true;
         };
@@ -227,7 +228,7 @@ const DrawingMasterAddEdit = () => {
                 }));
             } else {
                 const inputValue = (e.target as HTMLInputElement | HTMLSelectElement).value;
-                if (eventName === "mobileNumber") {
+                if (eventName === "no") {
                     validateMobileNumber(eventName, inputValue);
                 } else {
                     setMesses((prevData) => {
@@ -255,11 +256,7 @@ const DrawingMasterAddEdit = () => {
 
 
 
-        if (isMobileVerified) {
-            toast.dismiss()
-            toast.error("Please verify your mobile number before submitting the form.");
-            return;
-        }
+       
         const payload = {
             ...messes,
             createdDate: new Date(),
@@ -288,6 +285,18 @@ const DrawingMasterAddEdit = () => {
         }
 
     };
+    const handleDateChange = (fieldName: string, selectedDates: Date[]) => {
+        if (selectedDates.length > 0) {
+            setMesses((prevData) => ({
+                ...prevData,
+                [fieldName]: selectedDates[0].toISOString().split("T")[0], // ✅ Store as YYYY-MM-DD
+            }));
+        }
+    };
+ const dateOptions = {
+        enableTime: false,
+        dateFormat: 'Y-m-d',
+    }
     return (
         <div>
             <div className="container">
@@ -300,13 +309,13 @@ const DrawingMasterAddEdit = () => {
                             
                             <Col lg={6}>
                                 <Form.Group controlId="projectID" className="mb-3">
-                                    <Form.Label>Project ID</Form.Label>
+                                    <Form.Label>Project ID*</Form.Label>
                                     <Form.Control
-                                        type="text"
+                                        type="number"
                                         name="projectID"
                                         value={messes.projectID}
                                         onChange={handleChange}
-                                        placeholder='Enter projectID'
+                                        placeholder='Enter Project ID'
                                         disabled={editMode}
                                         className={validationErrors.projectID ? " input-border" : "  "}
                                     />
@@ -317,13 +326,13 @@ const DrawingMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="projectName" className="mb-3">
-                                    <Form.Label>Project Name</Form.Label>
+                                    <Form.Label>Project Name*</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="projectName"
                                         value={messes.projectName}
                                         onChange={handleChange}
-                                        placeholder='Enter Project ID'
+                                        placeholder='Enter Project Name'
                                         className={validationErrors.projectName ? " input-border" : "  "}
                                     />
                                     {validationErrors.projectName && (
@@ -333,13 +342,13 @@ const DrawingMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="structureID" className="mb-3">
-                                    <Form.Label>structureID</Form.Label>
+                                    <Form.Label>Structure ID*</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="structureID"
                                         value={messes.structureID}
                                         onChange={handleChange}
-                                        placeholder='Enter Project Name'
+                                        placeholder='Enter Structure Id'
                                         className={validationErrors.structureID ? " input-border" : "  "}
                                     />
                                     {validationErrors.structureID && (
@@ -349,13 +358,13 @@ const DrawingMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="structureType" className="mb-3">
-                                    <Form.Label>structureType</Form.Label>
+                                    <Form.Label>Structure Type*</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="structureType"
                                         value={messes.structureType}
                                         onChange={handleChange}
-                                        placeholder='Enter Payment Requested For'
+                                        placeholder='Enter Structure Type'
                                         className={validationErrors.structureType ? " input-border" : "  "}
                                     />
                                     {validationErrors.structureType && (
@@ -365,14 +374,14 @@ const DrawingMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="pmsStartDate" className="mb-3">
-                                    <Form.Label>pmsStartDate</Form.Label>
-                                    <Form.Control
+                                    <Form.Label>PMS Start Date*</Form.Label>
+                                    <Flatpickr
                                         type="text"
-                                        name="pmsStartDate"
                                         value={messes.pmsStartDate}
-                                        onChange={handleChange}
-                                        placeholder='Enter pmsStartDate'
-                                        className={validationErrors.pmsStartDate ? " input-border" : "  "}
+                                        onChange={(selectedDates) => handleDateChange("pmsStartDate", selectedDates)}
+                                        options={dateOptions}
+                                        placeholder='Enter PMS Start Date'
+                                        className={validationErrors.pmsStartDate ? "form-control input-border" : "form-control"}
                                     />
                                     {validationErrors.pmsStartDate && (
                                         <small className="text-danger">{validationErrors.pmsStartDate}</small>
@@ -381,13 +390,13 @@ const DrawingMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="typeofDesign" className="mb-3">
-                                    <Form.Label>typeofDesign</Form.Label>
+                                    <Form.Label>Type of Design*</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="typeofDesign"
                                         value={messes.typeofDesign}
                                         onChange={handleChange}
-                                        placeholder='Enter Number'
+                                        placeholder='Enter Type of Design'
                                         className={validationErrors.typeofDesign ? " input-border" : "  "}
                                     />
                                     {validationErrors.typeofDesign && (
@@ -397,13 +406,13 @@ const DrawingMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="pierorSpanorChainageNo" className="mb-3">
-                                    <Form.Label>pierorSpanorChainageNo</Form.Label>
+                                    <Form.Label>Pieror Spanor Chainage No*</Form.Label>
                                     <Form.Control
-                                        type="text"
+                                        type="number"
                                         name="pierorSpanorChainageNo"
                                         value={messes.pierorSpanorChainageNo}
                                         onChange={handleChange}
-                                        placeholder='Enter pierorSpanorChainageNo'
+                                        placeholder='Enter Pieror Spanor Chainage No'
                                         className={validationErrors.pierorSpanorChainageNo ? " input-border" : "  "}
                                     />
                                     {validationErrors.pierorSpanorChainageNo && (
@@ -413,13 +422,13 @@ const DrawingMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="drawingBoardCategory" className="mb-3">
-                                    <Form.Label>drawingBoardCategory</Form.Label>
+                                    <Form.Label>Drawing Board Category*</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="drawingBoardCategory"
                                         value={messes.drawingBoardCategory}
                                         onChange={handleChange}
-                                        placeholder='Enter drawingBoardCategory'
+                                        placeholder='Enter Drawing Board Category'
                                         className={validationErrors.drawingBoardCategory ? " input-border" : "  "}
                                     />
                                     {validationErrors.drawingBoardCategory && (
@@ -429,13 +438,13 @@ const DrawingMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="dtni" className="mb-3">
-                                    <Form.Label>dtni</Form.Label>
+                                    <Form.Label>DTNI*</Form.Label>
                                     <Form.Control
-                                        type="number"
+                                        type="text"
                                         name="dtni"
                                         value={messes.dtni}
                                         onChange={handleChange}
-                                        placeholder='Enter dtni'
+                                        placeholder='Enter DTNI'
                                         className={validationErrors.dtni ? " input-border" : "  "}
                                     />
                                     {validationErrors.dtni && (
@@ -445,13 +454,13 @@ const DrawingMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="drawingStatus" className="mb-3">
-                                    <Form.Label>drawingStatus</Form.Label>
+                                    <Form.Label>Drawing Status*</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="drawingStatus"
                                         value={messes.drawingStatus}
                                         onChange={handleChange}
-                                        placeholder='Enter drawingStatus'
+                                        placeholder='Enter Drawing Status'
                                         className={validationErrors.drawingStatus ? " input-border" : "  "}
                                     />
                                     {validationErrors.drawingStatus && (
@@ -461,14 +470,14 @@ const DrawingMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="expectedIssuanceDate" className="mb-3">
-                                    <Form.Label>expectedIssuanceDate</Form.Label>
-                                    <Form.Control
+                                    <Form.Label>Expected Issuance Date*</Form.Label>
+                                    <Flatpickr
                                         type="text"
-                                        name="expectedIssuanceDate"
                                         value={messes.expectedIssuanceDate}
-                                        onChange={handleChange}
-                                        placeholder='Enter expectedIssuanceDate'
-                                        className={validationErrors.expectedIssuanceDate ? " input-border" : "  "}
+                                        options={dateOptions}
+                                        onChange={(selectedDates) => handleDateChange("expectedIssuanceDate", selectedDates)}
+                                        placeholder='Enter Expected Issuance Date'
+                                        className={validationErrors.expectedIssuanceDate ? "form-control input-border" : "form-control"}
                                     />
                                     {validationErrors.expectedIssuanceDate && (
                                         <small className="text-danger">{validationErrors.expectedIssuanceDate}</small>
@@ -477,13 +486,13 @@ const DrawingMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="drawingTitle" className="mb-3">
-                                    <Form.Label>drawingTitle</Form.Label>
+                                    <Form.Label>Drawing Title*</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="drawingTitle"
                                         value={messes.drawingTitle}
                                         onChange={handleChange}
-                                        placeholder='Enter drawingTitle'
+                                        placeholder='Enter Drawing Title'
                                         className={validationErrors.drawingTitle ? " input-border" : "  "}
                                     />
                                     {validationErrors.drawingTitle && (
@@ -493,13 +502,13 @@ const DrawingMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="drawingNumber" className="mb-3">
-                                    <Form.Label>drawingNumber</Form.Label>
+                                    <Form.Label>Drawing Number*</Form.Label>
                                     <Form.Control
-                                        type="text"
+                                        type="number"
                                         name="drawingNumber"
                                         value={messes.drawingNumber}
                                         onChange={handleChange}
-                                        placeholder='Enter drawingNumber'
+                                        placeholder='Enter Drawing Number'
                                         className={validationErrors.drawingNumber ? " input-border" : "  "}
                                     />
                                     {validationErrors.drawingNumber && (
@@ -509,13 +518,13 @@ const DrawingMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="numberofSheet" className="mb-3">
-                                    <Form.Label>numberofSheet</Form.Label>
+                                    <Form.Label>Number of Sheet*</Form.Label>
                                     <Form.Control
-                                        type="number"
+                                        type="text"
                                         name="numberofSheet"
                                         value={messes.numberofSheet}
                                         onChange={handleChange}
-                                        placeholder='Enter numberofSheet'
+                                        placeholder='Enter Number of Sheet'
                                         className={validationErrors.numberofSheet ? " input-border" : "  "}
                                     />
                                     {validationErrors.numberofSheet && (
@@ -525,13 +534,13 @@ const DrawingMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="revisionNumbe" className="mb-3">
-                                    <Form.Label>revisionNumbe</Form.Label>
+                                    <Form.Label>Revision Numbe*</Form.Label>
                                     <Form.Control
                                         type="number"
                                         name="revisionNumbe"
                                         value={messes.revisionNumbe}
                                         onChange={handleChange}
-                                        placeholder='Enter revisionNumbe'
+                                        placeholder='Enter Revision Numbe'
                                         className={validationErrors.revisionNumbe ? " input-border" : "  "}
                                     />
                                     {validationErrors.revisionNumbe && (
@@ -541,13 +550,13 @@ const DrawingMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="subjectofEmail" className="mb-3">
-                                    <Form.Label>subjectofEmail</Form.Label>
+                                    <Form.Label>Subject of Email*</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="subjectofEmail"
                                         value={messes.subjectofEmail}
                                         onChange={handleChange}
-                                        placeholder='Enter subjectofEmail'
+                                        placeholder='Enter Subject of Email'
                                         className={validationErrors.subjectofEmail ? " input-border" : "  "}
                                     />
                                     {validationErrors.subjectofEmail && (
@@ -557,14 +566,14 @@ const DrawingMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="dateofEmail" className="mb-3">
-                                    <Form.Label>dateofEmail</Form.Label>
-                                    <Form.Control
+                                    <Form.Label>Date of Email*</Form.Label>
+                                    <Flatpickr
                                         type="text"
-                                        name="dateofEmail"
                                         value={messes.dateofEmail}
-                                        onChange={handleChange}
-                                        placeholder='Enter dateofEmail'
-                                        className={validationErrors.dateofEmail ? " input-border" : "  "}
+                                        onChange={(selectedDates) => handleDateChange("dateofEmail", selectedDates)}
+                                        options={dateOptions}
+                                        placeholder='Enter Date of Email'
+                                        className={validationErrors.dateofEmail ? "form-control input-border" : "form-control"}
                                     />
                                     {validationErrors.dateofEmail && (
                                         <small className="text-danger">{validationErrors.dateofEmail}</small>
@@ -573,14 +582,14 @@ const DrawingMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="gfcDate" className="mb-3">
-                                    <Form.Label>gfcDate</Form.Label>
-                                    <Form.Control
+                                    <Form.Label>GFC Date*</Form.Label>
+                                    <Flatpickr
                                         type="text"
-                                        name="gfcDate"
                                         value={messes.gfcDate}
-                                        onChange={handleChange}
-                                        placeholder='Enter gfcDate'
-                                        className={validationErrors.gfcDate ? " input-border" : "  "}
+                                        onChange={(selectedDates) => handleDateChange("gfcDate", selectedDates)}
+                                        placeholder='Enter GFC Date'
+                                        options={dateOptions}
+                                        className={validationErrors.gfcDate ? "form-control input-border" : "form-control"}
                                     />
                                     {validationErrors.gfcDate && (
                                         <small className="text-danger">{validationErrors.gfcDate}</small>
@@ -589,13 +598,13 @@ const DrawingMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="piReview" className="mb-3">
-                                    <Form.Label>piReview</Form.Label>
+                                    <Form.Label>PI Review*</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="piReview"
                                         value={messes.piReview}
                                         onChange={handleChange}
-                                        placeholder='Enter piReview'
+                                        placeholder='Enter PI Review'
                                         className={validationErrors.piReview ? " input-border" : "  "}
                                     />
                                     {validationErrors.piReview && (
@@ -605,13 +614,13 @@ const DrawingMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="jvReview" className="mb-3">
-                                    <Form.Label>jvReview</Form.Label>
+                                    <Form.Label>JV Review*</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="jvReview"
                                         value={messes.jvReview}
                                         onChange={handleChange}
-                                        placeholder='Enter jvReview'
+                                        placeholder='Enter JV Review'
                                         className={validationErrors.jvReview ? " input-border" : "  "}
                                     />
                                     {validationErrors.jvReview && (
@@ -621,13 +630,13 @@ const DrawingMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="pC1Review" className="mb-3">
-                                    <Form.Label>pC1Review</Form.Label>
+                                    <Form.Label>P C1 Review*</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="pC1Review"
                                         value={messes.pC1Review}
                                         onChange={handleChange}
-                                        placeholder='Enter pC1Review'
+                                        placeholder='Enter P C1 Review'
                                         className={validationErrors.pC1Review ? " input-border" : "  "}
                                     />
                                     {validationErrors.pC1Review && (
@@ -637,13 +646,13 @@ const DrawingMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="pC2Review" className="mb-3">
-                                    <Form.Label>pC2Review</Form.Label>
+                                    <Form.Label>P C2 Review*</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="pC2Review"
                                         value={messes.pC2Review}
                                         onChange={handleChange}
-                                        placeholder='Enter pC2Review'
+                                        placeholder='Enter P C2 Review'
                                         className={validationErrors.pC2Review ? " input-border" : "  "}
                                     />
                                     {validationErrors.pC2Review && (
@@ -653,13 +662,13 @@ const DrawingMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="ddcReview" className="mb-3">
-                                    <Form.Label>ddcReview</Form.Label>
+                                    <Form.Label>DDC Review*</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="ddcReview"
                                         value={messes.ddcReview}
                                         onChange={handleChange}
-                                        placeholder='Enter ddcReview'
+                                        placeholder='Enter DDC Review'
                                         className={validationErrors.ddcReview ? " input-border" : "  "}
                                     />
                                     {validationErrors.ddcReview && (
@@ -669,13 +678,13 @@ const DrawingMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="gfcSigned" className="mb-3">
-                                    <Form.Label>gfcSigned</Form.Label>
+                                    <Form.Label>GFC Signed*</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="gfcSigned"
                                         value={messes.gfcSigned}
                                         onChange={handleChange}
-                                        placeholder='Enter gfcSigned'
+                                        placeholder='Enter GFC Signed'
                                         className={validationErrors.gfcSigned ? " input-border" : "  "}
                                     />
                                     {validationErrors.gfcSigned && (
@@ -685,13 +694,13 @@ const DrawingMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="signedGFCShared" className="mb-3">
-                                    <Form.Label>signedGFCShared</Form.Label>
+                                    <Form.Label>Signed GFC Shared*</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="signedGFCShared"
                                         value={messes.signedGFCShared}
                                         onChange={handleChange}
-                                        placeholder='Enter signedGFCShared'
+                                        placeholder='Enter Signed GFC Shared'
                                         className={validationErrors.signedGFCShared ? " input-border" : "  "}
                                     />
                                     {validationErrors.signedGFCShared && (
@@ -701,14 +710,14 @@ const DrawingMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="completionDate" className="mb-3">
-                                    <Form.Label>completionDate</Form.Label>
-                                    <Form.Control
+                                    <Form.Label>Completion Date*</Form.Label>
+                                    <Flatpickr
                                         type="text"
-                                        name="completionDate"
                                         value={messes.completionDate}
-                                        onChange={handleChange}
-                                        placeholder='Enter completionDate'
-                                        className={validationErrors.completionDate ? " input-border" : "  "}
+                                        onChange={(selectedDates) => handleDateChange("completionDate", selectedDates)}
+                                        options={dateOptions}
+                                        placeholder='Enter Completion Date'
+                                        className={validationErrors.completionDate ? "form-control input-border" : "form-control"}
                                     />
                                     {validationErrors.completionDate && (
                                         <small className="text-danger">{validationErrors.completionDate}</small>

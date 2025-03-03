@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Button, Form, Modal } from 'react-bootstrap';
-import { END1, END2, START1, START3 } from '../Constant/Constant';
+import { END1, END2, START1 } from '../Constant/Constant';
 import { getBlockById } from '../Constant/Functions';
 import { FIELD } from '../Constant/Interface';
 import axios from 'axios';
@@ -82,7 +82,7 @@ const Rule: React.FC<Props> = ({ showRule, setShowRule, form, setForm }) => {
     };
 
     const handleStart3 = (rule: RULE) => {
-        if (rule.start1 === 'BIND' && rule.start2) {
+        if (['MAP', 'BIND'].includes(rule.start1) && rule.start2) {
             // if (rule.start2.includes('Select')) {
             return { isShow: true, options: mastersLists };
             // } else if (rule.start2.includes('Text')) {
@@ -93,9 +93,6 @@ const Rule: React.FC<Props> = ({ showRule, setShowRule, form, setForm }) => {
             if (block?.is === 'Select') {
                 return { isShow: true, options: block.property.options }
             }
-        } else if (rule.start1 === 'MAP' && rule.start2) {
-            const options: Option[] = START3 || [];
-            return { isShow: true, options };
         }
         return { isShow: false, options: [] };
     };
@@ -117,7 +114,7 @@ const Rule: React.FC<Props> = ({ showRule, setShowRule, form, setForm }) => {
             }
         } else if (rule.start1 === 'MAP') {
             if (rule.end1 === 'WHERE') {
-                const options: Option[] = END2.COUNTRY || [];
+                const options: Option[] = mastersLists || [];
                 return { isShow: true, options };
             }
         }

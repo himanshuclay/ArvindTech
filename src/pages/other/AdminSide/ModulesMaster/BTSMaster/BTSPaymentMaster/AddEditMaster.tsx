@@ -5,6 +5,7 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import config from '@/config';
 // import Select from 'react-select';
 import { toast } from 'react-toastify';
+import Flatpickr from 'react-flatpickr';
 
 
 interface BTS_PAYMENT {
@@ -85,7 +86,6 @@ const BTSPaymentMasterAddEdit = () => {
     }
     );
 
-    const [isMobileVerified, setIsMobileVerified] = useState(false);
     const [validationErrors, setValidationErrors] = useState<{ [key: string]: string }>({});
 
     useEffect(() => {
@@ -177,6 +177,7 @@ const BTSPaymentMasterAddEdit = () => {
 
     const handleChange = (e: ChangeEvent<any> | null, name?: string, value?: any) => {
         const validateMobileNumber = (fieldName: string, fieldValue: string) => {
+            const errors: { [key: string]: string } = {};
             if (!/^\d{0,10}$/.test(fieldValue)) {
                 return false;
             }
@@ -185,15 +186,15 @@ const BTSPaymentMasterAddEdit = () => {
                 ...prevData,
                 [fieldName]: fieldValue,
             }));
-
             if (fieldValue.length === 10) {
                 if (!/^[6-9]/.test(fieldValue)) {
-                    toast.error("Mobile number should start with a digit between 6 and 9.");
-                    setIsMobileVerified(true);
+                    errors.no = "Mobile number should start with a digit between 6 and 9.";
                     return false;
                 }
             } else {
-                setIsMobileVerified(false);
+                errors.no = "Mobile number should be 10 digits only"
+                setValidationErrors(errors);
+                return false;
             }
             return true;
         };
@@ -207,7 +208,7 @@ const BTSPaymentMasterAddEdit = () => {
                 }));
             } else {
                 const inputValue = (e.target as HTMLInputElement | HTMLSelectElement).value;
-                if (eventName === "mobileNumber") {
+                if (eventName === "no") {
                     validateMobileNumber(eventName, inputValue);
                 } else {
                     setMesses((prevData) => {
@@ -220,10 +221,21 @@ const BTSPaymentMasterAddEdit = () => {
 
     };
 
+    const handleDateChange = (fieldName: string, selectedDates: Date[]) => {
+        if (selectedDates.length > 0) {
+            setMesses((prevData) => ({
+                ...prevData,
+                [fieldName]: selectedDates[0].toISOString().split("T")[0], // ✅ Store as YYYY-MM-DD
+            }));
+        }
+    };
+
+
 
 
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+        console.log(messes)
         e.preventDefault();
 
         if (!validateFields()) {
@@ -236,11 +248,7 @@ const BTSPaymentMasterAddEdit = () => {
 
 
 
-        if (isMobileVerified) {
-            toast.dismiss()
-            toast.error("Please verify your mobile number before submitting the form.");
-            return;
-        }
+
         const payload = {
             ...messes,
             createdDate: new Date(),
@@ -269,6 +277,10 @@ const BTSPaymentMasterAddEdit = () => {
         }
 
     };
+    const dateOptions = {
+        enableTime: false,
+        dateFormat: 'Y-m-d',
+    }
     return (
         <div>
             <div className="container">
@@ -287,7 +299,6 @@ const BTSPaymentMasterAddEdit = () => {
                                         value={messes.btsid}
                                         onChange={handleChange}
                                         placeholder='Enter BTS Id'
-                                        disabled={editMode}
                                         className={validationErrors.btsid ? " input-border" : "  "}
                                     />
                                     {validationErrors.btsid && (
@@ -298,13 +309,12 @@ const BTSPaymentMasterAddEdit = () => {
                             <Col lg={6}>
                                 <Form.Group controlId="billEntryDate" className="mb-3">
                                     <Form.Label>Bill Entry Date*</Form.Label>
-                                    <Form.Control
-                                        type="date"
-                                        name="billEntryDate"
+                                    <Flatpickr
                                         value={messes.billEntryDate}
-                                        onChange={handleChange}
-                                        placeholder='Enter billEntryDate'
-                                        className={validationErrors.billEntryDate ? " input-border" : "  "}
+                                        onChange={(selectedDates) => handleDateChange("billEntryDate", selectedDates)}
+                                        options={dateOptions}
+                                        placeholder='Enter Bill Entry Date'
+                                        className={validationErrors.billEntryDate ? "form-control input-border" : "form-control"}
                                     />
                                     {validationErrors.billEntryDate && (
                                         <small className="text-danger">{validationErrors.billEntryDate}</small>
@@ -329,13 +339,13 @@ const BTSPaymentMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="projectName" className="mb-3">
-                                    <Form.Label>Project Name</Form.Label>
+                                    <Form.Label>Project Name*</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="projectName"
                                         value={messes.projectName}
                                         onChange={handleChange}
-                                        placeholder='Enter Project ID'
+                                        placeholder='Enter Project Name'
                                         className={validationErrors.projectName ? " input-border" : "  "}
                                     />
                                     {validationErrors.projectName && (
@@ -345,13 +355,13 @@ const BTSPaymentMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="paymentRequestedFor" className="mb-3">
-                                    <Form.Label>paymentRequestedFor</Form.Label>
+                                    <Form.Label>Payment Requested For*</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="paymentRequestedFor"
                                         value={messes.paymentRequestedFor}
                                         onChange={handleChange}
-                                        placeholder='Enter Project Name'
+                                        placeholder='Enter Payment Requested For'
                                         className={validationErrors.paymentRequestedFor ? " input-border" : "  "}
                                     />
                                     {validationErrors.paymentRequestedFor && (
@@ -361,13 +371,13 @@ const BTSPaymentMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="receiptType" className="mb-3">
-                                    <Form.Label>Receipt Type</Form.Label>
+                                    <Form.Label>Receipt Type*</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="receiptType"
                                         value={messes.receiptType}
                                         onChange={handleChange}
-                                        placeholder='Enter Payment Requested For'
+                                        placeholder='Enter Receipt Type'
                                         className={validationErrors.receiptType ? " input-border" : "  "}
                                     />
                                     {validationErrors.receiptType && (
@@ -377,13 +387,13 @@ const BTSPaymentMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="no" className="mb-3">
-                                    <Form.Label>No</Form.Label>
+                                    <Form.Label>No*</Form.Label>
                                     <Form.Control
-                                        type="text"
+                                        type="number"
                                         name="no"
                                         value={messes.no}
                                         onChange={handleChange}
-                                        placeholder='Enter no'
+                                        placeholder='Enter No'
                                         className={validationErrors.no ? " input-border" : "  "}
                                     />
                                     {validationErrors.no && (
@@ -393,13 +403,13 @@ const BTSPaymentMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="amount" className="mb-3">
-                                    <Form.Label>Amount</Form.Label>
+                                    <Form.Label>Amount*</Form.Label>
                                     <Form.Control
-                                        type="text"
+                                        type="number"
                                         name="amount"
                                         value={messes.amount}
                                         onChange={handleChange}
-                                        placeholder='Enter Number'
+                                        placeholder='Enter Amount'
                                         className={validationErrors.amount ? " input-border" : "  "}
                                     />
                                     {validationErrors.amount && (
@@ -409,14 +419,13 @@ const BTSPaymentMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="date" className="mb-3">
-                                    <Form.Label>Date</Form.Label>
-                                    <Form.Control
-                                        type="text"
-                                        name="date"
+                                    <Form.Label>Date*</Form.Label>
+                                    <Flatpickr
                                         value={messes.date}
-                                        onChange={handleChange}
-                                        placeholder='Enter date'
-                                        className={validationErrors.date ? " input-border" : "  "}
+                                        onChange={(selectedDates) => handleDateChange("date", selectedDates)}
+                                        options={dateOptions}
+                                        placeholder="Enter Date"
+                                        className={validationErrors.date ? "form-control input-border" : "form-control"}
                                     />
                                     {validationErrors.date && (
                                         <small className="text-danger">{validationErrors.date}</small>
@@ -425,14 +434,14 @@ const BTSPaymentMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="paymentDueDate" className="mb-3">
-                                    <Form.Label>paymentDueDate</Form.Label>
-                                    <Form.Control
+                                    <Form.Label>Payment Due Date*</Form.Label>
+                                    <Flatpickr
                                         type="date"
-                                        name="paymentDueDate"
                                         value={messes.paymentDueDate}
-                                        onChange={handleChange}
-                                        placeholder='Enter paymentDueDate'
-                                        className={validationErrors.paymentDueDate ? " input-border" : "  "}
+                                        onChange={(selectedDates) => handleDateChange("paymentDueDate", selectedDates)}
+                                        options={dateOptions}
+                                        placeholder='Enter Payment Due Date'
+                                        className={validationErrors.paymentDueDate ? "form-control input-border" : "form-control"}
                                     />
                                     {validationErrors.paymentDueDate && (
                                         <small className="text-danger">{validationErrors.paymentDueDate}</small>
@@ -441,13 +450,13 @@ const BTSPaymentMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="gstHoldAmount" className="mb-3">
-                                    <Form.Label>gstHoldAmount</Form.Label>
+                                    <Form.Label>GST Hold Amount*</Form.Label>
                                     <Form.Control
-                                        type="text"
+                                        type="number"
                                         name="gstHoldAmount"
                                         value={messes.gstHoldAmount}
                                         onChange={handleChange}
-                                        placeholder='Enter Payment Due Date'
+                                        placeholder='Enter GST Hold Amount'
                                         className={validationErrors.gstHoldAmount ? " input-border" : "  "}
                                     />
                                     {validationErrors.gstHoldAmount && (
@@ -457,13 +466,13 @@ const BTSPaymentMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="retentionHoldAmount" className="mb-3">
-                                    <Form.Label>retentionHoldAmount</Form.Label>
+                                    <Form.Label>Retention Hold Amount*</Form.Label>
                                     <Form.Control
-                                        type="text"
+                                        type="number"
                                         name="retentionHoldAmount"
                                         value={messes.retentionHoldAmount}
                                         onChange={handleChange}
-                                        placeholder='Enter GST Hold retentionHoldAmount'
+                                        placeholder='Enter Retention Hold Amount'
                                         className={validationErrors.retentionHoldAmount ? " input-border" : "  "}
                                     />
                                     {validationErrors.retentionHoldAmount && (
@@ -473,13 +482,13 @@ const BTSPaymentMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="royaltyDeduction" className="mb-3">
-                                    <Form.Label>royaltyDeduction</Form.Label>
+                                    <Form.Label>Royalty Deduction*</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="royaltyDeduction"
                                         value={messes.royaltyDeduction}
                                         onChange={handleChange}
-                                        placeholder='Enter Retention Hold Amount'
+                                        placeholder='Enter Royalty Deduction'
                                         className={validationErrors.royaltyDeduction ? " input-border" : "  "}
                                     />
                                     {validationErrors.royaltyDeduction && (
@@ -489,13 +498,13 @@ const BTSPaymentMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="otherDeductionAmount" className="mb-3">
-                                    <Form.Label>otherDeductionAmount</Form.Label>
+                                    <Form.Label>Other Deduction Amount*</Form.Label>
                                     <Form.Control
-                                        type="text"
+                                        type="number"
                                         name="otherDeductionAmount"
                                         value={messes.otherDeductionAmount}
                                         onChange={handleChange}
-                                        placeholder='Enter Royalty Deduction'
+                                        placeholder='Enter Other Deduction Amount'
                                         className={validationErrors.otherDeductionAmount ? " input-border" : "  "}
                                     />
                                     {validationErrors.otherDeductionAmount && (
@@ -505,13 +514,13 @@ const BTSPaymentMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="netPayableAmount" className="mb-3">
-                                    <Form.Label>netPayableAmount</Form.Label>
+                                    <Form.Label>Net Payable Amount*</Form.Label>
                                     <Form.Control
-                                        type="text"
+                                        type="number"
                                         name="netPayableAmount"
                                         value={messes.netPayableAmount}
                                         onChange={handleChange}
-                                        placeholder='Enter Other Deduction Amount'
+                                        placeholder='Enter Net Payable Amount'
                                         className={validationErrors.netPayableAmount ? " input-border" : "  "}
                                     />
                                     {validationErrors.netPayableAmount && (
@@ -521,13 +530,13 @@ const BTSPaymentMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="pendingAmount" className="mb-3">
-                                    <Form.Label>pendingAmount</Form.Label>
+                                    <Form.Label>Pending Amount*</Form.Label>
                                     <Form.Control
-                                        type="text"
+                                        type="number"
                                         name="pendingAmount"
                                         value={messes.pendingAmount}
                                         onChange={handleChange}
-                                        placeholder='Enter Net Payable Amount'
+                                        placeholder='Enter Pending Amount'
                                         className={validationErrors.pendingAmount ? " input-border" : "  "}
                                     />
                                     {validationErrors.pendingAmount && (
@@ -537,14 +546,14 @@ const BTSPaymentMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="courierDispatchDate" className="mb-3">
-                                    <Form.Label>courierDispatchDate</Form.Label>
-                                    <Form.Control
-                                        type="text"
-                                        name="courierDispatchDate"
+                                    <Form.Label>Courier Dispatch Date*</Form.Label>
+                                    <Flatpickr
+                                        type="date"
                                         value={messes.courierDispatchDate}
-                                        onChange={handleChange}
-                                        placeholder='Enter Pending Amount'
-                                        className={validationErrors.courierDispatchDate ? " input-border" : "  "}
+                                        onChange={(selectedDates) => handleDateChange("courierDispatchDate", selectedDates)}
+                                        options={dateOptions}
+                                        placeholder='Enter Courier Dispatch Date'
+                                        className={validationErrors.courierDispatchDate ? "form-control input-border" : "form-control"}
                                     />
                                     {validationErrors.courierDispatchDate && (
                                         <small className="text-danger">{validationErrors.courierDispatchDate}</small>
@@ -553,13 +562,13 @@ const BTSPaymentMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="fRorIOMNumber" className="mb-3">
-                                    <Form.Label>fRorIOMNumber</Form.Label>
+                                    <Form.Label>FR or IOM Number*</Form.Label>
                                     <Form.Control
-                                        type="text"
+                                        type="number"
                                         name="fRorIOMNumber"
                                         value={messes.fRorIOMNumber}
                                         onChange={handleChange}
-                                        placeholder='Enter Courier Dispatch Date'
+                                        placeholder='Enter FR or IOM Number'
                                         className={validationErrors.fRorIOMNumber ? " input-border" : "  "}
                                     />
                                     {validationErrors.fRorIOMNumber && (
@@ -569,13 +578,13 @@ const BTSPaymentMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="frAmount" className="mb-3">
-                                    <Form.Label>frAmount</Form.Label>
+                                    <Form.Label>FR Amount*</Form.Label>
                                     <Form.Control
-                                        type="text"
+                                        type="number"
                                         name="frAmount"
                                         value={messes.frAmount}
                                         onChange={handleChange}
-                                        placeholder='Enter Courier Dispatch Date'
+                                        placeholder='Enter FR Amount'
                                         className={validationErrors.frAmount ? " input-border" : "  "}
                                     />
                                     {validationErrors.frAmount && (
@@ -585,13 +594,13 @@ const BTSPaymentMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="approvedAmount" className="mb-3">
-                                    <Form.Label>approvedAmount</Form.Label>
+                                    <Form.Label>Approved Amount*</Form.Label>
                                     <Form.Control
-                                        type="text"
+                                        type="number"
                                         name="approvedAmount"
                                         value={messes.approvedAmount}
                                         onChange={handleChange}
-                                        placeholder='Enter Courier Dispatch Date'
+                                        placeholder='Enter Approved Amount'
                                         className={validationErrors.approvedAmount ? " input-border" : "  "}
                                     />
                                     {validationErrors.approvedAmount && (

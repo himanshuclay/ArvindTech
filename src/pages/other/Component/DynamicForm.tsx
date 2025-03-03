@@ -515,10 +515,13 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
         approvewithamendment: "Approve with Amendment"
     };
 
-    const options: OptionType[] = approvarActions.split(",").map((action: any) => ({
-        value: action,
-        label: approvalLabels[action] || action // Use readable label if available
-    }));
+    const options: OptionType[] = typeof approvarActions === 'string'
+        ? approvarActions.split(",").map((action: any) => ({
+            value: action,
+            label: approvalLabels[action] || action,
+        }))
+        : [];
+
     console.log("46356356356", approvarActions);
 
     type OptionType = { value: string; label: string }
@@ -884,7 +887,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                     console.error("Invalid globalTaskJson structure or 'inputs' is missing:", parsedGlobalTaskJson);
                     return;
                 }
-                 
+
                 // const finishPointInput = parsedGlobalTaskJson.inputs.find((input: any) => String(input.inputId) === String(finishPoint));
                 // console.log(finishPoint)
                 // console.log(parsedGlobalTaskJson);
@@ -1508,21 +1511,30 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                                                                             : formState[input.inputId] || ''
                                                                     }
                                                                     onChange={(e) => {
-                                                                        const inputValue = e.target.value;
-                                                                        const regex = /^[6-9]\d{0,9}$/; // Allows only digits starting from 6-9 and up to 10 digits
+                                                                        let inputValue = e.target.value;
+                                                                        const regex = /^[6-9][0-9]{0,9}$/; // Allows only numbers starting with 6-9 and up to 10 digits
 
-                                                                        if (regex.test(inputValue) || inputValue === '') {
+                                                                        if (regex.test(inputValue)) {
                                                                             handleChange(input.inputId, inputValue);
                                                                         }
                                                                     }}
+                                                                    onBlur={(e) => {
+                                                                        const inputValue = e.target.value;
+                                                                        if (!/^[6-9][0-9]{9}$/.test(inputValue)) {
+                                                                            toast.error('Please enter a valid 10-digit mobile number starting with 6-9.');
+                                                                            handleChange(input.inputId, '');
+                                                                        }
+                                                                    }}
                                                                 />
-                                                                {!/^[6-9]\d{9}$/.test(formState[input.inputId] || '') && (
-                                                                    <span className="text-danger">
-                                                                        Please enter a valid 10-digit Indian mobile number.
-                                                                    </span>
-                                                                )}
+                                                                {formState[input.inputId] &&
+                                                                    !/^[6-9][0-9]{9}$/.test(formState[input.inputId]) && (
+                                                                        <span className="text-danger">
+                                                                            Please enter a valid 10-digit Indian mobile number.
+                                                                        </span>
+                                                                    )}
                                                             </>
                                                         )}
+
 
                                                         {input.type === 'custom' && (
                                                             <input
@@ -1653,7 +1665,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                                                                     }}
                                                                 />
                                                                 <input type="text"
-                                                                 value={fileNames}
+                                                                    value={fileNames}
                                                                 />
 
                                                                 {/* Display selected file names */}

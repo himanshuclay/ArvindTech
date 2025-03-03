@@ -76,20 +76,20 @@ const FRMaster = () => {
     // both are required to make dragable column of table 
     const [columns, setColumns] = useState<Column[]>([
 
-        { id: 'btsid', label: 'btsid', visible: true },
-        { id: 'billEntryDate', label: 'billEntryDate', visible: true },
-        { id: 'projectID', label: 'projectID', visible: true },
-        { id: 'projectName', label: 'projectName', visible: true },
-        { id: 'clientJVName', label: 'clientJVName', visible: true },
-        { id: 'vendorName', label: 'vendorName', visible: true },
-        { id: 'receiptType', label: 'receiptType', visible: true },
-        { id: 'fRorIOMNumber', label: 'fRorIOMNumber', visible: true },
-        { id: 'frAmount', label: 'frAmount', visible: true },
-        { id: 'paidAmount', label: 'paidAmount', visible: true },
-        { id: 'createdDate', label: 'createdDate', visible: true },
-        { id: 'createdBy', label: 'createdBy', visible: true },
-        { id: 'updatedDate', label: 'updatedDate', visible: true },
-        { id: 'updatedBy', label: 'updatedBy', visible: true },
+        { id: 'btsid', label: 'BTS Id', visible: true },
+        { id: 'billEntryDate', label: 'Bill Entry Date', visible: true },
+        { id: 'projectID', label: 'Project ID', visible: true },
+        { id: 'projectName', label: 'Project Name', visible: true },
+        { id: 'clientJVName', label: 'Client JV Name', visible: true },
+        { id: 'vendorName', label: 'Vendor Name', visible: true },
+        { id: 'receiptType', label: 'Receipt Type', visible: true },
+        { id: 'fRorIOMNumber', label: 'FR or IOM Number', visible: true },
+        { id: 'frAmount', label: 'FR Amount', visible: true },
+        { id: 'paidAmount', label: 'Paid Amount', visible: true },
+        { id: 'createdDate', label: 'Created Date', visible: true },
+        { id: 'createdBy', label: 'Created By', visible: true },
+        { id: 'updatedDate', label: 'Updated Date', visible: true },
+        { id: 'updatedBy', label: 'Updated By', visible: true },
     ]);
 
     const handleOnDragEnd = (result: any) => {

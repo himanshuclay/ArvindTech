@@ -710,7 +710,7 @@ const App: React.FC = () => {
     setLoading(true);
 
     try {
-      const response = await fetch(`${config.API_URL_ACCOUNT}/ProcessTaskMaster/InsertUpdateProcessTaskandDoer`, {
+      const response = await fetch(`${config.API_URL_ACCOUNT}/ProcessTaskMaster/InsertUpdateProcessTaskandDoers`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

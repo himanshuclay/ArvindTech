@@ -563,11 +563,11 @@ const LnMaster: React.FC = () => {
                                 <tbody>
                                     {data.length > 0 ? (
                                         data.slice(0, 10).map((item, index) => (
-                                            <>
+                                            <React.Fragment key={item.id}>
                                                 <tr key={item.id}>
                                                     <td>{(currentPage - 1) * 10 + index + 1}</td>
                                                     {columns.filter(col => col.visible).map((col) => (
-                                                        <td key={col.id}
+                                                        <td key={`${item.id}-${col.id}`}
                                                             className={
                                                                 col.id === 'moduleName' ? 'fw-bold  text-dark ' :
                                                                     col.id === 'task_Number' ? 'fw-bold  text-dark p-2' :
@@ -581,13 +581,13 @@ const LnMaster: React.FC = () => {
                                                             <div className=''>
                                                                 {
                                                                     col.id === 'planDate' ? (
-                                                                        <>
-                                                                            {item.task_Number.split(".")[2]?.toLowerCase() === "t1" ? (
+                                                                        <React.Fragment>
+                                                                            {item.task_Number.split(".")[2] === "T1" ? (
                                                                                 calculatePlannedDate(item.createdDate)
                                                                             ) : (
                                                                                 getPlannedDate(item.createdDate, item.planDate)
                                                                             )}
-                                                                        </>
+                                                                        </React.Fragment>
                                                                     ) :
                                                                         col.id === 'taskName' ? (
                                                                             <>
@@ -637,10 +637,10 @@ const LnMaster: React.FC = () => {
                                                     </td>
 
 
-                                                </tr>
+                                                </tr >
 
                                                 {expandedRow && expandedRow === item.id ?
-                                                    <tr>
+                                                    <tr key={`expanded-${item.id}`}>
                                                         <td colSpan={12}>
                                                             <Collapse in={expandedRow === item.id}  >
                                                                 <div className='p-3'>
@@ -767,11 +767,11 @@ const LnMaster: React.FC = () => {
                                                                                 <td> <h5 >Week : </h5></td>
                                                                                 <td><h5 className='text-primary'>Source</h5></td>
                                                                             </tr>
-                                                                            <tr>
+                                                                            {/* <tr>
                                                                                 <td> <h5 >Var Field 1 : </h5></td>
                                                                                 <td><h5 className='text-primary'>Var Field 1</h5>
                                                                                 </td>
-                                                                            </tr>
+                                                                            </tr> */}
 
                                                                         </Col>
                                                                         <Col lg={4}>
@@ -779,11 +779,11 @@ const LnMaster: React.FC = () => {
                                                                                 <td> <h5>Mess Manager : </h5></td>
                                                                                 <td><h5 className='text-primary'>Mess Manager Name</h5></td>
                                                                             </tr>
-                                                                            <tr>
+                                                                            {/* <tr>
                                                                                 <td> <h5 className='mb-1'>Var Field 2 : </h5></td>
                                                                                 <td><h5 className='text-primary'>Var Field 2</h5>
                                                                                 </td>
-                                                                            </tr>
+                                                                            </tr> */}
 
                                                                         </Col>
                                                                     </Row>
@@ -804,10 +804,10 @@ const LnMaster: React.FC = () => {
                                                                         </Col>
                                                                         <Col lg={3} className=''>
                                                                             <div className=' d-flex justify-content-end align-items-center'>
-                                                                                <span className='text-primary me-3 cursor-pointer fw-bold' onClick={() => handleView(item.taskCommonId)}>View Output</span>
-                                                                                <span className='text-primary cursor-pointer me-3 fw-bold' onClick={() => handleViewEdit(item.taskCommonId)}>Heirarchy View</span>
+                                                                                <span className='text-primary me-3 cursor-pointer fw-bold' onClick={() => handleView(item.id)}>View Output</span>
+                                                                                <span className='text-primary cursor-pointer me-3 fw-bold' onClick={() => handleViewEdit(item.taskCommonId)}>Hierarchy  View</span>
                                                                                 <span className='text-primary me-2 fw-bold'>Help</span>
-                                                                                <Button variant='primary' onClick={() => handleView(item.taskCommonId)}> Show</Button>
+                                                                                <Button variant='primary' onClick={() => handleView(item.id)}> Show</Button>
                                                                             </div>
                                                                         </Col>
                                                                     </Row>
@@ -822,7 +822,7 @@ const LnMaster: React.FC = () => {
                                                     </tr>
                                                     : ''
                                                 }
-                                            </>
+                                            </ React.Fragment>
 
                                         ))
                                     ) : (
@@ -846,7 +846,8 @@ const LnMaster: React.FC = () => {
                         </DragDropContext>
                     )}
                 </div>
-            </>)}
+            </>)
+            }
             <div className="d-flex justify-content-center align-items-center bg-white w-20 rounded-5 m-auto py-1 pb-1 my-2 pagination-rounded">
                 <Pagination >
                     <Pagination.First onClick={() => setCurrentPage(1)} disabled={currentPage === 1} />

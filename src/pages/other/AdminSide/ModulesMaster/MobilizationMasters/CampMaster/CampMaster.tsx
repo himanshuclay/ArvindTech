@@ -77,20 +77,20 @@ const CampMaster = () => {
     const [columns, setColumns] = useState<Column[]>([
 
 
-        { id: 'projectID', label: 'projectID', visible: true },
-        { id: 'projectName', label: 'projectName', visible: true },
-        { id: 'workStartDate', label: 'workStartDate', visible: true },
-        { id: 'noOfCampsRequired', label: 'noOfCampsRequired', visible: true },
-        { id: 'campPlanLocation', label: 'campPlanLocation', visible: true },
-        { id: 'campChainage', label: 'campChainage', visible: true },
-        { id: 'minimumLength', label: 'minimumLength', visible: true },
-        { id: 'minimumWidth', label: 'minimumWidth', visible: true },
-        { id: 'completionofCampConstruction', label: 'completionofCampConstruction', visible: true },
-        { id: 'statusDate', label: 'statusDate', visible: true },
-        { id: 'createdDate', label: 'createdDate', visible: true },
-        { id: 'createdBy', label: 'createdBy', visible: true },
-        { id: 'updatedDate', label: 'updatedDate', visible: true },
-        { id: 'updatedBy', label: 'updatedBy', visible: true },
+        { id: 'projectID', label: 'Project ID', visible: true },
+        { id: 'projectName', label: 'Project Name', visible: true },
+        { id: 'workStartDate', label: 'Work Start Date', visible: true },
+        { id: 'noOfCampsRequired', label: 'No Of Camps Required', visible: true },
+        { id: 'campPlanLocation', label: 'Camp Plan Location', visible: true },
+        { id: 'campChainage', label: 'Camp Chainage', visible: true },
+        { id: 'minimumLength', label: 'Minimum Length', visible: true },
+        { id: 'minimumWidth', label: 'Minimum Width', visible: true },
+        { id: 'completionofCampConstruction', label: 'Completion of Camp Construction', visible: true },
+        { id: 'statusDate', label: 'Status Date', visible: true },
+        { id: 'createdDate', label: 'Created Date', visible: true },
+        { id: 'createdBy', label: 'Created By', visible: true },
+        { id: 'updatedDate', label: 'Updated Date', visible: true },
+        { id: 'updatedBy', label: 'Updated By', visible: true },
 
     ]);
 

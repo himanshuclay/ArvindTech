@@ -5,7 +5,7 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import config from '@/config';
 // import Select from 'react-select';
 import { toast } from 'react-toastify';
-
+// import Flatpickr from 'react-flatpickr';
 
 interface BTS_PAYMENT {
     id: number,
@@ -67,7 +67,6 @@ const AssetCategoryMasterAddEdit = () => {
     }
     );
 
-    const [isMobileVerified, setIsMobileVerified] = useState(false);
     const [validationErrors, setValidationErrors] = useState<{ [key: string]: string }>({});
 
     useEffect(() => {
@@ -132,17 +131,17 @@ const AssetCategoryMasterAddEdit = () => {
 
 
 
-        if (!messes.assetGroupCode) { errors.assetGroupCode = 'assetGroupCode is required' }
-        if (!messes.coreCategory) { errors.coreCategory = 'coreCategory is required' }
-        if (!messes.assetGroup) { errors.assetGroup = 'assetGroup is required' }
-        if (!messes.preventiveAndChecklist) { errors.preventiveAndChecklist = 'preventiveAndChecklist is required' }
-        if (!messes.dailyChecklist) { errors.dailyChecklist = 'dailyChecklist is required' }
-        if (!messes.weeklyChecklist) { errors.weeklyChecklist = 'weeklyChecklist is required' }
-        if (!messes.monthlyChecklist) { errors.monthlyChecklist = 'monthlyChecklist is required' }
-        if (!messes.condition) { errors.condition = 'condition is required' }
-        if (!messes.service) { errors.service = 'service is required' }
-        if (!messes.assetCustodian) { errors.assetCustodian = 'assetCustodian is required' }
-        if (!messes.sparePartsInventoryApplicable) { errors.sparePartsInventoryApplicable = 'sparePartsInventoryApplicable is required' }
+        if (!messes.assetGroupCode) { errors.assetGroupCode = 'Asset Group Code is required' }
+        if (!messes.coreCategory) { errors.coreCategory = 'Core Category is required' }
+        if (!messes.assetGroup) { errors.assetGroup = 'Asset Group is required' }
+        if (!messes.preventiveAndChecklist) { errors.preventiveAndChecklist = 'Preventive And Checklist is required' }
+        if (!messes.dailyChecklist) { errors.dailyChecklist = 'Daily Checklist is required' }
+        if (!messes.weeklyChecklist) { errors.weeklyChecklist = 'Weekly Checklist is required' }
+        if (!messes.monthlyChecklist) { errors.monthlyChecklist = 'Monthly Checklist is required' }
+        if (!messes.condition) { errors.condition = 'Condition is required' }
+        if (!messes.service) { errors.service = 'Service is required' }
+        if (!messes.assetCustodian) { errors.assetCustodian = 'Asset Custodian is required' }
+        if (!messes.sparePartsInventoryApplicable) { errors.sparePartsInventoryApplicable = 'Spare Parts Inventory Applicable is required' }
 
 
 
@@ -156,6 +155,7 @@ const AssetCategoryMasterAddEdit = () => {
 
     const handleChange = (e: ChangeEvent<any> | null, name?: string, value?: any) => {
         const validateMobileNumber = (fieldName: string, fieldValue: string) => {
+            const errors: { [key: string]: string } = {};
             if (!/^\d{0,10}$/.test(fieldValue)) {
                 return false;
             }
@@ -167,13 +167,15 @@ const AssetCategoryMasterAddEdit = () => {
 
             if (fieldValue.length === 10) {
                 if (!/^[6-9]/.test(fieldValue)) {
-                    toast.error("Mobile number should start with a digit between 6 and 9.");
-                    setIsMobileVerified(true);
+                    errors.no = "Mobile number should start with a digit between 6 and 9.";
                     return false;
                 }
             } else {
-                setIsMobileVerified(false);
+                errors.no = "Mobile number should be 10 digits only"
+                setValidationErrors(errors);
+                return false;
             }
+
             return true;
         };
         if (e) {
@@ -214,11 +216,7 @@ const AssetCategoryMasterAddEdit = () => {
 
 
 
-        if (isMobileVerified) {
-            toast.dismiss()
-            toast.error("Please verify your mobile number before submitting the form.");
-            return;
-        }
+        
         const payload = {
             ...messes,
             createdDate: new Date(),
@@ -247,6 +245,18 @@ const AssetCategoryMasterAddEdit = () => {
         }
 
     };
+//     const handleDateChange = (fieldName: string, selectedDates: Date[]) => {
+//         if (selectedDates.length > 0) {
+//             setMesses((prevData) => ({
+//                 ...prevData,
+//                 [fieldName]: selectedDates[0].toISOString().split("T")[0], // ✅ Store as YYYY-MM-DD
+//             }));
+//         }
+//     };
+//  const dateOptions = {
+//         enableTime: false,
+//         dateFormat: 'Y-m-d',
+//     }
     return (
         <div>
             <div className="container">
@@ -259,13 +269,13 @@ const AssetCategoryMasterAddEdit = () => {
 
                             <Col lg={6}>
                                 <Form.Group controlId="assetGroupCode" className="mb-3">
-                                    <Form.Label>Project ID</Form.Label>
+                                    <Form.Label>Asset Group Code*</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="assetGroupCode"
                                         value={messes.assetGroupCode}
                                         onChange={handleChange}
-                                        placeholder='Enter assetGroupCode'
+                                        placeholder='Enter Asset Group Code'
                                         disabled={editMode}
                                         className={validationErrors.assetGroupCode ? " input-border" : "  "}
                                     />
@@ -276,13 +286,13 @@ const AssetCategoryMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="coreCategory" className="mb-3">
-                                    <Form.Label>Project Name</Form.Label>
+                                    <Form.Label>Core Category*</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="coreCategory"
                                         value={messes.coreCategory}
                                         onChange={handleChange}
-                                        placeholder='Enter Project ID'
+                                        placeholder='Enter Core Category'
                                         className={validationErrors.coreCategory ? " input-border" : "  "}
                                     />
                                     {validationErrors.coreCategory && (
@@ -292,13 +302,13 @@ const AssetCategoryMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="assetGroup" className="mb-3">
-                                    <Form.Label>assetGroup</Form.Label>
+                                    <Form.Label>Asset Group*</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="assetGroup"
                                         value={messes.assetGroup}
                                         onChange={handleChange}
-                                        placeholder='Enter Project Name'
+                                        placeholder='Enter Asset Group'
                                         className={validationErrors.assetGroup ? " input-border" : "  "}
                                     />
                                     {validationErrors.assetGroup && (
@@ -308,12 +318,13 @@ const AssetCategoryMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="preventiveAndChecklist" className="mb-3">
-                                    <Form.Label>preventiveAndChecklist</Form.Label>
+                                    <Form.Label>Preventive And Checklist*</Form.Label>
                                     <Form.Check
                                         type="checkbox"
                                         name="preventiveAndChecklist"
                                         checked={messes.preventiveAndChecklist}  // ✅ Use checked instead of value
                                         onChange={handleChange}
+                                        placeholder='Enter Preventive And Checklist'
                                         className={validationErrors.preventiveAndChecklist ? "input-border" : ""}
                                         label="Enable Preventive & Checklist"  // Optional label
                                     />
@@ -325,13 +336,13 @@ const AssetCategoryMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="dailyChecklist" className="mb-3">
-                                    <Form.Label>dailyChecklist</Form.Label>
+                                    <Form.Label>Daily Checklist*</Form.Label>
                                     <Form.Check
                                         type="checkbox"
                                         name="dailyChecklist"
                                         checked={messes.dailyChecklist}
                                         onChange={handleChange}
-                                        placeholder='Enter dailyChecklist'
+                                        placeholder='Enter Daily Checklist'
                                         className={validationErrors.dailyChecklist ? " input-border" : "  "}
                                     />
                                     {validationErrors.dailyChecklist && (
@@ -341,13 +352,13 @@ const AssetCategoryMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="weeklyChecklist" className="mb-3">
-                                    <Form.Label>weeklyChecklist</Form.Label>
+                                    <Form.Label>Weekly Checklist*</Form.Label>
                                     <Form.Check
                                         type="checkbox"
                                         name="weeklyChecklist"
                                         checked={messes.weeklyChecklist}
                                         onChange={handleChange}
-                                        placeholder='Enter Number'
+                                        placeholder='Enter Weekly Checklist'
                                         className={validationErrors.weeklyChecklist ? " input-border" : "  "}
                                     />
                                     {validationErrors.weeklyChecklist && (
@@ -357,13 +368,13 @@ const AssetCategoryMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="monthlyChecklist" className="mb-3">
-                                    <Form.Label>monthlyChecklist</Form.Label>
+                                    <Form.Label> Monthly Checklist*</Form.Label>
                                     <Form.Check
                                         type="checkbox"
                                         name="monthlyChecklist"
                                         checked={messes.monthlyChecklist}
                                         onChange={handleChange}
-                                        placeholder='Enter monthlyChecklist'
+                                        placeholder='Enter Monthly Checklist'
                                         className={validationErrors.monthlyChecklist ? " input-border" : "  "}
                                     />
                                     {validationErrors.monthlyChecklist && (
@@ -373,13 +384,13 @@ const AssetCategoryMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="condition" className="mb-3">
-                                    <Form.Label>condition</Form.Label>
+                                    <Form.Label>Condition*</Form.Label>
                                     <Form.Check
                                         type="checkbox"
                                         name="condition"
                                         checked={messes.condition}
                                         onChange={handleChange}
-                                        placeholder='Enter condition'
+                                        placeholder='Enter Condition'
                                         className={validationErrors.condition ? " input-border" : "  "}
                                     />
                                     {validationErrors.condition && (
@@ -389,13 +400,13 @@ const AssetCategoryMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="service" className="mb-3">
-                                    <Form.Label>service</Form.Label>
+                                    <Form.Label>Service*</Form.Label>
                                     <Form.Check
                                         type="checkbox"
                                         name="service"
                                         checked={messes.service}
                                         onChange={handleChange}
-                                        placeholder='Enter service'
+                                        placeholder='Enter Service'
                                         className={validationErrors.service ? " input-border" : "  "}
                                     />
                                     {validationErrors.service && (
@@ -405,13 +416,13 @@ const AssetCategoryMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="assetCustodian" className="mb-3">
-                                    <Form.Label>assetCustodian</Form.Label>
+                                    <Form.Label>Asset Custodian*</Form.Label>
                                     <Form.Control
                                         type="date"
                                         name="assetCustodian"
                                         value={messes.assetCustodian}
                                         onChange={handleChange}
-                                        placeholder='Enter assetCustodian'
+                                        placeholder='Enter Asset Custodian'
                                         className={validationErrors.assetCustodian ? " input-border" : "  "}
                                     />
                                     {validationErrors.assetCustodian && (
@@ -421,13 +432,13 @@ const AssetCategoryMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="sparePartsInventoryApplicable" className="mb-3">
-                                    <Form.Label>sparePartsInventoryApplicable</Form.Label>
+                                    <Form.Label>Spare Parts Inventory Applicable*</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="sparePartsInventoryApplicable"
                                         value={messes.sparePartsInventoryApplicable}
                                         onChange={handleChange}
-                                        placeholder='Enter sparePartsInventoryApplicable'
+                                        placeholder='Enter Spare Parts Inventory Applicable'
                                         className={validationErrors.sparePartsInventoryApplicable ? " input-border" : "  "}
                                     />
                                     {validationErrors.sparePartsInventoryApplicable && (

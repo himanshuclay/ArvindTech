@@ -667,7 +667,7 @@ const ProjectAssignTable: React.FC = () => {
                                     <Col lg={3} className=''>
                                       <div className=' d-flex justify-content-end align-items-center'>
                                         <span className='text-primary me-2 cursor-pointer fw-bold' onClick={() => handleViewEditOutput(item.taskCommonId)}>View Output</span>
-                                        <span className='text-primary cursor-pointer me-2 fw-bold' onClick={() => handleViewEdit(item.taskCommonId)}>Heirarchy View</span>
+                                        <span className='text-primary cursor-pointer me-2 fw-bold' onClick={() => handleViewEdit(item.taskCommonId)}>Hierarchy  View</span>
                                         <span className='text-primary me-2 fw-bold'>Help</span>
                                         <Button className='ms-auto ' onClick={() => handleEdit(item.taskCommonId)}>
                                           Finish

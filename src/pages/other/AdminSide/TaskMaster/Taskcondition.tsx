@@ -157,6 +157,15 @@ const TaskCondition: React.FC<ProcessCanvasProps> = ({
 	// const [dropdownValuesFlag4, setDropdownValuesFlag4] = useState<GetTypeDayTimeList[]>([]);
 
 	const [taskRows, setTaskRows] = useState<TaskSelections[]>([])
+	const [approvalTaskRow, setApprovalTaskRow] = useState<TaskSelections>({
+		taskType: '',
+		taskTiming: '',
+		Hours: '',
+		Days: '',
+		WeekDay: '',
+		time: '',
+	});
+	
 
 	const handleAddTaskRow = () => {
 		setTaskRows([
@@ -461,6 +470,7 @@ const TaskCondition: React.FC<ProcessCanvasProps> = ({
 				expiryLogic,
 				expirationTime,
 				taskSelections,
+				approvalTaskRow,
 			},
 		]
 
@@ -530,6 +540,7 @@ const TaskCondition: React.FC<ProcessCanvasProps> = ({
 		try {
 			const apiUrl = `${config.API_URL_ACCOUNT}/ProcessTaskMaster/InsertUpdateProcessTaskandDoer`
 			const response = await axios.post(apiUrl, payload)
+			console.log(payload);
 			if (response.status === 200) {
 				fetchSingleDataById(taskID)
 				toast.success('Condition is set successfully!')
@@ -1587,6 +1598,134 @@ const TaskCondition: React.FC<ProcessCanvasProps> = ({
 									</div>
 								</Row>
 							))}
+							{singleData.find(task => task.approval_Console === "Select Approval_Console") && (
+								<Row className="bg-light m-2 p-2">
+									<h5 className="text-primary my-1">Approval Console Task</h5>
+									{/* Task Type */}
+									<Col lg={4}>
+										<Form.Group controlId="approvalTaskType" className="mb-3">
+											<Form.Label>Task Type</Form.Label>
+											<Select
+												name="taskType"
+												options={optionstaskType}
+												value={optionstaskType.find(option => option.value === approvalTaskRow.taskType)}
+												onChange={(selectedOption) => setApprovalTaskRow(prev => ({
+													...prev, taskType: selectedOption?.value || ''
+												}))}
+												placeholder="Select Task Type"
+											/>
+										</Form.Group>
+									</Col>
+
+									{/* Task Timing */}
+									<Col lg={4}>
+										<Form.Group controlId="approvalTaskTiming" className="mb-3">
+											<Form.Label>Task Timing</Form.Label>
+											<Select
+												name="taskTiming"
+												options={optionsTaskTiming}
+												value={optionsTaskTiming.find(option => option.value === approvalTaskRow.taskTiming)}
+												onChange={(selectedOption) => setApprovalTaskRow(prev => ({
+													...prev, taskTiming: selectedOption?.value || ''
+												}))}
+												placeholder="Select Task Timing"
+											/>
+										</Form.Group>
+									</Col>
+
+									{/* Conditional Fields Based on Task Timing */}
+									{approvalTaskRow.taskTiming === 'Hours' && (
+										<Col lg={4}>
+											<Form.Group controlId="approvalHours" className="mb-3">
+												<Form.Label>Hours</Form.Label>
+												<Form.Control
+													type="number"
+													name="Hours"
+													value={approvalTaskRow.Hours || ''}
+													onChange={(e) => setApprovalTaskRow(prev => ({
+														...prev, Hours: e.target.value
+													}))}
+													placeholder="Enter Hours"
+												/>
+											</Form.Group>
+										</Col>
+									)}
+
+									{approvalTaskRow.taskTiming === 'Days' && (
+										<>
+											<Col lg={4}>
+												<Form.Group controlId="approvalDays" className="mb-3">
+													<Form.Label>Days</Form.Label>
+													<Form.Control
+														type="number"
+														name="Days"
+														value={approvalTaskRow.Days || ''}
+														onChange={(e) => setApprovalTaskRow(prev => ({
+															...prev, Days: e.target.value
+														}))}
+														placeholder="Enter Days"
+													/>
+												</Form.Group>
+											</Col>
+											<Col lg={4}>
+												<Form.Group controlId="approvalTime" className="mb-3">
+													<Form.Label>Time</Form.Label>
+													<Select
+														name="time"
+														options={dropdownValuesFlag3}
+														value={dropdownValuesFlag3.find(option => option.name === approvalTaskRow.time) || null}
+														onChange={(selectedOption) => setApprovalTaskRow(prev => ({
+															...prev, time: selectedOption?.name || ''
+														}))}
+														getOptionLabel={item => item.name}
+														getOptionValue={item => item.name}
+														placeholder="Select Time"
+													/>
+												</Form.Group>
+											</Col>
+										</>
+									)}
+
+									{approvalTaskRow.taskTiming === 'WeekDay' && (
+										<>
+											<Col lg={4}>
+												<Form.Group controlId="approvalWeekDay" className="mb-3">
+													<Form.Label>WeekDay</Form.Label>
+													<Select
+														name="WeekDay"
+														options={dropdownValuesFlag2}
+														value={dropdownValuesFlag2.find(option => option.name === approvalTaskRow.WeekDay) || null}
+														onChange={(selectedOption) => setApprovalTaskRow(prev => ({
+															...prev, WeekDay: selectedOption?.name || ''
+														}))}
+														getOptionLabel={item => item.name}
+														getOptionValue={item => item.name}
+														placeholder="Select WeekDay"
+													/>
+												</Form.Group>
+											</Col>
+											<Col lg={4}>
+												<Form.Group controlId="approvalTime" className="mb-3">
+													<Form.Label>Time</Form.Label>
+													<Select
+														name="time"
+														options={dropdownValuesFlag3}
+														value={dropdownValuesFlag3.find(option => option.name === approvalTaskRow.time) || null}
+														onChange={(selectedOption) => setApprovalTaskRow(prev => ({
+															...prev, time: selectedOption?.name || ''
+														}))}
+														getOptionLabel={item => item.name}
+														getOptionValue={item => item.name}
+														placeholder="Select Time"
+													/>
+												</Form.Group>
+											</Col>
+										</>
+									)}
+
+								</Row>
+							)}
+
 
 							<Button onClick={handleAddTaskRow} className="ml-1">
 								Add Successor

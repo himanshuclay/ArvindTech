@@ -1,9 +1,9 @@
-import {  Table } from 'react-bootstrap';
+import { Button, Table } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import React, { useState } from 'react';
 
 const ModulesMaster = () => {
-    // const role = localStorage.getItem('role');
+    const role = localStorage.getItem('role');
 
     const ModuleList = [
         { name: 'Account Masters', child: [{ name: 'Mess Master', to: '/pages/MessMaster' }] },
@@ -34,6 +34,7 @@ const ModulesMaster = () => {
             name: 'Mobilization Masters', child: [
                 { name: 'Mobilization Master', to: '/pages/MobilizationMaster' },
                 { name: 'Camp Master', to: '/pages/CampMaster' },
+                { name: 'Sturcture Master', to: '/pages/SturctureMaster' },
                 { name: 'Preliminary Work Master', to: '/pages/PreliminaryWorkMaster' },
                 { name: 'Requirement Master', to: '/pages/MRequirementMaster' },
             ]
@@ -114,10 +115,10 @@ const ModulesMaster = () => {
                         <tr>
                             <th className='p-2 fs-4'> Sr. no</th>
                             <th className='p-2 fs-4'> <i className="ri-settings-2-line"></i> Master</th>
-                            <th className='p-2 fs-4'>Action</th>
-                            {/* <th><i className="ri-eye-line"></i> View</th>
+                            {/* <th className='p-2 fs-4 text-center'>Action</th> */}
+                            {/* <th><i className="ri-eye-line"></i> View</th> */}
                             {(role === 'Admin' || role === 'DME') && (
-                                <th className='text-center'><i className="ri-tools-line"></i> Action</th>)} */}
+                                <th className='text-center'><i className="ri-tools-line"></i> Action</th>)}
                         </tr>
                     </thead>
                     <tbody>
@@ -126,18 +127,21 @@ const ModulesMaster = () => {
                                 {/* Parent Module Row */}
                                 <tr>
                                     <td className='p-2 fs-5'>{index + 1}</td>
-                                    <td className='p-2 fs-5'><strong>{module.name}</strong></td>
-                                    <td className='p-2 fs-3' onClick={() => toggleChildVisibility(index)} style={{ cursor: 'pointer' }}><i className={openModule === index ? "ri-arrow-down-s-fill" : "ri-arrow-right-s-fill"}></i></td>
+                                    <td className='p-2 fs-5 w-50'><strong>{module.name}</strong></td>
+                                    {(role === 'Admin' || role === 'DME') && (
+                                        <td className='p-2 fs-3 text-center w-25' onClick={() => toggleChildVisibility(index)} style={{ cursor: 'pointer' }}>
+                                            <Button> <i className={openModule === index ? "ri-arrow-up-s-line" : "ri-arrow-down-s-line"}></i> </Button></td>
+                                    )}
                                 </tr>
 
                                 {/* Child Rows */}
                                 {openModule === index && module.child.map((child, childIndex) => (
                                     <tr key={childIndex}>
-                                        <td className='p-2 fs-6 pl-3'>{index + 1}.{childIndex + 1}</td>
-                                        <td className='p-2 fs-6' style={{ paddingLeft: '30px' }}>
+                                        <td className='p-2 fs-8 pl-3'>{index + 1}.{childIndex + 1}</td>
+                                        <td className='p-2 fs-8 pl-3' style={{ paddingLeft: '30px' }}>
                                             {child.name}
                                         </td>
-                                        <td className='p-2 fs-6'>
+                                        <td className='p-2 fs-6 text-center'>
                                             <Link to={child.to} className="text-decoration-none text-dark">
                                                 <button type="button" className="btn btn-primary"> Show </button>
                                             </Link>
