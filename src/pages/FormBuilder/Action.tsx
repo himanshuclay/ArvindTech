@@ -13,6 +13,7 @@ interface Props {
         setShowRule: (id: boolean) => void;
         handleSaveForm: () => void;
         handleAdhocSaveForm: () => void;
+        showWorkflowBuilder?: boolean;
     }
 }
 
@@ -108,7 +109,7 @@ const Action: React.FC<Props> = ({ actionProps }) => {
                 </div>
 
                 <Button onClick={actionProps.handleSaveForm}>Save</Button>
-                <Button onClick={actionProps.handleAdhocSaveForm}>Adhoc Save</Button>
+                {actionProps.showWorkflowBuilder ? '' : <Button onClick={actionProps.handleAdhocSaveForm}>Adhoc Save</Button>}
             </div>
 
         </div>

@@ -6,6 +6,8 @@ import PrivateRoute from './PrivateRoute'
 import AdhocMaster from '@/pages/other/AdminSide/AdhocMaster.tsx'
 import ModulesMaster from '@/pages/other/ModulesMaster/ModulesMaster.tsx'
 import { MODULES_MASTER } from './ModulesMaster.tsx'
+import WorkflowBuilderList from '@/pages/WorkflowBuilder/WorkflowBuilderList.tsx'
+import WorkflowBuilder from '@/pages/WorkflowBuilder/WorkflowBuilder.tsx'
 // import FormBuilder from '@/pages/FormBuilder/FormBuilder.tsx'
 
 // lazy load all the views
@@ -899,12 +901,19 @@ const customPagesRoutes = {
 			element: <Error404Alt />,
 			route: PrivateRoute,
 		},
-		// {
-		// 	path: 'pages/formBuilder',
-		// 	name: 'Form Builder',
-		// 	element: <FormBuilder />,
-		// 	route: PrivateRoute,
-		// },
+		{
+			path: 'pages/WorkflowBuilderList',
+			name: 'Workflow Builder List',
+			element: <WorkflowBuilderList />,
+			route: PrivateRoute,
+		},
+		{
+			path: 'pages/WorkflowBuilder',
+			name: 'Workflow Builder',
+			element: <WorkflowBuilder />,
+			route: PrivateRoute,
+		},
+		
 
 		// MODULES_MASTER
 		

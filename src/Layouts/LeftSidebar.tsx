@@ -507,6 +507,39 @@ const getFilteredMenuItems = () => {
         },
       ],
     },
+    {
+      key: 'WorkflowBuilderList',
+      label: 'Workflow BuilderList',
+      url: '/pages/WorkflowBuilderList',
+      icon: 'ri-survey-line',
+      // parentKey: 'systemmaster',
+      // children: [
+      //   {
+      //     key: 'Mess-Master',
+      //     label: 'HR Templete Master',
+      //     url: '/pages/AdhocTempleteList',
+      //     parentKey: 'FormMaster',
+      //   },
+      //   {
+      //     key: 'Mess-Master',
+      //     label: 'Account Templete Master',
+      //     url: '/pages/AdhocTempleteList',
+      //     parentKey: 'FormMaster',
+      //   },
+      //   {
+      //     key: 'Mess-Master',
+      //     label: 'BD Templete Master',
+      //     url: '/pages/AdhocTempleteList',
+      //     parentKey: 'FormMaster',
+      //   },
+      //   {
+      //     key: 'Mess-Master',
+      //     label: 'Adhoc Master',
+      //     url: '/pages/AdhocMaster',
+      //     parentKey: 'FormMaster',
+      //   },
+      // ],
+    },
 
   ];
 
@@ -556,7 +589,8 @@ const getFilteredMenuItems = () => {
       item.key === 'Process' ||
       item.key === 'ProcessDataMaster' ||
       item.key === 'Modules' || 
-      item.key === 'FormMaster'
+      item.key === 'FormMaster' ||
+      item.key === 'WorkflowBuilderList'
     );
   }
   return MENU_ITEMS.filter(item => {
