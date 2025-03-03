@@ -269,7 +269,7 @@ const MessMaster = () => {
                     <Row>
                         <Col lg={4} className=''>
                             <Form.Group controlId="searchProjectName">
-                                <Form.Label>Project Name</Form.Label>
+                                <Form.Label>Project Name*</Form.Label>
                                 <Select
                                     name="searchProjectName"
                                     value={projectList.find(item => item.projectName === searchProjectName) || null} // handle null
@@ -285,7 +285,7 @@ const MessMaster = () => {
                         </Col>
                         <Col lg={4}>
                             <Form.Group controlId="searchMessName">
-                                <Form.Label>Mess Name</Form.Label>
+                                <Form.Label>Mess Name*</Form.Label>
 
                                 <Select
                                     name="searchMessName"
@@ -304,7 +304,7 @@ const MessMaster = () => {
 
                         <Col lg={4}>
                             <Form.Group controlId="searchStatus">
-                                <Form.Label>Mess Status</Form.Label>
+                                <Form.Label>Mess Status*</Form.Label>
                                 <Select
                                     name="searchStatus"
                                     options={optionsStatus}

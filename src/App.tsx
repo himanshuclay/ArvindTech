@@ -8,7 +8,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import './assets/scss/app.scss';
 import './assets/scss/icons.scss';
 import 'react-tooltip/dist/react-tooltip.css'
-
+import 'flatpickr/dist/themes/material_green.css';
 // Initialize fake backend
 configureFakeBackend();
 

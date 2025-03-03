@@ -77,19 +77,19 @@ const AssetMaster = () => {
 
 
 
-        { id: 'assetGroupCode', label: 'assetGroupCode', visible: true },
-        { id: 'assetCategory', label: 'assetCategory', visible: true },
-        { id: 'assetGroup', label: 'assetGroup', visible: true },
-        { id: 'assetName', label: 'assetName', visible: true },
-        { id: 'specification', label: 'specification', visible: true },
-        { id: 'applicableServices', label: 'applicableServices', visible: true },
-        { id: 'wHrsorKMorDays', label: 'wHrsorKMorDays', visible: true },
-        { id: 'measureType', label: 'measureType', visible: true },
-        { id: 'unit', label: 'unit', visible: true },
-        { id: 'createdDate', label: 'createdDate', visible: true },
-        { id: 'createdBy', label: 'createdBy', visible: true },
-        { id: 'updatedDate', label: 'updatedDate', visible: true },
-        { id: 'updatedBy', label: 'updatedBy', visible: true },
+        { id: 'assetGroupCode', label: 'Asset Group Code', visible: true },
+        { id: 'assetCategory', label: 'Asset Category', visible: true },
+        { id: 'assetGroup', label: 'Asset Group', visible: true },
+        { id: 'assetName', label: 'Asset Name', visible: true },
+        { id: 'specification', label: 'Specification', visible: true },
+        { id: 'applicableServices', label: 'Applicable Services', visible: true },
+        { id: 'wHrsorKMorDays', label: 'WHrs or KM or Days', visible: true },
+        { id: 'measureType', label: 'Measure Type', visible: true },
+        { id: 'unit', label: 'Unit', visible: true },
+        { id: 'createdDate', label: 'Created Date', visible: true },
+        { id: 'createdBy', label: 'Created By', visible: true },
+        { id: 'updatedDate', label: 'Updated Date', visible: true },
+        { id: 'updatedBy', label: 'Updated By', visible: true },
 
     ]);
 

@@ -34,6 +34,7 @@ const ModulesMaster = () => {
             name: 'Mobilization Masters', child: [
                 { name: 'Mobilization Master', to: '/pages/MobilizationMaster' },
                 { name: 'Camp Master', to: '/pages/CampMaster' },
+                { name: 'Sturcture Master', to: '/pages/SturctureMaster' },
                 { name: 'Preliminary Work Master', to: '/pages/PreliminaryWorkMaster' },
                 { name: 'Requirement Master', to: '/pages/MRequirementMaster' },
             ]

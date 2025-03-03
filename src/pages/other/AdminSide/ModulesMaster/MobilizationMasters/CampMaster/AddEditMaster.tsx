@@ -5,7 +5,7 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import config from '@/config';
 // import Select from 'react-select';
 import { toast } from 'react-toastify';
-
+import Flatpickr from 'react-flatpickr';
 
 interface BTS_PAYMENT {
     id: number,
@@ -65,7 +65,6 @@ const CampMasterAddEdit = () => {
     }
     );
 
-    const [isMobileVerified, setIsMobileVerified] = useState(false);
     const [validationErrors, setValidationErrors] = useState<{ [key: string]: string }>({});
 
     useEffect(() => {
@@ -129,16 +128,16 @@ const CampMasterAddEdit = () => {
         const errors: { [key: string]: string } = {};
 
 
-        if (!messes.projectID) { errors.projectID = 'projectID is required' }
-        if (!messes.projectName) { errors.projectName = 'projectName is required' }
-        if (!messes.workStartDate) { errors.workStartDate = 'workStartDate is required' }
-        if (!messes.noOfCampsRequired) { errors.noOfCampsRequired = 'noOfCampsRequired is required' }
-        if (!messes.campPlanLocation) { errors.campPlanLocation = 'campPlanLocation is required' }
-        if (!messes.campChainage) { errors.campChainage = 'campChainage is required' }
-        if (!messes.minimumLength) { errors.minimumLength = 'minimumLength is required' }
-        if (!messes.minimumWidth) { errors.minimumWidth = 'minimumWidth is required' }
-        if (!messes.completionofCampConstruction) { errors.completionofCampConstruction = 'completionofCampConstruction is required' }
-        if (!messes.statusDate) { errors.statusDate = 'statusDate is required' }
+        if (!messes.projectID) { errors.projectID = 'Project ID is required' }
+        if (!messes.projectName) { errors.projectName = 'Project Name is required' }
+        if (!messes.workStartDate) { errors.workStartDate = 'Work Start Date is required' }
+        if (!messes.noOfCampsRequired) { errors.noOfCampsRequired = 'No Of Camps Required is required' }
+        if (!messes.campPlanLocation) { errors.campPlanLocation = 'Camp Plan Location is required' }
+        if (!messes.campChainage) { errors.campChainage = 'Camp Chainage is required' }
+        if (!messes.minimumLength) { errors.minimumLength = 'Minimum Length is required' }
+        if (!messes.minimumWidth) { errors.minimumWidth = 'Minimum Width is required' }
+        if (!messes.completionofCampConstruction) { errors.completionofCampConstruction = 'Completion of Camp Construction is required' }
+        if (!messes.statusDate) { errors.statusDate = 'Status Date is required' }
 
 
         setValidationErrors(errors);
@@ -148,6 +147,7 @@ const CampMasterAddEdit = () => {
 
     const handleChange = (e: ChangeEvent<any> | null, name?: string, value?: any) => {
         const validateMobileNumber = (fieldName: string, fieldValue: string) => {
+            const errors: { [key: string]: string } = {};
             if (!/^\d{0,10}$/.test(fieldValue)) {
                 return false;
             }
@@ -159,12 +159,13 @@ const CampMasterAddEdit = () => {
 
             if (fieldValue.length === 10) {
                 if (!/^[6-9]/.test(fieldValue)) {
-                    toast.error("Mobile number should start with a digit between 6 and 9.");
-                    setIsMobileVerified(true);
+                    errors.no = "Mobile number should start with a digit between 6 and 9.";
                     return false;
                 }
             } else {
-                setIsMobileVerified(false);
+                errors.no = "Mobile number should be 10 digits only"
+                setValidationErrors(errors);
+                return false;
             }
             return true;
         };
@@ -206,11 +207,7 @@ const CampMasterAddEdit = () => {
 
 
 
-        if (isMobileVerified) {
-            toast.dismiss()
-            toast.error("Please verify your mobile number before submitting the form.");
-            return;
-        }
+        
         const payload = {
             ...messes,
             createdDate: new Date(),
@@ -239,6 +236,18 @@ const CampMasterAddEdit = () => {
         }
 
     };
+    const handleDateChange = (fieldName: string, selectedDates: Date[]) => {
+        if (selectedDates.length > 0) {
+            setMesses((prevData) => ({
+                ...prevData,
+                [fieldName]: selectedDates[0].toISOString().split("T")[0], // ✅ Store as YYYY-MM-DD
+            }));
+        }
+    };
+ const dateOptions = {
+        enableTime: false,
+        dateFormat: 'Y-m-d',
+    }
     return (
         <div>
             <div className="container">
@@ -251,13 +260,13 @@ const CampMasterAddEdit = () => {
 
                             <Col lg={6}>
                                 <Form.Group controlId="projectID" className="mb-3">
-                                    <Form.Label>projectID</Form.Label>
+                                    <Form.Label>Project ID*</Form.Label>
                                     <Form.Control
                                         type="number"
                                         name="projectID"
                                         value={messes.projectID}
                                         onChange={handleChange}
-                                        placeholder='Enter projectID'
+                                        placeholder='Enter project ID'
                                         disabled={editMode}
                                         className={validationErrors.projectID ? " input-border" : "  "}
                                     />
@@ -268,13 +277,13 @@ const CampMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="projectName" className="mb-3">
-                                    <Form.Label>projectName</Form.Label>
+                                    <Form.Label>Project Name*</Form.Label>
                                     <Form.Control
-                                        type="number"
+                                        type="text"
                                         name="projectName"
                                         value={messes.projectName}
                                         onChange={handleChange}
-                                        placeholder='Enter projectName'
+                                        placeholder='Enter Project Name'
                                         disabled={editMode}
                                         className={validationErrors.projectName ? " input-border" : "  "}
                                     />
@@ -285,14 +294,15 @@ const CampMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="workStartDate" className="mb-3">
-                                    <Form.Label>workStartDate</Form.Label>
-                                    <Form.Control
+                                    <Form.Label>Work Start Date*</Form.Label>
+                                    <Flatpickr
                                         type="text"
                                         name="workStartDate"
                                         value={messes.workStartDate}
-                                        onChange={handleChange}
-                                        placeholder='Enter Project ID'
-                                        className={validationErrors.workStartDate ? " input-border" : "  "}
+                                        onChange={(selectedDates) => handleDateChange("date", selectedDates)}
+                                        options={dateOptions}
+                                        placeholder='Enter Work Start Date'
+                                        className={validationErrors.workStartDate ? "form-control input-border" : "form-control"}
                                     />
                                     {validationErrors.workStartDate && (
                                         <small className="text-danger">{validationErrors.workStartDate}</small>
@@ -301,13 +311,13 @@ const CampMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="noOfCampsRequired" className="mb-3">
-                                    <Form.Label>noOfCampsRequired</Form.Label>
+                                    <Form.Label>No Of Camps Required*</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="noOfCampsRequired"
                                         value={messes.noOfCampsRequired}
                                         onChange={handleChange}
-                                        placeholder='Enter Project Name'
+                                        placeholder='Enter No Of Camps Required'
                                         className={validationErrors.noOfCampsRequired ? " input-border" : "  "}
                                     />
                                     {validationErrors.noOfCampsRequired && (
@@ -317,10 +327,11 @@ const CampMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="campPlanLocation" className="mb-3">
-                                    <Form.Label>campPlanLocation</Form.Label>
+                                    <Form.Label>Camp Plan Location*</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="campPlanLocation"
+                                        placeholder='Enter Camp Plan Location'
                                         value={messes.campPlanLocation}
                                         onChange={handleChange}
                                         className={validationErrors.campPlanLocation ? "input-border" : ""}
@@ -334,13 +345,13 @@ const CampMasterAddEdit = () => {
 
                             <Col lg={6}>
                                 <Form.Group controlId="campChainage" className="mb-3">
-                                    <Form.Label>campChainage</Form.Label>
+                                    <Form.Label>Camp Chainage*</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="campChainage"
                                         value={messes.campChainage}
                                         onChange={handleChange}
-                                        placeholder='Enter campChainage'
+                                        placeholder='Enter Camp Chainage'
                                         className={validationErrors.campChainage ? " input-border" : "  "}
                                     />
                                     {validationErrors.campChainage && (
@@ -350,13 +361,13 @@ const CampMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="minimumLength" className="mb-3">
-                                    <Form.Label>minimumLength</Form.Label>
+                                    <Form.Label>Minimum Length*</Form.Label>
                                     <Form.Control
                                         type="number"
                                         name="minimumLength"
                                         value={messes.minimumLength}
                                         onChange={handleChange}
-                                        placeholder='Enter minimumLength'
+                                        placeholder='Enter Minimum Length'
                                         className={validationErrors.minimumLength ? " input-border" : "  "}
                                     />
                                     {validationErrors.minimumLength && (
@@ -366,13 +377,13 @@ const CampMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="minimumWidth" className="mb-3">
-                                    <Form.Label>minimumWidth</Form.Label>
+                                    <Form.Label>Minimum Width*</Form.Label>
                                     <Form.Control
                                         type="number"
                                         name="minimumWidth"
                                         value={messes.minimumWidth}
                                         onChange={handleChange}
-                                        placeholder='Enter minimumWidth'
+                                        placeholder='Enter Minimum Width'
                                         className={validationErrors.minimumWidth ? " input-border" : "  "}
                                     />
                                     {validationErrors.minimumWidth && (
@@ -382,13 +393,13 @@ const CampMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="completionofCampConstruction" className="mb-3">
-                                    <Form.Label>completionofCampConstruction</Form.Label>
+                                    <Form.Label>Completion of Camp Construction*</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="completionofCampConstruction"
                                         value={messes.completionofCampConstruction}
                                         onChange={handleChange}
-                                        placeholder='Enter completionofCampConstruction'
+                                        placeholder='Enter Completion of Camp Construction'
                                         className={validationErrors.completionofCampConstruction ? " input-border" : "  "}
                                     />
                                     {validationErrors.completionofCampConstruction && (
@@ -398,13 +409,14 @@ const CampMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="statusDate" className="mb-3">
-                                    <Form.Label>statusDate</Form.Label>
-                                    <Form.Control
+                                    <Form.Label>Status Date*</Form.Label>
+                                    <Flatpickr
                                         type="date"
                                         name="statusDate"
                                         value={messes.statusDate}
-                                        onChange={handleChange}
-                                        placeholder='Enter statusDate'
+                                        onChange={(selectedDates) => handleDateChange("statusDate", selectedDates)}
+                                        options={dateOptions}
+                                        placeholder='Enter Status Date'
                                         className={validationErrors.statusDate ? " input-border" : "  "}
                                     />
                                     {validationErrors.statusDate && (

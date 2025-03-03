@@ -5,7 +5,7 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import config from '@/config';
 // import Select from 'react-select';
 import { toast } from 'react-toastify';
-
+import Flatpickr from 'react-flatpickr';
 
 interface BTS_PAYMENT {
     id: number,
@@ -61,7 +61,6 @@ const MisMatchMasterAddEdit = () => {
     }
     );
 
-    const [isMobileVerified, setIsMobileVerified] = useState(false);
     const [validationErrors, setValidationErrors] = useState<{ [key: string]: string }>({});
 
     useEffect(() => {
@@ -125,14 +124,14 @@ const MisMatchMasterAddEdit = () => {
         const errors: { [key: string]: string } = {};
 
 
-        if (!messes.projectID) { errors.projectID = 'projectID is required' }
-        if (!messes.projectName) { errors.projectName = 'projectName is required' }
-        if (!messes.vendorCodeName) { errors.vendorCodeName = 'vendorCodeName is required' }
-        if (!messes.billDate) { errors.billDate = 'billDate is required' }
-        if (!messes.gstHoldAmount) { errors.gstHoldAmount = 'gstHoldAmount is required' }
-        if (!messes.gstMonth) { errors.gstMonth = 'gstMonth is required' }
-        if (!messes.gstR2AFiling) { errors.gstR2AFiling = 'gstR2AFiling is required' }
-        if (!messes.filingFrequency) { errors.filingFrequency = 'filingFrequency is required' }
+        if (!messes.projectID) { errors.projectID = 'Project ID is required' }
+        if (!messes.projectName) { errors.projectName = 'Project Name is required' }
+        if (!messes.vendorCodeName) { errors.vendorCodeName = 'Vendor Code Name is required' }
+        if (!messes.billDate) { errors.billDate = 'Bill Date is required' }
+        if (!messes.gstHoldAmount) { errors.gstHoldAmount = 'GST Hold Amount is required' }
+        if (!messes.gstMonth) { errors.gstMonth = 'GST Month is required' }
+        if (!messes.gstR2AFiling) { errors.gstR2AFiling = 'GST R2A Filing is required' }
+        if (!messes.filingFrequency) { errors.filingFrequency = 'Filing Frequency is required' }
 
 
 
@@ -144,6 +143,7 @@ const MisMatchMasterAddEdit = () => {
 
     const handleChange = (e: ChangeEvent<any> | null, name?: string, value?: any) => {
         const validateMobileNumber = (fieldName: string, fieldValue: string) => {
+            const errors: { [key: string]: string } = {};
             if (!/^\d{0,10}$/.test(fieldValue)) {
                 return false;
             }
@@ -155,12 +155,13 @@ const MisMatchMasterAddEdit = () => {
 
             if (fieldValue.length === 10) {
                 if (!/^[6-9]/.test(fieldValue)) {
-                    toast.error("Mobile number should start with a digit between 6 and 9.");
-                    setIsMobileVerified(true);
+                    errors.no = "Mobile number should start with a digit between 6 and 9.";
                     return false;
                 }
             } else {
-                setIsMobileVerified(false);
+                errors.no = "Mobile number should be 10 digits only"
+                setValidationErrors(errors);
+                return false;
             }
             return true;
         };
@@ -174,7 +175,7 @@ const MisMatchMasterAddEdit = () => {
                 }));
             } else {
                 const inputValue = (e.target as HTMLInputElement | HTMLSelectElement).value;
-                if (eventName === "mobileNumber") {
+                if (eventName === "no") {
                     validateMobileNumber(eventName, inputValue);
                 } else {
                     setMesses((prevData) => {
@@ -202,11 +203,7 @@ const MisMatchMasterAddEdit = () => {
 
 
 
-        if (isMobileVerified) {
-            toast.dismiss()
-            toast.error("Please verify your mobile number before submitting the form.");
-            return;
-        }
+       
         const payload = {
             ...messes,
             createdDate: new Date(),
@@ -235,6 +232,18 @@ const MisMatchMasterAddEdit = () => {
         }
 
     };
+    const handleDateChange = (fieldName: string, selectedDates: Date[]) => {
+        if (selectedDates.length > 0) {
+            setMesses((prevData) => ({
+                ...prevData,
+                [fieldName]: selectedDates[0].toISOString().split("T")[0], // ✅ Store as YYYY-MM-DD
+            }));
+        }
+    };
+ const dateOptions = {
+        enableTime: false,
+        dateFormat: 'Y-m-d',
+    }
     return (
         <div>
             <div className="container">
@@ -247,13 +256,13 @@ const MisMatchMasterAddEdit = () => {
                            
                             <Col lg={6}>
                                 <Form.Group controlId="projectID" className="mb-3">
-                                    <Form.Label>Project ID</Form.Label>
+                                    <Form.Label>Project ID*</Form.Label>
                                     <Form.Control
-                                        type="text"
+                                        type="number"
                                         name="projectID"
                                         value={messes.projectID}
                                         onChange={handleChange}
-                                        placeholder='Enter projectID'
+                                        placeholder='Enter Project ID'
                                         disabled={editMode}
                                         className={validationErrors.projectID ? " input-border" : "  "}
                                     />
@@ -264,13 +273,13 @@ const MisMatchMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="projectName" className="mb-3">
-                                    <Form.Label>Project Name</Form.Label>
+                                    <Form.Label>Project Name*</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="projectName"
                                         value={messes.projectName}
                                         onChange={handleChange}
-                                        placeholder='Enter Project ID'
+                                        placeholder='Enter Project Name'
                                         className={validationErrors.projectName ? " input-border" : "  "}
                                     />
                                     {validationErrors.projectName && (
@@ -280,13 +289,13 @@ const MisMatchMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="vendorCodeName" className="mb-3">
-                                    <Form.Label>vendorCodeName</Form.Label>
+                                    <Form.Label>Vendor Code Name*</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="vendorCodeName"
                                         value={messes.vendorCodeName}
                                         onChange={handleChange}
-                                        placeholder='Enter Project Name'
+                                        placeholder='Enter Vendor Code Name'
                                         className={validationErrors.vendorCodeName ? " input-border" : "  "}
                                     />
                                     {validationErrors.vendorCodeName && (
@@ -296,14 +305,14 @@ const MisMatchMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="billDate" className="mb-3">
-                                    <Form.Label>billDate</Form.Label>
-                                    <Form.Control
+                                    <Form.Label>Bill Date*</Form.Label>
+                                    <Flatpickr
                                         type="date"
-                                        name="billDate"
                                         value={messes.billDate}
-                                        onChange={handleChange}
-                                        placeholder='Enter Payment Requested For'
-                                        className={validationErrors.billDate ? " input-border" : "  "}
+                                        onChange={(selectedDates) => handleDateChange("billDate", selectedDates)}
+                                        options={dateOptions}
+                                        placeholder='Enter Bill Date'
+                                        className={validationErrors.billDate ? "form-control input-border" : "form-control"}
                                     />
                                     {validationErrors.billDate && (
                                         <small className="text-danger">{validationErrors.billDate}</small>
@@ -312,13 +321,13 @@ const MisMatchMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="gstHoldAmount" className="mb-3">
-                                    <Form.Label>gstHoldAmount</Form.Label>
+                                    <Form.Label>GST Hold Amount*</Form.Label>
                                     <Form.Control
-                                        type="text"
+                                        type="number"
                                         name="gstHoldAmount"
                                         value={messes.gstHoldAmount}
                                         onChange={handleChange}
-                                        placeholder='Enter gstHoldAmount'
+                                        placeholder='Enter GST Hold Amount'
                                         className={validationErrors.gstHoldAmount ? " input-border" : "  "}
                                     />
                                     {validationErrors.gstHoldAmount && (
@@ -328,13 +337,13 @@ const MisMatchMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="gstMonth" className="mb-3">
-                                    <Form.Label>gstMonth</Form.Label>
+                                    <Form.Label>GST Month*</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="gstMonth"
                                         value={messes.gstMonth}
                                         onChange={handleChange}
-                                        placeholder='Enter Number'
+                                        placeholder='Enter GST Month'
                                         className={validationErrors.gstMonth ? " input-border" : "  "}
                                     />
                                     {validationErrors.gstMonth && (
@@ -344,13 +353,13 @@ const MisMatchMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="gstR2AFiling" className="mb-3">
-                                    <Form.Label>gstR2AFiling</Form.Label>
+                                    <Form.Label>GST R2A Filing*</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="gstR2AFiling"
                                         value={messes.gstR2AFiling}
                                         onChange={handleChange}
-                                        placeholder='Enter gstR2AFiling'
+                                        placeholder='Enter GST R2A Filing'
                                         className={validationErrors.gstR2AFiling ? " input-border" : "  "}
                                     />
                                     {validationErrors.gstR2AFiling && (
@@ -360,13 +369,13 @@ const MisMatchMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="filingFrequency" className="mb-3">
-                                    <Form.Label>filingFrequency</Form.Label>
+                                    <Form.Label>Filing Frequency*</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="filingFrequency"
                                         value={messes.filingFrequency}
                                         onChange={handleChange}
-                                        placeholder='Enter filingFrequency'
+                                        placeholder='Enter Filing Frequency'
                                         className={validationErrors.filingFrequency ? " input-border" : "  "}
                                     />
                                     {validationErrors.filingFrequency && (

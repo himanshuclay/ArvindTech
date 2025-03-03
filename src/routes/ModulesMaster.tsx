@@ -53,6 +53,30 @@ import TABillMaster from "@/pages/other/AdminSide/ModulesMaster/PRWMaster/TABill
 import TABillMasterAddEdit from "@/pages/other/AdminSide/ModulesMaster/PRWMaster/TABillMaster/AddEditMaster"
 import PRWRequirementMaster from "@/pages/other/AdminSide/ModulesMaster/PRWMaster/PRWRequirementMaster/PRWRequirementMaster"
 import PRWRequirementMasterAddEdit from "@/pages/other/AdminSide/ModulesMaster/PRWMaster/PRWRequirementMaster/AddEditMaster"
+import PRWAllocationMaster from "@/pages/other/AdminSide/ModulesMaster/PRWMaster/PRWAllocationMaster/PRWAllocationMaster"
+import PRWAllocationMasterAddEdit from "@/pages/other/AdminSide/ModulesMaster/PRWMaster/PRWAllocationMaster/AddEditMaster"
+import SturctureMaster from "@/pages/other/AdminSide/ModulesMaster/MobilizationMasters/SturctureMaster/SturctureMaster"
+import SturctureMasterAddEdit from "@/pages/other/AdminSide/ModulesMaster/MobilizationMasters/SturctureMaster/AddEditMaster"
+import DelegationMaster from "@/pages/other/AdminSide/ModulesMaster/MDOMaster/DelegationMaster/DelegationMaster"
+import DelegationMasterAddEdit from "@/pages/other/AdminSide/ModulesMaster/MDOMaster/DelegationMaster/AddEditMaster"
+import HelpTicketMaster from "@/pages/other/AdminSide/ModulesMaster/MDOMaster/HelpTicketMaster/HelpTicketMaster"
+import HelpTicketMasterAddEdit from "@/pages/other/AdminSide/ModulesMaster/MDOMaster/HelpTicketMaster/AddEditMaster"
+import AppHelpMaster from "@/pages/other/AdminSide/ModulesMaster/MDOMaster/AppHelpMaster/AppHelpMaster"
+import AppHelpMasterAddEdit from "@/pages/other/AdminSide/ModulesMaster/MDOMaster/AppHelpMaster/AddEditMaster"
+import TrainingRequirementMaster from "@/pages/other/AdminSide/ModulesMaster/MDOMaster/TrainingRequirementMaster/TrainingRequirementMaster"
+import TrainingRequirementMasterAddEdit from "@/pages/other/AdminSide/ModulesMaster/MDOMaster/TrainingRequirementMaster/AddEditMaster"
+import SCMaster from "@/pages/other/AdminSide/ModulesMaster/MDOMaster/SCMaster/SCMaster"
+import SCMasterAddEdit from "@/pages/other/AdminSide/ModulesMaster/MDOMaster/SCMaster/AddEditMaster"
+import PRWContractorMaster from "@/pages/other/AdminSide/ModulesMaster/PRWMaster/PRWContractorMaster/PRWContractorMaster"
+import PRWContractorMasterAddEdit from "@/pages/other/AdminSide/ModulesMaster/PRWMaster/PRWContractorMaster/AddEditMaster"
+import PRWSubContractorMaster from "@/pages/other/AdminSide/ModulesMaster/PRWMaster/PRWSubContractorMaster/PRWSubContractorMaster"
+import PRWSubContractorMasterAddEdit from "@/pages/other/AdminSide/ModulesMaster/PRWMaster/PRWSubContractorMaster/AddEditMaster"
+import ScrapMaster from "@/pages/other/AdminSide/ModulesMaster/StoreManagementMaster/ScrapMaster/ScrapMaster"
+import ScrapMasterAddEdit from "@/pages/other/AdminSide/ModulesMaster/StoreManagementMaster/ScrapMaster/AddEditMaster"
+import PurchaseRateReviewMaster from "@/pages/other/AdminSide/ModulesMaster/StoreManagementMaster/PurchaseRateReviewMaster/PurchaseRateReviewMaster"
+import PurchaseRateReviewMasterAddEdit from "@/pages/other/AdminSide/ModulesMaster/StoreManagementMaster/PurchaseRateReviewMaster/AddEditMaster"
+import PhysicalReconciliationMaster from "@/pages/other/AdminSide/ModulesMaster/StoreManagementMaster/PhysicalReconciliationMaster/PhysicalReconciliationMaster"
+import PhysicalReconciliationMasterAddEdit from "@/pages/other/AdminSide/ModulesMaster/StoreManagementMaster/PhysicalReconciliationMaster/AddEditMaster"
 const DDPS_MASTER = [
     {
         path: '/pages/DrawingMaster',
@@ -331,6 +355,24 @@ const MOBILIZATION_MASTER = [
         element: <MRequirementMasterAddEdit />,
         route: PrivateRoute,
     },
+    {
+        path: '/pages/SturctureMaster',
+        name: 'Challan Master',
+        element: <SturctureMaster />,
+        route: PrivateRoute,
+    },
+    {
+        path: '/pages/SturctureMasterAddEdit',
+        name: 'Challan Master',
+        element: <SturctureMasterAddEdit />,
+        route: PrivateRoute,
+    },
+    {
+        path: '/pages/SturctureMasterAddEdit/:id',
+        name: 'Challan Master',
+        element: <SturctureMasterAddEdit />,
+        route: PrivateRoute,
+    },
 ]
 const PLANNING_BILLING_MASTER = [
     {
@@ -553,9 +595,214 @@ const PRW_MASTER = [
         element: <PRWRequirementMasterAddEdit />,
         route: PrivateRoute,
     },
-
+    {
+        path: '/pages/PRWAllocationMaster',
+        name: 'Challan Master',
+        element: <PRWAllocationMaster />,
+        route: PrivateRoute,
+    },
+    {
+        path: '/pages/PRWAllocationMasterAddEdit',
+        name: 'Challan Master',
+        element: <PRWAllocationMasterAddEdit />,
+        route: PrivateRoute,
+    },
+    {
+        path: '/pages/PRWAllocationMasterAddEdit/:id',
+        name: 'Challan Master',
+        element: <PRWAllocationMasterAddEdit />,
+        route: PrivateRoute,
+    },
+    {
+        path: '/pages/PRWContractorMaster',
+        name: 'Challan Master',
+        element: <PRWContractorMaster />,
+        route: PrivateRoute,
+    },
+    {
+        path: '/pages/PRWContractorMasterAddEdit',
+        name: 'Challan Master',
+        element: <PRWContractorMasterAddEdit />,
+        route: PrivateRoute,
+    },
+    {
+        path: '/pages/PRWContractorMasterAddEdit/:id',
+        name: 'Challan Master',
+        element: <PRWContractorMasterAddEdit />,
+        route: PrivateRoute,
+    },
+    {
+        path: '/pages/PRWSubContractorMaster',
+        name: 'Challan Master',
+        element: <PRWSubContractorMaster />,
+        route: PrivateRoute,
+    },
+    {
+        path: '/pages/PRWSubContractorMasterAddEdit',
+        name: 'Challan Master',
+        element: <PRWSubContractorMasterAddEdit />,
+        route: PrivateRoute,
+    },
+    {
+        path: '/pages/PRWSubContractorMasterAddEdit/:id',
+        name: 'Challan Master',
+        element: <PRWSubContractorMasterAddEdit />,
+        route: PrivateRoute,
+    },
+    
 ]
 
+const MDO_MASTER = [
+    {
+        path: '/pages/DelegationMaster',
+        name: 'Challan Master',
+        element: <DelegationMaster />,
+        route: PrivateRoute,
+    },
+    {
+        path: '/pages/DelegationMasterAddEdit',
+        name: 'Challan Master',
+        element: <DelegationMasterAddEdit />,
+        route: PrivateRoute,
+    },
+    {
+        path: '/pages/DelegationMasterAddEdit/:id',
+        name: 'Challan Master',
+        element: <DelegationMasterAddEdit />,
+        route: PrivateRoute,
+    },
+    {
+        path: '/pages/HelpTicketMaster',
+        name: 'Challan Master',
+        element: <HelpTicketMaster />,
+        route: PrivateRoute,
+    },
+    {
+        path: '/pages/HelpTicketMasterAddEdit',
+        name: 'Challan Master',
+        element: <HelpTicketMasterAddEdit />,
+        route: PrivateRoute,
+    },
+    {
+        path: '/pages/HelpTicketMasterAddEdit/:id',
+        name: 'Challan Master',
+        element: <HelpTicketMasterAddEdit />,
+        route: PrivateRoute,
+    },
+    {
+        path: '/pages/AppHelpMaster',
+        name: 'Challan Master',
+        element: <AppHelpMaster />,
+        route: PrivateRoute,
+    },
+    {
+        path: '/pages/AppHelpMasterAddEdit',
+        name: 'Challan Master',
+        element: <AppHelpMasterAddEdit />,
+        route: PrivateRoute,
+    },
+    {
+        path: '/pages/AppHelpMasterAddEdit/:id',
+        name: 'Challan Master',
+        element: <AppHelpMasterAddEdit />,
+        route: PrivateRoute,
+    },
+    {
+        path: '/pages/TrainingRequirementMaster',
+        name: 'Challan Master',
+        element: <TrainingRequirementMaster />,
+        route: PrivateRoute,
+    },
+    {
+        path: '/pages/TrainingRequirementMasterAddEdit',
+        name: 'Challan Master',
+        element: <TrainingRequirementMasterAddEdit />,
+        route: PrivateRoute,
+    },
+    {
+        path: '/pages/TrainingRequirementMasterAddEdit/:id',
+        name: 'Challan Master',
+        element: <TrainingRequirementMasterAddEdit />,
+        route: PrivateRoute,
+    },
+    {
+        path: '/pages/SCMaster',
+        name: 'Challan Master',
+        element: <SCMaster />,
+        route: PrivateRoute,
+    },
+    {
+        path: '/pages/SCMasterAddEdit',
+        name: 'Challan Master',
+        element: <SCMasterAddEdit />,
+        route: PrivateRoute,
+    },
+    {
+        path: '/pages/SCMasterAddEdit/:id',
+        name: 'Challan Master',
+        element: <SCMasterAddEdit />,
+        route: PrivateRoute,
+    },
+    
+]
+
+const STORE_MANAGEMENT_MASTER = [
+    {
+        path: '/pages/ScrapMaster',
+        name: 'Challan Master',
+        element: <ScrapMaster />,
+        route: PrivateRoute,
+    },
+    {
+        path: '/pages/ScrapMasterAddEdit',
+        name: 'Challan Master',
+        element: <ScrapMasterAddEdit />,
+        route: PrivateRoute,
+    },
+    {
+        path: '/pages/ScrapMasterAddEdit/:id',
+        name: 'Challan Master',
+        element: <ScrapMasterAddEdit />,
+        route: PrivateRoute,
+    },
+    {
+        path: '/pages/PurchaseRateReviewMaster',
+        name: 'Challan Master',
+        element: <PurchaseRateReviewMaster />,
+        route: PrivateRoute,
+    },
+    {
+        path: '/pages/PurchaseRateReviewMasterAddEdit',
+        name: 'Challan Master',
+        element: <PurchaseRateReviewMasterAddEdit />,
+        route: PrivateRoute,
+    },
+    {
+        path: '/pages/PurchaseRateReviewMasterAddEdit/:id',
+        name: 'Challan Master',
+        element: <PurchaseRateReviewMasterAddEdit />,
+        route: PrivateRoute,
+    },
+    {
+        path: '/pages/PhysicalReconciliationMaster',
+        name: 'Challan Master',
+        element: <PhysicalReconciliationMaster />,
+        route: PrivateRoute,
+    },
+    {
+        path: '/pages/PhysicalReconciliationMasterAddEdit',
+        name: 'Challan Master',
+        element: <PhysicalReconciliationMasterAddEdit />,
+        route: PrivateRoute,
+    },
+    {
+        path: '/pages/PhysicalReconciliationMasterAddEdit/:id',
+        name: 'Challan Master',
+        element: <PhysicalReconciliationMasterAddEdit />,
+        route: PrivateRoute,
+    },
+
+]
 const MODULES_MASTER = [
     ...DDPS_MASTER,
     ...BTS_MASTER,
@@ -564,6 +811,8 @@ const MODULES_MASTER = [
     ...PLANNING_BILLING_MASTER,
     ...PROCUREMENT_MASTER,
     ...PRW_MASTER,
+    ...MDO_MASTER,
+    ...STORE_MANAGEMENT_MASTER,
 ]
 
 

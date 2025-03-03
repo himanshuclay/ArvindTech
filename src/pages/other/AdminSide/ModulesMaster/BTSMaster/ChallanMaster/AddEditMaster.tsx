@@ -5,7 +5,7 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import config from '@/config';
 // import Select from 'react-select';
 import { toast } from 'react-toastify';
-
+import Flatpickr from 'react-flatpickr';
 
 interface BTS_PAYMENT {
     id: number,
@@ -79,7 +79,6 @@ const ChallanMasterAddEdit = () => {
     }
     );
 
-    const [isMobileVerified, setIsMobileVerified] = useState(false);
     const [validationErrors, setValidationErrors] = useState<{ [key: string]: string }>({});
 
     useEffect(() => {
@@ -106,7 +105,7 @@ const ChallanMasterAddEdit = () => {
     const fetchDoerById = async (id: string) => {
         try {
             const response = await axios.get(`${config.API_URL_APPLICATION1}/ChallanMaster/GetChallan/${id}`);
-            console.log('response',response)
+            console.log('response', response)
             if (response.data.isSuccess) {
                 const fetchedModule = response.data.challanMasters[0];
                 setMesses(fetchedModule);
@@ -141,27 +140,27 @@ const ChallanMasterAddEdit = () => {
 
     const validateFields = (): boolean => {
         const errors: { [key: string]: string } = {};
-        if (!messes.entryDate) { errors.entryDate = 'entryDate is required' ;}
-        if (!messes.projectID) { errors.projectID = 'projectID is required' ;}
-        if (!messes.projectName) { errors.projectName = 'projectName is required' ;}
-        if (!messes.itemSpecification) { errors.itemSpecification = 'itemSpecification is required' ;}
-        if (!messes.receiptType) { errors.receiptType = 'receiptType is required' ;}
-        if (!messes.challanNo) { errors.challanNo = 'challanNo is required' ;}
-        if (!messes.challanAmount) { errors.challanAmount = 'challanAmount is required' ;}
-        if (!messes.challanDate) { errors.challanDate = 'challanDate is required' ;}
-        if (!messes.billAgainst) { errors.billAgainst = 'billAgainst is required' ;}
-        if (!messes.no) { errors.no = 'no is required' ;}
-        if (!messes.amount) { errors.amount = 'amount is required' ;}
-        if (!messes.date) { errors.date = 'date is required' ;}
-        if (!messes.vendorCode) { errors.vendorCode = 'vendorCode is required' ;}
-        if (!messes.vendorName) { errors.vendorName = 'vendorName is required' ;}
-        if (!messes.billNo) { errors.billNo = 'billNo is required' ;}
-        if (!messes.billAmount) { errors.billAmount = 'billAmount is required' ;}
-        if (!messes.source) { errors.source = 'source is required' ;}
-        if (!messes.createdDate) { errors.createdDate = 'createdDate is required' ;}
-        if (!messes.createdBy) { errors.createdBy = 'createdBy is required' ;}
-        if (!messes.updatedDate) { errors.updatedDate = 'updatedDate is required' ;}
-        if (!messes.updatedBy) { errors.updatedBy = 'updatedBy is required' ;}
+        if (!messes.entryDate) { errors.entryDate = 'Entry Date is required'; }
+        if (!messes.projectID) { errors.projectID = 'Project ID is required'; }
+        if (!messes.projectName) { errors.projectName = 'Project Name is required'; }
+        if (!messes.itemSpecification) { errors.itemSpecification = 'Item Specification is required'; }
+        if (!messes.receiptType) { errors.receiptType = 'Receipt Type is required'; }
+        if (!messes.challanNo) { errors.challanNo = 'Challan No is required'; }
+        if (!messes.challanAmount) { errors.challanAmount = 'Challan Amount is required'; }
+        if (!messes.challanDate) { errors.challanDate = 'Challan Date is required'; }
+        if (!messes.billAgainst) { errors.billAgainst = 'Bill Against is required'; }
+        if (!messes.no) { errors.no = 'No is required'; }
+        if (!messes.amount) { errors.amount = 'Amount is required'; }
+        if (!messes.date) { errors.date = 'Date is required'; }
+        if (!messes.vendorCode) { errors.vendorCode = 'Vendor Code is required'; }
+        if (!messes.vendorName) { errors.vendorName = 'Vendor Name is required'; }
+        if (!messes.billNo) { errors.billNo = 'Bill No is required'; }
+        if (!messes.billAmount) { errors.billAmount = 'Bill Amount is required'; }
+        if (!messes.source) { errors.source = 'Source is required'; }
+        if (!messes.createdDate) { errors.createdDate = 'Created Date is required'; }
+        if (!messes.createdBy) { errors.createdBy = 'Created By is required'; }
+        if (!messes.updatedDate) { errors.updatedDate = 'Updated Date is required'; }
+        if (!messes.updatedBy) { errors.updatedBy = 'Updated By is required'; }
 
 
         setValidationErrors(errors);
@@ -171,6 +170,7 @@ const ChallanMasterAddEdit = () => {
 
     const handleChange = (e: ChangeEvent<any> | null, name?: string, value?: any) => {
         const validateMobileNumber = (fieldName: string, fieldValue: string) => {
+            const errors: { [key: string]: string } = {};
             if (!/^\d{0,10}$/.test(fieldValue)) {
                 return false;
             }
@@ -182,12 +182,13 @@ const ChallanMasterAddEdit = () => {
 
             if (fieldValue.length === 10) {
                 if (!/^[6-9]/.test(fieldValue)) {
-                    toast.error("Mobile number should start with a digit between 6 and 9.");
-                    setIsMobileVerified(true);
+                    errors.no = "Mobile number should start with a digit between 6 and 9.";
                     return false;
                 }
             } else {
-                setIsMobileVerified(false);
+                errors.no = "Mobile number should be 10 digits only"
+                setValidationErrors(errors);
+                return false;
             }
             return true;
         };
@@ -201,7 +202,7 @@ const ChallanMasterAddEdit = () => {
                 }));
             } else {
                 const inputValue = (e.target as HTMLInputElement | HTMLSelectElement).value;
-                if (eventName === "mobileNumber") {
+                if (eventName === "no") {
                     validateMobileNumber(eventName, inputValue);
                 } else {
                     setMesses((prevData) => {
@@ -212,6 +213,15 @@ const ChallanMasterAddEdit = () => {
             }
         }
 
+    };
+
+    const handleDateChange = (fieldName: string, selectedDates: Date[]) => {
+        if (selectedDates.length > 0) {
+            setMesses((prevData) => ({
+                ...prevData,
+                [fieldName]: selectedDates[0].toISOString().split("T")[0], // ✅ Store as YYYY-MM-DD
+            }));
+        }
     };
 
 
@@ -229,11 +239,7 @@ const ChallanMasterAddEdit = () => {
 
 
 
-        if (isMobileVerified) {
-            toast.dismiss()
-            toast.error("Please verify your mobile number before submitting the form.");
-            return;
-        }
+        
         const payload = {
             ...messes,
             createdDate: new Date(),
@@ -262,6 +268,10 @@ const ChallanMasterAddEdit = () => {
         }
 
     };
+    const dateOptions = {
+        enableTime: false,
+        dateFormat: 'Y-m-d',
+    }
     return (
         <div>
             <div className="container">
@@ -273,15 +283,14 @@ const ChallanMasterAddEdit = () => {
                         <Row>
                             <Col lg={6}>
                                 <Form.Group controlId="entryDate" className="mb-3">
-                                    <Form.Label>Entry Date</Form.Label>
-                                    <Form.Control
+                                    <Form.Label>Entry Date*</Form.Label>
+                                    <Flatpickr
                                         type="date"
-                                        name="entryDate"
                                         value={messes.entryDate}
-                                        onChange={handleChange}
+                                        onChange={(selectedDates) => handleDateChange("entryDate", selectedDates)}
                                         placeholder='Enter Entry Date'
-                                        // disabled={editMode}
-                                        className={validationErrors.entryDate ? " input-border" : "  "}
+                                        options={dateOptions}
+                                        className={validationErrors.entryDate ? "form-control input-border" : "form-control"}
                                     />
                                     {validationErrors.entryDate && (
                                         <small className="text-danger">{validationErrors.entryDate}</small>
@@ -290,13 +299,13 @@ const ChallanMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="projectID" className="mb-3">
-                                    <Form.Label>Project ID</Form.Label>
+                                    <Form.Label>Project ID*</Form.Label>
                                     <Form.Control
-                                        type="text"
+                                        type="number"
                                         name="projectID"
                                         value={messes.projectID}
                                         onChange={handleChange}
-                                        placeholder='Enter projectID'
+                                        placeholder='Enter project ID'
                                         disabled={editMode}
                                         className={validationErrors.projectID ? " input-border" : "  "}
                                     />
@@ -307,13 +316,13 @@ const ChallanMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="projectName" className="mb-3">
-                                    <Form.Label>Project Name</Form.Label>
+                                    <Form.Label>Project Name*</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="projectName"
                                         value={messes.projectName}
                                         onChange={handleChange}
-                                        placeholder='Enter Project ID'
+                                        placeholder='Enter Project Name'
                                         className={validationErrors.projectName ? " input-border" : "  "}
                                     />
                                     {validationErrors.projectName && (
@@ -323,13 +332,13 @@ const ChallanMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="itemSpecification" className="mb-3">
-                                    <Form.Label>Item Specification</Form.Label>
+                                    <Form.Label>Item Specification*</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="itemSpecification"
                                         value={messes.itemSpecification}
                                         onChange={handleChange}
-                                        placeholder='Enter Project Name'
+                                        placeholder='Enter Item Specification'
                                         className={validationErrors.itemSpecification ? " input-border" : "  "}
                                     />
                                     {validationErrors.itemSpecification && (
@@ -339,13 +348,13 @@ const ChallanMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="receiptType" className="mb-3">
-                                    <Form.Label>Receipt Type</Form.Label>
+                                    <Form.Label>Receipt Type*</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="receiptType"
                                         value={messes.receiptType}
                                         onChange={handleChange}
-                                        placeholder='Enter Payment Requested For'
+                                        placeholder='Enter Receipt Type'
                                         className={validationErrors.receiptType ? " input-border" : "  "}
                                     />
                                     {validationErrors.receiptType && (
@@ -355,13 +364,13 @@ const ChallanMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="challanNo" className="mb-3">
-                                    <Form.Label>Challan No</Form.Label>
+                                    <Form.Label>Challan No*</Form.Label>
                                     <Form.Control
-                                        type="text"
+                                        type="number"
                                         name="challanNo"
                                         value={messes.challanNo}
                                         onChange={handleChange}
-                                        placeholder='Enter challanNo'
+                                        placeholder='Enter Challan No'
                                         className={validationErrors.challanNo ? " input-border" : "  "}
                                     />
                                     {validationErrors.challanNo && (
@@ -371,13 +380,13 @@ const ChallanMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="challanAmount" className="mb-3">
-                                    <Form.Label>Challan Amount</Form.Label>
+                                    <Form.Label>Challan Amount*</Form.Label>
                                     <Form.Control
-                                        type="text"
+                                        type="number"
                                         name="challanAmount"
                                         value={messes.challanAmount}
                                         onChange={handleChange}
-                                        placeholder='Enter Number'
+                                        placeholder='Enter Challan Amount'
                                         className={validationErrors.challanAmount ? " input-border" : "  "}
                                     />
                                     {validationErrors.challanAmount && (
@@ -387,14 +396,14 @@ const ChallanMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="challanDate" className="mb-3">
-                                    <Form.Label>Challan Date</Form.Label>
-                                    <Form.Control
-                                        type="text"
-                                        name="challanDate"
+                                    <Form.Label>Challan Date*</Form.Label>
+                                    <Flatpickr
+                                        type="date"
                                         value={messes.challanDate}
-                                        onChange={handleChange}
-                                        placeholder='Enter challanDate'
-                                        className={validationErrors.challanDate ? " input-border" : "  "}
+                                        onChange={(selectedDates) => handleDateChange("challanDate", selectedDates)}
+                                        placeholder='Enter Challan Date'
+                                        options={dateOptions}
+                                        className={validationErrors.challanDate ? "form-control input-border" : "form-control"}
                                     />
                                     {validationErrors.challanDate && (
                                         <small className="text-danger">{validationErrors.challanDate}</small>
@@ -403,13 +412,13 @@ const ChallanMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="billAgainst" className="mb-3">
-                                    <Form.Label>Bill Against</Form.Label>
+                                    <Form.Label>Bill Against*</Form.Label>
                                     <Form.Control
-                                        type="billAgainst"
+                                        type="text"
                                         name="billAgainst"
                                         value={messes.billAgainst}
                                         onChange={handleChange}
-                                        placeholder='Enter billAgainst'
+                                        placeholder='Enter Bill Against'
                                         className={validationErrors.billAgainst ? " input-border" : "  "}
                                     />
                                     {validationErrors.billAgainst && (
@@ -419,13 +428,13 @@ const ChallanMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="no" className="mb-3">
-                                    <Form.Label>No</Form.Label>
+                                    <Form.Label>No*</Form.Label>
                                     <Form.Control
-                                        type="date"
+                                        type="number"
                                         name="no"
                                         value={messes.no}
                                         onChange={handleChange}
-                                        placeholder='Enter Payment Due Date'
+                                        placeholder='Enter No'
                                         className={validationErrors.no ? " input-border" : "  "}
                                     />
                                     {validationErrors.no && (
@@ -435,13 +444,13 @@ const ChallanMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="amount" className="mb-3">
-                                    <Form.Label>Amount</Form.Label>
+                                    <Form.Label>Amount*</Form.Label>
                                     <Form.Control
-                                        type="text"
+                                        type="number"
                                         name="amount"
                                         value={messes.amount}
                                         onChange={handleChange}
-                                        placeholder='Enter GST Hold amount'
+                                        placeholder='Enter Amount'
                                         className={validationErrors.amount ? " input-border" : "  "}
                                     />
                                     {validationErrors.amount && (
@@ -451,14 +460,14 @@ const ChallanMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="date" className="mb-3">
-                                    <Form.Label>Date</Form.Label>
-                                    <Form.Control
-                                        type="text"
-                                        name="date"
+                                    <Form.Label>Date*</Form.Label>
+                                    <Flatpickr
+                                        type="date"
                                         value={messes.date}
-                                        onChange={handleChange}
-                                        placeholder='Enter Retention Hold Amount'
-                                        className={validationErrors.date ? " input-border" : "  "}
+                                        onChange={(selectedDates) => handleDateChange("date", selectedDates)}
+                                        placeholder='Enter Date'
+                                        options={dateOptions}
+                                        className={validationErrors.date ? "form-control input-border" : "form-control"}
                                     />
                                     {validationErrors.date && (
                                         <small className="text-danger">{validationErrors.date}</small>
@@ -467,13 +476,13 @@ const ChallanMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="vendorCode" className="mb-3">
-                                    <Form.Label>Vendor Code</Form.Label>
+                                    <Form.Label>Vendor Code*</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="vendorCode"
                                         value={messes.vendorCode}
                                         onChange={handleChange}
-                                        placeholder='Enter Royalty Deduction'
+                                        placeholder='Enter Vendor Code'
                                         className={validationErrors.vendorCode ? " input-border" : "  "}
                                     />
                                     {validationErrors.vendorCode && (
@@ -483,13 +492,13 @@ const ChallanMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="vendorName" className="mb-3">
-                                    <Form.Label>Vendor Name</Form.Label>
+                                    <Form.Label>Vendor Name*</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="vendorName"
                                         value={messes.vendorName}
                                         onChange={handleChange}
-                                        placeholder='Enter Other Deduction Amount'
+                                        placeholder='Enter Vendor Name'
                                         className={validationErrors.vendorName ? " input-border" : "  "}
                                     />
                                     {validationErrors.vendorName && (
@@ -499,13 +508,13 @@ const ChallanMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="billNo" className="mb-3">
-                                    <Form.Label>Bill No</Form.Label>
+                                    <Form.Label>Bill No*</Form.Label>
                                     <Form.Control
-                                        type="text"
+                                        type="number"
                                         name="billNo"
                                         value={messes.billNo}
                                         onChange={handleChange}
-                                        placeholder='Enter Net Payable Amount'
+                                        placeholder='Enter Bill No'
                                         className={validationErrors.billNo ? " input-border" : "  "}
                                     />
                                     {validationErrors.billNo && (
@@ -515,13 +524,13 @@ const ChallanMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="billAmount" className="mb-3">
-                                    <Form.Label>Bill Amount</Form.Label>
+                                    <Form.Label>Bill Amount*</Form.Label>
                                     <Form.Control
-                                        type="text"
+                                        type="number"
                                         name="billAmount"
                                         value={messes.billAmount}
                                         onChange={handleChange}
-                                        placeholder='Enter Pending Amount'
+                                        placeholder='Enter Bill Amount'
                                         className={validationErrors.billAmount ? " input-border" : "  "}
                                     />
                                     {validationErrors.billAmount && (
@@ -531,13 +540,13 @@ const ChallanMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="source" className="mb-3">
-                                    <Form.Label>Source</Form.Label>
+                                    <Form.Label>Source*</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="source"
                                         value={messes.source}
                                         onChange={handleChange}
-                                        placeholder='Enter Courier Dispatch Date'
+                                        placeholder='Enter Source'
                                         className={validationErrors.source ? " input-border" : "  "}
                                     />
                                     {validationErrors.source && (

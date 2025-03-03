@@ -5,7 +5,7 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import config from '@/config';
 // import Select from 'react-select';
 import { toast } from 'react-toastify';
-
+import Flatpickr from 'react-flatpickr';
 
 interface BTS_PAYMENT {
     id: number,
@@ -129,7 +129,6 @@ const MobilizationMasterAddEdit = () => {
     }
     );
 
-    const [isMobileVerified, setIsMobileVerified] = useState(false);
     const [validationErrors, setValidationErrors] = useState<{ [key: string]: string }>({});
 
     useEffect(() => {
@@ -193,48 +192,48 @@ const MobilizationMasterAddEdit = () => {
         const errors: { [key: string]: string } = {};
 
 
-        if (!messes.tenderID) { errors.tenderID = 'tenderID is required' }
-        if (!messes.clientID) { errors.clientID = 'clientID is required' }
-        if (!messes.client_JVName) { errors.client_JVName = 'client_JVName is required' }
-        if (!messes.contractType) { errors.contractType = 'contractType is required' }
-        if (!messes.executionModel) { errors.executionModel = 'executionModel is required' }
-        if (!messes.workName) { errors.workName = 'workName is required' }
-        if (!messes.country) { errors.country = 'country is required' }
-        if (!messes.state) { errors.state = 'state is required' }
-        if (!messes.projectID) { errors.projectID = 'projectID is required' }
-        if (!messes.projectName) { errors.projectName = 'projectName is required' }
-        if (!messes.workStartDate) { errors.workStartDate = 'workStartDate is required' }
-        if (!messes.contractualCompletionDate) { errors.contractualCompletionDate = 'contractualCompletionDate is required' }
-        if (!messes.projectCoordinatorEmpID) { errors.projectCoordinatorEmpID = 'projectCoordinatorEmpID is required' }
-        if (!messes.projectCoordinatorName) { errors.projectCoordinatorName = 'projectCoordinatorName is required' }
-        if (!messes.projectCoordinatorNumber) { errors.projectCoordinatorNumber = 'projectCoordinatorNumber is required' }
-        if (!messes.projectInchargeEmpID) { errors.projectInchargeEmpID = 'projectInchargeEmpID is required' }
-        if (!messes.projectInchargeName) { errors.projectInchargeName = 'projectInchargeName is required' }
-        if (!messes.projectInchargeNumber) { errors.projectInchargeNumber = 'projectInchargeNumber is required' }
-        if (!messes.projectInchargeEmpID2) { errors.projectInchargeEmpID2 = 'projectInchargeEmpID2 is required' }
-        if (!messes.projectInchargeName2) { errors.projectInchargeName2 = 'projectInchargeName2 is required' }
-        if (!messes.projectInchargeNumber2) { errors.projectInchargeNumber2 = 'projectInchargeNumber2 is required' }
-        if (!messes.decisionToMobilize) { errors.decisionToMobilize = 'decisionToMobilize is required' }
-        if (!messes.expectedMobilizationDate) { errors.expectedMobilizationDate = 'expectedMobilizationDate is required' }
-        if (!messes.expectedDateofKickofMeeting) { errors.expectedDateofKickofMeeting = 'expectedDateofKickofMeeting is required' }
-        if (!messes.keyMobTeamDeployedTeam1) { errors.keyMobTeamDeployedTeam1 = 'keyMobTeamDeployedTeam1 is required' }
-        if (!messes.keyMobTeamDeployedTeam1Date) { errors.keyMobTeamDeployedTeam1Date = 'keyMobTeamDeployedTeam1Date is required' }
-        if (!messes.keyMobTeamDeployedTeam2) { errors.keyMobTeamDeployedTeam2 = 'keyMobTeamDeployedTeam2 is required' }
-        if (!messes.keyMobTeamDeployedTeam2Date) { errors.keyMobTeamDeployedTeam2Date = 'keyMobTeamDeployedTeam2Date is required' }
-        if (!messes.constructionProgramSubmitted) { errors.constructionProgramSubmitted = 'constructionProgramSubmitted is required' }
-        if (!messes.constructionProgramSubmittedDate) { errors.constructionProgramSubmittedDate = 'constructionProgramSubmittedDate is required' }
-        if (!messes.layoutPlanFinalized) { errors.layoutPlanFinalized = 'layoutPlanFinalized is required' }
-        if (!messes.campConstructionCompleted) { errors.campConstructionCompleted = 'campConstructionCompleted is required' }
-        if (!messes.electricalPlanFinalized) { errors.electricalPlanFinalized = 'electricalPlanFinalized is required' }
-        if (!messes.electricalPlanFinalizationDate) { errors.electricalPlanFinalizationDate = 'electricalPlanFinalizationDate is required' }
-        if (!messes.topographicReportShared) { errors.topographicReportShared = 'topographicReportShared is required' }
-        if (!messes.alignmentReportShared) { errors.alignmentReportShared = 'alignmentReportShared is required' }
-        if (!messes.hindranceListReviewed) { errors.hindranceListReviewed = 'hindranceListReviewed is required' }
-        if (!messes.bankAccountOpened) { errors.bankAccountOpened = 'bankAccountOpened is required' }
-        if (!messes.guestHouseFinalized) { errors.guestHouseFinalized = 'guestHouseFinalized is required' }
-        if (!messes.labCommissioned) { errors.labCommissioned = 'labCommissioned is required' }
-        if (!messes.labCommissioningDate) { errors.labCommissioningDate = 'labCommissioningDate is required' }
-        if (!messes.campLandFinalized) { errors.campLandFinalized = 'campLandFinalized is required' }
+        if (!messes.tenderID) { errors.tenderID = 'Tender ID is required' }
+        if (!messes.clientID) { errors.clientID = 'Client ID is required' }
+        if (!messes.client_JVName) { errors.client_JVName = 'Client JV Name is required' }
+        if (!messes.contractType) { errors.contractType = 'Contract Type is required' }
+        if (!messes.executionModel) { errors.executionModel = 'Execution Model is required' }
+        if (!messes.workName) { errors.workName = 'Work Name is required' }
+        if (!messes.country) { errors.country = 'Country is required' }
+        if (!messes.state) { errors.state = 'State is required' }
+        if (!messes.projectID) { errors.projectID = 'Project ID is required' }
+        if (!messes.projectName) { errors.projectName = 'Project Name is required' }
+        if (!messes.workStartDate) { errors.workStartDate = 'Work Start Date is required' }
+        if (!messes.contractualCompletionDate) { errors.contractualCompletionDate = 'Contractual Completion Date is required' }
+        if (!messes.projectCoordinatorEmpID) { errors.projectCoordinatorEmpID = 'Project Coordinator Emp ID is required' }
+        if (!messes.projectCoordinatorName) { errors.projectCoordinatorName = 'Project Coordinator Name is required' }
+        if (!messes.projectCoordinatorNumber) { errors.projectCoordinatorNumber = 'Project Coordinator Number is required' }
+        if (!messes.projectInchargeEmpID) { errors.projectInchargeEmpID = 'Project Incharge Emp ID is required' }
+        if (!messes.projectInchargeName) { errors.projectInchargeName = 'Project Incharge Name is required' }
+        if (!messes.projectInchargeNumber) { errors.projectInchargeNumber = 'Project Incharge Number is required' }
+        if (!messes.projectInchargeEmpID2) { errors.projectInchargeEmpID2 = 'Project Incharge EmpID2 is required' }
+        if (!messes.projectInchargeName2) { errors.projectInchargeName2 = 'Project Incharge Name2 is required' }
+        if (!messes.projectInchargeNumber2) { errors.projectInchargeNumber2 = 'Project Incharge Number2 is required' }
+        if (!messes.decisionToMobilize) { errors.decisionToMobilize = 'Decision To Mobilize is required' }
+        if (!messes.expectedMobilizationDate) { errors.expectedMobilizationDate = 'Expected Mobilization Date is required' }
+        if (!messes.expectedDateofKickofMeeting) { errors.expectedDateofKickofMeeting = 'Expected Dateof Kickof Meeting is required' }
+        if (!messes.keyMobTeamDeployedTeam1) { errors.keyMobTeamDeployedTeam1 = 'Key Mob Team Deployed Team1 is required' }
+        if (!messes.keyMobTeamDeployedTeam1Date) { errors.keyMobTeamDeployedTeam1Date = 'Key Mob Team Deployed Team1 Date is required' }
+        if (!messes.keyMobTeamDeployedTeam2) { errors.keyMobTeamDeployedTeam2 = 'Key Mob Team Deployed Team2 is required' }
+        if (!messes.keyMobTeamDeployedTeam2Date) { errors.keyMobTeamDeployedTeam2Date = 'Key Mob Team Deployed Team2 Date is required' }
+        if (!messes.constructionProgramSubmitted) { errors.constructionProgramSubmitted = 'Construction Program Submitted is required' }
+        if (!messes.constructionProgramSubmittedDate) { errors.constructionProgramSubmittedDate = 'Construction Program Submitted Date is required' }
+        if (!messes.layoutPlanFinalized) { errors.layoutPlanFinalized = 'Layout Plan Finalized is required' }
+        if (!messes.campConstructionCompleted) { errors.campConstructionCompleted = 'Camp Construction Completed is required' }
+        if (!messes.electricalPlanFinalized) { errors.electricalPlanFinalized = 'Electrical Plan Finalized is required' }
+        if (!messes.electricalPlanFinalizationDate) { errors.electricalPlanFinalizationDate = 'Electrical Plan Finalization Date is required' }
+        if (!messes.topographicReportShared) { errors.topographicReportShared = 'Topographic Report Shared is required' }
+        if (!messes.alignmentReportShared) { errors.alignmentReportShared = 'Alignment Report Shared is required' }
+        if (!messes.hindranceListReviewed) { errors.hindranceListReviewed = 'Hindrance List Reviewed is required' }
+        if (!messes.bankAccountOpened) { errors.bankAccountOpened = 'Bank Account Opened is required' }
+        if (!messes.guestHouseFinalized) { errors.guestHouseFinalized = 'Guest House Finalized is required' }
+        if (!messes.labCommissioned) { errors.labCommissioned = 'Lab Commissioned is required' }
+        if (!messes.labCommissioningDate) { errors.labCommissioningDate = 'Lab Commissioning Date is required' }
+        if (!messes.campLandFinalized) { errors.campLandFinalized = 'Camp Land Finalized is required' }
        
 
 
@@ -251,6 +250,7 @@ const MobilizationMasterAddEdit = () => {
 
     const handleChange = (e: ChangeEvent<any> | null, name?: string, value?: any) => {
         const validateMobileNumber = (fieldName: string, fieldValue: string) => {
+            const errors: { [key: string]: string } = {};
             if (!/^\d{0,10}$/.test(fieldValue)) {
                 return false;
             }
@@ -262,12 +262,13 @@ const MobilizationMasterAddEdit = () => {
 
             if (fieldValue.length === 10) {
                 if (!/^[6-9]/.test(fieldValue)) {
-                    toast.error("Mobile number should start with a digit between 6 and 9.");
-                    setIsMobileVerified(true);
+                    errors.no = "Mobile number should start with a digit between 6 and 9.";
                     return false;
                 }
             } else {
-                setIsMobileVerified(false);
+                errors.no = "Mobile number should be 10 digits only"
+                setValidationErrors(errors);
+                return false;
             }
             return true;
         };
@@ -309,11 +310,7 @@ const MobilizationMasterAddEdit = () => {
 
 
 
-        if (isMobileVerified) {
-            toast.dismiss()
-            toast.error("Please verify your mobile number before submitting the form.");
-            return;
-        }
+       
         const payload = {
             ...messes,
             createdDate: new Date(),
@@ -342,6 +339,18 @@ const MobilizationMasterAddEdit = () => {
         }
 
     };
+    const handleDateChange = (fieldName: string, selectedDates: Date[]) => {
+        if (selectedDates.length > 0) {
+            setMesses((prevData) => ({
+                ...prevData,
+                [fieldName]: selectedDates[0].toISOString().split("T")[0], // ✅ Store as YYYY-MM-DD
+            }));
+        }
+    };
+ const dateOptions = {
+        enableTime: false,
+        dateFormat: 'Y-m-d',
+    }
     return (
         <div>
             <div className="container">
@@ -354,13 +363,13 @@ const MobilizationMasterAddEdit = () => {
 
                             <Col lg={6}>
                                 <Form.Group controlId="tenderID" className="mb-3">
-                                    <Form.Label>tenderID</Form.Label>
+                                    <Form.Label>Tender ID*</Form.Label>
                                     <Form.Control
                                         type="number"
                                         name="tenderID"
                                         value={messes.tenderID}
                                         onChange={handleChange}
-                                        placeholder='Enter tenderID'
+                                        placeholder='Enter Tender ID'
                                         disabled={editMode}
                                         className={validationErrors.tenderID ? " input-border" : "  "}
                                     />
@@ -371,13 +380,13 @@ const MobilizationMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="clientID" className="mb-3">
-                                    <Form.Label>clientID</Form.Label>
+                                    <Form.Label>Client ID*</Form.Label>
                                     <Form.Control
                                         type="number"
                                         name="clientID"
                                         value={messes.clientID}
                                         onChange={handleChange}
-                                        placeholder='Enter clientID'
+                                        placeholder='Enter Client ID'
                                         disabled={editMode}
                                         className={validationErrors.clientID ? " input-border" : "  "}
                                     />
@@ -388,13 +397,13 @@ const MobilizationMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="client_JVName" className="mb-3">
-                                    <Form.Label>client_JVName</Form.Label>
+                                    <Form.Label>Client JV Name*</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="client_JVName"
                                         value={messes.client_JVName}
                                         onChange={handleChange}
-                                        placeholder='Enter Project ID'
+                                        placeholder='Enter Client JV Name'
                                         className={validationErrors.client_JVName ? " input-border" : "  "}
                                     />
                                     {validationErrors.client_JVName && (
@@ -404,13 +413,13 @@ const MobilizationMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="contractType" className="mb-3">
-                                    <Form.Label>contractType</Form.Label>
+                                    <Form.Label>Contract Type*</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="contractType"
                                         value={messes.contractType}
                                         onChange={handleChange}
-                                        placeholder='Enter Project Name'
+                                        placeholder='Enter Contract Type'
                                         className={validationErrors.contractType ? " input-border" : "  "}
                                     />
                                     {validationErrors.contractType && (
@@ -420,11 +429,12 @@ const MobilizationMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="executionModel" className="mb-3">
-                                    <Form.Label>executionModel</Form.Label>
+                                    <Form.Label>Execution Model*</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="executionModel"
                                         value={messes.executionModel} 
+                                        placeholder='Enter Execution Model'
                                         onChange={handleChange}
                                         className={validationErrors.executionModel ? "input-border" : ""}
                                     />
@@ -437,13 +447,13 @@ const MobilizationMasterAddEdit = () => {
 
                             <Col lg={6}>
                                 <Form.Group controlId="workName" className="mb-3">
-                                    <Form.Label>workName</Form.Label>
+                                    <Form.Label>Work Name*</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="workName"
                                         value={messes.workName}
                                         onChange={handleChange}
-                                        placeholder='Enter workName'
+                                        placeholder='Enter Work Name'
                                         className={validationErrors.workName ? " input-border" : "  "}
                                     />
                                     {validationErrors.workName && (
@@ -453,13 +463,13 @@ const MobilizationMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="country" className="mb-3">
-                                    <Form.Label>country</Form.Label>
+                                    <Form.Label>Country*</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="country"
                                         value={messes.country}
                                         onChange={handleChange}
-                                        placeholder='Enter country'
+                                        placeholder='Enter Country'
                                         className={validationErrors.country ? " input-border" : "  "}
                                     />
                                     {validationErrors.country && (
@@ -469,13 +479,13 @@ const MobilizationMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="state" className="mb-3">
-                                    <Form.Label>state</Form.Label>
+                                    <Form.Label>State*</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="state"
                                         value={messes.state}
                                         onChange={handleChange}
-                                        placeholder='Enter state'
+                                        placeholder='Enter State'
                                         className={validationErrors.state ? " input-border" : "  "}
                                     />
                                     {validationErrors.state && (
@@ -485,13 +495,13 @@ const MobilizationMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="projectID" className="mb-3">
-                                    <Form.Label>projectID</Form.Label>
+                                    <Form.Label>Project ID*</Form.Label>
                                     <Form.Control
                                         type="number"
                                         name="projectID"
                                         value={messes.projectID}
                                         onChange={handleChange}
-                                        placeholder='Enter projectID'
+                                        placeholder='Enter Project ID'
                                         className={validationErrors.projectID ? " input-border" : "  "}
                                     />
                                     {validationErrors.projectID && (
@@ -501,13 +511,13 @@ const MobilizationMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="projectName" className="mb-3">
-                                    <Form.Label>projectName</Form.Label>
+                                    <Form.Label>Project Name*</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="projectName"
                                         value={messes.projectName}
                                         onChange={handleChange}
-                                        placeholder='Enter projectName'
+                                        placeholder='Enter Project Name'
                                         className={validationErrors.projectName ? " input-border" : "  "}
                                     />
                                     {validationErrors.projectName && (
@@ -517,14 +527,15 @@ const MobilizationMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="workStartDate" className="mb-3">
-                                    <Form.Label>workStartDate</Form.Label>
-                                    <Form.Control
+                                    <Form.Label>Work Start Date*</Form.Label>
+                                    <Flatpickr
                                         type="date"
                                         name="workStartDate"
                                         value={messes.workStartDate}
-                                        onChange={handleChange}
-                                        placeholder='Enter workStartDate'
-                                        className={validationErrors.workStartDate ? " input-border" : "  "}
+                                        onChange={(selectedDates) => handleDateChange("workStartDate", selectedDates)}
+                                        options={dateOptions}
+                                        placeholder='Enter Work Start Date'
+                                        className={validationErrors.workStartDate ? "form-control input-border" : "form-control"}
                                     />
                                     {validationErrors.workStartDate && (
                                         <small className="text-danger">{validationErrors.workStartDate}</small>
@@ -533,14 +544,15 @@ const MobilizationMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="contractualCompletionDate" className="mb-3">
-                                    <Form.Label>contractualCompletionDate</Form.Label>
-                                    <Form.Control
+                                    <Form.Label>Contractual Completion Date*</Form.Label>
+                                    <Flatpickr
                                         type="text"
                                         name="contractualCompletionDate"
                                         value={messes.contractualCompletionDate}
-                                        onChange={handleChange}
-                                        placeholder='Enter contractualCompletionDate'
-                                        className={validationErrors.contractualCompletionDate ? " input-border" : "  "}
+                                        onChange={(selectedDates) => handleDateChange("contractualCompletionDate", selectedDates)}
+                                        options={dateOptions}
+                                        placeholder='Enter Contractual Completion Date'
+                                        className={validationErrors.contractualCompletionDate ?"form-control input-border" : "form-control"}
                                     />
                                     {validationErrors.contractualCompletionDate && (
                                         <small className="text-danger">{validationErrors.contractualCompletionDate}</small>
@@ -549,13 +561,13 @@ const MobilizationMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="projectCoordinatorEmpID" className="mb-3">
-                                    <Form.Label>projectCoordinatorEmpID</Form.Label>
+                                    <Form.Label>Project Coordinator EmpID*</Form.Label>
                                     <Form.Control
                                         type="number"
                                         name="projectCoordinatorEmpID"
                                         value={messes.projectCoordinatorEmpID}
                                         onChange={handleChange}
-                                        placeholder='Enter projectCoordinatorEmpID'
+                                        placeholder='Enter Project Coordinator EmpID'
                                         className={validationErrors.projectCoordinatorEmpID ? " input-border" : "  "}
                                     />
                                     {validationErrors.projectCoordinatorEmpID && (
@@ -565,13 +577,13 @@ const MobilizationMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="projectCoordinatorName" className="mb-3">
-                                    <Form.Label>projectCoordinatorName</Form.Label>
+                                    <Form.Label>Project Coordinator Name*</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="projectCoordinatorName"
                                         value={messes.projectCoordinatorName}
                                         onChange={handleChange}
-                                        placeholder='Enter projectCoordinatorName'
+                                        placeholder='Enter Project Coordinator Name'
                                         className={validationErrors.projectCoordinatorName ? " input-border" : "  "}
                                     />
                                     {validationErrors.projectCoordinatorName && (
@@ -581,13 +593,13 @@ const MobilizationMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="projectCoordinatorNumber" className="mb-3">
-                                    <Form.Label>projectCoordinatorNumber</Form.Label>
+                                    <Form.Label>Project Coordinator Number*</Form.Label>
                                     <Form.Control
                                         type="number"
                                         name="projectCoordinatorNumber"
                                         value={messes.projectCoordinatorNumber}
                                         onChange={handleChange}
-                                        placeholder='Enter projectCoordinatorNumber'
+                                        placeholder='Enter Project Coordinator Number'
                                         className={validationErrors.projectCoordinatorNumber ? " input-border" : "  "}
                                     />
                                     {validationErrors.projectCoordinatorNumber && (
@@ -597,13 +609,13 @@ const MobilizationMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="projectInchargeEmpID" className="mb-3">
-                                    <Form.Label>projectInchargeEmpID</Form.Label>
+                                    <Form.Label>Project Incharge EmpID*</Form.Label>
                                     <Form.Control
                                         type="number"
                                         name="projectInchargeEmpID"
                                         value={messes.projectInchargeEmpID}
                                         onChange={handleChange}
-                                        placeholder='Enter projectInchargeEmpID'
+                                        placeholder='Enter Project Incharge EmpID'
                                         className={validationErrors.projectInchargeEmpID ? " input-border" : "  "}
                                     />
                                     {validationErrors.projectInchargeEmpID && (
@@ -613,13 +625,13 @@ const MobilizationMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="projectInchargeName" className="mb-3">
-                                    <Form.Label>projectInchargeName</Form.Label>
+                                    <Form.Label>Project Incharge Name*</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="projectInchargeName"
                                         value={messes.projectInchargeName}
                                         onChange={handleChange}
-                                        placeholder='Enter projectInchargeName'
+                                        placeholder='Enter Project Incharge Name'
                                         className={validationErrors.projectInchargeName ? " input-border" : "  "}
                                     />
                                     {validationErrors.projectInchargeName && (
@@ -629,13 +641,13 @@ const MobilizationMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="projectInchargeNumber" className="mb-3">
-                                    <Form.Label>projectInchargeNumber</Form.Label>
+                                    <Form.Label>Project Incharge Number*</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="projectInchargeNumber"
                                         value={messes.projectInchargeNumber}
                                         onChange={handleChange}
-                                        placeholder='Enter projectInchargeNumber'
+                                        placeholder='Enter Project Incharge Number'
                                         className={validationErrors.projectInchargeNumber ? " input-border" : "  "}
                                     />
                                     {validationErrors.projectInchargeNumber && (
@@ -645,13 +657,13 @@ const MobilizationMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="projectInchargeEmpID2" className="mb-3">
-                                    <Form.Label>projectInchargeEmpID2</Form.Label>
+                                    <Form.Label>Project Incharge EmpID2*</Form.Label>
                                     <Form.Control
-                                        type="text"
+                                        type="number"
                                         name="projectInchargeEmpID2"
                                         value={messes.projectInchargeEmpID2}
                                         onChange={handleChange}
-                                        placeholder='Enter projectInchargeEmpID2'
+                                        placeholder='Enter Project Incharge EmpID2'
                                         className={validationErrors.projectInchargeEmpID2 ? " input-border" : "  "}
                                     />
                                     {validationErrors.projectInchargeEmpID2 && (
@@ -661,13 +673,13 @@ const MobilizationMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="projectInchargeName2" className="mb-3">
-                                    <Form.Label>projectInchargeName2</Form.Label>
+                                    <Form.Label>Project Incharge Name2*</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="projectInchargeName2"
                                         value={messes.projectInchargeName2}
                                         onChange={handleChange}
-                                        placeholder='Enter projectInchargeName2'
+                                        placeholder='Enter Project Incharge Name2'
                                         className={validationErrors.projectInchargeName2 ? " input-border" : "  "}
                                     />
                                     {validationErrors.projectInchargeName2 && (
@@ -677,13 +689,13 @@ const MobilizationMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="projectInchargeNumber2" className="mb-3">
-                                    <Form.Label>projectInchargeNumber2</Form.Label>
+                                    <Form.Label>Project Incharge Number2*</Form.Label>
                                     <Form.Control
-                                        type="text"
+                                        type="number"
                                         name="projectInchargeNumber2"
                                         value={messes.projectInchargeNumber2}
                                         onChange={handleChange}
-                                        placeholder='Enter projectInchargeNumber2'
+                                        placeholder='Enter Project Incharge Number2'
                                         className={validationErrors.projectInchargeNumber2 ? " input-border" : "  "}
                                     />
                                     {validationErrors.projectInchargeNumber2 && (
@@ -693,13 +705,13 @@ const MobilizationMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="decisionToMobilize" className="mb-3">
-                                    <Form.Label>decisionToMobilize</Form.Label>
+                                    <Form.Label>Decision To Mobilize*</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="decisionToMobilize"
                                         value={messes.decisionToMobilize}
                                         onChange={handleChange}
-                                        placeholder='Enter decisionToMobilize'
+                                        placeholder='Enter Decision To Mobilize'
                                         className={validationErrors.decisionToMobilize ? " input-border" : "  "}
                                     />
                                     {validationErrors.decisionToMobilize && (
@@ -709,13 +721,13 @@ const MobilizationMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="expectedMobilizationDate" className="mb-3">
-                                    <Form.Label>expectedMobilizationDate</Form.Label>
+                                    <Form.Label>Expected Mobilization Date*</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="expectedMobilizationDate"
                                         value={messes.expectedMobilizationDate}
                                         onChange={handleChange}
-                                        placeholder='Enter expectedMobilizationDate'
+                                        placeholder='Enter Expected Mobilization Date'
                                         className={validationErrors.expectedMobilizationDate ? " input-border" : "  "}
                                     />
                                     {validationErrors.expectedMobilizationDate && (
@@ -725,13 +737,13 @@ const MobilizationMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="expectedDateofKickofMeeting" className="mb-3">
-                                    <Form.Label>expectedDateofKickofMeeting</Form.Label>
+                                    <Form.Label>Expected Dateof Kickof Meeting*</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="expectedDateofKickofMeeting"
                                         value={messes.expectedDateofKickofMeeting}
                                         onChange={handleChange}
-                                        placeholder='Enter expectedDateofKickofMeeting'
+                                        placeholder='Enter Expected Dateof Kickof Meeting'
                                         className={validationErrors.expectedDateofKickofMeeting ? " input-border" : "  "}
                                     />
                                     {validationErrors.expectedDateofKickofMeeting && (
@@ -741,13 +753,13 @@ const MobilizationMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="keyMobTeamDeployedTeam1" className="mb-3">
-                                    <Form.Label>keyMobTeamDeployedTeam1</Form.Label>
+                                    <Form.Label>Key Mob Team Deployed Team1*</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="keyMobTeamDeployedTeam1"
                                         value={messes.keyMobTeamDeployedTeam1}
                                         onChange={handleChange}
-                                        placeholder='Enter keyMobTeamDeployedTeam1'
+                                        placeholder='Enter Key Mob Team Deployed Team1'
                                         className={validationErrors.keyMobTeamDeployedTeam1 ? " input-border" : "  "}
                                     />
                                     {validationErrors.keyMobTeamDeployedTeam1 && (
@@ -757,14 +769,15 @@ const MobilizationMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="keyMobTeamDeployedTeam1Date" className="mb-3">
-                                    <Form.Label>keyMobTeamDeployedTeam1Date</Form.Label>
-                                    <Form.Control
+                                    <Form.Label>Key Mob Team Deployed Team1 Date*</Form.Label>
+                                    <Flatpickr
                                         type="date"
                                         name="keyMobTeamDeployedTeam1Date"
                                         value={messes.keyMobTeamDeployedTeam1Date}
-                                        onChange={handleChange}
-                                        placeholder='Enter keyMobTeamDeployedTeam1Date'
-                                        className={validationErrors.keyMobTeamDeployedTeam1Date ? " input-border" : "  "}
+                                        onChange={(selectedDates) => handleDateChange("keyMobTeamDeployedTeam1Date", selectedDates)}
+                                        options={dateOptions}
+                                        placeholder='Enter Key Mob Team Deployed Team1 Date'
+                                        className={validationErrors.keyMobTeamDeployedTeam1Date ? "form-control input-border" : "form-control"}
                                     />
                                     {validationErrors.keyMobTeamDeployedTeam1Date && (
                                         <small className="text-danger">{validationErrors.keyMobTeamDeployedTeam1Date}</small>
@@ -773,13 +786,13 @@ const MobilizationMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="keyMobTeamDeployedTeam2" className="mb-3">
-                                    <Form.Label>keyMobTeamDeployedTeam2</Form.Label>
+                                    <Form.Label>Key Mob Team Deployed Team2*</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="keyMobTeamDeployedTeam2"
                                         value={messes.keyMobTeamDeployedTeam2}
                                         onChange={handleChange}
-                                        placeholder='Enter keyMobTeamDeployedTeam2'
+                                        placeholder='Enter Key Mob Team Deployed Team2'
                                         className={validationErrors.keyMobTeamDeployedTeam2 ? " input-border" : "  "}
                                     />
                                     {validationErrors.keyMobTeamDeployedTeam2 && (
@@ -789,14 +802,15 @@ const MobilizationMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="keyMobTeamDeployedTeam2Date" className="mb-3">
-                                    <Form.Label>keyMobTeamDeployedTeam2Date</Form.Label>
-                                    <Form.Control
+                                    <Form.Label>Key Mob Team Deployed Team2 Date*</Form.Label>
+                                    <Flatpickr
                                         type="text"
                                         name="keyMobTeamDeployedTeam2Date"
                                         value={messes.keyMobTeamDeployedTeam2Date}
-                                        onChange={handleChange}
-                                        placeholder='Enter keyMobTeamDeployedTeam2Date'
-                                        className={validationErrors.keyMobTeamDeployedTeam2Date ? " input-border" : "  "}
+                                        onChange={(selectedDates) => handleDateChange("keyMobTeamDeployedTeam2Date", selectedDates)}
+                                        options={dateOptions}
+                                        placeholder='Enter Key Mob Team Deployed Team2 Date'
+                                        className={validationErrors.keyMobTeamDeployedTeam2Date ?"form-control input-border" : "form-control"}
                                     />
                                     {validationErrors.keyMobTeamDeployedTeam2Date && (
                                         <small className="text-danger">{validationErrors.keyMobTeamDeployedTeam2Date}</small>
@@ -805,13 +819,13 @@ const MobilizationMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="constructionProgramSubmitted" className="mb-3">
-                                    <Form.Label>constructionProgramSubmitted</Form.Label>
+                                    <Form.Label>Construction Program Submitted*</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="constructionProgramSubmitted"
                                         value={messes.constructionProgramSubmitted}
                                         onChange={handleChange}
-                                        placeholder='Enter constructionProgramSubmitted'
+                                        placeholder='Enter Construction Program Submitted'
                                         className={validationErrors.constructionProgramSubmitted ? " input-border" : "  "}
                                     />
                                     {validationErrors.constructionProgramSubmitted && (
@@ -821,14 +835,15 @@ const MobilizationMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="constructionProgramSubmittedDate" className="mb-3">
-                                    <Form.Label>constructionProgramSubmittedDate</Form.Label>
-                                    <Form.Control
+                                    <Form.Label>Construction Program Submitted Date*</Form.Label>
+                                    <Flatpickr
                                         type="date"
                                         name="constructionProgramSubmittedDate"
                                         value={messes.constructionProgramSubmittedDate}
-                                        onChange={handleChange}
-                                        placeholder='Enter constructionProgramSubmittedDate'
-                                        className={validationErrors.constructionProgramSubmittedDate ? " input-border" : "  "}
+                                        onChange={(selectedDates) => handleDateChange("constructionProgramSubmittedDate", selectedDates)}
+                                        options={dateOptions}
+                                        placeholder='Enter Construction Program Submitted Date'
+                                        className={validationErrors.constructionProgramSubmittedDate ? "form-control input-border" : "form-control"}
                                     />
                                     {validationErrors.constructionProgramSubmittedDate && (
                                         <small className="text-danger">{validationErrors.constructionProgramSubmittedDate}</small>
@@ -837,13 +852,13 @@ const MobilizationMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="layoutPlanFinalized" className="mb-3">
-                                    <Form.Label>layoutPlanFinalized</Form.Label>
+                                    <Form.Label>Layout Plan Finalized*</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="layoutPlanFinalized"
                                         value={messes.layoutPlanFinalized}
                                         onChange={handleChange}
-                                        placeholder='Enter layoutPlanFinalized'
+                                        placeholder='Enter Layout Plan Finalized'
                                         className={validationErrors.layoutPlanFinalized ? " input-border" : "  "}
                                     />
                                     {validationErrors.layoutPlanFinalized && (
@@ -853,13 +868,13 @@ const MobilizationMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="campConstructionCompleted" className="mb-3">
-                                    <Form.Label>campConstructionCompleted</Form.Label>
+                                    <Form.Label>Camp Construction Completed*</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="campConstructionCompleted"
                                         value={messes.campConstructionCompleted}
                                         onChange={handleChange}
-                                        placeholder='Enter campConstructionCompleted'
+                                        placeholder='Enter Camp Construction Completed'
                                         className={validationErrors.campConstructionCompleted ? " input-border" : "  "}
                                     />
                                     {validationErrors.campConstructionCompleted && (
@@ -869,13 +884,13 @@ const MobilizationMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="electricalPlanFinalized" className="mb-3">
-                                    <Form.Label>electricalPlanFinalized</Form.Label>
+                                    <Form.Label>Electrical Plan Finalized*</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="electricalPlanFinalized"
                                         value={messes.electricalPlanFinalized}
                                         onChange={handleChange}
-                                        placeholder='Enter electricalPlanFinalized'
+                                        placeholder='Enter Electrical Plan Finalized'
                                         className={validationErrors.electricalPlanFinalized ? " input-border" : "  "}
                                     />
                                     {validationErrors.electricalPlanFinalized && (
@@ -885,14 +900,15 @@ const MobilizationMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="electricalPlanFinalizationDate" className="mb-3">
-                                    <Form.Label>electricalPlanFinalizationDate</Form.Label>
-                                    <Form.Control
+                                    <Form.Label>Electrical Plan Finalization Date*</Form.Label>
+                                    <Flatpickr
                                         type="date"
                                         name="electricalPlanFinalizationDate"
                                         value={messes.electricalPlanFinalizationDate}
-                                        onChange={handleChange}
-                                        placeholder='Enter electricalPlanFinalizationDate'
-                                        className={validationErrors.electricalPlanFinalizationDate ? " input-border" : "  "}
+                                        onChange={(selectedDates) => handleDateChange("electricalPlanFinalizationDate", selectedDates)}
+                                        options={dateOptions}
+                                        placeholder='Enter Electrical Plan Finalization Date'
+                                        className={validationErrors.electricalPlanFinalizationDate ? "form-control input-border" : "form-control"}
                                     />
                                     {validationErrors.electricalPlanFinalizationDate && (
                                         <small className="text-danger">{validationErrors.electricalPlanFinalizationDate}</small>
@@ -901,13 +917,13 @@ const MobilizationMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="topographicReportShared" className="mb-3">
-                                    <Form.Label>topographicReportShared</Form.Label>
+                                    <Form.Label>Topographic Report Shared*</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="topographicReportShared"
                                         value={messes.topographicReportShared}
                                         onChange={handleChange}
-                                        placeholder='Enter topographicReportShared'
+                                        placeholder='Enter Topographic Report Shared'
                                         className={validationErrors.topographicReportShared ? " input-border" : "  "}
                                     />
                                     {validationErrors.topographicReportShared && (
@@ -917,13 +933,13 @@ const MobilizationMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="alignmentReportShared" className="mb-3">
-                                    <Form.Label>alignmentReportShared</Form.Label>
+                                    <Form.Label>Alignment Report Shared*</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="alignmentReportShared"
                                         value={messes.alignmentReportShared}
                                         onChange={handleChange}
-                                        placeholder='Enter alignmentReportShared'
+                                        placeholder='Enter Alignment Report Shared'
                                         className={validationErrors.alignmentReportShared ? " input-border" : "  "}
                                     />
                                     {validationErrors.alignmentReportShared && (
@@ -933,13 +949,13 @@ const MobilizationMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="hindranceListReviewed" className="mb-3">
-                                    <Form.Label>hindranceListReviewed</Form.Label>
+                                    <Form.Label>Hindrance List Reviewed*</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="hindranceListReviewed"
                                         value={messes.hindranceListReviewed}
                                         onChange={handleChange}
-                                        placeholder='Enter hindranceListReviewed'
+                                        placeholder='Enter Hindrance List Reviewed'
                                         className={validationErrors.hindranceListReviewed ? " input-border" : "  "}
                                     />
                                     {validationErrors.hindranceListReviewed && (
@@ -949,13 +965,13 @@ const MobilizationMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="bankAccountOpened" className="mb-3">
-                                    <Form.Label>bankAccountOpened</Form.Label>
+                                    <Form.Label>Bank Account Opened*</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="bankAccountOpened"
                                         value={messes.bankAccountOpened}
                                         onChange={handleChange}
-                                        placeholder='Enter bankAccountOpened'
+                                        placeholder='Enter Bank Account Opened'
                                         className={validationErrors.bankAccountOpened ? " input-border" : "  "}
                                     />
                                     {validationErrors.bankAccountOpened && (
@@ -965,13 +981,13 @@ const MobilizationMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="guestHouseFinalized" className="mb-3">
-                                    <Form.Label>guestHouseFinalized</Form.Label>
+                                    <Form.Label>Guest House Finalized*</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="guestHouseFinalized"
                                         value={messes.guestHouseFinalized}
                                         onChange={handleChange}
-                                        placeholder='Enter guestHouseFinalized'
+                                        placeholder='Enter Guest House Finalized'
                                         className={validationErrors.guestHouseFinalized ? " input-border" : "  "}
                                     />
                                     {validationErrors.guestHouseFinalized && (
@@ -981,13 +997,13 @@ const MobilizationMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="labCommissioned" className="mb-3">
-                                    <Form.Label>labCommissioned</Form.Label>
+                                    <Form.Label>Lab Commissioned*</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="labCommissioned"
                                         value={messes.labCommissioned}
                                         onChange={handleChange}
-                                        placeholder='Enter labCommissioned'
+                                        placeholder='Enter Lab Commissioned'
                                         className={validationErrors.labCommissioned ? " input-border" : "  "}
                                     />
                                     {validationErrors.labCommissioned && (
@@ -997,14 +1013,15 @@ const MobilizationMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="labCommissioningDate" className="mb-3">
-                                    <Form.Label>labCommissioningDate</Form.Label>
-                                    <Form.Control
+                                    <Form.Label>Lab Commissioning Date*</Form.Label>
+                                    <Flatpickr
                                         type="date"
                                         name="labCommissioningDate"
                                         value={messes.labCommissioningDate}
-                                        onChange={handleChange}
-                                        placeholder='Enter labCommissioningDate'
-                                        className={validationErrors.labCommissioningDate ? " input-border" : "  "}
+                                        onChange={(selectedDates) => handleDateChange("labCommissioningDate", selectedDates)}
+                                        options={dateOptions}
+                                        placeholder='Enter Lab Commissioning Date'
+                                        className={validationErrors.labCommissioningDate ? "form-control input-border" : "form-control"}
                                     />
                                     {validationErrors.labCommissioningDate && (
                                         <small className="text-danger">{validationErrors.labCommissioningDate}</small>
@@ -1013,13 +1030,13 @@ const MobilizationMasterAddEdit = () => {
                             </Col>
                             <Col lg={6}>
                                 <Form.Group controlId="campLandFinalized" className="mb-3">
-                                    <Form.Label>campLandFinalized</Form.Label>
+                                    <Form.Label>Camp Land Finalized*</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="campLandFinalized"
                                         value={messes.campLandFinalized}
                                         onChange={handleChange}
-                                        placeholder='Enter campLandFinalized'
+                                        placeholder='Enter Camp Land Finalized'
                                         className={validationErrors.campLandFinalized ? " input-border" : "  "}
                                     />
                                     {validationErrors.campLandFinalized && (
