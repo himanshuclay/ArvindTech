@@ -1,34 +1,19 @@
-import React, { useState } from 'react';
+import config from '@/config';
+import axios from 'axios';
+import React, { useEffect, useState } from 'react';
 import 'remixicon/fonts/remixicon.css'; // Ensure Remix Icons are included
 
+interface DESIGNATION {
+    name: string,
+    asPerEstimate: number,
+}
+interface DEPARTMENT {
+    name: string,
+    designation: DESIGNATION[],
+    isExpanded: boolean,
+}
 const STAFF_ALLOCATION_PLAN = () => {
-    const [department, setDepartment] = useState([
-        {
-            name: 'Engineering and Field',
-            designation: [
-                { name: "Assistant General Manager", asPerEstimate: 2 },
-                { name: "Deputy General Manager", asPerEstimate: 1 },
-                { name: "Project Manager", asPerEstimate: 1 },
-                { name: "Deputy Project Manager", asPerEstimate: 0 },
-                { name: "Senior Engineer Civil", asPerEstimate: 3 },
-                { name: "Engineer Civil", asPerEstimate: 4 },
-                { name: "Junior Engineer Civil", asPerEstimate: 2 },
-                { name: "Trainee Engineer Civil", asPerEstimate: 1 },
-                { name: "Foreman", asPerEstimate: 2 },
-                { name: "Senior Supervisor", asPerEstimate: 1 },
-                { name: "Junior Site Supervisor", asPerEstimate: 0 },
-                { name: "Launching Site Supervisor", asPerEstimate: 0 },
-                { name: "Casting Yard Supervisor", asPerEstimate: 0 },
-                { name: "Reinforcement Yard Supervisor", asPerEstimate: 0 }
-            ],
-            isExpanded: false,
-        },
-        {
-            name: 'Survey',
-            designation: [],
-            isExpanded: false,
-        }
-    ]);
+    const [department, setDepartment] = useState<DEPARTMENT[]>([]);
 
     // Toggle department expansion
     const handleToggleDepartment = (index: number) => {
@@ -38,6 +23,22 @@ const STAFF_ALLOCATION_PLAN = () => {
             )
         );
     };
+
+    const getDepartmentDesignation = async () => {
+        try {
+            const response = await axios.get(`${config.API_URL_ACCOUNT}/WorkflowBuilder/GetDepartmentandDesignation`);
+            if (response.data.isSuccess) {
+                console.log('response', response)
+                setDepartment(response.data.department);
+            }
+        } catch (error) {
+            console.error(error);
+        }
+    }
+
+    useEffect(() => {
+        getDepartmentDesignation();
+    }, [])
 
     return (
         <div>
