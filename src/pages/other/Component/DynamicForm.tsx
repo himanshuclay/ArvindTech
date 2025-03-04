@@ -875,7 +875,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                 taskStatus: taskStatus,
                 taskName: taskName,
                 rejectedJson:
-                    approvalStatus?.value?.trim().toLowerCase() === 'rejected'
+                    approvalStatus?.value?.trim().toLowerCase() === 'reject'
                         ? globalTaskJson
                         : '',
 
