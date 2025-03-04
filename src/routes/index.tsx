@@ -8,6 +8,7 @@ import ModulesMaster from '@/pages/other/ModulesMaster/ModulesMaster.tsx'
 import { MODULES_MASTER } from './ModulesMaster.tsx'
 import WorkflowBuilderList from '@/pages/WorkflowBuilder/WorkflowBuilderList.tsx'
 import WorkflowBuilder from '@/pages/WorkflowBuilder/WorkflowBuilder.tsx'
+import Workflow from '@/pages/WorkflowBuilder/Workflow.tsx'
 // import FormBuilder from '@/pages/FormBuilder/FormBuilder.tsx'
 
 // lazy load all the views
@@ -911,6 +912,18 @@ const customPagesRoutes = {
 			path: 'pages/WorkflowBuilder',
 			name: 'Workflow Builder',
 			element: <WorkflowBuilder />,
+			route: PrivateRoute,
+		},
+		{
+			path: 'pages/WorkflowBuilder/:id',
+			name: 'Workflow Builder',
+			element: <WorkflowBuilder />,
+			route: PrivateRoute,
+		},
+		{
+			path: 'pages/Workflow/:id',
+			name: 'Workflow',
+			element: <Workflow />,
 			route: PrivateRoute,
 		},
 		
