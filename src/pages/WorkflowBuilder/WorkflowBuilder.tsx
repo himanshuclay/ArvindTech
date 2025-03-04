@@ -11,7 +11,7 @@ import ReactFlow, {
     Connection,
     Handle,
     Position,
-    applyNodeChanges ,
+    applyNodeChanges,
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 import WorkflowBuilderSetting from './WorkflowBuilderSetting';
@@ -23,6 +23,9 @@ import axios from 'axios';
 import config from '@/config';
 import STAFF_ALLOCATION_PLAN from './DynamicSegment/STAFF_ALLOCATION_PLAN';
 import { useParams } from 'react-router-dom';
+import APPOINTMENT from './DynamicSegment/APPOINTMENT';
+import { INPUT_HANDLES, LABEL, OUTPUT_HANDLES, OUTPUT_LABELS } from './Constant';
+import NEW_APPOINTMENT from './DynamicSegment/NEW_APPOINTMENT';
 
 const initialNodes: Node[] = [
     { id: '1', type: 'input', data: { label: 'Start Node', inputHandles: 1, outputHandles: 1 }, position: { x: 100, y: 100 } },
@@ -43,31 +46,164 @@ interface WorkflowBuilderConfig {
     nodes: Node[];
 }
 
-const CustomNode = ({ data, id }: { data: any, id: string }) => {
-    const [inputHandles,] = useState(data.inputHandles || 1);
-    const [outputHandles,] = useState(data.outputHandles || 1);
+// const CustomNode = ({ data, id }: { data: any; id: string }) => {
+//     const inputHandles = data.inputHandles || 1;
+//     const outputHandles = data.outputHandles || 1;
+//     const outputLabels = data.outputLabels || Array(outputHandles).fill("").map((_, i) => `Out ${i + 1}`);
+
+//     return (
+//         <div style={{
+//             border: '1px solid black',
+//             padding: '15px',
+//             borderRadius: '8px',
+//             background: 'white',
+//             position: 'relative',
+//             width: '180px',
+//             textAlign: 'center',
+//             boxShadow: '2px 2px 6px rgba(0, 0, 0, 0.1)',
+//             fontSize: '14px',
+//             fontWeight: 'bold'
+//         }}>
+//             {/* Left side input handles (allow multiple connections) */}
+//             {[...Array(inputHandles)].map((_, index) => (
+//                 <Handle
+//                     key={`input-${id}-${index}`}
+//                     type="target"
+//                     position={Position.Left}
+//                     style={{ top: `${(index + 1) * (100 / (inputHandles + 1))}%`, background: '#555' }}
+//                 />
+//             ))}
+
+//             <div style={{ padding: '5px', overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}>
+//                 {data.label}
+//             </div>
+
+//             {/* Right side output handles with labels (only allow one connection per output) */}
+//             <div style={{
+//                 position: 'absolute',
+//                 right: '-90px',
+//                 top: '50%',
+//                 transform: 'translateY(-50%)',
+//                 display: 'flex',
+//                 flexDirection: 'column',
+//                 alignItems: 'start',
+//             }}></div>
+//             {[...Array(outputHandles)].map((_, index) => (
+//                 <div key={`output-container-${id}-${index}`} style={{ position: 'absolute', right: '-80px', top: `${(index + 1) * (100 / (outputHandles + 1))}%`, display: 'flex', alignItems: 'center' }}>
+//                     <span style={{ marginRight: '5px', fontSize: '12px', whiteSpace: 'nowrap' }}>{outputLabels[index]}</span>
+//                     <Handle
+//                         key={`output-${id}-${index}`}
+//                         id={`output-${index}`} // Unique ID for connection checking
+//                         type="source"
+//                         position={Position.Right}
+//                         isConnectable={true}
+//                     />
+//                 </div>
+//             ))}
+//         </div>
+//     );
+// };
+
+const CustomNode = ({ data, id }: { data: any; id: string }) => {
+    const inputHandles = data.inputHandles || 1;
+    const outputHandles = data.outputHandles || 1;
+    const outputLabels = data.outputLabels || Array(outputHandles).fill("").map((_, i) => `Out ${i + 1}`);
+
     return (
-        <div style={{ border: '1px solid black', padding: '10px', borderRadius: '5px', background: 'white', position: 'relative' }}>
+        <div style={{
+            border: '1px solid black',
+            padding: '15px',
+            borderRadius: '8px',
+            background: 'white',
+            position: 'relative',
+            width: 'auto',
+            minWidth: '200px',  
+            maxWidth: '280px',  
+            minHeight: `${50 + outputHandles * 30}px`,  
+            textAlign: 'center',
+            boxShadow: '2px 2px 6px rgba(0, 0, 0, 0.1)',
+            fontSize: '14px',
+            fontWeight: 'bold',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center'
+        }}>
+            {/* Left Side - Input Handles */}
             {[...Array(inputHandles)].map((_, index) => (
                 <Handle
                     key={`input-${id}-${index}`}
-                    type='target'
-                    position={Position.Top}
-                    style={{ left: `${(index + 1) * (100 / (inputHandles + 1))}%` }}
+                    type="target"
+                    position={Position.Left}
+                    style={{
+                        top: `${(index + 1) * (100 / (inputHandles + 1))}%`,
+                        background: '#555',
+                        width: '8px',
+                        height: '8px',
+                        borderRadius: '50%',
+                    }}
                 />
             ))}
-            {data.label}
-            {[...Array(outputHandles)].map((_, index) => (
-                <Handle
-                    key={`output-${id}-${index}`}
-                    type='source'
-                    position={Position.Bottom}
-                    style={{ left: `${(index + 1) * (100 / (outputHandles + 1))}%` }}
-                />
-            ))}
+
+            {/* Main Label */}
+            <div style={{
+                padding: '8px',
+                fontWeight: 'bold',
+                fontSize: '15px',
+                width: '100%',
+                textAlign: 'center'
+            }}>
+                {data.label}
+            </div>
+
+            {/* Right Side - Output Handles */}
+            <div style={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                width: '100%',
+                padding: '8px 0',
+            }}>
+                {outputLabels.map((label: any, index: number) => (
+                    <div key={`output-container-${id}-${index}`} style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        width: '90%',
+                        marginBottom: '6px',
+                        padding: '6px 10px',
+                        background: '#f4f4f4',
+                        borderRadius: '5px',
+                        border: '1px solid #ddd',
+                        fontSize: '12px',
+                        fontWeight: '500',
+                        whiteSpace: 'nowrap'
+                    }}>
+                        <span>{label}</span>
+                        <Handle
+                            key={`output-${id}-${index}`}
+                            id={`output-${index}`} 
+                            type="source"
+                            position={Position.Right}
+                            style={{
+                                background: '#007bff',
+                                width: '8px',
+                                height: '8px',
+                                borderRadius: '50%',
+                                marginLeft: '5px',
+                                top: 'unset',
+                            }}
+                        />
+                    </div>
+                ))}
+            </div>
         </div>
     );
 };
+
+
+
+
+
 
 const WorkflowBuilder: React.FC = () => {
     const { id } = useParams<{ id: string }>();
@@ -98,15 +234,37 @@ const WorkflowBuilder: React.FC = () => {
     const [name, setName] = useState('');
 
     const onConnect = useCallback(
-        (params: Connection) => setEdges((eds) => addEdge(params, eds)),
+        (params: Connection) => {
+            setEdges((existingEdges) => {
+                // Check if the output handle already has a connection
+                const isAlreadyConnected = existingEdges.some(
+                    (edge) => edge.source === params.source && edge.sourceHandle === params.sourceHandle
+                );
+
+                if (isAlreadyConnected) {
+                    alert("This output handle already has a connection.");
+                    return existingEdges; // Do not allow multiple connections on the same output
+                }
+
+                return addEdge(params, existingEdges);
+            });
+        },
         [setEdges]
     );
 
-    const addNewNode = (x: number, y: number, form?: any) => {
+
+
+
+    const addNewNode = (x: number, y: number, form?: any, action?: string) => {
         const newNode: Node = {
             id: (nodes.length + 1).toString(),
             type: 'custom',
-            data: { label: `New Node ${nodes.length + 1}`, handles: Math.floor(Math.random() * 4) + 1, form: form || {} },
+            data: {
+                label: action ? LABEL[action] : `New Node ${nodes.length + 1}`, handles: Math.floor(Math.random() * 4) + 1, form: form || {},
+                inputHandles: action ? INPUT_HANDLES[action] : 1,
+                outputHandles: action ? OUTPUT_HANDLES[action] : 1,
+                outputLabels: action ? OUTPUT_LABELS[action] : '',
+            },
             position: { x, y },
         };
         setNodes((nds) => [...nds, newNode]);
@@ -136,7 +294,7 @@ const WorkflowBuilder: React.FC = () => {
             setShowFormBuilder(true);
         } else if (componentMap[action]) {
             setDynamicComponent(action);
-            const nodeId = addNewNode(50, 50);
+            const nodeId = addNewNode(50, 50, '', action);
             setWorkflowBuilder(prevWorkflowBuilder => ({
                 ...prevWorkflowBuilder,
                 nodes: prevWorkflowBuilder.nodes.map(node =>
@@ -173,7 +331,7 @@ const WorkflowBuilder: React.FC = () => {
     useEffect(() => {
         if (formBuilder.blocks.length > 0) {
             addNewNode(50, 50, formBuilder); // Get the newly added node's ID
-    
+
             // setNodes((prevNodes) =>
             //     prevNodes.map((node) =>
             //         node.id === newNodeId.toString()
@@ -181,7 +339,7 @@ const WorkflowBuilder: React.FC = () => {
             //             : node
             //     )
             // );
-    
+
             // setWorkflowBuilder((prevWorkflowBuilder) => ({
             //     ...prevWorkflowBuilder,
             //     nodes: prevWorkflowBuilder.nodes.map((node) =>
@@ -190,7 +348,7 @@ const WorkflowBuilder: React.FC = () => {
             //             : node
             //     ),
             // }));
-    
+
             setShowFormBuilder(false);
             setFormBuilder({
                 name: '',
@@ -202,12 +360,12 @@ const WorkflowBuilder: React.FC = () => {
                     color: '',
                 },
             });
-    
+
             console.log("Updated WorkflowBuilder:", workflowBuilder);
         }
     }, [formBuilder]);
-    
-    
+
+
 
     useEffect(() => {
         console.log('edges', edges)
@@ -253,6 +411,8 @@ const WorkflowBuilder: React.FC = () => {
 
     const componentMap: { [key: string]: React.FC } = {
         STAFF_ALLOCATION_PLAN,
+        APPOINTMENT,
+        NEW_APPOINTMENT,
     }
 
     const handleClose = () => {
@@ -291,13 +451,13 @@ const WorkflowBuilder: React.FC = () => {
     const handleNodesChange = useCallback((changes: any) => {
         setNodes((nds) => {
             const updatedNodes = applyNodeChanges(changes, nds);
-    
+
             // Update workflowBuilder.nodes without triggering unnecessary re-renders
             setWorkflowBuilder(prev => ({
                 ...prev,
                 nodes: updatedNodes
             }));
-    
+
             return updatedNodes;
         });
     }, []);
@@ -376,6 +536,8 @@ const WorkflowBuilder: React.FC = () => {
                     <div draggable onDragStart={(e) => handleDragStart(e, 'ADD_NODE')} style={{ padding: '10px', border: '1px solid #ccc', cursor: 'grab', marginBottom: '10px' }}>Drag to Add Node</div>
                     <div draggable onDragStart={(e) => handleDragStart(e, 'ADD_FORM')} style={{ padding: '10px', border: '1px solid #ccc', cursor: 'grab', marginBottom: '10px' }}>Drag to Add Node With Form</div>
                     <div draggable onDragStart={(e) => handleDragStart(e, 'STAFF_ALLOCATION_PLAN')} style={{ padding: '10px', border: '1px solid #ccc', cursor: 'grab', marginBottom: '10px' }}>Staff Allocation Plan</div>
+                    <div draggable onDragStart={(e) => handleDragStart(e, 'APPOINTMENT')} style={{ padding: '10px', border: '1px solid #ccc', cursor: 'grab', marginBottom: '10px' }}>Appointment</div>
+                    <div draggable onDragStart={(e) => handleDragStart(e, 'NEW_APPOINTMENT')} style={{ padding: '10px', border: '1px solid #ccc', cursor: 'grab', marginBottom: '10px' }}>New Appointment</div>
                     {workflowBuilder.apiSetting.map((api) => (
                         <div key={api.id}>{api.name}</div>
                     ))}
