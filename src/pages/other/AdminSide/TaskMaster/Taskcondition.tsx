@@ -220,6 +220,7 @@ const TaskCondition: React.FC<ProcessCanvasProps> = ({
 			)
 			if (response.data.isSuccess) {
 				const fetchedModule = response.data.getProcessTaskByIds
+				console.log(fetchedModule)
 				setSignleData(
 					Array.isArray(fetchedModule) ? fetchedModule : [fetchedModule]
 				)
