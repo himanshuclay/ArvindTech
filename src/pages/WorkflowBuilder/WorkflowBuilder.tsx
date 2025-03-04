@@ -15,8 +15,12 @@ import ReactFlow, {
 import 'reactflow/dist/style.css';
 import WorkflowBuilderSetting from './WorkflowBuilderSetting';
 import FormBuilder from '../FormBuilder/FormBuilder';
-import { Modal } from 'react-bootstrap';
+import { Form, Modal } from 'react-bootstrap';
 import { FIELD } from '../FormBuilder/Constant/Interface';
+import { toast } from 'react-toastify';
+import axios from 'axios';
+import config from '@/config';
+import STAFF_ALLOCATION_PLAN from './DynamicSegment/STAFF_ALLOCATION_PLAN';
 
 const initialNodes: Node[] = [
     { id: '1', type: 'input', data: { label: 'Start Node', inputHandles: 1, outputHandles: 1 }, position: { x: 100, y: 100 } },
@@ -34,6 +38,7 @@ interface APISetting {
 interface WorkflowBuilderConfig {
     apiSetting: APISetting[];
     edges: Edge[];
+    nodes: Node[];
 }
 
 const CustomNode = ({ data, id }: { data: any, id: string }) => {
@@ -66,11 +71,12 @@ const WorkflowBuilder: React.FC = () => {
     const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
     const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
     const [selectedEdge, setSelectedEdge] = useState<Edge | null>(null)
-    const [nodeId, setNodeId] = useState<number>(3);
+    // const [nodeId, setNodeId] = useState<number>(3);
     const [showSettings, setShowSettings] = useState<boolean>(false);
     const [workflowBuilder, setWorkflowBuilder] = useState<WorkflowBuilderConfig>({
         apiSetting: [],
         edges: [],
+        nodes: initialNodes,
     });
     const [formBuilder, setFormBuilder] = useState<FIELD>({
         name: '',
@@ -83,6 +89,9 @@ const WorkflowBuilder: React.FC = () => {
         }
     });
     const [showFormBuilder, setShowFormBuilder] = useState(false);
+    const [dynamicComponent, setDynamicComponent] = useState<string>('');
+    const [id,] = useState(0);
+    const [name, setName] = useState('');
 
     const onConnect = useCallback(
         (params: Connection) => setEdges((eds) => addEdge(params, eds)),
@@ -91,14 +100,17 @@ const WorkflowBuilder: React.FC = () => {
 
     const addNewNode = (x: number, y: number) => {
         const newNode: Node = {
-            id: nodeId.toString(),
+            id: (nodes.length + 1).toString(),
             type: 'custom',
-            data: { label: `New Node ${nodeId}`, handles: Math.floor(Math.random() * 4) + 1 },
+            data: { label: `New Node ${nodes.length + 1}`, handles: Math.floor(Math.random() * 4) + 1, form: {} },
             position: { x, y },
         };
         setNodes((nds) => [...nds, newNode]);
-        setNodeId(nodeId + 1);
-        return nodeId;
+        setWorkflowBuilder(prevWorkflowBuilder => ({
+            ...prevWorkflowBuilder,
+            nodes: [...prevWorkflowBuilder.nodes, newNode]
+        }));
+        return newNode.id;
     };
 
     const toggleWorkflowSetting = () => {
@@ -118,8 +130,19 @@ const WorkflowBuilder: React.FC = () => {
             addNewNode(50, 50);
         } else if (action === 'ADD_FORM') {
             setShowFormBuilder(true);
+        } else if (componentMap[action]) {
+            setDynamicComponent(action);
+            const nodeId = addNewNode(50, 50);
+            setWorkflowBuilder(prevWorkflowBuilder => ({
+                ...prevWorkflowBuilder,
+                nodes: prevWorkflowBuilder.nodes.map(node =>
+                    node.id === nodeId.toString() ? { ...node, data: { ...node.data, form: action } } : node
+                )
+            }));
         }
     };
+
+
 
     const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
         e.preventDefault();
@@ -146,12 +169,19 @@ const WorkflowBuilder: React.FC = () => {
     useEffect(() => {
         if (formBuilder.blocks.length > 0) {
             const nodeId = addNewNode(50, 50);
+            // setWorkflowBuilder(prevWorkflowBuilder => ({
+            //     ...prevWorkflowBuilder,  // Ensures we keep previous state
+            //     [nodeId]: {
+            //         ...formBuilder,  // Now uses the latest updated formBuilder
+            //     },
+            // }));
             setWorkflowBuilder(prevWorkflowBuilder => ({
-                ...prevWorkflowBuilder,  // Ensures we keep previous state
-                [nodeId]: {
-                    ...formBuilder,  // Now uses the latest updated formBuilder
-                },
+                ...prevWorkflowBuilder,
+                nodes: prevWorkflowBuilder.nodes.map(node =>
+                    node.id === nodeId.toString() ? { ...node, data: { ...node.data, form: formBuilder } } : node
+                )
             }));
+
             setShowFormBuilder(false);
             setFormBuilder({
                 name: '',
@@ -172,14 +202,48 @@ const WorkflowBuilder: React.FC = () => {
             ...prevWorkflowBuilder,  // Ensures we keep previous state
             edges: edges,
         }));
-    },[edges])
+    }, [edges])
 
-    const handleSaveWorkflowBuilder = () => {
+    const handleSaveWorkflowBuilder = async () => {
         console.log('Final updated workflowBuilder:', workflowBuilder);
-        
+
         console.log('edges', edges)
+        console.log('name', name)
+
+        try {
+            if (!name) {
+                toast.info("Please Fill Workflow Name");
+                return;
+            }
+            const response = await axios.post(
+                `${config.API_URL_APPLICATION}/WorkflowBuilder/InsertWorkflowBuilder`, {
+                id,
+                name,
+                workflowBuilder,
+            });
+            if (response.data.isSuccess) {
+                toast.success(response.data.message);
+            } else {
+                toast.error(response.data.message)
+            }
+
+        } catch (error) {
+            console.log(error)
+        }
     }
 
+    const handleName = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const newName = event.target.value;
+        setName(newName);
+    };
+
+    const componentMap: { [key: string]: React.FC } = {
+        STAFF_ALLOCATION_PLAN,
+    }
+
+    const handleClose = () => {
+        setDynamicComponent('');
+    }
 
 
     return (
@@ -187,6 +251,14 @@ const WorkflowBuilder: React.FC = () => {
             {/* Top Navigation Bar */}
             <div className='bg-white d-flex align-items-center justify-content-between p-3' style={{ height: '3rem', borderBottom: '1px solid #ddd' }}>
                 <h5 className='m-0'>Workflow Builder</h5>
+                <Form.Group>
+                    <Form.Control
+                        type="text"
+                        className='border-bottom border-0 ' placeholder='Name' style={{ width: '400px' }}
+                        value={name}
+                        onChange={handleName}
+                    />
+                </Form.Group>
                 <i onClick={toggleWorkflowSetting} className='ri-settings-5-fill' style={{ fontSize: '1.5rem', cursor: 'pointer' }}></i>
                 <button type='button' onClick={handleSaveWorkflowBuilder}>save workflow</button>
             </div>
@@ -230,9 +302,25 @@ const WorkflowBuilder: React.FC = () => {
                     </Modal>
                     <div draggable onDragStart={(e) => handleDragStart(e, 'ADD_NODE')} style={{ padding: '10px', border: '1px solid #ccc', cursor: 'grab', marginBottom: '10px' }}>Drag to Add Node</div>
                     <div draggable onDragStart={(e) => handleDragStart(e, 'ADD_FORM')} style={{ padding: '10px', border: '1px solid #ccc', cursor: 'grab', marginBottom: '10px' }}>Drag to Add Node With Form</div>
+                    <div draggable onDragStart={(e) => handleDragStart(e, 'STAFF_ALLOCATION_PLAN')} style={{ padding: '10px', border: '1px solid #ccc', cursor: 'grab', marginBottom: '10px' }}>Staff Allocation Plan</div>
                     {workflowBuilder.apiSetting.map((api) => (
                         <div key={api.id}>{api.name}</div>
                     ))}
+                    {dynamicComponent && (
+                        <Modal
+                            show={true}
+                            backdrop="static" // Prevent closing when clicking outside the modal
+                            size='xl'
+                            onHide={handleClose}
+                        >
+                            <Modal.Header closeButton>
+                                <Modal.Title>Edit Task for</Modal.Title>
+                            </Modal.Header>
+                            <Modal.Body>
+                                {dynamicComponent && componentMap[dynamicComponent] && React.createElement(componentMap[dynamicComponent])}
+                            </Modal.Body>
+                        </Modal>
+                    )}
                 </div>
             </div>
         </div>

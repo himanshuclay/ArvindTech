@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Button, Form, ListGroup, Card } from "react-bootstrap";
 import {
-
+    Node,
     Edge,
 
 } from 'reactflow';
@@ -20,6 +20,7 @@ interface WORKFLOW_BUILDER_SETTING_PROPS {
     setWorkflowBuilder: React.Dispatch<React.SetStateAction<{
         apiSetting: APISetting[],
         edges: Edge[];
+        nodes: Node[];
     }>>;
 }
 
