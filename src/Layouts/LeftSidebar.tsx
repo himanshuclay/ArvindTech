@@ -507,7 +507,99 @@ const getFilteredMenuItems = () => {
         },
       ],
     },
-
+    {
+      key: 'Notifications',
+      label: 'Notification',
+      url: '/pages/Notification',
+      icon: 'ri-survey-line',
+      children: [
+        {
+          key: 'MyNotification',
+          label: 'My Notification',
+          url: '/pages/MyNotification',
+          parentKey: 'Notifications',
+        },
+        {
+          key: 'ScheduledNotification',
+          label: 'Scheduled Notification',
+          url: '/pages/ScheduledNotification',
+          parentKey: 'Notifications',
+        }
+      ],
+    },
+    {
+      key: 'SeekHelp',
+      label: 'Seek Help',
+      url: '/pages/SeekHelp',
+      icon: 'ri-survey-line',
+      children: [
+        {
+          key: 'CreateHelp',
+          label: 'Create Help',
+          url: '/pages/CreateHelp',
+          parentKey: 'SeekHelp',
+        },
+        {
+          key: 'ViewHelp',
+          label: 'View Help',
+          url: '/pages/ViewHelp',
+          parentKey: 'SeekHelp',
+        }
+      ],
+    },
+    {
+      key: 'Suggestion',
+      label: 'Suggestion',
+      url: '/pages/Suggestion',
+      icon: 'ri-survey-line',
+      // parentKey: 'systemmaster',
+      // children: [
+      //   {
+      //     key: 'Mess-Master',
+      //     label: 'HR Templete Master',
+      //     url: '/pages/AdhocTempleteList',
+      //     parentKey: 'FormMaster',
+      //   },
+      //   {
+      //     key: 'Mess-Master',
+      //     label: 'Account Templete Master',
+      //     url: '/pages/AdhocTempleteList',
+      //     parentKey: 'FormMaster',
+      //   },
+      //   {
+      //     key: 'Mess-Master',
+      //     label: 'BD Templete Master',
+      //     url: '/pages/AdhocTempleteList',
+      //     parentKey: 'FormMaster',
+      //   },
+      //   {
+      //     key: 'Mess-Master',
+      //     label: 'Adhoc Master',
+      //     url: '/pages/AdhocMaster',
+      //     parentKey: 'FormMaster',
+      //   },
+      // ],
+    },
+    {
+      key: 'Settings',
+      label: 'Settings',
+      url: '/pages/Settings',
+      icon: 'ri-survey-line',
+      children: [
+        {
+          key: 'Profile',
+          label: 'Profile',
+          url: '/pages/Profile',
+          parentKey: 'Settings',
+        },
+        {
+          key: 'ChangePassword',
+          label: 'Change Password',
+          url: '/pages/ChangePassword',
+          parentKey: 'Settings',
+        }
+      ],
+    },
   ];
 
 
@@ -556,7 +648,11 @@ const getFilteredMenuItems = () => {
       item.key === 'Process' ||
       item.key === 'ProcessDataMaster' ||
       item.key === 'Modules' || 
-      item.key === 'FormMaster'
+      item.key === 'FormMaster' ||
+      item.key === 'Notifications' ||
+      item.key === 'SeekHelp' ||
+      item.key === 'Suggestion' ||
+      item.key === 'Settings'
     );
   }
   return MENU_ITEMS.filter(item => {
