@@ -838,10 +838,15 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                         approval_Console === 'Select Approval_Console' &&
                         approvalStatus?.value === undefined
                     )
-                        return 'Waiting for Approval'
+                   
+                    {
+                    return 'Waiting for Approval'
+                    // console.log("wah wah");
+                    }
 
                     const approvalValue =
                         approvalStatus?.value?.trim().toLowerCase() || ''
+                        console.log("lllllll", approvalValue);
                     if (currentStatus === 'Waiting for Approval') {
                         if (approvalValue === 'reject') return 'Pending'
                         if (['approvewithamendment', 'approve'].includes(approvalValue))
@@ -856,10 +861,14 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                 })(),
                 task_Number: taskNumber,
                 summary: formState['summary'] || 'Task Summary',
-                condition_Json: fromComponent === 'PendingTask' && processId !== 'ACC.01'
-                    ? JSON.stringify(selectedCondition)
-                    : parsedCondition,
+                condition_Json: 
+                fromComponent === 'PendingTask' && processId !== 'ACC.01'
+                    ? (selectedCondition && Object.keys(selectedCondition).length > 0 
+                        ? JSON.stringify(selectedCondition) 
+                        : parsedCondition)
+                    : parsedCondition,            
                 taskCommonId: taskCommonIDRow,
+                staticCondition: parsedCondition,
                 taskStatus: taskStatus,
                 taskName: taskName,
                 rejectedJson:
@@ -902,6 +911,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                 //         return;
                 //     }
                 // }
+                console.log("this is payload",requestData)
                 const response = await fetch(
                     `${config.API_URL_ACCOUNT}/ProcessInitiation/UpdateDoerTask`,
                     {

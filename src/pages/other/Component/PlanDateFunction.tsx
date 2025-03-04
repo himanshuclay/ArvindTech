@@ -1,5 +1,5 @@
 export const getPlannedDate = (createdDate: string, planDate: string): string => {
-    if (!planDate || planDate.trim() === '') {
+    if (!planDate || planDate?.trim() === '') {
         return 'N/A';
     }
 
@@ -77,5 +77,5 @@ const formatDateWithAMPM = (date: Date): string => {
     hours = hours % 12 || 12; // Convert 0 to 12 for AM/PM format
     const formattedHours = hours.toString().padStart(2, '0'); // Ensure 2-digit hour format
 
-    return `${day}-${month}-${year} ${formattedHours}:${minutes} ${ampm}`;
+    return `${year}-${month}-${day} ${formattedHours}:${minutes} ${ampm}`;
 };
