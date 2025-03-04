@@ -95,7 +95,7 @@ interface dropDownList {
   empName: string;
   name: string;
 }
-const ProjectAssignTable: React.FC = () => {
+const Process: React.FC = () => {
   const [data, setData] = useState<ProjectAssignListWithDoer[]>([]);
   const [preData, setPreData] = useState<FilteredTask[]>([]);
   const [currentPage, setCurrentPage] = useState(1)
@@ -947,4 +947,4 @@ const ProjectAssignTable: React.FC = () => {
   );
 };
 
-export default ProjectAssignTable;
+export default Process;

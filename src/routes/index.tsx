@@ -6,6 +6,9 @@ import PrivateRoute from './PrivateRoute'
 import AdhocMaster from '@/pages/other/AdminSide/AdhocMaster.tsx'
 import ModulesMaster from '@/pages/other/ModulesMaster/ModulesMaster.tsx'
 import { MODULES_MASTER } from './ModulesMaster.tsx'
+import OtherTask from '@/pages/other/AdminSide/TrackTask/OtherTask.tsx'
+import Modules from '@/pages/other/DoerSide/Modules.tsx'
+import Process from '@/pages/other/DoerSide/Process.tsx'
 // import FormBuilder from '@/pages/FormBuilder/FormBuilder.tsx'
 
 // lazy load all the views
@@ -254,6 +257,18 @@ const customPagesRoutes = {
 			path: '/pages/Notification',
 			name: 'Notification',
 			element: <Notification />,
+			route: PrivateRoute,
+		},
+		{
+			path: '/pages/Modules',
+			name: 'Modules',
+			element: <Modules />,
+			route: PrivateRoute,
+		},
+		{
+			path: '/pages/Process',
+			name: 'Process',
+			element: <Process />,
 			route: PrivateRoute,
 		},
 		{
@@ -871,6 +886,12 @@ const customPagesRoutes = {
 			path: '/pages/TrackTask',
 			name: 'TrackTask',
 			element: <TrackTask />,
+			route: PrivateRoute,
+		},
+		{
+			path: '/pages/OtherTask',
+			name: 'OtherTask',
+			element: <OtherTask />,
 			route: PrivateRoute,
 		},
 		{
