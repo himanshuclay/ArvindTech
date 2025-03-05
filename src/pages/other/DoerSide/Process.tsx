@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import { useLocation } from 'react-router-dom';
 import axios from 'axios';
 import { Button, Table, Container, Row, Col, Alert, Collapse, Pagination, Form, ButtonGroup } from 'react-bootstrap'; // Assuming DynamicForm is in the same directory
 import { format } from 'date-fns';
@@ -96,7 +95,7 @@ interface dropDownList {
   empName: string;
   name: string;
 }
-const ProjectAssignTable: React.FC = () => {
+const Process: React.FC = () => {
   const [data, setData] = useState<ProjectAssignListWithDoer[]>([]);
   const [preData, setPreData] = useState<FilteredTask[]>([]);
   const [currentPage, setCurrentPage] = useState(1)
@@ -162,8 +161,6 @@ const ProjectAssignTable: React.FC = () => {
     setColumns(reorderedColumns);
   };
   // ==============================================================
-  const location = useLocation();
-  
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
@@ -196,7 +193,7 @@ const ProjectAssignTable: React.FC = () => {
     };
 
     fetchData();
-  }, [location.pathname, currentPage]);
+  }, [currentPage]);
 
 
   const fetchPreData = async (taskCommonId: number) => {
@@ -950,4 +947,4 @@ const ProjectAssignTable: React.FC = () => {
   );
 };
 
-export default ProjectAssignTable;
+export default Process;

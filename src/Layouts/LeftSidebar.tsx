@@ -26,14 +26,14 @@ const getFilteredMenuItems = () => {
       key: 'Modules',
       label: 'Modules',
       isTitle: false,
-      url: '/pages/Notification',
+      url: '/pages/Modules',
       icon: 'ri-dashboard-3-line',
     },
     {
       key: 'Process',
       label: 'Process',
       isTitle: false,
-      url: '/pages/Notification',
+      url: '/pages/Process',
       icon: 'ri-dashboard-3-line',
     },
 
@@ -133,7 +133,7 @@ const getFilteredMenuItems = () => {
         {
           key: 'Other Task',
           label: 'Other Task',
-          url: '/pages/TrackTask',
+          url: '/pages/OtherTask',
           icon: 'ri-slideshow-line',
           parentKey: 'TaskAdmin',
         },
@@ -552,33 +552,20 @@ const getFilteredMenuItems = () => {
       label: 'Suggestion',
       url: '/pages/Suggestion',
       icon: 'ri-survey-line',
-      // parentKey: 'systemmaster',
-      // children: [
-      //   {
-      //     key: 'Mess-Master',
-      //     label: 'HR Templete Master',
-      //     url: '/pages/AdhocTempleteList',
-      //     parentKey: 'FormMaster',
-      //   },
-      //   {
-      //     key: 'Mess-Master',
-      //     label: 'Account Templete Master',
-      //     url: '/pages/AdhocTempleteList',
-      //     parentKey: 'FormMaster',
-      //   },
-      //   {
-      //     key: 'Mess-Master',
-      //     label: 'BD Templete Master',
-      //     url: '/pages/AdhocTempleteList',
-      //     parentKey: 'FormMaster',
-      //   },
-      //   {
-      //     key: 'Mess-Master',
-      //     label: 'Adhoc Master',
-      //     url: '/pages/AdhocMaster',
-      //     parentKey: 'FormMaster',
-      //   },
-      // ],
+      children: [
+        {
+          key: 'Create',
+          label: 'Create',
+          url: '/pages/Create',
+          parentKey: 'Suggestion',
+        },
+        {
+          key: 'View',
+          label: 'View',
+          url: '/pages/View',
+          parentKey: 'Suggestion',
+        }
+      ],
     },
     {
       key: 'Settings',
