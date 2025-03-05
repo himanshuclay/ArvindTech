@@ -26,13 +26,15 @@ import { useParams } from 'react-router-dom';
 import APPOINTMENT from './DynamicSegment/APPOINTMENT';
 import { INPUT_HANDLES, LABEL, OUTPUT_HANDLES, OUTPUT_LABELS } from './Constant';
 import NEW_APPOINTMENT from './DynamicSegment/NEW_APPOINTMENT';
+import OLD_STAFF_TRANSFER from './DynamicSegment/OLD_STAFF_TRANSFER';
+import INDUCTION from './DynamicSegment/INDUCTION';
 
 const initialNodes: Node[] = [
     { id: '1', type: 'input', data: { label: 'Start Node', inputHandles: 1, outputHandles: 1 }, position: { x: 100, y: 100 } },
     { id: '2', type: 'output', data: { label: 'End Node', inputHandles: 1, outputHandles: 1 }, position: { x: 500, y: 100 } },
 ];
 
-const initialEdges: Edge[] = [{ id: 'e1-1', source: '1', target: '2' }];
+const initialEdges: Edge[] = [{ id: 'e1-1', source: '1', target: '2', animated: true }];
 
 interface APISetting {
     name: string;
@@ -181,7 +183,7 @@ const CustomNode = ({ data, id }: { data: any; id: string }) => {
                         <span>{label}</span>
                         <Handle
                             key={`output-${id}-${index}`}
-                            id={`output-${index}`} 
+                            id={`${label}`} 
                             type="source"
                             position={Position.Right}
                             style={{
@@ -260,7 +262,7 @@ const WorkflowBuilder: React.FC = () => {
             id: (nodes.length + 1).toString(),
             type: 'custom',
             data: {
-                label: action ? LABEL[action] : `New Node ${nodes.length + 1}`, handles: Math.floor(Math.random() * 4) + 1, form: form || {},
+                label: action ? LABEL[action] : `New Node ${nodes.length + 1}`, handles: Math.floor(Math.random() * 4) + 1, form: action ? action : form || {},
                 inputHandles: action ? INPUT_HANDLES[action] : 1,
                 outputHandles: action ? OUTPUT_HANDLES[action] : 1,
                 outputLabels: action ? OUTPUT_LABELS[action] : '',
@@ -294,13 +296,13 @@ const WorkflowBuilder: React.FC = () => {
             setShowFormBuilder(true);
         } else if (componentMap[action]) {
             setDynamicComponent(action);
-            const nodeId = addNewNode(50, 50, '', action);
-            setWorkflowBuilder(prevWorkflowBuilder => ({
-                ...prevWorkflowBuilder,
-                nodes: prevWorkflowBuilder.nodes.map(node =>
-                    node.id === nodeId.toString() ? { ...node, data: { ...node.data, form: action } } : node
-                )
-            }));
+            addNewNode(50, 50, '', action);
+            // setWorkflowBuilder(prevWorkflowBuilder => ({
+            //     ...prevWorkflowBuilder,
+            //     nodes: prevWorkflowBuilder.nodes.map(node =>
+            //         node.id === nodeId.toString() ? { ...node, data: { ...node.data, form: action } } : node
+            //     )
+            // }));
         }
     };
 
@@ -413,6 +415,8 @@ const WorkflowBuilder: React.FC = () => {
         STAFF_ALLOCATION_PLAN,
         APPOINTMENT,
         NEW_APPOINTMENT,
+        OLD_STAFF_TRANSFER,
+        INDUCTION,
     }
 
     const handleClose = () => {
@@ -462,6 +466,11 @@ const WorkflowBuilder: React.FC = () => {
         });
     }, []);
 
+    const onNodeClick = useCallback((_event: React.MouseEvent, node: Node) => {
+        console.log(node.data.form)
+        setDynamicComponent(node.data.form);
+    }, []);
+
     return (
         <div>
             {/* Top Navigation Bar */}
@@ -480,22 +489,6 @@ const WorkflowBuilder: React.FC = () => {
             </div>
             <div className='row d-flex'>
                 <div className='col-9' style={{ height: 'calc(100vh - 200px)', position: 'relative' }}>
-                    {/* <ReactFlow
-                        nodes={nodes}
-                        edges={edges}
-                        onNodesChange={handleNodesChange}
-                        onEdgesChange={onEdgesChange}
-                        onConnect={onConnect}
-                        nodeTypes={nodeTypes}
-                        fitView
-                        onDrop={handleDrop}
-                        onDragOver={handleDragOver}
-                        onEdgeClick={handleEdgeClick}
-                    >
-                        <MiniMap />
-                        <Controls />
-                        <Background />
-                    </ReactFlow> */}
                     <ReactFlow
                         nodes={nodes}
                         edges={edges}
@@ -507,6 +500,7 @@ const WorkflowBuilder: React.FC = () => {
                         onDrop={handleDrop}
                         onDragOver={handleDragOver}
                         onEdgeClick={handleEdgeClick}
+                        onNodeClick={onNodeClick}
                     >
                         <MiniMap />
                         <Controls />
@@ -538,6 +532,8 @@ const WorkflowBuilder: React.FC = () => {
                     <div draggable onDragStart={(e) => handleDragStart(e, 'STAFF_ALLOCATION_PLAN')} style={{ padding: '10px', border: '1px solid #ccc', cursor: 'grab', marginBottom: '10px' }}>Staff Allocation Plan</div>
                     <div draggable onDragStart={(e) => handleDragStart(e, 'APPOINTMENT')} style={{ padding: '10px', border: '1px solid #ccc', cursor: 'grab', marginBottom: '10px' }}>Appointment</div>
                     <div draggable onDragStart={(e) => handleDragStart(e, 'NEW_APPOINTMENT')} style={{ padding: '10px', border: '1px solid #ccc', cursor: 'grab', marginBottom: '10px' }}>New Appointment</div>
+                    <div draggable onDragStart={(e) => handleDragStart(e, 'OLD_STAFF_TRANSFER')} style={{ padding: '10px', border: '1px solid #ccc', cursor: 'grab', marginBottom: '10px' }}>Old Staff Transfer</div>
+                    <div draggable onDragStart={(e) => handleDragStart(e, 'INDUCTION')} style={{ padding: '10px', border: '1px solid #ccc', cursor: 'grab', marginBottom: '10px' }}>Induction</div>
                     {workflowBuilder.apiSetting.map((api) => (
                         <div key={api.id}>{api.name}</div>
                     ))}

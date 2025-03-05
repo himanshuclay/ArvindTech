@@ -13,10 +13,22 @@ const OUTPUT_LABELS: Record<string, string[]> = {
         'newAppointmentAtSite',
         'appointmentThroughJVPartner',
     ],
+    NEW_APPOINTMENT: [
+        'Finalized Candidate'
+    ],
+    OLD_STAFF_TRANSFER: [
+        'Employee Transferred'
+    ],
+    INDUCTION: [
+        'Induction'
+    ]
 };
 
 const LABEL: Record<string, string> = {
     APPOINTMENT: 'Appointment',
+    NEW_APPOINTMENT: 'New Appointment',
+    OLD_STAFF_TRANSFER: 'Old Staff Transfer',
+    INDUCTION: 'Induction',
 }
 
 export {

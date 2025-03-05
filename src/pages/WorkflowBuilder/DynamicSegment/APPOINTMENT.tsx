@@ -1,8 +1,8 @@
-import { useState } from 'react';
+import React, { useState, forwardRef, useImperativeHandle } from 'react';
 import { Col, Form, Row } from 'react-bootstrap';
 import Select from 'react-select';
 
-const APPOINTMENT = () => {
+const APPOINTMENT = forwardRef((props, ref) => {
     const [appointment, setAppointment] = useState({
         typeOfAppointment: '',
         selectRecruiter: '',
@@ -19,9 +19,13 @@ const APPOINTMENT = () => {
     ];
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0] || null; // Safely get the selected file
+        const file = e.target.files?.[0] || null;
         setAppointment((prev: any) => ({ ...prev, uploadJD: file }));
     };
+
+    useImperativeHandle(ref, () => ({
+        getAppointmentData: () => appointment
+    }));
 
     return (
         <div>
@@ -67,7 +71,7 @@ const APPOINTMENT = () => {
                             <Form.Control
                                 type="file"
                                 name="uploadJD"
-                                onChange={handleFileChange} // Use extracted handler function
+                                onChange={handleFileChange}
                             />
                         </Form.Group>
                     </Col>
@@ -93,6 +97,6 @@ const APPOINTMENT = () => {
             </Row>
         </div>
     );
-};
+});
 
 export default APPOINTMENT;
