@@ -878,7 +878,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                     approvalStatus?.value?.trim().toLowerCase() === 'reject'
                         ? globalTaskJson
                         : '',
-
+                completeDate: new Date().toISOString().slice(2, 10),
                 endprocessStatus: 'string',
                 // file: '',
                 updatedBy: role,
@@ -901,19 +901,20 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                 // console.log(finishPoint)
                 // console.log(parsedGlobalTaskJson);
 
-                // if (processId !== "ACC.01") {
-                //     if(Array.isArray(finishPointInput.value)){
-                //         if(!finishPointInput.value.length){
-                //             toast.dismiss();
-                //             toast.error(`Please fill the required field: ${finishPointInput?.label || "Unknown Field"}`);
-                //             return;
-                //         }
-                //     }else if(!finishPointInput?.value?.trim()){
-                //         toast.dismiss();
-                //         toast.error(`Please fill the required field: ${finishPointInput?.label || "Unknown Field"}`);
-                //         return;
-                //     }
-                // }
+                const isAnyInputFilled = parsedGlobalTaskJson.inputs.some((input: any) => {
+                    if (Array.isArray(input.value)) {
+                        return input.value.length > 0; // Array has at least one item
+                    }
+                    return !!input.value?.trim(); // String is not empty
+                });
+                
+                if (processId !== "ACC.01") {
+                    if (!isAnyInputFilled) {
+                        toast.dismiss();
+                        toast.error(`Please fill at least one required field.`);
+                        return;
+                    }
+                }
                 console.log("this is payload",requestData)
                 const response = await fetch(
                     `${config.API_URL_ACCOUNT}/ProcessInitiation/UpdateDoerTask`,
@@ -947,6 +948,9 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                     if (messageKey === 'task_completed') {
                         toast.success(statusMessageMap[messageKey]);
                         navigate('/pages/Notification');
+                        setTimeout(() => {
+                            window.location.reload(); // Ensures fresh data reload on navigation
+                        }, 900);
                     } else if (messageKey) {
                         toast.warning(statusMessageMap[messageKey]);
                     }

@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import axios from 'axios';
 import { Button, Table, Container, Row, Col, Alert, Collapse, Pagination } from 'react-bootstrap'; // Assuming DynamicForm is in the same directory
 import { format } from 'date-fns';
@@ -123,6 +124,8 @@ const ProjectAssignTable: React.FC = () => {
     setColumns(reorderedColumns);
   };
   // ==============================================================
+  const location = useLocation();
+  
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
@@ -155,7 +158,7 @@ const ProjectAssignTable: React.FC = () => {
     };
 
     fetchData();
-  }, [currentPage]);
+  }, [location.pathname, currentPage]);
 
 
   const fetchPreData = async (taskCommonId: number) => {
