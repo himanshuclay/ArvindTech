@@ -40,6 +40,7 @@ interface LnMaster {
     isCompleted: string;
     problemSolverMobileNumber: number;
     taskCommonId: number;
+    approvalConsoleDoerName: string;
 }
 
 interface Column {
@@ -730,16 +731,10 @@ const LnMaster: React.FC = () => {
                                                                                         </td>
 
                                                                                     </tr>
-
-                                                                                    <tr>
-                                                                                        <td><h5>Approval :</h5></td>
-                                                                                        <td> <h5 className='text-primary'>{item.approval_Console !== null ? 'Yes' : 'No'}</h5></td>
-                                                                                    </tr>
-
-                                                                                    {item.approval_Console !== null &&
+                                                                                    {item.approval_Console === 'Select Approval_Console' &&
                                                                                         <tr>
                                                                                             <td><h5>Approver :</h5></td>
-                                                                                            <td><h5 className='text-primary'>NA</h5>
+                                                                                            <td><h5 className='text-primary'>{item.approvalConsoleDoerName}</h5>
                                                                                             </td>
                                                                                         </tr>}
                                                                                 </tbody>
@@ -774,18 +769,21 @@ const LnMaster: React.FC = () => {
                                                                             </tr> */}
 
                                                                         </Col>
-                                                                        <Col lg={4}>
-                                                                            <tr>
-                                                                                <td> <h5>Mess Manager : </h5></td>
-                                                                                <td><h5 className='text-primary'>Mess Manager Name</h5></td>
-                                                                            </tr>
-                                                                            {/* <tr>
-                                                                                <td> <h5 className='mb-1'>Var Field 2 : </h5></td>
-                                                                                <td><h5 className='text-primary'>Var Field 2</h5>
-                                                                                </td>
-                                                                            </tr> */}
+                                                                        {item.processID === 'ACC.01' &&
+                                                                            <Col lg={4}>
+                                                                                <tr>
+                                                                                    <td> <h5>Mess Manager : </h5></td>
+                                                                                    <td><h5 className='text-primary'>Mess Manager Name</h5></td>
+                                                                                </tr>
+                                                                                {/* <tr>
+                                                                                                                  <td> <h5 className='mb-1'>Var Field 2 : </h5></td>
+                                                                                                                  <td><h5 className='text-primary'>Var Field 2</h5>
+                                                                                                                  </td>
+                                                                                                                </tr> */}
 
-                                                                        </Col>
+                                                                            </Col>
+                                                                        }
+
                                                                     </Row>
                                                                     <hr className='my-1' />
 
