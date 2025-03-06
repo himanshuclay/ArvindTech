@@ -90,10 +90,9 @@ const MessCards: React.FC<{ data: Task[] }> = ({ data }) => {
                                                 <ul>
                                                     {task.inputs.map(
                                                         (input, i) =>
-                                                            input.label && (
+                                                            input.label && input.value !== "" && (
                                                                 <li key={i}>
-                                                                    <strong>{input.label}:</strong>{" "}
-                                                                    {input.value.toString()}
+                                                                    <strong>{input.label}:</strong> {input.value.toString()}
                                                                 </li>
                                                             )
                                                     )}
