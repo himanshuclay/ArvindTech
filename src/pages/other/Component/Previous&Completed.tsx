@@ -27,8 +27,10 @@ const groupByMessName = (data: Task[]): GroupedData => {
         if (!acc[item.messName]) {
             acc[item.messName] = [];
         }
+        console.log(data);
         acc[item.messName].push(item);
         return acc;
+
     }, {});
 };
 
@@ -54,7 +56,21 @@ const MessCards: React.FC<{ data: Task[] }> = ({ data }) => {
                         <Col key={messName} md={6} lg={4} className="">
                             <Card>
                                 <Card.Header className="bg-primary text-white">
-                                    <h5 className="mb-0">{messName || (messTasks[0]?.taskName || 'Task')}</h5>
+
+                                    <h5 className="mb-0">
+                                        {
+                                            messName &&
+                                                messName !== 'undefined' &&
+                                                messName !== null &&
+                                                messName !== ''
+                                                ? messName
+                                                : messTasks[0]?.taskName || 'Task'
+                                        }
+                                    </h5>
+
+
+                                    {/* <h5>{messTasks[0]?.taskName || 'Task'}</h5> */}
+
 
                                 </Card.Header>
                                 <Card.Body>

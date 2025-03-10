@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useMemo } from 'react'
 import axios from 'axios'
 import { Col, Modal, Row, Form } from 'react-bootstrap'
 // import { FileUploader } from '@/components/FileUploader'
@@ -213,6 +213,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
 
         localStorage.setItem(localStorageKey, JSON.stringify(updatedData))
     }
+
 
     useEffect(() => {
         // Ensure messList and currentStep are valid before accessing messID
@@ -840,16 +841,14 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                     if (
                         approval_Console === 'Select Approval_Console' &&
                         approvalStatus?.value === undefined
-                    )
-                   
-                    {
-                    return 'Waiting for Approval'
-                    // console.log("wah wah");
+                    ) {
+                        return 'Waiting for Approval'
+                        // console.log("wah wah");
                     }
 
                     const approvalValue =
                         approvalStatus?.value?.trim().toLowerCase() || ''
-                        console.log("lllllll", approvalValue);
+                    console.log("lllllll", approvalValue);
                     if (currentStatus === 'Waiting for Approval') {
                         if (approvalValue === 'reject') return 'Pending'
                         if (['approvewithamendment', 'approve'].includes(approvalValue))
@@ -864,12 +863,12 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                 })(),
                 task_Number: taskNumber,
                 summary: formState['summary'] || 'Task Summary',
-                condition_Json: 
-                fromComponent === 'PendingTask' && processId !== 'ACC.01'
-                    ? (selectedCondition && Object.keys(selectedCondition).length > 0 
-                        ? JSON.stringify(selectedCondition) 
-                        : parsedCondition)
-                    : parsedCondition,            
+                condition_Json:
+                    fromComponent === 'PendingTask' && processId !== 'ACC.01'
+                        ? (selectedCondition && Object.keys(selectedCondition).length > 0
+                            ? JSON.stringify(selectedCondition)
+                            : parsedCondition)
+                        : parsedCondition,
                 taskCommonId: taskCommonIDRow,
                 staticCondition: parsedCondition,
                 taskStatus: taskStatus,
@@ -897,25 +896,41 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                     return;
                 }
 
-                // const finishPointInput = parsedGlobalTaskJson.inputs.find((input: any) => String(input.inputId) === String(finishPoint));
-                // console.log(finishPoint)
-                // console.log(parsedGlobalTaskJson);
-
+                // Check if any input in globalTaskJson is filled
                 const isAnyInputFilled = parsedGlobalTaskJson.inputs.some((input: any) => {
                     if (Array.isArray(input.value)) {
                         return input.value.length > 0; // Array has at least one item
                     }
                     return !!input.value?.trim(); // String is not empty
                 });
-                
+
+                // ✅ Additional Check: RenderedInputs must have value(s)
+                const isRenderedInputsValid = renderedInputs.every((input: Input) => {
+                    const currentValue = formState[input.inputId] ?? input.value ?? '';
+
+                    if (Array.isArray(currentValue)) {
+                        return currentValue.length > 0; // Array inputs
+                    }
+
+                    return String(currentValue).trim() !== ''; // Non-empty string
+                });
+
                 if (processId !== "ACC.01") {
                     if (!isAnyInputFilled) {
                         toast.dismiss();
                         toast.error(`Please fill at least one required field.`);
                         return;
                     }
+
+                    if (!isRenderedInputsValid) {
+                        toast.dismiss();
+                        toast.error(`Please fill all visible required fields.`);
+                        return;
+                    }
                 }
-                console.log("this is payload",requestData)
+
+                console.log("this is payload", requestData);
+
                 const response = await fetch(
                     `${config.API_URL_ACCOUNT}/ProcessInitiation/UpdateDoerTask`,
                     {
@@ -923,7 +938,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify(requestData),
                     }
-                )
+                );
 
                 console.log(response);
 
@@ -993,18 +1008,19 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
 
     const shouldDisplayInput = (input: Input): boolean => {
         // If there's no conditional field, show the input
-        if (!input.conditionalFieldId) return true
+        if (!input.conditionalFieldId) return true;
 
-        const conditionValue = input.conditionalFieldId
+        const conditionValue = input.conditionalFieldId;
 
         // If the condition matches a specific value, show the input
-        if (conditionValue === 'someid') return true
+        if (conditionValue === 'someid') return true;
 
         // Find the input with the conditionalFieldId and check its value
         for (const otherInput of formData.inputs) {
+            // Check if we found the controlling input by its ID
             if (otherInput.inputId === conditionValue) {
-                // Return true if the value is not empty
-                return formState[otherInput.inputId] !== ''
+                // Return true if the value in formState is not empty (or satisfies your condition)
+                return formState[otherInput.inputId] !== undefined && formState[otherInput.inputId] !== '';
             }
 
             // If the input has options, check if the selected option matches the condition
@@ -1012,13 +1028,39 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                 otherInput.options &&
                 otherInput.options.some((option) => option.id === conditionValue)
             ) {
-                return formState[otherInput.inputId] === conditionValue
+                return formState[otherInput.inputId] === conditionValue;
             }
         }
 
         // Return false if no condition is met
-        return false
-    }
+        return false;
+    };
+
+
+    const renderedInputs = useMemo(() => {
+        const excludedInputIds = ['99', '100', '102', '103'];
+
+        return formData.inputs.filter((input: Input) => {
+            const isExcluded = excludedInputIds.includes(String(input.inputId));
+
+            const isVisible = shouldDisplayInput(input);
+
+            return (
+                !isExcluded && // Exclude these inputs
+                (
+                    (fromComponent === 'TaskMaster' && 'PendingTask') || isVisible
+                ) &&
+                input.visibility
+            );
+        });
+    }, [formData.inputs, fromComponent, approval_Console, approvalStatus, formState]);
+
+
+
+
+    useEffect(() => {
+        console.log('Rendered Inputs Array:', renderedInputs);
+    }, [renderedInputs]);
 
     const [showBankModal, setShowBankModal] = useState(false)
 
@@ -1286,6 +1328,28 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                                         </div>
                                     )}
 
+                                </div>
+                                <div className='d-flex flex-column align-items-end'>
+                                    <div>Required Fields</div>
+                                    <div className='d-flex'>
+                                        {renderedInputs.map(({ inputId, label, type, placeholder, value }: Input) => {
+                                            const currentValue = formState[inputId] ?? value ?? '';
+                                            const isEmpty = !String(currentValue).trim();
+
+                                            return (
+                                                <div key={inputId} className="fw-200">
+
+                                                    <div className="d-flex align-items-center fw-medium fs-6 me-2" style={{ color: isEmpty ? 'red' : 'green', fontWeight: 'bold' }}>
+                                                        <i
+                                                            className={`ri-${isEmpty ? 'error-warning-line' : 'check-line'} me-1`}
+                                                            style={{ color: isEmpty ? 'red' : 'green', fontSize: '1.2rem' }}
+                                                        />
+                                                        {label}
+                                                    </div>
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
                                 </div>
                                 <div
                                     className="form-section"
@@ -1673,28 +1737,24 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                                                                         UpdatedBy: 'yourUpdatedBy'
                                                                     }}
                                                                     onFileSelect={(files) => {
-                                                                        if (files.length > 0) {
-                                                                            setFileNames(files.map(file => file.name)); // Store multiple file names
-                                                                        }
+                                                                        const names = files.map(file => file.name);
+                                                                        setFileNames(names);
+                                                                        handleChange(input.inputId, JSON.stringify(names));
                                                                     }}
                                                                 />
-                                                                <input type="text"
-                                                                    value={fileNames}
-                                                                />
 
-                                                                {/* Display selected file names */}
+                                                                <input type="text" value={JSON.stringify(fileNames)} readOnly />
+
                                                                 {fileNames.length > 0 && (
-                                                                    <div className="mt-2">
-                                                                        <p>Selected Files:</p>
-                                                                        <ul>
-                                                                            {fileNames.map((name, index) => (
-                                                                                <li key={index}>{name}</li>
-                                                                            ))}
-                                                                        </ul>
-                                                                    </div>
+                                                                    <ul className="mt-2">
+                                                                        {fileNames.map((name, idx) => (
+                                                                            <li key={idx}>{name}</li>
+                                                                        ))}
+                                                                    </ul>
                                                                 )}
                                                             </div>
                                                         )}
+
 
                                                         {input.type === 'checkbox' && (
                                                             <span className="form-check">

@@ -273,6 +273,8 @@ const ProjectAssignTable: React.FC = () => {
                   label: input.label,
                   value: optionsMap[input.value] || input.value, // Replace value with label if available
                 }));
+                const input = inputs.find(item => item.inputId === "99");
+                const label = input ? input.label : null;
 
               // Return transformed task object
               return {
@@ -281,6 +283,7 @@ const ProjectAssignTable: React.FC = () => {
                 messManager: taskJson.messManager,
                 managerNumber: taskJson.mobileNumber,
                 messTaskNumber: taskJson.messTaskNumber,
+                taskName: label,
                 inputs: filteredInputsData,
               };
             });
