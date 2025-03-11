@@ -1331,18 +1331,28 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                                 </div>
                                 <div className='d-flex flex-column align-items-end'>
                                     <div>Required Fields</div>
+
                                     <div className='d-flex'>
-                                        {renderedInputs.map(({ inputId, label, type, placeholder, value }: Input) => {
+                                        {renderedInputs.map(({ inputId, label, value }: Input) => {
                                             const currentValue = formState[inputId] ?? value ?? '';
                                             const isEmpty = !String(currentValue).trim();
 
                                             return (
                                                 <div key={inputId} className="fw-200">
-
-                                                    <div className="d-flex align-items-center fw-medium fs-6 me-2" style={{ color: isEmpty ? 'red' : 'green', fontWeight: 'bold' }}>
+                                                    <div
+                                                        className="d-flex align-items-center fw-medium fs-6 me-2"
+                                                        style={{
+                                                            color: isEmpty ? 'red' : 'green',
+                                                            fontWeight: 'bold'
+                                                        }}
+                                                    >
                                                         <i
-                                                            className={`ri-${isEmpty ? 'error-warning-line' : 'check-line'} me-1`}
-                                                            style={{ color: isEmpty ? 'red' : 'green', fontSize: '1.2rem' }}
+                                                            key={currentValue} // re-renders on change
+                                                            className={`ri-${isEmpty ? 'error-warning-line' : 'check-line'} me-1 ${!isEmpty ? 'check-animate' : ''}`}
+                                                            style={{
+                                                                color: isEmpty ? 'red' : 'green',
+                                                                fontSize: '1.2rem'
+                                                            }}
                                                         />
                                                         {label}
                                                     </div>
@@ -1351,6 +1361,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                                         })}
                                     </div>
                                 </div>
+
                                 <div
                                     className="form-section"
                                     style={{ width: '90%', padding: '0px 20px' }}>
