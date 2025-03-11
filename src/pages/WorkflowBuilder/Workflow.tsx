@@ -9,6 +9,9 @@ import APPOINTMENT from './DynamicSegment/APPOINTMENT';
 import NEW_APPOINTMENT from './DynamicSegment/NEW_APPOINTMENT';
 import OLD_STAFF_TRANSFER from './DynamicSegment/OLD_STAFF_TRANSFER';
 import INDUCTION from './DynamicSegment/INDUCTION';
+import UPDATE_EMPLOYEE from './DynamicSegment/UPDATE_EMPLOYEE';
+import APPOINTMENT_LETTER from './DynamicSegment/APPOINTMENT_LETTER';
+import ASSIGN_TASK from './DynamicSegment/ASSIGN_TASK';
 
 const Workflow = () => {
     const { id } = useParams<{ id: string }>();
@@ -25,6 +28,7 @@ const Workflow = () => {
         try {
             const response = await axios.get(`${config.API_URL_ACCOUNT}/WorkflowBuilder/GetWorkflowBuilder?ID=${id}`);
             if (response.data.isSuccess) {
+                console.log('response', response)
                 const fetchedModule = response.data.workflowBuilderLists[0];
                 setName(fetchedModule.name);
                 setNodes(JSON.parse(fetchedModule.workflowBuilder).nodes);
@@ -82,6 +86,9 @@ const Workflow = () => {
         NEW_APPOINTMENT,
         OLD_STAFF_TRANSFER,
         INDUCTION,
+        UPDATE_EMPLOYEE,
+        APPOINTMENT_LETTER,
+        ASSIGN_TASK,
     };
 
     const handleSaveWorkflow = () => {

@@ -133,6 +133,9 @@ const END1 = {
     ],
     WHERE: [
         { label: "Where", value: "WHERE" },
+    ],
+    FILTER:[
+        { label: "Filter", value: "FILTER"},
     ]
 }
 

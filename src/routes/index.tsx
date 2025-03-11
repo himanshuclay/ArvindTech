@@ -9,6 +9,7 @@ import { MODULES_MASTER } from './ModulesMaster.tsx'
 import WorkflowBuilderList from '@/pages/WorkflowBuilder/WorkflowBuilderList.tsx'
 import WorkflowBuilder from '@/pages/WorkflowBuilder/WorkflowBuilder.tsx'
 import Workflow from '@/pages/WorkflowBuilder/Workflow.tsx'
+import ProcessConfiguration from '@/pages/ProcessConfiguration/ProcessConfiguration.tsx'
 // import FormBuilder from '@/pages/FormBuilder/FormBuilder.tsx'
 
 // lazy load all the views
@@ -927,6 +928,12 @@ const customPagesRoutes = {
 			route: PrivateRoute,
 		},
 		
+		{
+			path: 'pages/ProcessConfiguration',
+			name: 'Process Configuration',
+			element: <ProcessConfiguration />,
+			route: PrivateRoute,
+		},
 
 		// MODULES_MASTER
 		

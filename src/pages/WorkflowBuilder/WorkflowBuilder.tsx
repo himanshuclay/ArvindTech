@@ -5,13 +5,12 @@ import ReactFlow, {
     Background,
     useNodesState,
     useEdgesState,
-    addEdge,
+    // addEdge,
     Node,
     Edge,
     Connection,
-    Handle,
-    Position,
     applyNodeChanges,
+    MarkerType,
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 import WorkflowBuilderSetting from './WorkflowBuilderSetting';
@@ -28,13 +27,17 @@ import { INPUT_HANDLES, LABEL, OUTPUT_HANDLES, OUTPUT_LABELS } from './Constant'
 import NEW_APPOINTMENT from './DynamicSegment/NEW_APPOINTMENT';
 import OLD_STAFF_TRANSFER from './DynamicSegment/OLD_STAFF_TRANSFER';
 import INDUCTION from './DynamicSegment/INDUCTION';
+import UPDATE_EMPLOYEE from './DynamicSegment/UPDATE_EMPLOYEE';
+import APPOINTMENT_LETTER from './DynamicSegment/APPOINTMENT_LETTER';
+import ASSIGN_TASK from './DynamicSegment/ASSIGN_TASK';
+import CustomNode from './CustomNode';
 
 const initialNodes: Node[] = [
     { id: '1', type: 'input', data: { label: 'Start Node', inputHandles: 1, outputHandles: 1 }, position: { x: 100, y: 100 } },
     { id: '2', type: 'output', data: { label: 'End Node', inputHandles: 1, outputHandles: 1 }, position: { x: 500, y: 100 } },
 ];
 
-const initialEdges: Edge[] = [{ id: 'e1-1', source: '1', target: '2', animated: true }];
+const initialEdges: Edge[] = [{ id: 'e1-1', source: '1', target: '2', animated: true, type: 'smoothstep' }];
 
 interface APISetting {
     name: string;
@@ -48,159 +51,11 @@ interface WorkflowBuilderConfig {
     nodes: Node[];
 }
 
-// const CustomNode = ({ data, id }: { data: any; id: string }) => {
-//     const inputHandles = data.inputHandles || 1;
-//     const outputHandles = data.outputHandles || 1;
-//     const outputLabels = data.outputLabels || Array(outputHandles).fill("").map((_, i) => `Out ${i + 1}`);
 
-//     return (
-//         <div style={{
-//             border: '1px solid black',
-//             padding: '15px',
-//             borderRadius: '8px',
-//             background: 'white',
-//             position: 'relative',
-//             width: '180px',
-//             textAlign: 'center',
-//             boxShadow: '2px 2px 6px rgba(0, 0, 0, 0.1)',
-//             fontSize: '14px',
-//             fontWeight: 'bold'
-//         }}>
-//             {/* Left side input handles (allow multiple connections) */}
-//             {[...Array(inputHandles)].map((_, index) => (
-//                 <Handle
-//                     key={`input-${id}-${index}`}
-//                     type="target"
-//                     position={Position.Left}
-//                     style={{ top: `${(index + 1) * (100 / (inputHandles + 1))}%`, background: '#555' }}
-//                 />
-//             ))}
 
-//             <div style={{ padding: '5px', overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}>
-//                 {data.label}
-//             </div>
 
-//             {/* Right side output handles with labels (only allow one connection per output) */}
-//             <div style={{
-//                 position: 'absolute',
-//                 right: '-90px',
-//                 top: '50%',
-//                 transform: 'translateY(-50%)',
-//                 display: 'flex',
-//                 flexDirection: 'column',
-//                 alignItems: 'start',
-//             }}></div>
-//             {[...Array(outputHandles)].map((_, index) => (
-//                 <div key={`output-container-${id}-${index}`} style={{ position: 'absolute', right: '-80px', top: `${(index + 1) * (100 / (outputHandles + 1))}%`, display: 'flex', alignItems: 'center' }}>
-//                     <span style={{ marginRight: '5px', fontSize: '12px', whiteSpace: 'nowrap' }}>{outputLabels[index]}</span>
-//                     <Handle
-//                         key={`output-${id}-${index}`}
-//                         id={`output-${index}`} // Unique ID for connection checking
-//                         type="source"
-//                         position={Position.Right}
-//                         isConnectable={true}
-//                     />
-//                 </div>
-//             ))}
-//         </div>
-//     );
-// };
 
-const CustomNode = ({ data, id }: { data: any; id: string }) => {
-    const inputHandles = data.inputHandles || 1;
-    const outputHandles = data.outputHandles || 1;
-    const outputLabels = data.outputLabels || Array(outputHandles).fill("").map((_, i) => `Out ${i + 1}`);
 
-    return (
-        <div style={{
-            border: '1px solid black',
-            padding: '15px',
-            borderRadius: '8px',
-            background: 'white',
-            position: 'relative',
-            width: 'auto',
-            minWidth: '200px',  
-            maxWidth: '280px',  
-            minHeight: `${50 + outputHandles * 30}px`,  
-            textAlign: 'center',
-            boxShadow: '2px 2px 6px rgba(0, 0, 0, 0.1)',
-            fontSize: '14px',
-            fontWeight: 'bold',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center'
-        }}>
-            {/* Left Side - Input Handles */}
-            {[...Array(inputHandles)].map((_, index) => (
-                <Handle
-                    key={`input-${id}-${index}`}
-                    type="target"
-                    position={Position.Left}
-                    style={{
-                        top: `${(index + 1) * (100 / (inputHandles + 1))}%`,
-                        background: '#555',
-                        width: '8px',
-                        height: '8px',
-                        borderRadius: '50%',
-                    }}
-                />
-            ))}
-
-            {/* Main Label */}
-            <div style={{
-                padding: '8px',
-                fontWeight: 'bold',
-                fontSize: '15px',
-                width: '100%',
-                textAlign: 'center'
-            }}>
-                {data.label}
-            </div>
-
-            {/* Right Side - Output Handles */}
-            <div style={{
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                width: '100%',
-                padding: '8px 0',
-            }}>
-                {outputLabels.map((label: any, index: number) => (
-                    <div key={`output-container-${id}-${index}`} style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'space-between',
-                        width: '90%',
-                        marginBottom: '6px',
-                        padding: '6px 10px',
-                        background: '#f4f4f4',
-                        borderRadius: '5px',
-                        border: '1px solid #ddd',
-                        fontSize: '12px',
-                        fontWeight: '500',
-                        whiteSpace: 'nowrap'
-                    }}>
-                        <span>{label}</span>
-                        <Handle
-                            key={`output-${id}-${index}`}
-                            id={`${label}`} 
-                            type="source"
-                            position={Position.Right}
-                            style={{
-                                background: '#007bff',
-                                width: '8px',
-                                height: '8px',
-                                borderRadius: '50%',
-                                marginLeft: '5px',
-                                top: 'unset',
-                            }}
-                        />
-                    </div>
-                ))}
-            </div>
-        </div>
-    );
-};
 
 
 
@@ -213,6 +68,7 @@ const WorkflowBuilder: React.FC = () => {
     const [nodes, setNodes] = useNodesState(initialNodes);
     const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
     const [selectedEdge, setSelectedEdge] = useState<Edge | null>(null)
+    const [selectedNode, setSelectedNode] = useState<Node | null>(null);
     // const [nodeId, setNodeId] = useState<number>(3);
     const [showSettings, setShowSettings] = useState<boolean>(false);
     const [workflowBuilder, setWorkflowBuilder] = useState<WorkflowBuilderConfig>({
@@ -235,6 +91,24 @@ const WorkflowBuilder: React.FC = () => {
 
     const [name, setName] = useState('');
 
+    // const onConnect = useCallback(
+    //     (params: Connection) => {
+    //         setEdges((existingEdges) => {
+    //             // Check if the output handle already has a connection
+    //             const isAlreadyConnected = existingEdges.some(
+    //                 (edge) => edge.source === params.source && edge.sourceHandle === params.sourceHandle
+    //             );
+
+    //             if (isAlreadyConnected) {
+    //                 alert("This output handle already has a connection.");
+    //                 return existingEdges; // Do not allow multiple connections on the same output
+    //             }
+
+    //             return addEdge(params, existingEdges);
+    //         });
+    //     },
+    //     [setEdges]
+    // );
     const onConnect = useCallback(
         (params: Connection) => {
             setEdges((existingEdges) => {
@@ -245,10 +119,28 @@ const WorkflowBuilder: React.FC = () => {
 
                 if (isAlreadyConnected) {
                     alert("This output handle already has a connection.");
-                    return existingEdges; // Do not allow multiple connections on the same output
+                    return existingEdges; // Prevent multiple connections on the same output
                 }
 
-                return addEdge(params, existingEdges);
+
+                const newEdge: Edge = {
+                    ...params,
+                    id: `e${params.source}-${params.target}`,
+                    type: 'smoothstep', // Edge type (options: 'step', 'straight', 'bezier')
+                    animated: true,
+                    style: {
+                        stroke: '#007bff', // Edge color
+                        strokeWidth: 2,
+                        strokeDasharray: '5,5', // Dashed line
+                    },
+                    markerEnd: { type: MarkerType.ArrowClosed }, // ✅ Correct usage of marker type
+                    source: params.source ?? '', // Ensure source is always a string
+                    target: params.target ?? '', // Ensure target is always a string
+                    sourceHandle: params.sourceHandle ?? undefined, // Optional
+                    targetHandle: params.targetHandle ?? undefined, // Optional
+                };
+
+                return [...existingEdges, newEdge];
             });
         },
         [setEdges]
@@ -281,7 +173,12 @@ const WorkflowBuilder: React.FC = () => {
         setShowSettings(!showSettings);
     };
 
-    const nodeTypes = useMemo(() => ({ custom: CustomNode }), []);
+    const nodeTypes = useMemo(() => ({
+        custom: (props: any) => <CustomNode {...props} setNodes={setNodes} edges={edges} />,
+    }), [setNodes, edges]);  // ✅ Include edges in dependencies
+    
+    
+    
 
     const handleDragStart = (e: React.DragEvent<HTMLDivElement>, field: string) => {
         e.dataTransfer.setData('ACTION', field);
@@ -317,9 +214,26 @@ const WorkflowBuilder: React.FC = () => {
     };
 
     const handleKeyDown = (event: KeyboardEvent) => {
-        if (event.key === 'Delete' && selectedEdge) {
-            setEdges((eds) => eds.filter((e) => e.id !== selectedEdge.id));
-            setSelectedEdge(null);
+        if (event.key === 'Delete') {
+            if (selectedEdge) {
+                // Delete the selected edge
+                setEdges((eds) => eds.filter((e) => e.id !== selectedEdge.id));
+                setSelectedEdge(null);
+            }
+            if (selectedNode) {
+                // Delete the selected node and its connected edges
+                setNodes((nds) => nds.filter((node) => node.id !== selectedNode.id));
+                setEdges((eds) => eds.filter((edge) => edge.source !== selectedNode.id && edge.target !== selectedNode.id));
+                setSelectedNode(null);
+
+                // Remove the node from the workflowBuilder state
+                setWorkflowBuilder(prevWorkflowBuilder => ({
+                    ...prevWorkflowBuilder,
+                    nodes: prevWorkflowBuilder.nodes.filter(node => node.id !== selectedNode.id), // 🔹 Remove deleted node
+                    edges: prevWorkflowBuilder.edges.filter(edge => edge.source !== selectedNode.id && edge.target !== selectedNode.id) // 🔹 Remove related edges
+                }));
+            }
+
         }
     };
 
@@ -337,7 +251,7 @@ const WorkflowBuilder: React.FC = () => {
             // setNodes((prevNodes) =>
             //     prevNodes.map((node) =>
             //         node.id === newNodeId.toString()
-            //             ? { ...node, data: { ...node.data, form: { ...formBuilder } } }
+            //             ? {...node, data: {...node.data, form: {...formBuilder} } }
             //             : node
             //     )
             // );
@@ -370,7 +284,6 @@ const WorkflowBuilder: React.FC = () => {
 
 
     useEffect(() => {
-        console.log('edges', edges)
         setWorkflowBuilder(prevWorkflowBuilder => ({
             ...prevWorkflowBuilder,  // Ensures we keep previous state
             edges: edges,
@@ -388,6 +301,13 @@ const WorkflowBuilder: React.FC = () => {
                 toast.info("Please Fill Workflow Name");
                 return;
             }
+            // Update workflowBuilder with the latest nodes before saving
+            setWorkflowBuilder((prev) => ({
+                ...prev,
+                nodes: nodes,  // Ensure latest nodes with doer info is saved
+            }));
+
+
             const response = await axios.post(
                 `${config.API_URL_ACCOUNT}/WorkflowBuilder/InsertWorkflowBuilder`, {
                 id,
@@ -417,6 +337,9 @@ const WorkflowBuilder: React.FC = () => {
         NEW_APPOINTMENT,
         OLD_STAFF_TRANSFER,
         INDUCTION,
+        UPDATE_EMPLOYEE,
+        APPOINTMENT_LETTER,
+        ASSIGN_TASK,
     }
 
     const handleClose = () => {
@@ -452,6 +375,14 @@ const WorkflowBuilder: React.FC = () => {
         }
     }, [id]);
 
+    // Add event listener for keydown
+    useEffect(() => {
+        document.addEventListener('keydown', handleKeyDown);
+        return () => {
+            document.removeEventListener('keydown', handleKeyDown);
+        };
+    }, [selectedNode, selectedEdge]);
+
     const handleNodesChange = useCallback((changes: any) => {
         setNodes((nds) => {
             const updatedNodes = applyNodeChanges(changes, nds);
@@ -466,7 +397,9 @@ const WorkflowBuilder: React.FC = () => {
         });
     }, []);
 
+    // Function to handle node selection
     const onNodeClick = useCallback((_event: React.MouseEvent, node: Node) => {
+        setSelectedNode(node);
         console.log(node.data.form)
         setDynamicComponent(node.data.form);
     }, []);
@@ -534,6 +467,9 @@ const WorkflowBuilder: React.FC = () => {
                     <div draggable onDragStart={(e) => handleDragStart(e, 'NEW_APPOINTMENT')} style={{ padding: '10px', border: '1px solid #ccc', cursor: 'grab', marginBottom: '10px' }}>New Appointment</div>
                     <div draggable onDragStart={(e) => handleDragStart(e, 'OLD_STAFF_TRANSFER')} style={{ padding: '10px', border: '1px solid #ccc', cursor: 'grab', marginBottom: '10px' }}>Old Staff Transfer</div>
                     <div draggable onDragStart={(e) => handleDragStart(e, 'INDUCTION')} style={{ padding: '10px', border: '1px solid #ccc', cursor: 'grab', marginBottom: '10px' }}>Induction</div>
+                    <div draggable onDragStart={(e) => handleDragStart(e, 'UPDATE_EMPLOYEE')} style={{ padding: '10px', border: '1px solid #ccc', cursor: 'grab', marginBottom: '10px' }}>Update Employee</div>
+                    <div draggable onDragStart={(e) => handleDragStart(e, 'APPOINTMENT_LETTER')} style={{ padding: '10px', border: '1px solid #ccc', cursor: 'grab', marginBottom: '10px' }}>Appointment Letter</div>
+                    <div draggable onDragStart={(e) => handleDragStart(e, 'ASSIGN_TASK')} style={{ padding: '10px', border: '1px solid #ccc', cursor: 'grab', marginBottom: '10px' }}>Assign Task</div>
                     {workflowBuilder.apiSetting.map((api) => (
                         <div key={api.id}>{api.name}</div>
                     ))}

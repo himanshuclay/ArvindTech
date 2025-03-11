@@ -103,6 +103,9 @@ const Rule: React.FC<Props> = ({ showRule, setShowRule, form, setForm }) => {
         } else if (rule.start1 === 'MAP') {
             const options: Option[] = END1.WHERE || [];
             return { isShow: true, options };
+        } else if (rule.start1 === 'BIND') {
+            const options: Option[] = END1.FILTER || [];
+            return { isShow: true, options };
         }
         return { isShow: false, options: [] };
     }
@@ -117,7 +120,7 @@ const Rule: React.FC<Props> = ({ showRule, setShowRule, form, setForm }) => {
                 const options: Option[] = mastersLists || [];
                 return { isShow: true, options };
             }
-        }
+        } 
         return { isShow: false, options: [] };
     }
     const handleEnd3 = (rule: RULE) => {
@@ -268,6 +271,23 @@ const Rule: React.FC<Props> = ({ showRule, setShowRule, form, setForm }) => {
                                         >
                                             <option value="">Please select</option>
                                             {handleEnd2(rule).options.map((option, optionIndex) => (
+                                                <option key={optionIndex} value={option.value}>
+                                                    {option.label}
+                                                </option>
+                                            ))}
+                                        </Form.Select>
+                                    </Form.Group>
+                                )}
+                                {/* END 2 */}
+                                {rule.end1 === "FILTER" && columnLists[rule.start3] && (
+                                    <Form.Group controlId={`rule-${index}-end2`} className="mr-1">
+                                        <Form.Select
+                                            name="end2"
+                                            value={rule.end2}
+                                            onChange={(e) => handleRuleChange(e, index, 'end2')}
+                                        >
+                                            <option value="">Please select</option>
+                                            {columnLists[rule.start3].map((option, optionIndex) => (
                                                 <option key={optionIndex} value={option.value}>
                                                     {option.label}
                                                 </option>

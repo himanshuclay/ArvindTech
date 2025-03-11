@@ -1,9 +1,11 @@
 const INPUT_HANDLES: Record<string, number> = {
     APPOINTMENT: 1,
+    UPDATE_EMPLOYEE: 1,
 };
 
 const OUTPUT_HANDLES: Record<string, number> = {
     APPOINTMENT: 5,
+    UPDATE_EMPLOYEE: 2,
 };
 const OUTPUT_LABELS: Record<string, string[]> = {
     APPOINTMENT: [
@@ -21,7 +23,10 @@ const OUTPUT_LABELS: Record<string, string[]> = {
     ],
     INDUCTION: [
         'Induction'
-    ]
+    ],
+    UPDATE_EMPLOYEE: [ 'New Appointment', 'Old Staff Transfer'],
+    APPOINTMENT_LETTER: [ 'Appointment Letter'],
+    ASSIGN_TASK: [ 'Assign Task'],
 };
 
 const LABEL: Record<string, string> = {
@@ -29,11 +34,44 @@ const LABEL: Record<string, string> = {
     NEW_APPOINTMENT: 'New Appointment',
     OLD_STAFF_TRANSFER: 'Old Staff Transfer',
     INDUCTION: 'Induction',
+    UPDATE_EMPLOYEE: 'Update Employee',
+    APPOINTMENT_LETTER: 'Appointment Letter',
+    ASSIGN_TASK: 'Assign Task'
 }
+const ASSIGN_DOER_TYPE = [
+    { label: 'Fixed Doer', value: 'fixedDoer' }
+];
+const TIME_MANAGEMENT_OPTION = [
+    { label: 'Only Days', value: 'onlyDays' },
+    { label: 'Days With Time', value: 'daysWithTime' },
+    { label: 'Hours', value: 'hours' },
+    { label: 'Weeks', value: 'weeks' },
+    { label: 'Weeks With Time', value: 'weeksWithTime' },
+];
+
+const TASK_CREATION_TYPE = [
+    { label: 'Planned', value: 'planned'},
+    { label: 'Actual', value: 'actual'},
+]
+
+const WEEKS = [
+    { label: 'Sunday', value: 'sunday' },
+    { label: 'Monday', value: 'monday' },
+    { label: 'Tuesday', value: 'tuesday' },
+    { label: 'Wednesday', value: 'wednesday' },
+    { label: 'Thursday', value: 'thursday' },
+    { label: 'Friday', value: 'friday' },
+    { label: 'Saturday', value: 'saturday' },
+];
+
 
 export {
     INPUT_HANDLES,
     OUTPUT_HANDLES,
     LABEL,
     OUTPUT_LABELS,
+    ASSIGN_DOER_TYPE,
+    TIME_MANAGEMENT_OPTION,
+    TASK_CREATION_TYPE,
+    WEEKS,
 }
