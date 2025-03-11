@@ -814,9 +814,11 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
             } catch (error: any) {
                 console.error('Error submitting module:', error.message || error)
             }
+
         }
         if (fromComponent === 'PendingTask' || 'ApprovalConsole') {
             console.log(approval_Console)
+            console.log("this is culprit",selectedCondition,parsedCondition);
 
             const requestData = {
                 id: ProcessInitiationID || 0,

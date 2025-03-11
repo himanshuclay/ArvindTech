@@ -209,7 +209,7 @@ const ProjectAssignTable: React.FC = () => {
       if (response.data?.isSuccess) {
         const fetchedData = response.data.getFilterTasks || [];
 
-        setParsedCondition(fetchedData[0].condition_Json);
+
 
         // Filter and transform data
         const filteredTasks = fetchedData
@@ -356,9 +356,10 @@ const ProjectAssignTable: React.FC = () => {
 
   const handleShow = () => setShow(true);
 
-  const handleEdit = (taskCommonId: number) => {
+  const handleEdit = (taskCommonId: number, taskCondition: string) => {
     setTaskCommonIdRow(taskCommonId);
     fetchPreData(taskCommonId);
+    setParsedCondition(taskCondition);
     handleShow();
 
   };
@@ -890,7 +891,7 @@ const ProjectAssignTable: React.FC = () => {
                                         <span className='text-primary me-2 cursor-pointer fw-bold' onClick={() => handleViewEditOutput(item.taskCommonId)}>View Output</span>
                                         <span className='text-primary cursor-pointer me-2 fw-bold' onClick={() => handleViewEdit(item.taskCommonId)}>Hierarchy  View</span>
                                         <span className='text-primary me-2 fw-bold'>Help</span>
-                                        <Button className='ms-auto ' onClick={() => handleEdit(item.taskCommonId)}>
+                                        <Button className='ms-auto ' onClick={() => handleEdit(item.taskCommonId, item.condition_Json)}>
                                           Finish
                                         </Button>
                                       </div>
