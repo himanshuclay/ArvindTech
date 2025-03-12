@@ -89,10 +89,10 @@ const FIELD_LIST = [
         }
     },
     {
-        name: "Date",
-        is: "Date",
+        name: "DateInput",
+        is: "DateInput",
         property: {
-            label: "Label",
+            label: "DateInput",
             placeholder: "placeholder",
             required: "false",
             advance: {
@@ -102,7 +102,8 @@ const FIELD_LIST = [
             },
             isShow: true,
             disabled: false,
-            size: '12'
+            size: '12',
+            dateSelection: "none",
 
         }
     },
@@ -145,7 +146,26 @@ const FIELD_LIST = [
             size: '12'
 
         }
-    }
+    },
+    {
+        name: "FileUpload",
+        is: "FileUpload",
+        property: {
+            label: "FileUpload",
+            placeholder: "placeholder",
+            required: "false",
+
+            advance: {
+                backgroundColor: '#fff',
+                color: '#000',
+
+            },
+            isShow: true,
+            disabled: false,
+            size: '12'
+
+        }
+    },
 ]
 
 const START1 = [

@@ -1,5 +1,7 @@
-import Date from "../Components/Date";
+import DateInput from "../Components/DateInput";
+import DateRange from "../Components/DateRange";
 import EmailInput from "../Components/EmailInput";
+import FileUpload from "../Components/FileUpload";
 import NumberInput from "../Components/NumberInput";
 import Password from "../Components/Password";
 import PhoneInput from "../Components/PhoneInput";
@@ -13,7 +15,9 @@ const componentsMap = {
     PhoneInput,
     Password,
     Select,
-    Date,
+    DateInput,
+    FileUpload,
+    DateRange,
 };
 
 interface FIELD {
@@ -58,11 +62,12 @@ interface PROPERTY {
     startDateId?: string;
     endDateId?:string;
     size?:string;
+    dateSelection?: string;
 
 }
 interface OPTION { label: string; value: string }
 interface BLOCK_VALUE {
-    [key: string]: string;
+    [key: string]: string ;
 }
 interface TRIGGER_ACTION {
     type: string;   // e.g., 'show_hide' or 'bind'

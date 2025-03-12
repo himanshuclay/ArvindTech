@@ -145,7 +145,7 @@ const Property: React.FC<Props> = ({ form, setForm, property, setProperty, remov
             )}
             {property.hasOwnProperty('size') !== undefined && (
                 <div className='d-flex justify-content-between align-items-center mt-2'>
-                    <label className='col-6'>size</label>
+                    <label className='col-6'>Size</label>
                     <select
                         name="size"
                         className="border p-2 rounded col-6"
@@ -167,6 +167,37 @@ const Property: React.FC<Props> = ({ form, setForm, property, setProperty, remov
                     </select>
                 </div>
             )}
+            {property.hasOwnProperty('dateSelection') !== undefined && (
+                <div className='d-flex justify-content-between align-items-center mt-2'>
+                    <label className='col-6'>Date Selection</label>
+                    <select
+                        name="dateSelection"
+                        className="border p-2 rounded col-6"
+                        value={property.dateSelection}
+                        onChange={handleChange}
+                    >
+                        <option value="none">None</option>
+                        <option value="today">Today</option>
+                    </select>
+                </div>
+            )}
+            {/* {property.hasOwnProperty('value') !== undefined && (
+                <div className='d-flex justify-content-between align-items-center mt-2'>
+                    <label className='col-6'>Value</label>
+                    <select
+                        name="value"
+                        className="border p-2 rounded col-6"
+                        value={property.value}
+                        onChange={handleChange}
+                    >
+                        <option value="1">1</option>
+                        {property?.options?.map((option, index) => (
+                            <option></option>
+                        ))}
+                        <option value="1">1</option>
+                    </select>
+                </div>
+            )} */}
 
             {/* Options Fields */}
             {property.hasOwnProperty('options') && (

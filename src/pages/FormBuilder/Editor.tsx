@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState, } from 'react';
 import config from '@/config';
 import axios from 'axios';
 import { getBlockById, manageBind, manageShowHide } from './Constant/Functions';
-import { BASIC_FIELD, FIELD, PROPERTY, RULE, TRIGGER_ACTION } from './Constant/Interface';
+import { BASIC_FIELD, BLOCK_VALUE, FIELD, PROPERTY, RULE, TRIGGER_ACTION } from './Constant/Interface';
 import TextInput from './Components/TextInput';
 import NumberInput from './Components/NumberInput';
 import EmailInput from './Components/EmailInput';
@@ -10,12 +10,11 @@ import PhoneInput from './Components/PhoneInput';
 import Password from './Components/Password';
 import Select from './Components/Select';
 import { Button } from 'react-bootstrap';
-import Date from './Components/Date';
 import DateRange from './Components/DateRange';
+import FileUpload from './Components/FileUpload';
+import DateInput from './Components/DateInput';
 
-interface BLOCK_VALUE {
-    [key: string]: string;
-}
+
 
 interface EditorProps {
     form: FIELD;
@@ -45,8 +44,9 @@ const componentsMap = {
     PhoneInput,
     Password,
     Select,
-    Date,
     DateRange,
+    FileUpload,
+    DateInput,
 };
 
 const DynamicComponentRenderer: React.FC<DynamicComponentProps> = ({ form, componentType, block, handleChange, validationErrors, blockValue, setBlockValue }) => {
