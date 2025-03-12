@@ -59,6 +59,7 @@ interface ProjectAssignListWithDoer {
   taskName: string;
   completedDate: string | null;
   finishPoint: number;
+  rejectedJson: string;
   problemSolver: string;
   problemSolverMobileNumber: number;
 
@@ -729,6 +730,7 @@ const ProjectAssignTable: React.FC = () => {
                                   setShow={setShow}
                                   parsedCondition={parsedCondition}
                                   preData={preData}
+                                  rejectBlock={item.rejectedJson}
                                   taskCommonIDRow={taskCommonIDRow}
                                   projectName={item.projectName}
                                   taskStatus

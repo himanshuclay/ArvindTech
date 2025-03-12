@@ -47,6 +47,7 @@ interface Task {
   inputs: Input[];
   completedDate: string;
   data: string;
+  rejectBlock: string;
   approval_Console: string;
   approvalConsoleInputID: number;
 }
@@ -260,6 +261,7 @@ const ApprovalPage: React.FC = () => {
           // selectedTasknumber={selectedTask.task_Number}
           // setLoading={() => { }}
           approvarActions={selectedTask.approvalConsoleInputID}
+          rejectBlock={selectedTask.rejectedJson}
           taskCommonIDRow={selectedTask.taskCommonId}
           taskStatus={selectedTask.isCompleted}
           processId={selectedTask.processID}

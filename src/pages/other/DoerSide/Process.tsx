@@ -725,6 +725,7 @@ const Process: React.FC = () => {
                                   taskCommonIDRow={taskCommonIDRow}
                                   projectName={item.projectName}
                                   taskStatus
+                                  rejectBlock
                                   processId={item.processID}
                                   moduleId={item.moduleID}
                                   ProcessInitiationID={item.id}

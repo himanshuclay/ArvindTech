@@ -601,6 +601,7 @@ const AccountProcess = () => {
                     parsedCondition
                     preData
                     taskCommonIDRow
+                    rejectBlock
                     taskStatus
                     processId={processID}
                     moduleId={moduleID}

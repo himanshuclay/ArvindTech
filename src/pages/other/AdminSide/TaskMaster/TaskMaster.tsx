@@ -883,6 +883,7 @@ const TaskMaster: React.FC = () => {
                     taskStatus
                     processId
                     moduleId
+                    rejectBlock
                     ProcessInitiationID
                     approval_Console
                     problemSolver
