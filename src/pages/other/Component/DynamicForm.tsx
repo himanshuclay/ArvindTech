@@ -60,6 +60,7 @@ interface DynamicFormProps {
     approvarActions: any
     fromComponent: string
     finishPoint: any
+    rejectBlock: any
 }
 
 
@@ -97,6 +98,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
     taskCommonIDRow,
     approval_Console,
     taskStatus,
+    rejectBlock,
     fromComponent,
     problemSolver,
     approvarActions,
@@ -516,12 +518,23 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
         approvewithamendment: "Approve with Amendment"
     };
 
-    const options: OptionType[] = typeof approvarActions === 'string'
-        ? approvarActions.split(",").map((action: any) => ({
-            value: action,
-            label: approvalLabels[action] || action,
+    console.log("rejectBlock value:", rejectBlock);
+
+const options: OptionType[] =
+  typeof approvarActions === 'string'
+    ? approvarActions
+        .split(",")
+        .filter(action => {
+          console.log("Filtering action:", action);
+          return !(rejectBlock !== "" && action === 'reject');
+        })
+        .map((action: any) => ({
+          value: action,
+          label: approvalLabels[action] || action,
         }))
-        : [];
+    : [];
+
+  
 
     console.log("46356356356", approvarActions);
 
@@ -755,6 +768,8 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
         }
     }
 
+    console.log(rejectBlock);
+
     const handleSubmit = async (event: React.FormEvent, taskNumber: string) => {
         console.log('found')
 
@@ -814,9 +829,11 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
             } catch (error: any) {
                 console.error('Error submitting module:', error.message || error)
             }
+
         }
         if (fromComponent === 'PendingTask' || 'ApprovalConsole') {
             console.log(approval_Console)
+            console.log("this is culprit",selectedCondition,parsedCondition);
 
             const requestData = {
                 id: ProcessInitiationID || 0,
@@ -874,9 +891,11 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                 taskStatus: taskStatus,
                 taskName: taskName,
                 rejectedJson:
-                    approvalStatus?.value?.trim().toLowerCase() === 'reject'
-                        ? globalTaskJson
-                        : '',
+                rejectBlock != "" ? rejectBlock : fromComponent === 'ApprovalConsole'
+                  ? approvalStatus?.value?.trim().toLowerCase() === 'reject'
+                    ? globalTaskJson
+                    : ''
+                  : '',
                 completeDate: new Date().toISOString().slice(2, 10),
                 endprocessStatus: 'string',
                 // file: '',
