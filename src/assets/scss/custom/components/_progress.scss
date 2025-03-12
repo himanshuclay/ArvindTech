@@ -996,8 +996,8 @@ input.numInput.cur-year:hover {
 .special-option:focus {
   background-color: lightyellow;
 }
-.cursor-not-allowed
-{
+
+.cursor-not-allowed {
   cursor: not-allowed;
   pointer-events: none;
   opacity: 0.8;
@@ -1006,10 +1006,11 @@ input.numInput.cur-year:hover {
 
 // form builder
 .editor {
-  height: calc(100vh - 135px); 
+  height: calc(100vh - 135px);
 }
-.border-green{
-  border: 2px solid green!important;
+
+.border-green {
+  border: 2px solid green !important;
 }
 
 @keyframes popCheck {
@@ -1017,10 +1018,12 @@ input.numInput.cur-year:hover {
     transform: scale(0);
     opacity: 0;
   }
+
   50% {
     transform: scale(1.2);
     opacity: 1;
   }
+
   100% {
     transform: scale(1);
   }
@@ -1033,3 +1036,37 @@ input.numInput.cur-year:hover {
 
 
 
+.counter-bell {
+  top: 0px;
+  right: -10px;
+  background: red;
+  color: #fff;
+  border-radius: 50%;
+  border: 2px solid white;
+
+  min-width: 25px;
+  height: 25px;
+  padding: 6px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  font-size: 12px;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.text-right {
+  text-align: right;
+}
+
+.unread-row {
+  background-color: #f9f9f9;
+  font-weight: bold;
+}
+
+// s
+.read-row {
+  background-color: #fff;
+}

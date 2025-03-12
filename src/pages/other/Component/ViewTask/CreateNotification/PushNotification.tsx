@@ -108,12 +108,25 @@ const PushNotification: React.FC<ProcessCanvasProps> = ({ showView, setShowView,
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
+        const payload = {
+            id: assignProject.id,
+            subject: assignProject.subject,
+            content: assignProject.content,
+            attachment: "",
+            getDoerDetails: assignProject.doerIDs.map(id => ({
+                doerID: id,
+                isRead: 0,
+                readAt: ""
+            })),
+            roleNames: assignProject.roleNames,
+            createdBy: assignProject.createdBy,
+            updatedBy: assignProject.updatedBy
+        };
+        console.log("Assign Project Payload:", payload);
         try {
-            const payload = { ...assignProject };
-            console.log("Assign Project Payload:", payload);
 
             // Uncomment to send data to API
-            const apiUrl = `${config.API_URL_APPLICATION}/Notificationmaster/AssignDoersToNotification`;
+            const apiUrl = `${config.API_URL_APPLICATION}/NotificationMaster/InsertorUpdateNotification`;
             const response = await axios.post(apiUrl, payload);
 
             if (response.data.isSuccess) {

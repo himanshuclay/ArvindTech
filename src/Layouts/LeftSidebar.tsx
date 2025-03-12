@@ -286,14 +286,14 @@ const getFilteredMenuItems = () => {
           icon: 'ri-login-circle-line',
           parentKey: 'systemmaster',
         },
-        {
-          key: 'CreateNotification',
-          label: 'Notification',
-          url: '/pages/CreateNotification',
-          icon: 'ri-notification-line',
-          parentKey: 'systemmaster',
-        },
-        
+        // {
+        //   key: 'CreateNotification',
+        //   label: 'Notification',
+        //   url: '/pages/CreateNotification',
+        //   icon: 'ri-notification-line',
+        //   parentKey: 'systemmaster',
+        // },
+
       ],
     },
 
@@ -515,8 +515,8 @@ const getFilteredMenuItems = () => {
       children: [
         {
           key: 'MyNotification',
-          label: 'My Notification',
-          url: '/pages/MyNotification',
+          label: 'Create Notification',
+          url: '/pages/CreateNotification',
           parentKey: 'Notifications',
         },
         {
@@ -634,7 +634,7 @@ const getFilteredMenuItems = () => {
       item.key === 'systemmaster' ||
       item.key === 'Process' ||
       item.key === 'ProcessDataMaster' ||
-      item.key === 'Modules' || 
+      item.key === 'Modules' ||
       item.key === 'FormMaster' ||
       item.key === 'Notifications' ||
       item.key === 'SeekHelp' ||

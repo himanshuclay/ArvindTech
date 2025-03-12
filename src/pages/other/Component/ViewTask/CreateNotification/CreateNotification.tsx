@@ -1,7 +1,6 @@
 import axios from 'axios';
 import { useState, useEffect } from 'react';
 import { Button, Pagination, Table, Container, Row, Col, Alert, Form, ButtonGroup } from 'react-bootstrap';
-// import { Link } from 'react-router-dom';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import config from '@/config';
 import Select from 'react-select';
@@ -9,18 +8,18 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import CreatePopup from './CreatePopup';
 import PushNotification from './PushNotification';
+import { Notification, NotificationFromAPI } from './interfaces';
 
 
 
 
-interface Designation {
-    id: number;
-    title: string;
-    subject: string;
-    content: string;
-    allocated: string;
-    count: number;
-}
+// interface Designation {
+//     id: number;
+//     subject: string;
+//     content: string;
+//     attachment: string;
+//     getDoerDetails: string[];
+// }
 
 interface Column {
     id: string;
@@ -36,8 +35,6 @@ interface DepartmentList {
 
 const DesignationMaster = () => {
     const role = localStorage.getItem('role');
-
-    // const [designations, setDesignations] = useState<Designation[]>([]);
     const [loading, setLoading] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
@@ -46,13 +43,10 @@ const DesignationMaster = () => {
     const [searchStatus, setSearchStatus] = useState('');
     const [searchTriggered, setSearchTriggered] = useState(false);
     const [show, setShow] = useState(false);
-    const [manageId, setManageID] = useState<any | null>(null);
+    const [manageId, setManageID] = useState<Notification | null>(null);
     const [showView, setShowView] = useState(false);
-
-
-    const [notifications, setNotifications] = useState<Designation[]>([
-
-    ]);
+    const [editNotification, setEditNotification] = useState<Notification | null>(null);
+    const [notifications, setNotifications] = useState<Notification[]>([]);
 
 
     const location = useLocation();
@@ -95,19 +89,25 @@ const DesignationMaster = () => {
                 params: { PageIndex: currentPage }
             });
             if (response.data.isSuccess) {
-                setNotifications(response.data.notificationMaster);
+                const mappedNotifications: Notification[] = response.data.notificationMaster.map((item: NotificationFromAPI) => ({
+                    id: item.id,
+                    subject: item.subject,
+                    content: item.content,
+                    attachment: item.attachment,
+                    doerIDs: item.getDoerDetails?.map(doer => doer.doerID) || [],
+                    roleNames: [],
+                    createdBy: '',
+                    updatedBy: '',
+                }));
+                setNotifications(mappedNotifications);
                 setTotalPages(Math.ceil(response.data.totalCount / 10));
-            } else {
-                console.error(response.data.message);
             }
         } catch (error) {
-            console.error('Error fetching doers:', error);
-        }
-        finally {
+            toast.error('Error fetching notifications');
+        } finally {
             setLoading(false);
         }
     };
-
 
 
 
@@ -183,6 +183,11 @@ const DesignationMaster = () => {
     const handleViewEdit = (item: any) => {
         handleShowview();
         setManageID(item); // ✅ Now passing an object, not just an ID
+    };
+
+    const handleEdit = (item: Notification) => {
+        setEditNotification(item);
+        setShow(true);
     };
 
 
@@ -332,23 +337,34 @@ const DesignationMaster = () => {
                                                                     ''
                                                             }
                                                         >
-                                                            <div>{item[col.id as keyof Designation]}</div>
+                                                            <div>{item[col.id as keyof Notification]}</div>
                                                         </td>
                                                     ))}
 
                                                     {(role === 'Admin' || role === 'DME') && (
                                                         <>
                                                             <td className='text-center'>
-                                                                <Button variant='primary' className='text-white' onClick={() => handleViewEdit(item)}>
-                                                                    {item.count > 0 ? 'Published' : 'Publish'}
+                                                                <Button variant="primary"
+                                                                    className="text-white"
+                                                                    onClick={() => handleViewEdit(item)}
+                                                                >
+                                                                    {item.doerIDs.length > 0 ? 'Published' : 'Publish'}
                                                                 </Button>
+
                                                             </td>
 
                                                             <td>
-                                                                <Button variant='primary' className='p-0 text-white' onClick={() => handleViewEdit(item.id)}>
-                                                                    <i className='btn ri-edit-line text-white' ></i>
-                                                                </Button>
+                                                                {(item.doerIDs.length === 0) ? (
+                                                                    <Button variant='primary' className='p-0 text-white' onClick={() => handleEdit(item)}>
+                                                                        <i className='btn ri-edit-line text-white' title="Edit"></i>
+                                                                    </Button>
+                                                                ) : (
+                                                                    <Button variant='secondary' className='p-0' disabled title="Cannot edit after publishing">
+                                                                        <i className='btn ri-edit-line text-white' title="Edit"></i>
+                                                                    </Button>
+                                                                )}
                                                             </td>
+
                                                         </>
 
 
@@ -377,7 +393,8 @@ const DesignationMaster = () => {
                         )}
                     </div >
                 </>
-            )}
+            )
+            }
 
             <div className="d-flex justify-content-center align-items-center bg-white w-20 rounded-5 m-auto py-1 pb-1 my-2 pagination-rounded">
                 <Pagination >
@@ -388,7 +405,21 @@ const DesignationMaster = () => {
                     <Pagination.Last onClick={() => setCurrentPage(totalPages)} disabled={currentPage === totalPages} />
                 </Pagination>
             </div>
-            <CreatePopup show={show} setShow={setShow} />
+            <CreatePopup
+                show={show}
+                setShow={(val) => {
+                    setShow(val);
+                    if (!val) {
+                        setEditNotification(null); // Clear edit data when closing
+                    }
+                }}
+                onSuccess={() => {
+                    setCurrentPage(1);
+                    fetchData();
+                }}
+                editData={editNotification}
+            />
+
             <PushNotification showView={showView} setShowView={setShowView} data={manageId} />
 
 

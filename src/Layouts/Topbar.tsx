@@ -1,5 +1,5 @@
 import { Image } from 'react-bootstrap'
-import { ThemeSettings, useThemeContext } from '@/common'
+import { ThemeSettings, useCommonContext, useThemeContext } from '@/common'
 import { Link } from 'react-router-dom'
 import { useEffect, useState } from 'react'
 
@@ -18,7 +18,6 @@ import avatar5 from '@/assets/images/users/avatar-5.jpg'
 import {
 	LanguageDropdown,
 	MessageDropdown,
-	// NotificationDropdown,
 	ProfileDropdown,
 	SearchDropDown,
 } from '@/components'
@@ -127,6 +126,7 @@ type TopbarProps = {
 	navOpen?: boolean
 }
 const Topbar = ({ toggleMenu, navOpen }: TopbarProps) => {
+	const { unreadCount } = useCommonContext()
 	const { sideBarType } = useThemeCustomizer()
 	const { width } = useViewport()
 
@@ -207,6 +207,7 @@ const Topbar = ({ toggleMenu, navOpen }: TopbarProps) => {
 	// const handleRightSideBar = () => {
 	// 	updateSettings({ rightSidebar: ThemeSettings.rightSidebar.show })
 	// }
+
 	return (
 		<>
 			<div className="navbar-custom">
@@ -277,14 +278,21 @@ const Topbar = ({ toggleMenu, navOpen }: TopbarProps) => {
 						<li className="dropdown notification-list">
 							<MessageDropdown messages={Messages} />
 						</li>
+						<li className="position-relative notification-bell me-3">
+							<Link to={"/pages/NotificationPage"}>
+								<i className="text-primary fs-2 ri-notification-line"></i>
+								<div className='position-absolute counter-bell'>{unreadCount}</div>
+							</Link>
+
+						</li>
 
 
 						<li className="dropdown">
 							<ProfileDropdown
 								menuItems={profileMenus}
 								userImage={profilePic}
-								username={empName || 'Guest'} // Provide a fallback value
-								userid={empID || 'Guest ID'} // Provide a fallback value
+								username={empName || 'Guest'}
+								userid={empID || 'Guest ID'}
 							/>
 						</li>
 					</ul>
