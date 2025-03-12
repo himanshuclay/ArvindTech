@@ -10,6 +10,8 @@ export interface NotificationFromAPI {
     content: string;
     attachment: string;
     getDoerDetails: DoerDetail[];
+    createdDate: string;
+
 }
 
 export interface Notification {

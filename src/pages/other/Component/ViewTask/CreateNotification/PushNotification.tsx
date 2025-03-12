@@ -39,7 +39,7 @@ const PushNotification: React.FC<ProcessCanvasProps> = ({ showView, setShowView,
 
     const [empName, setEmpName] = useState<string | null>('');
     const [employeeList, setEmployeeList] = useState<Employee[]>([]);
-    const [activeButton, setActiveButton] = useState<'project' | 'subProject'>('project');
+    const [activeButton, setActiveButton] = useState<'group' | 'department' | 'project' | 'employee'>('group');
 
     const [assignProject, setAssignProject] = useState<AssignProjecttoProcess>({
         id: 0,
@@ -79,14 +79,14 @@ const PushNotification: React.FC<ProcessCanvasProps> = ({ showView, setShowView,
         setShowView(false);
     };
 
-    const handleButtonClick = (buttonName: 'project' | 'subProject') => {
+    const handleButtonClick = (buttonName: 'group' | 'department' | 'project' | 'employee') => {
         setActiveButton(buttonName);
 
-        // ✅ Fix: Clear selection when switching tabs
+        // Optional: Reset selections on button change
         setAssignProject(prevState => ({
             ...prevState,
-            doerIDs: buttonName === 'subProject' ? [] : prevState.doerIDs,
-            roleNames: buttonName === 'project' ? [] : prevState.roleNames,
+            doerIDs: buttonName === 'employee' ? prevState.doerIDs : [],
+            roleNames: buttonName === 'group' ? prevState.roleNames : [],
         }));
     };
 
@@ -141,38 +141,45 @@ const PushNotification: React.FC<ProcessCanvasProps> = ({ showView, setShowView,
         }
     };
 
+    const buttonLabels = {
+        group: "Group Level",
+        department: "Department Level",
+        project: "Project Level",
+        employee: "Employee Level"
+    };
+
     return (
         <div>
             <Modal className="p-2" show={showView} onHide={handleClose} size="lg">
                 <Modal.Header closeButton>
-                    <Modal.Title className="text-dark">Assign Doers</Modal.Title>
+                    <Modal.Title className="text-dark">Send Notification</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
                     {role === 'Admin' && (
                         <>
-                            <Col lg={6} className="align-items-end d-flex justify-content-end">
-                                <ButtonGroup className="w-100">
-                                    <Button
-                                        type="button"
-                                        variant={activeButton === 'project' ? 'primary' : 'outline-primary'}
-                                        onClick={() => handleButtonClick('project')}
-                                    >
-                                        Group Level
-                                    </Button>
-                                    <Button
-                                        type="button"
-                                        variant={activeButton === 'subProject' ? 'primary' : 'outline-primary'}
-                                        onClick={() => handleButtonClick('subProject')}
-                                    >
-                                        Employee Level
-                                    </Button>
+                            <Col lg={12} className="align-items-end d-flex justify-content-end">
+                                <ButtonGroup className="w-100 d-flex">
+                                    {Object.entries(buttonLabels).map(([btn, label]) => (
+                                        <Button
+                                            key={btn}
+                                            type="button"
+                                            variant={activeButton === btn ? 'primary' : 'outline-primary'}
+                                            onClick={() => handleButtonClick(btn as any)}
+                                            className="flex-fill"
+                                        >
+                                            {label}
+                                        </Button>
+                                    ))}
                                 </ButtonGroup>
+
+
                             </Col>
 
                             <Form onSubmit={handleSubmit}>
                                 <Row>
                                     {/* Group-Level Selection (Role Names) */}
-                                    {activeButton === 'project' && (
+
+                                    {activeButton === 'group' && (
                                         <Col lg={12}>
                                             <Form.Group controlId="RoleNames" className="mb-3 mt-2">
                                                 <Form.Label>Select Group Roles</Form.Label>
@@ -183,28 +190,79 @@ const PushNotification: React.FC<ProcessCanvasProps> = ({ showView, setShowView,
                                                     )}
                                                     onChange={(selectedOptions) => {
                                                         const selectedRoles = (selectedOptions || []) as { value: string; label: string }[];
-
-                                                        // Extract role names
                                                         const roleNamesArray = selectedRoles.map(role => role.value);
-
                                                         setAssignProject({
                                                             ...assignProject,
-                                                            roleNames: roleNamesArray, // Update roleNames array
-                                                            doerIDs: [], // Clear Employee selection
+                                                            roleNames: roleNamesArray,
+                                                            doerIDs: [],
                                                         });
                                                     }}
                                                     options={roleOptions}
-                                                    isSearchable={true}
-                                                    isMulti={true}
+                                                    isSearchable
+                                                    isMulti
                                                     placeholder="Select Roles"
                                                     required
                                                 />
                                             </Form.Group>
                                         </Col>
                                     )}
+                                    {activeButton === 'department' && (
+                                        <Col lg={12}>
+                                            <Form.Group controlId="RoleNames" className="mb-3 mt-2">
+                                                <Form.Label>Select Department Wise</Form.Label>
+                                                <Select
+                                                    name="RoleNames"
+                                                    value={roleOptions.filter(role =>
+                                                        assignProject.roleNames.includes(role.value)
+                                                    )}
+                                                    onChange={(selectedOptions) => {
+                                                        const selectedRoles = (selectedOptions || []) as { value: string; label: string }[];
+                                                        const roleNamesArray = selectedRoles.map(role => role.value);
+                                                        setAssignProject({
+                                                            ...assignProject,
+                                                            roleNames: roleNamesArray,
+                                                            doerIDs: [],
+                                                        });
+                                                    }}
+                                                    options={roleOptions}
+                                                    isSearchable
+                                                    isMulti
+                                                    placeholder="Select Departments"
+                                                    required
+                                                />
+                                            </Form.Group>
+                                        </Col>
+                                    )}
+                                    {activeButton === 'project' && (
+                                        <Col lg={12}>
+                                            <Form.Group controlId="RoleNames" className="mb-3 mt-2">
+                                                <Form.Label>Select Project Wise</Form.Label>
+                                                <Select
+                                                    name="RoleNames"
+                                                    value={roleOptions.filter(role =>
+                                                        assignProject.roleNames.includes(role.value)
+                                                    )}
+                                                    onChange={(selectedOptions) => {
+                                                        const selectedRoles = (selectedOptions || []) as { value: string; label: string }[];
+                                                        const roleNamesArray = selectedRoles.map(role => role.value);
+                                                        setAssignProject({
+                                                            ...assignProject,
+                                                            roleNames: roleNamesArray,
+                                                            doerIDs: [],
+                                                        });
+                                                    }}
+                                                    options={roleOptions}
+                                                    isSearchable
+                                                    isMulti
+                                                    placeholder="Select Projects"
+                                                    required
+                                                />
+                                            </Form.Group>
+                                        </Col>
+                                    )}
 
-                                    {/* Employee-Level Selection (Doer IDs) */}
-                                    {activeButton === 'subProject' && (
+
+                                    {activeButton === 'employee' && (
                                         <Col lg={12}>
                                             <Form.Group controlId="Employee" className="mb-3 mt-2">
                                                 <Form.Label>Select Employees</Form.Label>
@@ -215,27 +273,25 @@ const PushNotification: React.FC<ProcessCanvasProps> = ({ showView, setShowView,
                                                     )}
                                                     onChange={(selectedOptions) => {
                                                         const selectedEmployees = (selectedOptions || []) as Employee[];
-
-                                                        // Extracting doerIDs from selected employees
                                                         const doerIDsArray = selectedEmployees.map(emp => emp.empId);
-
                                                         setAssignProject({
                                                             ...assignProject,
-                                                            doerIDs: doerIDsArray, // Update the doerIDs array
-                                                            roleNames: [], // Clear Group-Level selection
+                                                            doerIDs: doerIDsArray,
+                                                            roleNames: [],
                                                         });
                                                     }}
                                                     getOptionLabel={(emp) => emp.employeeName}
                                                     getOptionValue={(emp) => emp.empId}
                                                     options={employeeList}
-                                                    isSearchable={true}
-                                                    isMulti={true}
+                                                    isSearchable
+                                                    isMulti
                                                     placeholder="Select Employees"
                                                     required
                                                 />
                                             </Form.Group>
                                         </Col>
                                     )}
+
                                 </Row>
 
                                 <ButtonGroup className="mt-3">
@@ -243,7 +299,7 @@ const PushNotification: React.FC<ProcessCanvasProps> = ({ showView, setShowView,
                                         Cancel
                                     </Button>
                                     <Button type="submit" variant="primary">
-                                        Assign Doers
+                                        Send Notification
                                     </Button>
                                 </ButtonGroup>
                             </Form>

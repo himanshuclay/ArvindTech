@@ -97,6 +97,7 @@ const DesignationMaster = () => {
                     doerIDs: item.getDoerDetails?.map(doer => doer.doerID) || [],
                     roleNames: [],
                     createdBy: '',
+                    createdDate: item.createdDate,
                     updatedBy: '',
                 }));
                 setNotifications(mappedNotifications);
@@ -188,6 +189,11 @@ const DesignationMaster = () => {
     const handleEdit = (item: Notification) => {
         setEditNotification(item);
         setShow(true);
+    };
+    const stripHtml = (htmlString: string): string => {
+        const div = document.createElement('div');
+        div.innerHTML = htmlString;
+        return div.textContent || div.innerText || '';
     };
 
 
@@ -331,13 +337,14 @@ const DesignationMaster = () => {
                                                 <tr key={item.id}>
                                                     <td>{(currentPage - 1) * 10 + index + 1}</td>
                                                     {columns.filter(col => col.visible).map((col) => (
-                                                        <td key={col.id}
-                                                            className={
-                                                                col.id === 'content' ? 'truncated-text-500' :
-                                                                    ''
-                                                            }
-                                                        >
-                                                            <div>{item[col.id as keyof Notification]}</div>
+                                                        <td key={col.id}>
+                                                            {col.id === 'content' ? (
+                                                                <div className="truncated-text-500">
+                                                                    {stripHtml(item[col.id as keyof Notification] as string)}
+                                                                </div>
+                                                            ) : (
+                                                                <div>{item[col.id as keyof Notification]}</div>
+                                                            )}
                                                         </td>
                                                     ))}
 
@@ -350,7 +357,6 @@ const DesignationMaster = () => {
                                                                 >
                                                                     {item.doerIDs.length > 0 ? 'Published' : 'Publish'}
                                                                 </Button>
-
                                                             </td>
 
                                                             <td>

@@ -3,6 +3,9 @@ import axios from "axios";
 import config from "@/config";
 import { ChangeEvent, useEffect, useState } from "react";
 import { toast } from "react-toastify";
+import ReactQuill from 'react-quill'
+
+import 'react-quill/dist/quill.snow.css'
 
 interface ProcessCanvasProps {
     show: boolean;
@@ -11,18 +14,14 @@ interface ProcessCanvasProps {
     editData?: Designation | null; // Use meaningful names
 }
 
-// interface DoerDetail {
-//     doerID: string;
-//     isRead: number;
-//     readAt: string;
-// }
+
 
 interface Designation {
     id: number;
     subject: string;
     content: string;
-    attachment: string; // optional in the future if needed
-    doerIDs: string[];  // for the form (easier mapping)
+    attachment: string;
+    doerIDs: string[];
     roleNames: string[];
     createdBy: string;
     updatedBy: string;
@@ -47,6 +46,25 @@ const CreatePopup: React.FC<ProcessCanvasProps> = ({
         updatedBy: '',
     });
 
+    console.log(notification.subject)
+    const modules = {
+        toolbar: [
+            [{ font: [] }, { size: [] }],
+            ['bold', 'italic', 'underline', 'strike'],
+            [{ color: [] }, { background: [] }],
+            [{ script: 'super' }, { script: 'sub' }],
+            [{ header: [false, 1, 2, 3, 4, 5, 6] }, 'blockquote', 'code-block'],
+            [
+                { list: 'ordered' },
+                { list: 'bullet' },
+                { indent: '-1' },
+                { indent: '+1' },
+            ],
+            ['direction', { align: [] }],
+            ['link', 'image', 'video'],
+            ['clean'],
+        ],
+    };
     // 1. Get Employee name/ID on mount
     useEffect(() => {
         const storedEmpName = localStorage.getItem('EmpName');
@@ -55,48 +73,54 @@ const CreatePopup: React.FC<ProcessCanvasProps> = ({
         setEmpName(fullEmpName);
     }, []);
 
-    // 2. Handle editing data or reset for new
+    useEffect(() => {
+        if (!editData) {
+            setNotification((prev) => ({
+                ...prev,
+                createdBy: empName,
+                updatedBy: empName,
+            }));
+        }
+    }, [empName]);
+
     useEffect(() => {
         if (editData) {
             setNotification({
                 ...editData,
-                updatedBy: empName || '',
+                updatedBy: empName,
             });
-            setWordCount(
-                editData.content.trim().split(/\s+/).filter((word: string) => word.length > 0).length
-            );
-        } else {
-            setNotification({
-                id: 0,
-                subject: '',
-                content: '',
-                attachment: '',
-                doerIDs: [],
-                roleNames: [],
-                createdBy: empName || '',
-                updatedBy: empName || '',
-            });
-            setWordCount(0);
-        }
-    }, [editData, empName]);
 
-    // 3. Form field changes handler
-    // 3. Form field changes handler
+            const plainText = editData.content.replace(/<[^>]+>/g, '');
+            const wordLength = plainText.trim().length;
+
+            setWordCount(wordLength);
+        }
+    }, [editData]);
+
+
     const handleChange = (e: ChangeEvent<any> | null, name?: string, value?: any) => {
         if (e) {
             const { name: eventName, type, value: inputValue } = e.target;
 
             if (type === 'textarea' || type === 'text') {
                 const charLimit = 500;
-
                 if (inputValue.length <= charLimit) {
                     setNotification({
                         ...notification,
                         [eventName]: inputValue,
                     });
-                    setWordCount(inputValue.length); // Now tracking characters, not words
+                    setWordCount(inputValue.length);
                 }
             }
+        } else if (name === 'content') {
+            setNotification({
+                ...notification,
+                [name]: value,
+            });
+
+            const plainText = value.replace(/<[^>]+>/g, '');
+            const wordLength = plainText.trim().length; // or use word count instead
+            setWordCount(wordLength);
         } else if (name) {
             setNotification({
                 ...notification,
@@ -104,6 +128,7 @@ const CreatePopup: React.FC<ProcessCanvasProps> = ({
             });
         }
     };
+
 
 
     // 4. Modal close handler
@@ -176,6 +201,7 @@ const CreatePopup: React.FC<ProcessCanvasProps> = ({
                                     placeholder="Enter subject"
                                     required
                                 />
+
                             </Form.Group>
                         </Col>
 
@@ -184,22 +210,21 @@ const CreatePopup: React.FC<ProcessCanvasProps> = ({
                                 <Form.Label>
                                     Content <span className="text-danger">*</span>
                                 </Form.Label>
-                                <Form.Control
-                                    as="textarea"
-                                    name="content"
+
+                                <ReactQuill
+                                    modules={modules}
                                     value={notification.content}
-                                    onChange={handleChange}
-                                    placeholder="Enter content"
-                                    rows={5}
-                                    required
-                                    maxLength={500}
+                                    onChange={(value) => handleChange(null, 'content', value)}
+                                    theme="snow"
+                                    style={{ height: 300 }}
+                                    className="pb-4"
                                 />
+
                                 <div className="word-count mt-2">
-                                    {wordCount} / 500 words
+                                    {wordCount} / 500 characters
                                 </div>
                             </Form.Group>
                         </Col>
-
 
                         <ButtonGroup className="mt-3">
                             <Button onClick={handleClose} className="me-1">

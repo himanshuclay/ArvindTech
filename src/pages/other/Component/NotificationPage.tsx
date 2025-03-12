@@ -165,22 +165,25 @@ const NotificationPage: React.FC = () => {
                                             </td>
 
                                         </tr>
-
                                         {expandedRow === item.id && (
                                             <tr key={`expanded-${item.id}`}>
                                                 <td colSpan={12}>
                                                     <Collapse in={expandedRow === item.id}>
                                                         <div className="p-3">
                                                             <div className='d-flex justify-content-between'>
-                                                                <div> {item.content} </div>
-                                                                <div>Created By: {item.createdBy}</div>
+                                                                {/* Render HTML content */}
+                                                                <div
+                                                                    className="notification-content"
+                                                                    dangerouslySetInnerHTML={{ __html: item.content }}
+                                                                />
+                                                                <div className="text-end text-nowrap">Created By: {item.createdBy}</div>
                                                             </div>
-
                                                         </div>
                                                     </Collapse>
                                                 </td>
                                             </tr>
                                         )}
+
                                     </React.Fragment>
                                 );
                             })

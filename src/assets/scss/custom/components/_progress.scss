@@ -977,7 +977,7 @@ input.numInput.cur-year:hover {
   text-overflow: ellipsis;
 }
 
-.truncated-text-500 div {
+.truncated-text-500 {
   max-width: 500px;
   white-space: nowrap;
   overflow: hidden;
@@ -1069,4 +1069,8 @@ input.numInput.cur-year:hover {
 // s
 .read-row {
   background-color: #fff;
+}
+
+.notification-content p {
+  margin-bottom: 0px !important;
 }
