@@ -870,6 +870,7 @@ const TaskMaster: React.FC = () => {
                 <DynamicForm
                     fromComponent='TaskMaster'
                     formData={JSON.parse(selectedJson)}
+                    formBuilderData={JSON.parse(selectedJson)}
                     taskNumber
                     data
                     taskName

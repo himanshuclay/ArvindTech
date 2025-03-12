@@ -629,6 +629,7 @@ const PB = () => {
                 <DynamicForm
                     fromComponent="AccountProcess"
                     formData={JSON.parse(adhocJson.templateJson)}
+                    formBuilderData={JSON.parse(adhocJson.templateJson)}
                     taskNumber
                     data
                     taskName

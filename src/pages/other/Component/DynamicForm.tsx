@@ -10,6 +10,8 @@ import MessCards from './Previous&Completed'
 import { toast } from 'react-toastify'
 import { useRef } from 'react';
 import FileUploader, { FileUploaderHandle } from './FileUploader'
+import { FIELD, PROPERTY } from '@/pages/FormBuilder/Constant/Interface'
+import Editor from '@/pages/FormBuilder/Editor'
 
 
 interface Option {
@@ -42,6 +44,7 @@ interface DynamicFormProps {
         approval_Console: string
         inputs: Input[]
     }
+    formBuilderData: FIELD;
     taskNumber: any
     data: any
     show: boolean
@@ -94,6 +97,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
     parsedCondition,
     preData,
     formData,
+    formBuilderData: formBuilderData,
     taskCommonIDRow,
     approval_Console,
     taskStatus,
@@ -139,6 +143,28 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
 
     const fileUploaderRef = useRef<FileUploaderHandle>(null);
 
+    const [form, setForm] = useState<FIELD>({ ...formBuilderData, editMode: true });
+    const [property, setProperty] = useState<PROPERTY>({
+        label: '',
+        id: '',
+        placeholder: '',
+        value: '',
+        required: "false",
+        options: [{ label: '', value: '' }],
+        advance: {
+            backgroundColor: '',
+            color: '',
+        },
+        isShow: false,
+        disabled: false,
+    })
+    const [blockValue, setBlockValue] = useState({})
+    useEffect(() => {
+        setForm((preForm) => ({
+            ...preForm,
+            editMode: false,
+        }))
+    }, [])
 
 
     const saveDataToLocalStorage = () => {
@@ -509,16 +535,16 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
 
     const projectNames = projectName
 
-    const approvalLabels: Record<string, string> = {
-        approve: "Approved",
-        reject: "Rejected",
-        approvewithamendment: "Approve with Amendment"
-    };
+    // const approvalLabels: Record<string, string> = {
+    //     approve: "Approved",
+    //     reject: "Rejected",
+    //     approvewithamendment: "Approve with Amendment"
+    // };
 
-    const options: OptionType[] = approvarActions.split(",").map((action: any) => ({
-        value: action,
-        label: approvalLabels[action] || action // Use readable label if available
-    }));
+    // const options: OptionType[] = approvarActions.split(",").map((action: any) => ({
+    //     value: action,
+    //     label: approvalLabels[action] || action // Use readable label if available
+    // }));
     console.log("46356356356", approvarActions);
 
     type OptionType = { value: string; label: string }
@@ -884,7 +910,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                     console.error("Invalid globalTaskJson structure or 'inputs' is missing:", parsedGlobalTaskJson);
                     return;
                 }
-                 
+
                 // const finishPointInput = parsedGlobalTaskJson.inputs.find((input: any) => String(input.inputId) === String(finishPoint));
                 // console.log(finishPoint)
                 // console.log(parsedGlobalTaskJson);
@@ -1188,10 +1214,9 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                         )}
                     </div>
                 )}
-                {/* {location.pathname === '/pages/ApprovalConsole' && 
-                    ( */}
+
                 <div>
-                    {formData && formData.inputs && (
+                    {formData && formData?.inputs && (
                         <form
                             className="side-scroll"
                             onSubmit={(event) => handleSubmit(event, taskNumber)}>
@@ -1208,13 +1233,11 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                                     }}>
                                     {processId === 'ACC.01' && (
                                         <div className="stepper-container position-relative">
-                                            {/* Active Mess Name */}
                                             <div className="active-mess text-center">
                                                 <strong>Current Mess:</strong>{' '}
                                                 {messList[currentStep]?.messName || 'N/A'}
                                             </div>
 
-                                            {/* Stepper */}
                                             <div
                                                 className="stepper-wrapper"
                                                 style={{
@@ -1222,9 +1245,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                                                         }`,
                                                 }}>
                                                 <div className="stepper-line"></div>{' '}
-                                                {/* Background line */}
                                                 <div className="stepper-line-filled"></div>{' '}
-                                                {/* Filled line */}
                                                 <div className="stepper d-flex justify-content-between">
                                                     {messList.map((mess, index) => {
                                                         const isCompleted = index < currentStep
@@ -1322,7 +1343,6 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                                                         {input.type === 'hyperlink' && (
                                                             //  input.visibility !== false &&
                                                             <div className="flex flex-col gap-2">
-                                                                {/* Input field for hyperlink */}
                                                                 <input
                                                                     type="url"
                                                                     className="form-control p-2 border rounded"
@@ -1331,7 +1351,6 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                                                                     onChange={(e) => handleChange(input.inputId, e.target.value)}
                                                                 />
 
-                                                                {/* Display hyperlink if input is not empty */}
                                                                 {formState[input.inputId] && (
                                                                     <a
                                                                         href={formState[input.inputId]}
@@ -1562,7 +1581,6 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                                                                 {input.options?.map((option) => (
                                                                     <option key={option.id} value={option.id}>
                                                                         {' '}
-                                                                        {/* Set value to option.id */}
                                                                         {option.label}
                                                                     </option>
                                                                 ))}
@@ -1653,10 +1671,9 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                                                                     }}
                                                                 />
                                                                 <input type="text"
-                                                                 value={fileNames}
+                                                                    value={fileNames}
                                                                 />
 
-                                                                {/* Display selected file names */}
                                                                 {fileNames.length > 0 && (
                                                                     <div className="mt-2">
                                                                         <p>Selected Files:</p>
@@ -1687,7 +1704,6 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                                                         )}
                                                         {input.type === "radio" && input.visibility && (
                                                             <Form.Group className="mb-3">
-                                                                {/* <Form.Label className="d-block mb-2">{input.label}</Form.Label>  */}
                                                                 {input.options?.map((option) => (
                                                                     <Form.Check
                                                                         key={option.id}
@@ -1890,7 +1906,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                                                         menuPortal: (base) => ({ ...base, zIndex: 9999 }) // Moves dropdown to top layer
                                                     }}
                                                     menuPortalTarget={document.body} // Render dropdown outside modal
-                                                    options={options} // Dynamically generated options
+                                                    // options={options} // Dynamically generated options
                                                     value={approvalStatus} // Bind the selected option
                                                     onChange={handleSelectChange} // Update state on selection
                                                     placeholder="Select Approval Status" // Placeholder text
@@ -1902,7 +1918,6 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                                     <div>
                                         {processId === 'ACC.01' ? (
                                             <div className="d-flex justify-content-end align-items-center mt-2 gap-2">
-                                                {/* Previous Button */}
                                                 {currentStep > 0 && (
                                                     <button
                                                         type="button"
@@ -1913,7 +1928,6 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                                                     </button>
                                                 )}
 
-                                                {/* Refresh Button */}
                                                 <button
                                                     type="button"
                                                     className="btn btn-outline-secondary"
@@ -1927,7 +1941,6 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                                                     <i className="ri-refresh-line"></i>
                                                 </button>
 
-                                                {/* Next Button */}
                                                 {currentStep < messList.length - 1 && (
                                                     <button
                                                         type="button"
@@ -1943,7 +1956,6 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                                                     </button>
                                                 )}
 
-                                                {/* Submit Button */}
                                                 {currentStep === messList.length - 1 && (
                                                     <button
                                                         type="submit"
@@ -1975,11 +1987,14 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                             </Modal.Body>
                         </form>
                     )}
+                    {formBuilderData?.blocks?.length && (
+                        <>
+                            <Editor form={form} setForm={setForm} property={property} setProperty={setProperty} blockValue={blockValue} setBlockValue={setBlockValue} isShowSave={false} />
+                            <button type='button' onClick={(event) => handleSubmit(event, taskNumber)}>Save</button>
+                        </>
+                    )}
                 </div>
-                {/* )
 
-
-                } */}
             </Modal>
         </>
     )

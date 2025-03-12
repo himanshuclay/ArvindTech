@@ -115,12 +115,13 @@ const Rule: React.FC<Props> = ({ showRule, setShowRule, form, setForm }) => {
                 const options: Option[] = END2.SHOW_HIDE || [];
                 return { isShow: true, options };
             }
-        } else if (rule.start1 === 'MAP') {
-            if (rule.end1 === 'WHERE') {
-                const options: Option[] = mastersLists || [];
-                return { isShow: true, options };
-            }
-        } 
+        }
+        // } else if (rule.start1 === 'MAP') {
+        //     if (rule.end1 === 'WHERE') {
+        //         const options: Option[] = mastersLists || [];
+        //         return { isShow: true, options };
+        //     }
+        // } 
         return { isShow: false, options: [] };
     }
     const handleEnd3 = (rule: RULE) => {
@@ -155,6 +156,12 @@ const Rule: React.FC<Props> = ({ showRule, setShowRule, form, setForm }) => {
         axios.get(`${config.API_URL_APPLICATION}/FormBuilder/GetMasterList`).then(response => {
             setMasterLists(response.data.masterForms);
         });
+        form.rules.map(rule => {
+            if(rule.start3)
+            {
+                fetchColumnNames(rule.start3)
+            }
+        })
     }, [form.rules]);
 
     return (
@@ -279,7 +286,7 @@ const Rule: React.FC<Props> = ({ showRule, setShowRule, form, setForm }) => {
                                     </Form.Group>
                                 )}
                                 {/* END 2 */}
-                                {rule.end1 === "FILTER" && columnLists[rule.start3] && (
+                                {['WHERE', 'FILTER'].includes(rule.end1) && columnLists[rule.start3] && (
                                     <Form.Group controlId={`rule-${index}-end2`} className="mr-1">
                                         <Form.Select
                                             name="end2"

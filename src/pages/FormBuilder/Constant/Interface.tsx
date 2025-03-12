@@ -55,6 +55,9 @@ interface PROPERTY {
     advance: ADVANCE;
     isShow: boolean;
     disabled: boolean;
+    startDateId?: string;
+    endDateId?:string;
+    size?:string;
 
 }
 interface OPTION { label: string; value: string }
