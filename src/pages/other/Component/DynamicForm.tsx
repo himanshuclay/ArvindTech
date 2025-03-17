@@ -950,12 +950,11 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                     return;
                 }
 
-                // Check if any input in globalTaskJson is filled
                 const isAnyInputFilled = parsedGlobalTaskJson.inputs.some((input: any) => {
                     if (Array.isArray(input.value)) {
-                        return input.value.length > 0; // Array has at least one item
+                        return input.value.length > 0;
                     }
-                    return !!input.value?.trim(); // String is not empty
+                    return !!input.value?.trim();
                 });
 
                 // ✅ Additional Check: RenderedInputs must have value(s)
@@ -1310,7 +1309,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
             )
             if (response.ok) {
                 const responseData = await response.json();
-                if(responseData.isSuccess){
+                if (responseData.isSuccess) {
                     toast.success(responseData.message);
                     handleClose();
                 }
