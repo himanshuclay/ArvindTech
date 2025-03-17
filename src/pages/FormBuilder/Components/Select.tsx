@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Form } from 'react-bootstrap';
 import { BASIC_FIELD, BLOCK_VALUE } from '../Constant/Interface';
 
@@ -24,9 +24,14 @@ const Select: React.FC<Props> = ({ block, handleChange, validationErrors = {}, e
         handleChange(e as unknown as React.ChangeEvent<HTMLInputElement>, block.property.id);
     };
 
-    // useEffect(() => {
-    //     console.log('11111111111111111111block', block)
-    // })
+    useEffect(() => {
+        if(block.property.value){
+            setBlockValue((prevState) => ({
+                ...prevState,
+                [block.property.id]: block.property.value,
+            }))
+        }
+    },[])
 
     return (
         <div>

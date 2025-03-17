@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState, } from 'react';
 import config from '@/config';
 import axios from 'axios';
 import { getBlockById, manageBind, manageShowHide } from './Constant/Functions';
-import { BASIC_FIELD, FIELD, PROPERTY, RULE, TRIGGER_ACTION } from './Constant/Interface';
+import { BASIC_FIELD, BLOCK_VALUE, FIELD, PROPERTY, RULE, TRIGGER_ACTION } from './Constant/Interface';
 import TextInput from './Components/TextInput';
 import NumberInput from './Components/NumberInput';
 import EmailInput from './Components/EmailInput';
@@ -10,11 +10,14 @@ import PhoneInput from './Components/PhoneInput';
 import Password from './Components/Password';
 import Select from './Components/Select';
 import { Button } from 'react-bootstrap';
-import Date from './Components/Date';
+import DateRange from './Components/DateRange';
+import FileUpload from './Components/FileUpload';
+import DateInput from './Components/DateInput';
+import MultiSelect from './Components/MultiSelect';
+import AmountInput from './Components/AmountInput';
+import FloatInput from './Components/FloatInput';
 
-interface BLOCK_VALUE {
-    [key: string]: string;
-}
+
 
 interface EditorProps {
     form: FIELD;
@@ -24,6 +27,7 @@ interface EditorProps {
     blockValue: BLOCK_VALUE;
     setBlockValue: React.Dispatch<React.SetStateAction<BLOCK_VALUE>>;
     expandedRow?: number | null;
+    isShowSave?: boolean;
 }
 
 interface DynamicComponentProps {
@@ -43,7 +47,12 @@ const componentsMap = {
     PhoneInput,
     Password,
     Select,
-    Date,
+    DateRange,
+    FileUpload,
+    DateInput,
+    MultiSelect,
+    AmountInput,
+    FloatInput,
 };
 
 const DynamicComponentRenderer: React.FC<DynamicComponentProps> = ({ form, componentType, block, handleChange, validationErrors, blockValue, setBlockValue }) => {
@@ -69,7 +78,7 @@ const DynamicComponentRenderer: React.FC<DynamicComponentProps> = ({ form, compo
     );
 };
 
-const Editor: React.FC<EditorProps> = ({ form, setForm, property, setProperty, blockValue, setBlockValue, expandedRow }) => {
+const Editor: React.FC<EditorProps> = ({ form, setForm, property, setProperty, blockValue, setBlockValue, expandedRow, isShowSave=true }) => {
     const [validationErrors, setValidationErrors] = useState<{ [key: string]: string }>({});
     const [triggeredActions, setTriggeredActions] = useState<TRIGGER_ACTION[]>([]);
 
@@ -110,6 +119,7 @@ const Editor: React.FC<EditorProps> = ({ form, setForm, property, setProperty, b
 
         if (Object.keys(errors).length === 0) {
             console.log('Form Data:', form);
+            console.log('blockValue Data:', blockValue);
         } else {
             console.log('Validation Errors:', errors);
         }
@@ -121,11 +131,13 @@ const Editor: React.FC<EditorProps> = ({ form, setForm, property, setProperty, b
         const fieldData = e.dataTransfer.getData('application/json');
         if (fieldData) {
             const droppedField: BASIC_FIELD = JSON.parse(fieldData);
-            droppedField.property.id = `Block_${form.blocks.length}`;
+            droppedField.property.id = `Block_${form.blockCount+1}`;
             setForm(prevForm => ({
                 ...prevForm,
                 blocks: [...prevForm.blocks, droppedField],
+                blockCount: prevForm.blockCount+1,
             }));
+            console.log('form', form)
         }
         handleDragLeave();
     };
@@ -141,6 +153,7 @@ const Editor: React.FC<EditorProps> = ({ form, setForm, property, setProperty, b
 
     const handleProperty = (block: BASIC_FIELD) => {
         if (form.editMode) {
+            console.log('block.property', block.property)
             setProperty({ ...block.property });
         }
     };
@@ -183,30 +196,36 @@ const Editor: React.FC<EditorProps> = ({ form, setForm, property, setProperty, b
             ...rule,
             partiallyBind: blockValue[rule.end3]
         }
-        console.log(query)
-        const response = await axios.post(
-            `${config.API_URL_APPLICATION}/FormBuilder/GetPartiallyBindValue`,
-            query
-        );
-        const updatedActions = response.data.rules.map((rule: any) => {
-            rule.rule = JSON.parse(rule.rule);
-            return {
-                type: rule.action,
-                key: rule.rule.start2,
-                block: getBlockById(form, rule.rule.end3),
-                bindBlock: getBlockById(form, rule.rule.start2),
-                rule: rule
-            };
-        });
-        setTriggeredActions(updatedActions);
+        console.log(blockValue, query)
+        if (query.partiallyBind) {
+            const response = await axios.post(
+                `${config.API_URL_APPLICATION}/FormBuilder/GetPartiallyBindValue`,
+                query
+            );
+            response.data.rules.map((rule: any) => {
+                rule.rule = JSON.parse(rule.rule);
+                const bindBlock = getBlockById(form, rule.rule.start2);
+                const updatedBlockValue = manageBind(bindBlock as BASIC_FIELD, blockValue, rule);
+                if (bindBlock && bindBlock.is === 'Select') {
+                    setForm(prevForm => ({
+                        ...prevForm,
+                        blocks: prevForm.blocks.map(block =>
+                            block.property.id === bindBlock.property.id ? updatedBlockValue as BASIC_FIELD : block
+                        )
+                    }));
+                } else {
+                    setBlockValue(updatedBlockValue as BLOCK_VALUE);
+                }
+            });
+            isFirstRun.current = true;
+            // setTriggeredActions(updatedActions);
+        }
     };
     const someRule = () => {
-        console.log('triggeredActions',triggeredActions)
+        console.log(triggeredActions)
         triggeredActions.forEach(action => {
-            console.log('action.type', action.type)
             if (action.type === 'show_hide' && action.block) {
                 const updatedBlock = manageShowHide(action.block, action.rule.rule, blockValue) as BASIC_FIELD;
-                console.log('updatedBlock', updatedBlock)
                 setForm(prevForm => ({
                     ...prevForm,
                     blocks: prevForm.blocks.map(block =>
@@ -215,7 +234,9 @@ const Editor: React.FC<EditorProps> = ({ form, setForm, property, setProperty, b
                 }));
             } else if (action.type === 'bind' && action.bindBlock) {
                 const updatedBlockValue = manageBind(action.bindBlock, blockValue, action.rule);
-                if (action.bindBlock.is === 'Select') {
+                console.log('updatedBlockValue', updatedBlockValue)
+                console.log('form', form)
+                if (['Select', 'MultiSelect'].includes(action.bindBlock.is)) {
                     setForm(prevForm => ({
                         ...prevForm,
                         blocks: prevForm.blocks.map(block =>
@@ -225,22 +246,23 @@ const Editor: React.FC<EditorProps> = ({ form, setForm, property, setProperty, b
                 } else {
                     setBlockValue(updatedBlockValue as BLOCK_VALUE);
                 }
-            } else if(action.type === 'partially_bind' && action.bindBlock){
+            } else if (action.type === 'partially_bind' && action.bindBlock) {
                 managePartiallyBind(blockValue, action.rule.rule);
             }
         });
     }
 
     useEffect(() => {
-        if(!form.editMode){
+        if (!form.editMode) {
             if (isFirstRun.current) {
-                console.log('yes')
+                console.log('isFirstRun')
                 someRule();
                 isFirstRun.current = false;
             } else {
                 const changedKeys = Object.keys(blockValue).filter(
                     key => blockValue[key] !== prevBlockValue[key]
                 );
+                
                 if (changedKeys.length === 0) return;
                 setPrevBlockValue(blockValue);
                 someRule();
@@ -257,30 +279,34 @@ const Editor: React.FC<EditorProps> = ({ form, setForm, property, setProperty, b
             onDragOver={handleDragOver}
             onDragLeave={handleDragLeave}
         >
-            {form.blocks.length === 0 ? (
-                <p className="text-gray-400">Drag fields here...</p>
-            ) : (
-                form.blocks.map((block, index) => (
-                    <div
-                        id={block.property.id}
-                        key={index}
-                        className={`p-2 m-1 rounded bg-gray-100 ${form.editMode ? 'border cursor-pointer' : ''} ${block.property.id === property.id ? 'border-green' : ''}`}
-                        onClick={() => handleProperty(block)}
-                        style={block.property.advance}
-                    >
-                        <DynamicComponentRenderer
-                            form={form}
-                            componentType={block.is}
-                            block={block}
-                            handleChange={handleChange}
-                            validationErrors={validationErrors}
-                            blockValue={blockValue}
-                            setBlockValue={setBlockValue}
-                        />
-                    </div>
-                ))
-            )}
-            {!form.editMode && (
+            <div className='d-flex flex-wrap'>
+
+
+                {form.blocks.length === 0 ? (
+                    <p className="text-gray-400">Drag fields here...</p>
+                ) : (
+                    form.blocks.map((block, index) => (
+                        <div
+                            id={block.property.id}
+                            key={index}
+                            className={`col-lg-${block.property.size ? block.property.size : '12'} p-2 rounded bg-gray-100 ${form.editMode ? 'border cursor-pointer' : ''} ${block.property.id === property.id ? 'border-green' : ''}`}
+                            onClick={() => handleProperty(block)}
+                            style={block.property.advance}
+                        >
+                            <DynamicComponentRenderer
+                                form={form}
+                                componentType={block.is}
+                                block={block}
+                                handleChange={handleChange}
+                                validationErrors={validationErrors}
+                                blockValue={blockValue}
+                                setBlockValue={setBlockValue}
+                            />
+                        </div>
+                    ))
+                )}
+            </div>
+            {!form.editMode && isShowSave && (
                 <Button
                     type='button'
                     onClick={handleSave}

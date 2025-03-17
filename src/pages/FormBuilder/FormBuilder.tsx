@@ -10,20 +10,25 @@ import config from '@/config';
 import { toast } from 'react-toastify';
 import { useNavigate, useParams } from 'react-router-dom';
 
-interface FormBuilderProps { 
-    formDetails?:{
+interface FormBuilderProps {
+    formDetails?: {
         templateJson?: string;
         id?: number;
     },
     handleClose?: () => void;
- }
+    formBuilder?: FIELD;
+    setFormBuilder?: React.Dispatch<React.SetStateAction<FIELD>>;
+}
 
-const FormBuilder: React.FC<FormBuilderProps> = ({formDetails, handleClose}) => {
+const FormBuilder: React.FC<FormBuilderProps> = ({ formDetails, handleClose, formBuilder, setFormBuilder }) => {
     const { id } = useParams<{ id: string }>();
 
-    const [form, setForm] = useState<FIELD>({
+    const [showWorkflowBuilder,] = useState(formBuilder ? true : false)
+
+    const [form, setForm] = useState<FIELD>(formBuilder ? formBuilder : {
         name: '',
         blocks: [],
+        blockCount: 0,
         editMode: true,
         rules: [],
         advance: {
@@ -76,6 +81,11 @@ const FormBuilder: React.FC<FormBuilderProps> = ({formDetails, handleClose}) => 
 
     const handleSaveForm = async () => {
         try {
+            if (formBuilder && setFormBuilder) {
+                setFormBuilder(form);
+                
+                return;
+            }
             if (!form.name) {
                 toast.info("Please Fill Form Name");
                 return;
@@ -120,7 +130,7 @@ const FormBuilder: React.FC<FormBuilderProps> = ({formDetails, handleClose}) => 
             if (responseText) {
                 const data = JSON.parse(responseText);
                 console.log(data)
-                if(data.isSuccess){
+                if (data.isSuccess) {
                     toast.success(data.message);
                     navigate('/pages/AdhocMaster');
                     handleClose?.();
@@ -139,6 +149,7 @@ const FormBuilder: React.FC<FormBuilderProps> = ({formDetails, handleClose}) => 
         setShowRule,
         handleSaveForm,
         handleAdhocSaveForm,
+        showWorkflowBuilder,
         // setFormSize,
     }
 
@@ -151,7 +162,7 @@ const FormBuilder: React.FC<FormBuilderProps> = ({formDetails, handleClose}) => 
     useEffect(() => {
         if (id) {
             fetchFormById(id);
-        }else if(formDetails?.templateJson){
+        } else if (formDetails?.templateJson) {
             setForm(JSON.parse(formDetails.templateJson));
         }
     }, [id]);

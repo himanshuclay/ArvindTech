@@ -13,6 +13,7 @@ interface Props {
         setShowRule: (id: boolean) => void;
         handleSaveForm: () => void;
         handleAdhocSaveForm: () => void;
+        showWorkflowBuilder?: boolean;
     }
 }
 
@@ -45,6 +46,7 @@ const Action: React.FC<Props> = ({ actionProps }) => {
         actionProps.setForm({
             name: '',
             blocks: [],
+            blockCount: 0,
             editMode: true,
             rules: [],
             advance: {
@@ -107,8 +109,8 @@ const Action: React.FC<Props> = ({ actionProps }) => {
                     </a>
                 </div>
 
-                <Button onClick={actionProps.handleSaveForm}>Save</Button>
-                <Button onClick={actionProps.handleAdhocSaveForm}>Adhoc Save</Button>
+                {/* <Button onClick={actionProps.handleSaveForm}>Save</Button> */}
+                {actionProps.showWorkflowBuilder ? '' : <Button onClick={actionProps.handleAdhocSaveForm}>Adhoc Save</Button>}
             </div>
 
         </div>

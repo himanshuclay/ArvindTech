@@ -11,7 +11,7 @@ interface Props {
     setBlockValue: React.Dispatch<React.SetStateAction<BLOCK_VALUE>>;
 }
 
-const TextInput: React.FC<Props> = ({
+const FileUpload: React.FC<Props> = ({
     block,
     handleChange,
     validationErrors = {},
@@ -23,16 +23,30 @@ const TextInput: React.FC<Props> = ({
     const isRequired = block.property.required === "true";
     const isDisabled = !!(block.property.disabled);
 
-    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const { value } = e.target;
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
 
-        setBlockValue((prevState) => ({
-            ...prevState,
-            [block.property.id]: value,
-        }));
+        if (file) {
+            setBlockValue((prevState) => ({
+                ...prevState,
+                [block.property.id]: file.name, // only the file name gets stored
+            }));
 
-        handleChange(e, block.property.id);
+            handleChange(e as unknown as React.ChangeEvent<HTMLInputElement>, block.property.id);
+        }
     };
+
+
+    const getFileName = () => {
+        const file: any = blockValue[block.property.id];
+
+        if (file instanceof File) {
+            return file.name;
+        }
+
+        return file || '';
+    };
+
 
     return (
         <div>
@@ -46,14 +60,18 @@ const TextInput: React.FC<Props> = ({
                     </Form.Label>
 
                     <Form.Control
-                        type="text"
+                        type="file"
                         name={block.property.id}
-                        value={blockValue[block.property.id] || ''}
-                        onChange={handleInputChange} // ✅ Fixed here
-                        placeholder={block.property.placeholder}
+                        onChange={handleFileChange}
                         disabled={isDisabled}
                         className={validationErrors[block.property.id] ? "is-invalid" : ""}
                     />
+
+                    {getFileName() && (
+                        <Form.Text className="d-block mt-2">
+                            Selected file: <strong>{getFileName()}</strong>
+                        </Form.Text>
+                    )}
 
                     {validationErrors[block.property.id] && (
                         <Form.Text className="text-danger">
@@ -66,4 +84,4 @@ const TextInput: React.FC<Props> = ({
     );
 };
 
-export default TextInput;
+export default FileUpload;

@@ -6,7 +6,7 @@ import { Button, Col, Form, Row } from 'react-bootstrap';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import config from '@/config';
 import Select from 'react-select';
-import Flatpickr from 'react-flatpickr';
+import Flatpickr from 'react-flatpickr';    
 import 'flatpickr/dist/themes/material_green.css';
 import { toast } from 'react-toastify';
 

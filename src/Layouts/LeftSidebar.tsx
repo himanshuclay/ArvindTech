@@ -508,6 +508,18 @@ const getFilteredMenuItems = () => {
       ],
     },
     {
+      key: 'WorkflowBuilderList',
+      label: 'Workflow BuilderList',
+      url: '/pages/WorkflowBuilderList',
+      icon: 'ri-survey-line',
+    },
+    {
+      key: 'ProcessConfiguration',
+      label: 'Process Configuration',
+      url: '/pages/ProcessConfiguration',
+      icon: 'ri-survey-line',
+    },
+    {
       key: 'Notifications',
       label: 'Notification',
       url: '/pages/Notification',
@@ -636,6 +648,8 @@ const getFilteredMenuItems = () => {
       item.key === 'ProcessDataMaster' ||
       item.key === 'Modules' ||
       item.key === 'FormMaster' ||
+      item.key === 'WorkflowBuilderList' || 
+      item.key === 'ProcessConfiguration' ||
       item.key === 'Notifications' ||
       item.key === 'SeekHelp' ||
       item.key === 'Suggestion' ||

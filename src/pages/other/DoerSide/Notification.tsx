@@ -722,6 +722,7 @@ const ProjectAssignTable: React.FC = () => {
                                 <DynamicForm
                                   fromComponent='PendingTask'
                                   formData={JSON.parse(item.task_Json)}
+                                  formBuilderData={JSON.parse(item.task_Json)}
                                   taskNumber={item.task_Number}
                                   taskName={item.taskName}
                                   data={data}

@@ -36,12 +36,19 @@ interface Process {
     createdBy: string;
     updatedBy: string;
     problemSolver: any;
+    projectName: string;
+    taskNumber: string;
 }
 
 
 interface AdhocList {
     id: number;
     formName: string;
+}
+interface PROJECT_DROP_DOWN {
+    projectName: string;
+    projectID: string;
+    taskNumber?: string;
 }
 const AccountProcess = () => {
     const role = localStorage.getItem('role');
@@ -60,6 +67,8 @@ const AccountProcess = () => {
     const [showLink, setShowLink] = useState(false);
     const [iframeUrl, setIframeUrl] = useState("");
     const [urlError, setUrlError] = useState("");
+    const [projectDropDown, setprojectDropDown] = useState<PROJECT_DROP_DOWN[]>([]);
+    const [taskNumberDropDown, setTaskNumberDropDown] = useState<PROJECT_DROP_DOWN[]>([]);
     const [process, setProcess] = useState<Process>({
         id: 0,
         moduleName: '',
@@ -89,7 +98,9 @@ const AccountProcess = () => {
         source: '',
         createdBy: '',
         updatedBy: '',
-        problemSolver: ''
+        problemSolver: '',
+        projectName: '',
+        taskNumber: '',
     });
 
 
@@ -100,6 +111,8 @@ const AccountProcess = () => {
         if (storedEmpName) {
             setEmpName(storedEmpName);
         }
+        getProjectDropDown();
+        getTaskNumber();
     }, []);
 
     useEffect(() => {
@@ -108,6 +121,28 @@ const AccountProcess = () => {
         }
     }, [id]);
 
+    const getTaskNumber = async () => {
+        try {
+            const response = await axios.get(`${config.API_URL_APPLICATION}/CommonDropdown/GetTaskNumberByProcessID?ProcessID=${processID}`)
+            if (response.data.isSuccess) {
+                setTaskNumberDropDown(response.data.taskNumberByProcessIDs);
+            }
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
+
+    const getProjectDropDown = async () => {
+        try {
+            const response = await axios.get(`${config.API_URL_APPLICATION}/CommonDropdown/GetProjectByProcess?ProcessID=${processID}`);
+            if (response.data.isSuccess) {
+                setprojectDropDown(response.data.getProjectByProcess);
+            }
+        } catch (error) {
+            console.log(error)
+        }
+    }
 
 
     const fetchModuleById = async (id: string) => {
@@ -187,7 +222,13 @@ const AccountProcess = () => {
         setTarget(event.target as HTMLElement);
     };
     const handleAdhocInitiation = () => {
-        setShowAdhoc(true);
+        if(!process.projectName){
+            toast.info('Please Select Project Name')
+        }else if(!process.taskNumber){
+            toast.info('Please Select Task Number')
+        }else{
+            setShowAdhoc(true);
+        }
     };
 
 
@@ -251,7 +292,15 @@ const AccountProcess = () => {
 
     const handleChangeExpirable = (value: number) => {
         setAdhocApplicable(value);
+
     };
+
+    const handleSelectChange = (e: any) => {
+        setProcess(process => ({
+            ...process,
+            [e.target.name]: e.target.value,
+        }));
+    }
 
 
     return (
@@ -416,6 +465,39 @@ const AccountProcess = () => {
                                 </Form.Group>
                             </Col>
                         }
+                        {adhocApplicable === 1 && (<Col lg={3}>
+                            <Form.Group>
+                                <Form.Label>Project Name</Form.Label>
+                                <Form.Select
+                                    name="projectName"
+                                    value={process.projectName}
+                                    onChange={(e) => handleSelectChange(e)}
+                                >
+                                    <option value="">Please select</option>
+                                    {projectDropDown?.map((option, index) => (
+                                        <option key={index} value={option.projectID}>
+                                            {option.projectName}
+                                        </option>
+                                    ))}
+                                </Form.Select>
+                            </Form.Group>
+                            <Form.Group>
+                                <Form.Label>Task Number</Form.Label>
+                                <Form.Select
+                                    name="taskNumber"
+                                    value={process.taskNumber}
+                                    onChange={(e) => handleSelectChange(e)}
+                                >
+                                    <option value="">Please select</option>
+                                    {taskNumberDropDown?.map((option, index) => (
+                                        <option key={index} value={option.taskNumber}>
+                                            {option.taskNumber}
+                                        </option>
+                                    ))}
+                                </Form.Select>
+                            </Form.Group>
+                        </Col>
+                        )}
 
 
                         {/* <Col lg={12}>
@@ -526,7 +608,7 @@ const AccountProcess = () => {
                                     </Button>
                                 </ButtonGroup>
                             </Col>
-                            <Col></Col>
+
                             <Col lg={3} className='align-items-end d-flex justify-content-end mb-3'>
                                 <ButtonGroup aria-label="Basic example" className='w-100'>
                                     {adhocApplicable === 1 &&
@@ -592,12 +674,14 @@ const AccountProcess = () => {
                 <DynamicForm
                     fromComponent="AccountProcess"
                     formData={JSON.parse(adhocJson.templateJson)}
-                    taskNumber
+                    formBuilderData={JSON.parse(adhocJson.templateJson)}
+                    taskNumber={process.taskNumber}
                     data
                     taskName
                     show={showAdhocDynamic}
                     finishPoint
                     setShow={setShowAdhocDynamic}
+                    setAdhocJson={setAdhocJson}
                     parsedCondition
                     preData
                     taskCommonIDRow
@@ -607,7 +691,7 @@ const AccountProcess = () => {
                     moduleId={moduleID}
                     ProcessInitiationID
                     approval_Console
-                    projectName
+                    projectName={process.projectName}
                     approvarActions
                     problemSolver
                 />

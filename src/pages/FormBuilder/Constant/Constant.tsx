@@ -12,6 +12,7 @@ const FIELD_LIST = [
             },
             isShow: true,
             disabled: false,
+            size: '12'
         }
     },
     {
@@ -28,8 +29,47 @@ const FIELD_LIST = [
             },
             isShow: true,
             disabled: false,
+            size: '12'
 
 
+        }
+    },
+    {
+        name: "AmountInput",
+        is: "AmountInput",
+        property: {
+            label: "AmountInput",
+            placeholder: "placeholder",
+            required: "false",
+            advance: {
+                backgroundColor: '#fff',
+                color: '#000',
+
+            },
+            isShow: true,
+            disabled: false,
+            size: '12',
+            currencySymbol: '₹',
+
+        }
+    },
+    {
+        name: "FloatInput",
+        is: "FloatInput",
+        property: {
+            label: "FloatInput",
+            placeholder: "placeholder",
+            required: "false",
+            advance: {
+                backgroundColor: '#fff',
+                color: '#000',
+
+            },
+            isShow: true,
+            disabled: false,
+            size: '12',
+            prefix: '%',
+            decimalLimit: 2,
         }
     },
     {
@@ -46,6 +86,7 @@ const FIELD_LIST = [
             },
             isShow: true,
             disabled: false,
+            size: '12'
 
         }
     },
@@ -63,6 +104,7 @@ const FIELD_LIST = [
             },
             isShow: true,
             disabled: false,
+            size: '12'
 
         }
     },
@@ -80,12 +122,32 @@ const FIELD_LIST = [
             },
             isShow: true,
             disabled: false,
+            size: '12'
 
         }
     },
     {
-        name: "Date",
-        is: "Date",
+        name: "DateInput",
+        is: "DateInput",
+        property: {
+            label: "DateInput",
+            placeholder: "placeholder",
+            required: "false",
+            advance: {
+                backgroundColor: '#fff',
+                color: '#000',
+
+            },
+            isShow: true,
+            disabled: false,
+            size: '12',
+            dateSelection: "none",
+
+        }
+    },
+    {
+        name: "DateRange",
+        is: "DateRange",
         property: {
             label: "Label",
             placeholder: "placeholder",
@@ -97,6 +159,9 @@ const FIELD_LIST = [
             },
             isShow: true,
             disabled: false,
+            startDateId: "",
+            endDateId: "",
+            size: '12'
 
         }
     },
@@ -108,7 +173,7 @@ const FIELD_LIST = [
             placeholder: "placeholder",
             required: "false",
             options: [],
-            
+
             advance: {
                 backgroundColor: '#fff',
                 color: '#000',
@@ -116,9 +181,49 @@ const FIELD_LIST = [
             },
             isShow: true,
             disabled: false,
+            size: '12'
 
         }
-    }
+    },
+    {
+        name: "MultiSelect",
+        is: "MultiSelect",
+        property: {
+            label: "MultiSelect",
+            placeholder: "placeholder",
+            required: "false",
+            options: [],
+
+            advance: {
+                backgroundColor: '#fff',
+                color: '#000',
+
+            },
+            isShow: true,
+            disabled: false,
+            size: '12'
+
+        }
+    },
+    {
+        name: "FileUpload",
+        is: "FileUpload",
+        property: {
+            label: "FileUpload",
+            placeholder: "placeholder",
+            required: "false",
+
+            advance: {
+                backgroundColor: '#fff',
+                color: '#000',
+
+            },
+            isShow: true,
+            disabled: false,
+            size: '12'
+
+        }
+    },
 ]
 
 const START1 = [
@@ -128,11 +233,14 @@ const START1 = [
 ]
 
 const END1 = {
-    THEN:[
+    THEN: [
         { label: "Then", value: "THEN" },
     ],
     WHERE: [
         { label: "Where", value: "WHERE" },
+    ],
+    FILTER: [
+        { label: "Filter", value: "FILTER" },
     ]
 }
 
@@ -150,16 +258,16 @@ const TABLE_FIELD: { [key: string]: { label: string, value: string }[] } = {
 };
 
 const SHOW_HIDE = [
-    {label: 'Show', value: 'SHOW'},
-    {label: 'Hide', value: 'HIDE'},
+    { label: 'Show', value: 'SHOW' },
+    { label: 'Hide', value: 'HIDE' },
 ]
 
 const END2 = {
-    SHOW_HIDE: [{label:"Show",value:'SHOW'},{label: 'Hide', value: 'HIDE'}],
-    COUNTRY: [{label:"Country",value:'COUNTRY'}],
+    SHOW_HIDE: [{ label: "Show", value: 'SHOW' }, { label: 'Hide', value: 'HIDE' }],
+    COUNTRY: [{ label: "Country", value: 'COUNTRY' }],
 }
 const START3 = [
-    { label: 'state', value: 'STATE'}
+    { label: 'state', value: 'STATE' }
 ]
 
 

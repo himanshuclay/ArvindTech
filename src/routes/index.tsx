@@ -6,6 +6,10 @@ import PrivateRoute from './PrivateRoute'
 import AdhocMaster from '@/pages/other/AdminSide/AdhocMaster.tsx'
 import ModulesMaster from '@/pages/other/ModulesMaster/ModulesMaster.tsx'
 import { MODULES_MASTER } from './ModulesMaster.tsx'
+import WorkflowBuilderList from '@/pages/WorkflowBuilder/WorkflowBuilderList.tsx'
+import WorkflowBuilder from '@/pages/WorkflowBuilder/WorkflowBuilder.tsx'
+import Workflow from '@/pages/WorkflowBuilder/Workflow.tsx'
+import ProcessConfiguration from '@/pages/ProcessConfiguration/ProcessConfiguration.tsx'
 import OtherTask from '@/pages/other/AdminSide/TrackTask/OtherTask.tsx'
 import Modules from '@/pages/other/DoerSide/Modules.tsx'
 import Process from '@/pages/other/DoerSide/Process.tsx'
@@ -920,12 +924,37 @@ const customPagesRoutes = {
 			element: <Error404Alt />,
 			route: PrivateRoute,
 		},
-		// {
-		// 	path: 'pages/formBuilder',
-		// 	name: 'Form Builder',
-		// 	element: <FormBuilder />,
-		// 	route: PrivateRoute,
-		// },
+		{
+			path: 'pages/WorkflowBuilderList',
+			name: 'Workflow Builder List',
+			element: <WorkflowBuilderList />,
+			route: PrivateRoute,
+		},
+		{
+			path: 'pages/WorkflowBuilder',
+			name: 'Workflow Builder',
+			element: <WorkflowBuilder />,
+			route: PrivateRoute,
+		},
+		{
+			path: 'pages/WorkflowBuilder/:id',
+			name: 'Workflow Builder',
+			element: <WorkflowBuilder />,
+			route: PrivateRoute,
+		},
+		{
+			path: 'pages/Workflow/:id',
+			name: 'Workflow',
+			element: <Workflow />,
+			route: PrivateRoute,
+		},
+		
+		{
+			path: 'pages/ProcessConfiguration',
+			name: 'Process Configuration',
+			element: <ProcessConfiguration />,
+			route: PrivateRoute,
+		},
 
 		// MODULES_MASTER
 
