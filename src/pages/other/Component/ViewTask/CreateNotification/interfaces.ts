@@ -11,6 +11,7 @@ export interface NotificationFromAPI {
     attachment: string;
     getDoerDetails: DoerDetail[];
     createdDate: string;
+    levelType: string;
 
 }
 
@@ -22,5 +23,6 @@ export interface Notification {
     doerIDs: string[];
     roleNames: string[];
     createdBy: string;
+    levelType: string;
     updatedBy: string;
 }

@@ -23,6 +23,8 @@ import {
 } from '@/components'
 import { useThemeCustomizer } from '@/components'
 import { useViewport } from '@/hooks'
+import axios from 'axios'
+import config from '@/config'
 /**
  * for subtraction minutes
  */
@@ -126,7 +128,7 @@ type TopbarProps = {
 	navOpen?: boolean
 }
 const Topbar = ({ toggleMenu, navOpen }: TopbarProps) => {
-	const { unreadCount } = useCommonContext()
+	const { unreadCount, setUnreadCount } = useCommonContext()
 	const { sideBarType } = useThemeCustomizer()
 	const { width } = useViewport()
 
@@ -207,6 +209,35 @@ const Topbar = ({ toggleMenu, navOpen }: TopbarProps) => {
 	// const handleRightSideBar = () => {
 	// 	updateSettings({ rightSidebar: ThemeSettings.rightSidebar.show })
 	// }
+
+
+	useEffect(() => {
+		const fetchNotificationCount = async () => {
+			try {
+				const doerID = localStorage.getItem('EmpId') // fallback if missing
+				const response = await axios.get(`${config.API_URL_APPLICATION}/NotificationMaster/GetNotificationCount?DoerID=${doerID}`)
+
+				if (response.data && response.data.isSuccess) {
+					setUnreadCount(response.data.unread)
+				} else {
+					console.warn('Failed to fetch notification count:', response.data.message)
+				}
+			} catch (error) {
+				console.error('Error fetching notification count:', error)
+			}
+		}
+
+		// Initial fetch
+		fetchNotificationCount()
+
+		// Interval for polling every 10 seconds
+		const intervalId = setInterval(() => {
+			fetchNotificationCount()
+		}, 15000)
+
+		// Cleanup interval on component unmount
+		return () => clearInterval(intervalId)
+	}, [])
 
 	return (
 		<>

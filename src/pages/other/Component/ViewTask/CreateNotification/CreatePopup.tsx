@@ -46,7 +46,6 @@ const CreatePopup: React.FC<ProcessCanvasProps> = ({
         updatedBy: '',
     });
 
-    console.log(notification.subject)
     const modules = {
         toolbar: [
             [{ font: [] }, { size: [] }],
