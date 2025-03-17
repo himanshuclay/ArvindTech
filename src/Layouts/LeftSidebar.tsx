@@ -566,15 +566,15 @@ const getFilteredMenuItems = () => {
       icon: 'ri-survey-line',
       children: [
         {
-          key: 'Create',
+          key: 'SuggestionMasterinsert',
           label: 'Create',
-          url: '/pages/Create',
+          url: '/pages/SuggestionMasterinsert',
           parentKey: 'Suggestion',
         },
         {
-          key: 'View',
+          key: 'SuggestionMaster',
           label: 'View',
-          url: '/pages/View',
+          url: '/pages/SuggestionMaster',
           parentKey: 'Suggestion',
         }
       ],
@@ -648,7 +648,7 @@ const getFilteredMenuItems = () => {
       item.key === 'ProcessDataMaster' ||
       item.key === 'Modules' ||
       item.key === 'FormMaster' ||
-      item.key === 'WorkflowBuilderList' || 
+      item.key === 'WorkflowBuilderList' ||
       item.key === 'ProcessConfiguration' ||
       item.key === 'Notifications' ||
       item.key === 'SeekHelp' ||
