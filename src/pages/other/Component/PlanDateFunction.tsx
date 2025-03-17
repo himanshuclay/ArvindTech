@@ -1,5 +1,5 @@
 export const getPlannedDate = (createdDate: string, planDate: string): string => {
-    if (!planDate || planDate.trim() === '') {
+    if (!planDate || planDate?.trim() === '') {
         return 'N/A';
     }
 

@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import { useLocation } from 'react-router-dom';
 import axios from 'axios';
 import { Button, Table, Container, Row, Col, Alert, Collapse, Pagination, Form, ButtonGroup } from 'react-bootstrap'; // Assuming DynamicForm is in the same directory
 import { format } from 'date-fns';
@@ -59,7 +58,6 @@ interface ProjectAssignListWithDoer {
   taskName: string;
   completedDate: string | null;
   finishPoint: number;
-  rejectedJson: string;
   problemSolver: string;
   problemSolverMobileNumber: number;
 
@@ -97,7 +95,7 @@ interface dropDownList {
   empName: string;
   name: string;
 }
-const ProjectAssignTable: React.FC = () => {
+const Process: React.FC = () => {
   const [data, setData] = useState<ProjectAssignListWithDoer[]>([]);
   const [preData, setPreData] = useState<FilteredTask[]>([]);
   const [currentPage, setCurrentPage] = useState(1)
@@ -163,8 +161,6 @@ const ProjectAssignTable: React.FC = () => {
     setColumns(reorderedColumns);
   };
   // ==============================================================
-  const location = useLocation();
-  
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
@@ -197,7 +193,7 @@ const ProjectAssignTable: React.FC = () => {
     };
 
     fetchData();
-  }, [location.pathname, currentPage]);
+  }, [currentPage]);
 
 
   const fetchPreData = async (taskCommonId: number) => {
@@ -210,7 +206,7 @@ const ProjectAssignTable: React.FC = () => {
       if (response.data?.isSuccess) {
         const fetchedData = response.data.getFilterTasks || [];
 
-
+        setParsedCondition(fetchedData[0].condition_Json);
 
         // Filter and transform data
         const filteredTasks = fetchedData
@@ -274,8 +270,6 @@ const ProjectAssignTable: React.FC = () => {
                   label: input.label,
                   value: optionsMap[input.value] || input.value, // Replace value with label if available
                 }));
-                const input = inputs.find(item => item.inputId === "99");
-                const label = input ? input.label : null;
 
               // Return transformed task object
               return {
@@ -284,7 +278,6 @@ const ProjectAssignTable: React.FC = () => {
                 messManager: taskJson.messManager,
                 managerNumber: taskJson.mobileNumber,
                 messTaskNumber: taskJson.messTaskNumber,
-                taskName: label,
                 inputs: filteredInputsData,
               };
             });
@@ -357,10 +350,9 @@ const ProjectAssignTable: React.FC = () => {
 
   const handleShow = () => setShow(true);
 
-  const handleEdit = (taskCommonId: number, taskCondition: string) => {
+  const handleEdit = (taskCommonId: number) => {
     setTaskCommonIdRow(taskCommonId);
     fetchPreData(taskCommonId);
-    setParsedCondition(taskCondition);
     handleShow();
 
   };
@@ -731,10 +723,10 @@ const ProjectAssignTable: React.FC = () => {
                                   setShow={setShow}
                                   parsedCondition={parsedCondition}
                                   preData={preData}
-                                  rejectBlock={item.rejectedJson}
                                   taskCommonIDRow={taskCommonIDRow}
                                   projectName={item.projectName}
                                   taskStatus
+                                  rejectBlock
                                   processId={item.processID}
                                   moduleId={item.moduleID}
                                   ProcessInitiationID={item.id}
@@ -894,7 +886,7 @@ const ProjectAssignTable: React.FC = () => {
                                         <span className='text-primary me-2 cursor-pointer fw-bold' onClick={() => handleViewEditOutput(item.taskCommonId)}>View Output</span>
                                         <span className='text-primary cursor-pointer me-2 fw-bold' onClick={() => handleViewEdit(item.taskCommonId)}>Hierarchy  View</span>
                                         <span className='text-primary me-2 fw-bold'>Help</span>
-                                        <Button className='ms-auto ' onClick={() => handleEdit(item.taskCommonId, item.condition_Json)}>
+                                        <Button className='ms-auto ' onClick={() => handleEdit(item.taskCommonId)}>
                                           Finish
                                         </Button>
                                       </div>
@@ -957,4 +949,4 @@ const ProjectAssignTable: React.FC = () => {
   );
 };
 
-export default ProjectAssignTable;
+export default Process;

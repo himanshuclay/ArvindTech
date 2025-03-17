@@ -14,7 +14,7 @@ import { getPlannedDate } from '../../Component/PlanDateFunction';
 
 
 
-interface LnMaster {
+interface OtherTask {
     id: number;
     processID: string;
     projectName: string;
@@ -40,7 +40,6 @@ interface LnMaster {
     isCompleted: string;
     problemSolverMobileNumber: number;
     taskCommonId: number;
-    approvalConsoleDoerName: string;
 }
 
 interface Column {
@@ -61,8 +60,8 @@ interface dropDownList {
 }
 
 
-const LnMaster: React.FC = () => {
-    const [data, setData] = useState<LnMaster[]>([]);
+const OtherTask: React.FC = () => {
+    const [data, setData] = useState<OtherTask[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
     const [moduleList, setModuleList] = useState<dropDownList[]>([]);
     const [processList, setProcessList] = useState<dropDownList[]>([]);
@@ -309,7 +308,7 @@ const LnMaster: React.FC = () => {
         <>
 
             <div className="d-flex bg-white p-2 my-2 justify-content-between align-items-center fs-20">
-                <span><i className="ri-file-list-line me-2"></i><span className='fw-bold test-nowrap'>Track Task</span></span>
+                <span><i className="ri-file-list-line me-2"></i><span className='fw-bold test-nowrap'>Other Task</span></span>
 
             </div>
             <div className='bg-white p-2 pb-2'>
@@ -611,7 +610,7 @@ const LnMaster: React.FC = () => {
                                                                                 )}
                                                                             </>
                                                                         ) : (
-                                                                            <>{item[col.id as keyof LnMaster]}</>
+                                                                            <>{item[col.id as keyof OtherTask]}</>
                                                                         )}
 
 
@@ -731,10 +730,16 @@ const LnMaster: React.FC = () => {
                                                                                         </td>
 
                                                                                     </tr>
-                                                                                    {item.approval_Console === 'Select Approval_Console' &&
+
+                                                                                    <tr>
+                                                                                        <td><h5>Approval :</h5></td>
+                                                                                        <td> <h5 className='text-primary'>{item.approval_Console !== null ? 'Yes' : 'No'}</h5></td>
+                                                                                    </tr>
+
+                                                                                    {item.approval_Console !== null &&
                                                                                         <tr>
                                                                                             <td><h5>Approver :</h5></td>
-                                                                                            <td><h5 className='text-primary'>{item.approvalConsoleDoerName}</h5>
+                                                                                            <td><h5 className='text-primary'>NA</h5>
                                                                                             </td>
                                                                                         </tr>}
                                                                                 </tbody>
@@ -769,21 +774,18 @@ const LnMaster: React.FC = () => {
                                                                             </tr> */}
 
                                                                         </Col>
-                                                                        {item.processID === 'ACC.01' &&
-                                                                            <Col lg={4}>
-                                                                                <tr>
-                                                                                    <td> <h5>Mess Manager : </h5></td>
-                                                                                    <td><h5 className='text-primary'>Mess Manager Name</h5></td>
-                                                                                </tr>
-                                                                                {/* <tr>
-                                                                                                                  <td> <h5 className='mb-1'>Var Field 2 : </h5></td>
-                                                                                                                  <td><h5 className='text-primary'>Var Field 2</h5>
-                                                                                                                  </td>
-                                                                                                                </tr> */}
+                                                                        <Col lg={4}>
+                                                                            <tr>
+                                                                                <td> <h5>Mess Manager : </h5></td>
+                                                                                <td><h5 className='text-primary'>Mess Manager Name</h5></td>
+                                                                            </tr>
+                                                                            {/* <tr>
+                                                                                <td> <h5 className='mb-1'>Var Field 2 : </h5></td>
+                                                                                <td><h5 className='text-primary'>Var Field 2</h5>
+                                                                                </td>
+                                                                            </tr> */}
 
-                                                                            </Col>
-                                                                        }
-
+                                                                        </Col>
                                                                     </Row>
                                                                     <hr className='my-1' />
 
@@ -863,4 +865,4 @@ const LnMaster: React.FC = () => {
     );
 };
 
-export default LnMaster;
+export default OtherTask;

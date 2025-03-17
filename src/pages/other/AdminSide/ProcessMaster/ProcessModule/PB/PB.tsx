@@ -642,6 +642,7 @@ const PB = () => {
                     taskStatus
                     processId={processID}
                     moduleId={moduleID}
+                    rejectBlock
                     ProcessInitiationID
                     approval_Console
                     projectName

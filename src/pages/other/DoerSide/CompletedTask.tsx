@@ -196,7 +196,6 @@ const ProjectAssignTable: React.FC = () => {
               const input = inputs.find(item => item.inputId === "99");
               const label = input ? input.label : null;
 
-
               return {
                 messID: taskJson.messID || '',
                 messName: taskJson.messName || '',

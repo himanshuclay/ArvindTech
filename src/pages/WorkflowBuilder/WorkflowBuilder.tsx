@@ -80,6 +80,7 @@ const WorkflowBuilder: React.FC = () => {
         name: '',
         blocks: [],
         editMode: true,
+        blockCount: 0,
         rules: [],
         advance: {
             backgroundColor: '',
@@ -270,6 +271,7 @@ const WorkflowBuilder: React.FC = () => {
                 name: '',
                 blocks: [],
                 editMode: true,
+                blockCount: 0,
                 rules: [],
                 advance: {
                     backgroundColor: '',

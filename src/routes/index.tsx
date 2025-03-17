@@ -10,6 +10,9 @@ import WorkflowBuilderList from '@/pages/WorkflowBuilder/WorkflowBuilderList.tsx
 import WorkflowBuilder from '@/pages/WorkflowBuilder/WorkflowBuilder.tsx'
 import Workflow from '@/pages/WorkflowBuilder/Workflow.tsx'
 import ProcessConfiguration from '@/pages/ProcessConfiguration/ProcessConfiguration.tsx'
+import OtherTask from '@/pages/other/AdminSide/TrackTask/OtherTask.tsx'
+import Modules from '@/pages/other/DoerSide/Modules.tsx'
+import Process from '@/pages/other/DoerSide/Process.tsx'
 // import FormBuilder from '@/pages/FormBuilder/FormBuilder.tsx'
 
 // lazy load all the views
@@ -258,6 +261,18 @@ const customPagesRoutes = {
 			path: '/pages/Notification',
 			name: 'Notification',
 			element: <Notification />,
+			route: PrivateRoute,
+		},
+		{
+			path: '/pages/Modules',
+			name: 'Modules',
+			element: <Modules />,
+			route: PrivateRoute,
+		},
+		{
+			path: '/pages/Process',
+			name: 'Process',
+			element: <Process />,
 			route: PrivateRoute,
 		},
 		{
@@ -878,6 +893,12 @@ const customPagesRoutes = {
 			route: PrivateRoute,
 		},
 		{
+			path: '/pages/OtherTask',
+			name: 'OtherTask',
+			element: <OtherTask />,
+			route: PrivateRoute,
+		},
+		{
 			path: '/pages/CreateNotification',
 			name: 'CreateNotification',
 			element: <CreateNotification />,
@@ -936,21 +957,21 @@ const customPagesRoutes = {
 		},
 
 		// MODULES_MASTER
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
+
+
+
+
+
+
+
+
+
+
+
 		...MODULES_MASTER,
 
-		
-		
+
+
 
 	],
 }

@@ -4,6 +4,7 @@ import Select, { SingleValue } from 'react-select';
 import { Container, Row, Col, Card, Form, Button, Alert } from 'react-bootstrap';
 import config from '@/config';
 import DynamicForm from './Component/DynamicForm';
+import { getPlannedDate } from './Component/PlanDateFunction';
 // import 'remixicon/fonts/remixicon.css'; // Import Remix Icons
 
 interface Input {
@@ -44,7 +45,9 @@ interface Task {
   roleName: string;
   taskNumber: string;
   inputs: Input[];
+  completedDate: string;
   data: string;
+  rejectBlock: string;
   approval_Console: string;
   approvalConsoleInputID: number;
 }
@@ -182,6 +185,7 @@ const ApprovalPage: React.FC = () => {
 
       ) : (
         tasks.map((task) => (
+
           <Card key={task.id} className="mb-4">
             <Card.Header as="h5">Task Number: {task.task_Number}</Card.Header>
             <Card.Body>
@@ -190,7 +194,29 @@ const ApprovalPage: React.FC = () => {
                   <Card.Text>Project Name: {task.projectName}</Card.Text>
                   <Card.Text>Process Name: {task.processName}</Card.Text>
                   <Card.Text>Status: {task.isCompleted}</Card.Text>
-                  <Card.Text>Task Start Date: {task.createdDate}</Card.Text>
+                  <Card.Text>Task Start Date: {task.completedDate}</Card.Text>
+                  <Card.Text>
+                    Planned Date: {getPlannedDate(
+                      task.createdDate,
+                      (() => {
+                        const conditionData = typeof task.condition_Json === "string"
+                          ? JSON.parse(task.condition_Json)
+                          : task.condition_Json;
+
+                        const approvalTaskRow = conditionData?.approvalTaskRow || {};
+                        return `taskType - ${approvalTaskRow.taskType || ''}, 
+                    taskTiming - ${approvalTaskRow.taskTiming || ''}, 
+                    Hours - ${approvalTaskRow.Hours || ''}, 
+                    Days - ${approvalTaskRow.Days || ''}, 
+                    WeekDay - ${approvalTaskRow.WeekDay || ''}, 
+                    time - ${approvalTaskRow.time || ''}`;
+                      })()
+                    )}
+                  </Card.Text>
+
+
+
+
                 </Col>
                 <Col md={6}>
                   {task.approval_Console === 'Select Approval_Console' && (
@@ -236,6 +262,7 @@ const ApprovalPage: React.FC = () => {
           // selectedTasknumber={selectedTask.task_Number}
           // setLoading={() => { }}
           approvarActions={selectedTask.approvalConsoleInputID}
+          rejectBlock={selectedTask.rejectedJson}
           taskCommonIDRow={selectedTask.taskCommonId}
           taskStatus={selectedTask.isCompleted}
           processId={selectedTask.processID}
@@ -243,8 +270,8 @@ const ApprovalPage: React.FC = () => {
           ProcessInitiationID={selectedTask.id}
           approval_Console={selectedTask.approval_Console}
           // approvalConsoleInputID={selectedTask.approvalConsoleInputID}
-          projectName = {selectedTask.projectName}
-          problemSolver = {selectedTask.problemSolver}
+          projectName={selectedTask.projectName}
+          problemSolver={selectedTask.problemSolver}
 
         />
       )}
