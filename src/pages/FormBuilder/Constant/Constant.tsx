@@ -35,6 +35,44 @@ const FIELD_LIST = [
         }
     },
     {
+        name: "AmountInput",
+        is: "AmountInput",
+        property: {
+            label: "AmountInput",
+            placeholder: "placeholder",
+            required: "false",
+            advance: {
+                backgroundColor: '#fff',
+                color: '#000',
+
+            },
+            isShow: true,
+            disabled: false,
+            size: '12',
+            currencySymbol: '₹',
+
+        }
+    },
+    {
+        name: "FloatInput",
+        is: "FloatInput",
+        property: {
+            label: "FloatInput",
+            placeholder: "placeholder",
+            required: "false",
+            advance: {
+                backgroundColor: '#fff',
+                color: '#000',
+
+            },
+            isShow: true,
+            disabled: false,
+            size: '12',
+            prefix: '%',
+            decimalLimit: 2,
+        }
+    },
+    {
         name: "Email",
         is: "EmailInput",
         property: {
@@ -132,6 +170,26 @@ const FIELD_LIST = [
         is: "Select",
         property: {
             label: "Select",
+            placeholder: "placeholder",
+            required: "false",
+            options: [],
+
+            advance: {
+                backgroundColor: '#fff',
+                color: '#000',
+
+            },
+            isShow: true,
+            disabled: false,
+            size: '12'
+
+        }
+    },
+    {
+        name: "MultiSelect",
+        is: "MultiSelect",
+        property: {
+            label: "MultiSelect",
             placeholder: "placeholder",
             required: "false",
             options: [],

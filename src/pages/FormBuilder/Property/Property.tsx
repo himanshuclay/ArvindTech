@@ -167,7 +167,7 @@ const Property: React.FC<Props> = ({ form, setForm, property, setProperty, remov
                     </select>
                 </div>
             )}
-            {property.hasOwnProperty('dateSelection') !== undefined && (
+            {property.hasOwnProperty('dateSelection') && (
                 <div className='d-flex justify-content-between align-items-center mt-2'>
                     <label className='col-6'>Date Selection</label>
                     <select
@@ -181,7 +181,51 @@ const Property: React.FC<Props> = ({ form, setForm, property, setProperty, remov
                     </select>
                 </div>
             )}
-            {/* {property.hasOwnProperty('value') !== undefined && (
+            {property.hasOwnProperty('currencySymbol') && (
+                <div className='d-flex justify-content-between align-items-center mt-2'>
+                    <label className='col-6'>Date Selection</label>
+                    <select
+                        name="currencySymbol"
+                        className="border p-2 rounded col-6"
+                        value={property.currencySymbol}
+                        onChange={handleChange}
+                    >
+                        <option value="₹">₹</option>
+                        <option value="$">$</option>
+                    </select>
+                </div>
+            )}
+            {property.hasOwnProperty('decimalLimit') && (
+                <div className='d-flex justify-content-between align-items-center mt-2'>
+                    <label className='col-6'>Date Selection</label>
+                    <select
+                        name="decimalLimit"
+                        className="border p-2 rounded col-6"
+                        value={property.decimalLimit}
+                        onChange={handleChange}
+                    >
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="4">4</option>
+                        <option value="5">5</option>
+                        <option value="6">6</option>
+                    </select>
+                </div>
+            )}
+            {property.hasOwnProperty('prefix') && (
+                <div className='d-flex justify-content-between align-items-center mt-2'>
+                    <label className='col-6'>Date Selection</label>
+                    <select
+                        name="prefix"
+                        className="border p-2 rounded col-6"
+                        value={property.prefix}
+                        onChange={handleChange}
+                    >
+                        <option value="%">%</option>
+                    </select>
+                </div>
+            )}
+            {property.hasOwnProperty('value') !== undefined && (
                 <div className='d-flex justify-content-between align-items-center mt-2'>
                     <label className='col-6'>Value</label>
                     <select
@@ -190,14 +234,13 @@ const Property: React.FC<Props> = ({ form, setForm, property, setProperty, remov
                         value={property.value}
                         onChange={handleChange}
                     >
-                        <option value="1">1</option>
+                        <option value="">Select options</option>
                         {property?.options?.map((option, index) => (
-                            <option></option>
+                            <option value={option.value}>{option.label}</option>
                         ))}
-                        <option value="1">1</option>
                     </select>
                 </div>
-            )} */}
+            )}
 
             {/* Options Fields */}
             {property.hasOwnProperty('options') && (

@@ -51,6 +51,7 @@ interface DynamicFormProps {
     parsedCondition: any
     taskName: any
     setShow: any
+    setAdhocJson: any
     preData: any
     projectName: any
     taskCommonIDRow: any
@@ -94,6 +95,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
     projectName,
     finishPoint,
     setShow,
+    setAdhocJson,
     parsedCondition,
     preData,
     formData,
@@ -531,6 +533,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
 
     const handleClose = () => {
         setShow(false)
+        setAdhocJson('')
     }
 
     const projectNames = projectName
@@ -1190,6 +1193,38 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
             ...prevDetails,
             [name]: value,
         }))
+    }
+
+    const handleAdhocForm = async () => {
+        try {
+            const query = {
+                projectName: projectName,
+                moduleID: moduleId,
+                processID: processId,
+                taskCommonID: 0,
+                adhocJson: JSON.stringify(form),
+                blockValue: JSON.stringify(blockValue),
+                taskNumber: taskNumber,
+                createdBy: ""
+            }
+            const response = await fetch(
+                `${config.API_URL_ACCOUNT}/AdhocForm/InsertAdhocJsonMaster`,
+                {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(query),
+                }
+            )
+            if (response.ok) {
+                const responseData = await response.json();
+                if(responseData.isSuccess){
+                    toast.success(responseData.message);
+                    handleClose();
+                }
+            }
+        } catch (error) {
+            console.log(error)
+        }
     }
 
 
@@ -1990,7 +2025,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                     {formBuilderData?.blocks?.length && (
                         <>
                             <Editor form={form} setForm={setForm} property={property} setProperty={setProperty} blockValue={blockValue} setBlockValue={setBlockValue} isShowSave={false} />
-                            <button type='button' onClick={(event) => handleSubmit(event, taskNumber)}>Save</button>
+                            <button type='button' onClick={(event) => handleAdhocForm()}>Save</button>
                         </>
                     )}
                 </div>

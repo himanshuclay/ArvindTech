@@ -46,6 +46,7 @@ const Action: React.FC<Props> = ({ actionProps }) => {
         actionProps.setForm({
             name: '',
             blocks: [],
+            blockCount: 0,
             editMode: true,
             rules: [],
             advance: {

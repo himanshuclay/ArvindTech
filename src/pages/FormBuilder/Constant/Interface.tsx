@@ -1,7 +1,10 @@
+import AmountInput from "../Components/AmountInput";
 import DateInput from "../Components/DateInput";
 import DateRange from "../Components/DateRange";
 import EmailInput from "../Components/EmailInput";
 import FileUpload from "../Components/FileUpload";
+import FloatInput from "../Components/FloatInput";
+import MultiSelect from "../Components/MultiSelect";
 import NumberInput from "../Components/NumberInput";
 import Password from "../Components/Password";
 import PhoneInput from "../Components/PhoneInput";
@@ -18,11 +21,15 @@ const componentsMap = {
     DateInput,
     FileUpload,
     DateRange,
+    MultiSelect,
+    AmountInput,
+    FloatInput,
 };
 
 interface FIELD {
     name: string;
     blocks: BASIC_FIELD[];
+    blockCount: number;
     editMode: boolean;
     rules: RULE[];
     advance: ADVANCE;
@@ -62,12 +69,14 @@ interface PROPERTY {
     startDateId?: string;
     endDateId?:string;
     size?:string;
-    dateSelection?: string;
-
+    dateSelection?: string;  
+    currencySymbol?: string;  
+    decimalLimit?: string;  
+    prefix?: string;  
 }
 interface OPTION { label: string; value: string }
 interface BLOCK_VALUE {
-    [key: string]: string ;
+    [key: string]: string | string[];
 }
 interface TRIGGER_ACTION {
     type: string;   // e.g., 'show_hide' or 'bind'

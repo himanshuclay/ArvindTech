@@ -13,6 +13,9 @@ import { Button } from 'react-bootstrap';
 import DateRange from './Components/DateRange';
 import FileUpload from './Components/FileUpload';
 import DateInput from './Components/DateInput';
+import MultiSelect from './Components/MultiSelect';
+import AmountInput from './Components/AmountInput';
+import FloatInput from './Components/FloatInput';
 
 
 
@@ -47,6 +50,9 @@ const componentsMap = {
     DateRange,
     FileUpload,
     DateInput,
+    MultiSelect,
+    AmountInput,
+    FloatInput,
 };
 
 const DynamicComponentRenderer: React.FC<DynamicComponentProps> = ({ form, componentType, block, handleChange, validationErrors, blockValue, setBlockValue }) => {
@@ -125,11 +131,13 @@ const Editor: React.FC<EditorProps> = ({ form, setForm, property, setProperty, b
         const fieldData = e.dataTransfer.getData('application/json');
         if (fieldData) {
             const droppedField: BASIC_FIELD = JSON.parse(fieldData);
-            droppedField.property.id = `Block_${form.blocks.length}`;
+            droppedField.property.id = `Block_${form.blockCount+1}`;
             setForm(prevForm => ({
                 ...prevForm,
                 blocks: [...prevForm.blocks, droppedField],
+                blockCount: prevForm.blockCount+1,
             }));
+            console.log('form', form)
         }
         handleDragLeave();
     };
@@ -226,7 +234,9 @@ const Editor: React.FC<EditorProps> = ({ form, setForm, property, setProperty, b
                 }));
             } else if (action.type === 'bind' && action.bindBlock) {
                 const updatedBlockValue = manageBind(action.bindBlock, blockValue, action.rule);
-                if (action.bindBlock.is === 'Select') {
+                console.log('updatedBlockValue', updatedBlockValue)
+                console.log('form', form)
+                if (['Select', 'MultiSelect'].includes(action.bindBlock.is)) {
                     setForm(prevForm => ({
                         ...prevForm,
                         blocks: prevForm.blocks.map(block =>

@@ -28,6 +28,7 @@ const FormBuilder: React.FC<FormBuilderProps> = ({ formDetails, handleClose, for
     const [form, setForm] = useState<FIELD>(formBuilder ? formBuilder : {
         name: '',
         blocks: [],
+        blockCount: 0,
         editMode: true,
         rules: [],
         advance: {
