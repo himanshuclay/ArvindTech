@@ -176,6 +176,7 @@ const ProjectAssignTable: React.FC = () => {
             params: {
               Flag: 1,
               DoerId: role,
+              Id: 0,
               PageIndex: currentPage,
             },
           }

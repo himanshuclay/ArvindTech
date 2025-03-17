@@ -926,12 +926,12 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                 taskStatus: taskStatus,
                 taskName: taskName,
                 rejectedJson:
-                    rejectBlock != "" ? rejectBlock : fromComponent === 'ApprovalConsole'
-                        ? approvalStatus?.value?.trim().toLowerCase() === 'reject'
-                            ? globalTaskJson
-                            : ''
-                        : '',
-                completeDate: new Date().toISOString().slice(2, 10),
+                rejectBlock != "" ? rejectBlock : fromComponent === 'ApprovalConsole'
+                  ? approvalStatus?.value?.trim().toLowerCase() === 'reject'
+                    ? globalTaskJson
+                    : ''
+                  : '',
+                completedDate: new Date().toISOString().slice(2, 10),
                 endprocessStatus: 'string',
                 // file: '',
                 updatedBy: role,
@@ -960,14 +960,23 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
 
                 // ✅ Additional Check: RenderedInputs must have value(s)
                 const isRenderedInputsValid = renderedInputs.every((input: Input) => {
-                    const currentValue = formState[input.inputId] ?? input.value ?? '';
-
-                    if (Array.isArray(currentValue)) {
-                        return currentValue.length > 0; // Array inputs
+                    // Check if the input is required
+                    if (input.required === true) {
+                        const currentValue = formState[input.inputId] ?? input.value ?? '';
+                
+                        if (Array.isArray(currentValue)) {
+                            // For required array inputs, it must have at least one value
+                            return currentValue.length > 0;
+                        }
+                
+                        // For required text/other inputs, it must not be an empty string
+                        return String(currentValue).trim() !== '';
                     }
-
-                    return String(currentValue).trim() !== ''; // Non-empty string
+                
+                    // If not required, consider it valid
+                    return true;
                 });
+                
 
                 if (processId !== "ACC.01") {
                     if (!isAnyInputFilled) {
@@ -1449,7 +1458,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                                     <div className="my-task">
                                         {formData.inputs.map(
                                             (input: Input) =>
-                                                ((fromComponent === 'TaskMaster' && 'PendingTask') ||
+                                                (['TaskMaster', 'ApprovalConsole'].includes(fromComponent) ||
                                                     shouldDisplayInput(input)) && (
                                                     <div
                                                         className={`${!input.visibility ? 'd-none' : 'form-group'
