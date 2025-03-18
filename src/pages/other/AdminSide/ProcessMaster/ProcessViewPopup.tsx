@@ -47,7 +47,7 @@ const ProcessViewPopup: React.FC<ProcessCanvasProps> = ({ showView, setShowView,
             }
         };
         fetchData();
-    }, [id]);
+    }, [id, showView]);
 
     useEffect(() => {
         if (showView && moduleName && processId) {
@@ -68,7 +68,8 @@ const ProcessViewPopup: React.FC<ProcessCanvasProps> = ({ showView, setShowView,
             if (response.data.isSuccess) {
                 const fetchedModule = response.data.processMasterList[0];
                 setProcessId(fetchedModule.processID);
-                setModuleName(fetchedModule.moduleName);
+                setModuleName(fetchedModule.moduleID);
+                console.log(fetchedModule)
 
             } else {
                 console.error(response.data.message);
@@ -84,7 +85,7 @@ const ProcessViewPopup: React.FC<ProcessCanvasProps> = ({ showView, setShowView,
     const GetProcessTaskByIds = async (moduleID: string, processId: string) => {
         try {
             const response = await axios.get(`${config.API_URL_ACCOUNT}/ProcessTaskMaster/GetProcessTaskByIds`, {
-                params: { Flag: 2, ModuleID: moduleID, ProcessID: processId }
+                params: { Flag: 2, ModuleID: moduleID, ProcessID: processId, PageIndex: 1 }
             });
             console.log(response)
             if (response.data.isSuccess) {

@@ -1091,7 +1091,7 @@ const App: React.FC = () => {
           return (
             <div className='col-6'>
               <div>{field.labeltext}</div>
-              <div>Date: {field.date}</div>
+              <div>Date: {field.selection}</div>
             </div>
           );
         case 'custom':
