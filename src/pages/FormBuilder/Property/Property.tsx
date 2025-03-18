@@ -225,6 +225,20 @@ const Property: React.FC<Props> = ({ form, setForm, property, setProperty, remov
                     </select>
                 </div>
             )}
+            {property.hasOwnProperty('isLooping') && (
+                <div className='d-flex justify-content-between align-items-center mt-2'>
+                    <label className='col-6'>Is Looping</label>
+                    <select
+                        name="isLooping"
+                        className="border p-2 rounded col-6"
+                        value={property.isLooping}
+                        onChange={handleChange}
+                    >
+                        <option value="true">yes</option>
+                        <option value="false">no</option>
+                    </select>
+                </div>
+            )}
             {property.hasOwnProperty('value') !== undefined && (
                 <div className='d-flex justify-content-between align-items-center mt-2'>
                     <label className='col-6'>Value</label>

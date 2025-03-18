@@ -201,8 +201,9 @@ const FIELD_LIST = [
             },
             isShow: true,
             disabled: false,
-            size: '12'
-
+            size: '12',
+            isLooping: false,
+            loopBlocks: [],
         }
     },
     {
@@ -265,6 +266,8 @@ const SHOW_HIDE = [
 const END2 = {
     SHOW_HIDE: [{ label: "Show", value: 'SHOW' }, { label: 'Hide', value: 'HIDE' }],
     COUNTRY: [{ label: "Country", value: 'COUNTRY' }],
+    STATUS: [{ label: "Status", value: 'STATUS' }],
+    ON_GOING: [{ label: "On Going", value: 'Ongoing' }],
 }
 const START3 = [
     { label: 'state', value: 'STATE' }

@@ -35,7 +35,7 @@ const Select: React.FC<Props> = ({ block, handleChange, validationErrors = {}, e
 
     return (
         <div>
-            {(block.property.isShow || editMode) && (
+            {(block.property.isShow || editMode && block.property.options.length) && (
             <Form.Group controlId={block.property.id} className="mb-3">
                 <Form.Label>
                     {block.property.label}

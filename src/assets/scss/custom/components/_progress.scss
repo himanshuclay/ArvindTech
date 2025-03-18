@@ -1167,3 +1167,22 @@ input.numInput.cur-year:hover {
 .notification-content p {
   margin-bottom: 0px !important;
 }
+
+.drop-zone {
+  min-height: 20px;
+  border: 2px dashed #ddd;
+  border-radius: 8px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+
+.drop-zone p {
+  color: #888;
+  font-size: 14px;
+}
+
+.border-green {
+  border-color: #28a745 !important;
+}

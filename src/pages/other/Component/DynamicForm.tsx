@@ -1088,7 +1088,7 @@ const options: OptionType[] =
     const renderedInputs = useMemo(() => {
         const excludedInputIds = ['99', '100', '102', '103'];
 
-        return formData.inputs.filter((input: Input) => {
+        return formData?.inputs?.filter((input: Input) => {
             const isExcluded = excludedInputIds.includes(String(input.inputId));
 
             const isVisible = shouldDisplayInput(input);
@@ -1317,7 +1317,6 @@ const options: OptionType[] =
                 <Modal.Header closeButton className=" ">
                     <Modal.Title className="text-dark">Task Details</Modal.Title>
                 </Modal.Header>
-
                 {location.pathname != '/pages/ApprovalConsole' && (
                     <div className="px-3">
                         {location.pathname !== '/pages/ApprovalConsole' && (
