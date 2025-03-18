@@ -35,6 +35,8 @@ interface Input {
     selectedMaster?: string
     selectedHeader?: string
     visibility?: boolean
+    fileType?: string;
+    fileSize?: string;
 }
 
 interface DynamicFormProps {
@@ -547,25 +549,25 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
         approvewithamendment: "Approve with Amendment"
     };
 
-    console.log("rejectBlock value:", rejectBlock);
+    // console.log("rejectBlock value:", rejectBlock);
 
-const options: OptionType[] =
-  typeof approvarActions === 'string'
-    ? approvarActions
-        .split(",")
-        .filter(action => {
-          console.log("Filtering action:", action);
-          return !(rejectBlock !== "" && action === 'reject');
-        })
-        .map((action: any) => ({
-          value: action,
-          label: approvalLabels[action] || action,
-        }))
-    : [];
+    const options: OptionType[] =
+        typeof approvarActions === 'string'
+            ? approvarActions
+                .split(",")
+                .filter(action => {
+                    // console.log("Filtering action:", action);
+                    return !(rejectBlock !== "" && action === 'reject');
+                })
+                .map((action: any) => ({
+                    value: action,
+                    label: approvalLabels[action] || action,
+                }))
+            : [];
 
-  
 
-    console.log("46356356356", approvarActions);
+
+    // console.log("46356356356", approvarActions);
 
     type OptionType = { value: string; label: string }
 
@@ -606,7 +608,7 @@ const options: OptionType[] =
     const localStorageKey = 'messFormData' // Key for localStorage
 
     const [approvalStatus, setApprovalStatus] = useState<OptionType | null>(null)
-    console.log(approvalStatus?.value)
+    // console.log(approvalStatus?.value)
 
     const submitMessData = async (event: React.FormEvent) => {
         event.preventDefault() // Prevent page refresh
@@ -785,7 +787,7 @@ const options: OptionType[] =
                     setglobalTaskJson(updatedTaskJson)
                 }
 
-                reEvaluateConditions(newState) // Re-evaluate conditions with updated state
+                reEvaluateConditions(newState)
                 console.log(newState)
 
                 setShowMessManagerSelect(Object.values(newState).includes('11-1'))
@@ -797,17 +799,21 @@ const options: OptionType[] =
         }
     }
 
-    console.log(rejectBlock);
+    // console.log(rejectBlock);
 
     const handleSubmit = async (event: React.FormEvent, taskNumber: string) => {
+        event.preventDefault()
         console.log('found')
 
 
-        // if (fileUploaderRef.current) {
-        //     await fileUploaderRef.current.uploadFiles();
-        // }
-
-        event.preventDefault()
+        if (fileUploaderRef.current) {
+            try {
+                await fileUploaderRef.current.uploadFiles();
+            } catch (error) {
+                console.error('Error uploading files:', error);
+                return; // Stop form submission if file upload fails
+            }
+        }
         {
             processId === 'ACC.01' && saveDataToLocalStorage()
         }
@@ -862,7 +868,7 @@ const options: OptionType[] =
         }
         if (fromComponent === 'PendingTask' || 'ApprovalConsole') {
             console.log(approval_Console)
-            console.log("this is culprit",selectedCondition,parsedCondition);
+            console.log("this is culprit", selectedCondition, parsedCondition);
 
             const requestData = {
                 id: ProcessInitiationID || 0,
@@ -925,7 +931,7 @@ const options: OptionType[] =
                     ? globalTaskJson
                     : ''
                   : '',
-                completeDate: new Date().toISOString().slice(2, 10),
+                completedDate: new Date().toISOString().slice(2, 10),
                 endprocessStatus: 'string',
                 // file: '',
                 updatedBy: role,
@@ -944,24 +950,32 @@ const options: OptionType[] =
                     return;
                 }
 
-                // Check if any input in globalTaskJson is filled
                 const isAnyInputFilled = parsedGlobalTaskJson.inputs.some((input: any) => {
                     if (Array.isArray(input.value)) {
-                        return input.value.length > 0; // Array has at least one item
+                        return input.value.length > 0;
                     }
-                    return !!input.value?.trim(); // String is not empty
+                    return !!input.value?.trim();
                 });
 
                 // ✅ Additional Check: RenderedInputs must have value(s)
                 const isRenderedInputsValid = renderedInputs.every((input: Input) => {
-                    const currentValue = formState[input.inputId] ?? input.value ?? '';
-
-                    if (Array.isArray(currentValue)) {
-                        return currentValue.length > 0; // Array inputs
+                    // Check if the input is required
+                    if (input.required === true) {
+                        const currentValue = formState[input.inputId] ?? input.value ?? '';
+                
+                        if (Array.isArray(currentValue)) {
+                            // For required array inputs, it must have at least one value
+                            return currentValue.length > 0;
+                        }
+                
+                        // For required text/other inputs, it must not be an empty string
+                        return String(currentValue).trim() !== '';
                     }
-
-                    return String(currentValue).trim() !== ''; // Non-empty string
+                
+                    // If not required, consider it valid
+                    return true;
                 });
+                
 
                 if (processId !== "ACC.01") {
                     if (!isAnyInputFilled) {
@@ -1295,7 +1309,7 @@ const options: OptionType[] =
             )
             if (response.ok) {
                 const responseData = await response.json();
-                if(responseData.isSuccess){
+                if (responseData.isSuccess) {
                     toast.success(responseData.message);
                     handleClose();
                 }
@@ -1442,7 +1456,7 @@ const options: OptionType[] =
                                     <div className="my-task">
                                         {formData.inputs.map(
                                             (input: Input) =>
-                                                ((fromComponent === 'TaskMaster' && 'PendingTask') ||
+                                                (['TaskMaster', 'ApprovalConsole'].includes(fromComponent) ||
                                                     shouldDisplayInput(input)) && (
                                                     <div
                                                         className={`${!input.visibility ? 'd-none' : 'form-group'
@@ -1812,6 +1826,7 @@ const options: OptionType[] =
                                                                     additionalData={{
                                                                         ModuleID: moduleId,
                                                                         CreatedBy: 'yourUserID',
+                                                                        FileType: 'Weekly',
                                                                         TaskCommonID: taskCommonIDRow,
                                                                         Task_Number: taskNumber,
                                                                         ProcessInitiationID: ProcessInitiationID,
@@ -1822,6 +1837,10 @@ const options: OptionType[] =
                                                                         const names = files.map(file => file.name);
                                                                         setFileNames(names);
                                                                         handleChange(input.inputId, JSON.stringify(names));
+                                                                    }}
+                                                                    fileConfig={{
+                                                                        fileType: input.fileType,  // Example: '.png'
+                                                                        fileSize: input.fileSize    // Example: '1' means only 1 file allowed
                                                                     }}
                                                                 />
 

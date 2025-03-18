@@ -212,7 +212,7 @@ const getFilteredMenuItems = () => {
           label: 'Form Master',
           url: '/pages/FormList',
           icon: 'ri-slideshow-line',
-          parentKey: 'pages',
+          parentKey: 'systemmaster',
         },
         {
           key: 'systemmaster-ModuleMaster',
@@ -482,25 +482,25 @@ const getFilteredMenuItems = () => {
       // parentKey: 'systemmaster',
       children: [
         {
-          key: 'Mess-Master',
+          key: 'HR Templete',
           label: 'HR Templete Master',
           url: '/pages/AdhocTempleteList',
           parentKey: 'FormMaster',
         },
         {
-          key: 'Mess-Master',
+          key: 'Account Templete',
           label: 'Account Templete Master',
           url: '/pages/AdhocTempleteList',
           parentKey: 'FormMaster',
         },
         {
-          key: 'Mess-Master',
+          key: 'BD Templete',
           label: 'BD Templete Master',
           url: '/pages/AdhocTempleteList',
           parentKey: 'FormMaster',
         },
         {
-          key: 'Mess-Master',
+          key: 'Adhoc Master',
           label: 'Adhoc Master',
           url: '/pages/AdhocMaster',
           parentKey: 'FormMaster',
@@ -566,15 +566,15 @@ const getFilteredMenuItems = () => {
       icon: 'ri-survey-line',
       children: [
         {
-          key: 'Create',
+          key: 'SuggestionMasterinsert',
           label: 'Create',
-          url: '/pages/Create',
+          url: '/pages/SuggestionMasterinsert',
           parentKey: 'Suggestion',
         },
         {
-          key: 'View',
+          key: 'SuggestionMaster',
           label: 'View',
-          url: '/pages/View',
+          url: '/pages/SuggestionMaster',
           parentKey: 'Suggestion',
         }
       ],
@@ -648,7 +648,7 @@ const getFilteredMenuItems = () => {
       item.key === 'ProcessDataMaster' ||
       item.key === 'Modules' ||
       item.key === 'FormMaster' ||
-      item.key === 'WorkflowBuilderList' || 
+      item.key === 'WorkflowBuilderList' ||
       item.key === 'ProcessConfiguration' ||
       item.key === 'Notifications' ||
       item.key === 'SeekHelp' ||

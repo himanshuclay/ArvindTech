@@ -64,6 +64,7 @@ const DesignationMaster = () => {
     const [columns, setColumns] = useState<Column[]>([
         { id: 'subject', label: 'Subject', visible: true },
         { id: 'content', label: 'Content ', visible: true },
+        { id: 'levelType', label: 'Level Type ', visible: true },
         { id: 'createdDate', label: 'Created Date ', visible: true },
     ]);
 
@@ -96,6 +97,7 @@ const DesignationMaster = () => {
                     attachment: item.attachment,
                     doerIDs: item.getDoerDetails?.map(doer => doer.doerID) || [],
                     roleNames: [],
+                    levelType: item.levelType,
                     createdBy: '',
                     createdDate: item.createdDate,
                     updatedBy: '',

@@ -117,6 +117,12 @@ const CreateNotification = React.lazy(() => import('../pages/other/Component/Vie
 
 
 
+
+const SuggestionMaster = React.lazy(() => import('../pages/other/AdminSide/SuggestionMaster/SuggestionMaster.tsx'))
+const SuggestionMasterinsert = React.lazy(() => import('../pages/other/AdminSide/SuggestionMaster/SuggestionMasterinsert.tsx'))
+
+
+
 const ContactListPages = React.lazy(() => import('../pages/other/ContactList'))
 const TimelinePages = React.lazy(() => import('../pages/other/Timeline'))
 
@@ -904,6 +910,18 @@ const customPagesRoutes = {
 			element: <CreateNotification />,
 			route: PrivateRoute,
 		},
+		{
+			path: '/pages/SuggestionMasterinsert',
+			name: 'SuggestionMasterinsert',
+			element: <SuggestionMasterinsert />,
+			route: PrivateRoute,
+		},
+		{
+			path: '/pages/SuggestionMaster',
+			name: 'SuggestionMaster',
+			element: <SuggestionMaster />,
+			route: PrivateRoute,
+		},
 
 		///////////////////////////////////////////////////////////////////////////////////////////
 		{
@@ -948,7 +966,7 @@ const customPagesRoutes = {
 			element: <Workflow />,
 			route: PrivateRoute,
 		},
-		
+
 		{
 			path: 'pages/ProcessConfiguration',
 			name: 'Process Configuration',

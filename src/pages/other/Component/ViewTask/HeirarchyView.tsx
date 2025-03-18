@@ -99,6 +99,8 @@ const HeirarchyView: React.FC<ProcessCanvasProps> = ({ showView, setShowView, id
     // }
 
 
+    console.log(preData)
+
     return (
         <div>
             <Offcanvas className="w-50" show={showView} placement="end" onHide={handleClose}>
@@ -139,11 +141,11 @@ const HeirarchyView: React.FC<ProcessCanvasProps> = ({ showView, setShowView, id
                                                     <tr>
                                                         <td className='text-nowrap'><h5>Plan Date :</h5></td>
                                                         <td> <h5 className='text-primary'>
-                                                            {task.task_Number.split(".")[2] === "T1" && (
-                                                            //     calculatePlannedDate(task.createdDate)
-                                                            // ) : (
-                                                                getPlannedDate(task.createdDate, task.planDate)
-                                                            )}
+                                                            {/* {task.task_Number.split(".")[2] === "T1" && (
+                                                                    calculatePlannedDate(task.createdDate)
+                                                                ) : (
+                                                                )} */}
+                                                            {getPlannedDate(task.createdDate, task.planDate)}
                                                         </h5></td>
                                                     </tr>
                                                     <tr>
