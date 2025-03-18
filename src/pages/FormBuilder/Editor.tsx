@@ -28,6 +28,7 @@ interface EditorProps {
     setBlockValue: React.Dispatch<React.SetStateAction<BLOCK_VALUE>>;
     expandedRow?: number | null;
     isShowSave?: boolean;
+    isPreview?: boolean;
 }
 
 interface DynamicComponentProps {
@@ -78,9 +79,10 @@ const DynamicComponentRenderer: React.FC<DynamicComponentProps> = ({ form, compo
     );
 };
 
-const Editor: React.FC<EditorProps> = ({ form, setForm, property, setProperty, blockValue, setBlockValue, expandedRow, isShowSave=true }) => {
+const Editor: React.FC<EditorProps> = ({ form, setForm, property, setProperty, blockValue, setBlockValue, expandedRow, isShowSave = true, isPreview = false }) => {
     const [validationErrors, setValidationErrors] = useState<{ [key: string]: string }>({});
     const [triggeredActions, setTriggeredActions] = useState<TRIGGER_ACTION[]>([]);
+    const [draggingOver, setDraggingOver] = useState<{ [key: string]: boolean }>({});  // Track if drag is over a zone
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>, id: string) => {
         const newValue = e.target.value;
@@ -125,30 +127,71 @@ const Editor: React.FC<EditorProps> = ({ form, setForm, property, setProperty, b
         }
     };
 
-    const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
+    const handleDrop = (e: React.DragEvent<HTMLDivElement>, dropZoneId: string) => {
         e.preventDefault();
+        e.stopPropagation();
+
+        setDraggingOver(prevState => ({ ...prevState, [dropZoneId]: false })); // Reset dragging over state
 
         const fieldData = e.dataTransfer.getData('application/json');
-        if (fieldData) {
-            const droppedField: BASIC_FIELD = JSON.parse(fieldData);
-            droppedField.property.id = `Block_${form.blockCount+1}`;
+        const dropZone = e.currentTarget.getAttribute('id');
+
+        if (!fieldData || !dropZone) return;
+
+        const droppedField: BASIC_FIELD = JSON.parse(fieldData);
+
+        // Check if dropped in main editor area
+        if (dropZone === "Editor") {
+            droppedField.property.id = `Block_${form.blockCount + 1}`;
+
             setForm(prevForm => ({
                 ...prevForm,
                 blocks: [...prevForm.blocks, droppedField],
-                blockCount: prevForm.blockCount+1,
+                blockCount: prevForm.blockCount + 1,
             }));
-            console.log('form', form)
+
+            // Check if dropped in a specific block area
+        } else if (dropZone.startsWith("TopBlock_") || dropZone.startsWith("BottomBlock_")) {
+            // Extract block index or any other logic you want
+            const blockIndex = parseInt(dropZone.split("_")[1], 10);
+
+            if (!isNaN(blockIndex)) {
+                // Example: Insert droppedField after this index
+                droppedField.property.id = `Block_${form.blockCount + 1}`;
+
+                setForm(prevForm => {
+                    const updatedBlocks = [...prevForm.blocks];
+                    updatedBlocks.splice(blockIndex, 0, droppedField);
+
+                    return {
+                        ...prevForm,
+                        blocks: updatedBlocks,
+                        blockCount: prevForm.blockCount + 1,
+                    };
+                });
+            }
         }
-        handleDragLeave();
+
+        handleDragLeave(e, dropZoneId);
     };
 
-    const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+
+    const handleDragOver = (e: React.DragEvent<HTMLDivElement>, dropZoneId: string) => {
         e.preventDefault();
-        document.getElementById("Editor")?.classList.add('border-green');
+        e.stopPropagation();
+        setDraggingOver(prevState => ({ ...prevState, [dropZoneId]: true })); // Set dragging over state to true
+
+        const dropZone = e.currentTarget.getAttribute('id');
+        document.getElementById(`${dropZone}`)?.classList.add('border-green');
     };
 
-    const handleDragLeave = () => {
-        document.getElementById("Editor")?.classList.remove('border-green');
+    const handleDragLeave = (e: React.DragEvent<HTMLDivElement>, dropZoneId: string) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setDraggingOver(prevState => ({ ...prevState, [dropZoneId]: false })); // Reset dragging over state
+
+        const dropZone = e.currentTarget.getAttribute('id');
+        document.getElementById(`${dropZone}`)?.classList.remove('border-green');
     };
 
     const handleProperty = (block: BASIC_FIELD) => {
@@ -262,7 +305,7 @@ const Editor: React.FC<EditorProps> = ({ form, setForm, property, setProperty, b
                 const changedKeys = Object.keys(blockValue).filter(
                     key => blockValue[key] !== prevBlockValue[key]
                 );
-                
+
                 if (changedKeys.length === 0) return;
                 setPrevBlockValue(blockValue);
                 someRule();
@@ -275,46 +318,77 @@ const Editor: React.FC<EditorProps> = ({ form, setForm, property, setProperty, b
         <div
             className='bg-white editor p-4 border rounded min-h-40 overflow-y-auto'
             id='Editor'
-            onDrop={handleDrop}
-            onDragOver={handleDragOver}
-            onDragLeave={handleDragLeave}
+            onDrop={(e) => handleDrop(e, 'Editor')}
+            onDragOver={(e) => handleDragOver(e, 'Editor')}
+            onDragLeave={(e) => handleDragLeave(e, 'Editor')}
         >
-            <div className='d-flex flex-wrap'>
+            <fieldset disabled={isPreview}>
+                <div className='d-flex flex-wrap'>
 
 
-                {form.blocks.length === 0 ? (
-                    <p className="text-gray-400">Drag fields here...</p>
-                ) : (
-                    form.blocks.map((block, index) => (
-                        <div
-                            id={block.property.id}
-                            key={index}
-                            className={`col-lg-${block.property.size ? block.property.size : '12'} p-2 rounded bg-gray-100 ${form.editMode ? 'border cursor-pointer' : ''} ${block.property.id === property.id ? 'border-green' : ''}`}
-                            onClick={() => handleProperty(block)}
-                            style={block.property.advance}
-                        >
-                            <DynamicComponentRenderer
-                                form={form}
-                                componentType={block.is}
-                                block={block}
-                                handleChange={handleChange}
-                                validationErrors={validationErrors}
-                                blockValue={blockValue}
-                                setBlockValue={setBlockValue}
-                            />
-                        </div>
-                    ))
+                    {form.blocks.length === 0 ? (
+                        <p className="text-gray-400">Drag fields here...</p>
+                    ) : (
+                        form.blocks.map((block, index) => (
+                            <div className={`col-lg-${block.property.size ? block.property.size : '12'}`}>
+                                {form.editMode && (
+                                    <div
+                                        id={`TopBlock_${index}`}
+                                        className={`drop-zone ${draggingOver[`TopBlock_${index}`] ? 'border-green' : ''}`}
+                                        onDrop={(e) => handleDrop(e, `TopBlock_${index}`)}
+                                        onDragOver={(e) => handleDragOver(e, `TopBlock_${index}`)}
+                                        onDragLeave={(e) => handleDragLeave(e, `TopBlock_${index}`)}
+                                    >
+                                        {draggingOver[`TopBlock_${index}`] && (
+                                            <p className="text-center text-gray-400">Drag it here</p>
+                                        )}
+                                    </div>
+                                )}
+
+                                <div
+                                    id={block.property.id}
+                                    key={index}
+                                    className={`col-lg-12 p-2 rounded bg-gray-100 ${form.editMode ? 'border cursor-pointer' : ''} ${block.property.id === property.id ? 'border-green' : ''}`}
+                                    onClick={() => handleProperty(block)}
+                                    style={block.property.advance}
+                                >
+                                    <DynamicComponentRenderer
+                                        form={form}
+                                        componentType={block.is}
+                                        block={block}
+                                        handleChange={handleChange}
+                                        validationErrors={validationErrors}
+                                        blockValue={blockValue}
+                                        setBlockValue={setBlockValue}
+                                    />
+                                </div>
+                                {form.editMode && (
+                                    <div
+                                        id={`BottomBlock_${index + 1}`}
+                                        className={`drop-zone ${draggingOver[`BottomBlock_${index + 1}`] ? 'border-green' : ''}`}
+                                        onDrop={(e) => handleDrop(e, `BottomBlock_${index + 1}`)}
+                                        onDragOver={(e) => handleDragOver(e, `BottomBlock_${index + 1}`)}
+                                        onDragLeave={(e) => handleDragLeave(e, `BottomBlock_${index + 1}`)}
+                                    >
+                                        {draggingOver[`BottomBlock_${index + 1}`] && (
+                                            <p className="text-center text-gray-400">Drag it here</p>
+                                        )}
+                                    </div>
+                                )}
+                            </div>
+                        ))
+                    )}
+                </div>
+                {!form.editMode && isShowSave && (
+                    <Button
+                        type='button'
+                        onClick={handleSave}
+                        className='mt-4 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition'
+                    >
+                        Save
+                    </Button>
                 )}
-            </div>
-            {!form.editMode && isShowSave && (
-                <Button
-                    type='button'
-                    onClick={handleSave}
-                    className='mt-4 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition'
-                >
-                    Save
-                </Button>
-            )}
+            </fieldset>
         </div>
     );
 };

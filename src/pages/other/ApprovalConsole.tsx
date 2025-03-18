@@ -194,25 +194,38 @@ const ApprovalPage: React.FC = () => {
                   <Card.Text>Project Name: {task.projectName}</Card.Text>
                   <Card.Text>Process Name: {task.processName}</Card.Text>
                   <Card.Text>Status: {task.isCompleted}</Card.Text>
-                  <Card.Text>Task Start Date: {task.completedDate}</Card.Text>
+                  <Card.Text>CreatedDate: {task.completedDate}</Card.Text>
                   <Card.Text>
                     Planned Date: {getPlannedDate(
-                      task.createdDate,
+                      task.completedDate,
                       (() => {
-                        const conditionData = typeof task.condition_Json === "string"
-                          ? JSON.parse(task.condition_Json)
-                          : task.condition_Json;
+                        // Log the original condition_Json to inspect the value before parsing
+                        console.log("Original condition_Json:", task.condition_Json);
 
-                        const approvalTaskRow = conditionData?.approvalTaskRow || {};
+                        const conditionData = typeof task.condition_Json === "string"
+                          ? JSON.parse(task.condition_Json) // Parse the JSON if it's a string
+                          : task.condition_Json;            // Use the object as is if it's already parsed
+
+                        // Log the parsed conditionData to inspect its structure
+                        console.log("Parsed conditionData:", conditionData);
+
+                        // Access the first item in the array
+                        const approvalTaskRow = conditionData[0]?.approvalTaskRow || {};
+
+                        // Log the approvalTaskRow to inspect its values
+                        console.log("approvalTaskRow:", approvalTaskRow);
+
                         return `taskType - ${approvalTaskRow.taskType || ''}, 
-                    taskTiming - ${approvalTaskRow.taskTiming || ''}, 
-                    Hours - ${approvalTaskRow.Hours || ''}, 
-                    Days - ${approvalTaskRow.Days || ''}, 
-                    WeekDay - ${approvalTaskRow.WeekDay || ''}, 
-                    time - ${approvalTaskRow.time || ''}`;
+              taskTiming - ${approvalTaskRow.taskTiming || ''}, 
+              Hours - ${approvalTaskRow.Hours || ''}, 
+              Days - ${approvalTaskRow.Days || ''}, 
+              WeekDay - ${approvalTaskRow.WeekDay || ''}, 
+              time - ${approvalTaskRow.time || ''}`;
                       })()
                     )}
                   </Card.Text>
+
+
 
 
 

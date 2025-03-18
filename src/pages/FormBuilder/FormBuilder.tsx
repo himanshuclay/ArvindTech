@@ -175,7 +175,7 @@ const FormBuilder: React.FC<FormBuilderProps> = ({ formDetails, handleClose, for
             </div>
             <div className="d-flex">
                 {form.editMode && (
-                    <div className="col-lg-3 col-md-3 rounded mr-1">
+                    <div className="col-lg-2 col-md-2 rounded mr-1">
                         <Blocks form={form} setForm={setForm} />
                     </div>
                 )}

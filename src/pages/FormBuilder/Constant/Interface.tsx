@@ -73,6 +73,8 @@ interface PROPERTY {
     currencySymbol?: string;  
     decimalLimit?: string;  
     prefix?: string;  
+    isLooping?: string;  
+    loopBlocks?: FIELD[];  
 }
 interface OPTION { label: string; value: string }
 interface BLOCK_VALUE {

@@ -13,6 +13,7 @@ import { toast } from 'react-toastify';
 // import { Divider } from 'rsuite';
 import Flatpickr from 'react-flatpickr';
 import Select from 'react-select';
+import { BLOCK_VALUE, FIELD } from '@/pages/FormBuilder/Constant/Interface';
 
 
 
@@ -62,6 +63,8 @@ interface ProjectAssignListWithDoer {
   rejectedJson: string;
   problemSolver: string;
   problemSolverMobileNumber: number;
+  blockValue: BLOCK_VALUE;
+  form_Json: FIELD;
 
 }
 interface Input {
@@ -109,21 +112,21 @@ const ProjectAssignTable: React.FC = () => {
   const [showView, setShowView] = useState(false);
   const [showViewOutput, setShowViewOutput] = useState(false);
   const [manageId, setManageID] = useState<number>();
-    const [, setSearchTriggered] = useState(false);
-    const [startDate, setStartDate] = useState('');
-    const [endDate, setEndDate] = useState('');
-    const [projectList, ] = useState<dropDownList[]>([]);
-    const [projectName, setProjectName] = useState('');
-    const [options, setOptions] = useState('');
-    const [moduleList, ] = useState<dropDownList[]>([]);
-    const [moduleID, setModuleID] = useState('');
-    const [ModuleName, setModuleName] = useState('');
-    const [processList, ] = useState<dropDownList[]>([]);
-    const [ProcessName, setProcessName] = useState('');
-    const [taskNumberList, ] = useState<dropDownList[]>([]);
-    const [taskNumberName, setTaskNumberName] = useState('');
-    // const [doerList, ] = useState<dropDownList[]>([]);
-    const [, setDoerName] = useState('');
+  const [, setSearchTriggered] = useState(false);
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
+  const [projectList,] = useState<dropDownList[]>([]);
+  const [projectName, setProjectName] = useState('');
+  const [options, setOptions] = useState('');
+  const [moduleList,] = useState<dropDownList[]>([]);
+  const [moduleID, setModuleID] = useState('');
+  const [ModuleName, setModuleName] = useState('');
+  const [processList,] = useState<dropDownList[]>([]);
+  const [ProcessName, setProcessName] = useState('');
+  const [taskNumberList,] = useState<dropDownList[]>([]);
+  const [taskNumberName, setTaskNumberName] = useState('');
+  // const [doerList, ] = useState<dropDownList[]>([]);
+  const [, setDoerName] = useState('');
 
   const [expandedRow, setExpandedRow] = useState<number | null>(null); // For row expansion
 
@@ -139,7 +142,7 @@ const ProjectAssignTable: React.FC = () => {
     setStartDate('');
     setCurrentPage(1);
     setSearchTriggered(false);
-};
+  };
 
   const toggleExpandRow = (id: number) => {
     setExpandedRow(expandedRow === id ? null : id);
@@ -164,7 +167,7 @@ const ProjectAssignTable: React.FC = () => {
   };
   // ==============================================================
   const location = useLocation();
-  
+
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
@@ -176,6 +179,7 @@ const ProjectAssignTable: React.FC = () => {
             params: {
               Flag: 1,
               DoerId: role,
+              Id: 0,
               PageIndex: currentPage,
             },
           }
@@ -210,13 +214,15 @@ const ProjectAssignTable: React.FC = () => {
       if (response.data?.isSuccess) {
         const fetchedData = response.data.getFilterTasks || [];
 
-
+        console.log('fetchedData', fetchedData)
 
         // Filter and transform data
         const filteredTasks = fetchedData
           .filter((task) => task.isCompleted !== "Pending") // Exclude pending tasks
           .flatMap((task: ProjectAssignListWithDoer) => {
             let taskJsonArray: any[] = [];
+            
+
 
             try {
               // Parse task_Json and check its structure
@@ -243,7 +249,7 @@ const ProjectAssignTable: React.FC = () => {
             }
 
             // Proceed with the rest of the taskJsonArray processing
-            return taskJsonArray.flatMap((taskJson: any) => {
+            return taskJsonArray.flatMap((taskJson: any, form_Json: any) => {
               if (!taskJson) {
                 console.error("Invalid taskJson:", taskJson);
                 return [];
@@ -274,10 +280,11 @@ const ProjectAssignTable: React.FC = () => {
                   label: input.label,
                   value: optionsMap[input.value] || input.value, // Replace value with label if available
                 }));
-                const input = inputs.find(item => item.inputId === "99");
-                const label = input ? input.label : null;
+              const input = inputs.find(item => item.inputId === "99");
+              const label = input ? input.label : null;
 
               // Return transformed task object
+              console.log('33333333333333333333', form_Json)
               return {
                 messID: taskJson.messID,
                 messName: taskJson.messName,
@@ -286,11 +293,17 @@ const ProjectAssignTable: React.FC = () => {
                 messTaskNumber: taskJson.messTaskNumber,
                 taskName: label,
                 inputs: filteredInputsData,
+                blockValue: task.blockValue, 
+                form_Json: task.form_Json,  
+
               };
             });
           });
 
         setPreData(filteredTasks);
+
+
+
       } else {
         console.error("API Response Error:", response.data?.message || "Unknown error");
       }
@@ -391,7 +404,7 @@ const ProjectAssignTable: React.FC = () => {
     { value: 'ProjectModule', label: 'ProjectModule' },
     { value: 'Module', label: 'Module' },
     { value: 'Project', label: 'Project' }
-];
+  ];
 
 
   function calculatePlannedDate(createdDate: string): string {
@@ -436,62 +449,62 @@ const ProjectAssignTable: React.FC = () => {
         <span><i className="ri-file-list-line me-2"></i><span className='fw-bold test-nowrap'>Pending Task</span></span>
       </div>
       <div className='bg-white p-2 pb-2'>
-                <Form
-                    onSubmit={(e) => {
-                        e.preventDefault();
-                        setCurrentPage(1);
-                        setSearchTriggered(true);
-                    }}
-                >
-                    <Row>
+        <Form
+          onSubmit={(e) => {
+            e.preventDefault();
+            setCurrentPage(1);
+            setSearchTriggered(true);
+          }}
+        >
+          <Row>
 
-                        <Col lg={4}>
-                            <Form.Group controlId="dateRange" className="mb-3">
-                                <Form.Label>Select Date Range</Form.Label>
-                                <Flatpickr
-                                    value={[startDate, endDate]}
-                                    onChange={([start, end]) => {
-                                        if (start && end) {
-                                            const formattedStart = start.toLocaleDateString('en-CA');
-                                            const formattedEnd = end.toLocaleDateString('en-CA');
-                                            setStartDate(formattedStart);
-                                            setEndDate(formattedEnd);
+            <Col lg={4}>
+              <Form.Group controlId="dateRange" className="mb-3">
+                <Form.Label>Select Date Range</Form.Label>
+                <Flatpickr
+                  value={[startDate, endDate]}
+                  onChange={([start, end]) => {
+                    if (start && end) {
+                      const formattedStart = start.toLocaleDateString('en-CA');
+                      const formattedEnd = end.toLocaleDateString('en-CA');
+                      setStartDate(formattedStart);
+                      setEndDate(formattedEnd);
 
-                                        }
-                                    }}
-                                    options={{
-                                        mode: "range",
-                                        enableTime: false,
-                                        dateFormat: "Y-m-d",
-                                        time_24hr: false,
-                                    }}
-                                    placeholder=" Select Date Range "
-                                    className="form-control "
-                                />
-                            </Form.Group>
-                        </Col>
+                    }
+                  }}
+                  options={{
+                    mode: "range",
+                    enableTime: false,
+                    dateFormat: "Y-m-d",
+                    time_24hr: false,
+                  }}
+                  placeholder=" Select Date Range "
+                  className="form-control "
+                />
+              </Form.Group>
+            </Col>
 
 
 
-                        <Col lg={4}>
-                            <Form.Group controlId="projectName">
-                                <Form.Label>Select Project</Form.Label>
-                                <Select
-                                    name="projectName"
-                                    value={projectList.find(item => item.name === projectName) || null}
-                                    onChange={(selectedOption) => {
-                                        setProjectName(selectedOption ? selectedOption.name : "")
-                                    }}
-                                    options={projectList}
-                                    getOptionLabel={(item) => item.name}
-                                    getOptionValue={(item) => item.name}
-                                    isSearchable={true}
-                                    placeholder="Select Project Name"
-                                    className="h45"
-                                />
-                            </Form.Group>
-                        </Col>
-                        {/* <Col lg={3}>
+            <Col lg={4}>
+              <Form.Group controlId="projectName">
+                <Form.Label>Select Project</Form.Label>
+                <Select
+                  name="projectName"
+                  value={projectList.find(item => item.name === projectName) || null}
+                  onChange={(selectedOption) => {
+                    setProjectName(selectedOption ? selectedOption.name : "")
+                  }}
+                  options={projectList}
+                  getOptionLabel={(item) => item.name}
+                  getOptionValue={(item) => item.name}
+                  isSearchable={true}
+                  placeholder="Select Project Name"
+                  className="h45"
+                />
+              </Form.Group>
+            </Col>
+            {/* <Col lg={3}>
                                 <Form.Group controlId="ModuleName">
                                     <Form.Label>Sort  By</Form.Label>
                                     <Select
@@ -511,101 +524,101 @@ const ProjectAssignTable: React.FC = () => {
                                     />
                                 </Form.Group>
                             </Col> */}
-                        <Col lg={4}>
-                            <Form.Group controlId="options">
-                                <Form.Label>Select Any Option</Form.Label>
-                                <Select
-                                    name="options"
-                                    options={optionsDataAccesLevel}
-                                    value={optionsDataAccesLevel.find(option => option.value === options) || null}
-                                    onChange={(selectedOption) => setOptions(selectedOption?.value || '')}
-                                    placeholder="Select Any Option"
-                                />
-                            </Form.Group>
-                        </Col>
-                        <Col lg={3}>
-                            <Form.Group controlId="ModuleName">
-                                <Form.Label>Select Module</Form.Label>
-                                <Select
-                                    name="ModuleName"
-                                    value={moduleList.find(item => item.moduleID === moduleID) || null}
-                                    onChange={(selectedOption) => {
-                                        setModuleName(selectedOption ? selectedOption.moduleName : ""),
-                                            setModuleID(selectedOption ? selectedOption.moduleID : "")
+            <Col lg={4}>
+              <Form.Group controlId="options">
+                <Form.Label>Select Any Option</Form.Label>
+                <Select
+                  name="options"
+                  options={optionsDataAccesLevel}
+                  value={optionsDataAccesLevel.find(option => option.value === options) || null}
+                  onChange={(selectedOption) => setOptions(selectedOption?.value || '')}
+                  placeholder="Select Any Option"
+                />
+              </Form.Group>
+            </Col>
+            <Col lg={3}>
+              <Form.Group controlId="ModuleName">
+                <Form.Label>Select Module</Form.Label>
+                <Select
+                  name="ModuleName"
+                  value={moduleList.find(item => item.moduleID === moduleID) || null}
+                  onChange={(selectedOption) => {
+                    setModuleName(selectedOption ? selectedOption.moduleName : ""),
+                      setModuleID(selectedOption ? selectedOption.moduleID : "")
 
-                                    }}
-                                    options={moduleList}
-                                    getOptionLabel={(item) => item.moduleName}
-                                    getOptionValue={(item) => item.moduleID}
-                                    isSearchable={true}
-                                    placeholder="Select Module Name"
-                                    className="h45"
-                                />
-                            </Form.Group>
-                        </Col>
-                        <Col lg={3}>
-                            <Form.Group controlId="ModuleOwnerName">
-                                <Form.Label>Select Process</Form.Label>
-                                <Select
-                                    name="ModuleOwnerName"
-                                    value={processList.find(item => item.processID === ProcessName) || null}
-                                    onChange={(selectedOption) => setProcessName(selectedOption ? selectedOption.processID : "")}
-                                    options={processList}
-                                    getOptionLabel={(item) => item.processName}
-                                    getOptionValue={(item) => item.processID}
-                                    isSearchable={true}
-                                    placeholder="Select Process Name"
-                                    className="h45"
-                                    isDisabled={!ModuleName}
-                                />
-                            </Form.Group>
-                        </Col>
+                  }}
+                  options={moduleList}
+                  getOptionLabel={(item) => item.moduleName}
+                  getOptionValue={(item) => item.moduleID}
+                  isSearchable={true}
+                  placeholder="Select Module Name"
+                  className="h45"
+                />
+              </Form.Group>
+            </Col>
+            <Col lg={3}>
+              <Form.Group controlId="ModuleOwnerName">
+                <Form.Label>Select Process</Form.Label>
+                <Select
+                  name="ModuleOwnerName"
+                  value={processList.find(item => item.processID === ProcessName) || null}
+                  onChange={(selectedOption) => setProcessName(selectedOption ? selectedOption.processID : "")}
+                  options={processList}
+                  getOptionLabel={(item) => item.processName}
+                  getOptionValue={(item) => item.processID}
+                  isSearchable={true}
+                  placeholder="Select Process Name"
+                  className="h45"
+                  isDisabled={!ModuleName}
+                />
+              </Form.Group>
+            </Col>
 
-                        <Col lg={3} className="">
-                            <Form.Group controlId="searchTaskNumber">
-                                <Form.Label>Select Task </Form.Label>
-                                <Select
-                                    name="searchTaskNumber"
-                                    value={taskNumberList.find(item => item.taskID === taskNumberName) || null}
-                                    onChange={(selectedOption) => setTaskNumberName(selectedOption ? selectedOption.taskID : "")}
-                                    options={taskNumberList}
-                                    getOptionLabel={(item) => item.taskID}
-                                    getOptionValue={(item) => item.taskID}
-                                    isSearchable={true}
-                                    placeholder="Select Task Number"
-                                    className="h45"
-                                />
-                            </Form.Group>
-                        </Col>
-                        
-
-
-                        <Col></Col>
-
-                        <Col lg={3} className="align-items-end d-flex justify-content-end mt-2">
-                            <ButtonGroup aria-label="Basic example" className="w-100">
-                                <Button type="button" variant="primary" onClick={handleClear}>
-                                    <i className="ri-loop-left-line"></i>
-                                </Button>
-                                &nbsp;
-                                <Button type="submit" variant="primary">
-                                    Search
-                                </Button>
-                            </ButtonGroup>
-                        </Col>
-                    </Row>
-                </Form>
+            <Col lg={3} className="">
+              <Form.Group controlId="searchTaskNumber">
+                <Form.Label>Select Task </Form.Label>
+                <Select
+                  name="searchTaskNumber"
+                  value={taskNumberList.find(item => item.taskID === taskNumberName) || null}
+                  onChange={(selectedOption) => setTaskNumberName(selectedOption ? selectedOption.taskID : "")}
+                  options={taskNumberList}
+                  getOptionLabel={(item) => item.taskID}
+                  getOptionValue={(item) => item.taskID}
+                  isSearchable={true}
+                  placeholder="Select Task Number"
+                  className="h45"
+                />
+              </Form.Group>
+            </Col>
 
 
 
-                <Row className='mt-3'>
-                    <div className="d-flex justify-content-end bg-light p-1">
-                        <div className="app-search d-none d-lg-block me-4">
+            <Col></Col>
 
-                        </div>
-                    </div>
-                </Row>
+            <Col lg={3} className="align-items-end d-flex justify-content-end mt-2">
+              <ButtonGroup aria-label="Basic example" className="w-100">
+                <Button type="button" variant="primary" onClick={handleClear}>
+                  <i className="ri-loop-left-line"></i>
+                </Button>
+                &nbsp;
+                <Button type="submit" variant="primary">
+                  Search
+                </Button>
+              </ButtonGroup>
+            </Col>
+          </Row>
+        </Form>
+
+
+
+        <Row className='mt-3'>
+          <div className="d-flex justify-content-end bg-light p-1">
+            <div className="app-search d-none d-lg-block me-4">
+
             </div>
+          </div>
+        </Row>
+      </div>
       <div className='overflow-auto'>
         {!data ? (
           <Container className="mt-5">
@@ -832,21 +845,21 @@ const ProjectAssignTable: React.FC = () => {
 
                                   <hr className='my-1' />
                                   <Row className=''>
-                                    {item.processID === 'ACC.01' && 
-                                       <Col lg={4}>
-                                       <tr>
-                                         <td> <h5 >Initiation period : </h5></td>
-                                         <td><h5 className='text-primary'>{formatPeriod(item.createdDate)}</h5></td>
-                                       </tr>
-                                       {/* <tr>
+                                    {item.processID === 'ACC.01' &&
+                                      <Col lg={4}>
+                                        <tr>
+                                          <td> <h5 >Initiation period : </h5></td>
+                                          <td><h5 className='text-primary'>{formatPeriod(item.createdDate)}</h5></td>
+                                        </tr>
+                                        {/* <tr>
                                          <td> <h5 >Source : </h5></td>
                                          <td><h5 className='text-primary'>Source</h5>
                                          </td>
                                        </tr> */}
- 
-                                     </Col>
+
+                                      </Col>
                                     }
-                                    
+
                                     {/* <Col lg={4}>
                                       <tr>
                                         <td> <h5 >Week : </h5></td>

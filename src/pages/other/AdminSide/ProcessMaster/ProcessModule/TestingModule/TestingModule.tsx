@@ -629,6 +629,7 @@ const TestingModule = () => {
                 <DynamicForm
                     fromComponent="AccountProcess"
                     formData={JSON.parse(adhocJson.templateJson)}
+                    formBuilderData={JSON.parse(adhocJson.templateJson)}
                     taskNumber
                     data
                     taskName
@@ -647,6 +648,7 @@ const TestingModule = () => {
                     projectName
                     problemSolver
                     approvarActions
+                    
                 />
 
             }

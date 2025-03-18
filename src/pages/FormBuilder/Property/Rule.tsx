@@ -115,6 +115,11 @@ const Rule: React.FC<Props> = ({ showRule, setShowRule, form, setForm }) => {
                 const options: Option[] = END2.SHOW_HIDE || [];
                 return { isShow: true, options };
             }
+        } else if (rule.start1 === "BIND") {
+            if (rule.end1 === 'FILTER') {
+                const options: Option[] = END2.STATUS || [];
+                return { isShow: true, options };
+            }
         }
         // } else if (rule.start1 === 'MAP') {
         //     if (rule.end1 === 'WHERE') {
@@ -138,6 +143,13 @@ const Rule: React.FC<Props> = ({ showRule, setShowRule, form, setForm }) => {
                     return { isShow: true, options };
                 }
             }
+        } else if (['BIND'].includes(rule.start1)){
+            if (['FILTER'].includes(rule.end1)) {
+                if (['STATUS'].includes(rule.end2)) {
+                    const options: Option[] = END2.ON_GOING || [];
+                    return { isShow: true, options };
+                }
+            }
         }
         return { isShow: false, options: [] };
     }
@@ -157,8 +169,7 @@ const Rule: React.FC<Props> = ({ showRule, setShowRule, form, setForm }) => {
             setMasterLists(response.data.masterForms);
         });
         form.rules.map(rule => {
-            if(rule.start3)
-            {
+            if (rule.start3) {
                 fetchColumnNames(rule.start3)
             }
         })
@@ -286,7 +297,7 @@ const Rule: React.FC<Props> = ({ showRule, setShowRule, form, setForm }) => {
                                     </Form.Group>
                                 )}
                                 {/* END 2 */}
-                                {['WHERE', 'FILTER'].includes(rule.end1) && columnLists[rule.start3] && (
+                                {['WHERE'].includes(rule.end1) && columnLists[rule.start3] && (
                                     <Form.Group controlId={`rule-${index}-end2`} className="mr-1">
                                         <Form.Select
                                             name="end2"
