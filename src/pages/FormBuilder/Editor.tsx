@@ -35,6 +35,7 @@ interface DynamicComponentProps {
     componentType: keyof typeof componentsMap;
     block: BASIC_FIELD;
     form: FIELD;
+    setForm: React.Dispatch<React.SetStateAction<FIELD>>;
     handleChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>, id: string) => void;
     validationErrors: { [key: string]: string };
     blockValue: BLOCK_VALUE;
@@ -56,7 +57,7 @@ const componentsMap = {
     FloatInput,
 };
 
-const DynamicComponentRenderer: React.FC<DynamicComponentProps> = ({ form, componentType, block, handleChange, validationErrors, blockValue, setBlockValue }) => {
+const DynamicComponentRenderer: React.FC<DynamicComponentProps> = ({ form, setForm, componentType, block, handleChange, validationErrors, blockValue, setBlockValue }) => {
     const ComponentToRender = componentsMap[componentType];
 
     if (!ComponentToRender) {
@@ -64,18 +65,20 @@ const DynamicComponentRenderer: React.FC<DynamicComponentProps> = ({ form, compo
     }
 
     return (
-        <div className={`${form.editMode ? 'cursor-not-allowed' : ''}`}>
-            <fieldset className={`${form.editMode ? 'pointer-events-none select-none' : ''}`}>
-                <ComponentToRender
-                    block={block}
-                    handleChange={handleChange}
-                    validationErrors={validationErrors}
-                    editMode={form.editMode}
-                    blockValue={blockValue}
-                    setBlockValue={setBlockValue}
-                />
-            </fieldset>
-        </div>
+        // <div className={`${form.editMode ? 'cursor-not-allowed' : ''}`}>
+        //     <fieldset className={`${form.editMode ? 'pointer-events-none select-none' : ''}`}>
+        <ComponentToRender
+            block={block}
+            handleChange={handleChange}
+            validationErrors={validationErrors}
+            editMode={form.editMode}
+            blockValue={blockValue}
+            setBlockValue={setBlockValue}
+            form={form}
+            setForm={setForm}
+        />
+        //     </fieldset>
+        // </div>
     );
 };
 
@@ -354,6 +357,7 @@ const Editor: React.FC<EditorProps> = ({ form, setForm, property, setProperty, b
                                 >
                                     <DynamicComponentRenderer
                                         form={form}
+                                        setForm={setForm}
                                         componentType={block.is}
                                         block={block}
                                         handleChange={handleChange}

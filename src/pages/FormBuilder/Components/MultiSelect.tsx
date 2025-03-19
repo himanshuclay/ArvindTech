@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import Select from "react-select";
-import { BASIC_FIELD, BLOCK_VALUE } from "../Constant/Interface";
+import { BASIC_FIELD, BLOCK_VALUE, FIELD } from "../Constant/Interface";
 
 interface Props {
     block: BASIC_FIELD;
@@ -9,6 +9,8 @@ interface Props {
     editMode?: boolean;
     blockValue: BLOCK_VALUE;
     setBlockValue: React.Dispatch<React.SetStateAction<BLOCK_VALUE>>;
+    form: FIELD;
+    setForm: React.Dispatch<React.SetStateAction<FIELD>>;
 }
 
 const MultiSelectDropdown: React.FC<Props> = ({
@@ -17,7 +19,9 @@ const MultiSelectDropdown: React.FC<Props> = ({
     validationErrors = {},
     editMode,
     blockValue,
-    setBlockValue
+    setBlockValue,
+    form,
+    setForm,
 }) => {
     const isRequired = block.property.required === "true";
 
@@ -67,17 +71,32 @@ const MultiSelectDropdown: React.FC<Props> = ({
 
         if (!fieldData || !dropZone) return;
 
-        // const droppedField: BASIC_FIELD = JSON.parse(fieldData);
-
+        const droppedField: BASIC_FIELD = JSON.parse(fieldData);
+        console.log('dropZone', dropZone)
         // Check if dropped in main MultiSelect area
         if (dropZone === "MultiSelect") {
-            // droppedField.property.id = `Block_${form.blockCount + 1}`;
+            droppedField.property.id = `MultiSelect_${block.property.blockCount ? block.property.blockCount + 1 : 1}`;
 
+            const loopBlocks = [
+                ...block.property?.loopBlocks ? block.property.loopBlocks: '',  // Spread the existing loopBlocks
+                droppedField                   // Add the new droppedField with the correct structure
+            ];
+            
+            
+            // Assuming you want to update a specific block based on a condition, for example, block.property.id === targetId
+            const updatedBlocks = form.blocks?.map(b =>
+                b.property.id === block.property.id ? { ...b, property: { ...b.property, loopBlocks: {...b.property.loopBlocks, ...loopBlocks} } } : b
+            ) || [];  // Fallback to an empty array if form.blocks is undefined
+            
+           
+            
+            console.log('updatedBlocks', updatedBlocks);
+            
             // setForm(prevForm => ({
             //     ...prevForm,
-            //     blocks: [...prevForm.blocks, droppedField],
-            //     blockCount: prevForm.blockCount + 1,
+            //     blocks: updatedBlocks,  // Update the blocks in the form state
             // }));
+            
 
             // Check if dropped in a specific block area
         } else if (dropZone.startsWith("TopBlock_") || dropZone.startsWith("BottomBlock_")) {
@@ -124,25 +143,31 @@ const MultiSelectDropdown: React.FC<Props> = ({
     return (
         <div>
             {(block.property.isShow || editMode) && (
-                <div className="mb-3">
-                    <label>
-                        {block.property.label}
-                        {isRequired && <span className="text-danger">*</span>}
-                    </label>
+                <>
+                    <div className={`${editMode ? 'cursor-not-allowed' : ''}`}>
+                        <fieldset className={`${editMode ? 'pointer-events-none select-none' : ''}`}>
+                            <div className="mb-3">
+                                <label>
+                                    {block.property.label}
+                                    {isRequired && <span className="text-danger">*</span>}
+                                </label>
 
-                    <Select
-                        isMulti
-                        options={options}
-                        value={selectedOptions}
-                        onChange={handleMultiSelectChange}
-                        isDisabled={editMode}
-                        className={validationErrors[block.property.id] ? "is-invalid" : ""}
-                    />
+                                <Select
+                                    isMulti
+                                    options={options}
+                                    value={selectedOptions}
+                                    onChange={handleMultiSelectChange}
+                                    isDisabled={editMode}
+                                    className={validationErrors[block.property.id] ? "is-invalid" : ""}
+                                />
 
-                    {validationErrors[block.property.id] && (
-                        <small className="text-danger">{validationErrors[block.property.id]}</small>
-                    )}
-                    {block.property.isLooping  === "true" && (
+                                {validationErrors[block.property.id] && (
+                                    <small className="text-danger">{validationErrors[block.property.id]}</small>
+                                )}
+                            </div>
+                        </fieldset>
+                    </div>
+                    {block.property.isLooping === "true" && (
                         <div
                             className='bg-white p-4 border rounded min-h-40 overflow-y-auto'
                             id='MultiSelect'
@@ -206,7 +231,8 @@ const MultiSelectDropdown: React.FC<Props> = ({
 
                         </div>
                     )}
-                </div>
+                </>
+
             )}
         </div>
     );

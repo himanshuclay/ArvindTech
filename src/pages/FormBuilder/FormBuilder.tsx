@@ -18,13 +18,14 @@ interface FormBuilderProps {
     handleClose?: () => void;
     formBuilder?: FIELD;
     setFormBuilder?: React.Dispatch<React.SetStateAction<FIELD>>;
+    setIsCloseForm?: (value: boolean) => void;
+    isShowSaveButton?: boolean;
 }
 
-const FormBuilder: React.FC<FormBuilderProps> = ({ formDetails, handleClose, formBuilder, setFormBuilder }) => {
+const FormBuilder: React.FC<FormBuilderProps> = ({ formDetails, handleClose, formBuilder, setFormBuilder, isShowSaveButton, setIsCloseForm }) => {
     const { id } = useParams<{ id: string }>();
 
     const [showWorkflowBuilder,] = useState(formBuilder ? true : false)
-
     const [form, setForm] = useState<FIELD>(formBuilder ? formBuilder : {
         name: '',
         blocks: [],
@@ -81,9 +82,9 @@ const FormBuilder: React.FC<FormBuilderProps> = ({ formDetails, handleClose, for
 
     const handleSaveForm = async () => {
         try {
-            if (formBuilder && setFormBuilder) {
+            if (formBuilder && setFormBuilder && setIsCloseForm) {
                 setFormBuilder(form);
-                
+                setIsCloseForm(true);
                 return;
             }
             if (!form.name) {
@@ -150,6 +151,7 @@ const FormBuilder: React.FC<FormBuilderProps> = ({ formDetails, handleClose, for
         handleSaveForm,
         handleAdhocSaveForm,
         showWorkflowBuilder,
+        isShowSaveButton,
         // setFormSize,
     }
 
@@ -157,7 +159,8 @@ const FormBuilder: React.FC<FormBuilderProps> = ({ formDetails, handleClose, for
         const response = await axios.get(`${config.API_URL_APPLICATION}/FormBuilder/GetForm`, {
             params: { id: id }
         });
-        setForm(response.data.getForms[0]);
+        if (response.data.getForms.length)
+            setForm(response.data.getForms[0]);
     }
     useEffect(() => {
         if (id) {
@@ -167,30 +170,44 @@ const FormBuilder: React.FC<FormBuilderProps> = ({ formDetails, handleClose, for
         }
     }, [id]);
 
+    console.log('form', form)
+    console.log('formBuilder', formBuilder)
+
+    // useEffect(() => {
+    //     if (formBuilder) {
+    //         setForm(formBuilder)
+    //     }
+    //     console.log(form)
+    // }, [formBuilder, form])
 
     return (
         <div className="row m-0">
-            <div>
-                <Action actionProps={actionProps} />
-            </div>
-            <div className="d-flex">
-                {form.editMode && (
-                    <div className="col-lg-2 col-md-2 rounded mr-1">
-                        <Blocks form={form} setForm={setForm} />
+            {form && (
+                <>
+                    <div>
+                        <Action actionProps={actionProps} />
                     </div>
-                )}
-                <div className="w-100">
-                    <Editor form={form} setForm={setForm} property={property} setProperty={setProperty} blockValue={blockValue} setBlockValue={setBlockValue} />
-                </div>
-                {form.editMode && property.id && (
-                    <div className="col-lg-3 col-md-3 ml-1">
-                        <Property form={form} setForm={setForm} property={property} setProperty={setProperty} removeFormBlock={removeFormBlock} />
+                    <div className="d-flex">
+                        {form.editMode && (
+                            <div className="col-lg-2 col-md-2 rounded mr-1">
+                                <Blocks form={form} setForm={setForm} />
+                            </div>
+                        )}
+                        <div className="w-100">
+                            <Editor form={form} setForm={setForm} property={property} setProperty={setProperty} blockValue={blockValue} setBlockValue={setBlockValue} />
+                        </div>
+                        {form.editMode && property.id && (
+                            <div className="col-lg-3 col-md-3 ml-1">
+                                <Property form={form} setForm={setForm} property={property} setProperty={setProperty} removeFormBlock={removeFormBlock} />
+                            </div>
+                        )}
+                        <div>
+                            <Rule form={form} setForm={setForm} showRule={showRule} setShowRule={setShowRule} />
+                        </div>
                     </div>
-                )}
-                <div>
-                    <Rule form={form} setForm={setForm} showRule={showRule} setShowRule={setShowRule} />
-                </div>
-            </div>
+                </>
+
+            )}
         </div>
     );
 };

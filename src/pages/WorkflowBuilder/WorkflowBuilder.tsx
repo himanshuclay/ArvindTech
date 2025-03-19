@@ -87,7 +87,21 @@ const WorkflowBuilder: React.FC = () => {
             color: '',
         }
     });
+    const getEmptyFormBuilder = (): FIELD => ({
+        name: '',
+        blocks: [],
+        editMode: true,
+        blockCount: 0,
+        rules: [],
+        advance: {
+            backgroundColor: '',
+            color: '',
+        },
+    });
+
     const [showFormBuilder, setShowFormBuilder] = useState(false);
+    const [isAddFormBuilder, setIsAddFormBuilder] = useState(false);
+    const [isCloseForm, setIsCloseForm] = useState(false);
     const [dynamicComponent, setDynamicComponent] = useState<string>('');
 
     const [name, setName] = useState('');
@@ -155,7 +169,7 @@ const WorkflowBuilder: React.FC = () => {
             id: (nodes.length + 1).toString(),
             type: 'custom',
             data: {
-                label: action ? LABEL[action] : `New Node ${nodes.length + 1}`, handles: Math.floor(Math.random() * 4) + 1, form: action ? action : form || {},
+                label: action ? LABEL[action] : form ? form.name : `New Node ${nodes.length + 1}`, handles: Math.floor(Math.random() * 4) + 1, form: action ? action : form || {},
                 inputHandles: action ? INPUT_HANDLES[action] : 1,
                 outputHandles: action ? OUTPUT_HANDLES[action] : 1,
                 outputLabels: action ? OUTPUT_LABELS[action] : '',
@@ -177,9 +191,9 @@ const WorkflowBuilder: React.FC = () => {
     const nodeTypes = useMemo(() => ({
         custom: (props: any) => <CustomNode {...props} setNodes={setNodes} edges={edges} />,
     }), [setNodes, edges]);  // ✅ Include edges in dependencies
-    
-    
-    
+
+
+
 
     const handleDragStart = (e: React.DragEvent<HTMLDivElement>, field: string) => {
         e.dataTransfer.setData('ACTION', field);
@@ -192,6 +206,7 @@ const WorkflowBuilder: React.FC = () => {
             addNewNode(50, 50);
         } else if (action === 'ADD_FORM') {
             setShowFormBuilder(true);
+            setIsAddFormBuilder(true);
         } else if (componentMap[action]) {
             setDynamicComponent(action);
             addNewNode(50, 50, '', action);
@@ -246,42 +261,62 @@ const WorkflowBuilder: React.FC = () => {
     }, [selectedEdge]);
 
     useEffect(() => {
-        if (formBuilder.blocks.length > 0) {
-            addNewNode(50, 50, formBuilder); // Get the newly added node's ID
+        if (formBuilder.blocks.length === 0) return;
 
-            // setNodes((prevNodes) =>
-            //     prevNodes.map((node) =>
-            //         node.id === newNodeId.toString()
-            //             ? {...node, data: {...node.data, form: {...formBuilder} } }
-            //             : node
-            //     )
-            // );
-
-            // setWorkflowBuilder((prevWorkflowBuilder) => ({
-            //     ...prevWorkflowBuilder,
-            //     nodes: prevWorkflowBuilder.nodes.map((node) =>
-            //         node.id === newNodeId.toString()
-            //             ? { ...node, data: { ...node.data, form: { ...formBuilder } } }
-            //             : node
-            //     ),
-            // }));
+        if (isAddFormBuilder || !selectedNode) {
+            const newNodeId = addNewNode(50, 50, formBuilder);
 
             setShowFormBuilder(false);
-            setFormBuilder({
-                name: '',
-                blocks: [],
-                editMode: true,
-                blockCount: 0,
-                rules: [],
-                advance: {
-                    backgroundColor: '',
-                    color: '',
-                },
-            });
+            setIsAddFormBuilder(false);
+            setSelectedNode(null);
+            setFormBuilder(getEmptyFormBuilder());
 
-            console.log("Updated WorkflowBuilder:", workflowBuilder);
+            console.log("Added new node:", newNodeId);
+        } else {
+            if (isCloseForm) {
+
+                setNodes((prevNodes) =>
+                    prevNodes.map((node) =>
+                        node.id === selectedNode.id
+                            ? {
+                                ...node,
+                                data: {
+                                    ...node.data,
+                                    label: formBuilder.name || node.data.label,
+                                    form: formBuilder,
+                                }
+                            }
+                            : node
+                    )
+                );
+
+                setWorkflowBuilder((prevWorkflowBuilder) => ({
+                    ...prevWorkflowBuilder,
+                    nodes: prevWorkflowBuilder.nodes.map((node) =>
+                        node.id === selectedNode.id
+                            ? {
+                                ...node,
+                                data: {
+                                    ...node.data,
+                                    label: formBuilder.name || node.data.label,
+                                    form: formBuilder,
+                                }
+                            }
+                            : node
+                    ),
+                }));
+
+                setShowFormBuilder(false);
+                setIsAddFormBuilder(false);
+                setSelectedNode(null);
+                setFormBuilder(getEmptyFormBuilder());
+                setIsCloseForm(false);
+                console.log("Updated existing node:", selectedNode.id);
+            }
+            
         }
     }, [formBuilder]);
+
 
 
 
@@ -401,10 +436,18 @@ const WorkflowBuilder: React.FC = () => {
 
     // Function to handle node selection
     const onNodeClick = useCallback((_event: React.MouseEvent, node: Node) => {
-        setSelectedNode(node);
-        console.log(node.data.form)
-        setDynamicComponent(node.data.form);
+        setSelectedNode(node); // ✅ Sets the node you're editing
+        console.log(node.data.form);
+
+        if (node.data.form?.blocks?.length) {
+            setShowFormBuilder(true);
+            setFormBuilder(node.data.form); // ✅ Prefill existing form
+            setIsAddFormBuilder(false);
+        } else {
+            setDynamicComponent(node.data.form);
+        }
     }, []);
+
 
     return (
         <div>
@@ -459,7 +502,7 @@ const WorkflowBuilder: React.FC = () => {
                             <Modal.Title>Edit Task for</Modal.Title>
                         </Modal.Header>
                         <Modal.Body>
-                            <FormBuilder formBuilder={formBuilder} setFormBuilder={setFormBuilder} />
+                            <FormBuilder formBuilder={formBuilder} setFormBuilder={setFormBuilder} isShowSaveButton={true} setIsCloseForm={setIsCloseForm} />
                         </Modal.Body>
                     </Modal>
                     <div draggable onDragStart={(e) => handleDragStart(e, 'ADD_NODE')} style={{ padding: '10px', border: '1px solid #ccc', cursor: 'grab', marginBottom: '10px' }}>Drag to Add Node</div>

@@ -1299,6 +1299,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                 taskNumber: taskNumber,
                 createdBy: ""
             }
+            console.log('query', query)
             const response = await fetch(
                 `${config.API_URL_ACCOUNT}/AdhocForm/InsertAdhocJsonMaster`,
                 {

@@ -75,6 +75,7 @@ interface PROPERTY {
     prefix?: string;  
     isLooping?: string;  
     loopBlocks?: FIELD[];  
+    blockCount?: number;
 }
 interface OPTION { label: string; value: string }
 interface BLOCK_VALUE {

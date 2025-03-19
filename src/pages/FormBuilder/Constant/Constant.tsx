@@ -204,6 +204,7 @@ const FIELD_LIST = [
             size: '12',
             isLooping: false,
             loopBlocks: [],
+            blockCount: 0,
         }
     },
     {
