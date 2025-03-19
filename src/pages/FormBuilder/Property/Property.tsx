@@ -177,6 +177,22 @@ const Property: React.FC<Props> = ({ form, setForm, property, setProperty, remov
                         onChange={handleChange}
                     >
                         <option value="none">None</option>
+                        <option value="Y-m-d">YYYY/MM/DD</option>
+                        <option value="mm/yyyy">MM/YYYY</option>
+                        <option value="mmm/yy">MMM/YY</option>
+                    </select>
+                </div>
+            )}
+            {property.hasOwnProperty('dateFormate') && (
+                <div className='d-flex justify-content-between align-items-center mt-2'>
+                    <label className='col-6'>Date Selection</label>
+                    <select
+                        name="dateFormate"
+                        className="border p-2 rounded col-6"
+                        value={property.dateFormate}
+                        onChange={handleChange}
+                    >
+                        <option value="none">None</option>
                         <option value="today">Today</option>
                     </select>
                 </div>

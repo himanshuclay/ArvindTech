@@ -70,6 +70,7 @@ interface PROPERTY {
     endDateId?:string;
     size?:string;
     dateSelection?: string;  
+    dateFormate?: string;  
     currencySymbol?: string;  
     decimalLimit?: string;  
     prefix?: string;  

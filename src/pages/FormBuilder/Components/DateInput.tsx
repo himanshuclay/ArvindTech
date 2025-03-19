@@ -18,7 +18,7 @@ const DateInput: React.FC<Props> = ({
     editMode = false,
     blockValue
 }) => {
-    const { id, label, placeholder, required, disabled, isShow } = block.property;
+    const { id, label, placeholder, required, disabled, isShow, dateFormate } = block.property;
 
     const isRequired = required === "true";
     const isDisabled = !!(disabled || (!editMode && !isShow));
@@ -55,7 +55,7 @@ const DateInput: React.FC<Props> = ({
                         disabled={isDisabled}
                         options={{
                             enableTime: false,
-                            dateFormat: "Y-m-d",
+                            dateFormat: "dateFormate",
                             time_24hr: false,
                             ...(block.property.dateSelection === 'today' && {
                                 minDate: new Date(),

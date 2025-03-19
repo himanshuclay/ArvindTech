@@ -28,7 +28,7 @@ const ActiveNode = ({ activeNode }: { activeNode: any; }) => {
     return (
         <div>
             {/* {JSON.stringify(activeNode)} */}
-            <Editor form={form} setForm={setForm} property={property} setProperty={setProperty} blockValue={blockValue} setBlockValue={setBlockValue} />
+            <Editor form={form} setForm={setForm} property={property} setProperty={setProperty} blockValue={blockValue} setBlockValue={setBlockValue} isShowSave={false} />
 
         </div>
     )

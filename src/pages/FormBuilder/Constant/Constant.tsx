@@ -142,7 +142,7 @@ const FIELD_LIST = [
             disabled: false,
             size: '12',
             dateSelection: "none",
-
+            dateFormate: 'Y-m-d'
         }
     },
     {
