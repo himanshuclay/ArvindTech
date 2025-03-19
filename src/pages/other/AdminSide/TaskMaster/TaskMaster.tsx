@@ -870,6 +870,7 @@ const TaskMaster: React.FC = () => {
                 <DynamicForm
                     fromComponent='TaskMaster'
                     formData={JSON.parse(selectedJson)}
+                    formBuilderData={JSON.parse(selectedJson)}
                     taskNumber
                     data
                     taskName
@@ -883,9 +884,12 @@ const TaskMaster: React.FC = () => {
                     taskStatus
                     processId
                     moduleId
+                    rejectBlock
                     ProcessInitiationID
                     approval_Console
                     problemSolver
+                    approvarActions
+                    rejectData
 
                 />
             }

@@ -327,6 +327,7 @@ const EmployeeInsert = () => {
                                     <Select
                                         name="managerEmpID"
                                         value={employeeList.find((mod) => mod.employeeName === messes.managerName)}
+                                        // value={messes.managerName}
                                         onChange={(selectedOption) => {
                                             setMesses({
                                                 ...messes,

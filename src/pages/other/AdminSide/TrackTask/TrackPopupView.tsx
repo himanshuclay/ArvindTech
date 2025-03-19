@@ -35,6 +35,7 @@ interface ProjectAssignListWithDoer {
     completedDate: string;
     taskTime: string;
     taskType: string;
+    taskName: string;
     roleName: string;
     inputs: string;
     messID: string;
@@ -90,7 +91,7 @@ const TrackPopUpView: React.FC<ProcessCanvasProps> = ({ show, setShow, manageId 
                         }
 
                         if (!Array.isArray(taskJsonArray)) {
-                            console.error("taskJsonArray is not an array:", taskJsonArray);
+                            // console.error("taskJsonArray is not an array:", taskJsonArray);
                             console.log("task_Json is not in the expected array format:", task.task_Json);
 
                             if (typeof taskJsonArray === "object" && taskJsonArray !== null) {
@@ -138,14 +139,14 @@ const TrackPopUpView: React.FC<ProcessCanvasProps> = ({ show, setShow, manageId 
 
                             const input = inputs.find(item => item.inputId === "99");
                             const label = input ? input.label : null;
+                            console.log(input)
                             return {
                                 messID: taskJson.messID || '',
                                 messName: taskJson.messName || '',
                                 messManager: taskJson.messManager || '',
                                 managerNumber: taskJson.mobileNumber || '',
                                 messTaskNumber: taskJson.messTaskNumber || '',
-
-                                taskName: label,
+                                taskName: label || fetchedData[0].taskName,
                                 inputs: filteredInputsData,
                             };
                         });
@@ -163,7 +164,7 @@ const TrackPopUpView: React.FC<ProcessCanvasProps> = ({ show, setShow, manageId 
             setLoading(false);
         }
     };
-
+    console.log(preData)
 
 
 

@@ -1,4 +1,10 @@
+import AmountInput from "../Components/AmountInput";
+import DateInput from "../Components/DateInput";
+import DateRange from "../Components/DateRange";
 import EmailInput from "../Components/EmailInput";
+import FileUpload from "../Components/FileUpload";
+import FloatInput from "../Components/FloatInput";
+import MultiSelect from "../Components/MultiSelect";
 import NumberInput from "../Components/NumberInput";
 import Password from "../Components/Password";
 import PhoneInput from "../Components/PhoneInput";
@@ -12,19 +18,25 @@ const componentsMap = {
     PhoneInput,
     Password,
     Select,
+    DateInput,
+    FileUpload,
+    DateRange,
+    MultiSelect,
+    AmountInput,
+    FloatInput,
 };
 
 interface FIELD {
-    name: string;  
-    blocks: BASIC_FIELD[];  
-    editMode: boolean;  
-    rules: RULE[];  
-    advance: ADVANCE;  
+    name: string;
+    blocks: BASIC_FIELD[];
+    blockCount: number;
+    editMode: boolean;
+    rules: RULE[];
+    advance: ADVANCE;
 }
 
 interface BASIC_FIELD {
-    id: string;
-    name: string;  
+    name: string;
     is: keyof typeof componentsMap;
     property: PROPERTY;
 }
@@ -40,7 +52,7 @@ interface RULE {
 }
 
 interface ADVANCE {
-    backgroundColor: string; 
+    backgroundColor: string;
     color: string;
 }
 
@@ -49,14 +61,35 @@ interface PROPERTY {
     id: string;
     placeholder: string;
     value: string;
-    required: string;  
-    options: { label: string; value: string }[];
-    advance: ADVANCE;  
+    required: string;
+    options: OPTION[];
+    advance: ADVANCE;
     isShow: boolean;
-
+    disabled: boolean;
+    startDateId?: string;
+    endDateId?:string;
+    size?:string;
+    dateSelection?: string;  
+    currencySymbol?: string;  
+    decimalLimit?: string;  
+    prefix?: string;  
+    isLooping?: string;  
+    loopBlocks?: FIELD[];  
 }
+interface OPTION { label: string; value: string }
 interface BLOCK_VALUE {
-    [key: string]: string;  
+    [key: string]: string | string[];
 }
-export type { FIELD, PROPERTY, BASIC_FIELD, RULE, BLOCK_VALUE, ADVANCE };
+interface TRIGGER_ACTION {
+    type: string;   // e.g., 'show_hide' or 'bind'
+    key: string;
+    block: BASIC_FIELD;
+    bindBlock: BASIC_FIELD;
+    rule: {
+        rule: RULE;
+        value: string | OPTION[];
+    };
+  }
+
+export type { FIELD, PROPERTY, BASIC_FIELD, RULE, BLOCK_VALUE, ADVANCE, OPTION, TRIGGER_ACTION };
 

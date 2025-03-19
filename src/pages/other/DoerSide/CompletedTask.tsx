@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { Button, Table, Container, Row, Col, Alert, Modal } from 'react-bootstrap';
+import { Button, Table, Container, Row, Col, Alert, Modal, Pagination } from 'react-bootstrap';
 // import { useLocation, useNavigate } from 'react-router-dom';
 import { format } from 'date-fns';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
@@ -48,6 +48,7 @@ interface ApiResponse {
   isSuccess: boolean;
   message: string;
   getFilterTasks: ProjectAssignListWithDoer[];
+  totalCount: any;
 }
 
 interface Column {
@@ -64,6 +65,8 @@ const ProjectAssignTable: React.FC = () => {
   const [preData, setPreData] = useState<any>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [show, setShow] = useState(false);
+    const [currentPage, setCurrentPage] = useState(1)
+    const [totalPages, setTotalPages] = useState(1)
 
   // const [popoverIndex, setPopoverIndex] = useState<number | null>(null);
   // =======================================================================
@@ -88,31 +91,41 @@ const ProjectAssignTable: React.FC = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      try {
-        const role = localStorage.getItem('EmpId') || '';
-        const response = await axios.get<ApiResponse>(
-          `${config.API_URL_ACCOUNT}/ProcessInitiation/GetFilterTask?Flag=2&DoerId=${role}`
-        );
+        setLoading(true);
+        try {
+            const role = localStorage.getItem('EmpId') || '';
+            const response = await axios.get<ApiResponse>(
+                `${config.API_URL_ACCOUNT}/ProcessInitiation/GetFilterTask`,
+                {
+                    params: {
+                        Flag: 2,
+                        DoerId: role,
+                        PageIndex: currentPage, // Adding pagination support
+                    },
+                }
+            );
 
-        if (response.data && response.data.isSuccess) {
-          setData(response.data.getFilterTasks || []);
-          console.log(response.data.getFilterTasks || []);
-        } else {
-          console.error('API Response Error:', response.data?.message || 'Unknown error');
+            if (response.data?.isSuccess) {
+                setData(response.data.getFilterTasks || []);
+                setTotalPages(Math.ceil(response.data.totalCount / 10)); // Setting pagination
+                console.log(response.data.getFilterTasks || []);
+            } else {
+                console.error('API Response Error:', response.data?.message || 'Unknown error');
+            }
+        } catch (error) {
+            if (axios.isAxiosError(error)) {
+                console.error('Axios Error:', error.message);
+            } else {
+                console.error('Unexpected Error:', error);
+            }
+        } finally {
+            setLoading(false);
         }
-      } catch (error) {
-        if (axios.isAxiosError(error)) {
-          console.error('Axios Error:', error.message);
-        } else {
-          console.error('Unexpected Error:', error);
-        }
-      } finally {
-        setLoading(false);
-      }
     };
 
     fetchData();
-  }, []);
+}, [currentPage]); // Added currentPage as a dependency for pagination
+
 
 
 
@@ -182,7 +195,6 @@ const ProjectAssignTable: React.FC = () => {
 
               const input = inputs.find(item => item.inputId === "99");
               const label = input ? input.label : null;
-
 
               return {
                 messID: taskJson.messID || '',
@@ -366,7 +378,7 @@ const ProjectAssignTable: React.FC = () => {
                                           <>{format(new Date(item.completedDate), 'dd-MMM-yyyy HH:mm')}</>
                                         ) : col.id === 'taskName' ? (
                                           <>
-                                            {item.isCompleted !== "Completed"
+                                            {item.isCompleted == "Completed"
                                               ? item.taskName
                                               : (() => {
                                                 const taskJson = JSON.parse(item.task_Json);
@@ -413,6 +425,29 @@ const ProjectAssignTable: React.FC = () => {
           </>
 
         )}
+      </div>
+      <div className="d-flex justify-content-center align-items-center bg-white w-20 rounded-5 m-auto py-1 pb-1 my-2 pagination-rounded">
+        <Pagination>
+          <Pagination.First
+            onClick={() => setCurrentPage(1)}
+            disabled={currentPage === 1}
+          />
+          <Pagination.Prev
+            onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+            disabled={currentPage === 1}
+          />
+          <Pagination.Item active>{currentPage}</Pagination.Item>
+          <Pagination.Next
+            onClick={() =>
+              setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+            }
+            disabled={currentPage === totalPages}
+          />
+          <Pagination.Last
+            onClick={() => setCurrentPage(totalPages)}
+            disabled={currentPage === totalPages}
+          />
+        </Pagination>
       </div>
     </>
   );

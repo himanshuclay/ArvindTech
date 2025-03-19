@@ -149,6 +149,13 @@ const MENU_ITEMS: MenuItemTypes[] = [
 		isTitle: false,
 		icon: 'ri-settings-fill',
 		children: [
+			// {
+			// 	key: 'FormMaster',
+			// 	label: 'Form Master',
+			// 	url: '/pages/FormMaster',
+			// 	icon: 'ri-slideshow-line',
+			// 	parentKey: 'pages',
+			// },
 			{
 				key: 'ModuleMaster',
 				label: 'Module Master',

@@ -1,7 +1,6 @@
 import axios from 'axios';
 import { useState, useEffect } from 'react';
 import { Button, Pagination, Table, Container, Row, Col, Alert, Form, ButtonGroup } from 'react-bootstrap';
-// import { Link } from 'react-router-dom';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import config from '@/config';
 import Select from 'react-select';
@@ -9,18 +8,18 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import CreatePopup from './CreatePopup';
 import PushNotification from './PushNotification';
+import { Notification, NotificationFromAPI } from './interfaces';
 
 
 
 
-interface Designation {
-    id: number;
-    title: string;
-    subject: string;
-    content: string;
-    allocated: string;
-    count: number;
-}
+// interface Designation {
+//     id: number;
+//     subject: string;
+//     content: string;
+//     attachment: string;
+//     getDoerDetails: string[];
+// }
 
 interface Column {
     id: string;
@@ -36,8 +35,6 @@ interface DepartmentList {
 
 const DesignationMaster = () => {
     const role = localStorage.getItem('role');
-
-    // const [designations, setDesignations] = useState<Designation[]>([]);
     const [loading, setLoading] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
@@ -46,52 +43,10 @@ const DesignationMaster = () => {
     const [searchStatus, setSearchStatus] = useState('');
     const [searchTriggered, setSearchTriggered] = useState(false);
     const [show, setShow] = useState(false);
-    const [manageId, setManageID] = useState<number>();
+    const [manageId, setManageID] = useState<Notification | null>(null);
     const [showView, setShowView] = useState(false);
-
-
-    const [notifications, setNotifications] = useState<Designation[]>([
-        {
-            id: 1,
-            title: "System Update",
-            subject: "Scheduled Maintenance Notification",
-            content: "The system will undergo maintenance on Saturday from 2 AM to 6 AM. Please save your work beforehand.",
-            allocated: "DME",
-            count: 150
-        },
-        {
-            id: 2,
-            title: "New Policy Announcement",
-            subject: "Remote Work Policy Update",
-            content: "Starting next month, employees are allowed to work remotely twice a week. Please refer to the HR portal for more details.",
-            allocated: "Management",
-            count: 3
-        },
-        {
-            id: 3,
-            title: "Training Reminder",
-            subject: "Mandatory Compliance Training",
-            content: "All employees are required to complete the compliance training by the end of this week.",
-            allocated: "Admin",
-            count: 50
-        },
-        {
-            id: 4,
-            title: "Event Invitation",
-            subject: "Annual Company Meetup",
-            content: "You are cordially invited to our Annual Company Meetup happening next Friday. RSVP by this Wednesday.",
-            allocated: "Employee",
-            count: 500
-        },
-        {
-            id: 5,
-            title: "Security Alert",
-            subject: "Phishing Email Awareness",
-            content: "Please be cautious of phishing emails. Avoid clicking on suspicious links and report them to the IT department immediately.",
-            allocated: "ProjectIncharge",
-            count: 17
-        }
-    ]);
+    const [editNotification, setEditNotification] = useState<Notification | null>(null);
+    const [notifications, setNotifications] = useState<Notification[]>([]);
 
 
     const location = useLocation();
@@ -107,11 +62,10 @@ const DesignationMaster = () => {
 
     // both are required to make dragable column of table 
     const [columns, setColumns] = useState<Column[]>([
-        { id: 'title', label: 'Title', visible: true },
         { id: 'subject', label: 'Subject', visible: true },
         { id: 'content', label: 'Content ', visible: true },
-        { id: 'allocated', label: 'Allocated to ', visible: true },
-        { id: 'count', label: 'Count ', visible: true },
+        { id: 'levelType', label: 'Level Type ', visible: true },
+        { id: 'createdDate', label: 'Created Date ', visible: true },
     ]);
 
 
@@ -132,23 +86,31 @@ const DesignationMaster = () => {
     const fetchData = async () => {
         setLoading(true);
         try {
-            const response = await axios.get(`${config.API_URL_APPLICATION}/DepartmentMaster/GetDepartment`, {
+            const response = await axios.get(`${config.API_URL_APPLICATION}/NotificationMaster/GetUserNotification`, {
                 params: { PageIndex: currentPage }
             });
             if (response.data.isSuccess) {
-                // setDesignations(response.data.departments);
+                const mappedNotifications: Notification[] = response.data.notificationMaster.map((item: NotificationFromAPI) => ({
+                    id: item.id,
+                    subject: item.subject,
+                    content: item.content,
+                    attachment: item.attachment,
+                    doerIDs: item.getDoerDetails || [],
+                    roleNames: [],
+                    levelType: item.levelType,
+                    createdBy: '',
+                    createdDate: item.createdDate,
+                    updatedBy: '',
+                }));
+                setNotifications(mappedNotifications);
                 setTotalPages(Math.ceil(response.data.totalCount / 10));
-            } else {
-                console.error(response.data.message);
             }
         } catch (error) {
-            console.error('Error fetching doers:', error);
-        }
-        finally {
+            toast.error('Error fetching notifications');
+        } finally {
             setLoading(false);
         }
     };
-
 
 
 
@@ -221,11 +183,21 @@ const DesignationMaster = () => {
 
 
     const handleShowview = () => setShowView(true);
-    const handleViewEdit = (id: any) => {
+    const handleViewEdit = (item: any) => {
         handleShowview();
-        setManageID(id)
-
+        setManageID(item); // ✅ Now passing an object, not just an ID
     };
+
+    const handleEdit = (item: Notification) => {
+        setEditNotification(item);
+        setShow(true);
+    };
+    const stripHtml = (htmlString: string): string => {
+        const div = document.createElement('div');
+        div.innerHTML = htmlString;
+        return div.textContent || div.innerText || '';
+    };
+
 
     return (
         <>
@@ -264,7 +236,7 @@ const DesignationMaster = () => {
                             <Row>
                                 <Col lg={4}>
                                     <Form.Group controlId="searchDept">
-                                        <Form.Label>Title</Form.Label>
+                                        <Form.Label>Subject</Form.Label>
                                         <Select
                                             name="searchDept"
                                             value={departmentList.find(item => item.departmentName === searchDept) || null}
@@ -367,29 +339,40 @@ const DesignationMaster = () => {
                                                 <tr key={item.id}>
                                                     <td>{(currentPage - 1) * 10 + index + 1}</td>
                                                     {columns.filter(col => col.visible).map((col) => (
-                                                        <td key={col.id}
-                                                            className={
-                                                                col.id === 'content' ? 'truncated-text-500' :
-                                                                    ''
-                                                            }
-                                                        >
-                                                            <div>{item[col.id as keyof Designation]}</div>
+                                                        <td key={col.id}>
+                                                            {col.id === 'content' ? (
+                                                                <div className="truncated-text-500">
+                                                                    {stripHtml(item[col.id as keyof Notification] as string)}
+                                                                </div>
+                                                            ) : (
+                                                                <div>{item[col.id as keyof Notification]}</div>
+                                                            )}
                                                         </td>
                                                     ))}
 
                                                     {(role === 'Admin' || role === 'DME') && (
                                                         <>
                                                             <td className='text-center'>
-                                                                <Button variant='primary' className='text-white' onClick={() => handleViewEdit(item.id)}>
-                                                                    {item.count > 0 ? 'Published' : 'Publish'}
+                                                                <Button variant="primary"
+                                                                    className="text-white"
+                                                                    onClick={() => handleViewEdit(item)}
+                                                                >
+                                                                    {item.doerIDs.length > 0 ? 'Published' : 'Publish'}
                                                                 </Button>
                                                             </td>
 
                                                             <td>
-                                                                <Button variant='primary' className='p-0 text-white' onClick={() => handleViewEdit(item.id)}>
-                                                                    <i className='btn ri-edit-line text-white' ></i>
-                                                                </Button>
+                                                                {(item.doerIDs.length === 0) ? (
+                                                                    <Button variant='primary' className='p-0 text-white' onClick={() => handleEdit(item)}>
+                                                                        <i className='btn ri-edit-line text-white' title="Edit"></i>
+                                                                    </Button>
+                                                                ) : (
+                                                                    <Button variant='secondary' className='p-0' disabled title="Cannot edit after publishing">
+                                                                        <i className='btn ri-edit-line text-white' title="Edit"></i>
+                                                                    </Button>
+                                                                )}
                                                             </td>
+
                                                         </>
 
 
@@ -418,7 +401,8 @@ const DesignationMaster = () => {
                         )}
                     </div >
                 </>
-            )}
+            )
+            }
 
             <div className="d-flex justify-content-center align-items-center bg-white w-20 rounded-5 m-auto py-1 pb-1 my-2 pagination-rounded">
                 <Pagination >
@@ -429,8 +413,22 @@ const DesignationMaster = () => {
                     <Pagination.Last onClick={() => setCurrentPage(totalPages)} disabled={currentPage === totalPages} />
                 </Pagination>
             </div>
-            <CreatePopup show={show} setShow={setShow} />
-            <PushNotification showView={showView} setShowView={setShowView} id={manageId} />
+            <CreatePopup
+                show={show}
+                setShow={(val) => {
+                    setShow(val);
+                    if (!val) {
+                        setEditNotification(null); // Clear edit data when closing
+                    }
+                }}
+                onSuccess={() => {
+                    setCurrentPage(1);
+                    fetchData();
+                }}
+                editData={editNotification}
+            />
+
+            <PushNotification showView={showView} setShowView={setShowView} data={manageId} />
 
 
 

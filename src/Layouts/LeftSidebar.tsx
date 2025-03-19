@@ -26,14 +26,14 @@ const getFilteredMenuItems = () => {
       key: 'Modules',
       label: 'Modules',
       isTitle: false,
-      url: '/pages/Notification',
+      url: '/pages/Modules',
       icon: 'ri-dashboard-3-line',
     },
     {
       key: 'Process',
       label: 'Process',
       isTitle: false,
-      url: '/pages/Notification',
+      url: '/pages/Process',
       icon: 'ri-dashboard-3-line',
     },
 
@@ -133,7 +133,7 @@ const getFilteredMenuItems = () => {
         {
           key: 'Other Task',
           label: 'Other Task',
-          url: '/pages/TrackTask',
+          url: '/pages/OtherTask',
           icon: 'ri-slideshow-line',
           parentKey: 'TaskAdmin',
         },
@@ -208,6 +208,13 @@ const getFilteredMenuItems = () => {
       icon: 'ri-settings-fill',
       children: [
         {
+          key: 'systemmaster-FormList',
+          label: 'Form Master',
+          url: '/pages/FormList',
+          icon: 'ri-slideshow-line',
+          parentKey: 'systemmaster',
+        },
+        {
           key: 'systemmaster-ModuleMaster',
           label: 'Module Master',
           url: '/pages/ModuleMaster',
@@ -279,40 +286,14 @@ const getFilteredMenuItems = () => {
           icon: 'ri-login-circle-line',
           parentKey: 'systemmaster',
         },
-        {
-          key: 'CreateNotification',
-          label: 'Notification',
-          url: '/pages/CreateNotification',
-          icon: 'ri-notification-line',
-          parentKey: 'systemmaster',
-        },
-        {
-          key: 'FormMaster',
-          label: 'Form Master',
-          url: '/pages/AdhocTempleteList',
-          // icon: 'ri-survey-line',
-          parentKey: 'systemmaster',
-          children: [
-            {
-              key: 'Mess-Master',
-              label: 'HR Templete Master',
-              url: '/pages/AdhocTempleteList',
-              parentKey: 'FormMaster',
-            },
-            {
-              key: 'Mess-Master',
-              label: 'Account Templete Master',
-              url: '/pages/AdhocTempleteList',
-              parentKey: 'FormMaster',
-            },
-            {
-              key: 'Mess-Master',
-              label: 'BD Templete Master',
-              url: '/pages/AdhocTempleteList',
-              parentKey: 'FormMaster',
-            },
-          ],
-        },
+        // {
+        //   key: 'CreateNotification',
+        //   label: 'Notification',
+        //   url: '/pages/CreateNotification',
+        //   icon: 'ri-notification-line',
+        //   parentKey: 'systemmaster',
+        // },
+
       ],
     },
 
@@ -375,73 +356,115 @@ const getFilteredMenuItems = () => {
       isTitle: false,
       icon: 'ri-settings-fill',
       children: [
-
         {
-          key: 'Account Masters',
-          label: 'Account Masters',
+          key: 'ModulesDropdown',
+          label: 'Modules Master ',
           parentKey: 'ProcessDataMaster',
+          url: '/pages/ModulesMaster',
           icon: 'ri-list-check-3',
-          children: [
-            {
-              key: 'Mess-Master',
-              label: 'Mess Master',
-              url: '/pages/MessMaster',
-              parentKey: 'Account Masters',
-            },
+        },
+        // {
+        //   key: 'Account Masters',
+        //   label: 'Account Masters',
+        //   parentKey: 'ProcessDataMaster',
+        //   icon: 'ri-list-check-3',
+        //   children: [
+        //     {
+        //       key: 'Mess-Master',
+        //       label: 'Mess Master',
+        //       url: '/pages/MessMaster',
+        //       parentKey: 'Account Masters',
+        //     },
 
-          ],
-        },
-        {
-          key: 'BD Masters',
-          label: 'BD Masters',
-          parentKey: 'ProcessDataMaster',
-          icon: 'ri-list-check-3',
-          children: [
-            {
-              key: 'Tender-Master',
-              label: 'Tender Master',
-              url: '/pages/TenderMaster',
-              parentKey: 'BD Masters',
-            },
+        //   ],
+        // },
+        // {
+        //   key: 'BD Masters',
+        //   label: 'BD Masters',
+        //   parentKey: 'ProcessDataMaster',
+        //   icon: 'ri-list-check-3',
+        //   children: [
+        //     {
+        //       key: 'Tender-Master',
+        //       label: 'Tender Master',
+        //       url: '/pages/TenderMaster',
+        //       parentKey: 'BD Masters',
+        //     },
 
-          ],
-        },
-        {
-          key: 'HR Masters',
-          label: 'HR Masters',
-          parentKey: 'ProcessDataMaster',
-          icon: 'ri-list-check-3',
-          children: [
-            {
-              key: 'RequirementMaster',
-              label: 'Staff Requirement Master',
-              url: '/pages/RequirementMaster',
-              parentKey: 'HR Masters',
-              // icon: 'ri-list-check-3',
-            },
-            {
-              key: 'DesignationMaster',
-              label: 'Designation Master',
-              url: '/pages/DesignationMaster',
-              parentKey: 'HR Masters',
-              // icon: 'ri-list-check-3',
-            },
-            {
-              key: 'CandidateMaster',
-              label: 'Candidate Master',
-              url: '/pages/HrCandidateMaster',
-              parentKey: 'HR Masters',
-              // icon: 'ri-list-check-3',
-            },
-            {
-              key: 'HrResumeMaster',
-              label: 'Hr Resume Master',
-              url: '/pages/HrResumeMaster',
-              parentKey: 'HR Masters',
-              // icon: 'ri-list-check-3',
-            },
-          ],
-        },
+        //   ],
+        // },
+        // {
+        //   key: 'HR Masters',
+        //   label: 'HR Masters',
+        //   parentKey: 'ProcessDataMaster',
+        //   icon: 'ri-list-check-3',
+        //   children: [
+        //     {
+        //       key: 'RequirementMaster',
+        //       label: 'Staff Requirement Master',
+        //       url: '/pages/RequirementMaster',
+        //       parentKey: 'HR Masters',
+        //       // icon: 'ri-list-check-3',
+        //     },
+        //     {
+        //       key: 'DesignationMaster',
+        //       label: 'Designation Master',
+        //       url: '/pages/DesignationMaster',
+        //       parentKey: 'HR Masters',
+        //       // icon: 'ri-list-check-3',
+        //     },
+        //     {
+        //       key: 'CandidateMaster',
+        //       label: 'Candidate Master',
+        //       url: '/pages/HrCandidateMaster',
+        //       parentKey: 'HR Masters',
+        //       // icon: 'ri-list-check-3',
+        //     },
+        //     {
+        //       key: 'HrResumeMaster',
+        //       label: 'Hr Resume Master',
+        //       url: '/pages/HrResumeMaster',
+        //       parentKey: 'HR Masters',
+        //       // icon: 'ri-list-check-3',
+        //     },
+        //   ],
+        // },
+        // {
+        //   key: 'BTS Masters',
+        //   label: 'BTS Masters',
+        //   parentKey: 'ProcessDataMaster',
+        //   icon: 'ri-list-check-3',
+        //   children: [
+        //     {
+        //       key: 'RequirementMaster',
+        //       label: 'Staff Requirement Master',
+        //       url: '/pages/RequirementMaster',
+        //       parentKey: 'BTS Masters',
+        //       // icon: 'ri-list-check-3',
+        //     },
+        //     {
+        //       key: 'DesignationMaster',
+        //       label: 'Designation Master',
+        //       url: '/pages/DesignationMaster',
+        //       parentKey: 'BTS Masters',
+        //       // icon: 'ri-list-check-3',
+        //     },
+        //     {
+        //       key: 'CandidateMaster',
+        //       label: 'Candidate Master',
+        //       url: '/pages/HrCandidateMaster',
+        //       parentKey: 'BTS Masters',
+        //       // icon: 'ri-list-check-3',
+        //     },
+        //     {
+        //       key: 'HrResumeMaster',
+        //       label: 'Hr Resume Master',
+        //       url: '/pages/HrResumeMaster',
+        //       parentKey: 'BTS Masters',
+        //       // icon: 'ri-list-check-3',
+        //     },
+        //   ],
+        // },
         {
           key: 'CommonDropdown',
           label: 'Common Master ',
@@ -451,7 +474,131 @@ const getFilteredMenuItems = () => {
         },
       ],
     },
-
+    {
+      key: 'FormMaster',
+      label: 'Form Master',
+      url: '/pages/AdhocTempleteList',
+      icon: 'ri-survey-line',
+      // parentKey: 'systemmaster',
+      children: [
+        {
+          key: 'HR Templete',
+          label: 'HR Templete Master',
+          url: '/pages/AdhocTempleteList',
+          parentKey: 'FormMaster',
+        },
+        {
+          key: 'Account Templete',
+          label: 'Account Templete Master',
+          url: '/pages/AdhocTempleteList',
+          parentKey: 'FormMaster',
+        },
+        {
+          key: 'BD Templete',
+          label: 'BD Templete Master',
+          url: '/pages/AdhocTempleteList',
+          parentKey: 'FormMaster',
+        },
+        {
+          key: 'Adhoc Master',
+          label: 'Adhoc Master',
+          url: '/pages/AdhocMaster',
+          parentKey: 'FormMaster',
+        },
+      ],
+    },
+    {
+      key: 'WorkflowBuilderList',
+      label: 'Workflow BuilderList',
+      url: '/pages/WorkflowBuilderList',
+      icon: 'ri-survey-line',
+    },
+    {
+      key: 'ProcessConfiguration',
+      label: 'Process Configuration',
+      url: '/pages/ProcessConfiguration',
+      icon: 'ri-survey-line',
+    },
+    {
+      key: 'Notifications',
+      label: 'Notification',
+      url: '/pages/Notification',
+      icon: 'ri-survey-line',
+      children: [
+        {
+          key: 'MyNotification',
+          label: 'Create Notification',
+          url: '/pages/CreateNotification',
+          parentKey: 'Notifications',
+        },
+        {
+          key: 'ScheduledNotification',
+          label: 'Scheduled Notification',
+          url: '/pages/ScheduledNotification',
+          parentKey: 'Notifications',
+        }
+      ],
+    },
+    {
+      key: 'SeekHelp',
+      label: 'Seek Help',
+      url: '/pages/SeekHelp',
+      icon: 'ri-survey-line',
+      children: [
+        {
+          key: 'CreateHelp',
+          label: 'Create Help',
+          url: '/pages/CreateHelp',
+          parentKey: 'SeekHelp',
+        },
+        {
+          key: 'ViewHelp',
+          label: 'View Help',
+          url: '/pages/ViewHelp',
+          parentKey: 'SeekHelp',
+        }
+      ],
+    },
+    {
+      key: 'Suggestion',
+      label: 'Suggestion',
+      url: '/pages/Suggestion',
+      icon: 'ri-survey-line',
+      children: [
+        {
+          key: 'SuggestionMasterinsert',
+          label: 'Create',
+          url: '/pages/SuggestionMasterinsert',
+          parentKey: 'Suggestion',
+        },
+        {
+          key: 'SuggestionMaster',
+          label: 'View',
+          url: '/pages/SuggestionMaster',
+          parentKey: 'Suggestion',
+        }
+      ],
+    },
+    {
+      key: 'Settings',
+      label: 'Settings',
+      url: '/pages/Settings',
+      icon: 'ri-survey-line',
+      children: [
+        {
+          key: 'Profile',
+          label: 'Profile',
+          url: '/pages/Profile',
+          parentKey: 'Settings',
+        },
+        {
+          key: 'ChangePassword',
+          label: 'Change Password',
+          url: '/pages/ChangePassword',
+          parentKey: 'Settings',
+        }
+      ],
+    },
   ];
 
 
@@ -499,7 +646,14 @@ const getFilteredMenuItems = () => {
       item.key === 'systemmaster' ||
       item.key === 'Process' ||
       item.key === 'ProcessDataMaster' ||
-      item.key === 'Modules'
+      item.key === 'Modules' ||
+      item.key === 'FormMaster' ||
+      item.key === 'WorkflowBuilderList' ||
+      item.key === 'ProcessConfiguration' ||
+      item.key === 'Notifications' ||
+      item.key === 'SeekHelp' ||
+      item.key === 'Suggestion' ||
+      item.key === 'Settings'
     );
   }
   return MENU_ITEMS.filter(item => {

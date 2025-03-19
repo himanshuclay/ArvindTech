@@ -5,6 +5,7 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import config from '@/config';
 
 import { toast } from 'react-toastify';
+import { PageBreadcrumb } from '@/components';
 
 
 interface Process {
@@ -158,7 +159,7 @@ const DDPS = () => {
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
 
         const payload = {
-            moduleName: process.moduleName,
+            moduleName: process.moduleID,
             taskNumber: processID,
             createdBy: empName
         };
@@ -192,6 +193,7 @@ const DDPS = () => {
 
     return (
         <div>
+            <PageBreadcrumb title="DDPS" />
             <div >
 
 

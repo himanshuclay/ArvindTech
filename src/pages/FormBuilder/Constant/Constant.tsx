@@ -1,6 +1,5 @@
 const FIELD_LIST = [
     {
-        id: "",
         name: "Text Input",
         is: "TextInput",
         property: {
@@ -8,14 +7,15 @@ const FIELD_LIST = [
             placeholder: "placeholder",
             required: "false",
             advance: {
-                backgroundColor: '',
-                color: '',
+                backgroundColor: '#fff',
+                color: '#000',
             },
             isShow: true,
+            disabled: false,
+            size: '12'
         }
     },
     {
-        id: "",
         name: "Number Input",
         is: "NumberInput",
         property: {
@@ -23,16 +23,56 @@ const FIELD_LIST = [
             placeholder: "placeholder",
             required: "false",
             advance: {
-                backgroundColor: '',
-                color: '',
+                backgroundColor: '#fff',
+                color: '#000',
 
             },
             isShow: true,
+            disabled: false,
+            size: '12'
+
 
         }
     },
     {
-        id: "",
+        name: "AmountInput",
+        is: "AmountInput",
+        property: {
+            label: "AmountInput",
+            placeholder: "placeholder",
+            required: "false",
+            advance: {
+                backgroundColor: '#fff',
+                color: '#000',
+
+            },
+            isShow: true,
+            disabled: false,
+            size: '12',
+            currencySymbol: '₹',
+
+        }
+    },
+    {
+        name: "FloatInput",
+        is: "FloatInput",
+        property: {
+            label: "FloatInput",
+            placeholder: "placeholder",
+            required: "false",
+            advance: {
+                backgroundColor: '#fff',
+                color: '#000',
+
+            },
+            isShow: true,
+            disabled: false,
+            size: '12',
+            prefix: '%',
+            decimalLimit: 2,
+        }
+    },
+    {
         name: "Email",
         is: "EmailInput",
         property: {
@@ -40,16 +80,17 @@ const FIELD_LIST = [
             placeholder: "placeholder",
             required: "false",
             advance: {
-                backgroundColor: '',
-                color: '',
+                backgroundColor: '#fff',
+                color: '#000',
 
             },
             isShow: true,
+            disabled: false,
+            size: '12'
 
         }
     },
     {
-        id: "",
         name: "Phone Number",
         is: "PhoneInput",
         property: {
@@ -57,16 +98,17 @@ const FIELD_LIST = [
             placeholder: "placeholder",
             required: "false",
             advance: {
-                backgroundColor: '',
-                color: '',
+                backgroundColor: '#fff',
+                color: '#000',
 
             },
             isShow: true,
+            disabled: false,
+            size: '12'
 
         }
     },
     {
-        id: "",
         name: "Password",
         is: "Password",
         property: {
@@ -74,16 +116,56 @@ const FIELD_LIST = [
             placeholder: "placeholder",
             required: "false",
             advance: {
-                backgroundColor: '',
-                color: '',
+                backgroundColor: '#fff',
+                color: '#000',
 
             },
             isShow: true,
+            disabled: false,
+            size: '12'
 
         }
     },
     {
-        id: "",
+        name: "DateInput",
+        is: "DateInput",
+        property: {
+            label: "DateInput",
+            placeholder: "placeholder",
+            required: "false",
+            advance: {
+                backgroundColor: '#fff',
+                color: '#000',
+
+            },
+            isShow: true,
+            disabled: false,
+            size: '12',
+            dateSelection: "none",
+
+        }
+    },
+    {
+        name: "DateRange",
+        is: "DateRange",
+        property: {
+            label: "Label",
+            placeholder: "placeholder",
+            required: "false",
+            advance: {
+                backgroundColor: '#fff',
+                color: '#000',
+
+            },
+            isShow: true,
+            disabled: false,
+            startDateId: "",
+            endDateId: "",
+            size: '12'
+
+        }
+    },
+    {
         name: "Select",
         is: "Select",
         property: {
@@ -91,39 +173,104 @@ const FIELD_LIST = [
             placeholder: "placeholder",
             required: "false",
             options: [],
+
             advance: {
-                backgroundColor: '',
-                color: '',
+                backgroundColor: '#fff',
+                color: '#000',
 
             },
             isShow: true,
+            disabled: false,
+            size: '12'
 
         }
-    }
+    },
+    {
+        name: "MultiSelect",
+        is: "MultiSelect",
+        property: {
+            label: "MultiSelect",
+            placeholder: "placeholder",
+            required: "false",
+            options: [],
+
+            advance: {
+                backgroundColor: '#fff',
+                color: '#000',
+
+            },
+            isShow: true,
+            disabled: false,
+            size: '12',
+            isLooping: false,
+            loopBlocks: [],
+        }
+    },
+    {
+        name: "FileUpload",
+        is: "FileUpload",
+        property: {
+            label: "FileUpload",
+            placeholder: "placeholder",
+            required: "false",
+
+            advance: {
+                backgroundColor: '#fff',
+                color: '#000',
+
+            },
+            isShow: true,
+            disabled: false,
+            size: '12'
+
+        }
+    },
 ]
 
 const START1 = [
     { label: "If", value: 'IF' },
     { label: "Bind", value: 'BIND' },
+    { label: "Map", value: 'MAP' },
 ]
 
-const END1 = [
-    { label: "Then", value: "THEN" },
-]
+const END1 = {
+    THEN: [
+        { label: "Then", value: "THEN" },
+    ],
+    WHERE: [
+        { label: "Where", value: "WHERE" },
+    ],
+    FILTER: [
+        { label: "Filter", value: "FILTER" },
+    ]
+}
+
 
 // List of tables with labels and values
 const TABLE_NAME = [
-    { label: 'Table Tender Master', value: "tbl_tendermaster" }
+    { label: 'Table Tender Master', value: "tbl_tendermaster" },
+    { label: 'Table Country Master', value: "tbl_countrymaster" },
 ];
 
 // Map table names to their corresponding fields
 const TABLE_FIELD: { [key: string]: { label: string, value: string }[] } = {
-    'tbl_tendermaster': [{ label: 'Tender ID', value: 'TenderID' }]
+    'tbl_tendermaster': [{ label: 'Tender ID', value: 'TenderID' }],
+    'tbl_countrymaster': [{ label: 'Country List', value: 'CountryName' }],
 };
 
 const SHOW_HIDE = [
-    {label: 'Show', value: 'SHOW'},
-    {label: 'Hide', value: 'HIDE'},
+    { label: 'Show', value: 'SHOW' },
+    { label: 'Hide', value: 'HIDE' },
+]
+
+const END2 = {
+    SHOW_HIDE: [{ label: "Show", value: 'SHOW' }, { label: 'Hide', value: 'HIDE' }],
+    COUNTRY: [{ label: "Country", value: 'COUNTRY' }],
+    STATUS: [{ label: "Status", value: 'STATUS' }],
+    ON_GOING: [{ label: "On Going", value: 'Ongoing' }],
+}
+const START3 = [
+    { label: 'state', value: 'STATE' }
 ]
 
 
@@ -135,4 +282,6 @@ export {
     TABLE_FIELD,
     END1,
     SHOW_HIDE,
+    END2,
+    START3
 }

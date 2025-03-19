@@ -1,5 +1,6 @@
 import React from 'react';
 import { Form } from 'react-bootstrap';
+import { PROPERTY } from '../Constant/Interface';
 
 interface Props {
     block: BasicField;  // Single block with name and properties
@@ -8,13 +9,13 @@ interface Props {
     editMode?: boolean;  // Optional prop to disable input
 }
 
-interface PROPERTY {
-    label: string;
-    id: string;
-    placeholder: string;
-    value: string;
-    required: string;  // 'true' or 'false' as string
-}
+// interface PROPERTY {
+//     label: string;
+//     id: string;
+//     placeholder: string;
+//     value: string;
+//     required: string;  // 'true' or 'false' as string
+// }
 
 interface BasicField {
     name: string;
@@ -26,6 +27,7 @@ const PhoneInput: React.FC<Props> = ({ block, handleChange, validationErrors = {
 
     return (
         <div>
+            {(block.property.isShow || editMode) && (
             <Form.Group controlId={block.property.id} className="mb-3">
                 <Form.Label>
                     {block.property.label}
@@ -48,6 +50,7 @@ const PhoneInput: React.FC<Props> = ({ block, handleChange, validationErrors = {
                     <Form.Text className="text-danger">{validationErrors[block.property.id]}</Form.Text>
                 )}
             </Form.Group>
+            )}
         </div>
     );
 };

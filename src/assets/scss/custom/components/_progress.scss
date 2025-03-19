@@ -72,7 +72,6 @@
   transition: 400ms ease-in-out;
   cursor: pointer;
   border-left: 2px solid rgb(255, 255, 255);
-  font-family: poppins;
   font-weight: 600;
 }
 
@@ -978,7 +977,7 @@ input.numInput.cur-year:hover {
   text-overflow: ellipsis;
 }
 
-.truncated-text-500 div {
+.truncated-text-500 {
   max-width: 500px;
   white-space: nowrap;
   overflow: hidden;
@@ -997,8 +996,8 @@ input.numInput.cur-year:hover {
 .special-option:focus {
   background-color: lightyellow;
 }
-.cursor-not-allowed
-{
+
+.cursor-not-allowed {
   cursor: not-allowed;
   pointer-events: none;
   opacity: 0.8;
@@ -1007,8 +1006,183 @@ input.numInput.cur-year:hover {
 
 // form builder
 .editor {
-  height: calc(100vh - 135px); 
+  height: calc(100vh - 135px);
 }
-.border-green{
-  border: 2px solid green!important;
+
+.border-green {
+  border: 2px solid green !important;
+}
+
+.sticky-header {
+  position: sticky;
+  top: 0;
+  background: white;
+  z-index: 1050; /* Ensures it stays above other content */
+  padding: 10px 0;
+  box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1); /* Adds subtle shadow */
+}
+
+.custom-node {
+  border: 1px solid black;
+  padding: 15px;
+  border-radius: 8px;
+  background: white;
+  position: relative;
+  width: auto;
+  min-width: 200px;
+  max-width: 280px;
+  min-height: 80px;
+  text-align: center;
+  box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.1);
+  font-size: 14px;
+  font-weight: bold;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.settings-button {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.input-handle, .output-handle {
+  background: #555;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.node-label {
+  padding: 8px;
+  font-weight: bold;
+  font-size: 15px;
+  width: 100%;
+  text-align: center;
+}
+
+.output-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  padding: 8px 0;
+}
+
+.output-box {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 90%;
+  margin-bottom: 6px;
+  padding: 6px 10px;
+  background: #f4f4f4;
+  border-radius: 5px;
+  border: 1px solid #ddd;
+  font-size: 12px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.close-button, .save-button {
+  margin-top: 10px;
+  padding: 5px;
+  border: none;
+  border-radius: 3px;
+}
+
+.close-button {
+  background: #ddd;
+}
+
+.save-button {
+  background: #28a745;
+  color: white;
+}
+.react-flow__handle-right {
+  top: unset!important;
+}
+@keyframes popCheck {
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
+
+  50% {
+    transform: scale(1.2);
+    opacity: 1;
+  }
+
+  100% {
+    transform: scale(1);
+  }
+}
+
+.check-animate {
+  animation: popCheck 0.3s ease-in-out;
+}
+
+
+
+
+.counter-bell {
+  top: 0px;
+  right: -10px;
+  background: red;
+  color: #fff;
+  border-radius: 50%;
+  border: 2px solid white;
+
+  min-width: 25px;
+  height: 25px;
+  padding: 6px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  font-size: 12px;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.text-right {
+  text-align: right;
+}
+
+.unread-row {
+  background-color: #f9f9f9;
+  font-weight: bold;
+}
+
+// s
+.read-row {
+  background-color: #fff;
+}
+
+.notification-content p {
+  margin-bottom: 0px !important;
+}
+
+.drop-zone {
+  min-height: 20px;
+  border: 2px dashed #ddd;
+  border-radius: 8px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+
+.drop-zone p {
+  color: #888;
+  font-size: 14px;
+}
+
+.border-green {
+  border-color: #28a745 !important;
 }

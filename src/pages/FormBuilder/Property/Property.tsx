@@ -18,7 +18,7 @@ const Property: React.FC<Props> = ({ form, setForm, property, setProperty, remov
                 ...prevProperty,
                 [name]: value,
             }));
-            
+
         } else if (name === 'backgroundColor' || name === 'color') {
             setProperty(prevProperty => ({
                 ...prevProperty,
@@ -33,12 +33,17 @@ const Property: React.FC<Props> = ({ form, setForm, property, setProperty, remov
                 [name]: value,
             }));
         }
+        setTimeout(() => {
+            handleSave();
+
+        }, 0);
     };
 
     const handleSave = () => {
-        const updatedBlocks = form.blocks.map(block => 
-            block.id === property.id ? { ...block, property } : block
+        const updatedBlocks = form.blocks.map(block =>
+            block.property.id === property.id ? { ...block, property } : block
         );
+        console.log('updatedBlocks', updatedBlocks)
         setForm(prevForm => ({
             ...prevForm,
             blocks: updatedBlocks,
@@ -79,7 +84,7 @@ const Property: React.FC<Props> = ({ form, setForm, property, setProperty, remov
             </div>
 
             {/* Label Field */}
-            {property.label && (
+            {property.hasOwnProperty('label') && (
                 <div className='d-flex justify-content-between align-items-center'>
                     <label className='col-6'>Label</label>
                     <input
@@ -94,7 +99,7 @@ const Property: React.FC<Props> = ({ form, setForm, property, setProperty, remov
             )}
 
             {/* Placeholder Field */}
-            {property.placeholder && (
+            {property.hasOwnProperty('placeholder') && (
                 <div className='d-flex justify-content-between align-items-center mt-2'>
                     <label className='col-6'>Placeholder</label>
                     <input
@@ -109,7 +114,7 @@ const Property: React.FC<Props> = ({ form, setForm, property, setProperty, remov
             )}
 
             {/* Required Field */}
-            {property.required !== undefined && (
+            {property.hasOwnProperty('required') !== undefined && (
                 <div className='d-flex justify-content-between align-items-center mt-2'>
                     <label className='col-6'>Required</label>
                     <select
@@ -124,8 +129,135 @@ const Property: React.FC<Props> = ({ form, setForm, property, setProperty, remov
                 </div>
             )}
 
+            {property.hasOwnProperty('disabled') !== undefined && (
+                <div className='d-flex justify-content-between align-items-center mt-2'>
+                    <label className='col-6'>Disabled</label>
+                    <select
+                        name="disabled"
+                        className="border p-2 rounded col-6"
+                        value={property.disabled.toString()}
+                        onChange={handleChange}
+                    >
+                        <option value="true">Yes</option>
+                        <option value="false">No</option>
+                    </select>
+                </div>
+            )}
+            {property.hasOwnProperty('size') !== undefined && (
+                <div className='d-flex justify-content-between align-items-center mt-2'>
+                    <label className='col-6'>Size</label>
+                    <select
+                        name="size"
+                        className="border p-2 rounded col-6"
+                        value={property.size}
+                        onChange={handleChange}
+                    >
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="4">4</option>
+                        <option value="5">5</option>
+                        <option value="6">6</option>
+                        <option value="7">7</option>
+                        <option value="8">8</option>
+                        <option value="9">9</option>
+                        <option value="10">10</option>
+                        <option value="11">11</option>
+                        <option value="12">12</option>
+                    </select>
+                </div>
+            )}
+            {property.hasOwnProperty('dateSelection') && (
+                <div className='d-flex justify-content-between align-items-center mt-2'>
+                    <label className='col-6'>Date Selection</label>
+                    <select
+                        name="dateSelection"
+                        className="border p-2 rounded col-6"
+                        value={property.dateSelection}
+                        onChange={handleChange}
+                    >
+                        <option value="none">None</option>
+                        <option value="today">Today</option>
+                    </select>
+                </div>
+            )}
+            {property.hasOwnProperty('currencySymbol') && (
+                <div className='d-flex justify-content-between align-items-center mt-2'>
+                    <label className='col-6'>Date Selection</label>
+                    <select
+                        name="currencySymbol"
+                        className="border p-2 rounded col-6"
+                        value={property.currencySymbol}
+                        onChange={handleChange}
+                    >
+                        <option value="₹">₹</option>
+                        <option value="$">$</option>
+                    </select>
+                </div>
+            )}
+            {property.hasOwnProperty('decimalLimit') && (
+                <div className='d-flex justify-content-between align-items-center mt-2'>
+                    <label className='col-6'>Date Selection</label>
+                    <select
+                        name="decimalLimit"
+                        className="border p-2 rounded col-6"
+                        value={property.decimalLimit}
+                        onChange={handleChange}
+                    >
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="4">4</option>
+                        <option value="5">5</option>
+                        <option value="6">6</option>
+                    </select>
+                </div>
+            )}
+            {property.hasOwnProperty('prefix') && (
+                <div className='d-flex justify-content-between align-items-center mt-2'>
+                    <label className='col-6'>Date Selection</label>
+                    <select
+                        name="prefix"
+                        className="border p-2 rounded col-6"
+                        value={property.prefix}
+                        onChange={handleChange}
+                    >
+                        <option value="%">%</option>
+                    </select>
+                </div>
+            )}
+            {property.hasOwnProperty('isLooping') && (
+                <div className='d-flex justify-content-between align-items-center mt-2'>
+                    <label className='col-6'>Is Looping</label>
+                    <select
+                        name="isLooping"
+                        className="border p-2 rounded col-6"
+                        value={property.isLooping}
+                        onChange={handleChange}
+                    >
+                        <option value="true">yes</option>
+                        <option value="false">no</option>
+                    </select>
+                </div>
+            )}
+            {property.hasOwnProperty('value') !== undefined && (
+                <div className='d-flex justify-content-between align-items-center mt-2'>
+                    <label className='col-6'>Value</label>
+                    <select
+                        name="value"
+                        className="border p-2 rounded col-6"
+                        value={property.value}
+                        onChange={handleChange}
+                    >
+                        <option value="">Select options</option>
+                        {property?.options?.map((option, index) => (
+                            <option value={option.value}>{option.label}</option>
+                        ))}
+                    </select>
+                </div>
+            )}
+
             {/* Options Fields */}
-            {property.options && (
+            {property.hasOwnProperty('options') && (
                 <div className='mt-4'>
                     <Row className='m-0 mb-1'>
                         <Col><h5>Options</h5></Col>
@@ -146,6 +278,7 @@ const Property: React.FC<Props> = ({ form, setForm, property, setProperty, remov
                                             const updatedOptions = [...property.options];
                                             updatedOptions[index].label = e.target.value;
                                             setProperty(prev => ({ ...prev, options: updatedOptions }));
+                                            handleSave();
                                         }}
                                     />
                                 </Col>
@@ -173,7 +306,7 @@ const Property: React.FC<Props> = ({ form, setForm, property, setProperty, remov
             )}
 
             {/* Advance Section */}
-            {property.advance && (
+            {property.hasOwnProperty('advance') && (
                 <Accordion defaultActiveKey="0" className='w-100 mt-3'>
                     <Accordion.Item eventKey="1">
                         <Accordion.Header>Advance</Accordion.Header>

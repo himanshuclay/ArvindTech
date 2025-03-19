@@ -7,7 +7,7 @@ import {
   DroppableProvided,
 } from 'react-beautiful-dnd';
 import Select from 'react-select';
-import { Button, Form, Modal, ListGroup, Toast } from 'react-bootstrap';
+import { Button, Form, Modal, ListGroup, Toast, Popover, OverlayTrigger } from 'react-bootstrap';
 import axios from 'axios';
 import { useLocation } from 'react-router-dom';
 import config from '@/config';
@@ -27,7 +27,8 @@ type FormField = {
   email?: string;         // Email input
   selection?: string;     // Dropdown selection input
   radio?: number;         // Radio button input
-  file?: string;          // File upload input
+  file?: string;
+  checkbox?: string;         // File upload input
   labeldate?: string;     // Label for date input
   conditionalField?: boolean;
   conditionalFieldId?: string;
@@ -224,6 +225,7 @@ const App: React.FC = () => {
     processOptions: [] as ProcessOption[], // Add processOptions to store the list of processes
   });
   const [conditionalField, setConditionalField] = useState(false);
+  const [selectedApprovalActions, setSelectedApprovalActions] = useState<string[]>([]);
   // const [customSelectFields, setCustomSelectFields] = useState<Record<string, { selectedMaster: string, selectedHeader: string, headersList: HeaderItem[] }>>({});
 
 
@@ -236,6 +238,11 @@ const App: React.FC = () => {
 
   const handleCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setConditionalField(event.target.checked);
+  };
+  const handleApprovalActionChange = (action: string) => {
+    setSelectedApprovalActions((prev) =>
+      prev.includes(action) ? prev.filter((a) => a !== action) : [...prev, action]
+    );
   };
   const handleApprovalCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setApprovalConsoleActive(event.target.checked); // Toggle the Approval Console based on checkbox
@@ -282,6 +289,12 @@ const App: React.FC = () => {
     id: number;
     mastersName: string;
   }
+
+  const approvalOptions = [
+    { id: 'approve', label: 'Approve' },
+    { id: 'reject', label: 'Reject' },
+    { id: 'approvewithamendment', label: 'Approve with Amendment' }
+  ];
 
   const [mastersList, setMastersList] = useState<MasterItem[]>([]); // State to store the fetched options
   // const [selectedMaster, setSelectedMaster] = useState(''); // State to track selected option
@@ -370,6 +383,10 @@ const App: React.FC = () => {
 
   }
 
+  const removeNonSpecialFields = () => {
+    setTaskFields((prevFields) => prevFields.filter((field) => specialFields.includes(field.inputId)));
+  };
+
 
   const handleDragEnd = (result: any) => {
     if (!result.destination) return;
@@ -409,6 +426,14 @@ const App: React.FC = () => {
     const [removed] = result.splice(startIndex, 1);
     result.splice(endIndex, 0, removed);
     return result;
+  };
+
+  const specialFields = ['99', '100', '102', '103'];
+  const specialFieldsLabels: { [key: string]: string } = {
+    "99": "Task Name",
+    "100": "Module Name",
+    "102": "Process Name",
+    "103": "Role Name",
   };
 
   useEffect(() => {
@@ -675,7 +700,7 @@ const App: React.FC = () => {
       approval_Console: isApprovalConsoleActive ? "Select Approval_Console" : '',
       approvalConsoleDoerID: '',
       approvalConsoleDoerName: '',
-      approvalConsoleInputID: '',
+      approvalConsoleInputID: selectedApprovalActions.join(',')
     };
 
 
@@ -1028,7 +1053,9 @@ const App: React.FC = () => {
             </div>
           );
         case 'checkbox':
-          return <div>{field.labeltext}</div>;
+          return (
+            <div>{field.labeltext}</div>
+          );
         case 'select':
         case 'radio':
         case 'multiselect':
@@ -1064,7 +1091,7 @@ const App: React.FC = () => {
           return (
             <div className='col-6'>
               <div>{field.labeltext}</div>
-              <div>Date: {field.date}</div>
+              <div>Date: {field.selection}</div>
             </div>
           );
         case 'custom':
@@ -1163,7 +1190,7 @@ const App: React.FC = () => {
       minDate = dateSelection.date;
     } else if (condition === 7) {
       minDate = new Date(Date.now() + 1 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
-    } 
+    }
     return minDate;
   }
 
@@ -1186,55 +1213,55 @@ const App: React.FC = () => {
     minDate: minDate(),  // Dynamically computed minDate
     maxDate: maxDate(),  // Dynamically computed maxDate
     disable: [
-      function(date: any) {
+      function (date: any) {
         const today = new Date();
         // Disable only today's date
-        if(condition === 8){
+        if (condition === 8) {
           return date.toDateString() === today.toDateString();
-        }else if(condition === 9){
+        } else if (condition === 9) {
           return date.toDateString() === new Date(dateSelection.date || '').toDateString();
-        }else if (condition === 10 && dateSelection.date) {
+        } else if (condition === 10 && dateSelection.date) {
           const selectedDate = new Date(dateSelection.date);
-  
+
           // Get start and end of the week (assuming week starts on Sunday)
           const startOfWeek = new Date(selectedDate);
           startOfWeek.setDate(selectedDate.getDate() - selectedDate.getDay());
-  
+
           const endOfWeek = new Date(startOfWeek);
           endOfWeek.setDate(startOfWeek.getDate() + 6);
-  
+
           // Disable if the date is within the selected week
           return date >= startOfWeek && date <= endOfWeek;
-        }else if (condition === 11 && dateSelection.date) {
+        } else if (condition === 11 && dateSelection.date) {
           const selectedDate = new Date(dateSelection.date);
           const selectedMonth = selectedDate.getMonth();
           const selectedYear = selectedDate.getFullYear();
-  
+
           // Disable if the date is in the same month and year as the selected date
           return date.getMonth() === selectedMonth && date.getFullYear() === selectedYear;
-        }else  if (condition === 12 && dateSelection.date) {
+        } else if (condition === 12 && dateSelection.date) {
           const selectedYear = new Date(dateSelection.date).getFullYear();
-  
+
           // Disable if the date is in the same year as the selected date
           return date.getFullYear() === selectedYear;
-        }else  if (condition === 13 && dateSelection.date) {
+        } else if (condition === 13 && dateSelection.date) {
           const selectedDate = new Date(dateSelection.date);
           const startOfWeek = new Date(selectedDate);
           startOfWeek.setDate(selectedDate.getDate() - selectedDate.getDay());  // Start on Sunday
           const endOfWeek = new Date(startOfWeek);
           endOfWeek.setDate(startOfWeek.getDate() + 6);  // End on Saturday
-  
+
           const allowedDays = [1, 3];  // 1 = Monday, 3 = Wednesday
-  
+
           // If the date is within the same week but not on an allowed day, disable it
           if (date >= startOfWeek && date <= endOfWeek) {
             return !allowedDays.includes(date.getDay());
           }
-  
+
           // Disable dates outside the current week
           return true;
         }
-  
+
       }
     ],
   }), [condition, dateSelection]);  // Recompute options on these changes
@@ -1338,9 +1365,25 @@ const App: React.FC = () => {
               </div>
             </Form>
           </div>
-          <div className='bg-white mt-1 p-1 text-end'>
-            <i className="ri-delete-bin-6-fill cursor-pointer" title='Clear Form'></i>
+
+          <div className='bg-white mt-1 p-1 special-fields-container d-flex col-12 justify-content-between px-2'>
+            {taskFields.some((field) => specialFields.includes(field.inputId)) && (
+              <>
+                {taskFields
+                  .filter((field) => specialFields.includes(field.inputId)) // ✅ Filter only special fields
+                  .map((field) => (
+                    <div key={field.inputId} className="field-container">
+                      <span className="fs-6 fw-bold">
+                        {specialFieldsLabels[field.inputId.toString()]}
+                      </span>
+                      <br />
+                      <span className="field-label">{field.labeltext}</span>
+                    </div>
+                  ))}
+              </>
+            )}
           </div>
+
           <div className='d-flex'>
             <div className="col-md-3 p-2 bg-white my-1 border">
               <h4>Available Fields</h4>
@@ -1370,13 +1413,16 @@ const App: React.FC = () => {
             </div>
             <div className="col-md-6 p-2 bg-white my-1 border">
               <div className='col-12 h-100'>
-                <h4 style={{ height: '40px' }}>Build Your Task</h4>
+                <div className='d-flex justify-content-between align-items-center p-1'>
+                  <h4>Build Your Task</h4>
+                  <i className="ri-delete-bin-6-fill cursor-pointer text-danger col-1" onClick={removeNonSpecialFields} title='Clear Form'></i>
+                </div>
                 <Droppable droppableId="taskFields">
                   {(provided: DroppableProvided) => (
                     <div
                       ref={provided.innerRef}
                       {...provided.droppableProps}
-                      className="list-group position-relative m-0 border w-100 vh-100 overflow-auto border"
+                      className="list-group position-relative m-0 w-100 vh-100 overflow-auto border"
                     >
                       {taskFields.length === 0 && (
                         <div className='col-12 align-items-center justify-content-center d-flex flex-column' style={{ height: '200px' }}>
@@ -1384,26 +1430,27 @@ const App: React.FC = () => {
                           <span>Please Select Task Fields</span>
                         </div>
                       )}
-                      {taskFields.map((field, index) => (
-                        <Draggable key={field.inputId} draggableId={field.inputId} index={index}>
-                          {(provided: DraggableProvided) => (
-                            <div
-                              ref={provided.innerRef}
-                              {...provided.draggableProps}
-                              {...provided.dragHandleProps}
-                              className={
-                                ['99', '100', '102', '103'].includes(field.inputId)
-                                  ? 'custom-details list-group-item col-md-12 col-sm-12 border-none my-1 p-0 timeliner d-flex'
-                                  : 'list-group-item col-md-12 col-sm-12 border-none my-1 p-1 timeliner d-flex'
-                              }
-                            >
-                              {renderField(field, -1, index)}
-                              <div className='top-round'></div>
-                              <div className='bottom-round'></div>
-                            </div>
-                          )}
-                        </Draggable>
-                      ))}
+                      {taskFields
+                        .map((field, index) => (
+
+                          <Draggable key={field.inputId} draggableId={field.inputId} index={index}>
+                            {(provided) => (
+                              <div
+                                ref={provided.innerRef}
+                                {...provided.draggableProps}
+                                {...(!specialFields.includes(field.inputId) ? provided.dragHandleProps : {})}
+                                className="list-group-item col-md-12 col-sm-12 border-none my-1 p-1 timeliner"
+                                style={{
+                                  display: specialFields.includes(field.inputId) ? "none" : "flex", // ✅ Correct way to hide elements
+                                }}
+                              >
+                                {renderField(field, -1, index)}
+                                <div className="top-round"></div>
+                                <div className="bottom-round"></div>
+                              </div>
+                            )}
+                          </Draggable>
+                        ))}
                       {provided.placeholder}
                     </div>
                   )}
@@ -1461,7 +1508,7 @@ const App: React.FC = () => {
                 <div className="row col-12 position-relative">
                   {/* Approval console checkbox */}
                   <Form.Group className="my-1">
-                    <Form.Label>Is approval is applicable?</Form.Label>
+                    {/* <Form.Label>Is approval applicable?</Form.Label> */}
                     <Form.Check
                       type="checkbox"
                       label="Activate Approval Console"
@@ -1470,51 +1517,39 @@ const App: React.FC = () => {
                     />
                   </Form.Group>
 
-                  {/* Conditionally render the Approval Console popover */}
-                  {/* {isApprovalConsoleActive && (
-                    <Popover id="approval-popover" style={{ position: 'absolute', bottom: '100%' }}>
-                      <Popover.Header as="h3">Select Doer for Approval</Popover.Header>
-                      <Popover.Body>
-                        <Form.Group>
-                          <Form.Label>Employee Name</Form.Label>
-                          <Select
-                            value={employees
-                              .map(employee => ({ value: employee.empId, label: employee.employeeName }))
-                              .find(option => option.value === approvalSelectedEmployee) || null
-                            }
-                            onChange={handleApprovalEmployeeSelect}
-                            options={employees.map(employee => ({
-                              value: employee.empId,
-                              label: employee.employeeName,
-                            }))}
-                            placeholder="Select an employee"
-                            isSearchable
-                          />
-                        </Form.Group>
-                        <Form.Group className="mt-2">
-                          <Form.Label>Select Approval Input</Form.Label>
-                          <Form.Control
-                            as="select"
-                            name="approvalConsoleId"  // Changed from finishID to approvalConsoleId
-                            value={formData.approvalConsoleId}  // Updated to approvalConsoleId
-                            onChange={handleApprovalConsoleId}  // Updated handler
-                            required
-                          >
-                            <option value="">Select Field</option>
-                            {taskFields
-                              .filter(field => !['99', '100', '102', '103'].includes(field.inputId)) // Filter out specific fields
-                              .map((field) => (
-                                <option key={field.inputId} value={field.inputId}>
-                                  {field.labeltext}
-                                </option>
+                  {/* Button to toggle popover */}
+                  {isApprovalConsoleActive && (
+                    <OverlayTrigger
+                      trigger="click"
+                      placement="top"
+                      overlay={
+                        <Popover id="approval-popover">
+                          <Popover.Header as="h3">Select Approval Actions</Popover.Header>
+                          <Popover.Body>
+                            <Form.Group className="mb-2">
+                              {approvalOptions.map((option) => (
+                                <Form.Check
+                                  key={option.id}
+                                  type="checkbox"
+                                  label={option.label}
+                                  checked={selectedApprovalActions.includes(option.id)}
+                                  onChange={() => handleApprovalActionChange(option.id)}
+                                />
                               ))}
-                          </Form.Control>
-                        </Form.Group>
-                      </Popover.Body>
-                    </Popover>
-                  )} */}
+                            </Form.Group>
+                          </Popover.Body>
+                        </Popover>
+                      }
+                      rootClose
+                    >
+                      <Button variant="primary" className="my-2">
+                        Configure Approval
+                      </Button>
+                    </OverlayTrigger>
+                  )}
                 </div>
               </div>
+
               {location.pathname != '/pages/CreateTemplates' &&
 
                 (
@@ -1543,6 +1578,7 @@ const App: React.FC = () => {
                 )
 
               }
+
             </div>
           </div>
         </DragDropContext>
@@ -1822,6 +1858,46 @@ const App: React.FC = () => {
                     </Form.Group>
 
                   )}
+
+                {editField.type === 'checkbox' && (
+                  <Form.Group key={editField.inputId}>
+
+                    <div className='form-group mt-2'>
+                      <label className="form-label">
+                        <input className='me-1' type="checkbox"
+                          checked={conditionalField}
+                          onChange={handleCheckboxChange} />
+                        Is Conditionally bound?
+                      </label>
+                    </div>
+                    {conditionalField == true &&
+                      <Form.Control
+                        as="select"
+                        className="mt-2"
+                        value={editField.conditionalFieldId || ''}
+                        onChange={handleSelectChange}
+                      >
+                        <option value="">Select an option</option>
+                        {taskFields.map((field) => (
+                          <React.Fragment key={field.inputId}>
+                            <option value={field.inputId}>{field.labeltext}</option>
+                            {field.options?.map((option) => (
+                              <option
+                                key={option.id}
+                                value={option.id}
+                                data-color={option.color || ""}
+                                style={{ color: option.color || "inherit" }}
+                              >
+                                {option.label}
+                              </option>
+                            ))}
+                          </React.Fragment>
+                        ))}
+                      </Form.Control>
+                    }
+
+                  </Form.Group>
+                )}
 
 
 

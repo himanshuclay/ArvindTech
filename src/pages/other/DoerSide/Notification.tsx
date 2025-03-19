@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import axios from 'axios';
-import { Button, Table, Container, Row, Col, Alert, Collapse, Pagination } from 'react-bootstrap'; // Assuming DynamicForm is in the same directory
+import { Button, Table, Container, Row, Col, Alert, Collapse, Pagination, Form, ButtonGroup } from 'react-bootstrap'; // Assuming DynamicForm is in the same directory
 import { format } from 'date-fns';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import DynamicForm from '../Component/DynamicForm';
@@ -10,6 +11,9 @@ import ViewOutput from '../Component/ViewTask/ViewOutput';
 import { getPlannedDate } from '../Component/PlanDateFunction';
 import { toast } from 'react-toastify';
 // import { Divider } from 'rsuite';
+import Flatpickr from 'react-flatpickr';
+import Select from 'react-select';
+import { BLOCK_VALUE, FIELD } from '@/pages/FormBuilder/Constant/Interface';
 
 
 
@@ -56,8 +60,11 @@ interface ProjectAssignListWithDoer {
   taskName: string;
   completedDate: string | null;
   finishPoint: number;
+  rejectedJson: string;
   problemSolver: string;
   problemSolverMobileNumber: number;
+  blockValue: BLOCK_VALUE;
+  form_Json: FIELD;
 
 }
 interface Input {
@@ -83,6 +90,16 @@ interface Column {
   label: string;
   visible: boolean;
 }
+interface dropDownList {
+  processID: string;
+  processName: string;
+  moduleID: string;
+  moduleName: string;
+  taskID: string;
+  empID: string;
+  empName: string;
+  name: string;
+}
 const ProjectAssignTable: React.FC = () => {
   const [data, setData] = useState<ProjectAssignListWithDoer[]>([]);
   const [preData, setPreData] = useState<FilteredTask[]>([]);
@@ -95,11 +112,37 @@ const ProjectAssignTable: React.FC = () => {
   const [showView, setShowView] = useState(false);
   const [showViewOutput, setShowViewOutput] = useState(false);
   const [manageId, setManageID] = useState<number>();
+  const [, setSearchTriggered] = useState(false);
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
+  const [projectList,] = useState<dropDownList[]>([]);
+  const [projectName, setProjectName] = useState('');
+  const [options, setOptions] = useState('');
+  const [moduleList,] = useState<dropDownList[]>([]);
+  const [moduleID, setModuleID] = useState('');
+  const [ModuleName, setModuleName] = useState('');
+  const [processList,] = useState<dropDownList[]>([]);
+  const [ProcessName, setProcessName] = useState('');
+  const [taskNumberList,] = useState<dropDownList[]>([]);
+  const [taskNumberName, setTaskNumberName] = useState('');
+  // const [doerList, ] = useState<dropDownList[]>([]);
+  const [, setDoerName] = useState('');
 
   const [expandedRow, setExpandedRow] = useState<number | null>(null); // For row expansion
 
   console.log(data)
-
+  const handleClear = async () => {
+    setDoerName('');
+    setTaskNumberName('');
+    setProcessName('');
+    setModuleID('');
+    setProjectName('');
+    setEndDate('');
+    setOptions('');
+    setStartDate('');
+    setCurrentPage(1);
+    setSearchTriggered(false);
+  };
 
   const toggleExpandRow = (id: number) => {
     setExpandedRow(expandedRow === id ? null : id);
@@ -123,6 +166,8 @@ const ProjectAssignTable: React.FC = () => {
     setColumns(reorderedColumns);
   };
   // ==============================================================
+  const location = useLocation();
+
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
@@ -134,6 +179,7 @@ const ProjectAssignTable: React.FC = () => {
             params: {
               Flag: 1,
               DoerId: role,
+              Id: 0,
               PageIndex: currentPage,
             },
           }
@@ -155,7 +201,7 @@ const ProjectAssignTable: React.FC = () => {
     };
 
     fetchData();
-  }, [currentPage]);
+  }, [location.pathname, currentPage]);
 
 
   const fetchPreData = async (taskCommonId: number) => {
@@ -168,13 +214,15 @@ const ProjectAssignTable: React.FC = () => {
       if (response.data?.isSuccess) {
         const fetchedData = response.data.getFilterTasks || [];
 
-        setParsedCondition(fetchedData[0].condition_Json);
+        console.log('fetchedData', fetchedData)
 
         // Filter and transform data
         const filteredTasks = fetchedData
           .filter((task) => task.isCompleted !== "Pending") // Exclude pending tasks
           .flatMap((task: ProjectAssignListWithDoer) => {
             let taskJsonArray: any[] = [];
+            
+
 
             try {
               // Parse task_Json and check its structure
@@ -201,7 +249,7 @@ const ProjectAssignTable: React.FC = () => {
             }
 
             // Proceed with the rest of the taskJsonArray processing
-            return taskJsonArray.flatMap((taskJson: any) => {
+            return taskJsonArray.flatMap((taskJson: any, form_Json: any) => {
               if (!taskJson) {
                 console.error("Invalid taskJson:", taskJson);
                 return [];
@@ -232,20 +280,30 @@ const ProjectAssignTable: React.FC = () => {
                   label: input.label,
                   value: optionsMap[input.value] || input.value, // Replace value with label if available
                 }));
+              const input = inputs.find(item => item.inputId === "99");
+              const label = input ? input.label : null;
 
               // Return transformed task object
+              console.log('33333333333333333333', form_Json)
               return {
                 messID: taskJson.messID,
                 messName: taskJson.messName,
                 messManager: taskJson.messManager,
                 managerNumber: taskJson.mobileNumber,
                 messTaskNumber: taskJson.messTaskNumber,
+                taskName: label,
                 inputs: filteredInputsData,
+                blockValue: task.blockValue, 
+                form_Json: task.form_Json,  
+
               };
             });
           });
 
         setPreData(filteredTasks);
+
+
+
       } else {
         console.error("API Response Error:", response.data?.message || "Unknown error");
       }
@@ -312,9 +370,10 @@ const ProjectAssignTable: React.FC = () => {
 
   const handleShow = () => setShow(true);
 
-  const handleEdit = (taskCommonId: number) => {
+  const handleEdit = (taskCommonId: number, taskCondition: string) => {
     setTaskCommonIdRow(taskCommonId);
     fetchPreData(taskCommonId);
+    setParsedCondition(taskCondition);
     handleShow();
 
   };
@@ -339,7 +398,13 @@ const ProjectAssignTable: React.FC = () => {
     twoDaysLater.setDate(created.getDate() + 2);
     return currentDate > twoDaysLater;
   }
-
+  const optionsDataAccesLevel = [
+    { value: 'All', label: 'All' },
+    { value: 'OnlySelf', label: 'OnlySelf' },
+    { value: 'ProjectModule', label: 'ProjectModule' },
+    { value: 'Module', label: 'Module' },
+    { value: 'Project', label: 'Project' }
+  ];
 
 
   function calculatePlannedDate(createdDate: string): string {
@@ -382,6 +447,177 @@ const ProjectAssignTable: React.FC = () => {
     <>
       <div className="d-flex bg-white p-2 my-2 justify-content-between align-items-center fs-20">
         <span><i className="ri-file-list-line me-2"></i><span className='fw-bold test-nowrap'>Pending Task</span></span>
+      </div>
+      <div className='bg-white p-2 pb-2'>
+        <Form
+          onSubmit={(e) => {
+            e.preventDefault();
+            setCurrentPage(1);
+            setSearchTriggered(true);
+          }}
+        >
+          <Row>
+
+            <Col lg={4}>
+              <Form.Group controlId="dateRange" className="mb-3">
+                <Form.Label>Select Date Range</Form.Label>
+                <Flatpickr
+                  value={[startDate, endDate]}
+                  onChange={([start, end]) => {
+                    if (start && end) {
+                      const formattedStart = start.toLocaleDateString('en-CA');
+                      const formattedEnd = end.toLocaleDateString('en-CA');
+                      setStartDate(formattedStart);
+                      setEndDate(formattedEnd);
+
+                    }
+                  }}
+                  options={{
+                    mode: "range",
+                    enableTime: false,
+                    dateFormat: "Y-m-d",
+                    time_24hr: false,
+                  }}
+                  placeholder=" Select Date Range "
+                  className="form-control "
+                />
+              </Form.Group>
+            </Col>
+
+
+
+            <Col lg={4}>
+              <Form.Group controlId="projectName">
+                <Form.Label>Select Project</Form.Label>
+                <Select
+                  name="projectName"
+                  value={projectList.find(item => item.name === projectName) || null}
+                  onChange={(selectedOption) => {
+                    setProjectName(selectedOption ? selectedOption.name : "")
+                  }}
+                  options={projectList}
+                  getOptionLabel={(item) => item.name}
+                  getOptionValue={(item) => item.name}
+                  isSearchable={true}
+                  placeholder="Select Project Name"
+                  className="h45"
+                />
+              </Form.Group>
+            </Col>
+            {/* <Col lg={3}>
+                                <Form.Group controlId="ModuleName">
+                                    <Form.Label>Sort  By</Form.Label>
+                                    <Select
+                                        name="ModuleName"
+                                        value={moduleList.find(item => item.moduleID === moduleID) || null}
+                                        onChange={(selectedOption) => {
+                                            setModuleName(selectedOption ? selectedOption.moduleName : ""),
+                                                setModuleID(selectedOption ? selectedOption.moduleID : "")
+
+                                        }}
+                                        options={moduleList}
+                                        getOptionLabel={(item) => item.moduleName}
+                                        getOptionValue={(item) => item.moduleID}
+                                        isSearchable={true}
+                                        placeholder="Select Project Name"
+                                        className="h45"
+                                    />
+                                </Form.Group>
+                            </Col> */}
+            <Col lg={4}>
+              <Form.Group controlId="options">
+                <Form.Label>Select Any Option</Form.Label>
+                <Select
+                  name="options"
+                  options={optionsDataAccesLevel}
+                  value={optionsDataAccesLevel.find(option => option.value === options) || null}
+                  onChange={(selectedOption) => setOptions(selectedOption?.value || '')}
+                  placeholder="Select Any Option"
+                />
+              </Form.Group>
+            </Col>
+            <Col lg={3}>
+              <Form.Group controlId="ModuleName">
+                <Form.Label>Select Module</Form.Label>
+                <Select
+                  name="ModuleName"
+                  value={moduleList.find(item => item.moduleID === moduleID) || null}
+                  onChange={(selectedOption) => {
+                    setModuleName(selectedOption ? selectedOption.moduleName : ""),
+                      setModuleID(selectedOption ? selectedOption.moduleID : "")
+
+                  }}
+                  options={moduleList}
+                  getOptionLabel={(item) => item.moduleName}
+                  getOptionValue={(item) => item.moduleID}
+                  isSearchable={true}
+                  placeholder="Select Module Name"
+                  className="h45"
+                />
+              </Form.Group>
+            </Col>
+            <Col lg={3}>
+              <Form.Group controlId="ModuleOwnerName">
+                <Form.Label>Select Process</Form.Label>
+                <Select
+                  name="ModuleOwnerName"
+                  value={processList.find(item => item.processID === ProcessName) || null}
+                  onChange={(selectedOption) => setProcessName(selectedOption ? selectedOption.processID : "")}
+                  options={processList}
+                  getOptionLabel={(item) => item.processName}
+                  getOptionValue={(item) => item.processID}
+                  isSearchable={true}
+                  placeholder="Select Process Name"
+                  className="h45"
+                  isDisabled={!ModuleName}
+                />
+              </Form.Group>
+            </Col>
+
+            <Col lg={3} className="">
+              <Form.Group controlId="searchTaskNumber">
+                <Form.Label>Select Task </Form.Label>
+                <Select
+                  name="searchTaskNumber"
+                  value={taskNumberList.find(item => item.taskID === taskNumberName) || null}
+                  onChange={(selectedOption) => setTaskNumberName(selectedOption ? selectedOption.taskID : "")}
+                  options={taskNumberList}
+                  getOptionLabel={(item) => item.taskID}
+                  getOptionValue={(item) => item.taskID}
+                  isSearchable={true}
+                  placeholder="Select Task Number"
+                  className="h45"
+                />
+              </Form.Group>
+            </Col>
+
+
+
+            <Col></Col>
+
+            <Col lg={3} className="align-items-end d-flex justify-content-end mt-2">
+              <ButtonGroup aria-label="Basic example" className="w-100">
+                <Button type="button" variant="primary" onClick={handleClear}>
+                  <i className="ri-loop-left-line"></i>
+                </Button>
+                &nbsp;
+                <Button type="submit" variant="primary">
+                  Search
+                </Button>
+              </ButtonGroup>
+            </Col>
+          </Row>
+        </Form>
+
+
+
+        <Row className='mt-3'>
+          <div className="d-flex justify-content-end bg-light p-1">
+            <div className="app-search d-none d-lg-block me-4">
+
+            </div>
+          </div>
+        </Row>
       </div>
       <div className='overflow-auto'>
         {!data ? (
@@ -499,6 +735,7 @@ const ProjectAssignTable: React.FC = () => {
                                 <DynamicForm
                                   fromComponent='PendingTask'
                                   formData={JSON.parse(item.task_Json)}
+                                  formBuilderData={JSON.parse(item.task_Json)}
                                   taskNumber={item.task_Number}
                                   taskName={item.taskName}
                                   data={data}
@@ -507,6 +744,7 @@ const ProjectAssignTable: React.FC = () => {
                                   setShow={setShow}
                                   parsedCondition={parsedCondition}
                                   preData={preData}
+                                  rejectBlock={item.rejectedJson}
                                   taskCommonIDRow={taskCommonIDRow}
                                   projectName={item.projectName}
                                   taskStatus
@@ -515,6 +753,8 @@ const ProjectAssignTable: React.FC = () => {
                                   ProcessInitiationID={item.id}
                                   approval_Console={item.approval_Console}
                                   problemSolver={item.problemSolver}
+                                  approvarActions={item.approvalConsoleInputID}
+                                  rejectData={item.rejectedJson}
                                 />
                               }
                             </div>
@@ -587,15 +827,15 @@ const ProjectAssignTable: React.FC = () => {
                                             </h5></td>
                                           </tr>
 
-                                          <tr>
+                                          {/* <tr>
                                             <td><h5>Approval :</h5></td>
                                             <td> <h5 className='text-primary'>{item.approval_Console !== null ? 'Yes' : 'No'}</h5></td>
-                                          </tr>
+                                          </tr> */}
 
-                                          {item.approval_Console !== null &&
+                                          {item.approval_Console === 'Select Approval_Console' &&
                                             <tr>
                                               <td><h5>Approver :</h5></td>
-                                              <td><h5 className='text-primary'>NA</h5>
+                                              <td><h5 className='text-primary'>{item.approvalConsoleDoerName}</h5>
                                               </td>
                                             </tr>}
 
@@ -606,19 +846,22 @@ const ProjectAssignTable: React.FC = () => {
 
                                   <hr className='my-1' />
                                   <Row className=''>
-                                    <Col lg={4}>
-                                      <tr>
-                                        <td> <h5 >Initiation period : </h5></td>
-                                        <td><h5 className='text-primary'>{formatPeriod(item.createdDate)}</h5></td>
-                                      </tr>
-                                      <tr>
-                                        <td> <h5 >Source : </h5></td>
-                                        <td><h5 className='text-primary'>Source</h5>
-                                        </td>
-                                      </tr>
+                                    {item.processID === 'ACC.01' &&
+                                      <Col lg={4}>
+                                        <tr>
+                                          <td> <h5 >Initiation period : </h5></td>
+                                          <td><h5 className='text-primary'>{formatPeriod(item.createdDate)}</h5></td>
+                                        </tr>
+                                        {/* <tr>
+                                         <td> <h5 >Source : </h5></td>
+                                         <td><h5 className='text-primary'>Source</h5>
+                                         </td>
+                                       </tr> */}
 
-                                    </Col>
-                                    <Col lg={4}>
+                                      </Col>
+                                    }
+
+                                    {/* <Col lg={4}>
                                       <tr>
                                         <td> <h5 >Week : </h5></td>
                                         <td><h5 className='text-primary'>Source</h5></td>
@@ -629,19 +872,22 @@ const ProjectAssignTable: React.FC = () => {
                                         </td>
                                       </tr>
 
-                                    </Col>
-                                    <Col lg={4}>
-                                      <tr>
-                                        <td> <h5>Mess Manager : </h5></td>
-                                        <td><h5 className='text-primary'>Mess Manager Name</h5></td>
-                                      </tr>
-                                      <tr>
-                                        <td> <h5 className='mb-1'>Var Field 2 : </h5></td>
-                                        <td><h5 className='text-primary'>Var Field 2</h5>
-                                        </td>
-                                      </tr>
+                                    </Col> */}
+                                    {item.processID === 'ACC.01' &&
+                                      <Col lg={4}>
+                                        <tr>
+                                          <td> <h5>Mess Manager : </h5></td>
+                                          <td><h5 className='text-primary'>Mess Manager Name</h5></td>
+                                        </tr>
+                                        {/* <tr>
+                                          <td> <h5 className='mb-1'>Var Field 2 : </h5></td>
+                                          <td><h5 className='text-primary'>Var Field 2</h5>
+                                          </td>
+                                        </tr> */}
 
-                                    </Col>
+                                      </Col>
+                                    }
+
                                   </Row>
                                   <hr className='my-1' />
                                   <Row>
@@ -660,9 +906,9 @@ const ProjectAssignTable: React.FC = () => {
                                     <Col lg={3} className=''>
                                       <div className=' d-flex justify-content-end align-items-center'>
                                         <span className='text-primary me-2 cursor-pointer fw-bold' onClick={() => handleViewEditOutput(item.taskCommonId)}>View Output</span>
-                                        <span className='text-primary cursor-pointer me-2 fw-bold' onClick={() => handleViewEdit(item.taskCommonId)}>Heirarchy View</span>
+                                        <span className='text-primary cursor-pointer me-2 fw-bold' onClick={() => handleViewEdit(item.taskCommonId)}>Hierarchy  View</span>
                                         <span className='text-primary me-2 fw-bold'>Help</span>
-                                        <Button className='ms-auto ' onClick={() => handleEdit(item.taskCommonId)}>
+                                        <Button className='ms-auto ' onClick={() => handleEdit(item.taskCommonId, item.condition_Json)}>
                                           Finish
                                         </Button>
                                       </div>
@@ -698,27 +944,27 @@ const ProjectAssignTable: React.FC = () => {
         <ViewOutput showViewOutput={showViewOutput} setShowViewOutput={setShowViewOutput} preData={preData} />
       </div>
       <div className="d-flex justify-content-center align-items-center bg-white w-20 rounded-5 m-auto py-1 pb-1 my-2 pagination-rounded">
-      <Pagination>
-							<Pagination.First
-								onClick={() => setCurrentPage(1)}
-								disabled={currentPage === 1}
-							/>
-							<Pagination.Prev
-								onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-								disabled={currentPage === 1}
-							/>
-							<Pagination.Item active>{currentPage}</Pagination.Item>
-							<Pagination.Next
-								onClick={() =>
-									setCurrentPage((prev) => Math.min(prev + 1, totalPages))
-								}
-								disabled={currentPage === totalPages}
-							/>
-							<Pagination.Last
-								onClick={() => setCurrentPage(totalPages)}
-								disabled={currentPage === totalPages}
-							/>
-						</Pagination>
+        <Pagination>
+          <Pagination.First
+            onClick={() => setCurrentPage(1)}
+            disabled={currentPage === 1}
+          />
+          <Pagination.Prev
+            onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+            disabled={currentPage === 1}
+          />
+          <Pagination.Item active>{currentPage}</Pagination.Item>
+          <Pagination.Next
+            onClick={() =>
+              setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+            }
+            disabled={currentPage === totalPages}
+          />
+          <Pagination.Last
+            onClick={() => setCurrentPage(totalPages)}
+            disabled={currentPage === totalPages}
+          />
+        </Pagination>
       </div>
     </>
 

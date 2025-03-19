@@ -3,7 +3,17 @@ import { Route, RouteProps } from 'react-router-dom'
 
 // components
 import PrivateRoute from './PrivateRoute'
-import FormBuilder from '@/pages/FormBuilder/FormBuilder.tsx'
+import AdhocMaster from '@/pages/other/AdminSide/AdhocMaster.tsx'
+import ModulesMaster from '@/pages/other/ModulesMaster/ModulesMaster.tsx'
+import { MODULES_MASTER } from './ModulesMaster.tsx'
+import WorkflowBuilderList from '@/pages/WorkflowBuilder/WorkflowBuilderList.tsx'
+import WorkflowBuilder from '@/pages/WorkflowBuilder/WorkflowBuilder.tsx'
+import Workflow from '@/pages/WorkflowBuilder/Workflow.tsx'
+import ProcessConfiguration from '@/pages/ProcessConfiguration/ProcessConfiguration.tsx'
+import OtherTask from '@/pages/other/AdminSide/TrackTask/OtherTask.tsx'
+import Modules from '@/pages/other/DoerSide/Modules.tsx'
+import Process from '@/pages/other/DoerSide/Process.tsx'
+// import FormBuilder from '@/pages/FormBuilder/FormBuilder.tsx'
 
 // lazy load all the views
 
@@ -43,6 +53,8 @@ const ExpireTask = React.lazy(() => import('../pages/other/DoerSide/ExpireTask.t
 const PendingTask = React.lazy(() => import('../pages/other/DoerSide/PendingTask.tsx'))
 const RunningTask = React.lazy(() => import('../pages/other/RunningTask.tsx'))
 const ModuleMasterNew = React.lazy(() => import('../pages/other/AdminSide/ModuleMaster/ModuleMaster.tsx'))
+const FormList = React.lazy(() => import('../pages/other/AdminSide/FormBuilderMaster/FormList.tsx'))
+const FormBuilder = React.lazy(() => import('../pages/FormBuilder/FormBuilder.tsx'))
 const ModuleMasterinsert = React.lazy(() => import('../pages/other/AdminSide/ModuleMaster/ModuleMasterInsert.tsx'))
 const ProcessMasterNew = React.lazy(() => import('../pages/other/AdminSide/ProcessMaster/ProcessMaster.tsx'))
 const ProcessMasterinsert = React.lazy(() => import('../pages/other/AdminSide/ProcessMaster/ProcessMasterInsert.tsx'))
@@ -102,6 +114,12 @@ const CommonMaster = React.lazy(() => import('../pages/other/AdminSide/CommonMas
 const CommonModule = React.lazy(() => import('../pages/other/CommonModule-process/Module.tsx'))
 const CommonProcess = React.lazy(() => import('../pages/other/CommonModule-process/Process.tsx'))
 const CreateNotification = React.lazy(() => import('../pages/other/Component/ViewTask/CreateNotification/CreateNotification.tsx'))
+
+
+
+
+const SuggestionMaster = React.lazy(() => import('../pages/other/AdminSide/SuggestionMaster/SuggestionMaster.tsx'))
+const SuggestionMasterinsert = React.lazy(() => import('../pages/other/AdminSide/SuggestionMaster/SuggestionMasterinsert.tsx'))
 
 
 
@@ -252,6 +270,18 @@ const customPagesRoutes = {
 			route: PrivateRoute,
 		},
 		{
+			path: '/pages/Modules',
+			name: 'Modules',
+			element: <Modules />,
+			route: PrivateRoute,
+		},
+		{
+			path: '/pages/Process',
+			name: 'Process',
+			element: <Process />,
+			route: PrivateRoute,
+		},
+		{
 			path: '/pages/admin/Notification',
 			name: 'Notification',
 			element: <Notification />,
@@ -283,6 +313,12 @@ const customPagesRoutes = {
 			path: '/pages/FormMaster',
 			name: 'Form Master',
 			element: <FormMaster />,
+			route: PrivateRoute,
+		},
+		{
+			path: '/pages/AdhocMaster',
+			name: 'Adhoc Master',
+			element: <AdhocMaster />,
 			route: PrivateRoute,
 		},
 		{
@@ -364,6 +400,24 @@ const customPagesRoutes = {
 			path: '/pages/ModuleMaster',
 			name: 'ModuleMaster ',
 			element: <ModuleMasterNew />,
+			route: PrivateRoute,
+		},
+		{
+			path: '/pages/FormList',
+			name: 'FormList ',
+			element: <FormList />,
+			route: PrivateRoute,
+		},
+		{
+			path: '/pages/FormBuilder/:id',
+			name: 'FormBuilder ',
+			element: <FormBuilder />,
+			route: PrivateRoute,
+		},
+		{
+			path: '/pages/FormBuilder',
+			name: 'FormBuilder ',
+			element: <FormBuilder />,
 			route: PrivateRoute,
 		},
 		{
@@ -821,6 +875,12 @@ const customPagesRoutes = {
 			route: PrivateRoute,
 		},
 		{
+			path: '/pages/ModulesMaster',
+			name: 'ModulesMaster',
+			element: <ModulesMaster />,
+			route: PrivateRoute,
+		},
+		{
 			path: '/pages/Module',
 			name: 'CommonModule',
 			element: <CommonModule />,
@@ -839,9 +899,27 @@ const customPagesRoutes = {
 			route: PrivateRoute,
 		},
 		{
+			path: '/pages/OtherTask',
+			name: 'OtherTask',
+			element: <OtherTask />,
+			route: PrivateRoute,
+		},
+		{
 			path: '/pages/CreateNotification',
 			name: 'CreateNotification',
 			element: <CreateNotification />,
+			route: PrivateRoute,
+		},
+		{
+			path: '/pages/SuggestionMasterinsert',
+			name: 'SuggestionMasterinsert',
+			element: <SuggestionMasterinsert />,
+			route: PrivateRoute,
+		},
+		{
+			path: '/pages/SuggestionMaster',
+			name: 'SuggestionMaster',
+			element: <SuggestionMaster />,
 			route: PrivateRoute,
 		},
 
@@ -865,11 +943,54 @@ const customPagesRoutes = {
 			route: PrivateRoute,
 		},
 		{
-			path: 'pages/formBuilder',
-			name: 'Form Builder',
-			element: <FormBuilder />,
+			path: 'pages/WorkflowBuilderList',
+			name: 'Workflow Builder List',
+			element: <WorkflowBuilderList />,
 			route: PrivateRoute,
 		},
+		{
+			path: 'pages/WorkflowBuilder',
+			name: 'Workflow Builder',
+			element: <WorkflowBuilder />,
+			route: PrivateRoute,
+		},
+		{
+			path: 'pages/WorkflowBuilder/:id',
+			name: 'Workflow Builder',
+			element: <WorkflowBuilder />,
+			route: PrivateRoute,
+		},
+		{
+			path: 'pages/Workflow/:id',
+			name: 'Workflow',
+			element: <Workflow />,
+			route: PrivateRoute,
+		},
+
+		{
+			path: 'pages/ProcessConfiguration',
+			name: 'Process Configuration',
+			element: <ProcessConfiguration />,
+			route: PrivateRoute,
+		},
+
+		// MODULES_MASTER
+
+
+
+
+
+
+
+
+
+
+
+		...MODULES_MASTER,
+
+
+
+
 	],
 }
 

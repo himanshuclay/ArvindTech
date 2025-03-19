@@ -4,6 +4,7 @@ import Select, { SingleValue } from 'react-select';
 import { Container, Row, Col, Card, Form, Button, Alert } from 'react-bootstrap';
 import config from '@/config';
 import DynamicForm from './Component/DynamicForm';
+import { getPlannedDate } from './Component/PlanDateFunction';
 // import 'remixicon/fonts/remixicon.css'; // Import Remix Icons
 
 interface Input {
@@ -44,7 +45,9 @@ interface Task {
   roleName: string;
   taskNumber: string;
   inputs: Input[];
+  completedDate: string;
   data: string;
+  rejectBlock: string;
   approval_Console: string;
   approvalConsoleInputID: number;
 }
@@ -182,6 +185,7 @@ const ApprovalPage: React.FC = () => {
 
       ) : (
         tasks.map((task) => (
+
           <Card key={task.id} className="mb-4">
             <Card.Header as="h5">Task Number: {task.task_Number}</Card.Header>
             <Card.Body>
@@ -190,7 +194,42 @@ const ApprovalPage: React.FC = () => {
                   <Card.Text>Project Name: {task.projectName}</Card.Text>
                   <Card.Text>Process Name: {task.processName}</Card.Text>
                   <Card.Text>Status: {task.isCompleted}</Card.Text>
-                  <Card.Text>Task Start Date: {task.createdDate}</Card.Text>
+                  <Card.Text>CreatedDate: {task.completedDate}</Card.Text>
+                  <Card.Text>
+                    Planned Date: {getPlannedDate(
+                      task.completedDate,
+                      (() => {
+                        // Log the original condition_Json to inspect the value before parsing
+                        console.log("Original condition_Json:", task.condition_Json);
+
+                        const conditionData = typeof task.condition_Json === "string"
+                          ? JSON.parse(task.condition_Json) // Parse the JSON if it's a string
+                          : task.condition_Json;            // Use the object as is if it's already parsed
+
+                        // Log the parsed conditionData to inspect its structure
+                        console.log("Parsed conditionData:", conditionData);
+
+                        // Access the first item in the array
+                        const approvalTaskRow = conditionData[0]?.approvalTaskRow || {};
+
+                        // Log the approvalTaskRow to inspect its values
+                        console.log("approvalTaskRow:", approvalTaskRow);
+
+                        return `taskType - ${approvalTaskRow.taskType || ''}, 
+              taskTiming - ${approvalTaskRow.taskTiming || ''}, 
+              Hours - ${approvalTaskRow.Hours || ''}, 
+              Days - ${approvalTaskRow.Days || ''}, 
+              WeekDay - ${approvalTaskRow.WeekDay || ''}, 
+              time - ${approvalTaskRow.time || ''}`;
+                      })()
+                    )}
+                  </Card.Text>
+
+
+
+
+
+
                 </Col>
                 <Col md={6}>
                   {task.approval_Console === 'Select Approval_Console' && (
@@ -224,6 +263,7 @@ const ApprovalPage: React.FC = () => {
         <DynamicForm
           fromComponent="ApprovalConsole"
           formData={JSON.parse(selectedTask.task_Json)}
+          formBuilderData={JSON.parse(selectedTask.task_Json)}
           taskNumber={selectedTask.task_Number}
           data={tasks}
           show={show}
@@ -234,6 +274,8 @@ const ApprovalPage: React.FC = () => {
           preData={[]}
           // selectedTasknumber={selectedTask.task_Number}
           // setLoading={() => { }}
+          approvarActions={selectedTask.approvalConsoleInputID}
+          rejectBlock={selectedTask.rejectedJson}
           taskCommonIDRow={selectedTask.taskCommonId}
           taskStatus={selectedTask.isCompleted}
           processId={selectedTask.processID}
@@ -241,8 +283,9 @@ const ApprovalPage: React.FC = () => {
           ProcessInitiationID={selectedTask.id}
           approval_Console={selectedTask.approval_Console}
           // approvalConsoleInputID={selectedTask.approvalConsoleInputID}
-          projectName = {selectedTask.projectName}
-          problemSolver = {selectedTask.problemSolver}
+          projectName={selectedTask.projectName}
+          problemSolver={selectedTask.problemSolver}
+          rejectData
 
         />
       )}

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Form } from 'react-bootstrap';
 import { BASIC_FIELD, BLOCK_VALUE } from '../Constant/Interface';
 
@@ -12,24 +12,30 @@ interface Props {
     setBlockValue: React.Dispatch<React.SetStateAction<BLOCK_VALUE>>;
 }
 
-const Select: React.FC<Props> = ({ block, handleChange, validationErrors = {}, editMode = false, blockValue, setBlockValue }) => {
+const Select: React.FC<Props> = ({ block, handleChange, validationErrors = {}, editMode, blockValue, setBlockValue }) => {
     const isRequired = block.property.required === "true";
 
     const handleSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
         const { value } = e.target;
-
         setBlockValue((prevState) => ({
             ...prevState,
             [block.property.id]: value,
         }));
-
         handleChange(e as unknown as React.ChangeEvent<HTMLInputElement>, block.property.id);
-
-
     };
+
+    useEffect(() => {
+        if(block.property.value){
+            setBlockValue((prevState) => ({
+                ...prevState,
+                [block.property.id]: block.property.value,
+            }))
+        }
+    },[])
 
     return (
         <div>
+            {(block.property.isShow || editMode && block.property.options.length) && (
             <Form.Group controlId={block.property.id} className="mb-3">
                 <Form.Label>
                     {block.property.label}
@@ -45,7 +51,7 @@ const Select: React.FC<Props> = ({ block, handleChange, validationErrors = {}, e
                     className={validationErrors[block.property.id] ? "is-invalid" : ""}
                 >
                     <option value="">Please select</option>
-                    {block.property.options.map((option, index) => (
+                    {block.property.options?.map((option, index) => (
                         <option key={index} value={option.value}>
                             {option.label}
                         </option>
@@ -57,7 +63,7 @@ const Select: React.FC<Props> = ({ block, handleChange, validationErrors = {}, e
                     <Form.Text className="text-danger">{validationErrors[block.property.id]}</Form.Text>
                 )}
 
-                {(block.property.options as any[]).length === 0 && (
+                {(block.property.options as any[])?.length === 0 && (
                     <div className="cursor-pointer" style={{ pointerEvents: 'all' }}>
                         <a data-tooltip-id="tooltip" data-tooltip-content="Add Option First!">
                             <i className="ri-information-line" style={{ color: '#ff0000' }}></i>
@@ -65,6 +71,7 @@ const Select: React.FC<Props> = ({ block, handleChange, validationErrors = {}, e
                     </div>
                 )}
             </Form.Group>
+            )}
         </div>
     );
 };

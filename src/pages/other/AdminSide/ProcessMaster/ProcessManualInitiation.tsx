@@ -7,6 +7,8 @@ import StoreManagement from './ProcessModule/StoreManagement/StoreManagement';
 import Demobilization from './ProcessModule/Demobilization/Demobilization';
 import DDPS from './ProcessModule/DDPS/DDPS';
 import BillTrackingSystem from './ProcessModule/BillTrackingSystem/BillTrackingSystem';
+import PB from './ProcessModule/PB/PB';
+import TestingModule from './ProcessModule/TestingModule/TestingModule';
 
 
 const ProcessManualInitiation = () => {
@@ -23,7 +25,9 @@ const ProcessManualInitiation = () => {
                                 moduleID === 'DDPS' ? <DDPS /> :
                                     moduleID === 'DEMOB' ? <Demobilization /> :
                                         moduleID === 'BTS' ? <BillTrackingSystem /> :
-                                            null}
+                                            moduleID === 'PB' ? <PB /> :
+                                                moduleID === 'tm1' ? <TestingModule /> :
+                                                    null}
 
         </>
     );

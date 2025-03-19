@@ -1,5 +1,5 @@
 import { Image } from 'react-bootstrap'
-import { ThemeSettings, useThemeContext } from '@/common'
+import { ThemeSettings, useCommonContext, useThemeContext } from '@/common'
 import { Link } from 'react-router-dom'
 import { useEffect, useState } from 'react'
 
@@ -18,12 +18,13 @@ import avatar5 from '@/assets/images/users/avatar-5.jpg'
 import {
 	LanguageDropdown,
 	MessageDropdown,
-	// NotificationDropdown,
 	ProfileDropdown,
 	SearchDropDown,
 } from '@/components'
 import { useThemeCustomizer } from '@/components'
 import { useViewport } from '@/hooks'
+import axios from 'axios'
+import config from '@/config'
 /**
  * for subtraction minutes
  */
@@ -127,6 +128,7 @@ type TopbarProps = {
 	navOpen?: boolean
 }
 const Topbar = ({ toggleMenu, navOpen }: TopbarProps) => {
+	const { unreadCount, setUnreadCount } = useCommonContext()
 	const { sideBarType } = useThemeCustomizer()
 	const { width } = useViewport()
 
@@ -207,6 +209,36 @@ const Topbar = ({ toggleMenu, navOpen }: TopbarProps) => {
 	// const handleRightSideBar = () => {
 	// 	updateSettings({ rightSidebar: ThemeSettings.rightSidebar.show })
 	// }
+
+
+	useEffect(() => {
+		const fetchNotificationCount = async () => {
+			try {
+				const doerID = localStorage.getItem('EmpId') // fallback if missing
+				const response = await axios.get(`${config.API_URL_APPLICATION}/NotificationMaster/GetNotificationCount?DoerID=${doerID}`)
+
+				if (response.data && response.data.isSuccess) {
+					setUnreadCount(response.data.unread)
+				} else {
+					console.warn('Failed to fetch notification count:', response.data.message)
+				}
+			} catch (error) {
+				console.error('Error fetching notification count:', error)
+			}
+		}
+
+		// Initial fetch
+		fetchNotificationCount()
+
+		// Interval for polling every 10 seconds
+		const intervalId = setInterval(() => {
+			fetchNotificationCount()
+		}, 15000)
+
+		// Cleanup interval on component unmount
+		return () => clearInterval(intervalId)
+	}, [])
+
 	return (
 		<>
 			<div className="navbar-custom">
@@ -277,14 +309,21 @@ const Topbar = ({ toggleMenu, navOpen }: TopbarProps) => {
 						<li className="dropdown notification-list">
 							<MessageDropdown messages={Messages} />
 						</li>
+						<li className="position-relative notification-bell me-3">
+							<Link to={"/pages/NotificationPage"}>
+								<i className="text-primary fs-2 ri-notification-line"></i>
+								<div className='position-absolute counter-bell'>{unreadCount}</div>
+							</Link>
+
+						</li>
 
 
 						<li className="dropdown">
 							<ProfileDropdown
 								menuItems={profileMenus}
 								userImage={profilePic}
-								username={empName || 'Guest'} // Provide a fallback value
-								userid={empID || 'Guest ID'} // Provide a fallback value
+								username={empName || 'Guest'}
+								userid={empID || 'Guest ID'}
 							/>
 						</li>
 					</ul>
