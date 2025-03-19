@@ -194,7 +194,7 @@ const AccountProcess = () => {
     const handleSubmit = async () => {
 
         const payload = {
-            moduleName: process.moduleName,
+            moduleName: process.moduleID,
             taskNumber: processID,
             createdBy: empName
         };
@@ -694,6 +694,7 @@ const AccountProcess = () => {
                     projectName={process.projectName}
                     approvarActions
                     problemSolver
+                    rejectData
                 />
 
             }

@@ -754,6 +754,7 @@ const ProjectAssignTable: React.FC = () => {
                                   approval_Console={item.approval_Console}
                                   problemSolver={item.problemSolver}
                                   approvarActions={item.approvalConsoleInputID}
+                                  rejectData={item.rejectedJson}
                                 />
                               }
                             </div>
