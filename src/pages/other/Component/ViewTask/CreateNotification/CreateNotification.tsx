@@ -95,7 +95,7 @@ const DesignationMaster = () => {
                     subject: item.subject,
                     content: item.content,
                     attachment: item.attachment,
-                    doerIDs: item.getDoerDetails?.map(doer => doer.doerID) || [],
+                    doerIDs: item.getDoerDetails || [],
                     roleNames: [],
                     levelType: item.levelType,
                     createdBy: '',

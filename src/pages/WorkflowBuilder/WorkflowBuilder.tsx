@@ -203,7 +203,7 @@ const WorkflowBuilder: React.FC = () => {
         e.preventDefault();
         const action = e.dataTransfer.getData('ACTION');
         if (action === 'ADD_NODE') {
-            addNewNode(50, 50);
+            addNewNode(50, 50, '', action);
         } else if (action === 'ADD_FORM') {
             setShowFormBuilder(true);
             setIsAddFormBuilder(true);
@@ -313,7 +313,7 @@ const WorkflowBuilder: React.FC = () => {
                 setIsCloseForm(false);
                 console.log("Updated existing node:", selectedNode.id);
             }
-            
+
         }
     }, [formBuilder]);
 
@@ -444,7 +444,9 @@ const WorkflowBuilder: React.FC = () => {
             setFormBuilder(node.data.form); // ✅ Prefill existing form
             setIsAddFormBuilder(false);
         } else {
-            setDynamicComponent(node.data.form);
+            console.log(node.data)
+            if (node.data.form != "ADD_NODE")
+                setDynamicComponent(node.data.form);
         }
     }, []);
 

@@ -158,7 +158,7 @@ const Demobilization = () => {
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
 
         const payload = {
-            moduleName: process.moduleName,
+            moduleName: process.moduleID,
             taskNumber: processID,
             createdBy: empName
         };

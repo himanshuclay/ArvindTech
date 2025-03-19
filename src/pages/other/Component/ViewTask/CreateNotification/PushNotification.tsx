@@ -8,12 +8,12 @@ import axios from "axios";
 interface ProcessCanvasProps {
     showView: boolean;
     setShowView: (show: boolean) => void;
-    data: AssignProjecttoProcess | null;  // Ensure `data` can be `null`
+    data: AssignProjecttoProcess | any;  // Ensure `data` can be `null`
 }
 
 interface AssignProjecttoProcess {
     id: number;
-    doerIDs: string[];
+    doerIDs: { doerID: string, isRead: number, readAt: string }[];  // Update this to be an array of objects with the necessary properties
     roleNames: string[];
     content: string;
     levelType: string;
@@ -21,6 +21,7 @@ interface AssignProjecttoProcess {
     createdBy: string;
     updatedBy: string;
 }
+
 
 interface DepartmentOrProject {
     name: string;
@@ -42,6 +43,7 @@ const roleOptions = [
 
 const PushNotification: React.FC<ProcessCanvasProps> = ({ showView, setShowView, data }) => {
     const role = localStorage.getItem('role');
+    console.log(data)
 
     const [empName, setEmpName] = useState<string | null>('');
     const [employeeList, setEmployeeList] = useState<Employee[]>([]);
@@ -55,12 +57,14 @@ const PushNotification: React.FC<ProcessCanvasProps> = ({ showView, setShowView,
         doerIDs: [],
         roleNames: [],
         content: '',
-        levelType: 'Group',
+        levelType: '',
         subject: '',
         createdBy: '',
         updatedBy: '',
     });
 
+
+    const [isNotificationPublished, setIsNotificationPublished] = useState<boolean>(false);
 
     useEffect(() => {
         if (data) {
@@ -70,6 +74,9 @@ const PushNotification: React.FC<ProcessCanvasProps> = ({ showView, setShowView,
                 ...data,
                 updatedBy: empName || '',
             });
+
+            const isPublished = data.doerIDs.length > 0;
+            setIsNotificationPublished(isPublished);  // This controls if buttons should be active or disabled
         } else {
             setActiveButton('Group');
             setAssignProject(prev => ({
@@ -81,7 +88,6 @@ const PushNotification: React.FC<ProcessCanvasProps> = ({ showView, setShowView,
     }, [data, empName]);
 
 
-
     useEffect(() => {
         if (!data) {
             setAssignProject(prev => ({
@@ -90,7 +96,6 @@ const PushNotification: React.FC<ProcessCanvasProps> = ({ showView, setShowView,
             }));
         }
     }, [empName, activeButton]);
-
 
 
     useEffect(() => {
@@ -146,9 +151,9 @@ const PushNotification: React.FC<ProcessCanvasProps> = ({ showView, setShowView,
             content: assignProject.content,
             attachment: "",
             getDoerDetails: assignProject.doerIDs.map(id => ({
-                doerID: id,
-                isRead: 0,
-                readAt: ""
+                doerID: id.doerID,
+                isRead: id.isRead,
+                readAt: id.readAt,
             })),
             levelType: assignProject.levelType,
             roleNames: assignProject.roleNames,
@@ -189,31 +194,47 @@ const PushNotification: React.FC<ProcessCanvasProps> = ({ showView, setShowView,
                 <Modal.Body>
                     {role === 'Admin' && (
                         <>
-                            <Col lg={12} className="align-items-end d-flex justify-content-end">
-
+                            {/* <Col lg={12} className="align-items-end d-flex justify-content-end">
                                 <ButtonGroup className="w-100 d-flex">
                                     {Object.entries(buttonLabels).map(([btn, label]) => {
+                                        const isActive = activeButton === btn;
                                         return (
                                             <Button
                                                 key={btn}
                                                 type="button"
-                                                variant={activeButton === btn ? 'primary' : 'outline-primary'}
-                                                onClick={() => handleButtonClick(btn as any)}
+                                                variant={isActive ? 'primary' : 'outline-primary'}
+                                                onClick={() => handleButtonClick(btn as 'Group' | 'Department' | 'Project' | 'Employee')}
                                                 className="flex-fill"
+                                                disabled={isActive || (data?.doerIDs && data.doerIDs.length > 0 && data.levelType !== btn)}  // Disable if it doesn't match levelType or doerIDs length is greater than 0
                                             >
                                                 {label}
                                             </Button>
                                         );
                                     })}
                                 </ButtonGroup>
-
-
+                            </Col> */}
+                            <Col lg={12} className="align-items-end d-flex justify-content-end">
+                                <ButtonGroup className="w-100 d-flex">
+                                    {Object.entries(buttonLabels).map(([btn, label]) => {
+                                        return (
+                                            <Button
+                                                key={btn}
+                                                type="button"
+                                                variant={activeButton === btn && !isNotificationPublished ? 'primary' : 'outline-primary'}
+                                                onClick={() => handleButtonClick(btn as 'Group' | 'Department' | 'Project' | 'Employee')}
+                                                className="flex-fill"
+                                                disabled={isNotificationPublished && activeButton !== btn}
+                                            >
+                                                {label}
+                                            </Button>
+                                        );
+                                    })}
+                                </ButtonGroup>
                             </Col>
-
 
                             <Form onSubmit={handleSubmit}>
                                 <Row>
-                                    {activeButton === 'Group' && (
+                                    {activeButton === 'Group' && !isNotificationPublished && (
                                         <Col lg={12}>
                                             <Form.Group controlId="RoleNames" className="mb-3 mt-2">
                                                 <Form.Label>Select Group Roles</Form.Label>
@@ -240,7 +261,7 @@ const PushNotification: React.FC<ProcessCanvasProps> = ({ showView, setShowView,
                                             </Form.Group>
                                         </Col>
                                     )}
-                                    {activeButton === 'Department' && (
+                                    {activeButton === 'Department' && !isNotificationPublished && (
                                         <Col lg={12}>
                                             <Form.Group controlId="DepartmentList" className="mb-3 mt-2">
                                                 <Form.Label>Select Department(s)</Form.Label>
@@ -269,7 +290,7 @@ const PushNotification: React.FC<ProcessCanvasProps> = ({ showView, setShowView,
                                         </Col>
                                     )}
 
-                                    {activeButton === 'Project' && (
+                                    {activeButton === 'Project' && !isNotificationPublished && (
                                         <Col lg={12}>
                                             <Form.Group controlId="ProjectList" className="mb-3 mt-2">
                                                 <Form.Label>Select Project(s)</Form.Label>
@@ -298,65 +319,83 @@ const PushNotification: React.FC<ProcessCanvasProps> = ({ showView, setShowView,
                                         </Col>
                                     )}
 
-                                    {activeButton === 'Employee' && (
+                                    {activeButton === 'Employee' && !isNotificationPublished && (
                                         <Col lg={12}>
                                             <Form.Group controlId="Employee" className="mb-3 mt-2">
                                                 <Form.Label>Select Employees</Form.Label>
-{/* 
-                                                {assignProject.levelType ? (
-                                                    <ul className="list-group">
-                                                        {assignProject.doerIDs.length === 0 ? (
-                                                            <li className="list-group-item text-muted">No employees selected.</li>
-                                                        ) : (
-                                                            assignProject.doerIDs.map((id) => {
-                                                                const emp = employeeList.find(e => e.empId === id);
-                                                                return (
-                                                                    <li key={id} className="list-group-item">
-                                                                        {emp ? `${emp.employeeName}` : id}
-                                                                    </li>
-                                                                );
-                                                            })
-                                                        )}
-                                                    </ul>
-                                                ) : ( */}
-                                                    <Select
-                                                        name="Employee"
-                                                        value={employeeList.filter(emp =>
-                                                            assignProject.doerIDs.includes(emp.empId)
-                                                        )}
-                                                        onChange={(selectedOptions) => {
-                                                            const selectedEmployees = (selectedOptions || []) as Employee[];
-                                                            const doerIDsArray = selectedEmployees.map(emp => emp.empId);
-                                                            setAssignProject({
-                                                                ...assignProject,
-                                                                doerIDs: doerIDsArray,
-                                                                roleNames: [],
-                                                            });
-                                                        }}
-                                                        getOptionLabel={(emp) => emp.employeeName}
-                                                        getOptionValue={(emp) => emp.empId}
-                                                        options={employeeList}
-                                                        isSearchable
-                                                        isMulti
-                                                        placeholder="Select Employees"
-                                                        required
-                                                    />
-                                                {/* )} */}
+                                                <Select
+                                                    name="Employee"
+                                                    value={employeeList.filter(emp =>
+                                                        assignProject.doerIDs.some(doer => doer.doerID === emp.empId)  // Check if employee is selected
+                                                    )}
+                                                    onChange={(selectedOptions) => {
+                                                        const selectedEmployees = (selectedOptions || []) as Employee[];
+                                                        const doerIDsArray = selectedEmployees.map(emp => ({
+                                                            doerID: emp.empId,
+                                                            isRead: 0,  // Default value for "isRead"
+                                                            readAt: "",  // Default value for "readAt"
+                                                        }));
+                                                        setAssignProject({
+                                                            ...assignProject,
+                                                            doerIDs: doerIDsArray,
+                                                            roleNames: [],  // Reset roleNames when selecting employees
+                                                        });
+                                                    }}
+                                                    getOptionLabel={(emp) => emp.employeeName}
+                                                    getOptionValue={(emp) => emp.empId}
+                                                    options={employeeList}
+                                                    isSearchable
+                                                    isMulti
+                                                    placeholder="Select Employees"
+                                                    required
+                                                />
                                             </Form.Group>
                                         </Col>
                                     )}
-                                </Row>
 
+                                </Row>
+                                <div>
+                                    <h5 className="my-4">Published Notifications: {data?.levelType}-Level</h5>
+                                    <div className="list-group">
+                                        {data && data.doerIDs && data.doerIDs.length > 0 ? (
+                                            data.doerIDs.map((doer: any, index: any) => (
+                                                <div
+                                                    key={index}
+                                                    className="list-group-item d-flex justify-content-between align-items-center shadow-sm p-2 mb-2 bg-light rounded"
+                                                >
+                                                    <div>
+                                                        <strong>Doer ID: </strong>
+                                                        <span>{doer?.doerID}</span>
+                                                    </div>
+                                                    <div>
+                                                        <strong>Status: </strong>
+                                                        <span className={doer?.isRead !== 0 ? "text-success" : "text-danger"}>
+                                                            {doer?.isRead !== 0 ? "Read" : "UnRead"}
+                                                        </span>
+                                                    </div>
+                                                    <div>
+                                                        <strong>Read At: </strong>
+                                                        <span>{doer?.readAt || "Not read yet"}</span>
+                                                    </div>
+                                                </div>
+                                            ))
+                                        ) : (
+                                            <div className="alert alert-warning">No published notifications found.</div>
+                                        )}
+                                    </div>
+                                </div>
 
                                 <ButtonGroup className="mt-3">
                                     <Button onClick={handleClose} className="me-1">
                                         Cancel
                                     </Button>
-                                    {/* {assignProject.doerIDs.length === 0 && ( */}
-                                        <Button type="submit" variant="primary">
-                                            Send Notification
-                                        </Button>
-                                    {/* )} */}
+                                    {
+                                        !isNotificationPublished && (
+                                            <Button type="submit" variant="primary">
+                                                Send Notification
+                                            </Button>
+                                        )
+                                    }
                                 </ButtonGroup>
                             </Form>
                         </>

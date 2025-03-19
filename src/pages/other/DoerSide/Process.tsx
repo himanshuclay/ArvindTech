@@ -733,6 +733,7 @@ const Process: React.FC = () => {
                                   approval_Console={item.approval_Console}
                                   problemSolver={item.problemSolver}
                                   approvarActions={item.approvalConsoleInputID}
+                                  rejectData
                                 />
                               }
                             </div>

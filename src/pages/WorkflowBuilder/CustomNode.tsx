@@ -27,6 +27,7 @@ const CustomNode = ({ data, id, setNodes, edges }: { data: any; id: string; setN
         time: data.time || '',
         hours: data.hours || '',
         weeks: data.weeks || '',
+        label: data.label || '',
     });
 
     const [doerList, setDoerList] = useState<{ value: string; label: string }[]>([]);
@@ -68,6 +69,7 @@ const CustomNode = ({ data, id, setNodes, edges }: { data: any; id: string; setN
             time: data.time || '',
             hours: data.hours || '',
             weeks: data.weeks || '',
+            label: data.label || '',
 
         });
     }, [data]);
@@ -97,6 +99,7 @@ const CustomNode = ({ data, id, setNodes, edges }: { data: any; id: string; setN
                             time: nodeSetting.time,
                             hours: nodeSetting.hours,
                             weeks: nodeSetting.weeks,
+                            label: nodeSetting.label,
                         }
                     }
                     : node
@@ -108,7 +111,8 @@ const CustomNode = ({ data, id, setNodes, edges }: { data: any; id: string; setN
 
 
     const handleTaskTimeChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
-        setNodeSetting(prev => ({ ...prev, days: e.target.value }));
+        console.log(e.target.value)
+        setNodeSetting(prev => ({ ...prev, [e.target.name]: e.target.value }));
     };
 
 
@@ -130,7 +134,12 @@ const CustomNode = ({ data, id, setNodes, edges }: { data: any; id: string; setN
                         <p><strong>Node Settings</strong></p>
                         <Form.Group>
                             <Form.Label>Label</Form.Label>
-                            <Form.Control type="text" value={data.label} disabled />
+                            <Form.Control
+                                type="text"
+                                value={nodeSetting.label}
+                                name="label"
+                                onChange={handleTaskTimeChange}
+                            />
                         </Form.Group>
                         <Form.Group>
                             <Form.Label>Assign Doer Type</Form.Label>

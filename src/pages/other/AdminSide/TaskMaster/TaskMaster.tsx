@@ -889,6 +889,7 @@ const TaskMaster: React.FC = () => {
                     approval_Console
                     problemSolver
                     approvarActions
+                    rejectData
 
                 />
             }

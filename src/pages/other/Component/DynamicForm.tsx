@@ -20,6 +20,7 @@ interface Option {
     color?: string
 }
 
+
 interface Input {
     inputId: any
     fieldId: string
@@ -67,6 +68,7 @@ interface DynamicFormProps {
     fromComponent: string
     finishPoint: any
     rejectBlock: any
+    rejectData: any
 }
 
 
@@ -111,6 +113,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
     problemSolver,
     approvarActions,
     ProcessInitiationID,
+    rejectData,
 }) => {
     const [formState, setFormState] = useState<FormState>({})
     const [summary, setSummary] = useState('')
@@ -388,6 +391,8 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
         fetchVendorsForInputs()
     }, [formData])
 
+    console.log("this is form", formData)
+
 
     type TaskJson = {
         inputs: Input[]
@@ -581,6 +586,8 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
         console.log('Selected Option:', selectedOption) // Debugging
         setApprovalStatus(selectedOption)
     }
+
+    console.log(rejectData)
 
     useEffect(() => {
         const fetchMessData = async () => {
@@ -926,12 +933,12 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                 taskStatus: taskStatus,
                 taskName: taskName,
                 rejectedJson:
-                rejectBlock != "" ? rejectBlock : fromComponent === 'ApprovalConsole'
-                  ? approvalStatus?.value?.trim().toLowerCase() === 'reject'
-                    ? globalTaskJson
-                    : ''
-                  : '',
-                completedDate: new Date().toISOString().slice(2, 10),
+                    rejectBlock != "" ? rejectBlock : fromComponent === 'ApprovalConsole'
+                        ? approvalStatus?.value?.trim().toLowerCase() === 'reject'
+                            ? globalTaskJson
+                            : ''
+                        : '',
+                completedDate: `${new Date().toISOString().slice(0, 10)} ${new Date().toISOString().slice(11, 19)}`,
                 endprocessStatus: 'string',
                 // file: '',
                 updatedBy: role,
@@ -962,20 +969,21 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                     // Check if the input is required
                     if (input.required === true) {
                         const currentValue = formState[input.inputId] ?? input.value ?? '';
-                
+
                         if (Array.isArray(currentValue)) {
                             // For required array inputs, it must have at least one value
                             return currentValue.length > 0;
                         }
-                
+                        console.log("dgsfgsfgsfg", currentValue);
+
                         // For required text/other inputs, it must not be an empty string
                         return String(currentValue).trim() !== '';
                     }
-                
+
                     // If not required, consider it valid
                     return true;
                 });
-                
+
 
                 if (processId !== "ACC.01") {
                     if (!isAnyInputFilled) {

@@ -41,8 +41,11 @@ const groupByMessName = (data: Task[]): GroupedData => {
 const MessCards: React.FC<{ data: Task[] }> = ({ data }) => {
     // Group the data
     const groupedData = groupByMessName(data);
-    console.log('groupedData', JSON.parse(groupedData.undefined[0].form_Json))
-    const [form, setForm] = useState<FIELD>({ ...JSON.parse(groupedData.undefined[0].form_Json), editMode: true });
+    console.log("yha dekhao",groupedData);
+    const formData = groupedData?.undefined ? JSON.parse(groupedData.undefined[0]?.form_Json ) : {}
+    const blockData = groupedData?.undefined ? JSON.parse(groupedData.undefined[0]?.blockValue ) : {}
+    // console.log('groupedData', JSON.parse(groupedData.undefined[0].form_Json))
+    const [form, setForm] = useState<FIELD>({ ...formData, editMode: true });
     const [property, setProperty] = useState<PROPERTY>({
         label: '',
         id: '',
@@ -57,7 +60,7 @@ const MessCards: React.FC<{ data: Task[] }> = ({ data }) => {
         isShow: false,
         disabled: false,
     })
-    const [blockValue, setBlockValue] = useState({ ...JSON.parse(groupedData.undefined[0].blockValue) })
+    const [blockValue, setBlockValue] = useState({ ...blockData })
     useEffect(() => {
         setForm((preForm) => ({
             ...preForm,
