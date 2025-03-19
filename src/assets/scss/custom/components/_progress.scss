@@ -1186,3 +1186,10 @@ input.numInput.cur-year:hover {
 .border-green {
   border-color: #28a745 !important;
 }
+.truncated-text div:first-child
+{
+  overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    max-width: 450px!important;
+}
