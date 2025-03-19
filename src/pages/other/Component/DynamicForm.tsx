@@ -391,6 +391,8 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
         fetchVendorsForInputs()
     }, [formData])
 
+    console.log("this is form", formData)
+
 
     type TaskJson = {
         inputs: Input[]
