@@ -18,7 +18,7 @@ const DateInput: React.FC<Props> = ({
     editMode = false,
     blockValue
 }) => {
-    const { id, label, placeholder, required, disabled, isShow, dateFormate } = block.property;
+    const { id, label, placeholder, required, disabled, isShow } = block.property;
 
     const isRequired = required === "true";
     const isDisabled = !!(disabled || (!editMode && !isShow));
