@@ -209,6 +209,28 @@ const FIELD_LIST = [
         }
     },
     {
+        name: "Looper",
+        is: "Looper",
+        property: {
+            label: "Looper",
+            placeholder: "placeholder",
+            required: "false",
+            options: [],
+
+            advance: {
+                backgroundColor: '#fff',
+                color: '#000',
+
+            },
+            isShow: true,
+            disabled: false,
+            size: '12',
+            isLooping: "true",
+            loopBlocks: [],
+            blockCount: 0,
+        }
+    },
+    {
         name: "FileUpload",
         is: "FileUpload",
         property: {

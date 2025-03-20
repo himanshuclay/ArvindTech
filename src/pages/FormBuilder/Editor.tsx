@@ -16,6 +16,7 @@ import DateInput from './Components/DateInput';
 import MultiSelect from './Components/MultiSelect';
 import AmountInput from './Components/AmountInput';
 import FloatInput from './Components/FloatInput';
+import Looper from './Components/Looper';
 
 
 
@@ -55,6 +56,7 @@ const componentsMap = {
     MultiSelect,
     AmountInput,
     FloatInput,
+    Looper,
 };
 
 const DynamicComponentRenderer: React.FC<DynamicComponentProps> = ({ form, setForm, componentType, block, handleChange, validationErrors, blockValue, setBlockValue }) => {
