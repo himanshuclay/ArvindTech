@@ -1013,7 +1013,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                 console.log("this is payload", requestData);
 
                 const response = await fetch(
-                    `${config.API_URL_ACCOUNT}/ProcessInitiation/UpdateDoerTasks`,
+                    `${config.API_URL_ACCOUNT}/ProcessInitiation/UpdateDoerTask`,
                     {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
