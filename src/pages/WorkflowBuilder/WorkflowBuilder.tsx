@@ -315,7 +315,7 @@ const WorkflowBuilder: React.FC = () => {
             }
 
         }
-    }, [formBuilder]);
+    }, [formBuilder, isCloseForm]);
 
 
 

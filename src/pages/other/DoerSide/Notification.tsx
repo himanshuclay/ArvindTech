@@ -127,6 +127,7 @@ const ProjectAssignTable: React.FC = () => {
   const [ProcessName, setProcessName] = useState('');
   const [taskNumberList,] = useState<dropDownList[]>([]);
   const [taskNumberName, setTaskNumberName] = useState('');
+  const [activeTaskId, setActiveTaskId] = useState(0);
   // const [doerList, ] = useState<dropDownList[]>([]);
   const [, setDoerName] = useState('');
 
@@ -409,6 +410,7 @@ const ProjectAssignTable: React.FC = () => {
     if (templateJson.edges && templateJson.edges.length) {
       console.log(templateJson)
       setWorkflowData(templateJson)
+      setActiveTaskId(item.id);
     } else {
 
     }
@@ -1019,7 +1021,7 @@ const ProjectAssignTable: React.FC = () => {
         <Modal show={true} onHide={handleCloseActiveForm} size='xl'>
           <Modal.Header closeButton></Modal.Header>
           <Modal.Body>
-            <ActiveNode activeNode={activeNode} />
+            <ActiveNode activeNode={activeNode} activeTaskId={activeTaskId} setActiveNode={setActiveNode} />
 
           </Modal.Body>
         </Modal>
