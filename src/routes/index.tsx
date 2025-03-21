@@ -295,6 +295,12 @@ const customPagesRoutes = {
 			route: PrivateRoute,
 		},
 		{
+			path: '/pages/admin/plannedTask',
+			name: 'TaskPlanned',
+			element: <TaskPlanned />,
+			route: PrivateRoute,
+		},
+		{
 			path: '/pages/ApprovalConsole',
 			name: 'Approval Console',
 			element: <ApprovalConsole />,

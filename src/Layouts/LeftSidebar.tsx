@@ -293,6 +293,13 @@ const getFilteredMenuItems = () => {
           parentKey: 'TaskAdmin',
         },
         {
+          key: 'plannedTask',
+          label: 'Planned Task',
+          url: '/pages/admin/plannedTask',
+          icon: 'ri-slideshow-line',
+          parentKey: 'TaskAdmin',
+        },
+        {
           key: 'ExpireTask',
           label: 'Expired Tasks',
           url: '/pages/ExpireTask',
