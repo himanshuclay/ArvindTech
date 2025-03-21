@@ -29,6 +29,7 @@ const Dashboard = React.lazy(() => import('../pages/Dashboard'))
 
 // // pages
 const ProfilePages = React.lazy(() => import('../pages/other/Profile/'))
+const ChangePassword = React.lazy(() => import('../pages/other/Profile/ChangePassword.tsx'))
 const MisReport = React.lazy(() => import('../pages/other/Component/MisReport.tsx'))
 const AdhocTempleteList = React.lazy(() => import('../pages/other/AdminSide/AdhocTempleteList.tsx'))
 const FAQPages = React.lazy(() => import('../pages/other/FAQ'))
@@ -971,6 +972,12 @@ const customPagesRoutes = {
 			path: 'pages/ProcessConfiguration',
 			name: 'Process Configuration',
 			element: <ProcessConfiguration />,
+			route: PrivateRoute,
+		},
+		{
+			path: 'pages/ChangePassword',
+			name: 'Process Configuration',
+			element: <ChangePassword />,
 			route: PrivateRoute,
 		},
 
