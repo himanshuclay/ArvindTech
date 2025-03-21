@@ -406,14 +406,16 @@ const ProjectAssignTable: React.FC = () => {
     fetchPreData(taskCommonId);
     setParsedCondition(taskCondition);
     handleShow();
+    console.log(item.templateJson);
+    if(item.templateJson)
+    {
     const templateJson = JSON.parse(item.templateJson);
     if (templateJson.edges && templateJson.edges.length) {
       console.log(templateJson)
       setWorkflowData(templateJson)
       setActiveTaskId(item.id);
-    } else {
-
-    }
+    } 
+  }
 
   };
 
@@ -643,7 +645,6 @@ const ProjectAssignTable: React.FC = () => {
 
 
 
-            <Col></Col>
 
             <Col lg={3} className="align-items-end d-flex justify-content-end mt-2">
               <ButtonGroup aria-label="Basic example" className="w-100">

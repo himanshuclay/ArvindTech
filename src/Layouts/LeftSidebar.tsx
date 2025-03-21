@@ -93,13 +93,13 @@ const getFilteredMenuItems = () => {
           icon: 'ri-user-settings-line',
           parentKey: 'systemmaster',
         },
-        {
-          key: 'TicketMaster',
-          label: 'Ticket Master',
-          url: '/pages/TicketMaster',
-          icon: 'ri-coupon-2-line',
-          parentKey: 'systemmaster',
-        },
+        // {
+        //   key: 'TicketMaster',
+        //   label: 'Ticket Master',
+        //   url: '/pages/TicketMaster',
+        //   icon: 'ri-coupon-2-line',
+        //   parentKey: 'systemmaster',
+        // },
         {
           key: 'SystemLogs',
           label: 'System Logs',
@@ -317,20 +317,7 @@ const getFilteredMenuItems = () => {
       ],
     },
 
-    {
-      key: 'Modules',
-      label: 'Modules',
-      isTitle: false,
-      url: '/pages/Modules',
-      icon: 'ri-dashboard-3-line',
-    },
-    {
-      key: 'Process',
-      label: 'Process',
-      isTitle: false,
-      url: '/pages/Process',
-      icon: 'ri-dashboard-3-line',
-    },
+
     {
       key: 'GetTestData',
       label: 'Templates',
@@ -358,7 +345,40 @@ const getFilteredMenuItems = () => {
 
 
 
+    {
+      key: 'ConfigMaster',
+      label: 'Config Master',
+      url: '/pages/Settings',
+      icon: 'ri-survey-line',
+      children: [
+        {
+          key: 'Modules',
+          label: 'Modules',
+          url: '/pages/Modules',
+          parentKey: 'ConfigMaster',
+        },
+        {
+          key: 'Process',
+          label: 'Process',
+          url: '/pages/Process',
+          parentKey: 'ConfigMaster',
+        },
+        {
+          key: 'Initiation Master',
+          label: ' Initiation Master',
+          url: '/pages/ProcessInitiation',
+          parentKey: 'ConfigMaster',
+        },
+        {
+          key: 'VendorMaster',
+          label: 'Vendor Master',
+          url: '/pages/VendorMaster',
+          parentKey: 'ConfigMaster',
+        },
 
+
+      ],
+    },
 
 
 
@@ -385,65 +405,29 @@ const getFilteredMenuItems = () => {
       ],
     },
 
-
-
     {
-      key: 'Notifications',
-      label: 'Notification',
-      url: '/pages/Notification',
-      icon: 'ri-survey-line',
-      children: [
-        {
-          key: 'MyNotification',
-          label: 'Create Notification',
-          url: '/pages/CreateNotification',
-          parentKey: 'Notifications',
-        },
-        {
-          key: 'ScheduledNotification',
-          label: 'Scheduled Notification',
-          url: '/pages/ScheduledNotification',
-          parentKey: 'Notifications',
-        }
-      ],
-    },
-    {
-      key: 'SeekHelp',
-      label: 'Seek Help',
-      url: '/pages/SeekHelp',
-      icon: 'ri-survey-line',
-      children: [
-        {
-          key: 'CreateHelp',
-          label: 'Create Help',
-          url: '/pages/CreateHelp',
-          parentKey: 'SeekHelp',
-        },
-        {
-          key: 'ViewHelp',
-          label: 'View Help',
-          url: '/pages/ViewHelp',
-          parentKey: 'SeekHelp',
-        }
-      ],
-    },
-    {
-      key: 'Suggestion',
-      label: 'Suggestion',
+      key: 'Collaboration',
+      label: 'Collaboration',
       url: '/pages/Suggestion',
       icon: 'ri-survey-line',
       children: [
         {
-          key: 'SuggestionMasterinsert',
-          label: 'Create',
-          url: '/pages/SuggestionMasterinsert',
-          parentKey: 'Suggestion',
+          key: 'MyNotification',
+          label: 'Notification',
+          url: '/pages/CreateNotification',
+          parentKey: 'Collaboration',
         },
         {
           key: 'SuggestionMaster',
-          label: 'View',
+          label: 'Suggestions',
           url: '/pages/SuggestionMaster',
-          parentKey: 'Suggestion',
+          parentKey: 'Collaboration',
+        },
+        {
+          key: 'ViewHelp',
+          label: 'Seek Help',
+          url: '/pages/ViewHelp',
+          parentKey: 'Collaboration',
         }
       ],
     },
@@ -469,14 +453,6 @@ const getFilteredMenuItems = () => {
       ],
     },
 
-
-
-    {
-      key: 'VendorMaster',
-      label: 'Vendor Master',
-      url: '/pages/VendorMaster',
-      icon: 'ri-survey-line',
-    },
   ];
 
 
@@ -487,7 +463,7 @@ const getFilteredMenuItems = () => {
       item.key === 'CompletedTask' ||
       item.key === 'ExpireTask' ||
       item.key === 'TaskPlanned' ||
-      item.key === 'VendorMaster' ||
+      item.key === 'ConfigMaster' ||
       item.key === 'Notification'
     );
   }
@@ -497,7 +473,7 @@ const getFilteredMenuItems = () => {
       item.key === 'CompletedTask' ||
       item.key === 'ExpireTask' ||
       item.key === 'TaskPlanned' ||
-      item.key === 'VendorMaster' ||
+      item.key === 'ConfigMaster' ||
       item.key === 'Notification'
       // item.key === 'TaskAdmin' ||
       // item.key === 'Analytics' ||
@@ -514,7 +490,7 @@ const getFilteredMenuItems = () => {
       item.key === 'systemmaster' ||
       item.key === 'Process' ||
       item.key === 'ProcessDataMaster' ||
-      item.key === 'VendorMaster' ||
+      item.key === 'ConfigMaster' ||
       item.key === 'Modules'
     );
   }
@@ -531,10 +507,10 @@ const getFilteredMenuItems = () => {
       item.key === 'FormMaster' ||
       item.key === 'WorkflowBuilderList' ||
       item.key === 'ProcessConfiguration' ||
-      item.key === 'Notifications' ||
+      item.key === 'Collaboration' ||
       item.key === 'SeekHelp' ||
       item.key === 'Suggestion' ||
-      item.key === 'VendorMaster' ||
+      item.key === 'ConfigMaster' ||
       item.key === 'Settings'
     );
   }
@@ -547,7 +523,7 @@ const getFilteredMenuItems = () => {
         item.key === 'systemmaster' ||
         item.key === 'Process' ||
         item.key === 'ProcessDataMaster' ||
-        item.key === 'VendorMaster' ||
+        item.key === 'ConfigMaster' ||
         item.key === 'Modules'
     }
 

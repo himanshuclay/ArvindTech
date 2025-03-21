@@ -429,7 +429,10 @@ const ProfilePages = () => {
 
 	// Display loading state
 	if (loading) {
-		return <div>Loading...</div>;
+		return <div className='loader-container'>
+			<div className="loader"></div>
+			<div className='mt-2'>Please Wait!</div>
+		</div>;
 	}
 
 
@@ -488,7 +491,7 @@ const ProfilePages = () => {
 															<div className="designation mb-4">{employeeDetails?.role}</div> */}
 
 															<div className=' border p-3 rounded my-2'>
-																<h5 className="mt-2 fs-17 text-dark">Contact Information</h5>
+																<h5 className="mt-2 fs-17 text-dark">Employee Details</h5>
 																<Row className="contact-info">
 																	<Col sm={12} md={6}>
 																		<div className="info-item fs-16 p-2 bg-light rounded my-1">
@@ -584,30 +587,7 @@ const ProfilePages = () => {
 																			)}
 																		</Form.Group>
 																	</Col>
-																	{/* <Col lg={6}>
-																		<Form.Group controlId="gender" className="mb-3">
-																			<Form.Label>Gender  <span className='text-danger'>*</span></Form.Label>
-																			<Select
-																				name="gender"
-																				value={genderList.find((emp) => emp.name === employeeDetails.gender)}
-																				onChange={(selectedOption) => {
-																					setEmployeeDetails({
-																						...employeeDetails,
-																						gender: selectedOption?.name || "",
-																					});
-																				}}
-																				getOptionLabel={(emp) => emp.name}
-																				getOptionValue={(emp) => emp.name}
-																				options={genderList}
-																				isSearchable={true}
-																				placeholder="Select Gender"
-																				className={validationErrors.gender ? " input-border" : "  "}
-																			/>
-																			{validationErrors.gender && (
-																				<small className="text-danger">{validationErrors.gender}</small>
-																			)}
-																		</Form.Group>
-																	</Col> */}
+
 																	<Col lg={6}>
 																		<Form.Group controlId="fatherName" className="mb-3">
 																			<Form.Label>Father Name  <span className='text-danger'>*</span></Form.Label>

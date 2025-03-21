@@ -322,7 +322,7 @@ const LnMaster: React.FC = () => {
                 >
                     <Row>
 
-                        <Col lg={4}>
+                        <Col lg={3}>
                             <Form.Group controlId="dateRange" className="mb-3">
                                 <Form.Label>Select Date Range</Form.Label>
                                 <Flatpickr
@@ -350,7 +350,7 @@ const LnMaster: React.FC = () => {
 
 
 
-                        <Col lg={4}>
+                        <Col lg={3}>
                             <Form.Group controlId="projectName">
                                 <Form.Label>Select Project</Form.Label>
                                 <Select
@@ -388,7 +388,7 @@ const LnMaster: React.FC = () => {
                                     />
                                 </Form.Group>
                             </Col> */}
-                        <Col lg={4}>
+                        <Col lg={3}>
                             <Form.Group controlId="options">
                                 <Form.Label>Select Any Option</Form.Label>
                                 <Select
@@ -471,8 +471,6 @@ const LnMaster: React.FC = () => {
                             </Form.Group>
                         </Col>
 
-
-                        <Col></Col>
 
                         <Col lg={3} className="align-items-end d-flex justify-content-end mt-2">
                             <ButtonGroup aria-label="Basic example" className="w-100">

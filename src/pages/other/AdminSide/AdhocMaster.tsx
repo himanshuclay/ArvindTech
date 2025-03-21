@@ -154,7 +154,7 @@ const AdhocMaster: React.FC = () => {
                                 <td>Task Type Here</td>
                                 <td>Planned Date Here</td>
                                 <td>
-                                    <Button onClick={() => toggleExpandRow(item.id)}>
+                                    <Button onClick={() => toggleExpandRow(item.id)} className='me-2'>
                                         {expandedRow === item.id ? <i className="ri-eye-fill"></i> : <i className="ri-eye-off-fill"></i>}
                                     </Button>
                                     <Button onClick={() => handleEdit(item)}>
