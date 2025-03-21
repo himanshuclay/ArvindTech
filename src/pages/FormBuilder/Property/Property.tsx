@@ -181,6 +181,37 @@ const Property: React.FC<Props> = ({ form, setForm, property, setProperty, remov
                     </select>
                 </div>
             )}
+            {property.hasOwnProperty('dateFormate') && (
+                <div className='d-flex justify-content-between align-items-center mt-2'>
+                    <label className='col-6'>Date Formate</label>
+                    <select
+                        name="dateFormate"
+                        className="border p-2 rounded col-6"
+                        value={property.dateFormate}
+                        onChange={handleChange}
+                    >
+                        <option value="none">None</option>
+                        <option value="Y-m-d">YYYY/MM/DD</option>
+                        <option value="F, Y">M, YYYY(March, 2025)</option>
+                        <option value="mmm/yy">MMM/YY</option>
+                    </select>
+                </div>
+            )}
+            {property.hasOwnProperty('mode') && (
+                <div className='d-flex justify-content-between align-items-center mt-2'>
+                    <label className='col-6'>Mode</label>
+                    <select
+                        name="mode"
+                        className="border p-2 rounded col-6"
+                        value={property.mode}
+                        onChange={handleChange}
+                    >
+                        <option value="range">Range</option>
+                        <option value="single">Single</option>
+                        <option value="multiple">Multiple</option>
+                    </select>
+                </div>
+            )}
             {property.hasOwnProperty('currencySymbol') && (
                 <div className='d-flex justify-content-between align-items-center mt-2'>
                     <label className='col-6'>Date Selection</label>

@@ -10,9 +10,12 @@ import Flatpickr from 'react-flatpickr';
 interface DROP_DOWN {
     empId: string;
     employeeName: string;
+    id?: string;
+    identifier?: string;
 }
 
 const CustomNode = ({ data, id, setNodes, edges }: { data: any; id: string; setNodes: any; edges: any[] }) => {
+    console.log('data', data)
     const [showSettings, setShowSettings] = useState(false);
     const inputHandles = data.inputHandles || 1;
     const outputHandles = data.outputHandles || 1;
@@ -27,9 +30,12 @@ const CustomNode = ({ data, id, setNodes, edges }: { data: any; id: string; setN
         time: data.time || '',
         hours: data.hours || '',
         weeks: data.weeks || '',
+        label: data.label || '',
+        doerAssignList: data.doerAssignList || [],
     });
 
     const [doerList, setDoerList] = useState<{ value: string; label: string }[]>([]);
+    const [projectList, setProjectList] = useState<{ id: string; projectName: string }[]>([]);
 
     const [isStartNode, setIsStartNode] = useState(false);
     useEffect(() => {
@@ -54,8 +60,24 @@ const CustomNode = ({ data, id, setNodes, edges }: { data: any; id: string; setN
         }
     };
 
+    const getProjectList = async () => {
+        try {
+            const response = await fetch(`${config.API_URL_APPLICATION}/CommonDropdown/GetProjectList`);
+            const result = await response.json();
+            console.log(result)
+            if (result.isSuccess) {
+                setProjectList(result.projectListResponses);
+            }
+        } catch (error) {
+            console.error("Error fetching doer list:", error);
+        }
+    };
+
+
     useEffect(() => {
         getDoerList();
+       
+        getProjectList();
     }, []);
 
     useEffect(() => {
@@ -68,7 +90,8 @@ const CustomNode = ({ data, id, setNodes, edges }: { data: any; id: string; setN
             time: data.time || '',
             hours: data.hours || '',
             weeks: data.weeks || '',
-
+            label: data.label || '',
+            doerAssignList: data.doerAssignList || [],
         });
     }, [data]);
 
@@ -81,6 +104,7 @@ const CustomNode = ({ data, id, setNodes, edges }: { data: any; id: string; setN
         data.time = nodeSetting.time;
         data.hours = nodeSetting.hours;
         data.weeks = nodeSetting.weeks;
+        data.doerAssignList = nodeSetting.doerAssignList;
 
         setNodes((prevNodes: any) =>
             prevNodes.map((node: any) =>
@@ -97,6 +121,8 @@ const CustomNode = ({ data, id, setNodes, edges }: { data: any; id: string; setN
                             time: nodeSetting.time,
                             hours: nodeSetting.hours,
                             weeks: nodeSetting.weeks,
+                            label: nodeSetting.label,
+                            doerAssignList: nodeSetting.doerAssignList,
                         }
                     }
                     : node
@@ -108,7 +134,8 @@ const CustomNode = ({ data, id, setNodes, edges }: { data: any; id: string; setN
 
 
     const handleTaskTimeChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
-        setNodeSetting(prev => ({ ...prev, days: e.target.value }));
+        console.log(e.target.value)
+        setNodeSetting(prev => ({ ...prev, [e.target.name]: e.target.value }));
     };
 
 
@@ -130,7 +157,12 @@ const CustomNode = ({ data, id, setNodes, edges }: { data: any; id: string; setN
                         <p><strong>Node Settings</strong></p>
                         <Form.Group>
                             <Form.Label>Label</Form.Label>
-                            <Form.Control type="text" value={data.label} disabled />
+                            <Form.Control
+                                type="text"
+                                value={nodeSetting.label}
+                                name="label"
+                                onChange={handleTaskTimeChange}
+                            />
                         </Form.Group>
                         <Form.Group>
                             <Form.Label>Assign Doer Type</Form.Label>
@@ -156,6 +188,41 @@ const CustomNode = ({ data, id, setNodes, edges }: { data: any; id: string; setN
                                 />
                             </Form.Group>
                         )}
+                        {nodeSetting.assignDoerType === 'projectWithDoer' && (
+                            <Form.Group>
+                                <Form.Label>Project With Doer</Form.Label>
+                                {projectList.length > 0 ? (
+                                    projectList.map((project, index) => (
+                                        <div key={index} style={{ marginBottom: '1rem' }}>
+                                            <Form.Control
+                                                type="text"
+                                                value={project.projectName}
+                                                readOnly
+                                                style={{ marginBottom: '0.5rem' }}
+                                            />
+                                            <Select
+                                                options={doerList}
+                                                value={doerList.find(option => option.value === nodeSetting.doerAssignList?.[project.projectName])} // Use projectName as key
+                                                onChange={(selectedOption) => {
+                                                    setNodeSetting(prev => ({
+                                                        ...prev,
+                                                        doerAssignList: {
+                                                            ...prev.doerAssignList, // Spread existing doerAssignList
+                                                            [project.projectName]: selectedOption?.value || '' // Assign doer to this project
+                                                        }
+                                                    }));
+                                                }}
+                                                placeholder={`Select a Doer for ${project.projectName}`}
+                                            />
+                                        </div>
+                                    ))
+                                ) : (
+                                    <div>No projects available</div>
+                                )}
+                            </Form.Group>
+                        )}
+
+
                         <Form.Group>
                             <Form.Label>Time Management</Form.Label>
                             <Select

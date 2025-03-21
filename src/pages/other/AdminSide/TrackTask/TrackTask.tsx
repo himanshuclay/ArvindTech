@@ -322,7 +322,7 @@ const LnMaster: React.FC = () => {
                 >
                     <Row>
 
-                        <Col lg={4}>
+                        <Col lg={3}>
                             <Form.Group controlId="dateRange" className="mb-3">
                                 <Form.Label>Select Date Range</Form.Label>
                                 <Flatpickr
@@ -350,7 +350,7 @@ const LnMaster: React.FC = () => {
 
 
 
-                        <Col lg={4}>
+                        <Col lg={3}>
                             <Form.Group controlId="projectName">
                                 <Form.Label>Select Project</Form.Label>
                                 <Select
@@ -388,7 +388,7 @@ const LnMaster: React.FC = () => {
                                     />
                                 </Form.Group>
                             </Col> */}
-                        <Col lg={4}>
+                        <Col lg={3}>
                             <Form.Group controlId="options">
                                 <Form.Label>Select Any Option</Form.Label>
                                 <Select
@@ -471,8 +471,6 @@ const LnMaster: React.FC = () => {
                             </Form.Group>
                         </Col>
 
-
-                        <Col></Col>
 
                         <Col lg={3} className="align-items-end d-flex justify-content-end mt-2">
                             <ButtonGroup aria-label="Basic example" className="w-100">
@@ -798,7 +796,7 @@ const LnMaster: React.FC = () => {
                                                                         </Col>
                                                                         <Col lg={3} className='mt-2'>
                                                                             <td><h5>Completed Date :</h5></td>
-                                                                            <td><h5 className='text-primary'>{item.completedDate && format(new Date(item.completedDate), 'dd-MMM-yyyy HH:mm')}</h5></td>
+                                                                            <td><h5 className='text-primary'>{item.completedDate ? format(new Date(item.completedDate), 'dd-MMM-yyyy HH:mm'): '--'}</h5></td>
                                                                         </Col>
                                                                         <Col lg={3} className=''>
                                                                             <div className=' d-flex justify-content-end align-items-center'>

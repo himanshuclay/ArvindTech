@@ -280,7 +280,7 @@ const WorkflowBuilderList = () => {
 
                           <td>
                             <Link to={`/pages/WorkflowBuilder/${item.id}`}>
-                              <Button variant='primary' className='p-0 text-white'>
+                              <Button variant='primary' className='p-0 text-white me-2'>
                                 <i className='btn ri-edit-line text-white' ></i>
                               </Button>
                             </Link>

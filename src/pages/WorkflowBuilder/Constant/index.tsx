@@ -39,7 +39,8 @@ const LABEL: Record<string, string> = {
     ASSIGN_TASK: 'Assign Task'
 }
 const ASSIGN_DOER_TYPE = [
-    { label: 'Fixed Doer', value: 'fixedDoer' }
+    { label: 'Fixed Doer', value: 'fixedDoer' },
+    { label: 'Project With Doer', value: 'projectWithDoer' },
 ];
 const TIME_MANAGEMENT_OPTION = [
     { label: 'Only Days', value: 'onlyDays' },

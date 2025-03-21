@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import axios from 'axios';
-import { Button, Table, Container, Row, Col, Alert, Collapse, Pagination, Form, ButtonGroup } from 'react-bootstrap'; // Assuming DynamicForm is in the same directory
+import { Button, Table, Container, Row, Col, Alert, Collapse, Pagination, Form, ButtonGroup, Modal } from 'react-bootstrap'; // Assuming DynamicForm is in the same directory
 import { format } from 'date-fns';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import DynamicForm from '../Component/DynamicForm';
@@ -14,6 +14,8 @@ import { toast } from 'react-toastify';
 import Flatpickr from 'react-flatpickr';
 import Select from 'react-select';
 import { BLOCK_VALUE, FIELD } from '@/pages/FormBuilder/Constant/Interface';
+import { Edge, Node } from 'reactflow';
+import ActiveNode from '@/pages/WorkflowBuilder/ActiveNode';
 
 
 
@@ -125,10 +127,39 @@ const ProjectAssignTable: React.FC = () => {
   const [ProcessName, setProcessName] = useState('');
   const [taskNumberList,] = useState<dropDownList[]>([]);
   const [taskNumberName, setTaskNumberName] = useState('');
+  const [activeTaskId, setActiveTaskId] = useState(0);
   // const [doerList, ] = useState<dropDownList[]>([]);
   const [, setDoerName] = useState('');
 
   const [expandedRow, setExpandedRow] = useState<number | null>(null); // For row expansion
+  interface APISetting {
+    name: string;
+    api: string;
+    id: number;
+  }
+
+  interface WorkflowBuilderConfig {
+    apiSetting: APISetting[];
+    edges: Edge[];
+    nodes: Node[];
+  }
+
+  const [workflowData, setWorkflowData] = useState<WorkflowBuilderConfig>();
+  const [activeNode, setActiveNode] = useState<Node | "">("");
+
+  useEffect(() => {
+    if (workflowData) {
+      const start = workflowData.edges.find(e => e.source == "1");
+      const activeNode = workflowData.nodes.find(n => n.id === start?.target);
+      if (activeNode) {
+        setActiveNode(activeNode);
+      } else {
+        setActiveNode(""); // or handle it differently
+      }
+
+    }
+  }, [workflowData])
+
 
   console.log(data)
   const handleClear = async () => {
@@ -221,7 +252,7 @@ const ProjectAssignTable: React.FC = () => {
           .filter((task) => task.isCompleted !== "Pending") // Exclude pending tasks
           .flatMap((task: ProjectAssignListWithDoer) => {
             let taskJsonArray: any[] = [];
-            
+
 
 
             try {
@@ -284,7 +315,7 @@ const ProjectAssignTable: React.FC = () => {
               const label = input ? input.label : null;
 
               // Return transformed task object
-              console.log('33333333333333333333', form_Json)
+              console.log('33333333333333333333', task)
               return {
                 messID: taskJson.messID,
                 messName: taskJson.messName,
@@ -293,8 +324,8 @@ const ProjectAssignTable: React.FC = () => {
                 messTaskNumber: taskJson.messTaskNumber,
                 taskName: label,
                 inputs: filteredInputsData,
-                blockValue: task.blockValue, 
-                form_Json: task.form_Json,  
+                blockValue: task.blockValue,
+                form_Json: task.form_Json,
 
               };
             });
@@ -370,11 +401,21 @@ const ProjectAssignTable: React.FC = () => {
 
   const handleShow = () => setShow(true);
 
-  const handleEdit = (taskCommonId: number, taskCondition: string) => {
+  const handleEdit = (taskCommonId: number, taskCondition: string, item: any) => {
     setTaskCommonIdRow(taskCommonId);
     fetchPreData(taskCommonId);
     setParsedCondition(taskCondition);
     handleShow();
+    console.log(item.templateJson);
+    if(item.templateJson)
+    {
+    const templateJson = JSON.parse(item.templateJson);
+    if (templateJson.edges && templateJson.edges.length) {
+      console.log(templateJson)
+      setWorkflowData(templateJson)
+      setActiveTaskId(item.id);
+    } 
+  }
 
   };
 
@@ -441,6 +482,17 @@ const ProjectAssignTable: React.FC = () => {
     console.log(preData)
   };
 
+  // useEffect(() => {
+  // if (workflowData) {
+  // console.log('workflowData',workflowData)
+  // const start = workflowData.edges.find(e => e.source == "1");
+  // console.log(start)
+  // }
+  // }, [workflowData])
+
+  const handleCloseActiveForm = () => {
+    setActiveNode("")
+  }
 
   return (
 
@@ -593,7 +645,6 @@ const ProjectAssignTable: React.FC = () => {
 
 
 
-            <Col></Col>
 
             <Col lg={3} className="align-items-end d-flex justify-content-end mt-2">
               <ButtonGroup aria-label="Basic example" className="w-100">
@@ -730,8 +781,8 @@ const ProjectAssignTable: React.FC = () => {
                           </td>
                           <td colSpan={10} className='d-none'>
                             <div>
-
-                              {expandedRow === item.id &&
+                              {(expandedRow === item.id && item.task_Json != '') &&
+                                // <>wwwwwwwwwwwwwww{JSON.stringify(item)}</>
                                 <DynamicForm
                                   fromComponent='PendingTask'
                                   formData={JSON.parse(item.task_Json)}
@@ -908,7 +959,7 @@ const ProjectAssignTable: React.FC = () => {
                                         <span className='text-primary me-2 cursor-pointer fw-bold' onClick={() => handleViewEditOutput(item.taskCommonId)}>View Output</span>
                                         <span className='text-primary cursor-pointer me-2 fw-bold' onClick={() => handleViewEdit(item.taskCommonId)}>Hierarchy  View</span>
                                         <span className='text-primary me-2 fw-bold'>Help</span>
-                                        <Button className='ms-auto ' onClick={() => handleEdit(item.taskCommonId, item.condition_Json)}>
+                                        <Button className='ms-auto ' onClick={() => handleEdit(item.taskCommonId, item.condition_Json, item)}>
                                           Finish
                                         </Button>
                                       </div>
@@ -942,6 +993,7 @@ const ProjectAssignTable: React.FC = () => {
         )}
         <HeirarchyView showView={showView} setShowView={setShowView} id={manageId} />
         <ViewOutput showViewOutput={showViewOutput} setShowViewOutput={setShowViewOutput} preData={preData} />
+
       </div>
       <div className="d-flex justify-content-center align-items-center bg-white w-20 rounded-5 m-auto py-1 pb-1 my-2 pagination-rounded">
         <Pagination>
@@ -966,6 +1018,15 @@ const ProjectAssignTable: React.FC = () => {
           />
         </Pagination>
       </div>
+      {activeNode && (
+        <Modal show={true} onHide={handleCloseActiveForm} size='xl'>
+          <Modal.Header closeButton></Modal.Header>
+          <Modal.Body>
+            <ActiveNode activeNode={activeNode} activeTaskId={activeTaskId} setActiveNode={setActiveNode} />
+
+          </Modal.Body>
+        </Modal>
+      )}
     </>
 
   );

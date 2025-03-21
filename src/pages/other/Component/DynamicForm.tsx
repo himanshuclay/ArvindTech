@@ -391,6 +391,8 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
         fetchVendorsForInputs()
     }, [formData])
 
+    console.log("this is form", formData)
+
 
     type TaskJson = {
         inputs: Input[]
@@ -710,23 +712,31 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                     conditionsArray.forEach((condition) => {
                         condition = JSON.parse(condition);
                         console.log(typeof condition)
-
                         if (Array.isArray(condition[0].taskSelections)) {
-                            const filteredTaskSelections = condition[0].taskSelections.filter(
-                                (taskSelection: any) => (String(taskSelection.inputId) === String(updatedValue) || String(taskSelection.inputId) === '')
-                            );
-                            console.log(filteredTaskSelections);
-
-                            const copyCondition = condition;
-                            copyCondition[0].taskSelections = filteredTaskSelections;
-
-                            if (filteredTaskSelections.length > 0) {
-                                setSelectedCondition(copyCondition);
-
-                                console.log('selectedCondition', selectedCondition);
-
-                            } else {
-                                console.warn('No matching task found for updatedValue:', updatedValue);
+                            console.log('setSelectedCondition', selectedCondition);
+                            if(selectedCondition.length === 0){
+                                const filteredTaskSelections = condition[0].taskSelections.filter(
+                                    (taskSelection: any) => {
+                                        console.log('taskSelection.inputId', taskSelection.inputId);
+                                        console.log('updatedValue',updatedValue);
+                                        if((String(taskSelection.inputId) === String(updatedValue) || String(taskSelection.inputId) === '')){
+                                            return taskSelection;
+                                        }
+                                    }
+                                );
+                                console.log(filteredTaskSelections);
+    
+                                const copyCondition = condition;
+                                copyCondition[0].taskSelections = filteredTaskSelections;
+                                console.log('copyCondition', copyCondition);
+                                if (filteredTaskSelections.length > 0) {
+                                    setSelectedCondition(copyCondition);
+    
+                                    console.log('selectedCondition', selectedCondition);
+    
+                                } else {
+                                    console.warn('No matching task found for updatedValue:', updatedValue);
+                                }
                             }
                         } else {
                             console.warn('taskSelections is not an array or undefined:', condition.taskSelections);
@@ -792,6 +802,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                     setglobalTaskJson(updatedTaskJson)
                 }
 
+
                 reEvaluateConditions(newState)
                 console.log(newState)
 
@@ -799,6 +810,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                 setShowBankModal(Object.values(newState).includes('11-1'))
                 // setIsTenderMaster(Object.values(newState).includes('11-1'))
 
+                console.log("this is final condition", selectedCondition);
                 return newState
             })
         }
@@ -807,6 +819,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
     // console.log(rejectBlock);
 
     const handleSubmit = async (event: React.FormEvent, taskNumber: string) => {
+        console.log('selectedCondition', selectedCondition);
         event.preventDefault()
         console.log('found')
 
@@ -1305,6 +1318,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                 taskNumber: taskNumber,
                 createdBy: ""
             }
+            console.log('query', query)
             const response = await fetch(
                 `${config.API_URL_ACCOUNT}/AdhocForm/InsertAdhocJsonMaster`,
                 {

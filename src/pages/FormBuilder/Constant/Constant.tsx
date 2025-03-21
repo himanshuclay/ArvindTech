@@ -142,7 +142,8 @@ const FIELD_LIST = [
             disabled: false,
             size: '12',
             dateSelection: "none",
-
+            dateFormate: 'Y-m-d',
+            mode: 'single',
         }
     },
     {
@@ -204,6 +205,29 @@ const FIELD_LIST = [
             size: '12',
             isLooping: false,
             loopBlocks: [],
+            blockCount: 0,
+        }
+    },
+    {
+        name: "Looper",
+        is: "Looper",
+        property: {
+            label: "Looper",
+            placeholder: "placeholder",
+            required: "false",
+            options: [],
+
+            advance: {
+                backgroundColor: '#fff',
+                color: '#000',
+
+            },
+            isShow: true,
+            disabled: false,
+            size: '12',
+            isLooping: "true",
+            loopBlocks: [],
+            blockCount: 0,
         }
     },
     {

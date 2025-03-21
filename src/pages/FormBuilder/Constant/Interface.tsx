@@ -70,11 +70,14 @@ interface PROPERTY {
     endDateId?:string;
     size?:string;
     dateSelection?: string;  
+    dateFormate?: string;  
     currencySymbol?: string;  
     decimalLimit?: string;  
     prefix?: string;  
     isLooping?: string;  
     loopBlocks?: FIELD[];  
+    blockCount?: number;
+    mode?: string;
 }
 interface OPTION { label: string; value: string }
 interface BLOCK_VALUE {
