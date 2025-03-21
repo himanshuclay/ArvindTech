@@ -23,19 +23,160 @@ const getFilteredMenuItems = () => {
       },
     },
     {
-      key: 'Modules',
-      label: 'Modules',
+      key: 'systemmaster',
+      label: 'System Master',
       isTitle: false,
-      url: '/pages/Modules',
-      icon: 'ri-dashboard-3-line',
+      icon: 'ri-settings-fill',
+      children: [
+        // {
+        //   key: 'systemmaster-FormList',
+        //   label: 'Form Master',
+        //   url: '/pages/FormList',
+        //   icon: 'ri-slideshow-line',
+        //   parentKey: 'systemmaster',
+        // },
+        {
+          key: 'systemmaster-ModuleMaster',
+          label: 'Module Master',
+          url: '/pages/ModuleMaster',
+          icon: 'ri-slideshow-line',
+          parentKey: 'systemmaster',
+        },
+        {
+          key: 'systemmaster-ProcessMaster',
+          label: 'Process Master',
+          url: '/pages/ProcessMaster',
+          icon: 'ri-bubble-chart-line',
+          parentKey: 'systemmaster',
+        },
+        {
+          key: 'systemmaster-ProcessInitiation',
+          label: ' Initiation Master',
+          url: '/pages/ProcessInitiation',
+          icon: 'ri-bubble-chart-line',
+          parentKey: 'systemmaster',
+        },
+        {
+          key: 'systemmaster-TaskMaster',
+          label: 'Task Master',
+          url: '/pages/TaskMaster',
+          icon: 'ri-pie-chart-2-line',
+          parentKey: 'systemmaster',
+        },
+        {
+          key: 'RoleMaster',
+          label: 'Role Master',
+          url: '/pages/RoleMaster',
+          icon: 'ri-brain-line',
+          parentKey: 'systemmaster',
+        },
+        {
+          key: 'Identifier',
+          label: 'Identifier Master',
+          url: '/pages/IdentifierMaster',
+          icon: 'ri-brain-line',
+          parentKey: 'systemmaster',
+        },
+        {
+          key: 'DoerMaster',
+          label: 'Doer Master',
+          url: '/pages/DoerMaster',
+          icon: 'ri-brain-line',
+          parentKey: 'systemmaster',
+        },
+
+
+        {
+          key: 'LnMaster',
+          label: 'LN Master',
+          url: '/pages/LnMaster',
+          icon: 'ri-user-settings-line',
+          parentKey: 'systemmaster',
+        },
+        // {
+        //   key: 'TicketMaster',
+        //   label: 'Ticket Master',
+        //   url: '/pages/TicketMaster',
+        //   icon: 'ri-coupon-2-line',
+        //   parentKey: 'systemmaster',
+        // },
+        {
+          key: 'SystemLogs',
+          label: 'System Logs',
+          url: '/pages/SystemLogs',
+          icon: 'ri-login-circle-line',
+          parentKey: 'systemmaster',
+        },
+      ],
     },
     {
-      key: 'Process',
-      label: 'Process',
+      key: 'master',
+      label: 'Business Master',
       isTitle: false,
-      url: '/pages/Process',
-      icon: 'ri-dashboard-3-line',
+      icon: 'ri-settings-4-line',
+      children: [
+        {
+          key: 'Projects',
+          label: 'Project Master',
+          url: '/pages/ProjectMaster',
+          icon: 'ri-file-chart-line',
+          parentKey: 'master',
+        },
+        {
+          key: 'Employee-Master',
+          label: 'Employee Master',
+          url: '/pages/EmployeeMaster',
+          icon: 'ri-user-settings-line',
+          parentKey: 'master',
+        },
+
+
+        {
+          key: 'Bank',
+          label: 'Bank Master',
+          url: '/pages/BankMaster',
+          icon: 'ri-bank-line',
+          parentKey: 'master',
+        },
+        {
+          key: 'Contact',
+          label: 'Contact Master',
+          url: '/pages/ContactMaster',
+          icon: 'ri-bank-line',
+          parentKey: 'master',
+        },
+        {
+          key: 'AddressMaster',
+          label: 'Address Master',
+          url: '/pages/AddressMaster',
+          icon: 'ri-map-pin-line',
+          parentKey: 'master',
+        },
+      ],
     },
+    {
+      key: 'FormMaster',
+      label: 'Form / Template ',
+      url: '/pages/AdhocTempleteList',
+      icon: 'ri-survey-line',
+      children: [
+        {
+          key: 'Adhoc Master',
+          label: 'Adhoc Master',
+          url: '/pages/AdhocMaster',
+          parentKey: 'FormMaster',
+        },
+        {
+          key: 'Template Master',
+          label: 'Template Master',
+          url: '/pages/WorkflowBuilderList',
+          parentKey: 'FormMaster',
+        },
+
+      ],
+    },
+
+
 
     {
       key: 'Action',
@@ -112,7 +253,7 @@ const getFilteredMenuItems = () => {
     },
     {
       key: 'TaskAdmin',
-      label: 'Task',
+      label: 'Task Management',
       isTitle: false,
       icon: 'ri-settings-fill',
       children: [
@@ -161,6 +302,23 @@ const getFilteredMenuItems = () => {
       ],
     },
     {
+      key: 'Analytics',
+      label: 'Analytics & Reports',
+      url: '/pages/AdhocTempleteList',
+      icon: 'ri-user-settings-line',
+      children: [
+        {
+          key: 'MIS',
+          label: 'MIS Report',
+          url: '/pages/MisReport',
+          icon: 'ri-slideshow-line',
+          parentKey: 'Analytics',
+        }
+      ],
+    },
+
+
+    {
       key: 'GetTestData',
       label: 'Templates',
       url: '/pages/AdhocTempleteList',
@@ -184,172 +342,46 @@ const getFilteredMenuItems = () => {
       ],
     },
 
-    {
-      key: 'Analytics',
-      label: 'Analytics',
-      url: '/pages/AdhocTempleteList',
-      icon: 'ri-user-settings-line',
-      children: [
-        {
-          key: 'MIS',
-          label: 'MIS Report',
-          url: '/pages/MisReport',
-          icon: 'ri-slideshow-line',
-          parentKey: 'Analytics',
-        }
-      ],
-    },
+
 
 
     {
-      key: 'systemmaster',
-      label: 'System Master',
-      isTitle: false,
-      icon: 'ri-settings-fill',
+      key: 'ConfigMaster',
+      label: 'Config Master',
+      url: '/pages/Settings',
+      icon: 'ri-survey-line',
       children: [
         {
-          key: 'systemmaster-FormList',
-          label: 'Form Master',
-          url: '/pages/FormList',
-          icon: 'ri-slideshow-line',
-          parentKey: 'systemmaster',
+          key: 'Modules',
+          label: 'Modules',
+          url: '/pages/Modules',
+          parentKey: 'ConfigMaster',
         },
         {
-          key: 'systemmaster-ModuleMaster',
-          label: 'Module Master',
-          url: '/pages/ModuleMaster',
-          icon: 'ri-slideshow-line',
-          parentKey: 'systemmaster',
+          key: 'Process',
+          label: 'Process',
+          url: '/pages/Process',
+          parentKey: 'ConfigMaster',
         },
         {
-          key: 'systemmaster-ProcessMaster',
-          label: 'Process Master',
-          url: '/pages/ProcessMaster',
-          icon: 'ri-bubble-chart-line',
-          parentKey: 'systemmaster',
-        },
-        {
-          key: 'systemmaster-ProcessInitiation',
+          key: 'Initiation Master',
           label: ' Initiation Master',
           url: '/pages/ProcessInitiation',
-          icon: 'ri-bubble-chart-line',
-          parentKey: 'systemmaster',
+          parentKey: 'ConfigMaster',
         },
         {
-          key: 'systemmaster-TaskMaster',
-          label: 'Task Master',
-          url: '/pages/TaskMaster',
-          icon: 'ri-pie-chart-2-line',
-          parentKey: 'systemmaster',
-        },
-        {
-          key: 'RoleMaster',
-          label: 'Role Master',
-          url: '/pages/RoleMaster',
-          icon: 'ri-brain-line',
-          parentKey: 'systemmaster',
-        },
-        {
-          key: 'Identifier',
-          label: 'Identifier Master',
-          url: '/pages/IdentifierMaster',
-          icon: 'ri-brain-line',
-          parentKey: 'systemmaster',
-        },
-        {
-          key: 'DoerMaster',
-          label: 'Doer Master',
-          url: '/pages/DoerMaster',
-          icon: 'ri-brain-line',
-          parentKey: 'systemmaster',
-        },
-
-
-        {
-          key: 'LnMaster',
-          label: 'LN Master',
-          url: '/pages/LnMaster',
-          icon: 'ri-user-settings-line',
-          parentKey: 'systemmaster',
-        },
-        {
-          key: 'TicketMaster',
-          label: 'Ticket Master',
-          url: '/pages/TicketMaster',
-          icon: 'ri-coupon-2-line',
-          parentKey: 'systemmaster',
-        },
-        {
-          key: 'SystemLogs',
-          label: 'System Logs',
-          url: '/pages/SystemLogs',
-          icon: 'ri-login-circle-line',
-          parentKey: 'systemmaster',
-        },
-        // {
-        //   key: 'CreateNotification',
-        //   label: 'Notification',
-        //   url: '/pages/CreateNotification',
-        //   icon: 'ri-notification-line',
-        //   parentKey: 'systemmaster',
-        // },
-
-      ],
-    },
-
-
-
-    {
-      key: 'master',
-      label: 'Business Master',
-      isTitle: false,
-      icon: 'ri-settings-4-line',
-      children: [
-        {
-          key: 'Projects',
-          label: 'Project Master',
-          url: '/pages/ProjectMaster',
-          icon: 'ri-file-chart-line',
-          parentKey: 'master',
-        },
-        {
-          key: 'Employee-Master',
-          label: 'Employee Master',
-          url: '/pages/EmployeeMaster',
-          icon: 'ri-user-settings-line',
-          parentKey: 'master',
-        },
-
-        {
-          key: 'Vendor',
+          key: 'VendorMaster',
           label: 'Vendor Master',
           url: '/pages/VendorMaster',
-          icon: 'ri-store-line',
-          parentKey: 'master',
+          parentKey: 'ConfigMaster',
         },
-        {
-          key: 'Bank',
-          label: 'Bank Master',
-          url: '/pages/BankMaster',
-          icon: 'ri-bank-line',
-          parentKey: 'master',
-        },
-        {
-          key: 'Contact',
-          label: 'Contact Master',
-          url: '/pages/ContactMaster',
-          icon: 'ri-bank-line',
-          parentKey: 'master',
-        },
-        {
-          key: 'AddressMaster',
-          label: 'Address Master',
-          url: '/pages/AddressMaster',
-          icon: 'ri-map-pin-line',
-          parentKey: 'master',
-        },
+
+
       ],
     },
+
+
+
     {
       key: 'ProcessDataMaster',
       label: 'PD Master',
@@ -363,108 +395,6 @@ const getFilteredMenuItems = () => {
           url: '/pages/ModulesMaster',
           icon: 'ri-list-check-3',
         },
-        // {
-        //   key: 'Account Masters',
-        //   label: 'Account Masters',
-        //   parentKey: 'ProcessDataMaster',
-        //   icon: 'ri-list-check-3',
-        //   children: [
-        //     {
-        //       key: 'Mess-Master',
-        //       label: 'Mess Master',
-        //       url: '/pages/MessMaster',
-        //       parentKey: 'Account Masters',
-        //     },
-
-        //   ],
-        // },
-        // {
-        //   key: 'BD Masters',
-        //   label: 'BD Masters',
-        //   parentKey: 'ProcessDataMaster',
-        //   icon: 'ri-list-check-3',
-        //   children: [
-        //     {
-        //       key: 'Tender-Master',
-        //       label: 'Tender Master',
-        //       url: '/pages/TenderMaster',
-        //       parentKey: 'BD Masters',
-        //     },
-
-        //   ],
-        // },
-        // {
-        //   key: 'HR Masters',
-        //   label: 'HR Masters',
-        //   parentKey: 'ProcessDataMaster',
-        //   icon: 'ri-list-check-3',
-        //   children: [
-        //     {
-        //       key: 'RequirementMaster',
-        //       label: 'Staff Requirement Master',
-        //       url: '/pages/RequirementMaster',
-        //       parentKey: 'HR Masters',
-        //       // icon: 'ri-list-check-3',
-        //     },
-        //     {
-        //       key: 'DesignationMaster',
-        //       label: 'Designation Master',
-        //       url: '/pages/DesignationMaster',
-        //       parentKey: 'HR Masters',
-        //       // icon: 'ri-list-check-3',
-        //     },
-        //     {
-        //       key: 'CandidateMaster',
-        //       label: 'Candidate Master',
-        //       url: '/pages/HrCandidateMaster',
-        //       parentKey: 'HR Masters',
-        //       // icon: 'ri-list-check-3',
-        //     },
-        //     {
-        //       key: 'HrResumeMaster',
-        //       label: 'Hr Resume Master',
-        //       url: '/pages/HrResumeMaster',
-        //       parentKey: 'HR Masters',
-        //       // icon: 'ri-list-check-3',
-        //     },
-        //   ],
-        // },
-        // {
-        //   key: 'BTS Masters',
-        //   label: 'BTS Masters',
-        //   parentKey: 'ProcessDataMaster',
-        //   icon: 'ri-list-check-3',
-        //   children: [
-        //     {
-        //       key: 'RequirementMaster',
-        //       label: 'Staff Requirement Master',
-        //       url: '/pages/RequirementMaster',
-        //       parentKey: 'BTS Masters',
-        //       // icon: 'ri-list-check-3',
-        //     },
-        //     {
-        //       key: 'DesignationMaster',
-        //       label: 'Designation Master',
-        //       url: '/pages/DesignationMaster',
-        //       parentKey: 'BTS Masters',
-        //       // icon: 'ri-list-check-3',
-        //     },
-        //     {
-        //       key: 'CandidateMaster',
-        //       label: 'Candidate Master',
-        //       url: '/pages/HrCandidateMaster',
-        //       parentKey: 'BTS Masters',
-        //       // icon: 'ri-list-check-3',
-        //     },
-        //     {
-        //       key: 'HrResumeMaster',
-        //       label: 'Hr Resume Master',
-        //       url: '/pages/HrResumeMaster',
-        //       parentKey: 'BTS Masters',
-        //       // icon: 'ri-list-check-3',
-        //     },
-        //   ],
-        // },
         {
           key: 'CommonDropdown',
           label: 'Common Master ',
@@ -474,111 +404,34 @@ const getFilteredMenuItems = () => {
         },
       ],
     },
+
     {
-      key: 'FormMaster',
-      label: 'Form Master',
-      url: '/pages/AdhocTempleteList',
-      icon: 'ri-survey-line',
-      // parentKey: 'systemmaster',
-      children: [
-        {
-          key: 'HR Templete',
-          label: 'HR Templete Master',
-          url: '/pages/AdhocTempleteList',
-          parentKey: 'FormMaster',
-        },
-        {
-          key: 'Account Templete',
-          label: 'Account Templete Master',
-          url: '/pages/AdhocTempleteList',
-          parentKey: 'FormMaster',
-        },
-        {
-          key: 'BD Templete',
-          label: 'BD Templete Master',
-          url: '/pages/AdhocTempleteList',
-          parentKey: 'FormMaster',
-        },
-        {
-          key: 'Adhoc Master',
-          label: 'Adhoc Master',
-          url: '/pages/AdhocMaster',
-          parentKey: 'FormMaster',
-        },
-      ],
-    },
-    {
-      key: 'WorkflowBuilderList',
-      label: 'Workflow BuilderList',
-      url: '/pages/WorkflowBuilderList',
-      icon: 'ri-survey-line',
-    },
-    {
-      key: 'ProcessConfiguration',
-      label: 'Process Configuration',
-      url: '/pages/ProcessConfiguration',
-      icon: 'ri-survey-line',
-    },
-    {
-      key: 'Notifications',
-      label: 'Notification',
-      url: '/pages/Notification',
-      icon: 'ri-survey-line',
-      children: [
-        {
-          key: 'MyNotification',
-          label: 'Create Notification',
-          url: '/pages/CreateNotification',
-          parentKey: 'Notifications',
-        },
-        {
-          key: 'ScheduledNotification',
-          label: 'Scheduled Notification',
-          url: '/pages/ScheduledNotification',
-          parentKey: 'Notifications',
-        }
-      ],
-    },
-    {
-      key: 'SeekHelp',
-      label: 'Seek Help',
-      url: '/pages/SeekHelp',
-      icon: 'ri-survey-line',
-      children: [
-        {
-          key: 'CreateHelp',
-          label: 'Create Help',
-          url: '/pages/CreateHelp',
-          parentKey: 'SeekHelp',
-        },
-        {
-          key: 'ViewHelp',
-          label: 'View Help',
-          url: '/pages/ViewHelp',
-          parentKey: 'SeekHelp',
-        }
-      ],
-    },
-    {
-      key: 'Suggestion',
-      label: 'Suggestion',
+      key: 'Collaboration',
+      label: 'Collaboration',
       url: '/pages/Suggestion',
       icon: 'ri-survey-line',
       children: [
         {
-          key: 'SuggestionMasterinsert',
-          label: 'Create',
-          url: '/pages/SuggestionMasterinsert',
-          parentKey: 'Suggestion',
+          key: 'MyNotification',
+          label: 'Notification',
+          url: '/pages/CreateNotification',
+          parentKey: 'Collaboration',
         },
         {
           key: 'SuggestionMaster',
-          label: 'View',
+          label: 'Suggestions',
           url: '/pages/SuggestionMaster',
-          parentKey: 'Suggestion',
+          parentKey: 'Collaboration',
+        },
+        {
+          key: 'ViewHelp',
+          label: 'Seek Help',
+          url: '/pages/ViewHelp',
+          parentKey: 'Collaboration',
         }
       ],
     },
+
     {
       key: 'Settings',
       label: 'Settings',
@@ -599,6 +452,7 @@ const getFilteredMenuItems = () => {
         }
       ],
     },
+
   ];
 
 
@@ -609,6 +463,7 @@ const getFilteredMenuItems = () => {
       item.key === 'CompletedTask' ||
       item.key === 'ExpireTask' ||
       item.key === 'TaskPlanned' ||
+      item.key === 'ConfigMaster' ||
       item.key === 'Notification'
     );
   }
@@ -618,6 +473,7 @@ const getFilteredMenuItems = () => {
       item.key === 'CompletedTask' ||
       item.key === 'ExpireTask' ||
       item.key === 'TaskPlanned' ||
+      item.key === 'ConfigMaster' ||
       item.key === 'Notification'
       // item.key === 'TaskAdmin' ||
       // item.key === 'Analytics' ||
@@ -634,6 +490,7 @@ const getFilteredMenuItems = () => {
       item.key === 'systemmaster' ||
       item.key === 'Process' ||
       item.key === 'ProcessDataMaster' ||
+      item.key === 'ConfigMaster' ||
       item.key === 'Modules'
     );
   }
@@ -650,9 +507,10 @@ const getFilteredMenuItems = () => {
       item.key === 'FormMaster' ||
       item.key === 'WorkflowBuilderList' ||
       item.key === 'ProcessConfiguration' ||
-      item.key === 'Notifications' ||
+      item.key === 'Collaboration' ||
       item.key === 'SeekHelp' ||
       item.key === 'Suggestion' ||
+      item.key === 'ConfigMaster' ||
       item.key === 'Settings'
     );
   }
@@ -665,6 +523,7 @@ const getFilteredMenuItems = () => {
         item.key === 'systemmaster' ||
         item.key === 'Process' ||
         item.key === 'ProcessDataMaster' ||
+        item.key === 'ConfigMaster' ||
         item.key === 'Modules'
     }
 

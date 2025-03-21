@@ -101,7 +101,10 @@ const Dashboard = () => {
 	}, [startDate, endDate]);
 
 	if (!data) {
-		return <p>Loading...</p>;
+		return <div className='loader-container'>
+			<div className="loader"></div>
+			<div className='mt-2'>Please Wait!</div>
+		</div>;
 	}
 
 	const { p1, p2, totalTasks, tasksNotDone, taskNotDoneOnTime } = data;

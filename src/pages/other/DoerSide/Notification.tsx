@@ -643,7 +643,6 @@ const ProjectAssignTable: React.FC = () => {
 
 
 
-            <Col></Col>
 
             <Col lg={3} className="align-items-end d-flex justify-content-end mt-2">
               <ButtonGroup aria-label="Basic example" className="w-100">

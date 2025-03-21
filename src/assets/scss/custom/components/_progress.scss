@@ -1017,9 +1017,11 @@ input.numInput.cur-year:hover {
   position: sticky;
   top: 0;
   background: white;
-  z-index: 1050; /* Ensures it stays above other content */
+  z-index: 1050;
+  /* Ensures it stays above other content */
   padding: 10px 0;
-  box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1); /* Adds subtle shadow */
+  box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+  /* Adds subtle shadow */
 }
 
 .custom-node {
@@ -1050,7 +1052,8 @@ input.numInput.cur-year:hover {
   cursor: pointer;
 }
 
-.input-handle, .output-handle {
+.input-handle,
+.output-handle {
   background: #555;
   width: 8px;
   height: 8px;
@@ -1088,7 +1091,8 @@ input.numInput.cur-year:hover {
   white-space: nowrap;
 }
 
-.close-button, .save-button {
+.close-button,
+.save-button {
   margin-top: 10px;
   padding: 5px;
   border: none;
@@ -1103,9 +1107,11 @@ input.numInput.cur-year:hover {
   background: #28a745;
   color: white;
 }
+
 .react-flow__handle-right {
-  top: unset!important;
+  top: unset !important;
 }
+
 @keyframes popCheck {
   0% {
     transform: scale(0);
@@ -1186,10 +1192,15 @@ input.numInput.cur-year:hover {
 .border-green {
   border-color: #28a745 !important;
 }
-.truncated-text div:first-child
-{
+
+.truncated-text div:first-child {
   overflow: hidden;
-    white-space: nowrap;
-    text-overflow: ellipsis;
-    max-width: 450px!important;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  max-width: 450px !important;
+}
+
+
+.profile_top {
+  top: -50px !important;
 }

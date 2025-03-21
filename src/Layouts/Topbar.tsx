@@ -312,7 +312,8 @@ const Topbar = ({ toggleMenu, navOpen }: TopbarProps) => {
 						<li className="position-relative notification-bell me-3">
 							<Link to={"/pages/NotificationPage"}>
 								<i className="text-primary fs-2 ri-notification-line"></i>
-								<div className='position-absolute counter-bell'>{unreadCount}</div>
+								{unreadCount !== 0 && <div className='position-absolute counter-bell'>{unreadCount}</div>}
+
 							</Link>
 
 						</li>
