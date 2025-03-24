@@ -233,6 +233,7 @@ const Editor: React.FC<EditorProps> = ({ form, setForm, property, setProperty, b
             }
         };
         fetchData();
+        console.log('rule called')
     }, [form.editMode]);
 
 
@@ -244,7 +245,7 @@ const Editor: React.FC<EditorProps> = ({ form, setForm, property, setProperty, b
             ...rule,
             partiallyBind: blockValue[rule.end3]
         }
-        console.log(blockValue, query)
+        // console.log(blockValue, query)
         if (query.partiallyBind) {
             const response = await axios.post(
                 `${config.API_URL_APPLICATION}/FormBuilder/GetPartiallyBindValue`,
@@ -270,7 +271,7 @@ const Editor: React.FC<EditorProps> = ({ form, setForm, property, setProperty, b
         }
     };
     const someRule = () => {
-        console.log(triggeredActions)
+        console.log('triggeredActions', triggeredActions)
         triggeredActions.forEach(action => {
             if (action.type === 'show_hide' && action.block) {
                 const updatedBlock = manageShowHide(action.block, action.rule.rule, blockValue) as BASIC_FIELD;

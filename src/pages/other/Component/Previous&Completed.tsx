@@ -42,8 +42,8 @@ const MessCards: React.FC<{ data: Task[] }> = ({ data }) => {
     // Group the data
     const groupedData = groupByMessName(data);
     console.log("yha dekhao",groupedData);
-    const formData = groupedData?.undefined ? JSON.parse(groupedData.undefined[0]?.form_Json ) : {}
-    const blockData = groupedData?.undefined ? JSON.parse(groupedData.undefined[0]?.blockValue ) : {}
+    const formData = groupedData?.undefined ? groupedData.undefined[0]?.form_Json ? JSON.parse(groupedData.undefined[0]?.form_Json ) : {} : {}
+    const blockData = groupedData?.undefined ? groupedData.undefined[0]?.form_Json ? JSON.parse(groupedData.undefined[0]?.blockValue ) : {} : {}
     // console.log('groupedData', JSON.parse(groupedData.undefined[0].form_Json))
     const [form, setForm] = useState<FIELD>({ ...formData, editMode: true });
     const [property, setProperty] = useState<PROPERTY>({
@@ -84,7 +84,7 @@ const MessCards: React.FC<{ data: Task[] }> = ({ data }) => {
                     </Container>
                     : (Object.entries(groupedData).map(([messName, messTasks]) => (
                         <>
-                            {form.blocks?.length === 0 && (
+                            {/* {form.blocks?.length === 0 && ( */}
                                 <Col key={messName} md={6} lg={4} className="">
                                     <Card>
                                         <Card.Header className="bg-primary text-white">
@@ -165,7 +165,7 @@ const MessCards: React.FC<{ data: Task[] }> = ({ data }) => {
                                         </Card.Body>
                                     </Card>
                                 </Col>
-                            )}
+                            {/* )} */}
                             {form.blocks?.length && (
                                 <Editor form={form} setForm={setForm} property={property} setProperty={setProperty} blockValue={blockValue} setBlockValue={setBlockValue} isPreview={true} />
                             )}

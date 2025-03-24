@@ -31,7 +31,7 @@ const CustomNode = ({ data, id, setNodes, edges }: { data: any; id: string; setN
         hours: data.hours || '',
         weeks: data.weeks || '',
         label: data.label || '',
-        doerAssignList: data.doerAssignList || [],
+        doerAssignList: data.doerAssignList || {},
     });
 
     const [doerList, setDoerList] = useState<{ value: string; label: string }[]>([]);
@@ -91,7 +91,7 @@ const CustomNode = ({ data, id, setNodes, edges }: { data: any; id: string; setN
             hours: data.hours || '',
             weeks: data.weeks || '',
             label: data.label || '',
-            doerAssignList: data.doerAssignList || [],
+            doerAssignList: data.doerAssignList || {},
         });
     }, [data]);
 
