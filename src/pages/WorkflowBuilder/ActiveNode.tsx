@@ -94,10 +94,7 @@ const ActiveNode = ({ activeNode, activeTaskId, setActiveNode, completedNodes, s
                 ...completeNode,
                 data: {
                     ...completeNode.data, // Ensure completeNode.data is spread
-                    form: {
-                        ...completeNode.data?.form, // Safely spread form if it exists
-                        editMode: false,
-                    }
+
                 }
             }));
 
@@ -123,19 +120,18 @@ const ActiveNode = ({ activeNode, activeTaskId, setActiveNode, completedNodes, s
         <div>
             {completedNodes.map((completeNode: any) => (
                 <>
+                    {JSON.stringify(completeNode.data.blockValue)}
                     {completeNode.data.form?.blocks?.length ? (
                         <Editor form={completeNode.data.form} setForm={setForm} property={property} setProperty={setProperty} blockValue={completeNode.data.blockValue} setBlockValue={setBlockValue} isShowSave={false} isPreview={true} />
                     ) : (
-                        <>
-                            {JSON.stringify(completeNode)}
-                        </>
-                        // React.createElement(componentMap[completeNode.data.form], {
-                        //     ref: (instance: any) => {
-                        //         if (instance) {
-                        //             componentRefMap.current[completeNode.data.form] = instance;
-                        //         }
-                        //     }
-                        // })
+                        React.createElement(componentMap[completeNode.data.form], {
+                            ref: (instance: any) => {
+                                if (instance) {
+                                    componentRefMap.current[completeNode.data.form] = instance;
+                                }
+                            },
+                            blockValue: completeNode.data.blockValue
+                        })
                     )}
                 </>
             ))}
