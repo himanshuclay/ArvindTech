@@ -342,17 +342,30 @@ const STAFF_ALLOCATION_PLAN = forwardRef((props: any, ref) => {
 
     const handleSaveProjectSectionBifurcationData = () => {
         console.log('Saving Project Section Bifurcation Data:', projectSectionBifurcationData);
-
+    
         if (selectedDeptIndex === null || selectedRoleIndex === null) return;
-
+    
         const updatedDepartments = [...department];
         const roleToUpdate = updatedDepartments[selectedDeptIndex].designation[selectedRoleIndex];
-
+    
         roleToUpdate.projectSectionBifurcation = { ...projectSectionBifurcationData };
-
+    
+        // ✅ Save to blockValue
+        const newBlockValues: { [key: string]: string } = {};
+        Object.entries(projectSectionBifurcationData).forEach(([section, value]) => {
+            const key = `projectSection_${section}_${selectedDeptIndex}_${selectedRoleIndex}`;
+            newBlockValues[key] = value.toString();
+        });
+    
+        setBlockValue((prev) => ({
+            ...prev,
+            ...newBlockValues,
+        }));
+    
         setDepartment(updatedDepartments);
         handleCloseProjectSectionBifurcationModal();
     };
+    
 
     // Modal Openers
     const handleOpenModal = (departIndex: number, roleIndex: number, role: DESIGNATION) => {
@@ -404,11 +417,23 @@ const STAFF_ALLOCATION_PLAN = forwardRef((props: any, ref) => {
         setSelectedRole(role);
         setSelectedDeptIndex(departIndex);
         setSelectedRoleIndex(roleIndex);
-
-        setProjectSectionBifurcationData(role.projectSectionBifurcation || initialProjectSectionBifurcation);
-
+    
+        const updatedBifurcation: ProjectSectionBifurcation = { ...initialProjectSectionBifurcation };
+    
+        Object.keys(initialProjectSectionBifurcation).forEach((section) => {
+            const key = `projectSection_${section}_${departIndex}_${roleIndex}`;
+            if (blockValue[key] !== undefined) {
+                updatedBifurcation[section as keyof ProjectSectionBifurcation] = Number(blockValue[key]);
+            } else if (role.projectSectionBifurcation) {
+                updatedBifurcation[section as keyof ProjectSectionBifurcation] =
+                    role.projectSectionBifurcation[section as keyof ProjectSectionBifurcation] || 0;
+            }
+        });
+    
+        setProjectSectionBifurcationData(updatedBifurcation);
         setShowProjectSectionBifurcationModal(true);
     };
+    
 
     const getDepartmentTotalEstimate = (dept: DEPARTMENT, departIndex: number, selection: string): number => {
         // Sum values from block_0_ keys in blockValue
