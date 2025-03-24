@@ -83,8 +83,9 @@ const Dashboard = () => {
 		}
 
 		try {
+			const role = localStorage.getItem('EmpId') || '';
 			const response = await axios.get<MISReportData>(
-				`${config.API_URL_ACCOUNT}/MIS/GetMISReport?DoerID=llp03411&StartDate=${startDate}&EndDate=${endDate}`
+				`${config.API_URL_ACCOUNT}/MIS/GetMISReport?DoerID=${role}&StartDate=${startDate}&EndDate=${endDate}`
 			);
 			if (response.data.isSuccess) {
 				setData(response.data);

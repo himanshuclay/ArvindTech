@@ -712,7 +712,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                     conditionsArray.forEach((condition) => {
                         condition = JSON.parse(condition);
                         console.log(typeof condition)
-                        if (Array.isArray(condition[0].taskSelections)) {
+                        if  (condition[0] && Array.isArray(condition[0].taskSelections)) {
                             console.log('setSelectedCondition', selectedCondition);
                             if(selectedCondition.length === 0){
                                 const filteredTaskSelections = condition[0].taskSelections.filter(
