@@ -156,6 +156,7 @@ const ProjectAssignTable: React.FC = () => {
       // const start = workflowData.edges.find(e => e.source == "1");
       // const activeNode = workflowData.nodes.find(n => n.id === start?.target);
       const completedNodes = getCompletedNodes(workflowData, "1");
+      console.log('completedNodes', completedNodes)
       const activeNode = getActiveNode(workflowData, "1");
       if (activeNode) {
         setCompletedNodes(completedNodes);
@@ -415,7 +416,6 @@ const ProjectAssignTable: React.FC = () => {
     handleShow();
     const templateJson = JSON.parse(item.templateJson);
     if (templateJson.edges && templateJson.edges.length) {
-      console.log(templateJson)
       setWorkflowData(templateJson)
       setActiveTaskId(item.id);
     } else {

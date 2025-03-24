@@ -61,7 +61,7 @@ const ActiveNode = ({ activeNode, activeTaskId, setActiveNode, completedNodes, s
         try {
             activeNode.data['blockValue'] = blockValue;
             activeNode.data['status'] = "completed";
-            activeNode.data.form = form;
+            activeNode.data.form = dynamicComponent ? dynamicComponent : form;
             if (componentRefMap.current[dynamicComponent]) {
                 activeNode.data['blockValue'] = componentRefMap.current[dynamicComponent]?.[dynamicComponent]?.();
             }
@@ -70,16 +70,16 @@ const ActiveNode = ({ activeNode, activeTaskId, setActiveNode, completedNodes, s
                 jsonInput: JSON.stringify(activeNode)
             }
             console.log('query', activeNode.data.blockValue);
-            const response = await axios.post(
-                `${config.API_URL_ACCOUNT}/ProcessInitiation/UpdateTemplateJson`,
-                query
-            );
-            if (response.data.isSuccess) {
-                toast.success(response.data.message);
-                setActiveNode("");
-            }
+            // const response = await axios.post(
+            //     `${config.API_URL_ACCOUNT}/ProcessInitiation/UpdateTemplateJson`,
+            //     query
+            // );
+            // if (response.data.isSuccess) {
+            //     toast.success(response.data.message);
+            //     setActiveNode("");
+            // }
 
-            
+
         } catch (error) {
             console.log(error)
         }
@@ -123,7 +123,20 @@ const ActiveNode = ({ activeNode, activeTaskId, setActiveNode, completedNodes, s
         <div>
             {completedNodes.map((completeNode: any) => (
                 <>
-                    <Editor form={completeNode.data.form} setForm={setForm} property={property} setProperty={setProperty} blockValue={completeNode.data.blockValue} setBlockValue={setBlockValue} isShowSave={false} isPreview={true} />
+                    {completeNode.data.form?.blocks?.length ? (
+                        <Editor form={completeNode.data.form} setForm={setForm} property={property} setProperty={setProperty} blockValue={completeNode.data.blockValue} setBlockValue={setBlockValue} isShowSave={false} isPreview={true} />
+                    ) : (
+                        <>
+                            {JSON.stringify(completeNode)}
+                        </>
+                        // React.createElement(componentMap[completeNode.data.form], {
+                        //     ref: (instance: any) => {
+                        //         if (instance) {
+                        //             componentRefMap.current[completeNode.data.form] = instance;
+                        //         }
+                        //     }
+                        // })
+                    )}
                 </>
             ))}
             {form?.blocks?.length && (
