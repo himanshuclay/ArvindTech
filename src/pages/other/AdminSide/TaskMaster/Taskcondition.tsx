@@ -1539,7 +1539,7 @@ const TaskCondition: React.FC<ProcessCanvasProps> = ({
 											</Col>
 										</>
 									)}
-									{taskSelections[index]?.taskTiming === 'FromTask' && (
+									{taskRow.taskTiming === 'FromTask' && (
 										<>
 											<Col md={4}>
 												<Form.Group controlId="previousTask" className="mb-2">
