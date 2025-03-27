@@ -62,14 +62,23 @@ const ActiveNode = ({ activeNode, activeTaskId, setActiveNode, completedNodes, s
             activeNode.data['blockValue'] = blockValue;
             activeNode.data['status'] = "completed";
             activeNode.data.form = dynamicComponent ? dynamicComponent : form;
+            let formData;
             if (componentRefMap.current[dynamicComponent]) {
                 activeNode.data['blockValue'] = componentRefMap.current[dynamicComponent]?.[dynamicComponent]?.();
+                formData = componentRefMap.current[dynamicComponent]?.getAppointmentData?.().typeOfAppointment;
             }
-            // const query = {
-            //     id: activeTaskId,
-            //     jsonInput: JSON.stringify(activeNode)
-            // }
-            console.log('query', activeNode.data.blockValue);
+            const query: any = {
+                id: activeTaskId,
+                jsonInput: JSON.stringify(activeNode)
+            }
+            if (activeNode.data.outputLabels.length > 1) {
+                console.log('activeNode', activeNode)
+                const filteredOutputLabels = activeNode.data.outputLabels.filter((label: any) => 
+                    label === activeNode.data.blockValue.typeOfAppointment
+                );
+                query["outputLabel"] = filteredOutputLabels;
+            }
+            console.log('query', query);
             // const response = await axios.post(
             //     `${config.API_URL_ACCOUNT}/ProcessInitiation/UpdateTemplateJson`,
             //     query
@@ -120,7 +129,7 @@ const ActiveNode = ({ activeNode, activeTaskId, setActiveNode, completedNodes, s
         <div>
             {completedNodes.map((completeNode: any) => (
                 <>
-                    {JSON.stringify(completeNode.data.blockValue)}
+                    {/* {JSON.stringify(completeNode.data.blockValue)} */}
                     {completeNode.data.form?.blocks?.length ? (
                         <Editor form={completeNode.data.form} setForm={setForm} property={property} setProperty={setProperty} blockValue={completeNode.data.blockValue} setBlockValue={setBlockValue} isShowSave={false} isPreview={true} />
                     ) : (

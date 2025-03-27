@@ -82,7 +82,7 @@ const STAFF_ALLOCATION_PLAN = forwardRef((props: any, ref) => {
 
     const [confirmStaffAllocationPlan, setConfirmStaffAllocationPlan] = useState<string>("");
 
-    const [blockValue, setBlockValue] = useState<{ [key: string]: string }>({});
+    const [blockValue, setBlockValue] = useState<{ [key: string]: string }>(props.blockValue? props.blockValue : {});
 
     const [options, setOptions] = useState<OPTION[]>([]);
 
