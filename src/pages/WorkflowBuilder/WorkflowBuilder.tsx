@@ -161,6 +161,8 @@ const WorkflowBuilder: React.FC = () => {
         [setEdges]
     );
 
+    console.log("these are nodes", nodes);
+
 
 
 
@@ -170,12 +172,14 @@ const WorkflowBuilder: React.FC = () => {
             type: 'custom',
             data: {
                 label: action ? LABEL[action] : form ? form.name : `New Node ${nodes.length + 1}`, handles: Math.floor(Math.random() * 4) + 1, form: action ? action : form || {},
+                taskNumber: `T${nodes.length - 1 }`,
                 inputHandles: action ? INPUT_HANDLES[action] : 1,
                 outputHandles: action ? OUTPUT_HANDLES[action] : 1,
                 outputLabels: action ? OUTPUT_LABELS[action] : '',
             },
             position: { x, y },
         };
+        console.log(newNode);
         setNodes((nds) => [...nds, newNode]);
         setWorkflowBuilder(prevWorkflowBuilder => ({
             ...prevWorkflowBuilder,
@@ -189,7 +193,7 @@ const WorkflowBuilder: React.FC = () => {
     };
 
     const nodeTypes = useMemo(() => ({
-        custom: (props: any) => <CustomNode {...props} setNodes={setNodes} edges={edges} />,
+        custom: (props: any) => <CustomNode {...props} setNodes={setNodes} edges={edges}  />,
     }), [setNodes, edges]);  // ✅ Include edges in dependencies
 
 

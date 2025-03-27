@@ -24,6 +24,8 @@ const CustomNode = ({ data, id, setNodes, edges }: { data: any; id: string; setN
     const [nodeSetting, setNodeSetting] = useState({
         assignDoerType: data.assignDoerType || '',  // Preserve existing selection
         doer: data.doer || '',
+        taskNumber: data.taskNumber || '',
+        specificDate: data.specificDate || '',
         taskTimeOptions: data.taskTimeOptions || '',
         days: data.days || '',
         taskCreationType: data.taskCreationType || '',
@@ -41,6 +43,7 @@ const CustomNode = ({ data, id, setNodes, edges }: { data: any; id: string; setN
     useEffect(() => {
         // Check if this node is directly connected to the start node
         console.log('id', id, edges)
+        console.log(nodeSetting.taskNumber);
         const hasStartNodeConnection = edges.some(edge => edge.target === id.toString() && edge.source === "1");
         console.log(hasStartNodeConnection)
         setIsStartNode(hasStartNodeConnection);
@@ -76,7 +79,7 @@ const CustomNode = ({ data, id, setNodes, edges }: { data: any; id: string; setN
 
     useEffect(() => {
         getDoerList();
-       
+
         getProjectList();
     }, []);
 
@@ -84,6 +87,7 @@ const CustomNode = ({ data, id, setNodes, edges }: { data: any; id: string; setN
         setNodeSetting({
             assignDoerType: data.assignDoerType || '',
             doer: data.doer || '',
+            specificDate: data.specificDate || '',
             taskTimeOptions: data.taskTimeOptions || '',
             days: data.taskTime || '',
             taskCreationType: data.taskCreationType || '',
@@ -91,6 +95,7 @@ const CustomNode = ({ data, id, setNodes, edges }: { data: any; id: string; setN
             hours: data.hours || '',
             weeks: data.weeks || '',
             label: data.label || '',
+            taskNumber: data.taskNumber || '',
             doerAssignList: data.doerAssignList || {},
         });
     }, [data]);
@@ -101,6 +106,7 @@ const CustomNode = ({ data, id, setNodes, edges }: { data: any; id: string; setN
         data.taskTimeOptions = nodeSetting.taskTimeOptions;
         data.taskTime = nodeSetting.days;
         data.taskCreationType = nodeSetting.taskCreationType;
+        data.taskNumber = nodeSetting.taskNumber;
         data.time = nodeSetting.time;
         data.hours = nodeSetting.hours;
         data.weeks = nodeSetting.weeks;
@@ -122,6 +128,7 @@ const CustomNode = ({ data, id, setNodes, edges }: { data: any; id: string; setN
                             hours: nodeSetting.hours,
                             weeks: nodeSetting.weeks,
                             label: nodeSetting.label,
+                            taskNumber: nodeSetting.taskNumber,
                             doerAssignList: nodeSetting.doerAssignList,
                         }
                     }
@@ -134,9 +141,15 @@ const CustomNode = ({ data, id, setNodes, edges }: { data: any; id: string; setN
 
 
     const handleTaskTimeChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
-        console.log(e.target.value)
-        setNodeSetting(prev => ({ ...prev, [e.target.name]: e.target.value }));
+        console.log(e.target.value);  // Log the new value
+    
+        // Update the state with the changed value
+        setNodeSetting((prev) => ({
+            ...prev,
+            [e.target.name]: e.target.value,  // Dynamically update the field in the state
+        }));
     };
+    
 
 
 
@@ -164,6 +177,25 @@ const CustomNode = ({ data, id, setNodes, edges }: { data: any; id: string; setN
                                 onChange={handleTaskTimeChange}
                             />
                         </Form.Group>
+                        <Form.Group>
+                            <Form.Label>Task Number</Form.Label>
+                            <Form.Control
+                                type="text"
+                                value={nodeSetting.taskNumber} // Bind data.taskNumber to the value
+                                name="taskNumber"
+                                onChange={handleTaskTimeChange} // Call handleTaskTimeChange when input changes
+                            />
+                        </Form.Group>
+                        {/* <Form.Group>
+                            <Form.Label>Select Number</Form.Label>
+                            <Form.Control
+                                type="text"
+                                value={nodeSetting.taskNumber} // Bind data.taskNumber to the value
+                                name="taskNumber"
+                                onChange={handleTaskTimeChange} // Call handleTaskTimeChange when input changes
+                            />
+                        </Form.Group> */}
+
                         <Form.Group>
                             <Form.Label>Assign Doer Type</Form.Label>
                             <Select
@@ -284,6 +316,27 @@ const CustomNode = ({ data, id, setNodes, edges }: { data: any; id: string; setN
                                         enableTime: true, // Allow time selection
                                         noCalendar: true, // Hide the calendar if only time is needed
                                         dateFormat: "H:i", // Use 24-hour format
+                                        time_24hr: true, // Enforce 24-hour format
+                                    }}
+                                    placeholder="Select Time"
+                                    className="form-control"
+                                    required
+                                />
+                            </Form.Group>
+                        )}
+                        {['specificDate'].includes(nodeSetting.taskTimeOptions) && (
+                            <Form.Group>
+                                <Form.Label>Specific Date</Form.Label> {/* Label now correctly represents time */}
+                                <Flatpickr
+                                    value={nodeSetting.specificDate}
+                                    onChange={([date]) => setNodeSetting({
+                                        ...nodeSetting,
+                                        specificDate: date.toISOString() // Store the full date-time
+                                    })}
+                                    options={{
+                                        enableTime: false, // Allow time selection
+                                        noCalendar: false, // Hide the calendar if only time is needed
+                                        dateFormat: "F, d, Y", // Use 24-hour format
                                         time_24hr: true, // Enforce 24-hour format
                                     }}
                                     placeholder="Select Time"

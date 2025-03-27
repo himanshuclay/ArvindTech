@@ -48,6 +48,7 @@ const TIME_MANAGEMENT_OPTION = [
     { label: 'Hours', value: 'hours' },
     { label: 'Weeks', value: 'weeks' },
     { label: 'Weeks With Time', value: 'weeksWithTime' },
+    { label: 'Specific Date', value: 'specificDate' },
 ];
 
 const TASK_CREATION_TYPE = [
