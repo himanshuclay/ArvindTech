@@ -1,4 +1,4 @@
-import React, { ChangeEvent, useState, useEffect, useMemo } from 'react';
+import React, { ChangeEvent, useState, useEffect } from 'react';
 import {
   DragDropContext,
   Droppable,
@@ -580,7 +580,21 @@ const App: React.FC = () => {
     }
   };
 
-  const [condition, setCondition] = React.useState<number>(3);
+  // const [condition, setCondition] = React.useState<number>(3);
+  const conditionLabels: { [key: number]: string } = {
+    1: "Future Date Only (Including Today)",
+    2: "Future Date Only (Max 15 Days)",
+    3: "Simple Date Selection",
+    4: "Any past date selection",
+    5: "Only today",
+    6: "Any past date with a not beyond past date",
+    7: "Any future date wit a not beyond future date",
+    8: "Not today",
+    9: "Not this date",
+    10: "Block week",
+    11: "Block month",
+    12: "Block Year"
+  };
 
 
 
@@ -1091,9 +1105,12 @@ const App: React.FC = () => {
           return (
             <div className='col-6'>
               <div>{field.labeltext}</div>
-              <div>Date: {field.selection}</div>
+              <div>
+                Date Condition: {conditionLabels[field.condition ?? 0] || 'Unknown Condition'}
+              </div>
             </div>
           );
+
         case 'custom':
           return (
             <div className='col-6'>
@@ -1180,91 +1197,79 @@ const App: React.FC = () => {
     );
   };
 
-  const minDate = () => {
-    let minDate = undefined;
+  const minDate = (field: FormField) => {
+    const condition = field.condition;
     if (condition === 1 || condition === 2) {
-      minDate = 'today'
+      return 'today';
     } else if (condition === 5) {
-      minDate = new Date();
+      return new Date();
     } else if (condition === 6) {
-      minDate = dateSelection.date;
+      return dateSelection.date;
     } else if (condition === 7) {
-      minDate = new Date(Date.now() + 1 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+      return new Date(Date.now() + 1 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
     }
-    return minDate;
-  }
+    return undefined;
+  };
 
-  const maxDate = () => {
-    let maxDate = undefined;
+  const maxDate = (field: FormField) => {
+    const condition = field.condition;
     if (condition === 2) {
-      maxDate = new Date(Date.now() + 15 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+      return new Date(Date.now() + 15 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
     } else if (condition === 4 || condition === 6) {
-      maxDate = new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+      return new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
     } else if (condition === 5) {
-      maxDate = new Date()
+      return new Date();
     } else if (condition === 7) {
-      maxDate = dateSelection.date;
+      return dateSelection.date;
     }
-    return maxDate;
-  }
-  const dateOptions = useMemo(() => ({
-    enableTime: false,
-    dateFormat: 'Y-m-d',
-    minDate: minDate(),  // Dynamically computed minDate
-    maxDate: maxDate(),  // Dynamically computed maxDate
-    disable: [
-      function (date: any) {
-        const today = new Date();
-        // Disable only today's date
-        if (condition === 8) {
-          return date.toDateString() === today.toDateString();
-        } else if (condition === 9) {
-          return date.toDateString() === new Date(dateSelection.date || '').toDateString();
-        } else if (condition === 10 && dateSelection.date) {
-          const selectedDate = new Date(dateSelection.date);
+    return undefined;
+  };
 
-          // Get start and end of the week (assuming week starts on Sunday)
-          const startOfWeek = new Date(selectedDate);
-          startOfWeek.setDate(selectedDate.getDate() - selectedDate.getDay());
+  const getDateOptions = (field: FormField) => {
+    const condition = field.condition;
 
-          const endOfWeek = new Date(startOfWeek);
-          endOfWeek.setDate(startOfWeek.getDate() + 6);
+    return {
+      enableTime: false,
+      dateFormat: 'Y-m-d',
+      minDate: minDate(field),
+      maxDate: maxDate(field),
+      disable: [
+        function (date: any) {
+          const today = new Date();
 
-          // Disable if the date is within the selected week
-          return date >= startOfWeek && date <= endOfWeek;
-        } else if (condition === 11 && dateSelection.date) {
-          const selectedDate = new Date(dateSelection.date);
-          const selectedMonth = selectedDate.getMonth();
-          const selectedYear = selectedDate.getFullYear();
-
-          // Disable if the date is in the same month and year as the selected date
-          return date.getMonth() === selectedMonth && date.getFullYear() === selectedYear;
-        } else if (condition === 12 && dateSelection.date) {
-          const selectedYear = new Date(dateSelection.date).getFullYear();
-
-          // Disable if the date is in the same year as the selected date
-          return date.getFullYear() === selectedYear;
-        } else if (condition === 13 && dateSelection.date) {
-          const selectedDate = new Date(dateSelection.date);
-          const startOfWeek = new Date(selectedDate);
-          startOfWeek.setDate(selectedDate.getDate() - selectedDate.getDay());  // Start on Sunday
-          const endOfWeek = new Date(startOfWeek);
-          endOfWeek.setDate(startOfWeek.getDate() + 6);  // End on Saturday
-
-          const allowedDays = [1, 3];  // 1 = Monday, 3 = Wednesday
-
-          // If the date is within the same week but not on an allowed day, disable it
-          if (date >= startOfWeek && date <= endOfWeek) {
-            return !allowedDays.includes(date.getDay());
+          if (condition === 8) {
+            return date.toDateString() === today.toDateString();
+          } else if (condition === 9) {
+            return date.toDateString() === new Date(dateSelection.date || '').toDateString();
+          } else if (condition === 10 && dateSelection.date) {
+            const selectedDate = new Date(dateSelection.date);
+            const startOfWeek = new Date(selectedDate);
+            startOfWeek.setDate(selectedDate.getDate() - selectedDate.getDay());
+            const endOfWeek = new Date(startOfWeek);
+            endOfWeek.setDate(startOfWeek.getDate() + 6);
+            return date >= startOfWeek && date <= endOfWeek;
+          } else if (condition === 11 && dateSelection.date) {
+            const selectedDate = new Date(dateSelection.date);
+            return date.getMonth() === selectedDate.getMonth() && date.getFullYear() === selectedDate.getFullYear();
+          } else if (condition === 12 && dateSelection.date) {
+            return date.getFullYear() === new Date(dateSelection.date).getFullYear();
+          } else if (condition === 13 && dateSelection.date) {
+            const selectedDate = new Date(dateSelection.date);
+            const startOfWeek = new Date(selectedDate);
+            startOfWeek.setDate(selectedDate.getDate() - selectedDate.getDay());
+            const endOfWeek = new Date(startOfWeek);
+            endOfWeek.setDate(startOfWeek.getDate() + 6);
+            const allowedDays = [1, 3]; // Monday, Wednesday
+            if (date >= startOfWeek && date <= endOfWeek) {
+              return !allowedDays.includes(date.getDay());
+            }
+            return true;
           }
+        },
+      ],
+    };
+  };
 
-          // Disable dates outside the current week
-          return true;
-        }
-
-      }
-    ],
-  }), [condition, dateSelection]);  // Recompute options on these changes
 
   return (
     <div className="App" id="taskTop">
@@ -2269,7 +2274,13 @@ const App: React.FC = () => {
                     <Form.Select
                       className="mb-3"
                       value={editField.condition}
-                      onChange={(e) => setCondition(Number(e.target.value))}
+                      onChange={(e) => {
+                        const value = Number(e.target.value);
+                        setEditField({
+                          ...editField,
+                          condition: value,
+                        });
+                      }}
                     >
                       <option value={1}>Future Date Only (Including Today)</option>
                       <option value={2}>Future Date Only (Max 15 Days)</option>
@@ -2284,31 +2295,46 @@ const App: React.FC = () => {
                       <option value={11}>Block month</option>
                       <option value={12}>Block Year</option>
                     </Form.Select>
-                    {(condition === 6 || condition === 7 || condition === 9 || condition === 10 || condition === 11 || condition === 12) && (<CustomFlatpickr className='form-control' options={{ enableTime: false, dateFormat: 'Y-m-d', minDate: undefined, maxDate: undefined }}
-                      value={dateSelection.date ? new Date(dateSelection.date) : undefined}
-                      onChange={(selectedDates) => {
-                        if (selectedDates && selectedDates.length > 0) {
-                          // Update the date only if a valid selection is made
-                          setDateSelection({
-                            ...dateSelection,
-                            date: selectedDates[0].toISOString().split('T')[0], // Format as 'YYYY-MM-DD'
-                          });
-                        }
-                      }} />)}
+                    {(editField.condition === 6 ||
+                      editField.condition === 7 ||
+                      editField.condition === 9 ||
+                      editField.condition === 10 ||
+                      editField.condition === 11 ||
+                      editField.condition === 12) && (
+                        <CustomFlatpickr
+                          className='form-control'
+                          options={{
+                            enableTime: false,
+                            dateFormat: 'Y-m-d',
+                            minDate: undefined,
+                            maxDate: undefined,
+                          }}
+                          value={dateSelection.date ? new Date(dateSelection.date) : undefined}
+                          onChange={(selectedDates) => {
+                            if (selectedDates && selectedDates.length > 0) {
+                              setDateSelection({
+                                ...dateSelection,
+                                date: selectedDates[0].toISOString().split('T')[0],
+                              });
+                            }
+                          }}
+                        />
+                      )}
+
                     <CustomFlatpickr
                       className='form-control'
-                      options={dateOptions}  // Use memoized options
-                      value={editField.date ? new Date(editField.date) : undefined} // Ensure the value is a valid Date object
+                      options={getDateOptions(editField)} // 👈 Dynamic options per field
+                      value={editField.date ? new Date(editField.date) : undefined}
                       onChange={(selectedDates) => {
                         if (selectedDates && selectedDates.length > 0) {
-                          // Update the date only if a valid selection is made
                           setEditField({
                             ...editField,
-                            date: selectedDates[0].toISOString().split('T')[0], // Format as 'YYYY-MM-DD'
+                            date: selectedDates[0].toISOString().split('T')[0],
                           });
                         }
                       }}
                     />
+
 
                     {/* Conditional Checkbox */}
                     <div className="form-group mt-2">

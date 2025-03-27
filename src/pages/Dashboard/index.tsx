@@ -55,17 +55,14 @@ const Dashboard = () => {
 	// };
 
 	const handleStartDateChange = ([date]: Date[]) => {
+		console.log(date);
 		if (!date) return;
 
-		const selectedDay = date.getDay();
-		if (selectedDay !== 1) {
-			alert("Please select a past Monday.");
-			return;
-		}
+		const adjustedDate = new Date(date.getTime() - (date.getTimezoneOffset() * 60000));
+		const formattedStartDate = adjustedDate.toISOString().split("T")[0];
 
-		const formattedStartDate = date.toISOString().split("T")[0];
+		console.log(formattedStartDate);
 
-		// Auto-fill the end date (Sunday of the same week)
 		const sundayDate = new Date(date);
 		sundayDate.setDate(date.getDate() + 6);
 		const formattedEndDate = sundayDate.toISOString().split("T")[0];
@@ -83,9 +80,8 @@ const Dashboard = () => {
 		}
 
 		try {
-			const role = localStorage.getItem('EmpId') || '';
 			const response = await axios.get<MISReportData>(
-				`${config.API_URL_ACCOUNT}/MIS/GetMISReport?DoerID=${role}&StartDate=${startDate}&EndDate=${endDate}`
+				`${config.API_URL_ACCOUNT}/MIS/GetMISReport?DoerID=llp03411&StartDate=${startDate}&EndDate=${endDate}`
 			);
 			if (response.data.isSuccess) {
 				setData(response.data);
@@ -102,10 +98,7 @@ const Dashboard = () => {
 	}, [startDate, endDate]);
 
 	if (!data) {
-		return <div className='loader-container'>
-			<div className="loader"></div>
-			<div className='mt-2'>Please Wait!</div>
-		</div>;
+		return <p>Loading...</p>;
 	}
 
 	const { p1, p2, totalTasks, tasksNotDone, taskNotDoneOnTime } = data;
@@ -277,9 +270,15 @@ const Dashboard = () => {
 											maxDate: new Date(), // Restrict future dates
 											disable: [
 												function (date) {
-													return date.getDay() !== 1 || date > new Date(); // Only allow past Mondays
-												},
+													// return true to disable
+													return (date.getDay() !== 1);
+
+												}
 											],
+											locale: {
+												"firstDayOfWeek": 1 // start week on Monday
+											}
+
 										}}
 										value={startDate || new Date()} // Ensure correct type
 										onChange={handleStartDateChange}
