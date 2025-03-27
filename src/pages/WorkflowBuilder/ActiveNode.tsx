@@ -1,9 +1,9 @@
 import React, { useEffect, useRef, useState } from "react";
 import Editor from "../FormBuilder/Editor";
 import { FIELD, PROPERTY } from "../FormBuilder/Constant/Interface";
-import axios from "axios";
-import config from "@/config";
-import { toast } from "react-toastify";
+// import axios from "axios";
+// import config from "@/config";
+// import { toast } from "react-toastify";
 import STAFF_ALLOCATION_PLAN from "./DynamicSegment/STAFF_ALLOCATION_PLAN";
 import APPOINTMENT from "./DynamicSegment/APPOINTMENT";
 import NEW_APPOINTMENT from "./DynamicSegment/NEW_APPOINTMENT";
@@ -32,7 +32,7 @@ const ActiveNode = ({ activeNode, activeTaskId, setActiveNode, completedNodes, s
                 },
             }
     );
-    const [dynamicComponent, setDynamicComponent] = useState<string>(activeNode.data?.form?.blocks?.length ? '' : activeNode.data.form);
+    const [dynamicComponent,] = useState<string>(activeNode.data?.form?.blocks?.length ? '' : activeNode.data.form);
     const componentRefMap = useRef<{ [key: string]: any }>({});
 
 
@@ -65,10 +65,10 @@ const ActiveNode = ({ activeNode, activeTaskId, setActiveNode, completedNodes, s
             if (componentRefMap.current[dynamicComponent]) {
                 activeNode.data['blockValue'] = componentRefMap.current[dynamicComponent]?.[dynamicComponent]?.();
             }
-            const query = {
-                id: activeTaskId,
-                jsonInput: JSON.stringify(activeNode)
-            }
+            // const query = {
+            //     id: activeTaskId,
+            //     jsonInput: JSON.stringify(activeNode)
+            // }
             console.log('query', activeNode.data.blockValue);
             // const response = await axios.post(
             //     `${config.API_URL_ACCOUNT}/ProcessInitiation/UpdateTemplateJson`,

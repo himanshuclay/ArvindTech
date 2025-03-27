@@ -16,7 +16,7 @@ const getSource = (workflowData: WorkflowBuilderConfig, id: string) => {
     return activeNode;
 }
 
-const getActiveNode = (workflowData: WorkflowBuilderConfig, id: string) => {
+const getActiveNode: any = (workflowData: WorkflowBuilderConfig, id: string) => {
     const activeNode = getSource(workflowData, id);
     console.log('activeNode', activeNode)
     if (activeNode?.data.status === "completed") {
