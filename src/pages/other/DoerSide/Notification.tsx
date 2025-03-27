@@ -16,6 +16,7 @@ import Select from 'react-select';
 import { BLOCK_VALUE, FIELD } from '@/pages/FormBuilder/Constant/Interface';
 import { Edge, Node } from 'reactflow';
 import ActiveNode from '@/pages/WorkflowBuilder/ActiveNode';
+import { getActiveNode, getCompletedNodes } from '@/pages/WorkflowBuilder/Constant/function';
 
 
 
@@ -146,12 +147,19 @@ const ProjectAssignTable: React.FC = () => {
 
   const [workflowData, setWorkflowData] = useState<WorkflowBuilderConfig>();
   const [activeNode, setActiveNode] = useState<Node | "">("");
+  const [completedNodes, setCompletedNodes] = useState<Node[] | "">("");
 
   useEffect(() => {
     if (workflowData) {
-      const start = workflowData.edges.find(e => e.source == "1");
-      const activeNode = workflowData.nodes.find(n => n.id === start?.target);
+      console.log('workflowData', workflowData)
+      // getActiveNode(workflowData);
+      // const start = workflowData.edges.find(e => e.source == "1");
+      // const activeNode = workflowData.nodes.find(n => n.id === start?.target);
+      const completedNodes = getCompletedNodes(workflowData, "1");
+      console.log('completedNodes', completedNodes)
+      const activeNode = getActiveNode(workflowData, "1");
       if (activeNode) {
+        setCompletedNodes(completedNodes);
         setActiveNode(activeNode);
       } else {
         setActiveNode(""); // or handle it differently
@@ -411,7 +419,6 @@ const ProjectAssignTable: React.FC = () => {
     {
     const templateJson = JSON.parse(item.templateJson);
     if (templateJson.edges && templateJson.edges.length) {
-      console.log(templateJson)
       setWorkflowData(templateJson)
       setActiveTaskId(item.id);
     } 
@@ -1022,7 +1029,7 @@ const ProjectAssignTable: React.FC = () => {
         <Modal show={true} onHide={handleCloseActiveForm} size='xl'>
           <Modal.Header closeButton></Modal.Header>
           <Modal.Body>
-            <ActiveNode activeNode={activeNode} activeTaskId={activeTaskId} setActiveNode={setActiveNode} />
+            <ActiveNode activeNode={activeNode} activeTaskId={activeTaskId} setActiveNode={setActiveNode} completedNodes={completedNodes} setCompletedNodes={setCompletedNodes}/>
 
           </Modal.Body>
         </Modal>

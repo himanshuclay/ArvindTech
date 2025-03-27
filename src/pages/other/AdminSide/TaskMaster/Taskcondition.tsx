@@ -4,6 +4,7 @@ import config from '@/config'
 import { useEffect, useState } from 'react'
 import Select from 'react-select'
 import { toast } from 'react-toastify'
+import { json } from 'stream/consumers'
 
 interface ProcessCanvasProps {
 	show: boolean
@@ -186,15 +187,17 @@ const TaskCondition: React.FC<ProcessCanvasProps> = ({
 		])
 	}
 
-	const handleTaskFieldChange = (
-		index: number,
-		field: keyof TaskSelections,
-		value: string | undefined
-	) => {
-		const updatedRows = [...taskRows]
-		updatedRows[index] = { ...updatedRows[index], [field]: value }
-		setTaskRows(updatedRows)
-	}
+	const handleTaskFieldChange = (index: number, field: keyof TaskSelections, value: string | undefined) => {
+		const updatedRows = [...taskRows];  // Assuming you're using taskRows for managing row data
+	  
+		updatedRows[index] = {
+		  ...updatedRows[index],
+		  [field]: value // Update the field (taskTiming in this case)
+		};
+	  
+		setTaskRows(updatedRows);  // Make sure the rows are updated properly
+	  };
+	  
 
 	const handleRemoveTaskRow = (index: number) => {
 		const updatedRows = taskRows.filter((_, i) => i !== index) // Remove the specific row
@@ -1542,6 +1545,7 @@ const TaskCondition: React.FC<ProcessCanvasProps> = ({
 									{taskRow.taskTiming === 'FromTask' && (
 										<>
 											<Col md={4}>
+											
 												<Form.Group controlId="previousTask" className="mb-2">
 													<Form.Label>Previous Task Number</Form.Label>
 													<Select

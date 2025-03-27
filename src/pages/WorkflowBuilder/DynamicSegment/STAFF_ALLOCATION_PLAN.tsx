@@ -1,6 +1,6 @@
 import config from '@/config';
 import axios from 'axios';
-import React, { useEffect, useState } from 'react';
+import React, { forwardRef, useEffect, useImperativeHandle, useState } from 'react';
 import { Form, Modal, Button } from 'react-bootstrap';
 import 'remixicon/fonts/remixicon.css';
 
@@ -12,6 +12,8 @@ interface DESIGNATION {
     jvPartnerCount: number;
     _3MonthTimeline: number;
     projectSectionBifurcation?: ProjectSectionBifurcation; // ✅ Corrected to hold full object
+    dynamicSelectRoles?: string[];
+    _3MonthRoles?: string[][];
 }
 
 interface DEPARTMENT {
@@ -56,9 +58,12 @@ const initialProjectSectionBifurcation: ProjectSectionBifurcation = {
     Section1Deck: 0,
     TotalSiteRequirement: 0,
 };
+interface OPTION {
+    specializedDesignation?: string;
+}
 
 // Component
-const STAFF_ALLOCATION_PLAN = () => {
+const STAFF_ALLOCATION_PLAN = forwardRef((props: any, ref) => {
     // State
     const [department, setDepartment] = useState<DEPARTMENT[]>([]);
     const [showModal, setShowModal] = useState(false);
@@ -76,6 +81,28 @@ const STAFF_ALLOCATION_PLAN = () => {
     const [projectSectionBifurcationData, setProjectSectionBifurcationData] = useState<ProjectSectionBifurcation>(initialProjectSectionBifurcation);
 
     const [confirmStaffAllocationPlan, setConfirmStaffAllocationPlan] = useState<string>("");
+
+    const [blockValue, setBlockValue] = useState<{ [key: string]: string }>({});
+
+    const [options, setOptions] = useState<OPTION[]>([]);
+
+    const getSpecializeRole = async (selectedRole: any) => {
+        try {
+            if (selectedRole.name) {
+                const response = await axios.get(`${config.API_URL_APPLICATION}/CommonDropdown/GetSpecializedDesignation?CoreDesignation=${selectedRole.name}`);
+                console.log('response', response)
+                if (response.data.isSuccess) {
+                    setOptions(response.data.getSpecializedDesignations);
+                }
+            }
+        } catch (error) {
+            console.error('Error fetching specialized roles:', error);
+        }
+    };
+
+    useEffect(() => {
+        getSpecializeRole(selectedRole);
+    }, [selectedRole]); // Re-fetch when the selected role changes
 
     function generateMonthData(): ThreeMonthData[] {
         const months: ThreeMonthData[] = [];
@@ -106,11 +133,21 @@ const STAFF_ALLOCATION_PLAN = () => {
 
     // Handle department role input change
     const handleInputChange = (departIndex: number, roleIndex: number, e: any) => {
+        const name = e.target.name;  // This will be in the format "block_number_number"
+        const value = e.target.value;
+
+        setBlockValue((prev) => ({
+            ...prev,
+            [name]: value,  // Create dynamic key using department and role index
+        }));
+        console.log(blockValue)
+
+        // Update the department state as well if needed
         const updatedDepartments = department.map((dept, dIndex) => {
             if (dIndex === departIndex) {
                 const updatedDesignations = dept.designation.map((role, rIndex) => {
                     if (rIndex === roleIndex) {
-                        return { ...role, [e.target.name]: Number(e.target.value) };
+                        return { ...role, [name]: Number(value) };
                     }
                     return role;
                 });
@@ -121,6 +158,7 @@ const STAFF_ALLOCATION_PLAN = () => {
 
         setDepartment(updatedDepartments);
     };
+
 
     // Modal Handlers
     const handleCloseModal = () => {
@@ -154,39 +192,64 @@ const STAFF_ALLOCATION_PLAN = () => {
         const updatedDepartments = [...department];
         const roleToUpdate = updatedDepartments[selectedDeptIndex].designation[selectedRoleIndex];
 
+        // Save the availableAtSite count
         roleToUpdate.availableatSite = availableAtSiteInput;
 
-        console.log('Selected dropdown values:', dynamicSelectValues);
+        // Save dynamic select values (worker, supervisor, foreman)
+        roleToUpdate.dynamicSelectRoles = dynamicSelectValues;
+
+        // ✅ Update blockValue to keep track of dynamic selections
+        const key = `availableatSite_${selectedDeptIndex}_${selectedRoleIndex}`;
+        setBlockValue((prev) => ({
+            ...prev,
+            [key]: availableAtSiteInput.toString(),
+            [`dynamicSelectRoles_${selectedDeptIndex}_${selectedRoleIndex}`]: JSON.stringify(dynamicSelectValues), // Save dynamic roles
+        }));
+
+        console.log('Selected dropdown values:', dynamicSelectValues); // Log dynamic selects
+        console.log('Block Values:', blockValue);  // Log updated block values
 
         setDepartment(updatedDepartments);
         handleCloseModal();
     };
 
+
+
+
+
     const handleDynamicSelectChange = (index: number, value: string) => {
         const updatedValues = [...dynamicSelectValues];
-        updatedValues[index] = value;
+        updatedValues[index] = value; // Update the value for the corresponding dropdown
         setDynamicSelectValues(updatedValues);
     };
 
+
+
     const renderDynamicSelects = () => {
-        if (selectedDeptIndex === null || selectedRoleIndex === null) return;
+        if (selectedDeptIndex === null || selectedRoleIndex === null) return null;
+
+
 
         return [...Array(availableAtSiteInput)].map((_, i) => (
             <Form.Group key={i} className="mb-2">
                 <Form.Label>Select Option {i + 1}</Form.Label>
                 <Form.Control
                     as="select"
-                    value={dynamicSelectValues[i] || ''}
-                    onChange={(e) => handleDynamicSelectChange(i, e.target.value)}
+                    value={dynamicSelectValues[i] || ''} // Set the selected value from dynamicSelectValues state
+                    onChange={(e) => handleDynamicSelectChange(i, e.target.value)} // Update dynamic select values
                 >
                     <option value="">Select</option>
-                    <option value="Worker">Worker</option>
-                    <option value="Supervisor">Supervisor</option>
-                    <option value="Foreman">Foreman</option>
+                    {options.map((optionValue, index) => (
+                        // <option>{JSON.stringify(optionValue.specializedDesignation)}</option>
+                        <option key={index} value={optionValue.specializedDesignation}>{optionValue.specializedDesignation}</option>
+                    ))}
                 </Form.Control>
             </Form.Group>
         ));
     };
+
+
+
 
     // 3 Month Input Change
     const handleThreeMonthInputChange = (index: number, field: string, value: any) => {
@@ -210,20 +273,49 @@ const STAFF_ALLOCATION_PLAN = () => {
         setThreeMonthData(updatedData);
     };
 
+
     const handleSaveThreeMonthData = () => {
         console.log('Saving 3 month data:', threeMonthData);
-
+    
         if (selectedDeptIndex === null || selectedRoleIndex === null) return;
-
+    
         const updatedDepartments = [...department];
         const roleToUpdate = updatedDepartments[selectedDeptIndex].designation[selectedRoleIndex];
-
-        const totalTimeline = threeMonthData.reduce((acc, curr) => acc + curr.count, 0);
-        roleToUpdate._3MonthTimeline = totalTimeline;
-
+    
+        // Save the total count
+        roleToUpdate._3MonthTimeline = threeMonthData.reduce((acc, curr) => acc + curr.count, 0);
+    
+        // Save the dynamic roles
+        roleToUpdate._3MonthRoles = threeMonthData.map(data => data.roles);
+    
+        // ✅ Break into individual month entries
+        const newBlockValues: { [key: string]: string } = {};
+    
+        threeMonthData.forEach((data, monthIndex) => {
+            const baseKey = `threeMonthData_${monthIndex}_${selectedDeptIndex}_${selectedRoleIndex}`;
+            newBlockValues[`${baseKey}_count`] = data.count.toString();
+    
+            data.roles.forEach((roleName, roleIndex) => {
+                const roleKey = `${baseKey}_role_${roleIndex}`;
+                newBlockValues[roleKey] = roleName;
+            });
+        });
+    
+        // Save entire 3 month array too (optional)
+        const arrayKey = `threeMonthData_${selectedDeptIndex}_${selectedRoleIndex}`;
+        newBlockValues[arrayKey] = JSON.stringify(threeMonthData);
+    
+        // Merge with blockValue
+        setBlockValue((prev) => ({
+            ...prev,
+            ...newBlockValues,
+        }));
+    
         setDepartment(updatedDepartments);
         handleCloseThreeMonthModal();
     };
+    
+
 
     // Project Section Bifurcation Input
     const calculateTotalSiteRequirement = (data: ProjectSectionBifurcation) => {
@@ -250,48 +342,114 @@ const STAFF_ALLOCATION_PLAN = () => {
 
     const handleSaveProjectSectionBifurcationData = () => {
         console.log('Saving Project Section Bifurcation Data:', projectSectionBifurcationData);
-
+    
         if (selectedDeptIndex === null || selectedRoleIndex === null) return;
-
+    
         const updatedDepartments = [...department];
         const roleToUpdate = updatedDepartments[selectedDeptIndex].designation[selectedRoleIndex];
-
+    
         roleToUpdate.projectSectionBifurcation = { ...projectSectionBifurcationData };
-
+    
+        // ✅ Save to blockValue
+        const newBlockValues: { [key: string]: string } = {};
+        Object.entries(projectSectionBifurcationData).forEach(([section, value]) => {
+            const key = `projectSection_${section}_${selectedDeptIndex}_${selectedRoleIndex}`;
+            newBlockValues[key] = value.toString();
+        });
+    
+        setBlockValue((prev) => ({
+            ...prev,
+            ...newBlockValues,
+        }));
+    
         setDepartment(updatedDepartments);
         handleCloseProjectSectionBifurcationModal();
     };
+    
 
     // Modal Openers
     const handleOpenModal = (departIndex: number, roleIndex: number, role: DESIGNATION) => {
         setSelectedRole(role);
         setSelectedDeptIndex(departIndex);
         setSelectedRoleIndex(roleIndex);
-        setAvailableAtSiteInput(role.availableatSite || 0);
-        setDynamicSelectValues(Array(role.availableatSite || 0).fill(''));
+
+        // Set the modal input based on blockValue or role.availableatSite
+        const key = `availableatSite_${departIndex}_${roleIndex}`;
+        const currentValue = blockValue[key] !== undefined
+            ? blockValue[key]
+            : role.availableatSite;
+
+        setAvailableAtSiteInput(Number(currentValue) || 0);
+
+        // Load dynamicSelectRoles from blockValue if it exists
+        const dynamicRolesKey = `dynamicSelectRoles_${departIndex}_${roleIndex}`;
+        const storedRoles = blockValue[dynamicRolesKey];
+        if (storedRoles) {
+            setDynamicSelectValues(JSON.parse(storedRoles)); // Deserialize the stored string back into an array
+        } else {
+            setDynamicSelectValues(Array(Number(currentValue) || 0).fill('')); // Default to an empty array
+        }
+
         setShowModal(true);
     };
+
+
 
     const handleOpenThreeMonthModal = (departIndex: number, roleIndex: number, role: DESIGNATION) => {
         setSelectedRole(role);
         setSelectedDeptIndex(departIndex);
         setSelectedRoleIndex(roleIndex);
+
+        // Set the 3-month data based on blockValue
+        const key = `threeMonthData_${departIndex}_${roleIndex}`;
+        const storedThreeMonthData = blockValue[key];
+        if (storedThreeMonthData) {
+            setThreeMonthData(JSON.parse(storedThreeMonthData)); // Deserialize the stored string back into an array
+        } else {
+            setThreeMonthData(generateMonthData()); // Default to an empty array
+        }
+
         setShowThreeMonthModal(true);
     };
+
 
     const handleOpenProjectSectionBifurcationModal = (departIndex: number, roleIndex: number, role: DESIGNATION) => {
         setSelectedRole(role);
         setSelectedDeptIndex(departIndex);
         setSelectedRoleIndex(roleIndex);
-
-        setProjectSectionBifurcationData(role.projectSectionBifurcation || initialProjectSectionBifurcation);
-
+    
+        const updatedBifurcation: ProjectSectionBifurcation = { ...initialProjectSectionBifurcation };
+    
+        Object.keys(initialProjectSectionBifurcation).forEach((section) => {
+            const key = `projectSection_${section}_${departIndex}_${roleIndex}`;
+            if (blockValue[key] !== undefined) {
+                updatedBifurcation[section as keyof ProjectSectionBifurcation] = Number(blockValue[key]);
+            } else if (role.projectSectionBifurcation) {
+                updatedBifurcation[section as keyof ProjectSectionBifurcation] =
+                    role.projectSectionBifurcation[section as keyof ProjectSectionBifurcation] || 0;
+            }
+        });
+    
+        setProjectSectionBifurcationData(updatedBifurcation);
         setShowProjectSectionBifurcationModal(true);
     };
+    
 
-    const getDepartmentTotalEstimate = (dept: DEPARTMENT): number => {
-        return dept.designation.reduce((total, designation) => total + (designation.asPerEstimate || 0), 0);
+    const getDepartmentTotalEstimate = (dept: DEPARTMENT, departIndex: number, selection: string): number => {
+        // Sum values from block_0_ keys in blockValue
+        const totalBlockValue = Object.entries(blockValue)
+            .filter(([key]) => key.startsWith(`${selection}_${departIndex}_`))  // Filter block_0_* keys
+            .reduce((total, [key, value]) => total + (Number(value) || 0), 0);  // Sum values
+
+        const totalEstimateFromDept = dept.designation.reduce(
+            (total, designation) => total + (designation.asPerEstimate || 0),
+            0
+        );
+
+        // Return the sum of total block values and the department's estimate
+        return totalBlockValue + totalEstimateFromDept;
     };
+
 
     const getDepartmentDesignation = async () => {
         try {
@@ -311,6 +469,10 @@ const STAFF_ALLOCATION_PLAN = () => {
     useEffect(() => {
         getDepartmentDesignation();
     }, []);
+
+    useImperativeHandle(ref, () => ({
+        STAFF_ALLOCATION_PLAN: () => blockValue
+    }));
 
     return (
         <div>
@@ -334,10 +496,10 @@ const STAFF_ALLOCATION_PLAN = () => {
                         <React.Fragment key={depart.name}>
                             <tr>
                                 <td>{depart.name}</td>
-                                <td>{getDepartmentTotalEstimate(depart)}</td>
+                                <td>{getDepartmentTotalEstimate(depart, departIndex, 'asPerEstimate')}</td>
                                 <td>0</td>
-                                <td>0</td>
-                                <td>0</td>
+                                <td>{getDepartmentTotalEstimate(depart, departIndex, 'availableatSite')}</td>
+                                <td>{getDepartmentTotalEstimate(depart, departIndex, 'jvPartnerCount')}</td>
                                 <td>0</td>
                                 <td>0</td>
                                 <td>Submit/Edit</td>
@@ -357,8 +519,8 @@ const STAFF_ALLOCATION_PLAN = () => {
                                     <td>
                                         <Form.Control
                                             type="number"
-                                            name="asPerEstimate"
-                                            value={role.asPerEstimate}
+                                            name={`asPerEstimate_${departIndex}_${roleIndex}`}  // Dynamic name here
+                                            value={blockValue[`asPerEstimate_${departIndex}_${roleIndex}`]}
                                             onChange={(e) => handleInputChange(departIndex, roleIndex, e)}
                                             placeholder="Enter Estimate"
                                         />
@@ -366,14 +528,17 @@ const STAFF_ALLOCATION_PLAN = () => {
                                     <td>0</td>
                                     <td>
                                         <Button variant="link" onClick={() => handleOpenModal(departIndex, roleIndex, role)}>
-                                            {role.availableatSite}
+                                            {blockValue[`availableatSite_${departIndex}_${roleIndex}`] !== undefined
+                                                ? blockValue[`availableatSite_${departIndex}_${roleIndex}`]
+                                                : role.availableatSite || 0}
                                         </Button>
                                     </td>
+
                                     <td>
                                         <Form.Control
                                             type="number"
-                                            value={role.jvPartnerCount}
-                                            name="jvPartnerCount"
+                                            name={`jvPartnerCount_${departIndex}_${roleIndex}`}  // Dynamic name here
+                                            value={blockValue[`jvPartnerCount_${departIndex}_${roleIndex}`]}
                                             onChange={(e) => handleInputChange(departIndex, roleIndex, e)}
                                             placeholder="Enter JV Count"
                                         />
@@ -394,11 +559,12 @@ const STAFF_ALLOCATION_PLAN = () => {
                             ))}
                         </React.Fragment>
                     ))}
+
                 </tbody>
             </table>
 
-             {/* Available at Site Modal */}
-             <Modal show={showModal} onHide={handleCloseModal} centered>
+            {/* Available at Site Modal */}
+            <Modal show={showModal} onHide={handleCloseModal} centered>
                 <Modal.Header closeButton>
                     <Modal.Title>Update Available at Site</Modal.Title>
                 </Modal.Header>
@@ -406,7 +572,6 @@ const STAFF_ALLOCATION_PLAN = () => {
                     {selectedRole ? (
                         <>
                             <p><strong>Designation Name:</strong> {selectedRole.name}</p>
-
                             <Form.Group>
                                 <Form.Label>Available at Site</Form.Label>
                                 <Form.Control
@@ -421,7 +586,20 @@ const STAFF_ALLOCATION_PLAN = () => {
                                     placeholder="Enter count"
                                 />
                             </Form.Group>
-
+                            {/* <Form.Group>
+                                <Form.Label>Available at Site</Form.Label>
+                                <Form.Control
+                                    type="number"
+                                    min="0"
+                                    value={availableAtSiteInput}
+                                    onChange={(e) => {
+                                        const count = Number(e.target.value);
+                                        setAvailableAtSiteInput(count);
+                                        setDynamicSelectValues(Array(count).fill(''));
+                                    }}
+                                    placeholder="Enter count"
+                                />
+                            </Form.Group> */}
                             {renderDynamicSelects()}
                         </>
                     ) : (
@@ -520,6 +698,6 @@ const STAFF_ALLOCATION_PLAN = () => {
             </Form.Group>
         </div>
     );
-};
+});
 
 export default STAFF_ALLOCATION_PLAN;
