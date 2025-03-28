@@ -1,9 +1,6 @@
-import { useState } from "react";
+import { useState, forwardRef, useImperativeHandle } from "react";
 import { Col, Form, Row } from "react-bootstrap";
 import Select, { SingleValue } from 'react-select';
-// import Flatpickr from 'react-flatpickr';
-
-
 
 interface AppointmentLetter {
     confirmationOfAppointmentLetterSentToEmployee: string;
@@ -14,46 +11,37 @@ const YES_NO_OPTIONS = [
     { label: "No", value: "no" }
 ];
 
-const APPOINTMENT_LETTER = () => {
-    const [appointmentLetter, setAppointmentLetter] = useState<AppointmentLetter>({
+const APPOINTMENT_LETTER = forwardRef((props: any, ref) => {
+    const [blockValue, setBlockValue] = useState<AppointmentLetter>({
         confirmationOfAppointmentLetterSentToEmployee: '',
     });
 
-    // const [transferredEmployeeList,] = useState([
-    //     { label: 'ddd', value: 'ererr' }
-    // ]);
-
-
-
-
-
-    // Handle Select Changes
+    // Handle Select Changes dynamically
     const handleSelectChange = (
         selectedOption: SingleValue<{ label: string; value: string }>,
         fieldName: keyof AppointmentLetter
     ) => {
-        setAppointmentLetter(prev => ({
+        setBlockValue(prev => ({
             ...prev,
             [fieldName]: selectedOption ? selectedOption.value : '',
         }));
     };
 
-    // const handleDateChange = (selectedDates: Date[]) => {
-    //     setUpdateEmployee(prev => ({
-    //         ...prev,
-    //         transferredDate: selectedDates.length > 0 ? selectedDates[0].toISOString().split('T')[0] : ''
-    //     }));
-    // };
+    // Expose blockValue to parent component via useImperativeHandle
+    useImperativeHandle(ref, () => ({
+        APPOINTMENT_LETTER: () => blockValue
+    }));
 
     return (
         <div>
             <Row>
+                {/* Confirmation of Appointment Letter Sent */}
                 <Col lg={4}>
                     <Form.Group controlId="confirmationOfAppointmentLetterSentToEmployee">
                         <Form.Label>Confirmation of Appointment Letter Sent to Employee</Form.Label>
                         <Select
                             options={YES_NO_OPTIONS}
-                            value={YES_NO_OPTIONS.find(option => option.value === appointmentLetter.confirmationOfAppointmentLetterSentToEmployee)}
+                            value={YES_NO_OPTIONS.find(option => option.value === blockValue.confirmationOfAppointmentLetterSentToEmployee)}
                             onChange={(selectedOption) => handleSelectChange(selectedOption, "confirmationOfAppointmentLetterSentToEmployee")}
                             placeholder="Select Yes or No"
                         />
@@ -62,6 +50,6 @@ const APPOINTMENT_LETTER = () => {
             </Row>
         </div>
     );
-};
+});
 
 export default APPOINTMENT_LETTER;

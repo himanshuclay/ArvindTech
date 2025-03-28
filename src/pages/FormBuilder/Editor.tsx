@@ -13,10 +13,11 @@ import { Button } from 'react-bootstrap';
 import DateRange from './Components/DateRange';
 import FileUpload from './Components/FileUpload';
 import DateInput from './Components/DateInput';
-import MultiSelect from './Components/MultiSelect';
+import MultiSelectDropdown from './Components/MultiSelect';
 import AmountInput from './Components/AmountInput';
 import FloatInput from './Components/FloatInput';
 import Looper from './Components/Looper';
+import { speak } from '@/utils/speak';
 
 
 
@@ -37,6 +38,7 @@ interface DynamicComponentProps {
     block: BASIC_FIELD;
     form: FIELD;
     setForm: React.Dispatch<React.SetStateAction<FIELD>>;
+    setProperty: React.Dispatch<React.SetStateAction<PROPERTY>>;
     handleChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>, id: string) => void;
     validationErrors: { [key: string]: string };
     blockValue: BLOCK_VALUE;
@@ -53,13 +55,13 @@ const componentsMap = {
     DateRange,
     FileUpload,
     DateInput,
-    MultiSelect,
+    MultiSelectDropdown,
     AmountInput,
     FloatInput,
     Looper,
 };
 
-const DynamicComponentRenderer: React.FC<DynamicComponentProps> = ({ form, setForm, componentType, block, handleChange, validationErrors, blockValue, setBlockValue }) => {
+const DynamicComponentRenderer: React.FC<DynamicComponentProps> = ({ form, setForm, componentType, block, handleChange, validationErrors, blockValue, setBlockValue, setProperty }) => {
     const ComponentToRender = componentsMap[componentType];
 
     if (!ComponentToRender) {
@@ -78,6 +80,7 @@ const DynamicComponentRenderer: React.FC<DynamicComponentProps> = ({ form, setFo
             setBlockValue={setBlockValue}
             form={form}
             setForm={setForm}
+            setProperty={setProperty}
         />
         //     </fieldset>
         // </div>
@@ -148,6 +151,7 @@ const Editor: React.FC<EditorProps> = ({ form, setForm, property, setProperty, b
         // Check if dropped in main editor area
         if (dropZone === "Editor") {
             droppedField.property.id = `Block_${form.blockCount + 1}`;
+            speak(`${droppedField.is} dropped successfully`);
 
             setForm(prevForm => ({
                 ...prevForm,
@@ -330,7 +334,7 @@ const Editor: React.FC<EditorProps> = ({ form, setForm, property, setProperty, b
         >
             <fieldset disabled={isPreview}>
                 <div className='d-flex flex-wrap'>
-
+                    {/* {JSON.stringify(form.blocks)} */}
 
                     {form.blocks.length === 0 ? (
                         <p className="text-gray-400">Drag fields here...</p>
@@ -361,6 +365,7 @@ const Editor: React.FC<EditorProps> = ({ form, setForm, property, setProperty, b
                                     <DynamicComponentRenderer
                                         form={form}
                                         setForm={setForm}
+                                        setProperty={setProperty}
                                         componentType={block.is}
                                         block={block}
                                         handleChange={handleChange}
