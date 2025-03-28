@@ -6,6 +6,7 @@ import Select from 'react-select';
 import { Handle, Position } from 'reactflow';
 import { ASSIGN_DOER_TYPE, TASK_CREATION_TYPE, TIME_MANAGEMENT_OPTION, WEEKS } from "./Constant";
 import Flatpickr from 'react-flatpickr';
+import { speak } from "@/utils/speak";
 
 interface DROP_DOWN {
     empId: string;
@@ -142,19 +143,30 @@ const CustomNode = ({ data, id, setNodes, edges }: { data: any; id: string; setN
 
     const handleTaskTimeChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
         console.log(e.target.value);  // Log the new value
-    
+
         // Update the state with the changed value
         setNodeSetting((prev) => ({
             ...prev,
             [e.target.name]: e.target.value,  // Dynamically update the field in the state
         }));
     };
-    
 
+    const getBorderStyle = () => {
+        if (!nodeSetting.assignDoerType || nodeSetting.assignDoerType.trim() === '') {
+            return { border: '2px solid red' };
+        }
+        return {};
+    };
+
+    useEffect(() => {
+        if (!nodeSetting.assignDoerType) {
+          speak("Please assign a doer type for this node.");
+        }
+      }, [showSettings]); // when settings modal opens
 
 
     return (
-        <div className="custom-node">
+        <div className="custom-node" style={getBorderStyle()}>
             {/* Settings Icon */}
             <button className="settings-button" onClick={(e) => { e.stopPropagation(); setShowSettings(!showSettings); }}>
                 <i className="ri-settings-3-fill"></i>
@@ -209,7 +221,7 @@ const CustomNode = ({ data, id, setNodes, edges }: { data: any; id: string; setN
                         </Form.Group>
                         {nodeSetting.assignDoerType === 'fixedDoer' && (
                             <Form.Group>
-                                <Form.Label>Assign Doer</Form.Label>
+                                <Form.Label>Assign Doer*</Form.Label>
                                 <Select
                                     options={doerList}
                                     value={doerList.find(option => option.value === nodeSetting.doer)}
@@ -386,6 +398,12 @@ const CustomNode = ({ data, id, setNodes, edges }: { data: any; id: string; setN
                     </div>
                 ))}
             </div>
+            {!nodeSetting.assignDoerType && (
+                <div style={{ color: 'red', fontSize: '12px', marginTop: '4px' }}>
+                    ⚠️ Assign Doer Type is required
+                </div>
+            )}
+
         </div>
     );
 };

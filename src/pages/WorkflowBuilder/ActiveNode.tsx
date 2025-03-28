@@ -12,6 +12,9 @@ import INDUCTION from "./DynamicSegment/INDUCTION";
 import UPDATE_EMPLOYEE from "./DynamicSegment/UPDATE_EMPLOYEE";
 import APPOINTMENT_LETTER from "./DynamicSegment/APPOINTMENT_LETTER";
 import ASSIGN_TASK from "./DynamicSegment/ASSIGN_TASK";
+import axios from "axios";
+import config from "@/config";
+import { toast } from "react-toastify";
 
 const ActiveNode = ({ activeNode, activeTaskId, setActiveNode, completedNodes, setCompletedNodes }: { activeNode: any; activeTaskId: number; setActiveNode: (value: any) => void; completedNodes: any; setCompletedNodes: (value: any) => void; }) => {
     const [form, setForm] = useState<FIELD>(
@@ -79,14 +82,14 @@ const ActiveNode = ({ activeNode, activeTaskId, setActiveNode, completedNodes, s
                 query["outputLabel"] = filteredOutputLabels;
             }
             console.log('query', query);
-            // const response = await axios.post(
-            //     `${config.API_URL_ACCOUNT}/ProcessInitiation/UpdateTemplateJson`,
-            //     query
-            // );
-            // if (response.data.isSuccess) {
-            //     toast.success(response.data.message);
-            //     setActiveNode("");
-            // }
+            const response = await axios.post(
+                `${config.API_URL_ACCOUNT}/ProcessInitiation/UpdateTemplateJson`,
+                query
+            );
+            if (response.data.isSuccess) {
+                toast.success(response.data.message);
+                setActiveNode("");
+            }
 
 
         } catch (error) {

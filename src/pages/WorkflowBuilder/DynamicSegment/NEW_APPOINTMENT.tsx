@@ -2,6 +2,7 @@ import { forwardRef, useImperativeHandle, useState } from "react";
 import { Col, Form, Row, Button } from "react-bootstrap";
 import Select from 'react-select';
 import Flatpickr from 'react-flatpickr';
+import { speak } from "@/utils/speak"; // ✅ Make sure this path is correct
 
 const YES_NO_OPTIONS = [
     { label: "Yes", value: "yes" },
@@ -14,7 +15,6 @@ interface Candidate {
     resume?: string | null;
 }
 
-// Define BlockValue type with an index signature
 interface BlockValue {
     updateInterviewedCandidates: { [key: string]: Candidate };
     finalizedCandidate: string;
@@ -26,11 +26,11 @@ interface BlockValue {
     messFoodingPolicy: string;
     confirmationOfStaffDeployedAtSite: string;
     dateOfJoining: string;
-    [key: string]: string | { [key: string]: Candidate } | undefined;  // Index signature for dynamic keys
+    [key: string]: string | { [key: string]: Candidate } | undefined;
 }
 
 const NEW_APPOINTMENT = forwardRef((props: any, ref) => {
-    const [blockValue, setBlockValue] = useState<BlockValue>({
+    const [blockValue, setBlockValue] = useState<BlockValue>(props.blockValue ? props.blockValue :{
         updateInterviewedCandidates: {},
         finalizedCandidate: '',
         attendanceAndWorkingHoursPolicy: '',
@@ -43,37 +43,52 @@ const NEW_APPOINTMENT = forwardRef((props: any, ref) => {
         dateOfJoining: '',
     });
 
-    // Add New Candidate
     const handleAddUpdateInterviewedCandidates = () => {
         const newCandidateValue = `Candidate ${Object.keys(blockValue.updateInterviewedCandidates).length + 1}`;
         setBlockValue(prev => ({
             ...prev,
             updateInterviewedCandidates: {
                 ...prev.updateInterviewedCandidates,
-                [newCandidateValue]: { label: newCandidateValue } // Initialize new candidate dynamically
+                [newCandidateValue]: { label: newCandidateValue }
             }
         }));
+        speak(`${newCandidateValue} added`);
     };
 
-    // Update Candidate Fields
     const handleInputChange = (key: string, value: string) => {
-        setBlockValue(prev => ({
-            ...prev,
-            [key]: value,
-        }));
+        const keys = key.split('.');
+        if (keys.length === 3 && keys[0] === 'updateInterviewedCandidates') {
+            const [_, candidateKey, fieldKey] = keys;
+
+            if (fieldKey === 'label') {
+                speak(`Candidate name updated to ${value}`);
+            }
+
+            setBlockValue(prev => ({
+                ...prev,
+                updateInterviewedCandidates: {
+                    ...prev.updateInterviewedCandidates,
+                    [candidateKey]: {
+                        ...prev.updateInterviewedCandidates[candidateKey],
+                        [fieldKey]: value
+                    }
+                }
+            }));
+        } else {
+            setBlockValue(prev => ({
+                ...prev,
+                [key]: value,
+            }));
+        }
     };
 
-    // Handle Select Changes for Policies
     const handleSelectChange = (selectedOption: any, fieldName: string) => {
         setBlockValue(prev => ({
             ...prev,
             [fieldName]: selectedOption ? selectedOption.value : '',
         }));
-        console.log('blockValue', blockValue)
-
     };
 
-    // Handle Date Change for Flatpickr
     const handleDateChange = (selectedDates: Date[]) => {
         setBlockValue(prev => ({
             ...prev,
@@ -81,16 +96,15 @@ const NEW_APPOINTMENT = forwardRef((props: any, ref) => {
         }));
     };
 
-    // Handle File Change with correct type casting
     const handleFileChange = (candidateKey: string, event: React.ChangeEvent<HTMLInputElement>) => {
-        const file = event.target.files?.[0] || null; // Explicitly cast event target to HTMLInputElement to access files
+        const file = event.target.files?.[0] || null;
         setBlockValue(prev => ({
             ...prev,
             updateInterviewedCandidates: {
                 ...prev.updateInterviewedCandidates,
                 [candidateKey]: {
                     ...prev.updateInterviewedCandidates[candidateKey],
-                    resume: file ? file.name : '', // Store file name or empty string
+                    resume: file ? file.name : '',
                 }
             }
         }));
@@ -99,7 +113,8 @@ const NEW_APPOINTMENT = forwardRef((props: any, ref) => {
     const handleRemoveCandidate = (candidateKey: string) => {
         setBlockValue(prev => {
             const updatedCandidates = { ...prev.updateInterviewedCandidates };
-            delete updatedCandidates[candidateKey];  // Remove candidate from the object
+            delete updatedCandidates[candidateKey];
+            speak(`${candidateKey} removed`);
             return {
                 ...prev,
                 updateInterviewedCandidates: updatedCandidates,
@@ -110,7 +125,6 @@ const NEW_APPOINTMENT = forwardRef((props: any, ref) => {
     useImperativeHandle(ref, () => ({
         NEW_APPOINTMENT: () => blockValue
     }));
-
 
     return (
         <div>
@@ -139,7 +153,7 @@ const NEW_APPOINTMENT = forwardRef((props: any, ref) => {
                                 />
                                 <Form.Control
                                     type="file"
-                                    onChange={(e) => handleFileChange(candidateKey, e as React.ChangeEvent<HTMLInputElement>)} // Type casting here
+                                    onChange={(e) => handleFileChange(candidateKey, e as React.ChangeEvent<HTMLInputElement>)}
                                 />
                                 <Button variant="danger" size="sm" onClick={() => handleRemoveCandidate(candidateKey)}>
                                     Remove
@@ -150,27 +164,32 @@ const NEW_APPOINTMENT = forwardRef((props: any, ref) => {
                 </Col>
 
                 <Col lg={6}>
-                    {/* Finalized Candidate Selection */}
                     <Form.Group controlId="finalizedCandidate">
                         <Form.Label>Select Finalized Candidate</Form.Label>
                         <Select
                             name="finalizedCandidate"
-                            value={blockValue.finalizedCandidate ? { label: blockValue.finalizedCandidate, value: blockValue.finalizedCandidate } : null}
+                            value={
+                                blockValue.finalizedCandidate
+                                    ? {
+                                        label: blockValue.updateInterviewedCandidates[blockValue.finalizedCandidate]?.label || blockValue.finalizedCandidate,
+                                        value: blockValue.finalizedCandidate,
+                                    }
+                                    : null
+                            }
                             onChange={(selectedOption) => handleSelectChange(selectedOption, "finalizedCandidate")}
                             options={Object.keys(blockValue.updateInterviewedCandidates).map((key) => ({
-                                label: key,
-                                value: key
+                                label: blockValue.updateInterviewedCandidates[key]?.label || key,
+                                value: key,
                             }))}
                             isSearchable={true}
                             placeholder="Select Candidate"
                         />
+
                     </Form.Group>
                 </Col>
 
                 <Col lg={6}>
                     <h5>Finalized Candidate has agreed on the below policies:</h5>
-
-                    {/* Policies as Select Dropdowns */}
                     {Object.keys(blockValue).filter(key => key !== 'updateInterviewedCandidates' && key !== 'finalizedCandidate' && key !== 'dateOfJoining').map((policyKey) => (
                         <Form.Group key={policyKey}>
                             <Form.Label>{policyKey.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}</Form.Label>
@@ -183,7 +202,6 @@ const NEW_APPOINTMENT = forwardRef((props: any, ref) => {
                         </Form.Group>
                     ))}
 
-                    {/* Date of Joining Field */}
                     <Form.Group>
                         <Form.Label>Date of Joining</Form.Label>
                         <Flatpickr
