@@ -763,6 +763,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
 
 
             // Handle other input types
+            console.log('input.type', input.type);
             switch (input.type) {
                 case 'text':
                 case 'textarea':
@@ -779,6 +780,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                     break
             }
 
+            console.log('updatedValue',inputId, excludedInputIds, excludedInputIds.includes(inputId));
             // Update formState
             setFormState((prevState) => {
                 const newState = {
@@ -787,6 +789,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                         ? {}
                         : { [inputId]: updatedValue }),
                 }
+                console.log(newState);
 
                 if (!excludedInputIds.includes(inputId)) {
                     const updatedTaskJson = {
@@ -799,6 +802,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                                     : input.value,
                         })),
                     }
+                    console.log(updatedTaskJson);
                     setglobalTaskJson(updatedTaskJson)
                 }
 
@@ -813,6 +817,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                 console.log("this is final condition", selectedCondition);
                 return newState
             })
+            console.log(formState);
         }
     }
 
@@ -1746,14 +1751,15 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                                                                 }}
                                                             />
                                                         )}
+                                                        formState{JSON.stringify(formState[input.inputId] != '')}
                                                         {input.type === 'select' && (
                                                             <select
                                                                 id={input.inputId}
                                                                 className="form-select form-control"
                                                                 value={
-                                                                    input.value !== ''
-                                                                        ? input.value
-                                                                        : formState[input.inputId] || ''
+                                                                    formState && formState[input.inputId] != ''
+                                                                        ?formState[input.inputId] || input.value || ''
+                                                                        :  input.value || ''
                                                                 }
                                                                 onChange={(e) =>
                                                                     handleChange(input.inputId, e.target.value)

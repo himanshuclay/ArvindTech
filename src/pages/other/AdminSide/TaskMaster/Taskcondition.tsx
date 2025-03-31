@@ -25,7 +25,7 @@ interface TaskData {
 	task_Number: string
 	task_Status: number
 	problem_Solver: string
-	finishPoint: number
+	finishPoint: string
 	condition_Json: string // JSON string
 	isExpired: number
 	template_Json: string // JSON string
@@ -105,7 +105,7 @@ const TaskCondition: React.FC<ProcessCanvasProps> = ({
 	const [ModuleId, setModuleId] = useState<string>('')
 	const [ProcessId, setProcessId] = useState<string>('')
 	const [parseData, setParseData] = useState<any>('') // Use `any` or the appropriate type here
-	const [parseDataForSingle, setParseDataForsingle] = useState(false) // Use `any` or the appropriate type here
+	const [parseDataForSingle, setParseDataForsingle] = useState<any>('') // Use `any` or the appropriate type here
 	const [sundayLogic, setSundayLogic] = useState<any>('') // Use `any` or the appropriate type here
 	const [expiryLogic, setExpiryLogic] = useState<any>('') // Use `any` or the appropriate type here
 	const [expirationTime, setExpirationTime] = useState<any>('') // Use `any` or the appropriate type here
@@ -149,6 +149,8 @@ const TaskCondition: React.FC<ProcessCanvasProps> = ({
 		}
 	}, [parseData?.options, parseDataForSingle])
 
+	console.log("this i have to update", parseData);
+
 	const [dropdownValuesFlag2, setDropdownValuesFlag2] = useState<
 		GetTypeDayTimeList[]
 	>([])
@@ -166,7 +168,7 @@ const TaskCondition: React.FC<ProcessCanvasProps> = ({
 		WeekDay: '',
 		time: '',
 	});
-	
+
 
 	const handleAddTaskRow = () => {
 		setTaskRows([
@@ -189,15 +191,15 @@ const TaskCondition: React.FC<ProcessCanvasProps> = ({
 
 	const handleTaskFieldChange = (index: number, field: keyof TaskSelections, value: string | undefined) => {
 		const updatedRows = [...taskRows];  // Assuming you're using taskRows for managing row data
-	  
+
 		updatedRows[index] = {
-		  ...updatedRows[index],
-		  [field]: value // Update the field (taskTiming in this case)
+			...updatedRows[index],
+			[field]: value // Update the field (taskTiming in this case)
 		};
-	  
+
 		setTaskRows(updatedRows);  // Make sure the rows are updated properly
-	  };
-	  
+	};
+
 
 	const handleRemoveTaskRow = (index: number) => {
 		const updatedRows = taskRows.filter((_, i) => i !== index) // Remove the specific row
@@ -239,38 +241,59 @@ const TaskCondition: React.FC<ProcessCanvasProps> = ({
 		}
 	}
 
+	// const [parseDataForsingle, setParseDataForsingle] = useState<any[]>([]);  // State is an array
+
 	useEffect(() => {
 		if (singleData.length > 0 && singleData[0].task_Json) {
-			const inputs = JSON.parse(singleData[0].task_Json).inputs || []
+			const inputs = JSON.parse(singleData[0].task_Json).inputs || [];
+
+			console.log("this is it", singleData[0]?.finishPoint);
 
 			if (Array.isArray(inputs) && singleData[0]?.finishPoint) {
-				// Check for 'select' type
-				const resultOptionSelect = inputs.find(
-					(input: any) =>
-						input.inputId === singleData[0]?.finishPoint?.toString() &&
-						input.type === 'select'
-				)
-				setParseData(resultOptionSelect || null)
+				// Convert finishPoint to an array (split by commas if it's a string)
+				const finishPoints = Array.isArray(singleData[0]?.finishPoint)
+					? singleData[0]?.finishPoint
+					: singleData[0]?.finishPoint?.toString().split(',').map(point => point.trim());
 
-				// Check for 'not select', 'radio', or 'multiselect' types
-				const resultOptionNonSelect = inputs.find(
-					(input: any) =>
-						input.inputId === singleData[0]?.finishPoint?.toString() &&
+				console.log('finishPoints:', finishPoints); // Debugging the finishPoints array
+
+				// Check if all finishPoints match inputId and the type is 'select'
+				const resultOptionSelect = inputs.filter((input: any) => {
+					// Convert inputId to string and trim any spaces
+					const inputId = input.inputId?.toString().trim();
+
+					// Ensure the type is 'select' and the inputId matches at least one finishPoint
+					return finishPoints.some(finishPoint => finishPoint === inputId) && input.type === 'select';
+				});
+
+				console.log('Filtered resultOptionSelect:', resultOptionSelect); // Log resultOptionSelect before state update
+
+				setParseData(resultOptionSelect);
+
+				console.log(parseData);
+
+				// Check for other input types like 'not select', 'radio', 'multiselect'
+				const resultOptionNonSelect = inputs.filter((input: any) => {
+					const inputId = input.inputId?.toString().trim();
+					return finishPoints.every(finishPoint => finishPoint === inputId) &&
 						input.type !== 'select' &&
 						input.type !== 'radio' &&
-						input.type !== 'multiselect'
-				)
-				setParseDataForsingle(resultOptionNonSelect || null)
+						input.type !== 'multiselect';
+				});
+
+				setParseDataForsingle(resultOptionNonSelect.length > 0 ? resultOptionNonSelect : []);
+				console.log(parseDataForSingle)
 			} else {
 				if (!Array.isArray(inputs)) {
-					console.error('inputs is not an array or is undefined')
+					console.error('inputs is not an array or is undefined');
 				}
 				if (!singleData[0]?.finishPoint) {
-					console.error('singleData.finishPoint is undefined or null')
+					console.error('singleData.finishPoint is undefined or null');
 				}
 			}
 		}
-	}, [singleData])
+	}, [singleData]);
+
 
 	const parseConditionJson = (singleData: TaskData[]) => {
 		if (singleData.length > 0 && singleData[0].condition_Json) {
@@ -282,6 +305,7 @@ const TaskCondition: React.FC<ProcessCanvasProps> = ({
 
 	useEffect(() => {
 		const conditionData = parseConditionJson(singleData)
+		console.log('conditionData', conditionData);
 		setParseConditionData(conditionData)
 	}, [show, taskID, singleData])
 
@@ -413,23 +437,27 @@ const TaskCondition: React.FC<ProcessCanvasProps> = ({
 		setPreviousTask(selectedOption?.value ?? null)
 	}
 
-	const handleChange = (index: number | null, field: string, value: any) => {
-		const updatedSelections = [...taskSelections]
+	const handleChange = (index: number | null, { name, value }: { name: string, value: any }) => {
+		const updatedSelections = [...taskSelections];
+
+		console.log("yha dekh bhai",index,value,name);
 
 		if (index !== null) {
 			updatedSelections[index] = {
 				...updatedSelections[index],
-				[field]: value,
-			}
+				[name]: value,  // Dynamically set the property based on `name`
+			};
 		} else {
 			updatedSelections[0] = {
 				...updatedSelections[0],
-				[field]: value,
-			}
+				[name]: value,  // Dynamically set the property based on `name`
+			};
 		}
 
-		setTaskSelections(updatedSelections)
-	}
+		setTaskSelections(updatedSelections);
+	};
+
+
 
 	const updateTaskSelection = (field: keyof TaskSelections, value: any) => {
 		setTaskSelections((prevSelections: TaskSelections[]) => {
@@ -495,6 +523,59 @@ const TaskCondition: React.FC<ProcessCanvasProps> = ({
 			}
 		})
 		console.log(updatedConditionJsonFormatted)
+		const transformData = (data: any) => {
+			const result: any[] = [];
+			// let approvalTaskRow = {};
+		  
+			// Iterate over each object in the array
+			data.forEach((obj: any) => {
+			  let taskObject: any = {};
+			  let approvalObject: any = {};
+		  
+			  // Loop through all keys of the current object
+			  Object.keys(obj).forEach((key) => {
+				const match = key.match(/^(.+?)_(\d+)$/); // Match task keys like 'taskNumber_0', 'taskType_1'
+		  
+				if (match) {
+				  const [_, field, index] = match; // Extract field and index (e.g. taskNumber, taskType, etc.)
+				  const newKey = field; // We will use this as the property key in our final object
+		  
+				  // If this index doesn't exist in our result array yet, create it
+				  if (!taskObject[index]) {
+					taskObject[index] = {};
+				  }
+		  
+				  // Set the value in the correct task object at the specified index
+				  taskObject[index][newKey] = obj[key];
+				} else if (key === 'approvalTaskRow') {
+				  // If the key is 'approvalTaskRow', save the approval row for later
+				  approvalObject = obj[key];
+				}
+			  });
+		  
+			  // Combine task objects into the final result
+			  Object.keys(taskObject).forEach((index) => {
+				result.push({
+				  ...taskObject[index], // Spread the task object for this index
+				});
+			  });
+		  
+			  // Add the approval task row at the end
+			  if (approvalObject && Object.keys(approvalObject).length > 0) {
+				result.push({ approvalTaskRow: approvalObject });
+			  }
+			});
+		  
+			return result;
+		  };
+		  
+		  
+		  
+		  // Apply transformation
+		  const transformedData = transformData(updatedConditionJsonFormatted[0].taskSelections);
+		  console.log(JSON.stringify(transformedData, null, 2));
+		  updatedConditionJsonFormatted[0].taskSelections = transformedData;
+		  
 
 		const payload = {
 			...singleData[0],
@@ -616,11 +697,6 @@ const TaskCondition: React.FC<ProcessCanvasProps> = ({
 		value: item,
 		label: item
 	}));
-
-	console.log("Extracted Values:", extractedValues);
-	console.log("Extracted Options:", extractedOptions);
-
-
 
 
 	return (
@@ -844,283 +920,301 @@ const TaskCondition: React.FC<ProcessCanvasProps> = ({
 									/>
 								</Form.Group>
 							</Col>
-
-							{parseData?.options?.map((option: any, index: number) => {
+							{JSON.stringify(taskSelections)}
+							{parseData?.map((input: any, index: number) => {
 								return (
-									<Row key={index} className="bg-light m-2 p-2">
-										<Col lg={4}>
-											<Form.Group controlId="taskNumber" className="mb-3">
-												<Form.Label>
-													Select Successor Task For{' '}
-													<span style={{ color: option.color }}>
-														{' '}
-														{option.label}
-													</span>
-												</Form.Label>
-
-												<Select
-													name="taskNumber"
-													value={extractedOptions.find(
-														(item) => item.value === taskSelections[index]?.taskNumber
-													) || null}
-													onChange={(selectedOption) =>
-														handleChange(index, 'taskNumber', selectedOption?.value)
-													}
-													options={extractedOptions} // Use the converted array
-													getOptionLabel={(item) => item.label} // Extract label
-													getOptionValue={(item) => item.value} // Extract value
-													isSearchable={true}
-													placeholder="Select Option"
-													className="h45"
-												/>
-
-											</Form.Group>
-										</Col>
-
-										<Col lg={4}>
-											<Form.Group controlId="taskType" className="mb-3">
-												<Form.Label>Task Type</Form.Label>
-												<Select
-													name="taskType"
-													options={optionstaskType}
-													value={optionstaskType.find(
-														(option) =>
-															option.value === taskSelections[index]?.taskType
-													)}
-													onChange={(selectedOption) =>
-														handleChange(
-															index,
-															'taskType',
-															selectedOption?.value
-														)
-													}
-													placeholder="Select Task Type"
-												/>
-											</Form.Group>
-										</Col>
-
-										<Col lg={4}>
-											<Form.Group controlId="taskTiming" className="mb-3">
-												<Form.Label>Task Timing</Form.Label>
-												<Select
-													name="taskTiming"
-													options={optionsTaskTiming}
-													value={optionsTaskTiming.find(
-														(option) =>
-															option.value === taskSelections[index]?.taskTiming
-													)}
-													onChange={(selectedOption) =>
-														handleChange(
-															index,
-															'taskTiming',
-															selectedOption?.value
-														)
-													}
-													placeholder="Select Task Type"
-												/>
-											</Form.Group>
-										</Col>
-
-										{taskSelections[index]?.taskTiming === 'Hours' && (
-											<>
+									<div key={index}>
+										<div className='ms-2'><span className='fw-bold'>Finish Point</span> - {input.label}</div>
+										{input.options?.map((option: any, optionIndex: number) => (
+											<Row key={optionIndex} className="bg-light m-2 p-2">
 												<Col lg={4}>
-													<Form.Group controlId="Hours" className="mb-3">
-														<Form.Label>Hours:</Form.Label>
-														<Form.Control
-															type="number"
-															name="Hours"
-															value={taskSelections[index]?.Hours || ''}
-															onChange={(e) =>
-																handleChange(
-																	index,
-																	'Hours',
-																	String(e.target.value)
-																)
-															}
-															placeholder="Enter Task Hours"
-														/>
-													</Form.Group>
-												</Col>
-											</>
-										)}
-										{taskSelections[index]?.taskTiming === 'FromTask' && (
-											<>
-												<Col md={4}>
-													<Form.Group controlId="previousTask" className="mb-2">
-														<Form.Label>Previous Task Number</Form.Label>
+													<Form.Group controlId="taskNumber" className="mb-3">
+														<Form.Label>
+															Select Successor Task For{' '}
+															<span style={{ color: option.color }}>
+																{' '}
+																{option.label}
+															</span>
+														</Form.Label>
+
 														<Select
-															options={desiredTaskOptions}
+															name={`taskNumber_${index}`}  // Pass name dynamically
 															value={
-																previousTask
-																	? desiredTaskOptions.find(
-																		(option) => option.value === previousTask
-																	)
-																	: null
-															}
-															onChange={(selectedOption) => {
-																handleTaskNumberChange(selectedOption)
-																handleChange(
-																	index,
-																	'PreviousTask',
-																	selectedOption?.value || ''
-																)
-															}}
-															placeholder="Select Previous Task Number"
-														/>
-													</Form.Group>
-												</Col>
-												<Col md={6}>
-													<Form.Group controlId="inputFields" className="mb-2">
-														<Form.Label>Input Field</Form.Label>
-														<Select
-															options={inputFieldOptions.map((option) => ({
-																label: option, // Label for display
-																value: option, // Value for internal use
-															}))}
-															value={selectedInputField} // Bind selected value
-															onChange={(selectedOption1) => {
-																handleSelectedInputFieldChange(selectedOption1)
-																handleChange(
-																	index,
-																	'FromDate',
-																	selectedOption1?.value || ''
-																)
-															}}
-															placeholder="Select Input Field"
-														/>
-													</Form.Group>
-												</Col>
-											</>
-										)}
-
-										{taskSelections[index]?.taskTiming === 'Days' && (
-											<>
-												<Col lg={4}>
-													<Form.Group controlId="Days" className="mb-3">
-														<Form.Label>Days:</Form.Label>
-														<Form.Control
-															type="number"
-															name="Days"
-															value={taskSelections[index]?.Days || ''}
-															onChange={(e) =>
-																handleChange(
-																	index,
-																	'Days',
-																	String(e.target.value)
-																)
-															}
-															placeholder="Enter Days"
-														/>
-													</Form.Group>
-												</Col>
-												<Col lg={4}>
-													<Form.Group controlId="time" className="mb-3">
-														<Form.Label>Time</Form.Label>
-														<Select
-															name="time"
-															options={dropdownValuesFlag3}
-															value={
-																dropdownValuesFlag3.find(
-																	(option) =>
-																		option.name === taskSelections[index]?.time
-																) || null
-															}
-															onChange={(selectedOption) => {
-																if (selectedOption) {
-																	handleChange(
-																		index,
-																		'time',
-																		selectedOption.name
-																	)
-																} else {
-																	handleChange(index, 'time', '')
-																}
-															}}
-															getOptionLabel={(item) => item.name}
-															getOptionValue={(item) => item.name}
-															placeholder="Select Time"
-														/>
-													</Form.Group>
-												</Col>
-											</>
-										)}
-
-										{taskSelections[index]?.taskTiming === 'WeekDay' && (
-											<>
-												<Col lg={4}>
-													<Form.Group controlId="WeekDay" className="mb-3">
-														<Form.Label>Date:</Form.Label>
-														<Select
-															name="WeekDay"
-															options={dropdownValuesFlag2}
-															value={
-																dropdownValuesFlag2.find(
-																	(option) =>
-																		option.name ===
-																		taskSelections[index]?.WeekDay
+																extractedOptions.find(
+																	(item) => item.value === taskSelections[optionIndex]?.[`taskNumber_${index}`]  // Dynamically check key
 																) || null
 															}
 															onChange={(selectedOption) =>
+																handleChange(optionIndex, { name: `taskNumber_${index}`, value: selectedOption?.value })
+															}
+															options={extractedOptions} // Use the converted array
+															getOptionLabel={(item) => item.label} // Extract label
+															getOptionValue={(item) => item.value} // Extract value
+															isSearchable={true}
+															placeholder="Select Option"
+															className="h45"
+														/>
+
+
+
+													</Form.Group>
+												</Col>
+
+												<Col lg={4}>
+													<Form.Group controlId="taskType" className="mb-3">
+														<Form.Label>Task Type</Form.Label>
+														<Select
+															name="taskType"
+															options={optionstaskType}
+															value={optionstaskType.find(
+																(option) =>
+																	option.value === taskSelections[optionIndex]?.[`taskType_${index}`]
+															)}
+															onChange={(selectedOption) =>
 																handleChange(
-																	index,
-																	'WeekDay',
-																	selectedOption?.name
+																	optionIndex,
+																	{
+																		name: `taskType_${index}`, value:
+																			selectedOption?.value
+																	}
 																)
 															}
-															getOptionLabel={(item) => item.name}
-															getOptionValue={(item) => item.name}
-															placeholder="Select WeekDay"
+															placeholder="Select Task Type"
 														/>
 													</Form.Group>
 												</Col>
 
 												<Col lg={4}>
-													<Form.Group controlId="time" className="mb-3">
-														<Form.Label>Time</Form.Label>
+													<Form.Group controlId="taskTiming" className="mb-3">
+														<Form.Label>Task Timing</Form.Label>
 														<Select
-															name="time"
-															options={dropdownValuesFlag3}
-															value={
-																dropdownValuesFlag3.find(
-																	(option) =>
-																		option.name === taskSelections[index]?.time
-																) || null
+															name="taskTiming"
+															options={optionsTaskTiming}
+															value={optionsTaskTiming.find(
+																(option) =>
+																	option.value === taskSelections[optionIndex]?.[`taskTiming_${index}`]
+															)}
+															onChange={(selectedOption) =>
+																handleChange(
+																	optionIndex,
+																	{
+																		name: `taskTiming_${index}`, value:
+																			selectedOption?.value
+																	}
+																)
 															}
-															onChange={(selectedOption) => {
-																if (selectedOption) {
-																	handleChange(
-																		index,
-																		'time',
-																		selectedOption.name
-																	)
-																} else {
-																	handleChange(index, 'time', '')
-																}
-															}}
-															getOptionLabel={(item) => item.name}
-															getOptionValue={(item) => item.name}
-															placeholder="Select Time"
+															placeholder="Select Task Type"
 														/>
 													</Form.Group>
 												</Col>
-											</>
-										)}
-									</Row>
+
+												{taskSelections[optionIndex]?.[`taskTiming_${index}`] === 'Hours' && (
+													<>
+														<Col lg={4}>
+															<Form.Group controlId="Hours" className="mb-3">
+																<Form.Label>Hours:</Form.Label>
+																<Form.Control
+																	type="number"
+																	name="Hours"
+																	value={taskSelections[optionIndex]?.[`Hours_${index}`]}
+																	onChange={(e) =>
+																		handleChange(
+																			optionIndex,
+																			{ name: `Hours_${index}`, value: String(e.target.value)}
+																			
+																		)
+																	}
+																	placeholder="Enter Task Hours"
+																/>
+															</Form.Group>
+														</Col>
+													</>
+												)}
+												{taskSelections[optionIndex]?.[`taskTiming_${index}`] === 'FromTask' && (
+													<>
+														<Col md={4}>
+															<Form.Group controlId="previousTask" className="mb-2">
+																<Form.Label>Previous Task Number</Form.Label>
+																<Select
+																	options={desiredTaskOptions}
+																	value={
+																		previousTask
+																			? desiredTaskOptions.find(
+																				(option) => option.value === previousTask
+																			)
+																			: null
+																	}
+																	onChange={(selectedOption) => {
+																		handleTaskNumberChange(selectedOption)
+																		handleChange(
+																			optionIndex,
+																			{name: 'PreviousTask',
+																			value: selectedOption?.value}
+																		)
+																	}}
+																	placeholder="Select Previous Task Number"
+																/>
+															</Form.Group>
+														</Col>
+														<Col md={6}>
+															<Form.Group controlId="inputFields" className="mb-2">
+																<Form.Label>Input Field</Form.Label>
+																<Select
+																	options={inputFieldOptions.map((option) => ({
+																		label: option, // Label for display
+																		value: option, // Value for internal use
+																	}))}
+																	value={selectedInputField} // Bind selected value
+																	onChange={(selectedOption1) => {
+																		handleSelectedInputFieldChange(selectedOption1)
+																		handleChange(
+																			optionIndex,
+																			{name: 'FromDate',
+																				value: selectedOption1?.value}
+																			
+																		)
+																	}}
+																	placeholder="Select Input Field"
+																/>
+															</Form.Group>
+														</Col>
+													</>
+												)}
+
+												{taskSelections[optionIndex]?.[`taskTiming_${index}`] === 'Days' && (
+													<>
+														<Col lg={4}>
+															<Form.Group controlId="Days" className="mb-3">
+																<Form.Label>Days:</Form.Label>
+																<Form.Control
+																	type="number"
+																	name="Days"
+																	value={taskSelections[optionIndex]?.[`Days_${index}`] || ''}
+																	onChange={(e) =>
+																		handleChange(
+																			optionIndex,
+																			{name: `Days_${index}`,
+																				value: String(e.target.value)}
+																			
+																		)
+																	}
+																	placeholder="Enter Days"
+																/>
+															</Form.Group>
+														</Col>
+														<Col lg={4}>
+															<Form.Group controlId="time" className="mb-3">
+																<Form.Label>Time</Form.Label>
+																<Select
+																	name="time"
+																	options={dropdownValuesFlag3}
+																	value={
+																		dropdownValuesFlag3.find(
+																			(option) =>
+																				option.name === taskSelections[optionIndex]?.[`time_${index}`]
+																		) || null
+																	}
+																	onChange={(selectedOption) => {
+																		if (selectedOption) {
+																			handleChange(
+																				optionIndex,
+																				{name: `time_${index}`,
+																					value: selectedOption.name}
+																				
+																			)
+																		} else {
+																			handleChange(optionIndex, {name: 'time', value:''})
+																		}
+																	}}
+																	getOptionLabel={(item) => item.name}
+																	getOptionValue={(item) => item.name}
+																	placeholder="Select Time"
+																/>
+															</Form.Group>
+														</Col>
+													</>
+												)}
+
+												{taskSelections[optionIndex]?.[`taskTiming_${index}`] === 'WeekDay' && (
+													<>
+														<Col lg={4}>
+															<Form.Group controlId="WeekDay" className="mb-3">
+																<Form.Label>Date:</Form.Label>
+																<Select
+																	name="WeekDay"
+																	options={dropdownValuesFlag2}
+																	value={
+																		dropdownValuesFlag2.find(
+																			(option) =>
+																				option.name ===
+																				taskSelections[optionIndex]?.WeekDay
+																		) || null
+																	}
+																	onChange={(selectedOption) =>
+																		handleChange(
+																			optionIndex,
+																			{name: 'WeekDay',
+																				value: selectedOption?.name ?? null}
+																			
+																		)
+																	}
+																	getOptionLabel={(item) => item.name}
+																	getOptionValue={(item) => item.name}
+																	placeholder="Select WeekDay"
+																/>
+															</Form.Group>
+														</Col>
+
+														<Col lg={4}>
+															<Form.Group controlId="time" className="mb-3">
+																<Form.Label>Time</Form.Label>
+																<Select
+																	name={`time_${index}`}
+																	options={dropdownValuesFlag3}
+																	value={
+																		dropdownValuesFlag3.find(
+																			(option) =>
+																				option.name === taskSelections[optionIndex]?.[`time_${index}`]
+																		) || null
+																	}
+																	onChange={(selectedOption) => {
+																		if (selectedOption) {
+																			handleChange(
+																				optionIndex,
+																				{name: `time_${index}`,
+																					value: selectedOption?.name ?? null}
+																				
+																			)
+																		} else {
+																			handleChange(index, {name: `time_${index}`, value:''})
+																		}
+																	}}
+																	getOptionLabel={(item) => item.name}
+																	getOptionValue={(item) => item.name}
+																	placeholder="Select Time"
+																/>
+															</Form.Group>
+														</Col>
+													</>
+												)}
+											</Row>
+										))}
+									</div>
 								)
 							})}
 
-							{parseDataForSingle ? (
+							{parseDataForSingle?.length > 0 ? (
 								<Row className="bg-light m-2 p-2">
 									<Col lg={4}>
 										<Form.Group controlId="taskNumber" className="mb-3">
 											<Form.Label>Select Successor Task For</Form.Label>
 											<Select
-												name="taskNumber"
+												name="taskNumber_0"
 												value={extractedOptions.find(
-													(item) => item.value === taskSelections[0]?.taskNumber
+													(item) => item.value === taskSelections[0]?.['taskNumber_0']
 												) || null}
 												onChange={(selectedOption) =>
-													handleChange(0, 'taskNumber', selectedOption?.value)
+													handleChange(0, {name: 'taskNumber_0',value: selectedOption?.value})
 												}
 												options={extractedOptions} // Use the converted array
 												getOptionLabel={(item) => item.label} // Extract label
@@ -1136,11 +1230,11 @@ const TaskCondition: React.FC<ProcessCanvasProps> = ({
 										<Form.Group controlId="taskType" className="mb-3">
 											<Form.Label>Task Type</Form.Label>
 											<Select
-												name="taskType"
+												name="taskType_0"
 												options={optionstaskType}
 												value={optionstaskType.find(
 													(option) =>
-														option.value === taskSelections[0]?.taskType
+														option.value === taskSelections[0]?.['taskType_0']
 												)}
 												onChange={(selectedOption) =>
 													updateTaskSelection('taskType', selectedOption?.value)
@@ -1305,8 +1399,8 @@ const TaskCondition: React.FC<ProcessCanvasProps> = ({
 															handleTaskNumberChange(selectedOption)
 															handleChange(
 																0,
-																'PreviousTask',
-																selectedOption?.value || ''
+																{name: 'PreviousTask',value:
+																selectedOption?.value || ''}
 															)
 														}}
 														placeholder="Select Previous Task Number"
@@ -1326,8 +1420,9 @@ const TaskCondition: React.FC<ProcessCanvasProps> = ({
 															handleSelectedInputFieldChange(selectedOption1)
 															handleChange(
 																0,
-																'FromDate',
-																selectedOption1?.value || ''
+																
+																{name: 'FromDate', value:
+																selectedOption1?.value || ''}
 															)
 														}}
 														placeholder="Select Input Field"
@@ -1545,7 +1640,7 @@ const TaskCondition: React.FC<ProcessCanvasProps> = ({
 									{taskRow.taskTiming === 'FromTask' && (
 										<>
 											<Col md={4}>
-											
+
 												<Form.Group controlId="previousTask" className="mb-2">
 													<Form.Label>Previous Task Number</Form.Label>
 													<Select
@@ -1561,8 +1656,8 @@ const TaskCondition: React.FC<ProcessCanvasProps> = ({
 															handleTaskNumberChange(selectedOption)
 															handleChange(
 																index,
-																'PreviousTask',
-																selectedOption?.value || ''
+																{name: 'PreviousTask', value:
+																selectedOption?.value || ''}
 															)
 														}}
 														placeholder="Select Previous Task Number"
@@ -1582,8 +1677,9 @@ const TaskCondition: React.FC<ProcessCanvasProps> = ({
 															handleSelectedInputFieldChange(selectedOption1)
 															handleChange(
 																index,
-																'FromDate',
-																selectedOption1?.value || ''
+																
+																{name: 'FromDate', value:
+																selectedOption1?.value || ''}
 															)
 														}}
 														placeholder="Select Input Field"

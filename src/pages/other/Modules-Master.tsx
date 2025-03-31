@@ -564,21 +564,24 @@ const App: React.FC = () => {
   //   }
   // };
 
-  const handlefinishID = (e: ChangeEvent<any>) => {
-    const { name, value } = e.target as HTMLSelectElement | HTMLInputElement;
+  const handlefinishID = (selectedOptions: any) => {
+    // Extract values from selected options
+    const selectedValues = selectedOptions ? selectedOptions.map((option: any) => option.value).join(',') : '';
 
-    // Update the form data state
+    // Update the form data state with the comma-separated string
     setFormData(prevFormData => ({
       ...prevFormData,
-      [name]: value
+      finishID: selectedValues // Store the comma-separated string in the state
     }));
 
-    // Store the selected finishID in localStorage
-    if (name === 'finishID') {
-      localStorage.setItem('selectedFinishID', value);
-      console.log(value)
-    }
+    console.log(formData.finishID);
+
+    // Store the selected finishID (comma-separated string) in localStorage
+    localStorage.setItem('selectedFinishID', selectedValues);
+
+    console.log(selectedValues); // Log the selected values (for debugging)
   };
+
 
   // const [condition, setCondition] = React.useState<number>(3);
   const conditionLabels: { [key: number]: string } = {
@@ -710,7 +713,7 @@ const App: React.FC = () => {
       problem_Solver: selectedEmployeeObj?.employeeName,
       task_Json: JSON.stringify(formJSON),
       createdBy: storedEmpName, // Replace with actual username or dynamic value
-      finishPoint: parseFloat(finishID), // Convert finishID to float before sending
+      finishPoint: (finishID), // Convert finishID to float before sending
       approval_Console: isApprovalConsoleActive ? "Select Approval_Console" : '',
       approvalConsoleDoerID: '',
       approvalConsoleDoerName: '',
@@ -724,7 +727,7 @@ const App: React.FC = () => {
     setLoading(true);
 
     try {
-      const response = await fetch(`${config.API_URL_ACCOUNT}/ProcessTaskMaster/InsertUpdateProcessTaskandDoer`, {
+      const response = await fetch(`${config.API_URL_ACCOUNT}/ProcessTaskMaster/InsertUpdateProcessTaskandDoers`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -1487,27 +1490,31 @@ const App: React.FC = () => {
                   }}
                 />
               </Form.Group>
-
-
-
               <Form.Group className="col-12 my-1">
                 <Form.Label>Set Finish Point</Form.Label>
-                <Form.Control
-                  as="select"
-                  name="finishID"  // Changed from processID to finishID
-                  value={formData.finishID}  // Updated to finishID
-                  onChange={handlefinishID}
+                <Select
+                  isMulti
+                  name="finishID"
+                  value={taskFields
+                    .filter((field) => formData.finishID.split(',').includes(field.inputId))  // Set selected values based on finishID
+                    .map((field) => ({
+                      value: field.inputId,
+                      label: field.labeltext,
+                    }))
+                  }
+                  onChange={handlefinishID} // Update to use the new handlefinishID function
+                  options={taskFields
+                    .filter((field) => !['99', '100', '102', '103'].includes(field.inputId)) // Filter out certain fields
+                    .map((field) => ({
+                      value: field.inputId,
+                      label: field.labeltext,
+                    }))
+                  }
                   required
-                >
-                  <option value="">Select Field</option>
-                  {taskFields
-                    .filter(field => !['99', '100', '102', '103'].includes(field.inputId))
-                    .map((field) => (
-                      <option key={field.inputId} value={field.inputId}>
-                        {field.labeltext}
-                      </option>
-                    ))}
-                </Form.Control>
+                  isClearable
+                  placeholder="Select Field"
+                />
+
               </Form.Group>
               <div className="col-12 my-1">
                 <div className="row col-12 position-relative">

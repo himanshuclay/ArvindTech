@@ -62,7 +62,7 @@ interface ProjectAssignListWithDoer {
   projectInchargeMobileNumber: number;
   taskName: string;
   completedDate: string | null;
-  finishPoint: number;
+  finishPoint: String;
   rejectedJson: string;
   problemSolver: string;
   problemSolverMobileNumber: number;
