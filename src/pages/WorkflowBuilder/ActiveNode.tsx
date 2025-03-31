@@ -65,10 +65,10 @@ const ActiveNode = ({ activeNode, activeTaskId, setActiveNode, completedNodes, s
             activeNode.data['blockValue'] = blockValue;
             activeNode.data['status'] = "completed";
             activeNode.data.form = dynamicComponent ? dynamicComponent : form;
-            let formData;
+            // let formData;
             if (componentRefMap.current[dynamicComponent]) {
                 activeNode.data['blockValue'] = componentRefMap.current[dynamicComponent]?.[dynamicComponent]?.();
-                formData = componentRefMap.current[dynamicComponent]?.getAppointmentData?.().typeOfAppointment;
+                // formData = componentRefMap.current[dynamicComponent]?.getAppointmentData?.().typeOfAppointment;
             }
             const query: any = {
                 id: activeTaskId,
