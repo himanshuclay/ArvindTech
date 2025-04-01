@@ -16,7 +16,7 @@ const YES_NO_OPTIONS = [
 
 const INDUCTION = forwardRef((props: any, ref) => {
     // Using blockValue as the main state variable
-    const [blockValue, setBlockValue] = useState<Induction>(props.blockValue ? props.blockValue :{
+    const [blockValue, setBlockValue] = useState<Induction>(props.blockValue ? props.blockValue: {
         deployedStaffHasBeenFacilitatedWithTheBelowDetails: '',
         accommodation: '',
         foodingMessRequirement: '',

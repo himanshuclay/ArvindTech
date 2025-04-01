@@ -24,7 +24,7 @@ const OUTPUT_LABELS: Record<string, string[]> = {
     INDUCTION: [
         'Induction'
     ],
-    UPDATE_EMPLOYEE: [ 'New Appointment', 'Old Staff Transfer'],
+    UPDATE_EMPLOYEE: [ 'newAppointment', 'oldStaffTransfer'],
     APPOINTMENT_LETTER: [ 'Appointment Letter'],
     ASSIGN_TASK: [ 'Assign Task'],
 };

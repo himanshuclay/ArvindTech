@@ -14,7 +14,7 @@ const YES_NO_OPTIONS = [
 
 const UPDATE_EMPLOYEE = forwardRef((props: any, ref) => {
     // Use blockValue as the main state variable
-    const [blockValue, setBlockValue] = useState<UpdateEmployee>({
+    const [blockValue, setBlockValue] = useState<UpdateEmployee>(props.blockValue ? props.blockValue :{
         confirmationOfEmployeeMasterUpdated: '',
     });
 

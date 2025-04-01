@@ -19,7 +19,7 @@ const YES_NO_OPTIONS = [
 // The main component
 const OLD_STAFF_TRANSFER = forwardRef((props: any, ref) => {
     // Use blockValue as the main state variable
-    const [blockValue, setBlockValue] = useState<AppointmentState>({
+    const [blockValue, setBlockValue] = useState<AppointmentState>(props.blockValue? props.blockValue :{
         transferredEmployee: '',
         confirmationOfStaffDeployedAtSite: '',
         transferredDate: '',
@@ -52,7 +52,7 @@ const OLD_STAFF_TRANSFER = forwardRef((props: any, ref) => {
     };
 
     useImperativeHandle(ref, () => ({
-        blockValue: () => blockValue
+        OLD_STAFF_TRANSFER: () => blockValue
     }));
 
     return (

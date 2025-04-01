@@ -15,8 +15,7 @@ interface DROP_DOWN {
     identifier?: string;
 }
 
-const CustomNode = ({ data, id, setNodes, edges }: { data: any; id: string; setNodes: any; edges: any[] }) => {
-    console.log('data', data)
+const CustomNode = ({ data, id, setNodes, edges, isCompleteTask }: { data: any; id: string; setNodes: any; edges: any[], isCompleteTask: boolean }) => {
     const [showSettings, setShowSettings] = useState(false);
     const inputHandles = data.inputHandles || 1;
     const outputHandles = data.outputHandles || 1;
@@ -43,10 +42,7 @@ const CustomNode = ({ data, id, setNodes, edges }: { data: any; id: string; setN
     const [isStartNode, setIsStartNode] = useState(false);
     useEffect(() => {
         // Check if this node is directly connected to the start node
-        console.log('id', id, edges)
-        console.log(nodeSetting.taskNumber);
         const hasStartNodeConnection = edges.some(edge => edge.target === id.toString() && edge.source === "1");
-        console.log(hasStartNodeConnection)
         setIsStartNode(hasStartNodeConnection);
     }, [edges, id, showSettings]);
 
@@ -68,7 +64,7 @@ const CustomNode = ({ data, id, setNodes, edges }: { data: any; id: string; setN
         try {
             const response = await fetch(`${config.API_URL_APPLICATION}/CommonDropdown/GetProjectList`);
             const result = await response.json();
-            console.log(result)
+            // console.log(result)
             if (result.isSuccess) {
                 setProjectList(result.projectListResponses);
             }
@@ -155,6 +151,9 @@ const CustomNode = ({ data, id, setNodes, edges }: { data: any; id: string; setN
         if (!nodeSetting.assignDoerType || nodeSetting.assignDoerType.trim() === '') {
             return { border: '2px solid red' };
         }
+        if(isCompleteTask && data.completedBy == localStorage.getItem("EmpId")){
+            return {border: '4px solid green'};
+        }
         return {};
     };
 
@@ -168,7 +167,7 @@ const CustomNode = ({ data, id, setNodes, edges }: { data: any; id: string; setN
     return (
         <div className="custom-node" style={getBorderStyle()}>
             {/* Settings Icon */}
-            <button className="settings-button" onClick={(e) => { e.stopPropagation(); setShowSettings(!showSettings); }}>
+            <button className="settings-button" onClick={(e) => { e.stopPropagation(); setShowSettings(!showSettings); }} disabled={isCompleteTask}>
                 <i className="ri-settings-3-fill"></i>
             </button>
 

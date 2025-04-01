@@ -76,6 +76,11 @@ const WorkflowBuilder: React.FC = () => {
         edges: [],
         nodes: initialNodes,
     });
+
+    const nodeTypes = useMemo(() => ({
+        custom: (props: any) => <CustomNode {...props} setNodes={setNodes} edges={edges}  />,
+    }), [setNodes, edges]);
+
     const [formBuilder, setFormBuilder] = useState<FIELD>({
         name: '',
         blocks: [],
@@ -192,9 +197,7 @@ const WorkflowBuilder: React.FC = () => {
         setShowSettings(!showSettings);
     };
 
-    const nodeTypes = useMemo(() => ({
-        custom: (props: any) => <CustomNode {...props} setNodes={setNodes} edges={edges}  />,
-    }), [setNodes, edges]);  // ✅ Include edges in dependencies
+ 
 
 
 
