@@ -573,7 +573,7 @@ const TaskCondition: React.FC<ProcessCanvasProps> = ({
 		  
 		  // Apply transformation
 		  const transformedData = transformData(updatedConditionJsonFormatted[0].taskSelections);
-		  console.log(JSON.stringify(transformedData, null, 2));
+		//   console.log(JSON.stringify(transformedData, null, 2));
 		  updatedConditionJsonFormatted[0].taskSelections = transformedData;
 		  
 
@@ -920,7 +920,7 @@ const TaskCondition: React.FC<ProcessCanvasProps> = ({
 									/>
 								</Form.Group>
 							</Col>
-							{JSON.stringify(taskSelections)}
+							{/* {JSON.stringify(taskSelections)} */}
 							{parseData?.map((input: any, index: number) => {
 								return (
 									<div key={index}>
