@@ -1,10 +1,8 @@
-import { useState } from "react";
+import { useState, forwardRef, useImperativeHandle } from "react";
 import { Col, Form, Row } from "react-bootstrap";
 import Select, { SingleValue } from 'react-select';
-// import Flatpickr from 'react-flatpickr';
 
-
-
+// Define the state structure for UpdateEmployee
 interface UpdateEmployee {
     confirmationOfEmployeeMasterUpdated: string;
 }
@@ -14,46 +12,38 @@ const YES_NO_OPTIONS = [
     { label: "No", value: "no" }
 ];
 
-const UPDATE_EMPLOYEE = () => {
-    const [updateEmployee, setUpdateEmployee] = useState<UpdateEmployee>({
+const UPDATE_EMPLOYEE = forwardRef((props: any, ref) => {
+    // Use blockValue as the main state variable
+    const [blockValue, setBlockValue] = useState<UpdateEmployee>(props.blockValue ? props.blockValue :{
         confirmationOfEmployeeMasterUpdated: '',
     });
 
-    // const [transferredEmployeeList,] = useState([
-    //     { label: 'ddd', value: 'ererr' }
-    // ]);
-
-
-
-
-
-    // Handle Select Changes
+    // Handle Select Changes dynamically
     const handleSelectChange = (
         selectedOption: SingleValue<{ label: string; value: string }>,
         fieldName: keyof UpdateEmployee
     ) => {
-        setUpdateEmployee(prev => ({
+        setBlockValue(prev => ({
             ...prev,
             [fieldName]: selectedOption ? selectedOption.value : '',
         }));
     };
 
-    // const handleDateChange = (selectedDates: Date[]) => {
-    //     setUpdateEmployee(prev => ({
-    //         ...prev,
-    //         transferredDate: selectedDates.length > 0 ? selectedDates[0].toISOString().split('T')[0] : ''
-    //     }));
-    // };
+    // Expose blockValue to parent component via useImperativeHandle
+    useImperativeHandle(ref, () => ({
+        UPDATE_EMPLOYEE: () => blockValue
+    }));
 
     return (
         <div>
             <Row>
+                {/* Confirmation of Employee Master Updated */}
                 <Col lg={4}>
                     <Form.Group controlId="confirmationOfEmployeeMasterUpdated">
                         <Form.Label>Confirmation of Employee Master Updated</Form.Label>
                         <Select
                             options={YES_NO_OPTIONS}
-                            value={YES_NO_OPTIONS.find(option => option.value === updateEmployee.confirmationOfEmployeeMasterUpdated)}
+                            value={YES_NO_OPTIONS.find(option => option.value === blockValue.confirmationOfEmployeeMasterUpdated)}
                             onChange={(selectedOption) => handleSelectChange(selectedOption, "confirmationOfEmployeeMasterUpdated")}
                             placeholder="Select Yes or No"
                         />
@@ -62,6 +52,6 @@ const UPDATE_EMPLOYEE = () => {
             </Row>
         </div>
     );
-};
+});
 
 export default UPDATE_EMPLOYEE;

@@ -23,7 +23,7 @@ interface Task {
     task_Status: number;
     taskType: string;
     problem_Solver: string;
-    finishPoint: number;
+    finishPoint: string;
     condition_Json: string;
     isExpired: number;
     template_Json: string;

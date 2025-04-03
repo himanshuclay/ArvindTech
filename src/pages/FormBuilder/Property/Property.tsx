@@ -1,6 +1,7 @@
 import React from 'react';
 import { Accordion, Col, Form, Row } from 'react-bootstrap';
 import { FIELD, PROPERTY } from '../Constant/Interface';
+import { updatePropertyByID } from '../Constant/Functions';
 
 interface Props {
     form: FIELD;
@@ -40,9 +41,11 @@ const Property: React.FC<Props> = ({ form, setForm, property, setProperty, remov
     };
 
     const handleSave = () => {
-        const updatedBlocks = form.blocks.map(block =>
-            block.property.id === property.id ? { ...block, property } : block
-        );
+        // const updatedBlocks = form.blocks.map(block =>
+        //     block.property.id === property.id ? { ...block, property } : block
+        // );
+        console.log('property', property)
+        const updatedBlocks = updatePropertyByID(form.blocks, property.id, property)
         console.log('updatedBlocks', updatedBlocks)
         setForm(prevForm => ({
             ...prevForm,

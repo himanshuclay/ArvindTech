@@ -1,4 +1,4 @@
-import { BASIC_FIELD, BLOCK_VALUE, FIELD, OPTION, RULE } from "./Interface";
+import { BASIC_FIELD, BLOCK_VALUE, FIELD, OPTION, PROPERTY, RULE } from "./Interface";
 
 const getBlockById = (form: FIELD, id: string) => {
     return form.blocks.find(block => block.property.id === id);
@@ -18,7 +18,7 @@ interface Rule {
 }
 
 const manageBind = (block: BASIC_FIELD, blockValue: BLOCK_VALUE, rule: Rule): BASIC_FIELD | BLOCK_VALUE => {
-    if (['Select','MultiSelect'].includes(block.is)) {
+    if (['Select', 'MultiSelect'].includes(block.is)) {
         const updatedBlock: BASIC_FIELD = {
             ...block,
             property: {
@@ -36,6 +36,31 @@ const manageBind = (block: BASIC_FIELD, blockValue: BLOCK_VALUE, rule: Rule): BA
     }
 };
 
+const updatePropertyByID = (blocks: BASIC_FIELD[], id: string, property: PROPERTY): BASIC_FIELD[] => {
+    const updatedBlocks = blocks.map(block => {
+        if (block.property.loopBlocks && block.property.loopBlocks.length) {
+            // Recursively update inside loopBlocks if needed
+            return {
+                ...block,
+                property: {
+                    ...block.property,
+                    loopBlocks: updatePropertyByID(block.property.loopBlocks, id, property)
+                }
+            };
+        } else if (block.property.id === id) {
+            return {
+                ...block,
+                property
+            };
+        }
+        return block;
+    });
+
+    return updatedBlocks;
+};
+
+
+
 
 
 
@@ -43,4 +68,5 @@ export {
     getBlockById,
     manageShowHide,
     manageBind,
+    updatePropertyByID,
 }

@@ -694,11 +694,8 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
 
             // Handle select and CustomSelect input types
             if (input.type === 'select' || input.type === 'CustomSelect') {
-                console.log('I am inside');
-
                 const selectedOption = input.options?.find((option) => option.id === value);
-                console.log('Parsed Condition:', parsedCondition);
-                console.log('Selected Option:', selectedOption, 'Value:', value);
+                console.log('selectedOption', selectedOption);
 
                 if (selectedOption) {
                     updatedValue = selectedOption.id;
@@ -706,46 +703,151 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
 
                     // Ensure parsedCondition is parsed correctly and handled as an array
                     const conditionsArray = Array.isArray(parsedCondition) ? parsedCondition : [parsedCondition];
-
                     console.log('Conditions Array:', conditionsArray);
+
+                    // Initialize an empty array to hold all taskSelections across conditions
+                    let mergedTaskSelections: any = [];
 
                     conditionsArray.forEach((condition) => {
                         condition = JSON.parse(condition);
-                        console.log(typeof condition)
-                        if  (condition[0] && Array.isArray(condition[0].taskSelections)) {
-                            console.log('setSelectedCondition', selectedCondition);
-                            if(selectedCondition.length === 0){
-                                const filteredTaskSelections = condition[0].taskSelections.filter(
-                                    (taskSelection: any) => {
-                                        console.log('taskSelection.inputId', taskSelection.inputId);
-                                        console.log('updatedValue',updatedValue);
-                                        if((String(taskSelection.inputId) === String(updatedValue) || String(taskSelection.inputId) === '')){
-                                            return taskSelection;
-                                        }
-                                    }
-                                );
-                                console.log(filteredTaskSelections);
-    
-                                const copyCondition = condition;
-                                copyCondition[0].taskSelections = filteredTaskSelections;
-                                console.log('copyCondition', copyCondition);
-                                if (filteredTaskSelections.length > 0) {
-                                    setSelectedCondition(copyCondition);
-    
-                                    console.log('selectedCondition', selectedCondition);
-    
-                                } else {
-                                    console.warn('No matching task found for updatedValue:', updatedValue);
+                        console.log('Parsed Condition:', condition);
+
+                        if (condition[0] && Array.isArray(condition[0].taskSelections)) {
+                            console.log('Merging taskSelections');
+
+                            const filteredTaskSelections = condition[0].taskSelections.filter(
+                                (taskSelection: any) => {
+                                    console.log('taskSelection.inputId', taskSelection.inputId);
+                                    console.log('updatedValue', updatedValue);
+                                    // Only include the taskSelection if inputId matches updatedValue or is empty
+                                    return (String(taskSelection.inputId) === String(updatedValue) || String(taskSelection.inputId) === '');
+                                }
+                            );
+                            console.log('filteredTaskSelections:', filteredTaskSelections);
+
+                            // Merge the filtered task selections into mergedTaskSelections
+                            mergedTaskSelections = [...filteredTaskSelections];
+                        } else {
+                            console.warn('taskSelections is not an array or undefined:', condition[0]?.taskSelections);
+                        }
+                    });
+                    console.log('mergedTaskSelections', mergedTaskSelections);
+
+                    // Now mergedTaskSelections will hold all taskSelections to merge
+                    if (mergedTaskSelections.length > 0) {
+                        let updatedValue;
+                        // Check if there's already a condition in selectedCondition
+                        console.log(selectedCondition);
+                        if (!selectedCondition.length || !Array.isArray(selectedCondition)) {
+                            updatedValue = {
+                                sundayLogic: "Keep making task as per logic",
+                                isExpirable: 0,
+                                expiryLogic: "",
+                                expirationTime: "",
+                                taskSelections: mergedTaskSelections, // Initial merged task selections
+                                approvalTaskRow: {
+                                    taskType: "",
+                                    taskTiming: "",
+                                    Hours: "",
+                                    Days: "",
+                                    WeekDay: "",
+                                    time: ""
                                 }
                             }
                         } else {
-                            console.warn('taskSelections is not an array or undefined:', condition.taskSelections);
+                            // console.log('selected',selectedCondition);
+                            updatedValue = selectedCondition[0].taskSelections.map((selected: any) => {
+                                // console.log('hdgjdgjtjd', selected.inputId, mergedTaskSelections[0].inputId.split('-')[0]);
+
+                                // Check if the selected inputId matches the mergedTaskSelections inputId prefix
+                                // Assuming `mergedTaskSelections[0]` is the object we want to merge into the taskSelections array
+                                if (selected.inputId.includes(mergedTaskSelections[0].inputId.split('-')[0])) {
+                                    console.log('Matched inputId:', selected.inputId);
+
+                                    let taskSelections = selectedCondition[0].taskSelections;
+
+                                    // Get the prefix (e.g., '13' or '12') from the inputId
+                                    const selectedPrefix = mergedTaskSelections[0].inputId.split('-')[0];
+
+                                    // Filter out duplicates based on the prefix (and also remove items with the same inputId)
+                                    taskSelections = taskSelections.filter((item: any, index: number, self: any[]) =>
+                                        item.inputId.startsWith(selectedPrefix) &&
+                                        self.findIndex((t: any) => t.inputId === item.inputId) === index
+                                    );
+
+                                    // Now push the selected item (mergedTaskSelections[0]) to the taskSelections
+                                    taskSelections.push(mergedTaskSelections[0]);
+
+                                    // Update the taskSelections in selectedCondition[0]
+                                    selectedCondition[0].taskSelections = taskSelections;
+
+                                    console.log('Updated taskSelections:', selectedCondition[0].taskSelections);
+                                    return { ...selectedCondition[0] };
+                                }
+
+                                else {
+                                    // If not matching, append mergedTaskSelections[0] to the existing array
+                                    let updatedTaskSelections = [...selectedCondition[0].taskSelections, mergedTaskSelections[0]];
+                                    selectedCondition[0].taskSelections = updatedTaskSelections;
+                                    return { ...selectedCondition[0] };
+                                }
+                            });
+
                         }
-                    });
+                        if (Array.isArray(updatedValue)) {
+                            updatedValue = updatedValue[0]
+                        }
+
+                        updatedValue.taskSelections = Object.values(
+                            updatedValue.taskSelections.reduce((acc: { [key: string]: any }, item: any) => {
+                                acc[item.inputId.split('-')[0]] = item;
+                                return acc;
+                            }, {})
+                        );
+                        
+                        console.log('Trimmed updatedValue:', updatedValue);
+
+                        // const existingCondition = selectedCondition.length > 0 ? selectedCondition[0] : null;
+                        // console.log('existingCondition', existingCondition);
+
+
+
+                        // If a condition exists, merge taskSelections, else create a new condition with static data
+                        // const updatedCondition = existingCondition ? {
+                        //     ...existingCondition,
+                        //     taskSelections: [...existingCondition.taskSelections, ...mergedTaskSelections] // Merge task selections
+                        // } : {
+                        //     sundayLogic: "Keep making task as per logic",
+                        //     isExpirable: 0,
+                        //     expiryLogic: "",
+                        //     expirationTime: "",
+                        //     taskSelections: mergedTaskSelections, // Initial merged task selections
+                        //     approvalTaskRow: {
+                        //         taskType: "",
+                        //         taskTiming: "",
+                        //         Hours: "",
+                        //         Days: "",
+                        //         WeekDay: "",
+                        //         time: ""
+                        //     }
+                        // };
+                        // console.log('updatedCondition', updatedCondition);
+
+                        // Update selectedCondition with the updated or new condition
+                        setSelectedCondition([updatedValue]);
+
+                        // console.log('Updated selectedCondition:', updatedCondition);
+                    }
+                    else {
+                        console.warn('No matching task found for updatedValue:', updatedValue);
+                    }
                 } else {
                     console.warn(`No option found for the value: ${value}`);
                 }
             }
+
+
+
             // Handle multiselect input type
             if (input.type === 'multiselect') {
                 if (Array.isArray(value)) {
@@ -763,6 +865,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
 
 
             // Handle other input types
+            console.log('input.type', input.type);
             switch (input.type) {
                 case 'text':
                 case 'textarea':
@@ -779,6 +882,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                     break
             }
 
+            console.log('updatedValue', inputId, excludedInputIds, excludedInputIds.includes(inputId));
             // Update formState
             setFormState((prevState) => {
                 const newState = {
@@ -787,6 +891,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                         ? {}
                         : { [inputId]: updatedValue }),
                 }
+                console.log(newState);
 
                 if (!excludedInputIds.includes(inputId)) {
                     const updatedTaskJson = {
@@ -799,6 +904,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                                     : input.value,
                         })),
                     }
+                    console.log(updatedTaskJson);
                     setglobalTaskJson(updatedTaskJson)
                 }
 
@@ -813,6 +919,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                 console.log("this is final condition", selectedCondition);
                 return newState
             })
+            console.log(formState);
         }
     }
 
@@ -1013,7 +1120,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                 console.log("this is payload", requestData);
 
                 const response = await fetch(
-                    `${config.API_URL_ACCOUNT}/ProcessInitiation/UpdateDoerTask`,
+                    `${config.API_URL_ACCOUNT}/ProcessInitiation/UpdateDoerTasks`,
                     {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
@@ -1135,6 +1242,8 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
             );
         });
     }, [formData.inputs, fromComponent, approval_Console, approvalStatus, formState]);
+
+    console.log("this is redenered", renderedInputs);
 
 
 
@@ -1746,14 +1855,15 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                                                                 }}
                                                             />
                                                         )}
+                                                        {/* formState{JSON.stringify(formState[input.inputId] != '')} */}
                                                         {input.type === 'select' && (
                                                             <select
                                                                 id={input.inputId}
                                                                 className="form-select form-control"
                                                                 value={
-                                                                    input.value !== ''
-                                                                        ? input.value
-                                                                        : formState[input.inputId] || ''
+                                                                    formState && formState[input.inputId] != ''
+                                                                        ? formState[input.inputId] || input.value || ''
+                                                                        : input.value || ''
                                                                 }
                                                                 onChange={(e) =>
                                                                     handleChange(input.inputId, e.target.value)

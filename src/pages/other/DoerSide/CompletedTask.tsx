@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import axios from 'axios';
 import { Button, Table, Container, Row, Col, Alert, Modal, Pagination } from 'react-bootstrap';
 // import { useLocation, useNavigate } from 'react-router-dom';
@@ -7,6 +7,18 @@ import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import config from '@/config';
 import MessCards from '../Component/Previous&Completed';
 import { getPlannedDate } from '../Component/PlanDateFunction';
+import ReactFlow, { Background, Controls, Edge, MiniMap, Node, useEdgesState, useNodesState } from 'reactflow';
+import CustomNode from '@/pages/WorkflowBuilder/CustomNode';
+import { FIELD } from '@/pages/FormBuilder/Constant/Interface';
+import STAFF_ALLOCATION_PLAN from '@/pages/WorkflowBuilder/DynamicSegment/STAFF_ALLOCATION_PLAN';
+import APPOINTMENT from '@/pages/WorkflowBuilder/DynamicSegment/APPOINTMENT';
+import NEW_APPOINTMENT from '@/pages/WorkflowBuilder/DynamicSegment/NEW_APPOINTMENT';
+import OLD_STAFF_TRANSFER from '@/pages/WorkflowBuilder/DynamicSegment/OLD_STAFF_TRANSFER';
+import INDUCTION from '@/pages/WorkflowBuilder/DynamicSegment/INDUCTION';
+import UPDATE_EMPLOYEE from '@/pages/WorkflowBuilder/DynamicSegment/UPDATE_EMPLOYEE';
+import APPOINTMENT_LETTER from '@/pages/WorkflowBuilder/DynamicSegment/APPOINTMENT_LETTER';
+import ASSIGN_TASK from '@/pages/WorkflowBuilder/DynamicSegment/ASSIGN_TASK';
+// import CustomNode from '@/pages/WorkflowBuilder/CustomNode';
 
 
 
@@ -57,7 +69,16 @@ interface Column {
   visible: boolean;
 }
 
-
+interface APISetting {
+  name: string;
+  api: string;
+  id: number;
+}
+interface WorkflowBuilderConfig {
+  apiSetting: APISetting[];
+  edges: Edge[];
+  nodes: Node[];
+}
 
 
 const ProjectAssignTable: React.FC = () => {
@@ -65,8 +86,41 @@ const ProjectAssignTable: React.FC = () => {
   const [preData, setPreData] = useState<any>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [show, setShow] = useState(false);
-    const [currentPage, setCurrentPage] = useState(1)
-    const [totalPages, setTotalPages] = useState(1)
+  const [currentPage, setCurrentPage] = useState(1)
+  const [totalPages, setTotalPages] = useState(1)
+  const [nodes, setNodes] = useNodesState([]);
+  const [edges, setEdges] = useEdgesState([]);
+
+  const [, setSelectedNode] = useState<Node | null>(null);
+  const [, setShowFormBuilder] = useState(false);
+  const [, setFormBuilder] = useState<FIELD>({
+    name: '',
+    blocks: [],
+    editMode: true,
+    blockCount: 0,
+    rules: [],
+    advance: {
+      backgroundColor: '',
+      color: '',
+    }
+  });
+  const [, setIsAddFormBuilder] = useState(false);
+  const [dynamicComponent, setDynamicComponent] = useState<string>('');
+
+  const componentMap: { [key: string]: React.FC<any> } = {
+    STAFF_ALLOCATION_PLAN: React.forwardRef((props, ref) => <STAFF_ALLOCATION_PLAN {...props} ref={ref} />),
+    APPOINTMENT: React.forwardRef((props, ref) => <APPOINTMENT {...props} ref={ref} />),
+    NEW_APPOINTMENT: React.forwardRef((props, ref) => <NEW_APPOINTMENT {...props} ref={ref} />),
+    OLD_STAFF_TRANSFER: React.forwardRef((props, ref) => <OLD_STAFF_TRANSFER {...props} ref={ref} />),
+    INDUCTION: React.forwardRef((props, ref) => <INDUCTION {...props} ref={ref} />),
+    UPDATE_EMPLOYEE: React.forwardRef((props, ref) => <UPDATE_EMPLOYEE {...props} ref={ref} />),
+    APPOINTMENT_LETTER: React.forwardRef((props, ref) => <APPOINTMENT_LETTER {...props} ref={ref} />),
+    ASSIGN_TASK: React.forwardRef((props, ref) => <ASSIGN_TASK {...props} ref={ref} />),
+  };
+
+  const componentRefMap = useRef<{ [key: string]: any }>({});
+  const [blockValue, setBlockValue] = useState({})
+
 
   // const [popoverIndex, setPopoverIndex] = useState<number | null>(null);
   // =======================================================================
@@ -78,6 +132,31 @@ const ProjectAssignTable: React.FC = () => {
     { id: 'planDate', label: 'Planned', visible: true },
     { id: 'isCompleted', label: 'Status', visible: true },
   ]);
+
+  const [workflowBuilder,] = useState<WorkflowBuilderConfig>({
+    apiSetting: [],
+    edges: [],
+    nodes: [],
+  });
+
+  // Function to handle node selection
+  const onNodeClick = useCallback((_event: React.MouseEvent, node: Node) => {
+    setSelectedNode(node); // ✅ Sets the node you're editing
+    console.log(node.data.blockValue);
+    setBlockValue(node.data.blockValue);
+    if (node.data.form?.blocks?.length) {
+      setShowFormBuilder(true);
+      setFormBuilder(node.data.form); // ✅ Prefill existing form
+      setIsAddFormBuilder(false);
+    } else {
+      if (node.data.form != "ADD_NODE")
+        setDynamicComponent(node.data.form);
+    }
+  }, []);
+
+  const nodeTypes = useMemo(() => ({
+    custom: (props: any) => <CustomNode {...props} setNodes={setNodes} edges={edges} isCompleteTask={true} />,
+  }), [setNodes, edges]);  // ✅ Include edges in dependencies
 
   const handleOnDragEnd = (result: any) => {
     if (!result.destination) return;
@@ -91,40 +170,41 @@ const ProjectAssignTable: React.FC = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-        setLoading(true);
-        try {
-            const role = localStorage.getItem('EmpId') || '';
-            const response = await axios.get<ApiResponse>(
-                `${config.API_URL_ACCOUNT}/ProcessInitiation/GetFilterTask`,
-                {
-                    params: {
-                        Flag: 2,
-                        DoerId: role,
-                        PageIndex: currentPage, // Adding pagination support
-                    },
-                }
-            );
+      setLoading(true);
+      try {
+        const role = localStorage.getItem('EmpId') || '';
+        const response = await axios.get<ApiResponse>(
+          `${config.API_URL_ACCOUNT}/ProcessInitiation/GetFilterTask`,
+          {
+            params: {
+              Flag: 2,
+              DoerId: role,
+              PageIndex: currentPage, // Adding pagination support
+            },
+          }
+        );
+        console.log('response', response)
 
-            if (response.data?.isSuccess) {
-                setData(response.data.getFilterTasks || []);
-                setTotalPages(Math.ceil(response.data.totalCount / 10)); // Setting pagination
-                console.log(response.data.getFilterTasks || []);
-            } else {
-                console.error('API Response Error:', response.data?.message || 'Unknown error');
-            }
-        } catch (error) {
-            if (axios.isAxiosError(error)) {
-                console.error('Axios Error:', error.message);
-            } else {
-                console.error('Unexpected Error:', error);
-            }
-        } finally {
-            setLoading(false);
+        if (response.data?.isSuccess) {
+          setData(response.data.getFilterTasks || []);
+          setTotalPages(Math.ceil(response.data.totalCount / 10)); // Setting pagination
+          console.log(response.data.getFilterTasks || []);
+        } else {
+          console.error('API Response Error:', response.data?.message || 'Unknown error');
         }
+      } catch (error) {
+        if (axios.isAxiosError(error)) {
+          console.error('Axios Error:', error.message);
+        } else {
+          console.error('Unexpected Error:', error);
+        }
+      } finally {
+        setLoading(false);
+      }
     };
 
     fetchData();
-}, [currentPage]); // Added currentPage as a dependency for pagination
+  }, [currentPage]); // Added currentPage as a dependency for pagination
 
 
 
@@ -225,10 +305,20 @@ const ProjectAssignTable: React.FC = () => {
   };
 
 
-  const handleEdit = (taskCommonId: number) => {
+  const handleEdit = (taskCommonId: number, item: any) => {
     fetchPreData(taskCommonId);
     setShow(true);
-    console.log(preData)
+    if (item.templateJson) {
+      console.log('if')
+      const templateJson = JSON.parse(item.templateJson);
+      setNodes(templateJson.nodes);
+      setEdges(templateJson.edges);
+      // setWorkflowBuilder({
+      //   apiSetting: templateJson.apiSetting,
+      //   edges: templateJson.edges,
+      //   nodes: templateJson.nodes,
+      // })
+    }
   };
 
   console.log(preData)
@@ -237,6 +327,10 @@ const ProjectAssignTable: React.FC = () => {
   const handleClose = () => {
     setShow(false);
     setPreData([]);
+  };
+
+  const handleFormClose = () => {
+    setDynamicComponent('')
   };
 
 
@@ -261,6 +355,8 @@ const ProjectAssignTable: React.FC = () => {
   }
 
 
+
+
   return (
     <>
       <Modal size='xl' show={show} onHide={handleClose} placement="end">
@@ -268,9 +364,61 @@ const ProjectAssignTable: React.FC = () => {
           <Modal.Title>Task Details</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <MessCards data={preData} />
+          {preData.length
+            ?
+            <MessCards data={preData} />
+            :
+            <>
+              {/* {JSON.stringify(workflowBuilder)} */}
+              <div className='col-12' style={{ height: 'calc(100vh - 200px)', position: 'relative' }}>
+                <ReactFlow
+                  nodes={nodes || workflowBuilder.nodes}
+                  edges={edges || workflowBuilder.edges}
+                  // onNodesChange={handleNodesChange}
+                  // onEdgesChange={onEdgesChange}
+                  // onConnect={onConnect}
+                  nodeTypes={nodeTypes}
+                  fitView
+                  // onDrop={handleDrop}
+                  // onDragOver={handleDragOver}
+                  // onEdgeClick={handleEdgeClick}
+                  onNodeClick={onNodeClick}
+                >
+                  <MiniMap />
+                  <Controls />
+                  <Background />
+                </ReactFlow>
+              </div>
+            </>
+          }
         </Modal.Body>
       </Modal>
+
+      {dynamicComponent && (
+        <Modal
+          show={true}
+          backdrop="static"
+          size='xl'
+          onHide={handleFormClose}
+        >
+          <Modal.Header closeButton>
+            <Modal.Title>Edit Task for</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            <fieldset disabled style={{ pointerEvents: "none" }}>
+              {dynamicComponent && componentMap[dynamicComponent] && React.createElement(componentMap[dynamicComponent], {
+                ref: (instance: any) => {
+                  if (instance) {
+                    componentRefMap.current[dynamicComponent] = instance;
+                  }
+                },
+                blockValue: blockValue
+              })}
+            </fieldset>
+          </Modal.Body>
+        </Modal>
+      )}
+
 
 
       <div className="d-flex bg-white p-2 my-2 justify-content-between align-items-center fs-20">
@@ -376,21 +524,7 @@ const ProjectAssignTable: React.FC = () => {
                                       ) :
                                         col.id === 'completedDate' ? (
                                           <>{format(new Date(item.completedDate), 'dd-MMM-yyyy HH:mm')}</>
-                                        ) : col.id === 'taskName' ? (
-                                          <>
-                                            {item.isCompleted == "Completed"
-                                              ? item.taskName
-                                              : (() => {
-                                                const taskJson = JSON.parse(item.task_Json);
-                                                const firstTaskName = taskJson && Array.isArray(taskJson) && taskJson.length > 0
-                                                  ? taskJson[0].taskName
-                                                  : 'No task names available';
-                                                return firstTaskName;
-                                              })()
-                                            }
-                                          </>
                                         ) :
-
                                           (
                                             <>{item[col.id as keyof typeof item]}</>
                                           )}
@@ -398,7 +532,7 @@ const ProjectAssignTable: React.FC = () => {
                               </td>
                             ))}
                           <td className='text-end pr-3'>
-                            <Button onClick={() => handleEdit(item.taskCommonId)}>
+                            <Button onClick={() => handleEdit(item.taskCommonId, item)}>
                               Show
                             </Button>
                           </td>

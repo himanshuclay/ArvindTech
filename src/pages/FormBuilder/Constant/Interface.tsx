@@ -4,7 +4,7 @@ import DateRange from "../Components/DateRange";
 import EmailInput from "../Components/EmailInput";
 import FileUpload from "../Components/FileUpload";
 import FloatInput from "../Components/FloatInput";
-import MultiSelect from "../Components/MultiSelect";
+import MultiSelectDropdown from "../Components/MultiSelect";
 import NumberInput from "../Components/NumberInput";
 import Password from "../Components/Password";
 import PhoneInput from "../Components/PhoneInput";
@@ -21,7 +21,7 @@ const componentsMap = {
     DateInput,
     FileUpload,
     DateRange,
-    MultiSelect,
+    MultiSelectDropdown,
     AmountInput,
     FloatInput,
 };
@@ -75,7 +75,8 @@ interface PROPERTY {
     decimalLimit?: string;  
     prefix?: string;  
     isLooping?: string;  
-    loopBlocks?: FIELD[];  
+    loopBlocks?: BASIC_FIELD[];  
+    blocks?: BASIC_FIELD[];  
     blockCount?: number;
     mode?: string;
 }

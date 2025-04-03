@@ -24,7 +24,7 @@ const OUTPUT_LABELS: Record<string, string[]> = {
     INDUCTION: [
         'Induction'
     ],
-    UPDATE_EMPLOYEE: [ 'New Appointment', 'Old Staff Transfer'],
+    UPDATE_EMPLOYEE: [ 'newAppointment', 'oldStaffTransfer'],
     APPOINTMENT_LETTER: [ 'Appointment Letter'],
     ASSIGN_TASK: [ 'Assign Task'],
 };
@@ -48,6 +48,7 @@ const TIME_MANAGEMENT_OPTION = [
     { label: 'Hours', value: 'hours' },
     { label: 'Weeks', value: 'weeks' },
     { label: 'Weeks With Time', value: 'weeksWithTime' },
+    { label: 'Specific Date', value: 'specificDate' },
 ];
 
 const TASK_CREATION_TYPE = [
@@ -64,6 +65,7 @@ const WEEKS = [
     { label: 'Friday', value: 'friday' },
     { label: 'Saturday', value: 'saturday' },
 ];
+
 
 
 export {

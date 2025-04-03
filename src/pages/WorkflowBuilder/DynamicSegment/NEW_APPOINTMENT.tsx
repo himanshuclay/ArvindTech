@@ -1,17 +1,22 @@
-import { useState } from "react";
+import { forwardRef, useImperativeHandle, useState } from "react";
 import { Col, Form, Row, Button } from "react-bootstrap";
 import Select from 'react-select';
 import Flatpickr from 'react-flatpickr';
+import { speak } from "@/utils/speak"; // ✅ Make sure this path is correct
+
+const YES_NO_OPTIONS = [
+    { label: "Yes", value: "yes" },
+    { label: "No", value: "no" }
+];
 
 interface Candidate {
     label: string;
-    value: string;
     mobileNumber?: string;
-    resume?: File | null;
+    resume?: string | null;
 }
 
-interface AppointmentState {
-    updateInterviewedCandidates: Candidate[];
+interface BlockValue {
+    updateInterviewedCandidates: { [key: string]: Candidate };
     finalizedCandidate: string;
     attendanceAndWorkingHoursPolicy: string;
     advancePolicyAndSalaryTimeline: string;
@@ -20,17 +25,13 @@ interface AppointmentState {
     onsiteAndExternalTravelReimbursementPolicy: string;
     messFoodingPolicy: string;
     confirmationOfStaffDeployedAtSite: string;
-    dateOfJoining: string; // Ensure this is added to the state
+    dateOfJoining: string;
+    [key: string]: string | { [key: string]: Candidate } | undefined;
 }
 
-const YES_NO_OPTIONS = [
-    { label: "Yes", value: "yes" },
-    { label: "No", value: "no" }
-];
-
-const NEW_APPOINTMENT = () => {
-    const [newAppointment, setNewAppointment] = useState<AppointmentState>({
-        updateInterviewedCandidates: [],
+const NEW_APPOINTMENT = forwardRef((props: any, ref) => {
+    const [blockValue, setBlockValue] = useState<BlockValue>(props.blockValue ? props.blockValue :{
+        updateInterviewedCandidates: {},
         finalizedCandidate: '',
         attendanceAndWorkingHoursPolicy: '',
         advancePolicyAndSalaryTimeline: '',
@@ -39,63 +40,91 @@ const NEW_APPOINTMENT = () => {
         onsiteAndExternalTravelReimbursementPolicy: '',
         messFoodingPolicy: '',
         confirmationOfStaffDeployedAtSite: '',
-        dateOfJoining: '', // Initialize empty
+        dateOfJoining: '',
     });
 
-    // Add New Candidate
     const handleAddUpdateInterviewedCandidates = () => {
-        const newCandidate: Candidate = {
-            label: `Candidate ${newAppointment.updateInterviewedCandidates.length + 1}`,
-            value: `candidate-${newAppointment.updateInterviewedCandidates.length + 1}`,
-            mobileNumber: "",
-            resume: null,
-        };
-
-        setNewAppointment(prevState => ({
-            ...prevState,
-            updateInterviewedCandidates: [...prevState.updateInterviewedCandidates, newCandidate],
+        const newCandidateValue = `Candidate ${Object.keys(blockValue.updateInterviewedCandidates).length + 1}`;
+        setBlockValue(prev => ({
+            ...prev,
+            updateInterviewedCandidates: {
+                ...prev.updateInterviewedCandidates,
+                [newCandidateValue]: { label: newCandidateValue }
+            }
         }));
+        speak(`${newCandidateValue} added`);
     };
 
-    // Update Candidate Fields
-    const handleInputChange = (index: number, key: keyof Candidate, value: string | File | null) => {
-        const updatedCandidates = [...newAppointment.updateInterviewedCandidates];
-        updatedCandidates[index] = { ...updatedCandidates[index], [key]: value };
-        setNewAppointment(prevState => ({
-            ...prevState,
-            updateInterviewedCandidates: updatedCandidates,
-        }));
+    const handleInputChange = (key: string, value: string) => {
+        const keys = key.split('.');
+        if (keys.length === 3 && keys[0] === 'updateInterviewedCandidates') {
+            const [_, candidateKey, fieldKey] = keys;
+
+            if (fieldKey === 'label') {
+                speak(`Candidate name updated to ${value}`);
+            }
+
+            setBlockValue(prev => ({
+                ...prev,
+                updateInterviewedCandidates: {
+                    ...prev.updateInterviewedCandidates,
+                    [candidateKey]: {
+                        ...prev.updateInterviewedCandidates[candidateKey],
+                        [fieldKey]: value
+                    }
+                }
+            }));
+        } else {
+            setBlockValue(prev => ({
+                ...prev,
+                [key]: value,
+            }));
+        }
     };
 
-    // Remove Candidate
-    const handleRemoveUpdateInterviewCandidates = (index: number) => {
-        setNewAppointment(prevState => ({
-            ...prevState,
-            updateInterviewedCandidates: prevState.updateInterviewedCandidates.filter((_, i) => i !== index),
-        }));
-    };
-
-    // Handle Select Changes for Policies
-    const handleSelectChange = (selectedOption: any, fieldName: keyof AppointmentState) => {
-        setNewAppointment(prev => ({
+    const handleSelectChange = (selectedOption: any, fieldName: string) => {
+        setBlockValue(prev => ({
             ...prev,
             [fieldName]: selectedOption ? selectedOption.value : '',
         }));
     };
 
-    // Handle Date Change for Flatpickr
     const handleDateChange = (selectedDates: Date[]) => {
-        setNewAppointment(prev => ({
+        setBlockValue(prev => ({
             ...prev,
             dateOfJoining: selectedDates.length > 0 ? selectedDates[0].toISOString().split('T')[0] : ''
         }));
     };
 
-    const handleFileChange = (index: number, event: React.ChangeEvent<HTMLInputElement>) => {
-        const file = event.target.files?.[0] || null; // Safely access the first file or null
-        handleInputChange(index, "resume", file);
+    const handleFileChange = (candidateKey: string, event: React.ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files?.[0] || null;
+        setBlockValue(prev => ({
+            ...prev,
+            updateInterviewedCandidates: {
+                ...prev.updateInterviewedCandidates,
+                [candidateKey]: {
+                    ...prev.updateInterviewedCandidates[candidateKey],
+                    resume: file ? file.name : '',
+                }
+            }
+        }));
     };
 
+    const handleRemoveCandidate = (candidateKey: string) => {
+        setBlockValue(prev => {
+            const updatedCandidates = { ...prev.updateInterviewedCandidates };
+            delete updatedCandidates[candidateKey];
+            speak(`${candidateKey} removed`);
+            return {
+                ...prev,
+                updateInterviewedCandidates: updatedCandidates,
+            };
+        });
+    };
+
+    useImperativeHandle(ref, () => ({
+        NEW_APPOINTMENT: () => blockValue
+    }));
 
     return (
         <div>
@@ -108,26 +137,25 @@ const NEW_APPOINTMENT = () => {
                 </div>
                 <Col lg={6}>
                     <Form.Group controlId="updateInterviewedCandidates">
-                        {newAppointment.updateInterviewedCandidates.map((updatedInterview, index) => (
+                        {Object.keys(blockValue.updateInterviewedCandidates).map((candidateKey, index) => (
                             <div key={index} style={{ display: "flex", alignItems: "center", marginBottom: "8px", gap: "8px" }}>
                                 <Form.Control
                                     type="text"
-                                    value={updatedInterview.label}
-                                    onChange={(e) => handleInputChange(index, "label", e.target.value)}
+                                    value={blockValue.updateInterviewedCandidates[candidateKey].label}
+                                    onChange={(e) => handleInputChange(`updateInterviewedCandidates.${candidateKey}.label`, e.target.value)}
                                     placeholder="Enter Candidate Name"
                                 />
                                 <Form.Control
                                     type="text"
-                                    value={updatedInterview.mobileNumber || ""}
-                                    onChange={(e) => handleInputChange(index, "mobileNumber", e.target.value)}
+                                    value={blockValue.updateInterviewedCandidates[candidateKey].mobileNumber || ""}
+                                    onChange={(e) => handleInputChange(`updateInterviewedCandidates.${candidateKey}.mobileNumber`, e.target.value)}
                                     placeholder="Enter Mobile Number"
                                 />
                                 <Form.Control
                                     type="file"
-                                    onChange={(e) => handleFileChange(index, e as React.ChangeEvent<HTMLInputElement>)} // Type Assertion
+                                    onChange={(e) => handleFileChange(candidateKey, e as React.ChangeEvent<HTMLInputElement>)}
                                 />
-
-                                <Button variant="danger" size="sm" onClick={() => handleRemoveUpdateInterviewCandidates(index)}>
+                                <Button variant="danger" size="sm" onClick={() => handleRemoveCandidate(candidateKey)}>
                                     Remove
                                 </Button>
                             </div>
@@ -136,98 +164,48 @@ const NEW_APPOINTMENT = () => {
                 </Col>
 
                 <Col lg={6}>
-                    {/* Finalized Candidate Selection */}
                     <Form.Group controlId="finalizedCandidate">
                         <Form.Label>Select Finalized Candidate</Form.Label>
                         <Select
                             name="finalizedCandidate"
-                            value={newAppointment.updateInterviewedCandidates.find(option => option.value === newAppointment.finalizedCandidate) || null}
+                            value={
+                                blockValue.finalizedCandidate
+                                    ? {
+                                        label: blockValue.updateInterviewedCandidates[blockValue.finalizedCandidate]?.label || blockValue.finalizedCandidate,
+                                        value: blockValue.finalizedCandidate,
+                                    }
+                                    : null
+                            }
                             onChange={(selectedOption) => handleSelectChange(selectedOption, "finalizedCandidate")}
-                            options={newAppointment.updateInterviewedCandidates}
+                            options={Object.keys(blockValue.updateInterviewedCandidates).map((key) => ({
+                                label: blockValue.updateInterviewedCandidates[key]?.label || key,
+                                value: key,
+                            }))}
                             isSearchable={true}
                             placeholder="Select Candidate"
                         />
+
                     </Form.Group>
                 </Col>
 
                 <Col lg={6}>
                     <h5>Finalized Candidate has agreed on the below policies:</h5>
+                    {Object.keys(blockValue).filter(key => key !== 'updateInterviewedCandidates' && key !== 'finalizedCandidate' && key !== 'dateOfJoining').map((policyKey) => (
+                        <Form.Group key={policyKey}>
+                            <Form.Label>{policyKey.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}</Form.Label>
+                            <Select
+                                options={YES_NO_OPTIONS}
+                                value={YES_NO_OPTIONS.find(option => option.value === blockValue[policyKey])}
+                                onChange={(selectedOption) => handleSelectChange(selectedOption, policyKey)}
+                                placeholder="Select Yes or No"
+                            />
+                        </Form.Group>
+                    ))}
 
-                    {/* ✅ Converted all policies to Select Dropdowns */}
-                    <Form.Group>
-                        <Form.Label>Attendance and Working Hours Policy</Form.Label>
-                        <Select
-                            options={YES_NO_OPTIONS}
-                            value={YES_NO_OPTIONS.find(option => option.value === newAppointment.attendanceAndWorkingHoursPolicy)}
-                            onChange={(selectedOption) => handleSelectChange(selectedOption, "attendanceAndWorkingHoursPolicy")}
-                            placeholder="Select Yes or No"
-                        />
-                    </Form.Group>
-
-                    <Form.Group>
-                        <Form.Label>Advance Policy and Salary Timeline</Form.Label>
-                        <Select
-                            options={YES_NO_OPTIONS}
-                            value={YES_NO_OPTIONS.find(option => option.value === newAppointment.advancePolicyAndSalaryTimeline)}
-                            onChange={(selectedOption) => handleSelectChange(selectedOption, "advancePolicyAndSalaryTimeline")}
-                            placeholder="Select Yes or No"
-                        />
-                    </Form.Group>
-
-                    <Form.Group>
-                        <Form.Label>Offer Letter and Employment Letter Release Policy</Form.Label>
-                        <Select
-                            options={YES_NO_OPTIONS}
-                            value={YES_NO_OPTIONS.find(option => option.value === newAppointment.offerLetterAndEmploymentLetterReleasePolicy)}
-                            onChange={(selectedOption) => handleSelectChange(selectedOption, "offerLetterAndEmploymentLetterReleasePolicy")}
-                            placeholder="Select Yes or No"
-                        />
-                    </Form.Group>
-
-                    <Form.Group>
-                        <Form.Label>Accommodation Policy</Form.Label>
-                        <Select
-                            options={YES_NO_OPTIONS}
-                            value={YES_NO_OPTIONS.find(option => option.value === newAppointment.accommodationPolicy)}
-                            onChange={(selectedOption) => handleSelectChange(selectedOption, "accommodationPolicy")}
-                            placeholder="Select Yes or No"
-                        />
-                    </Form.Group>
-
-                    <Form.Group>
-                        <Form.Label>Onsite and External Travel Reimbursement Policy</Form.Label>
-                        <Select
-                            options={YES_NO_OPTIONS}
-                            value={YES_NO_OPTIONS.find(option => option.value === newAppointment.onsiteAndExternalTravelReimbursementPolicy)}
-                            onChange={(selectedOption) => handleSelectChange(selectedOption, "onsiteAndExternalTravelReimbursementPolicy")}
-                            placeholder="Select Yes or No"
-                        />
-                    </Form.Group>
-
-                    <Form.Group>
-                        <Form.Label>Mess / Fooding Policy</Form.Label>
-                        <Select
-                            options={YES_NO_OPTIONS}
-                            value={YES_NO_OPTIONS.find(option => option.value === newAppointment.messFoodingPolicy)}
-                            onChange={(selectedOption) => handleSelectChange(selectedOption, "messFoodingPolicy")}
-                            placeholder="Select Yes or No"
-                        />
-                    </Form.Group>
-                    <Form.Group>
-                        <Form.Label>Confirmation of staff Deployed at Site</Form.Label>
-                        <Select
-                            options={YES_NO_OPTIONS}
-                            value={YES_NO_OPTIONS.find(option => option.value === newAppointment.confirmationOfStaffDeployedAtSite)}
-                            onChange={(selectedOption) => handleSelectChange(selectedOption, "confirmationOfStaffDeployedAtSite")}
-                            placeholder="Select Yes or No"
-                        />
-                    </Form.Group>
-
-                    {/* ✅ Date of Joining Field */}
                     <Form.Group>
                         <Form.Label>Date of Joining</Form.Label>
                         <Flatpickr
-                            value={newAppointment.dateOfJoining}
+                            value={blockValue.dateOfJoining}
                             onChange={(selectedDates) => handleDateChange(selectedDates)}
                             options={{ dateFormat: "Y-m-d" }}
                             className="form-control"
@@ -238,6 +216,6 @@ const NEW_APPOINTMENT = () => {
             </Row>
         </div>
     );
-};
+});
 
 export default NEW_APPOINTMENT;
