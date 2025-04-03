@@ -91,9 +91,9 @@ const ProjectAssignTable: React.FC = () => {
   const [nodes, setNodes] = useNodesState([]);
   const [edges, setEdges] = useEdgesState([]);
 
-  const [selectedNode, setSelectedNode] = useState<Node | null>(null);
-  const [showFormBuilder, setShowFormBuilder] = useState(false);
-  const [formBuilder, setFormBuilder] = useState<FIELD>({
+  const [, setSelectedNode] = useState<Node | null>(null);
+  const [, setShowFormBuilder] = useState(false);
+  const [, setFormBuilder] = useState<FIELD>({
     name: '',
     blocks: [],
     editMode: true,
@@ -104,7 +104,7 @@ const ProjectAssignTable: React.FC = () => {
       color: '',
     }
   });
-  const [isAddFormBuilder, setIsAddFormBuilder] = useState(false);
+  const [, setIsAddFormBuilder] = useState(false);
   const [dynamicComponent, setDynamicComponent] = useState<string>('');
 
   const componentMap: { [key: string]: React.FC<any> } = {
@@ -133,7 +133,7 @@ const ProjectAssignTable: React.FC = () => {
     { id: 'isCompleted', label: 'Status', visible: true },
   ]);
 
-  const [workflowBuilder, setWorkflowBuilder] = useState<WorkflowBuilderConfig>({
+  const [workflowBuilder,] = useState<WorkflowBuilderConfig>({
     apiSetting: [],
     edges: [],
     nodes: [],
