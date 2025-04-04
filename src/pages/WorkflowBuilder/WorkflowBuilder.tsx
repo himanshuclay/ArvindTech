@@ -78,7 +78,7 @@ const WorkflowBuilder: React.FC = () => {
     });
 
     const nodeTypes = useMemo(() => ({
-        custom: (props: any) => <CustomNode {...props} setNodes={setNodes} edges={edges}  />,
+        custom: (props: any) => <CustomNode {...props} setNodes={setNodes} edges={edges} />,
     }), [setNodes, edges]);
 
     const [formBuilder, setFormBuilder] = useState<FIELD>({
@@ -87,6 +87,7 @@ const WorkflowBuilder: React.FC = () => {
         editMode: true,
         blockCount: 0,
         rules: [],
+        configureSelectionLogics: [],
         advance: {
             backgroundColor: '',
             color: '',
@@ -98,6 +99,7 @@ const WorkflowBuilder: React.FC = () => {
         editMode: true,
         blockCount: 0,
         rules: [],
+        configureSelectionLogics: [],
         advance: {
             backgroundColor: '',
             color: '',
@@ -177,10 +179,10 @@ const WorkflowBuilder: React.FC = () => {
             type: 'custom',
             data: {
                 label: action ? LABEL[action] : form ? form.name : `New Node ${nodes.length + 1}`, handles: Math.floor(Math.random() * 4) + 1, form: action ? action : form || {},
-                taskNumber: `T${nodes.length - 1 }`,
+                taskNumber: `T${nodes.length - 1}`,
                 inputHandles: action ? INPUT_HANDLES[action] : 1,
-                outputHandles: action ? OUTPUT_HANDLES[action] : 1,
-                outputLabels: action ? OUTPUT_LABELS[action] : '',
+                outputHandles: action ? OUTPUT_HANDLES[action] : form.configureSelectionLogics ? form.configureSelectionLogics[0].start2.length : 1,
+                outputLabels: action ? OUTPUT_LABELS[action] : form.configureSelectionLogics ? form.configureSelectionLogics[0].start2 : '',
             },
             position: { x, y },
         };
@@ -197,7 +199,7 @@ const WorkflowBuilder: React.FC = () => {
         setShowSettings(!showSettings);
     };
 
- 
+
 
 
 
@@ -291,7 +293,9 @@ const WorkflowBuilder: React.FC = () => {
                                     ...node.data,
                                     label: formBuilder.name || node.data.label,
                                     form: formBuilder,
-                                }
+                                    "outputHandles": formBuilder.configureSelectionLogics ? formBuilder.configureSelectionLogics[0].start2.length : node.data.outputHandles,
+                                    "outputLabels": formBuilder.configureSelectionLogics ? formBuilder.configureSelectionLogics[0].start2 : node.data.outputLabels,
+                                },
                             }
                             : node
                     )
@@ -307,11 +311,15 @@ const WorkflowBuilder: React.FC = () => {
                                     ...node.data,
                                     label: formBuilder.name || node.data.label,
                                     form: formBuilder,
-                                }
+                                    "outputHandles": formBuilder.configureSelectionLogics ? formBuilder.configureSelectionLogics[0].start2.length : node.data.outputHandles,
+                                    "outputLabels": formBuilder.configureSelectionLogics ? formBuilder.configureSelectionLogics[0].start2 : node.data.outputLabels,
+                                },
+
                             }
                             : node
                     ),
                 }));
+                console.log('workflowBuilder', workflowBuilder)
 
                 setShowFormBuilder(false);
                 setIsAddFormBuilder(false);

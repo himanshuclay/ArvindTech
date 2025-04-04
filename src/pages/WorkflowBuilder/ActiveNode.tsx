@@ -74,7 +74,7 @@ const ActiveNode = ({ activeNode, activeTaskId, setActiveNode, completedNodes, s
             const query: any = {
                 id: activeTaskId,
             }
-            if (activeNode.data.outputLabels.length > 1) {
+            if (Array.isArray(activeNode.data.outputLabels) && activeNode.data.outputLabels.length > 1) {
                 const activeLabel = activeNode.data.blockValue?.typeOfAppointment;
                 const matchedActiveLabel = activeNode.data.outputLabels.find(
                     (label: any) => label === activeLabel

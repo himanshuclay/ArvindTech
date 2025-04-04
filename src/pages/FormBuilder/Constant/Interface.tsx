@@ -32,6 +32,7 @@ interface FIELD {
     blockCount: number;
     editMode: boolean;
     rules: RULE[];
+    configureSelectionLogics: CONFIGURE_SELECTION_LOGICS[];
     advance: ADVANCE;
 }
 
@@ -49,6 +50,11 @@ interface RULE {
     end1: string;
     end2: string;
     end3: string;
+}
+
+interface CONFIGURE_SELECTION_LOGICS {
+    start1: string;
+    start2: string[];
 }
 
 interface ADVANCE {
@@ -95,5 +101,5 @@ interface TRIGGER_ACTION {
     };
   }
 
-export type { FIELD, PROPERTY, BASIC_FIELD, RULE, BLOCK_VALUE, ADVANCE, OPTION, TRIGGER_ACTION };
+export type { FIELD, PROPERTY, BASIC_FIELD, RULE, BLOCK_VALUE, ADVANCE, OPTION, TRIGGER_ACTION, CONFIGURE_SELECTION_LOGICS };
 

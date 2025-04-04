@@ -9,6 +9,7 @@ import axios from 'axios';
 import config from '@/config';
 import { toast } from 'react-toastify';
 import { useNavigate, useParams } from 'react-router-dom';
+import ConfigureSelectionLogic from './Property/ConfigureSelectionLogic';
 
 interface FormBuilderProps {
     formDetails?: {
@@ -32,6 +33,7 @@ const FormBuilder: React.FC<FormBuilderProps> = ({ formDetails, handleClose, for
         blockCount: 0,
         editMode: true,
         rules: [],
+        configureSelectionLogics:[],
         advance: {
             backgroundColor: '',
             color: '',
@@ -54,7 +56,8 @@ const FormBuilder: React.FC<FormBuilderProps> = ({ formDetails, handleClose, for
     })
 
 
-    const [showRule, setShowRule] = useState(false)
+    const [showRule, setShowRule] = useState(false);
+    const [configureSelectionLogic, setConfigureSelectionLogic] = useState(false);
     const [blockValue, setBlockValue] = useState({})
     const navigate = useNavigate();
 
@@ -152,6 +155,8 @@ const FormBuilder: React.FC<FormBuilderProps> = ({ formDetails, handleClose, for
         handleAdhocSaveForm,
         showWorkflowBuilder,
         isShowSaveButton,
+        configureSelectionLogic, 
+        setConfigureSelectionLogic,
         // setFormSize,
     }
 
@@ -203,6 +208,9 @@ const FormBuilder: React.FC<FormBuilderProps> = ({ formDetails, handleClose, for
                         )}
                         <div>
                             <Rule form={form} setForm={setForm} showRule={showRule} setShowRule={setShowRule} />
+                        </div>
+                        <div>
+                            <ConfigureSelectionLogic form={form} setForm={setForm} configureSelectionLogic={configureSelectionLogic} setConfigureSelectionLogic={setConfigureSelectionLogic} />
                         </div>
                     </div>
                 </>

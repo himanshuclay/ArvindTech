@@ -1,12 +1,13 @@
 import config from "@/config";
 import axios from "axios";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Form, Modal } from "react-bootstrap";
 import Select from 'react-select';
 import { Handle, Position } from 'reactflow';
 import { ASSIGN_DOER_TYPE, TASK_CREATION_TYPE, TIME_MANAGEMENT_OPTION, WEEKS } from "./Constant";
 import Flatpickr from 'react-flatpickr';
-import { speak } from "@/utils/speak";
+// import { speak } from "@/utils/speak";
+import { APPOINTMENT, NEW_APPOINTMENT } from "./Constant/Binding";
 
 interface DROP_DOWN {
     empId: string;
@@ -15,11 +16,23 @@ interface DROP_DOWN {
     identifier?: string;
 }
 
+interface Option {
+    label: string;
+    value: string;
+}
+
 const CustomNode = ({ data, id, setNodes, edges, isCompleteTask }: { data: any; id: string; setNodes: any; edges: any[], isCompleteTask: boolean }) => {
     const [showSettings, setShowSettings] = useState(false);
+    const [showBinding, setShowBinding] = useState(false);
+    const [loading, setLoading] = useState(false);
     const inputHandles = data.inputHandles || 1;
     const outputHandles = data.outputHandles || 1;
     const outputLabels = data.outputLabels || Array(outputHandles).fill("").map((_, i) => `Out ${i + 1}`);
+
+    const BINDING: { [key: string]: string[] } = {
+        APPOINTMENT,
+        NEW_APPOINTMENT,
+    };
 
     const [nodeSetting, setNodeSetting] = useState({
         assignDoerType: data.assignDoerType || '',  // Preserve existing selection
@@ -34,12 +47,17 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask }: { data: any; 
         weeks: data.weeks || '',
         label: data.label || '',
         doerAssignList: data.doerAssignList || {},
+        bindingValues: data.bindingValues || {},
     });
 
     const [doerList, setDoerList] = useState<{ value: string; label: string }[]>([]);
     const [projectList, setProjectList] = useState<{ id: string; projectName: string }[]>([]);
 
     const [isStartNode, setIsStartNode] = useState(false);
+    const [mastersLists, setMasterLists] = useState<Option[]>([]);
+    const [columnLists, setColumnLists] = useState<{ [key: string]: Option[] }>({}); // Store column options
+
+
     useEffect(() => {
         // Check if this node is directly connected to the start node
         const hasStartNodeConnection = edges.some(edge => edge.target === id.toString() && edge.source === "1");
@@ -94,10 +112,12 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask }: { data: any; 
             label: data.label || '',
             taskNumber: data.taskNumber || '',
             doerAssignList: data.doerAssignList || {},
+            bindingValues: data.bindingValues || {},
         });
     }, [data]);
 
     const handleSaveDoer = () => {
+        console.log(nodeSetting)
         data.assignDoerType = nodeSetting.assignDoerType;
         data.doer = nodeSetting.doer;
         data.taskTimeOptions = nodeSetting.taskTimeOptions;
@@ -108,6 +128,7 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask }: { data: any; 
         data.hours = nodeSetting.hours;
         data.weeks = nodeSetting.weeks;
         data.doerAssignList = nodeSetting.doerAssignList;
+        data.bindingValues = nodeSetting.bindingValues;
 
         setNodes((prevNodes: any) =>
             prevNodes.map((node: any) =>
@@ -127,6 +148,7 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask }: { data: any; 
                             label: nodeSetting.label,
                             taskNumber: nodeSetting.taskNumber,
                             doerAssignList: nodeSetting.doerAssignList,
+                            bindingValues: nodeSetting.bindingValues,
                         }
                     }
                     : node
@@ -134,6 +156,7 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask }: { data: any; 
         );
 
         setShowSettings(false);
+        setShowBinding(false);
     };
 
 
@@ -151,25 +174,65 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask }: { data: any; 
         if (!nodeSetting.assignDoerType || nodeSetting.assignDoerType.trim() === '') {
             return { border: '2px solid red' };
         }
-        if(isCompleteTask && data.completedBy == localStorage.getItem("EmpId")){
-            return {border: '4px solid green'};
+        if (isCompleteTask && data.completedBy == localStorage.getItem("EmpId")) {
+            return { border: '4px solid green' };
         }
         return {};
     };
 
     useEffect(() => {
-        if (!nodeSetting.assignDoerType) {
-          speak("Please assign a doer type for this node.");
+        setLoading(true);
+        axios.get(`${config.API_URL_APPLICATION}/FormBuilder/GetMasterList`).then(response => {
+            setMasterLists(response.data.masterForms);
+        });
+        setLoading(false);
+        // if (!nodeSetting.assignDoerType) {
+        //   speak("Please assign a doer type for this node.");
+        // }
+    }, []); // when settings modal opens
+
+    // Using a ref to track if the columns for a master have been fetched
+    const fetchedMastersRef = useRef<Set<string>>(new Set());
+
+    useEffect(() => {
+        // Fetch columns for the selected master when modal opens
+        if (showBinding) {
+          BINDING[data.form]?.forEach((block) => {
+            const currentBindingValue = nodeSetting.bindingValues?.[block];
+            console.log('currentBindingValue', currentBindingValue)
+            if (currentBindingValue) {    
+              // Fetch columns for the selected master if not already fetched
+              fetchColumnNames(currentBindingValue.master);
+            }
+          });
         }
-      }, [showSettings]); // when settings modal opens
+      }, [showBinding, nodeSetting.bindingValues]);
+
+    // The fetchColumnNames function definition remains the same
+    const fetchColumnNames = async (masterName: string) => {
+        if (!fetchedMastersRef.current.has(masterName)) {
+          try {
+            const response = await axios.get(`${config.API_URL_APPLICATION}/FormBuilder/GetColumnList`, { params: { id: masterName } });
+            setColumnLists((prev) => ({ ...prev, [masterName]: response.data.columnFormLists }));
+            fetchedMastersRef.current.add(masterName); // Mark this master as fetched
+          } catch (error) {
+            console.error('Error fetching columns:', error);
+          }
+        }
+      };
 
 
     return (
         <div className="custom-node" style={getBorderStyle()}>
             {/* Settings Icon */}
-            <button className="settings-button" onClick={(e) => { e.stopPropagation(); setShowSettings(!showSettings); }} disabled={isCompleteTask}>
-                <i className="ri-settings-3-fill"></i>
-            </button>
+            <div className="settings-button">
+                <button className="setting-button-design" onClick={(e) => { e.stopPropagation(); setShowBinding(!showBinding); }} disabled={isCompleteTask}>
+                    <i className="ri-git-merge-line"></i>
+                </button>
+                <button className="setting-button-design" onClick={(e) => { e.stopPropagation(); setShowSettings(!showSettings); }} disabled={isCompleteTask}>
+                    <i className="ri-settings-3-fill"></i>
+                </button>
+            </div>
 
             {/* Settings Modal */}
             <Modal show={showSettings} backdrop="static" size='xl'>
@@ -379,6 +442,95 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask }: { data: any; 
                     </Modal.Footer>
                 </div>
             </Modal>
+            {/* Binding Modal */}
+            <Modal show={showBinding} backdrop="static" size="xl">
+  {!loading && (
+    <div onClick={(e) => e.stopPropagation()}>
+      <Modal.Header>
+        <Modal.Title>Binding Forms to Masters</Modal.Title>
+      </Modal.Header>
+      <Modal.Body>
+        {BINDING[data.form]?.map((block, index) => {
+          const currentBindingValue = nodeSetting.bindingValues?.[block];
+          const masterName = currentBindingValue?.master;
+          const columnName = currentBindingValue?.column;
+
+          return (
+            <div key={index} style={{ marginBottom: '1rem' }}>
+              <Form.Control
+                type="text"
+                value={block}
+                readOnly
+                style={{ marginBottom: '0.5rem' }}
+              />
+
+              {/* Display the master name part */}
+
+              <Select
+                options={mastersLists}
+                value={mastersLists.find((option) => option.value === masterName) || null}
+                onChange={(selectedOption) => {
+                  const newMasterName = selectedOption?.value || '';
+
+                  // Update the binding value and fetch columns
+                  setNodeSetting((prev) => ({
+                    ...prev,
+                    bindingValues: {
+                      ...prev.bindingValues,
+                      [block]: {
+                        master: newMasterName,
+                        column: columnName || '',
+                      },
+                    },
+                  }));
+
+                  // Fetch columns for the selected master name
+                  fetchColumnNames(newMasterName);
+                }}
+                placeholder={`Select a Master for ${block}`}
+              />
+
+              {/* Display column select dropdown if the mastername is selected */}
+              {masterName && columnLists[masterName] && (
+                <Select
+                  options={columnLists[masterName] || []}
+                  value={columnLists[masterName]?.find(
+                    (option) => option.value === columnName
+                  )}
+                  onChange={(selectedOption) => {
+                    const newColumnName = selectedOption?.value || '';
+
+                    // Update the column value in bindingValues
+                    setNodeSetting((prev) => ({
+                      ...prev,
+                      bindingValues: {
+                        ...prev.bindingValues,
+                        [block]: {
+                          column: newColumnName,
+                          master: masterName || '',
+                        },
+                      },
+                    }));
+                  }}
+                  placeholder={`Select a Column for ${block}`}
+                />
+              )}
+            </div>
+          );
+        })}
+      </Modal.Body>
+      <Modal.Footer>
+        <button className="close-button" onClick={() => setShowBinding(false)}>Close</button>
+        <button className="save-button" onClick={handleSaveDoer}>
+          Save
+        </button>
+      </Modal.Footer>
+    </div>
+  )}
+</Modal>
+
+
+
 
             {/* Input Handles */}
             {[...Array(inputHandles)].map((_, index) => (
