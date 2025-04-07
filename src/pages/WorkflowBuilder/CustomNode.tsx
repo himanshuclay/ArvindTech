@@ -8,6 +8,7 @@ import { ASSIGN_DOER_TYPE, TASK_CREATION_TYPE, TIME_MANAGEMENT_OPTION, WEEKS } f
 import Flatpickr from 'react-flatpickr';
 // import { speak } from "@/utils/speak";
 import { APPOINTMENT, NEW_APPOINTMENT } from "./Constant/Binding";
+import { getBlockName } from "./Constant/function";
 
 interface DROP_DOWN {
     empId: string;
@@ -55,6 +56,7 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask }: { data: any; 
 
     const [isStartNode, setIsStartNode] = useState(false);
     const [mastersLists, setMasterLists] = useState<Option[]>([]);
+    const [blockName, setBlockName] = useState<string[]>([]);
     const [columnLists, setColumnLists] = useState<{ [key: string]: Option[] }>({}); // Store column options
 
 
@@ -185,6 +187,14 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask }: { data: any; 
         axios.get(`${config.API_URL_APPLICATION}/FormBuilder/GetMasterList`).then(response => {
             setMasterLists(response.data.masterForms);
         });
+        console.log('data', data);
+        if(typeof data.form != "string" && data.form?.blocks?.length){
+            const blockNames = getBlockName(data.form.blocks);
+            setBlockName(blockNames);
+           
+        }else{
+            setBlockName(BINDING[data.form]);
+        }
         setLoading(false);
         // if (!nodeSetting.assignDoerType) {
         //   speak("Please assign a doer type for this node.");
@@ -197,29 +207,29 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask }: { data: any; 
     useEffect(() => {
         // Fetch columns for the selected master when modal opens
         if (showBinding) {
-          BINDING[data.form]?.forEach((block) => {
-            const currentBindingValue = nodeSetting.bindingValues?.[block];
-            console.log('currentBindingValue', currentBindingValue)
-            if (currentBindingValue) {    
-              // Fetch columns for the selected master if not already fetched
-              fetchColumnNames(currentBindingValue.master);
-            }
-          });
+            BINDING[data.form]?.forEach((block) => {
+                const currentBindingValue = nodeSetting.bindingValues?.[block];
+                console.log('currentBindingValue', currentBindingValue)
+                if (currentBindingValue) {
+                    // Fetch columns for the selected master if not already fetched
+                    fetchColumnNames(currentBindingValue.master);
+                }
+            });
         }
-      }, [showBinding, nodeSetting.bindingValues]);
+    }, [showBinding, nodeSetting.bindingValues]);
 
     // The fetchColumnNames function definition remains the same
     const fetchColumnNames = async (masterName: string) => {
         if (!fetchedMastersRef.current.has(masterName)) {
-          try {
-            const response = await axios.get(`${config.API_URL_APPLICATION}/FormBuilder/GetColumnList`, { params: { id: masterName } });
-            setColumnLists((prev) => ({ ...prev, [masterName]: response.data.columnFormLists }));
-            fetchedMastersRef.current.add(masterName); // Mark this master as fetched
-          } catch (error) {
-            console.error('Error fetching columns:', error);
-          }
+            try {
+                const response = await axios.get(`${config.API_URL_APPLICATION}/FormBuilder/GetColumnList`, { params: { id: masterName } });
+                setColumnLists((prev) => ({ ...prev, [masterName]: response.data.columnFormLists }));
+                fetchedMastersRef.current.add(masterName); // Mark this master as fetched
+            } catch (error) {
+                console.error('Error fetching columns:', error);
+            }
         }
-      };
+    };
 
 
     return (
@@ -444,90 +454,91 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask }: { data: any; 
             </Modal>
             {/* Binding Modal */}
             <Modal show={showBinding} backdrop="static" size="xl">
-  {!loading && (
-    <div onClick={(e) => e.stopPropagation()}>
-      <Modal.Header>
-        <Modal.Title>Binding Forms to Masters</Modal.Title>
-      </Modal.Header>
-      <Modal.Body>
-        {BINDING[data.form]?.map((block, index) => {
-          const currentBindingValue = nodeSetting.bindingValues?.[block];
-          const masterName = currentBindingValue?.master;
-          const columnName = currentBindingValue?.column;
+                {!loading && (
+                    <div onClick={(e) => e.stopPropagation()}>
+                        <Modal.Header>
+                            <Modal.Title>Binding Forms to Masters</Modal.Title>
+                        </Modal.Header>
+                        <Modal.Body>
+                            {JSON.stringify(nodeSetting)}
+                            {blockName?.map((block, index) => {
+                                const currentBindingValue = nodeSetting.bindingValues?.[block];
+                                const masterName = currentBindingValue?.master;
+                                const columnName = currentBindingValue?.column;
 
-          return (
-            <div key={index} style={{ marginBottom: '1rem' }}>
-              <Form.Control
-                type="text"
-                value={block}
-                readOnly
-                style={{ marginBottom: '0.5rem' }}
-              />
+                                return (
+                                    <div key={index} style={{ marginBottom: '1rem' }}>
+                                        <Form.Control
+                                            type="text"
+                                            value={block}
+                                            readOnly
+                                            style={{ marginBottom: '0.5rem' }}
+                                        />
 
-              {/* Display the master name part */}
+                                        {/* Display the master name part */}
 
-              <Select
-                options={mastersLists}
-                value={mastersLists.find((option) => option.value === masterName) || null}
-                onChange={(selectedOption) => {
-                  const newMasterName = selectedOption?.value || '';
+                                        <Select
+                                            options={mastersLists}
+                                            value={mastersLists.find((option) => option.value === masterName) || null}
+                                            onChange={(selectedOption) => {
+                                                const newMasterName = selectedOption?.value || '';
 
-                  // Update the binding value and fetch columns
-                  setNodeSetting((prev) => ({
-                    ...prev,
-                    bindingValues: {
-                      ...prev.bindingValues,
-                      [block]: {
-                        master: newMasterName,
-                        column: columnName || '',
-                      },
-                    },
-                  }));
+                                                // Update the binding value and fetch columns
+                                                setNodeSetting((prev) => ({
+                                                    ...prev,
+                                                    bindingValues: {
+                                                        ...prev.bindingValues,
+                                                        [block]: {
+                                                            master: newMasterName,
+                                                            column: columnName || '',
+                                                        },
+                                                    },
+                                                }));
 
-                  // Fetch columns for the selected master name
-                  fetchColumnNames(newMasterName);
-                }}
-                placeholder={`Select a Master for ${block}`}
-              />
+                                                // Fetch columns for the selected master name
+                                                fetchColumnNames(newMasterName);
+                                            }}
+                                            placeholder={`Select a Master for ${block}`}
+                                        />
 
-              {/* Display column select dropdown if the mastername is selected */}
-              {masterName && columnLists[masterName] && (
-                <Select
-                  options={columnLists[masterName] || []}
-                  value={columnLists[masterName]?.find(
-                    (option) => option.value === columnName
-                  )}
-                  onChange={(selectedOption) => {
-                    const newColumnName = selectedOption?.value || '';
+                                        {/* Display column select dropdown if the mastername is selected */}
+                                        {masterName && columnLists[masterName] && (
+                                            <Select
+                                                options={columnLists[masterName] || []}
+                                                value={columnLists[masterName]?.find(
+                                                    (option) => option.value === columnName
+                                                )}
+                                                onChange={(selectedOption) => {
+                                                    const newColumnName = selectedOption?.value || '';
 
-                    // Update the column value in bindingValues
-                    setNodeSetting((prev) => ({
-                      ...prev,
-                      bindingValues: {
-                        ...prev.bindingValues,
-                        [block]: {
-                          column: newColumnName,
-                          master: masterName || '',
-                        },
-                      },
-                    }));
-                  }}
-                  placeholder={`Select a Column for ${block}`}
-                />
-              )}
-            </div>
-          );
-        })}
-      </Modal.Body>
-      <Modal.Footer>
-        <button className="close-button" onClick={() => setShowBinding(false)}>Close</button>
-        <button className="save-button" onClick={handleSaveDoer}>
-          Save
-        </button>
-      </Modal.Footer>
-    </div>
-  )}
-</Modal>
+                                                    // Update the column value in bindingValues
+                                                    setNodeSetting((prev) => ({
+                                                        ...prev,
+                                                        bindingValues: {
+                                                            ...prev.bindingValues,
+                                                            [block]: {
+                                                                column: newColumnName,
+                                                                master: masterName || '',
+                                                            },
+                                                        },
+                                                    }));
+                                                }}
+                                                placeholder={`Select a Column for ${block}`}
+                                            />
+                                        )}
+                                    </div>
+                                );
+                            })}
+                        </Modal.Body>
+                        <Modal.Footer>
+                            <button className="close-button" onClick={() => setShowBinding(false)}>Close</button>
+                            <button className="save-button" onClick={handleSaveDoer}>
+                                Save
+                            </button>
+                        </Modal.Footer>
+                    </div>
+                )}
+            </Modal>
 
 
 

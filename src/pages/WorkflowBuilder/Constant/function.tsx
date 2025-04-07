@@ -50,8 +50,14 @@ const getCompletedNodes = (workerData: WorkflowBuilderConfig, id: string, comple
     return getCompletedNodes(workerData, currentNode.data.nextNode.id, completedNodes, currentNode.data.nextNode.sourceHandle);
 }
 
+const getBlockName = (blocks: any) => {
+    const blockName = blocks.map((block: any) => block.name);
+    console.log('blockName', blockName);
+    return blockName;
+}
 
 export {
     getActiveNode,
     getCompletedNodes,
+    getBlockName,
 }
