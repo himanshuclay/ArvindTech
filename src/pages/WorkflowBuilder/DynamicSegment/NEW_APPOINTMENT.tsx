@@ -17,6 +17,7 @@ interface Candidate {
 
 interface BlockValue {
     updateInterviewedCandidates: { [key: string]: Candidate };
+    candidateCount: string;
     finalizedCandidate: string;
     attendanceAndWorkingHoursPolicy: string;
     advancePolicyAndSalaryTimeline: string;
@@ -28,6 +29,7 @@ interface BlockValue {
     dateOfJoining: string;
     [key: string]: string | { [key: string]: Candidate } | undefined;
 }
+
 
 const NEW_APPOINTMENT = forwardRef((props: any, ref) => {
     const [blockValue, setBlockValue] = useState<BlockValue>(props.blockValue ? props.blockValue :{
@@ -41,17 +43,22 @@ const NEW_APPOINTMENT = forwardRef((props: any, ref) => {
         messFoodingPolicy: '',
         confirmationOfStaffDeployedAtSite: '',
         dateOfJoining: '',
+        candidateCount: 0,
     });
 
+    console.log("this is the number", blockValue.candidateCount);
+
     const handleAddUpdateInterviewedCandidates = () => {
-        const newCandidateValue = `Candidate ${Object.keys(blockValue.updateInterviewedCandidates).length + 1}`;
+        const newCandidateValue = `Candidate ${blockValue.candidateCount}`;
         setBlockValue(prev => ({
             ...prev,
+            candidateCount: JSON.stringify(Number(prev.candidateCount) + 1),  // Fix the increment logic here
             updateInterviewedCandidates: {
                 ...prev.updateInterviewedCandidates,
                 [newCandidateValue]: { label: newCandidateValue }
             }
         }));
+        
         speak(`${newCandidateValue} added`);
     };
 
@@ -117,6 +124,7 @@ const NEW_APPOINTMENT = forwardRef((props: any, ref) => {
             speak(`${candidateKey} removed`);
             return {
                 ...prev,
+                candidateCount: JSON.stringify(Number(prev.candidateCount) - 1),
                 updateInterviewedCandidates: updatedCandidates,
             };
         });

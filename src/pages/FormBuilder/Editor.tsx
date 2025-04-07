@@ -151,7 +151,7 @@ const Editor: React.FC<EditorProps> = ({ form, setForm, property, setProperty, b
         // Check if dropped in main editor area
         if (dropZone === "Editor") {
             droppedField.property.id = `Block_${form.blockCount + 1}`;
-            speak(`${droppedField.is} dropped successfully`);
+            // speak(`${droppedField.is} dropped successfully`);
 
             setForm(prevForm => ({
                 ...prevForm,
