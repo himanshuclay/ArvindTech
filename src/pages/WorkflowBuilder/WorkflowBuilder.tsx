@@ -31,6 +31,8 @@ import UPDATE_EMPLOYEE from './DynamicSegment/UPDATE_EMPLOYEE';
 import APPOINTMENT_LETTER from './DynamicSegment/APPOINTMENT_LETTER';
 import ASSIGN_TASK from './DynamicSegment/ASSIGN_TASK';
 import CustomNode from './CustomNode';
+import BUSINESS_GROWTH_REVIEW from './DynamicSegment/BUSINESS_GROWTH_REVIEW';
+import SALARY_PROCESSING from './DynamicSegment/SELARY_PROCESSING';
 
 const initialNodes: Node[] = [
     { id: '1', type: 'input', data: { label: 'Start Node', inputHandles: 1, outputHandles: 1 }, position: { x: 100, y: 100 } },
@@ -392,6 +394,8 @@ const WorkflowBuilder: React.FC = () => {
         UPDATE_EMPLOYEE,
         APPOINTMENT_LETTER,
         ASSIGN_TASK,
+        BUSINESS_GROWTH_REVIEW,
+        SALARY_PROCESSING,
     }
 
     const handleClose = () => {
@@ -532,6 +536,8 @@ const WorkflowBuilder: React.FC = () => {
                     <div draggable onDragStart={(e) => handleDragStart(e, 'UPDATE_EMPLOYEE')} style={{ padding: '10px', border: '1px solid #ccc', cursor: 'grab', marginBottom: '10px' }}>Update Employee</div>
                     <div draggable onDragStart={(e) => handleDragStart(e, 'APPOINTMENT_LETTER')} style={{ padding: '10px', border: '1px solid #ccc', cursor: 'grab', marginBottom: '10px' }}>Appointment Letter</div>
                     <div draggable onDragStart={(e) => handleDragStart(e, 'ASSIGN_TASK')} style={{ padding: '10px', border: '1px solid #ccc', cursor: 'grab', marginBottom: '10px' }}>Assign Task</div>
+                    <div draggable onDragStart={(e) => handleDragStart(e, 'BUSINESS_GROWTH_REVIEW')} style={{ padding: '10px', border: '1px solid #ccc', cursor: 'grab', marginBottom: '10px' }}>Business Growth Review</div>
+                    <div draggable onDragStart={(e) => handleDragStart(e, 'SALARY_PROCESSING')} style={{ padding: '10px', border: '1px solid #ccc', cursor: 'grab', marginBottom: '10px' }}>Salary Processing</div>
                     {workflowBuilder.apiSetting.map((api) => (
                         <div key={api.id}>{api.name}</div>
                     ))}

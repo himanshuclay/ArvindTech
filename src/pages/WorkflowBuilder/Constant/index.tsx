@@ -27,6 +27,8 @@ const OUTPUT_LABELS: Record<string, string[]> = {
     UPDATE_EMPLOYEE: [ 'newAppointment', 'oldStaffTransfer'],
     APPOINTMENT_LETTER: [ 'Appointment Letter'],
     ASSIGN_TASK: [ 'Assign Task'],
+    BUSINESS_GROWTH_REVIEW: [ 'Business Growth Review'],
+    SALARY_PROCESSING: [ 'Salary Processing'],
 };
 
 const LABEL: Record<string, string> = {
@@ -36,7 +38,9 @@ const LABEL: Record<string, string> = {
     INDUCTION: 'Induction',
     UPDATE_EMPLOYEE: 'Update Employee',
     APPOINTMENT_LETTER: 'Appointment Letter',
-    ASSIGN_TASK: 'Assign Task'
+    ASSIGN_TASK: 'Assign Task',
+    BUSINESS_GROWTH_REVIEW: 'Business Growth Review',
+    SALARY_PROCESSING: 'Salary Processing',
 }
 const ASSIGN_DOER_TYPE = [
     { label: 'Fixed Doer', value: 'fixedDoer' },
