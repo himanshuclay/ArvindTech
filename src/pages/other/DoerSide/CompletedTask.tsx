@@ -98,6 +98,7 @@ const ProjectAssignTable: React.FC = () => {
     blocks: [],
     editMode: true,
     blockCount: 0,
+    configureSelectionLogics: [],
     rules: [],
     advance: {
       backgroundColor: '',

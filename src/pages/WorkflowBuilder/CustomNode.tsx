@@ -17,6 +17,12 @@ interface DROP_DOWN {
     identifier?: string;
 }
 
+interface roleDropDown
+{   
+    roleName: string;
+    id: number;
+}
+
 interface Option {
     label: string;
     value: string;
@@ -39,6 +45,7 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask }: { data: any; 
         assignDoerType: data.assignDoerType || '',  // Preserve existing selection
         doer: data.doer || '',
         taskNumber: data.taskNumber || '',
+        role: data.role || '',
         specificDate: data.specificDate || '',
         taskTimeOptions: data.taskTimeOptions || '',
         days: data.days || '',
@@ -52,6 +59,7 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask }: { data: any; 
     });
 
     const [doerList, setDoerList] = useState<{ value: string; label: string }[]>([]);
+    const [roleList, setRoleList] = useState<{ value: string; label: string }[]>([]);
     const [projectList, setProjectList] = useState<{ id: string; projectName: string }[]>([]);
 
     const [isStartNode, setIsStartNode] = useState(false);
@@ -79,6 +87,19 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask }: { data: any; 
             console.error("Error fetching doer list:", error);
         }
     };
+    const getRoleList = async () => {
+        try {
+            const response = await axios.get(`${config.API_URL_APPLICATION}/CommonDropdown/GetRoleMasterList`);
+            if (response.data.isSuccess) {
+                setRoleList(response.data.roleMasterLists.map((w: roleDropDown) => ({
+                    value: w.id,
+                    label: w.roleName,
+                })));
+            }
+        } catch (error) {
+            console.error("Error fetching doer list:", error);
+        }
+    };
 
     const getProjectList = async () => {
         try {
@@ -98,6 +119,8 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask }: { data: any; 
         getDoerList();
 
         getProjectList();
+        getRoleList();
+
     }, []);
 
     useEffect(() => {
@@ -109,6 +132,7 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask }: { data: any; 
             days: data.taskTime || '',
             taskCreationType: data.taskCreationType || '',
             time: data.time || '',
+            role: data.role || '',
             hours: data.hours || '',
             weeks: data.weeks || '',
             label: data.label || '',
@@ -122,6 +146,7 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask }: { data: any; 
         console.log(nodeSetting)
         data.assignDoerType = nodeSetting.assignDoerType;
         data.doer = nodeSetting.doer;
+        data.role = nodeSetting.role
         data.taskTimeOptions = nodeSetting.taskTimeOptions;
         data.taskTime = nodeSetting.days;
         data.taskCreationType = nodeSetting.taskCreationType;
@@ -141,6 +166,7 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask }: { data: any; 
                             ...node.data,
                             assignDoerType: nodeSetting.assignDoerType,
                             doer: nodeSetting.doer,
+                            role: nodeSetting.role,
                             taskTimeOptions: nodeSetting.taskTimeOptions,
                             days: nodeSetting.days,
                             taskCreationType: nodeSetting.taskCreationType,
@@ -188,11 +214,11 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask }: { data: any; 
             setMasterLists(response.data.masterForms);
         });
         console.log('data', data);
-        if(typeof data.form != "string" && data.form?.blocks?.length){
+        if (typeof data.form != "string" && data.form?.blocks?.length) {
             const blockNames = getBlockName(data.form.blocks);
             setBlockName(blockNames);
-           
-        }else{
+
+        } else {
             setBlockName(BINDING[data.form]);
         }
         setLoading(false);
@@ -280,6 +306,17 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask }: { data: any; 
                             />
                         </Form.Group> */}
 
+                        <Form.Group>
+                            <Form.Label>Select Role*</Form.Label>
+                            <Select
+                                options={roleList}
+                                value={roleList.find(option => option.value === nodeSetting.role)}
+                                onChange={(selectedOption) =>
+                                    setNodeSetting(prev => ({ ...prev, role: selectedOption?.value || '' }))
+                                }
+                                placeholder="Select a role"
+                            />
+                        </Form.Group>
                         <Form.Group>
                             <Form.Label>Assign Doer Type</Form.Label>
                             <Select

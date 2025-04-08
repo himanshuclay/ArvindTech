@@ -176,6 +176,7 @@ const WorkflowBuilder: React.FC = () => {
 
 
     const addNewNode = (x: number, y: number, form?: any, action?: string) => {
+        console.log(form.configureSelectionLogics.length);
         const newNode: Node = {
             id: (nodes.length + 1).toString(),
             type: 'custom',
@@ -183,8 +184,8 @@ const WorkflowBuilder: React.FC = () => {
                 label: action ? LABEL[action] : form ? form.name : `New Node ${nodes.length + 1}`, handles: Math.floor(Math.random() * 4) + 1, form: action ? action : form || {},
                 taskNumber: `T${nodes.length - 1}`,
                 inputHandles: action ? INPUT_HANDLES[action] : 1,
-                outputHandles: action ? OUTPUT_HANDLES[action] : form.configureSelectionLogics ? form.configureSelectionLogics[0].start2.length : 1,
-                outputLabels: action ? OUTPUT_LABELS[action] : form.configureSelectionLogics ? form.configureSelectionLogics[0].start2 : '',
+                outputHandles: action ? OUTPUT_HANDLES[action] : form.configureSelectionLogics.length ? form.configureSelectionLogics[0].start2.length : 1,
+                outputLabels: action ? OUTPUT_LABELS[action] : form.configureSelectionLogics.length ? form.configureSelectionLogics[0].start2 : '',
             },
             position: { x, y },
         };
