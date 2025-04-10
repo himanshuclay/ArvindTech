@@ -2125,8 +2125,8 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                                                                         handleChange(input.inputId, JSON.stringify(names));
                                                                     }}
                                                                     fileConfig={{
-                                                                        fileType: input.fileType,  // Example: '.png'
-                                                                        fileSize: input.fileSize    // Example: '1' means only 1 file allowed
+                                                                        fileType: input.fileType,
+                                                                        fileSize: input.fileSize
                                                                     }}
                                                                 />
 
