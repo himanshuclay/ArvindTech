@@ -1,5 +1,4 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import axios from 'axios';
 import { Button, Table, Container, Row, Col, Alert, Modal, Pagination } from 'react-bootstrap';
 // import { useLocation, useNavigate } from 'react-router-dom';
@@ -8,19 +7,7 @@ import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import config from '@/config';
 import MessCards from '../Component/Previous&Completed';
 import { getPlannedDate } from '../Component/PlanDateFunction';
-import ReactFlow, { Background, Controls, Edge, MiniMap, Node, useEdgesState, useNodesState } from 'reactflow';
-import CustomNode from '@/pages/WorkflowBuilder/CustomNode';
-import { FIELD } from '@/pages/FormBuilder/Constant/Interface';
-import STAFF_ALLOCATION_PLAN from '@/pages/WorkflowBuilder/DynamicSegment/STAFF_ALLOCATION_PLAN';
-import APPOINTMENT from '@/pages/WorkflowBuilder/DynamicSegment/APPOINTMENT';
-import NEW_APPOINTMENT from '@/pages/WorkflowBuilder/DynamicSegment/NEW_APPOINTMENT';
-import OLD_STAFF_TRANSFER from '@/pages/WorkflowBuilder/DynamicSegment/OLD_STAFF_TRANSFER';
-import INDUCTION from '@/pages/WorkflowBuilder/DynamicSegment/INDUCTION';
-import UPDATE_EMPLOYEE from '@/pages/WorkflowBuilder/DynamicSegment/UPDATE_EMPLOYEE';
-import APPOINTMENT_LETTER from '@/pages/WorkflowBuilder/DynamicSegment/APPOINTMENT_LETTER';
-import ASSIGN_TASK from '@/pages/WorkflowBuilder/DynamicSegment/ASSIGN_TASK';
-// import CustomNode from '@/pages/WorkflowBuilder/CustomNode';
-import ReactFlow, { Background, Controls, Edge, MiniMap, Node, useEdgesState, useNodesState } from 'reactflow';
+import ReactFlow, { Background, Controls, MiniMap, Node, useEdgesState, useNodesState } from 'reactflow';
 import CustomNode from '@/pages/WorkflowBuilder/CustomNode';
 import { FIELD } from '@/pages/FormBuilder/Constant/Interface';
 import STAFF_ALLOCATION_PLAN from '@/pages/WorkflowBuilder/DynamicSegment/STAFF_ALLOCATION_PLAN';
@@ -82,26 +69,7 @@ interface Column {
   visible: boolean;
 }
 
-interface APISetting {
-  name: string;
-  api: string;
-  id: number;
-}
-interface WorkflowBuilderConfig {
-  apiSetting: APISetting[];
-  edges: Edge[];
-  nodes: Node[];
-}
-interface APISetting {
-  name: string;
-  api: string;
-  id: number;
-}
-interface WorkflowBuilderConfig {
-  apiSetting: APISetting[];
-  edges: Edge[];
-  nodes: Node[];
-}
+
 
 
 const ProjectAssignTable: React.FC = () => {
@@ -157,11 +125,6 @@ const ProjectAssignTable: React.FC = () => {
     { id: 'isCompleted', label: 'Status', visible: true },
   ]);
 
-  const [workflowBuilder,] = useState<WorkflowBuilderConfig>({
-    apiSetting: [],
-    edges: [],
-    nodes: [],
-  });
 
   // Function to handle node selection
   const onNodeClick = useCallback((_event: React.MouseEvent, node: Node) => {
@@ -208,37 +171,37 @@ const ProjectAssignTable: React.FC = () => {
           }
         );
         console.log('response', response)
-      setLoading(true);
-      try {
-        const role = localStorage.getItem('EmpId') || '';
-        const response = await axios.get<ApiResponse>(
-          `${config.API_URL_ACCOUNT}/ProcessInitiation/GetFilterTask`,
-          {
-            params: {
-              Flag: 2,
-              DoerId: role,
-              PageIndex: currentPage, // Adding pagination support
-            },
-          }
-        );
-        console.log('response', response)
+        setLoading(true);
+        try {
+          const role = localStorage.getItem('EmpId') || '';
+          const response = await axios.get<ApiResponse>(
+            `${config.API_URL_ACCOUNT}/ProcessInitiation/GetFilterTask`,
+            {
+              params: {
+                Flag: 2,
+                DoerId: role,
+                PageIndex: currentPage, // Adding pagination support
+              },
+            }
+          );
+          console.log('response', response)
 
-        if (response.data?.isSuccess) {
-          setData(response.data.getFilterTasks || []);
-          setTotalPages(Math.ceil(response.data.totalCount / 10)); // Setting pagination
-          console.log(response.data.getFilterTasks || []);
-        } else {
-          console.error('API Response Error:', response.data?.message || 'Unknown error');
+          if (response.data?.isSuccess) {
+            setData(response.data.getFilterTasks || []);
+            setTotalPages(Math.ceil(response.data.totalCount / 10)); // Setting pagination
+            console.log(response.data.getFilterTasks || []);
+          } else {
+            console.error('API Response Error:', response.data?.message || 'Unknown error');
+          }
+        } catch (error) {
+          if (axios.isAxiosError(error)) {
+            console.error('Axios Error:', error.message);
+          } else {
+            console.error('Unexpected Error:', error);
+          }
+        } finally {
+          setLoading(false);
         }
-      } catch (error) {
-        if (axios.isAxiosError(error)) {
-          console.error('Axios Error:', error.message);
-        } else {
-          console.error('Unexpected Error:', error);
-        }
-      } finally {
-        setLoading(false);
-      }
         if (response.data?.isSuccess) {
           setData(response.data.getFilterTasks || []);
           setTotalPages(Math.ceil(response.data.totalCount / 10)); // Setting pagination
@@ -258,7 +221,6 @@ const ProjectAssignTable: React.FC = () => {
     };
 
     fetchData();
-  }, [currentPage]); // Added currentPage as a dependency for pagination
   }, [currentPage]); // Added currentPage as a dependency for pagination
 
 
@@ -361,44 +323,20 @@ const ProjectAssignTable: React.FC = () => {
 
 
   const handleEdit = (taskCommonId: number, item: any) => {
-  const handleEdit = (taskCommonId: number, item: any) => {
     fetchPreData(taskCommonId);
     setShow(true);
     if (item.templateJson) {
-      console.log('if')
       const templateJson = JSON.parse(item.templateJson);
       setNodes(templateJson.nodes);
       setEdges(templateJson.edges);
-      // setWorkflowBuilder({
-      //   apiSetting: templateJson.apiSetting,
-      //   edges: templateJson.edges,
-      //   nodes: templateJson.nodes,
-      // })
-    }
-    if (item.templateJson) {
-      console.log('if')
-      const templateJson = JSON.parse(item.templateJson);
-      setNodes(templateJson.nodes);
-      setEdges(templateJson.edges);
-      // setWorkflowBuilder({
-      //   apiSetting: templateJson.apiSetting,
-      //   edges: templateJson.edges,
-      //   nodes: templateJson.nodes,
-      // })
     }
   };
-
-  console.log(preData)
-
 
   const handleClose = () => {
     setShow(false);
     setPreData([]);
   };
 
-  const handleFormClose = () => {
-    setDynamicComponent('')
-  };
 
   const handleFormClose = () => {
     setDynamicComponent('')
@@ -425,7 +363,7 @@ const ProjectAssignTable: React.FC = () => {
     return `${day}-${month}-${year} ${hours}:${minutes}`;
   }
 
-  
+
 
 
 
@@ -441,38 +379,10 @@ const ProjectAssignTable: React.FC = () => {
             <MessCards data={preData} />
             :
             <>
-              {/* {JSON.stringify(workflowBuilder)} */}
               <div className='col-12' style={{ height: 'calc(100vh - 200px)', position: 'relative' }}>
                 <ReactFlow
-                  nodes={nodes || workflowBuilder.nodes}
-                  edges={edges || workflowBuilder.edges}
-                  // onNodesChange={handleNodesChange}
-                  // onEdgesChange={onEdgesChange}
-                  // onConnect={onConnect}
-                  nodeTypes={nodeTypes}
-                  fitView
-                  // onDrop={handleDrop}
-                  // onDragOver={handleDragOver}
-                  // onEdgeClick={handleEdgeClick}
-                  onNodeClick={onNodeClick}
-                >
-                  <MiniMap />
-                  <Controls />
-                  <Background />
-                </ReactFlow>
-              </div>
-            </>
-          }
-          {preData.length
-            ?
-            <MessCards data={preData} />
-            :
-            <>
-              {/* {JSON.stringify(workflowBuilder)} */}
-              <div className='col-12' style={{ height: 'calc(100vh - 200px)', position: 'relative' }}>
-                <ReactFlow
-                  nodes={nodes || workflowBuilder.nodes}
-                  edges={edges || workflowBuilder.edges}
+                  nodes={nodes}
+                  edges={edges}
                   // onNodesChange={handleNodesChange}
                   // onEdgesChange={onEdgesChange}
                   // onConnect={onConnect}
@@ -650,7 +560,6 @@ const ProjectAssignTable: React.FC = () => {
                                         col.id === 'completedDate' ? (
                                           <>{format(new Date(item.completedDate), 'dd-MMM-yyyy HH:mm')}</>
                                         ) :
-                                        ) :
                                           (
                                             <>{item[col.id as keyof typeof item]}</>
                                           )}
@@ -658,7 +567,6 @@ const ProjectAssignTable: React.FC = () => {
                               </td>
                             ))}
                           <td className='text-end pr-3'>
-                            <Button onClick={() => handleEdit(item.taskCommonId, item)}>
                             <Button onClick={() => handleEdit(item.taskCommonId, item)}>
                               Show
                             </Button>
@@ -684,7 +592,6 @@ const ProjectAssignTable: React.FC = () => {
               </DragDropContext>
             )}
           </>
-
         )}
       </div>
       <div className="d-flex justify-content-center align-items-center bg-white w-20 rounded-5 m-auto py-1 pb-1 my-2 pagination-rounded">

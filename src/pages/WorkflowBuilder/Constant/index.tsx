@@ -71,6 +71,10 @@ const WEEKS = [
     { label: 'Saturday', value: 'saturday' },
 ];
 
+const TASK_BINDING_OPTION = [
+    {label: 'Form and Value with Edit Mode', value: 'formAndValueWithEditMode'},
+]
+
 
 
 export {
@@ -82,4 +86,5 @@ export {
     TIME_MANAGEMENT_OPTION,
     TASK_CREATION_TYPE,
     WEEKS,
+    TASK_BINDING_OPTION,
 }

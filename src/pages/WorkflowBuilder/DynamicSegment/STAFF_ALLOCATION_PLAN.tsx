@@ -80,9 +80,8 @@ const STAFF_ALLOCATION_PLAN = forwardRef((props: any, ref) => {
     const [threeMonthData, setThreeMonthData] = useState<ThreeMonthData[]>(generateMonthData());
     const [projectSectionBifurcationData, setProjectSectionBifurcationData] = useState<ProjectSectionBifurcation>(initialProjectSectionBifurcation);
 
-    const [confirmStaffAllocationPlan, setConfirmStaffAllocationPlan] = useState<string>("");
 
-    const [blockValue, setBlockValue] = useState<{ [key: string]: string }>({});
+    const [blockValue, setBlockValue] = useState<{ [key: string]: string }>(props.blockValue ? props.blockValue : {});
 
     const [options, setOptions] = useState<OPTION[]>([]);
 
@@ -103,7 +102,7 @@ const STAFF_ALLOCATION_PLAN = forwardRef((props: any, ref) => {
 
     useEffect(() => {
         console.log(selectedRole);
-        if(selectedRole){
+        if (selectedRole) {
             getSpecializeRole(selectedRole);
         }
     }, [selectedRole]); // Re-fetch when the selected role changes
@@ -508,7 +507,7 @@ const STAFF_ALLOCATION_PLAN = forwardRef((props: any, ref) => {
                                 <td>0</td>
                                 <td>Submit/Edit</td>
                                 <td>
-                                    {depart.designation.length ? 
+                                    {depart.designation.length ?
                                         <button onClick={() => handleToggleDepartment(departIndex)} style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
                                             {depart.isExpanded ? (
                                                 <i className="ri-arrow-down-s-line"></i>
@@ -516,7 +515,7 @@ const STAFF_ALLOCATION_PLAN = forwardRef((props: any, ref) => {
                                                 <i className="ri-arrow-right-s-line"></i>
                                             )}
                                         </button>
-                                    : ''}
+                                        : ''}
                                 </td>
                             </tr>
                             {depart.isExpanded && depart.designation.map((role, roleIndex) => (
@@ -694,8 +693,11 @@ const STAFF_ALLOCATION_PLAN = forwardRef((props: any, ref) => {
                 <Form.Label>Confirm Staff Allocation Plan Has Been Filled Properly</Form.Label>
                 <Form.Control
                     as="select"
-                    value={confirmStaffAllocationPlan}
-                    onChange={(e) => setConfirmStaffAllocationPlan(e.target.value)}
+                    value={blockValue.confirmStaffAllocationPlan}
+                    onChange={(e) => setBlockValue((prev) => ({
+                        ...prev,
+                        confirmStaffAllocationPlan: e.target.value,  // Create dynamic key using department and role index
+                    }))}
                 >
                     <option value="">Select</option>
                     <option value="yes">Yes</option>

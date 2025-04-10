@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import Editor from "../FormBuilder/Editor";
-import { FIELD, PROPERTY } from "../FormBuilder/Constant/Interface";
+import { BLOCK_VALUE, FIELD, PROPERTY } from "../FormBuilder/Constant/Interface";
 // import axios from "axios";
 // import config from "@/config";
 // import { toast } from "react-toastify";
@@ -35,6 +35,7 @@ const ActiveNode = ({ activeNode, activeTaskId, setActiveNode, completedNodes, s
                 },
             }
     );
+
     const [dynamicComponent,] = useState<string>(activeNode.data?.form?.blocks?.length ? '' : activeNode.data.form);
     const componentRefMap = useRef<{ [key: string]: any }>({});
 
@@ -53,7 +54,7 @@ const ActiveNode = ({ activeNode, activeTaskId, setActiveNode, completedNodes, s
         isShow: false,
         disabled: false,
     })
-    const [blockValue, setBlockValue] = useState({})
+    const [blockValue, setBlockValue] = useState<BLOCK_VALUE>(activeNode.data.blockValue ? activeNode.data.blockValue : {})
     useEffect(() => {
         setForm((preForm) => ({
             ...preForm,
@@ -145,6 +146,9 @@ const ActiveNode = ({ activeNode, activeTaskId, setActiveNode, completedNodes, s
             // Update state with the new array of completed nodes
             setCompletedNodes(updatedNodes);
         }
+        if (activeNode.data) {
+            console.log(activeNode.data)
+        }
     }, []);
     const componentMap: { [key: string]: React.FC<any> } = {
         STAFF_ALLOCATION_PLAN,
@@ -159,23 +163,34 @@ const ActiveNode = ({ activeNode, activeTaskId, setActiveNode, completedNodes, s
 
     return (
         <div>
-            {completedNodes.map((completeNode: any) => (
-                <>
-                    {/* {JSON.stringify(completeNode.data.blockValue)} */}
+            {completedNodes.map((completeNode: any, index: number) => (
+                <React.Fragment key={index}>
                     {completeNode.data.form?.blocks?.length ? (
-                        <Editor form={completeNode.data.form} setForm={setForm} property={property} setProperty={setProperty} blockValue={completeNode.data.blockValue} setBlockValue={setBlockValue} isShowSave={false} isPreview={true} />
+                        <Editor
+                            form={completeNode.data.form}
+                            setForm={setForm}
+                            property={property}
+                            setProperty={setProperty}
+                            blockValue={completeNode.data.blockValue}
+                            setBlockValue={setBlockValue}
+                            isShowSave={false}
+                            isPreview={true}
+                        />
                     ) : (
-                        React.createElement(componentMap[completeNode.data.form], {
-                            ref: (instance: any) => {
-                                if (instance) {
-                                    componentRefMap.current[completeNode.data.form] = instance;
-                                }
-                            },
-                            blockValue: completeNode.data.blockValue
-                        })
+                        <fieldset disabled>
+                            {React.createElement(componentMap[completeNode.data.form], {
+                                ref: (instance: any) => {
+                                    if (instance) {
+                                        componentRefMap.current[completeNode.data.form] = instance;
+                                    }
+                                },
+                                blockValue: completeNode.data.blockValue
+                            })}
+                        </fieldset>
                     )}
-                </>
+                </React.Fragment>
             ))}
+
             {form?.blocks?.length && (
                 <Editor form={form} setForm={setForm} property={property} setProperty={setProperty} blockValue={blockValue} setBlockValue={setBlockValue} isShowSave={false} />
             )}
@@ -185,7 +200,8 @@ const ActiveNode = ({ activeNode, activeTaskId, setActiveNode, completedNodes, s
                         if (instance) {
                             componentRefMap.current[dynamicComponent] = instance;
                         }
-                    }
+                    },
+                    blockValue: blockValue
                 })
             )}
             <button type="button" onClick={handleSumbitTask}>Save</button>

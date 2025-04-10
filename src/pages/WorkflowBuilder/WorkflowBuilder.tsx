@@ -176,7 +176,6 @@ const WorkflowBuilder: React.FC = () => {
 
 
     const addNewNode = (x: number, y: number, form?: any, action?: string) => {
-        console.log(form.configureSelectionLogics.length);
         const newNode: Node = {
             id: (nodes.length + 1).toString(),
             type: 'custom',
