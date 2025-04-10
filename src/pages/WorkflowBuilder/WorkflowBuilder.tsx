@@ -81,7 +81,7 @@ const WorkflowBuilder: React.FC = () => {
     });
 
     const nodeTypes = useMemo(() => ({
-        custom: (props: any) => <CustomNode {...props} setNodes={setNodes} edges={edges} nodes={nodes} setEdges={setEdges} setWorkflowBuilder={setWorkflowBuilder}/>,
+        custom: (props: any) => <CustomNode {...props} setNodes={setNodes} edges={edges} nodes={nodes} setEdges={setEdges} setWorkflowBuilder={setWorkflowBuilder} setSelectedNode={setSelectedNode}/>,
     }), [setNodes, edges]);
 
     const [formBuilder, setFormBuilder] = useState<FIELD>({
@@ -286,7 +286,7 @@ const WorkflowBuilder: React.FC = () => {
             console.log("Added new node:", newNodeId);
         } else {
             if (isCloseForm) {
-
+console.log('selectedNode', selectedNode)
                 setNodes((prevNodes) =>
                     prevNodes.map((node) =>
                         node.id === selectedNode.id
@@ -296,8 +296,8 @@ const WorkflowBuilder: React.FC = () => {
                                     ...node.data,
                                     label: formBuilder.name || node.data.label,
                                     form: formBuilder,
-                                    "outputHandles": formBuilder.configureSelectionLogics ? formBuilder.configureSelectionLogics[0].start2.length : node.data.outputHandles,
-                                    "outputLabels": formBuilder.configureSelectionLogics ? formBuilder.configureSelectionLogics[0].start2 : node.data.outputLabels,
+                                    "outputHandles": formBuilder.configureSelectionLogics.length ? formBuilder.configureSelectionLogics[0].start2 : node.data.outputHandles,
+                                    "outputLabels": formBuilder.configureSelectionLogics.length ? formBuilder.configureSelectionLogics[0].start2 : node.data.outputLabels,
                                 },
                             }
                             : node
@@ -314,8 +314,8 @@ const WorkflowBuilder: React.FC = () => {
                                     ...node.data,
                                     label: formBuilder.name || node.data.label,
                                     form: formBuilder,
-                                    "outputHandles": formBuilder.configureSelectionLogics ? formBuilder.configureSelectionLogics[0].start2.length : node.data.outputHandles,
-                                    "outputLabels": formBuilder.configureSelectionLogics ? formBuilder.configureSelectionLogics[0].start2 : node.data.outputLabels,
+                                    "outputHandles": formBuilder.configureSelectionLogics.length ? formBuilder.configureSelectionLogics[0].start2 : node.data.outputHandles,
+                                    "outputLabels": formBuilder.configureSelectionLogics.length ? formBuilder.configureSelectionLogics[0].start2 : node.data.outputLabels,
                                 },
 
                             }

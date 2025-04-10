@@ -19,15 +19,28 @@ const getSource = (
     const start = workflowData.edges.find(e =>
         e.source === id && (sourceHandle ? e.sourceHandle === sourceHandle : true)
     );
+const getSource = (
+    workflowData: WorkflowBuilderConfig,
+    id: string,
+    sourceHandle?: string
+) => {
+    const start = workflowData.edges.find(e =>
+        e.source === id && (sourceHandle ? e.sourceHandle === sourceHandle : true)
+    );
     const activeNode = workflowData.nodes.find(n => n.id === start?.target);
     return activeNode;
+};
+
 };
 
 
 const getActiveNode: any = (workflowData: WorkflowBuilderConfig, id: string, sourceHandle?: string) => {
     const activeNode = getSource(workflowData, id, sourceHandle);
+const getActiveNode: any = (workflowData: WorkflowBuilderConfig, id: string, sourceHandle?: string) => {
+    const activeNode = getSource(workflowData, id, sourceHandle);
     console.log('activeNode', activeNode)
     if (activeNode?.data.status === "completed") {
+        return getActiveNode(workflowData, activeNode.data.nextNode.id, activeNode.data.nextNode.sourceHandle);
         return getActiveNode(workflowData, activeNode.data.nextNode.id, activeNode.data.nextNode.sourceHandle);
     } else {
         return activeNode;
@@ -48,6 +61,7 @@ const getCompletedNodes = (workerData: WorkflowBuilderConfig, id: string, comple
     completedNodes.push(currentNode);
 
     // Recursive call with the next node's ID
+    return getCompletedNodes(workerData, currentNode.data.nextNode.id, completedNodes, currentNode.data.nextNode.sourceHandle);
     return getCompletedNodes(workerData, currentNode.data.nextNode.id, completedNodes, currentNode.data.nextNode.sourceHandle);
 }
 

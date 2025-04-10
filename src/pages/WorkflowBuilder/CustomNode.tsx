@@ -50,7 +50,7 @@ type NodeSetting = {
     [key: string]: any;
 };
 
-const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges, setWorkflowBuilder }: { data: any; id: string; setNodes: any; edges: any[], isCompleteTask: boolean, nodes: any[], setEdges: any; setWorkflowBuilder: any }) => {
+const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges, setWorkflowBuilder, setSelectedNode }: { data: any; id: string; setNodes: any; edges: any[], isCompleteTask: boolean, nodes: any[], setEdges: any; setWorkflowBuilder: any; setSelectedNode: any }) => {
     const [showSettings, setShowSettings] = useState(false);
     const [showBinding, setShowBinding] = useState(false);
     const [loading, setLoading] = useState(false);
@@ -350,32 +350,37 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges
         }));
     }
 
-    const cloneNode = () => {
-        // Find the node to clone
-        const nodeToClone = nodes.find((node) => node.id === id);
-        if (!nodeToClone) {
-            console.error(`Node with id ${id} not found.`);
-            return;
-        }
+    // const cloneNode = () => {
+    //     // Find the node to clone
+    //     const nodeToClone = nodes.find((node) => node.id === id);
+    //     if (!nodeToClone) {
+    //         console.error(`Node with id ${id} not found.`);
+    //         return;
+    //     }
     
-        // Create a new node by copying the existing node's properties
-        const clonedNode: Node = {
-            ...nodeToClone,
-            id: (nodes.length + 1).toString(),  // Assign a new unique ID
-            position: { x: nodeToClone.position.x + 50, y: nodeToClone.position.y + 50 }, // Slightly offset the position for visibility
-        };
+    //     // Create a new node by copying the existing node's properties
+    //     const clonedNode: Node = {
+    //         ...nodeToClone,
+    //         id: (nodes.length + 1).toString(),  // Assign a new unique ID based on current nodes length
+    //         position: { x: nodeToClone.position.x + 50, y: nodeToClone.position.y + 50 }, // Slightly offset the position for visibility
+    //     };
     
-        // Add the cloned node to the state
-        setNodes((nds: any) => [...nds, clonedNode]);
+    //     // Add the cloned node to the state using the functional update form
+    //     setNodes((prevNodes: any) => {
+    //         const updatedNodes = [...prevNodes, clonedNode]; // Add the cloned node to the array
+    //         // Update the workflowBuilder state as well
+    //         setWorkflowBuilder((prevWorkflowBuilder: any) => ({
+    //             ...prevWorkflowBuilder,
+    //             nodes: updatedNodes,
+    //         }));
+    //         return updatedNodes;  // Return updated nodes state
+    //     });
     
-        // Optionally, you can also update the workflowBuilder state with the cloned node
-        setWorkflowBuilder((prevWorkflowBuilder: any) => ({
-            ...prevWorkflowBuilder,
-            nodes: [...prevWorkflowBuilder.nodes, clonedNode],
-        }));
+    //     setSelectedNode(clonedNode);  // Optionally select the cloned node
     
-        console.log('Cloned node:', clonedNode);
-    };
+    //     console.log('Cloned node:', clonedNode);
+    // };
+    
     
 
 
@@ -389,9 +394,9 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges
                 <button className="setting-button-design" onClick={(e) => { e.stopPropagation(); setShowSettings(!showSettings); }} disabled={isCompleteTask}>
                     <i className="ri-settings-3-fill"></i>
                 </button>
-                <button className="setting-button-design" onClick={(e) => { e.stopPropagation(); cloneNode(); }} disabled={isCompleteTask}>
+                {/* <button className="setting-button-design" onClick={(e) => { e.stopPropagation(); cloneNode(); }} disabled={isCompleteTask}>
                     <i className="ri-file-copy-line"></i>
-                </button>
+                </button> */}
                 <button className="setting-button-design" onClick={(e) => { e.stopPropagation(); deleteNode(); }} disabled={isCompleteTask}>
                     <i className="ri-close-circle-line"></i>
                 </button>

@@ -65,6 +65,7 @@ const ActiveNode = ({ activeNode, activeTaskId, setActiveNode, completedNodes, s
             activeNode.data['blockValue'] = blockValue;
             activeNode.data['status'] = "completed";
             activeNode.data['completedBy'] = localStorage.getItem("EmpId");
+            activeNode.data['completedBy'] = localStorage.getItem("EmpId");
             activeNode.data.form = dynamicComponent ? dynamicComponent : form;
             // let formData;
             if (componentRefMap.current[dynamicComponent]) {
@@ -102,6 +103,10 @@ const ActiveNode = ({ activeNode, activeTaskId, setActiveNode, completedNodes, s
             }
 
             console.log('query', query);
+            activeNode.data['nextNode'] = {};
+            activeNode.data['nextNode']['id'] = activeNode.id;
+            activeNode.data['nextNode']['sourceHandle'] = query.outputLabel;
+            query.jsonInput = JSON.stringify(activeNode)
             activeNode.data['nextNode'] = {};
             activeNode.data['nextNode']['id'] = activeNode.id;
             activeNode.data['nextNode']['sourceHandle'] = query.outputLabel;
