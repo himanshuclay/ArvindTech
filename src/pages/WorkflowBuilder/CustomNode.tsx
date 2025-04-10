@@ -45,7 +45,7 @@ type NodeSetting = {
     [key: string]: any;
 };
 
-const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes }: { data: any; id: string; setNodes: any; edges: any[], isCompleteTask: boolean, nodes: any[] }) => {
+const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges, setWorkflowBuilder }: { data: any; id: string; setNodes: any; edges: any[], isCompleteTask: boolean, nodes: any[], setEdges: any; setWorkflowBuilder: any }) => {
     const [showSettings, setShowSettings] = useState(false);
     const [showBinding, setShowBinding] = useState(false);
     const [loading, setLoading] = useState(false);
@@ -314,6 +314,17 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes }: { data
         }
     }, [nodeSetting.doerBlockName])
 
+    const deleteNode = () => {
+        setNodes((nds: any) => nds.filter((node: any) => node.id !== id));
+        setEdges((eds: any) => eds.filter((edge: any) => edge.source !== id && edge.target !== id));
+        // Remove the node from the workflowBuilder state
+        setWorkflowBuilder((prevWorkflowBuilder: any) => ({
+            ...prevWorkflowBuilder,
+            nodes: prevWorkflowBuilder.nodes.filter((node: any) => node.id !== id), // 🔹 Remove deleted node
+            edges: prevWorkflowBuilder.edges.filter((edge: any) => edge.source !== id && edge.target !== id) // 🔹 Remove related edges
+        }));
+    }
+
 
     return (
         <div className="custom-node" style={getBorderStyle()}>
@@ -324,6 +335,9 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes }: { data
                 </button>
                 <button className="setting-button-design" onClick={(e) => { e.stopPropagation(); setShowSettings(!showSettings); }} disabled={isCompleteTask}>
                     <i className="ri-settings-3-fill"></i>
+                </button>
+                <button className="setting-button-design" onClick={(e) => { e.stopPropagation(); deleteNode(); }} disabled={isCompleteTask}>
+                    <i className="ri-close-circle-line"></i>
                 </button>
             </div>
 

@@ -81,7 +81,7 @@ const WorkflowBuilder: React.FC = () => {
     });
 
     const nodeTypes = useMemo(() => ({
-        custom: (props: any) => <CustomNode {...props} setNodes={setNodes} edges={edges} nodes={nodes} />,
+        custom: (props: any) => <CustomNode {...props} setNodes={setNodes} edges={edges} nodes={nodes} setEdges={setEdges} setWorkflowBuilder={setWorkflowBuilder}/>,
     }), [setNodes, edges]);
 
     const [formBuilder, setFormBuilder] = useState<FIELD>({
