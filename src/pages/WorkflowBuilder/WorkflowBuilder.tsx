@@ -176,7 +176,6 @@ const WorkflowBuilder: React.FC = () => {
 
 
     const addNewNode = (x: number, y: number, form?: any, action?: string) => {
-        console.log(form.configureSelectionLogics.length);
         const newNode: Node = {
             id: (nodes.length + 1).toString(),
             type: 'custom',
@@ -286,7 +285,7 @@ const WorkflowBuilder: React.FC = () => {
             console.log("Added new node:", newNodeId);
         } else {
             if (isCloseForm) {
-
+            console.log(formBuilder.configureSelectionLogics);
                 setNodes((prevNodes) =>
                     prevNodes.map((node) =>
                         node.id === selectedNode.id
@@ -296,8 +295,8 @@ const WorkflowBuilder: React.FC = () => {
                                     ...node.data,
                                     label: formBuilder.name || node.data.label,
                                     form: formBuilder,
-                                    "outputHandles": formBuilder.configureSelectionLogics ? formBuilder.configureSelectionLogics[0].start2.length : node.data.outputHandles,
-                                    "outputLabels": formBuilder.configureSelectionLogics ? formBuilder.configureSelectionLogics[0].start2 : node.data.outputLabels,
+                                    "outputHandles": formBuilder.configureSelectionLogics.length ? formBuilder.configureSelectionLogics[0].start2 : node.data.outputHandles,
+                                    "outputLabels": formBuilder.configureSelectionLogics.length ? formBuilder.configureSelectionLogics[0].start2 : node.data.outputLabels,
                                 },
                             }
                             : node
@@ -314,8 +313,8 @@ const WorkflowBuilder: React.FC = () => {
                                     ...node.data,
                                     label: formBuilder.name || node.data.label,
                                     form: formBuilder,
-                                    "outputHandles": formBuilder.configureSelectionLogics ? formBuilder.configureSelectionLogics[0].start2.length : node.data.outputHandles,
-                                    "outputLabels": formBuilder.configureSelectionLogics ? formBuilder.configureSelectionLogics[0].start2 : node.data.outputLabels,
+                                    "outputHandles": formBuilder.configureSelectionLogics.length ? formBuilder.configureSelectionLogics[0].start2 : node.data.outputHandles,
+                                    "outputLabels": formBuilder.configureSelectionLogics.length ? formBuilder.configureSelectionLogics[0].start2 : node.data.outputLabels,
                                 },
 
                             }

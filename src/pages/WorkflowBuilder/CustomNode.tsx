@@ -732,7 +732,6 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges
                             <Modal.Title>Binding Forms to Masters</Modal.Title>
                         </Modal.Header>
                         <Modal.Body>
-                            {JSON.stringify(nodeSetting)}
                             {blockName?.map((block, index) => {
                                 const currentBindingValue = nodeSetting.bindingValues?.[block];
                                 const masterName = currentBindingValue?.master;
