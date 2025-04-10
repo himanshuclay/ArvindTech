@@ -21,7 +21,7 @@ import { toast } from 'react-toastify';
 import axios from 'axios';
 import config from '@/config';
 import STAFF_ALLOCATION_PLAN from './DynamicSegment/STAFF_ALLOCATION_PLAN';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import APPOINTMENT from './DynamicSegment/APPOINTMENT';
 import { INPUT_HANDLES, LABEL, OUTPUT_HANDLES, OUTPUT_LABELS } from './Constant';
 import NEW_APPOINTMENT from './DynamicSegment/NEW_APPOINTMENT';
@@ -65,6 +65,7 @@ interface WorkflowBuilderConfig {
 
 
 const WorkflowBuilder: React.FC = () => {
+    const navigate = useNavigate();
     const { id } = useParams<{ id: string }>();
     const [, setEditMode] = useState<boolean>(false);
     const [nodes, setNodes] = useNodesState(initialNodes);
@@ -80,7 +81,7 @@ const WorkflowBuilder: React.FC = () => {
     });
 
     const nodeTypes = useMemo(() => ({
-        custom: (props: any) => <CustomNode {...props} setNodes={setNodes} edges={edges} />,
+        custom: (props: any) => <CustomNode {...props} setNodes={setNodes} edges={edges} nodes={nodes} />,
     }), [setNodes, edges]);
 
     const [formBuilder, setFormBuilder] = useState<FIELD>({
@@ -170,7 +171,6 @@ const WorkflowBuilder: React.FC = () => {
         [setEdges]
     );
 
-    console.log("these are nodes", nodes);
 
 
 
@@ -183,8 +183,8 @@ const WorkflowBuilder: React.FC = () => {
                 label: action ? LABEL[action] : form ? form.name : `New Node ${nodes.length + 1}`, handles: Math.floor(Math.random() * 4) + 1, form: action ? action : form || {},
                 taskNumber: `T${nodes.length - 1}`,
                 inputHandles: action ? INPUT_HANDLES[action] : 1,
-                outputHandles: action ? OUTPUT_HANDLES[action] : form.configureSelectionLogics ? form.configureSelectionLogics[0].start2.length : 1,
-                outputLabels: action ? OUTPUT_LABELS[action] : form.configureSelectionLogics ? form.configureSelectionLogics[0].start2 : '',
+                outputHandles: action ? OUTPUT_HANDLES[action] : form.configureSelectionLogics.length ? form.configureSelectionLogics[0].start2.length : 1,
+                outputLabels: action ? OUTPUT_LABELS[action] : form.configureSelectionLogics.length ? form.configureSelectionLogics[0].start2 : '',
             },
             position: { x, y },
         };
@@ -371,6 +371,7 @@ const WorkflowBuilder: React.FC = () => {
             console.log('response', response)
             if (response.data.isSuccess) {
                 toast.success(response.data.message);
+                navigate('/pages/WorkflowBuilderList')
             } else {
                 toast.error(response.data.message)
             }
@@ -406,13 +407,11 @@ const WorkflowBuilder: React.FC = () => {
         try {
             console.log(id)
             const response = await axios.get(`${config.API_URL_ACCOUNT}/WorkflowBuilder/GetWorkflowBuilder?ID=${id}`);
-            console.log('response', response)
             if (response.data.isSuccess) {
                 const fetchedModule = response.data.workflowBuilderLists[0];
                 setName(fetchedModule.name);
                 setNodes(JSON.parse(fetchedModule.workflowBuilder).nodes)
                 setEdges(JSON.parse(fetchedModule.workflowBuilder).edges)
-                console.log('fetchedModule', JSON.parse(fetchedModule.workflowBuilder))
                 // setWorkflowBuilder(fetchedModule);
             } else {
                 console.error(response.data.message);

@@ -276,45 +276,45 @@ const STAFF_ALLOCATION_PLAN = forwardRef((props: any, ref) => {
 
     const handleSaveThreeMonthData = () => {
         console.log('Saving 3 month data:', threeMonthData);
-    
+
         if (selectedDeptIndex === null || selectedRoleIndex === null) return;
-    
+
         const updatedDepartments = [...department];
         const roleToUpdate = updatedDepartments[selectedDeptIndex].designation[selectedRoleIndex];
-    
+
         // Save the total count
         roleToUpdate._3MonthTimeline = threeMonthData.reduce((acc, curr) => acc + curr.count, 0);
-    
+
         // Save the dynamic roles
         roleToUpdate._3MonthRoles = threeMonthData.map(data => data.roles);
-    
+
         // ✅ Break into individual month entries
         const newBlockValues: { [key: string]: string } = {};
-    
+
         threeMonthData.forEach((data, monthIndex) => {
             const baseKey = `threeMonthData_${monthIndex}_${selectedDeptIndex}_${selectedRoleIndex}`;
             newBlockValues[`${baseKey}_count`] = data.count.toString();
-    
+
             data.roles.forEach((roleName, roleIndex) => {
                 const roleKey = `${baseKey}_role_${roleIndex}`;
                 newBlockValues[roleKey] = roleName;
             });
         });
-    
+
         // Save entire 3 month array too (optional)
         const arrayKey = `threeMonthData_${selectedDeptIndex}_${selectedRoleIndex}`;
         newBlockValues[arrayKey] = JSON.stringify(threeMonthData);
-    
+
         // Merge with blockValue
         setBlockValue((prev) => ({
             ...prev,
             ...newBlockValues,
         }));
-    
+
         setDepartment(updatedDepartments);
         handleCloseThreeMonthModal();
     };
-    
+
 
 
     // Project Section Bifurcation Input
@@ -342,30 +342,30 @@ const STAFF_ALLOCATION_PLAN = forwardRef((props: any, ref) => {
 
     const handleSaveProjectSectionBifurcationData = () => {
         console.log('Saving Project Section Bifurcation Data:', projectSectionBifurcationData);
-    
+
         if (selectedDeptIndex === null || selectedRoleIndex === null) return;
-    
+
         const updatedDepartments = [...department];
         const roleToUpdate = updatedDepartments[selectedDeptIndex].designation[selectedRoleIndex];
-    
+
         roleToUpdate.projectSectionBifurcation = { ...projectSectionBifurcationData };
-    
+
         // ✅ Save to blockValue
         const newBlockValues: { [key: string]: string } = {};
         Object.entries(projectSectionBifurcationData).forEach(([section, value]) => {
             const key = `projectSection_${section}_${selectedDeptIndex}_${selectedRoleIndex}`;
             newBlockValues[key] = value.toString();
         });
-    
+
         setBlockValue((prev) => ({
             ...prev,
             ...newBlockValues,
         }));
-    
+
         setDepartment(updatedDepartments);
         handleCloseProjectSectionBifurcationModal();
     };
-    
+
 
     // Modal Openers
     const handleOpenModal = (departIndex: number, roleIndex: number, role: DESIGNATION) => {
@@ -417,9 +417,9 @@ const STAFF_ALLOCATION_PLAN = forwardRef((props: any, ref) => {
         setSelectedRole(role);
         setSelectedDeptIndex(departIndex);
         setSelectedRoleIndex(roleIndex);
-    
+
         const updatedBifurcation: ProjectSectionBifurcation = { ...initialProjectSectionBifurcation };
-    
+
         Object.keys(initialProjectSectionBifurcation).forEach((section) => {
             const key = `projectSection_${section}_${departIndex}_${roleIndex}`;
             if (blockValue[key] !== undefined) {
@@ -429,11 +429,11 @@ const STAFF_ALLOCATION_PLAN = forwardRef((props: any, ref) => {
                     role.projectSectionBifurcation[section as keyof ProjectSectionBifurcation] || 0;
             }
         });
-    
+
         setProjectSectionBifurcationData(updatedBifurcation);
         setShowProjectSectionBifurcationModal(true);
     };
-    
+
 
     const getDepartmentTotalEstimate = (dept: DEPARTMENT, departIndex: number, selection: string): number => {
         // Sum values from block_0_ keys in blockValue
@@ -504,13 +504,15 @@ const STAFF_ALLOCATION_PLAN = forwardRef((props: any, ref) => {
                                 <td>0</td>
                                 <td>Submit/Edit</td>
                                 <td>
-                                    <button onClick={() => handleToggleDepartment(departIndex)} style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
-                                        {depart.isExpanded ? (
-                                            <i className="ri-arrow-down-s-line"></i>
-                                        ) : (
-                                            <i className="ri-arrow-right-s-line"></i>
-                                        )}
-                                    </button>
+                                    {depart.designation.length ? 
+                                        <button onClick={() => handleToggleDepartment(departIndex)} style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
+                                            {depart.isExpanded ? (
+                                                <i className="ri-arrow-down-s-line"></i>
+                                            ) : (
+                                                <i className="ri-arrow-right-s-line"></i>
+                                            )}
+                                        </button>
+                                    : ''}
                                 </td>
                             </tr>
                             {depart.isExpanded && depart.designation.map((role, roleIndex) => (
