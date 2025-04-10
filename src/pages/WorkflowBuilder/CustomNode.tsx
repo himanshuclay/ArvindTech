@@ -1,14 +1,16 @@
 import config from "@/config";
 import axios from "axios";
 import { useEffect, useRef, useState } from "react";
-import { Form, Modal } from "react-bootstrap";
+import { Col, Form, Modal, Row } from "react-bootstrap";
 import Select from 'react-select';
 import { Handle, Position } from 'reactflow';
 import { ASSIGN_DOER_TYPE, TASK_CREATION_TYPE, TIME_MANAGEMENT_OPTION, WEEKS } from "./Constant";
 import Flatpickr from 'react-flatpickr';
 // import { speak } from "@/utils/speak";
 import { APPOINTMENT, NEW_APPOINTMENT } from "./Constant/Binding";
-import { getBlockName } from "./Constant/function";
+import { getAllBlockName, getAllBlockOptions, getBlockName, getPreviousTaskList } from "./Constant/function";
+import { toast } from "react-toastify";
+import { speak } from "@/utils/speak";
 
 interface DROP_DOWN {
     empId: string;
@@ -17,8 +19,7 @@ interface DROP_DOWN {
     identifier?: string;
 }
 
-interface roleDropDown
-{   
+interface roleDropDown {
     roleName: string;
     id: number;
 }
@@ -28,20 +29,44 @@ interface Option {
     value: string;
 }
 
-const CustomNode = ({ data, id, setNodes, edges, isCompleteTask }: { data: any; id: string; setNodes: any; edges: any[], isCompleteTask: boolean }) => {
+type NodeSetting = {
+    assignDoerType: any;
+    doer: any;
+    taskNumber: any;
+    specificDate: any;
+    taskTimeOptions: any;
+    days: any;
+    taskCreationType: any;
+    time: any;
+    hours: any;
+    weeks: any;
+    label: any;
+    doerAssignList: any;
+    bindingValues: any;
+    doerTaskNumber: any;
+    doerBlockName: any;
+    doerBlockOptions: any;
+    // Add an index signature to allow any string-based key
+    [key: string]: any;
+};
+
+const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes }: { data: any; id: string; setNodes: any; edges: any[], isCompleteTask: boolean, nodes: any[] }) => {
     const [showSettings, setShowSettings] = useState(false);
     const [showBinding, setShowBinding] = useState(false);
     const [loading, setLoading] = useState(false);
     const inputHandles = data.inputHandles || 1;
     const outputHandles = data.outputHandles || 1;
     const outputLabels = data.outputLabels || Array(outputHandles).fill("").map((_, i) => `Out ${i + 1}`);
+    const [previousTaskList, setPerviousTaskList] = useState<{ label: string, value: string }[]>([]);
+    const [previousBlockList, setPerviousBlockList] = useState<{ label: string, value: string }[]>([]);
+    const [previousOptionsList, setPerviousOptionsList] = useState<{ label: string, value: string }[]>([]);
 
     const BINDING: { [key: string]: string[] } = {
         APPOINTMENT,
         NEW_APPOINTMENT,
     };
 
-    const [nodeSetting, setNodeSetting] = useState({
+    const [nodeSetting, setNodeSetting] = useState<NodeSetting>({
         assignDoerType: data.assignDoerType || '',  // Preserve existing selection
         doer: data.doer || '',
         taskNumber: data.taskNumber || '',
@@ -56,6 +81,9 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask }: { data: any; 
         label: data.label || '',
         doerAssignList: data.doerAssignList || {},
         bindingValues: data.bindingValues || {},
+        doerTaskNumber: data.doerTaskNumber || '',
+        doerBlockName: data.doerBlockName || '',
+        doerBlockOptions: data.doerBlockOptions || '',
     });
 
     const [doerList, setDoerList] = useState<{ value: string; label: string }[]>([]);
@@ -124,6 +152,11 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask }: { data: any; 
     }, []);
 
     useEffect(() => {
+        let value = getPreviousTaskList(nodes, edges, "1", id);
+        setPerviousTaskList(value);
+    }, [showSettings])
+
+    useEffect(() => {
         setNodeSetting({
             assignDoerType: data.assignDoerType || '',
             doer: data.doer || '',
@@ -139,11 +172,27 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask }: { data: any; 
             taskNumber: data.taskNumber || '',
             doerAssignList: data.doerAssignList || {},
             bindingValues: data.bindingValues || {},
+            doerTaskNumber: data.doerTaskNumber || '',
+            doerBlockName: data.doerBlockName || '',
+            doerBlockOptions: data.doerBlockOptions || '',
         });
     }, [data]);
 
     const handleSaveDoer = () => {
-        console.log(nodeSetting)
+        const validationRules = [
+            { field: 'label', message: 'Please Enter Task Name.' },
+            { field: 'taskNumber', message: 'Please Enter Task Number.' },
+            { field: 'assignDoerType', message: 'Please Select Assign Doer Type.' },
+            { field: 'doer', message: 'Please Select Doer.' },
+        ];
+
+        for (const rule of validationRules) {
+            if (!nodeSetting[rule.field]) {
+                speak(rule.message);
+                toast.info(rule.message);
+                return;
+            }
+        }
         data.assignDoerType = nodeSetting.assignDoerType;
         data.doer = nodeSetting.doer;
         data.role = nodeSetting.role
@@ -156,6 +205,9 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask }: { data: any; 
         data.weeks = nodeSetting.weeks;
         data.doerAssignList = nodeSetting.doerAssignList;
         data.bindingValues = nodeSetting.bindingValues;
+        data.doerTaskNumber = nodeSetting.doerTaskNumber;
+        data.doerBlockName = nodeSetting.doerBlockName;
+        data.doerBlockOptions = nodeSetting.doerBlockOptions;
 
         setNodes((prevNodes: any) =>
             prevNodes.map((node: any) =>
@@ -177,6 +229,9 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask }: { data: any; 
                             taskNumber: nodeSetting.taskNumber,
                             doerAssignList: nodeSetting.doerAssignList,
                             bindingValues: nodeSetting.bindingValues,
+                            doerTaskNumber: nodeSetting.doerTaskNumber,
+                            doerBlockName: nodeSetting.doerBlockName,
+                            doerBlockOptions: nodeSetting.doerBlockOptions,
                         }
                     }
                     : node
@@ -213,7 +268,6 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask }: { data: any; 
         axios.get(`${config.API_URL_APPLICATION}/FormBuilder/GetMasterList`).then(response => {
             setMasterLists(response.data.masterForms);
         });
-        console.log('data', data);
         if (typeof data.form != "string" && data.form?.blocks?.length) {
             const blockNames = getBlockName(data.form.blocks);
             setBlockName(blockNames);
@@ -257,6 +311,34 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask }: { data: any; 
         }
     };
 
+    useEffect(() => {
+        if (nodeSetting.doerTaskNumber) {
+            console.log("Selected Task Number:", nodeSetting.doerTaskNumber);
+
+            // Fetch the updated block names based on the selected task number
+            const value = getAllBlockName(nodes, nodeSetting.doerTaskNumber);
+            setPerviousBlockList(value);
+
+            // Reset doerBlockName to '' since the task number changed
+            setNodeSetting(prev => ({
+                ...prev,
+                doerBlockName: '', // Reset block name to empty string
+            }));
+
+            // Optionally clear previous options list
+            setPerviousOptionsList([]);
+        }
+    }, [nodeSetting.doerTaskNumber]); // Triggered whenever doerTaskNumber changes
+
+
+    useEffect(() => {
+        if (nodeSetting.doerBlockName) {
+            console.log(nodeSetting.doerBlockName);
+            const value = getAllBlockOptions(nodes, nodeSetting.doerTaskNumber, nodeSetting.doerBlockName);
+            setPerviousOptionsList(value);
+        }
+    }, [nodeSetting.doerBlockName])
+
 
     return (
         <div className="custom-node" style={getBorderStyle()}>
@@ -278,207 +360,315 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask }: { data: any; 
                     </Modal.Header>
                     <Modal.Body>
                         <p><strong>Node Settings</strong></p>
-                        <Form.Group>
-                            <Form.Label>Label</Form.Label>
-                            <Form.Control
-                                type="text"
-                                value={nodeSetting.label}
-                                name="label"
-                                onChange={handleTaskTimeChange}
-                            />
-                        </Form.Group>
-                        <Form.Group>
-                            <Form.Label>Task Number</Form.Label>
-                            <Form.Control
-                                type="text"
-                                value={nodeSetting.taskNumber} // Bind data.taskNumber to the value
-                                name="taskNumber"
-                                onChange={handleTaskTimeChange} // Call handleTaskTimeChange when input changes
-                            />
-                        </Form.Group>
-                        {/* <Form.Group>
-                            <Form.Label>Select Number</Form.Label>
-                            <Form.Control
-                                type="text"
-                                value={nodeSetting.taskNumber} // Bind data.taskNumber to the value
-                                name="taskNumber"
-                                onChange={handleTaskTimeChange} // Call handleTaskTimeChange when input changes
-                            />
-                        </Form.Group> */}
-
-                        <Form.Group>
-                            <Form.Label>Select Role*</Form.Label>
-                            <Select
-                                options={roleList}
-                                value={roleList.find(option => option.value === nodeSetting.role)}
-                                onChange={(selectedOption) =>
-                                    setNodeSetting(prev => ({ ...prev, role: selectedOption?.value || '' }))
-                                }
-                                placeholder="Select a role"
-                            />
-                        </Form.Group>
-                        <Form.Group>
-                            <Form.Label>Assign Doer Type</Form.Label>
-                            <Select
-                                options={ASSIGN_DOER_TYPE}
-                                value={ASSIGN_DOER_TYPE.find(option => option.value === nodeSetting.assignDoerType)}
-                                onChange={(selectedOption) =>
-                                    setNodeSetting(prev => ({ ...prev, assignDoerType: selectedOption?.value || '' }))
-                                }
-                                placeholder="Select Assign Doer Type"
-                            />
-                        </Form.Group>
-                        {nodeSetting.assignDoerType === 'fixedDoer' && (
-                            <Form.Group>
-                                <Form.Label>Assign Doer*</Form.Label>
-                                <Select
-                                    options={doerList}
-                                    value={doerList.find(option => option.value === nodeSetting.doer)}
-                                    onChange={(selectedOption) =>
-                                        setNodeSetting(prev => ({ ...prev, doer: selectedOption?.value || '' }))
-                                    }
-                                    placeholder="Select a Doer"
-                                />
-                            </Form.Group>
-                        )}
-                        {nodeSetting.assignDoerType === 'projectWithDoer' && (
-                            <Form.Group>
-                                <Form.Label>Project With Doer</Form.Label>
-                                {projectList.length > 0 ? (
-                                    projectList.map((project, index) => (
-                                        <div key={index} style={{ marginBottom: '1rem' }}>
-                                            <Form.Control
-                                                type="text"
-                                                value={project.projectName}
-                                                readOnly
-                                                style={{ marginBottom: '0.5rem' }}
-                                            />
-                                            <Select
-                                                options={doerList}
-                                                value={doerList.find(option => option.value === nodeSetting.doerAssignList?.[project.projectName])} // Use projectName as key
-                                                onChange={(selectedOption) => {
-                                                    setNodeSetting(prev => ({
-                                                        ...prev,
-                                                        doerAssignList: {
-                                                            ...prev.doerAssignList, // Spread existing doerAssignList
-                                                            [project.projectName]: selectedOption?.value || '' // Assign doer to this project
-                                                        }
-                                                    }));
-                                                }}
-                                                placeholder={`Select a Doer for ${project.projectName}`}
-                                            />
-                                        </div>
-                                    ))
-                                ) : (
-                                    <div>No projects available</div>
+                        <Row>
+                            <Col lg={3}>
+                                <Form.Group>
+                                    <Form.Label>Label*</Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        value={nodeSetting.label}
+                                        name="label"
+                                        onChange={handleTaskTimeChange}
+                                    />
+                                </Form.Group>
+                            </Col>
+                            <Col lg={3}>
+                                <Form.Group>
+                                    <Form.Label>Task Number*</Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        value={nodeSetting.taskNumber} // Bind data.taskNumber to the value
+                                        name="taskNumber"
+                                        onChange={handleTaskTimeChange} // Call handleTaskTimeChange when input changes
+                                    />
+                                </Form.Group>
+                            </Col>
+                            <Col lg={3}>
+                                <Form.Group>
+                                    <Form.Label>Assign Doer Type*</Form.Label>
+                                    <Select
+                                        options={ASSIGN_DOER_TYPE}
+                                        value={ASSIGN_DOER_TYPE.find(option => option.value === nodeSetting.assignDoerType)}
+                                        onChange={(selectedOption) =>
+                                            setNodeSetting(prev => ({ ...prev, assignDoerType: selectedOption?.value || '' }))
+                                        }
+                                        placeholder="Select Assign Doer Type"
+                                    />
+                                </Form.Group>
+                            </Col>
+                            <Col lg={3}>
+                                {nodeSetting.assignDoerType === 'fixedDoer' && (
+                                    <Form.Group>
+                                        <Form.Label>Assign Doer*</Form.Label>
+                                        <Select
+                                            options={doerList}
+                                            value={doerList.find(option => option.value === nodeSetting.doer)}
+                                            onChange={(selectedOption) =>
+                                                setNodeSetting(prev => ({ ...prev, doer: selectedOption?.value || '' }))
+                                            }
+                                            placeholder="Select a Doer"
+                                        />
+                                    </Form.Group>
                                 )}
-                            </Form.Group>
-                        )}
+                            </Col>
+                            {nodeSetting.assignDoerType === 'projectWithDoer' && (
+                                <Form.Group>
+                                    <Form.Label>Project With Doer</Form.Label>
+                                    <Row>
+                                        {projectList.length > 0 ? (
+                                            projectList.map((project, index) => (
+                                                <Col lg={3}>
+                                                    <div key={index} style={{ marginBottom: '1rem' }}>
+                                                        <Form.Group>
+                                                            <Form.Control
+                                                                type="text"
+                                                                value={project.projectName}
+                                                                readOnly
+                                                                style={{ marginBottom: '0.5rem' }}
+                                                            />
+                                                            <Select
+                                                                options={doerList}
+                                                                value={doerList.find(option => option.value === nodeSetting.doerAssignList?.[project.projectName])} // Use projectName as key
+                                                                onChange={(selectedOption) => {
+                                                                    setNodeSetting(prev => ({
+                                                                        ...prev,
+                                                                        doerAssignList: {
+                                                                            ...prev.doerAssignList, // Spread existing doerAssignList
+                                                                            [project.projectName]: selectedOption?.value || '' // Assign doer to this project
+                                                                        }
+                                                                    }));
+                                                                }}
+                                                                placeholder={`Select a Doer for ${project.projectName}`}
+                                                            />
+                                                        </Form.Group>
+                                                    </div>
+                                                </Col>
+                                            ))
+                                        ) : (
+                                            <div>No projects available</div>
+                                        )}
+                                    </Row>
+                                </Form.Group>
+                            )}
+                            {nodeSetting.assignDoerType === 'projectWithFormInput' && (
+                                <>
+                                    <Form.Label>Form Input Configuration</Form.Label>
 
+                                    <Col lg={3}>
+                                        <Form.Group>
+                                            <Form.Label>Task Name*</Form.Label>
+                                            <Select
+                                                options={previousTaskList}
+                                                value={previousTaskList.find(option => option.value === nodeSetting.doerTaskNumber)}
+                                                onChange={(selectedOption) =>
+                                                    setNodeSetting(prev => ({ ...prev, doerTaskNumber: selectedOption?.value || '' }))
+                                                }
+                                                placeholder="Select a Task"
+                                            />
+                                        </Form.Group>
+                                    </Col>
 
-                        <Form.Group>
-                            <Form.Label>Time Management</Form.Label>
-                            <Select
-                                options={TIME_MANAGEMENT_OPTION}
-                                value={TIME_MANAGEMENT_OPTION.find(option => option.value === nodeSetting.taskTimeOptions)}
-                                onChange={(selectedOption) =>
-                                    setNodeSetting(prev => ({ ...prev, taskTimeOptions: selectedOption?.value || '' }))
-                                }
-                                placeholder="Select Assign Doer Type"
-                            />
-                        </Form.Group>
-                        {['onlyDays', 'daysWithTime'].includes(nodeSetting.taskTimeOptions) && (
-                            <Form.Group>
-                                <Form.Label>Days</Form.Label>
-                                <Form.Control
-                                    type="number"
-                                    value={nodeSetting.days}
-                                    name="days"
-                                    onChange={handleTaskTimeChange}
-                                    placeholder="Enter Days"
-                                />
-                            </Form.Group>
-                        )}
-                        {['hours'].includes(nodeSetting.taskTimeOptions) && (
-                            <Form.Group>
-                                <Form.Label>Hours</Form.Label>
-                                <Form.Control
-                                    type="number"
-                                    value={nodeSetting.hours}
-                                    name="hours"
-                                    onChange={handleTaskTimeChange}
-                                    placeholder="Enter Days"
-                                />
-                            </Form.Group>
-                        )}
-                        {['weeks', 'weeksWithTime'].includes(nodeSetting.taskTimeOptions) && (
-                            <Form.Group>
-                                <Form.Label>Weeks</Form.Label>
-                                <Select
-                                    options={WEEKS}
-                                    value={WEEKS.find((option: any) => option.value === nodeSetting.weeks)}
-                                    onChange={(selectedOption) =>
-                                        setNodeSetting(prev => ({ ...prev, weeks: selectedOption?.value || '' }))
-                                    }
-                                    placeholder="Select Assign Doer Type"
-                                />
-                            </Form.Group>
-                        )}
-                        {['daysWithTime', 'weeksWithTime'].includes(nodeSetting.taskTimeOptions) && (
-                            <Form.Group>
-                                <Form.Label>Time</Form.Label> {/* Label now correctly represents time */}
-                                <Flatpickr
-                                    value={nodeSetting.time}
-                                    onChange={([date]) => setNodeSetting({
-                                        ...nodeSetting,
-                                        time: date.toISOString() // Store the full date-time
-                                    })}
-                                    options={{
-                                        enableTime: true, // Allow time selection
-                                        noCalendar: true, // Hide the calendar if only time is needed
-                                        dateFormat: "H:i", // Use 24-hour format
-                                        time_24hr: true, // Enforce 24-hour format
-                                    }}
-                                    placeholder="Select Time"
-                                    className="form-control"
-                                    required
-                                />
-                            </Form.Group>
-                        )}
-                        {['specificDate'].includes(nodeSetting.taskTimeOptions) && (
-                            <Form.Group>
-                                <Form.Label>Specific Date</Form.Label> {/* Label now correctly represents time */}
-                                <Flatpickr
-                                    value={nodeSetting.specificDate}
-                                    onChange={([date]) => setNodeSetting({
-                                        ...nodeSetting,
-                                        specificDate: date.toISOString() // Store the full date-time
-                                    })}
-                                    options={{
-                                        enableTime: false, // Allow time selection
-                                        noCalendar: false, // Hide the calendar if only time is needed
-                                        dateFormat: "F, d, Y", // Use 24-hour format
-                                        time_24hr: true, // Enforce 24-hour format
-                                    }}
-                                    placeholder="Select Time"
-                                    className="form-control"
-                                    required
-                                />
-                            </Form.Group>
-                        )}
-                        {!isStartNode && (
-                            <Form.Group>
-                                <Form.Label>Task Creation Type</Form.Label>
-                                <Select
-                                    options={TASK_CREATION_TYPE}
-                                    value={TASK_CREATION_TYPE.find(option => option.value === nodeSetting.taskCreationType)}
-                                    onChange={(selectedOption) =>
-                                        setNodeSetting(prev => ({ ...prev, taskCreationType: selectedOption?.value || '' }))
-                                    }
-                                    placeholder="Select Assign Doer Type"
-                                />
-                            </Form.Group>
-                        )}
+                                    {nodeSetting.doerTaskNumber && (
+                                        <Col lg={3}>
+                                            <Form.Group>
+                                                <Form.Label>Block Name*</Form.Label>
+                                                <Select
+                                                    options={previousBlockList} // Updated block list based on task number
+                                                    // Ensure value is either a valid option object or undefined/null if no selection
+                                                    value={nodeSetting.doerBlockName ? previousBlockList.find(option => option.value === nodeSetting.doerBlockName) : null}
+                                                    onChange={(selectedOption) =>
+                                                        setNodeSetting(prev => ({
+                                                            ...prev,
+                                                            doerBlockName: selectedOption ? selectedOption.value : '' // Ensure it's a string value
+                                                        }))
+                                                    }
+                                                    placeholder="Select a Block"
+                                                />
+
+                                            </Form.Group>
+                                        </Col>
+                                    )}
+
+                                    {projectList.length > 0 && (
+                                        <Row>
+                                            <Form.Label>Doers Configuration</Form.Label>
+
+                                            {projectList.map((project, index) => (
+                                                <Col lg={3} key={project.projectName}>  {/* Using projectName as a key */}
+                                                    <div style={{ marginBottom: '1rem' }}>
+                                                        <Form.Group>
+                                                            <Form.Control
+                                                                type="text"
+                                                                value={project.projectName}
+                                                                readOnly
+                                                                style={{ marginBottom: '0.5rem' }}
+                                                            />
+                                                            {previousOptionsList.length > 0 && previousOptionsList.map((options, optionIndex) => (
+                                                                <div key={options.value + optionIndex}>
+                                                                    <Form.Control
+                                                                        type="text"
+                                                                        value={options.label}
+                                                                        readOnly
+                                                                        style={{ marginBottom: '0.5rem' }}
+                                                                    />
+                                                                    <Select
+                                                                        options={doerList}
+                                                                        value={doerList.find(option => option.value === nodeSetting.doerAssignList?.[project.projectName]?.[options.value])}
+                                                                        onChange={(selectedOption) => {
+                                                                            setNodeSetting(prev => ({
+                                                                                ...prev,
+                                                                                doerAssignList: {
+                                                                                    ...prev.doerAssignList,
+                                                                                    [project.projectName]: {
+                                                                                        ...prev.doerAssignList[project.projectName],
+                                                                                        [options.value]: selectedOption?.value || ''
+                                                                                    }
+                                                                                }
+                                                                            }));
+                                                                        }}
+                                                                        placeholder={`Select a Doer for ${project.projectName} ${options.value}`}
+                                                                    />
+                                                                </div>
+                                                            ))}
+                                                        </Form.Group>
+                                                    </div>
+                                                </Col>
+                                            ))}
+                                        </Row>
+                                    )}
+                                </>
+                            )}
+                            <Col lg={3}>
+                                <Form.Group>
+                                    <Form.Label>Time Management</Form.Label>
+                                    <Select
+                                        options={TIME_MANAGEMENT_OPTION}
+                                        value={TIME_MANAGEMENT_OPTION.find(option => option.value === nodeSetting.taskTimeOptions)}
+                                        onChange={(selectedOption) =>
+                                            setNodeSetting(prev => ({ ...prev, taskTimeOptions: selectedOption?.value || '' }))
+                                        }
+                                        placeholder="Select Assign Doer Type"
+                                    />
+                                </Form.Group>
+                            </Col>
+                            {['onlyDays', 'daysWithTime'].includes(nodeSetting.taskTimeOptions) && (
+                                <Col lg={3}>
+                                    <Form.Group>
+                                        <Form.Label>Days</Form.Label>
+                                        <Form.Control
+                                            type="number"
+                                            value={nodeSetting.days}
+                                            name="days"
+                                            onChange={handleTaskTimeChange}
+                                            placeholder="Enter Days"
+                                        />
+                                    </Form.Group>
+                                </Col>
+                            )}
+                            {['hours'].includes(nodeSetting.taskTimeOptions) && (
+                                <Col lg={3}>
+                                    <Form.Group>
+                                        <Form.Label>Hours</Form.Label>
+                                        <Form.Control
+                                            type="number"
+                                            value={nodeSetting.hours}
+                                            name="hours"
+                                            onChange={handleTaskTimeChange}
+                                            placeholder="Enter Days"
+                                        />
+                                    </Form.Group>
+                                </Col>
+                            )}
+                            {['weeks', 'weeksWithTime'].includes(nodeSetting.taskTimeOptions) && (
+                                <Col lg={3}>
+                                    <Form.Group>
+                                        <Form.Label>Weeks</Form.Label>
+                                        <Select
+                                            options={WEEKS}
+                                            value={WEEKS.find((option: any) => option.value === nodeSetting.weeks)}
+                                            onChange={(selectedOption) =>
+                                                setNodeSetting(prev => ({ ...prev, weeks: selectedOption?.value || '' }))
+                                            }
+                                            placeholder="Select Assign Doer Type"
+                                        />
+                                    </Form.Group>
+                                </Col>
+                            )}
+                            {['daysWithTime', 'weeksWithTime'].includes(nodeSetting.taskTimeOptions) && (
+                                <Col lg={3}>
+                                    <Form.Group>
+                                        <Form.Label>Time</Form.Label> {/* Label now correctly represents time */}
+                                        <Flatpickr
+                                            value={nodeSetting.time}
+                                            onChange={([date]) => setNodeSetting({
+                                                ...nodeSetting,
+                                                time: date.toISOString() // Store the full date-time
+                                            })}
+                                            options={{
+                                                enableTime: true, // Allow time selection
+                                                noCalendar: true, // Hide the calendar if only time is needed
+                                                dateFormat: "H:i", // Use 24-hour format
+                                                time_24hr: true, // Enforce 24-hour format
+                                            }}
+                                            placeholder="Select Time"
+                                            className="form-control"
+                                            required
+                                        />
+                                    </Form.Group>
+                                </Col>
+                            )}
+                            {['specificDate'].includes(nodeSetting.taskTimeOptions) && (
+                                <Col lg={3}>
+                                    <Form.Group>
+                                        <Form.Label>Specific Date</Form.Label> {/* Label now correctly represents time */}
+                                        <Flatpickr
+                                            value={nodeSetting.specificDate}
+                                            onChange={([date]) => setNodeSetting({
+                                                ...nodeSetting,
+                                                specificDate: date.toISOString() // Store the full date-time
+                                            })}
+                                            options={{
+                                                enableTime: false, // Allow time selection
+                                                noCalendar: false, // Hide the calendar if only time is needed
+                                                dateFormat: "F, d, Y", // Use 24-hour format
+                                                time_24hr: true, // Enforce 24-hour format
+                                            }}
+                                            placeholder="Select Time"
+                                            className="form-control"
+                                            required
+                                        />
+                                    </Form.Group>
+                                </Col>
+                            )}
+                            {!isStartNode && (
+                                <Col lg={3}>
+                                    <Form.Group>
+                                        <Form.Label>Task Creation Type</Form.Label>
+                                        <Select
+                                            options={TASK_CREATION_TYPE}
+                                            value={TASK_CREATION_TYPE.find(option => option.value === nodeSetting.taskCreationType)}
+                                            onChange={(selectedOption) =>
+                                                setNodeSetting(prev => ({ ...prev, taskCreationType: selectedOption?.value || '' }))
+                                            }
+                                            placeholder="Select Assign Doer Type"
+                                        />
+                                    </Form.Group>
+                                </Col>
+                            )}
+                            <Col lg={3}>
+                                <Form.Group>
+                                    <Form.Label>Select Role*</Form.Label>
+                                    <Select
+                                        options={roleList}
+                                        value={roleList.find(option => option.value === nodeSetting.role)}
+                                        onChange={(selectedOption) =>
+                                            setNodeSetting(prev => ({ ...prev, role: selectedOption?.value || '' }))
+                                        }
+                                        placeholder="Select a role"
+                                    />
+                                </Form.Group>
+                            </Col>
+                        </Row>
                     </Modal.Body>
                     <Modal.Footer>
                         <button className="close-button" onClick={() => setShowSettings(false)}>Close</button>
