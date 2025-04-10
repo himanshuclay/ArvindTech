@@ -19,6 +19,11 @@ interface DROP_DOWN {
     identifier?: string;
 }
 
+interface roleDropDown {
+    roleName: string;
+    id: number;
+}
+
 interface Option {
     label: string;
     value: string;
@@ -65,6 +70,7 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges
         assignDoerType: data.assignDoerType || '',  // Preserve existing selection
         doer: data.doer || '',
         taskNumber: data.taskNumber || '',
+        role: data.role || '',
         specificDate: data.specificDate || '',
         taskTimeOptions: data.taskTimeOptions || '',
         days: data.days || '',
@@ -81,6 +87,7 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges
     });
 
     const [doerList, setDoerList] = useState<{ value: string; label: string }[]>([]);
+    const [roleList, setRoleList] = useState<{ value: string; label: string }[]>([]);
     const [projectList, setProjectList] = useState<{ id: string; projectName: string }[]>([]);
 
     const [isStartNode, setIsStartNode] = useState(false);
@@ -108,6 +115,19 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges
             console.error("Error fetching doer list:", error);
         }
     };
+    const getRoleList = async () => {
+        try {
+            const response = await axios.get(`${config.API_URL_APPLICATION}/CommonDropdown/GetRoleMasterList`);
+            if (response.data.isSuccess) {
+                setRoleList(response.data.roleMasterLists.map((w: roleDropDown) => ({
+                    value: w.id,
+                    label: w.roleName,
+                })));
+            }
+        } catch (error) {
+            console.error("Error fetching doer list:", error);
+        }
+    };
 
     const getProjectList = async () => {
         try {
@@ -127,6 +147,8 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges
         getDoerList();
 
         getProjectList();
+        getRoleList();
+
     }, []);
 
     useEffect(() => {
@@ -143,6 +165,7 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges
             days: data.taskTime || '',
             taskCreationType: data.taskCreationType || '',
             time: data.time || '',
+            role: data.role || '',
             hours: data.hours || '',
             weeks: data.weeks || '',
             label: data.label || '',
@@ -172,6 +195,7 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges
         }
         data.assignDoerType = nodeSetting.assignDoerType;
         data.doer = nodeSetting.doer;
+        data.role = nodeSetting.role
         data.taskTimeOptions = nodeSetting.taskTimeOptions;
         data.taskTime = nodeSetting.days;
         data.taskCreationType = nodeSetting.taskCreationType;
@@ -194,6 +218,7 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges
                             ...node.data,
                             assignDoerType: nodeSetting.assignDoerType,
                             doer: nodeSetting.doer,
+                            role: nodeSetting.role,
                             taskTimeOptions: nodeSetting.taskTimeOptions,
                             days: nodeSetting.days,
                             taskCreationType: nodeSetting.taskCreationType,
@@ -325,6 +350,34 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges
         }));
     }
 
+    const cloneNode = () => {
+        // Find the node to clone
+        const nodeToClone = nodes.find((node) => node.id === id);
+        if (!nodeToClone) {
+            console.error(`Node with id ${id} not found.`);
+            return;
+        }
+    
+        // Create a new node by copying the existing node's properties
+        const clonedNode: Node = {
+            ...nodeToClone,
+            id: (nodes.length + 1).toString(),  // Assign a new unique ID
+            position: { x: nodeToClone.position.x + 50, y: nodeToClone.position.y + 50 }, // Slightly offset the position for visibility
+        };
+    
+        // Add the cloned node to the state
+        setNodes((nds: any) => [...nds, clonedNode]);
+    
+        // Optionally, you can also update the workflowBuilder state with the cloned node
+        setWorkflowBuilder((prevWorkflowBuilder: any) => ({
+            ...prevWorkflowBuilder,
+            nodes: [...prevWorkflowBuilder.nodes, clonedNode],
+        }));
+    
+        console.log('Cloned node:', clonedNode);
+    };
+    
+
 
     return (
         <div className="custom-node" style={getBorderStyle()}>
@@ -335,6 +388,9 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges
                 </button>
                 <button className="setting-button-design" onClick={(e) => { e.stopPropagation(); setShowSettings(!showSettings); }} disabled={isCompleteTask}>
                     <i className="ri-settings-3-fill"></i>
+                </button>
+                <button className="setting-button-design" onClick={(e) => { e.stopPropagation(); cloneNode(); }} disabled={isCompleteTask}>
+                    <i className="ri-file-copy-line"></i>
                 </button>
                 <button className="setting-button-design" onClick={(e) => { e.stopPropagation(); deleteNode(); }} disabled={isCompleteTask}>
                     <i className="ri-close-circle-line"></i>
@@ -541,8 +597,8 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges
                                 </Form.Group>
                             </Col>
                             {['onlyDays', 'daysWithTime'].includes(nodeSetting.taskTimeOptions) && (
-                                <Form.Group>
-                                    <Col lg={3}>
+                                <Col lg={3}>
+                                    <Form.Group>
                                         <Form.Label>Days</Form.Label>
                                         <Form.Control
                                             type="number"
@@ -551,12 +607,12 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges
                                             onChange={handleTaskTimeChange}
                                             placeholder="Enter Days"
                                         />
-                                    </Col>
-                                </Form.Group>
+                                    </Form.Group>
+                                </Col>
                             )}
                             {['hours'].includes(nodeSetting.taskTimeOptions) && (
-                                <Form.Group>
-                                    <Col lg={3}>
+                                <Col lg={3}>
+                                    <Form.Group>
                                         <Form.Label>Hours</Form.Label>
                                         <Form.Control
                                             type="number"
@@ -565,12 +621,12 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges
                                             onChange={handleTaskTimeChange}
                                             placeholder="Enter Days"
                                         />
-                                    </Col>
-                                </Form.Group>
+                                    </Form.Group>
+                                </Col>
                             )}
                             {['weeks', 'weeksWithTime'].includes(nodeSetting.taskTimeOptions) && (
-                                <Form.Group>
-                                    <Col lg={3}>
+                                <Col lg={3}>
+                                    <Form.Group>
                                         <Form.Label>Weeks</Form.Label>
                                         <Select
                                             options={WEEKS}
@@ -580,12 +636,12 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges
                                             }
                                             placeholder="Select Assign Doer Type"
                                         />
-                                    </Col>
-                                </Form.Group>
+                                    </Form.Group>
+                                </Col>
                             )}
                             {['daysWithTime', 'weeksWithTime'].includes(nodeSetting.taskTimeOptions) && (
-                                <Form.Group>
-                                    <Col lg={3}>
+                                <Col lg={3}>
+                                    <Form.Group>
                                         <Form.Label>Time</Form.Label> {/* Label now correctly represents time */}
                                         <Flatpickr
                                             value={nodeSetting.time}
@@ -603,12 +659,12 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges
                                             className="form-control"
                                             required
                                         />
-                                    </Col>
-                                </Form.Group>
+                                    </Form.Group>
+                                </Col>
                             )}
                             {['specificDate'].includes(nodeSetting.taskTimeOptions) && (
-                                <Form.Group>
-                                    <Col lg={3}>
+                                <Col lg={3}>
+                                    <Form.Group>
                                         <Form.Label>Specific Date</Form.Label> {/* Label now correctly represents time */}
                                         <Flatpickr
                                             value={nodeSetting.specificDate}
@@ -626,8 +682,8 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges
                                             className="form-control"
                                             required
                                         />
-                                    </Col>
-                                </Form.Group>
+                                    </Form.Group>
+                                </Col>
                             )}
                             {!isStartNode && (
                                 <Col lg={3}>
@@ -644,6 +700,19 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges
                                     </Form.Group>
                                 </Col>
                             )}
+                            <Col lg={3}>
+                                <Form.Group>
+                                    <Form.Label>Select Role*</Form.Label>
+                                    <Select
+                                        options={roleList}
+                                        value={roleList.find(option => option.value === nodeSetting.role)}
+                                        onChange={(selectedOption) =>
+                                            setNodeSetting(prev => ({ ...prev, role: selectedOption?.value || '' }))
+                                        }
+                                        placeholder="Select a role"
+                                    />
+                                </Form.Group>
+                            </Col>
                         </Row>
                     </Modal.Body>
                     <Modal.Footer>

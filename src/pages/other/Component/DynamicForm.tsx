@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useMemo } from 'react'
 import axios from 'axios'
-import { Col, Modal, Row, Form } from 'react-bootstrap'
+import { Col, Modal, Row, Form, Table, Button } from 'react-bootstrap'
 // import { FileUploader } from '@/components/FileUploader'
 // import { useNavigate } from 'react-router-dom';
 import { useNavigate, useLocation } from 'react-router-dom'
@@ -90,6 +90,11 @@ type InputConfig = {
     conditionalFieldId?: string
     fieldId?: string
 }
+interface AdhocList {
+    id: number;
+    formName: string;
+}
+
 const DynamicForm: React.FC<DynamicFormProps> = ({
     taskNumber,
     processId,
@@ -100,7 +105,6 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
     projectName,
     finishPoint,
     setShow,
-    setAdhocJson,
     parsedCondition,
     preData,
     formData,
@@ -115,6 +119,14 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
     ProcessInitiationID,
     rejectData,
 }) => {
+
+    const [adhocLlist, setAdhocLlist] = useState<AdhocList[]>([]);
+    const [showAdhocAfterSubmit, setShowAdhocAfterSubmit] = useState(false);
+    const [adhocJson, setAdhocJson] = useState<String | any>('');
+    const [needAdhoc, setNeedAdhoc] = useState(false);
+    const [showAdhocFormModal, setShowAdhocFormModal] = useState(false);
+    const [currentAdhocForm, setCurrentAdhocForm] = useState<any>(null);
+
     const [formState, setFormState] = useState<FormState>({})
     const [summary, setSummary] = useState('')
     const [globalTaskJson, setglobalTaskJson] = useState<any>(
@@ -804,7 +816,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                                 return acc;
                             }, {})
                         );
-                        
+
                         console.log('Trimmed updatedValue:', updatedValue);
 
                         // const existingCondition = selectedCondition.length > 0 ? selectedCondition[0] : null;
@@ -1120,7 +1132,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                 console.log("this is payload", requestData);
 
                 const response = await fetch(
-                    `${config.API_URL_ACCOUNT}/ProcessInitiation/UpdateDoerTasks`,
+                    `${config.API_URL_ACCOUNT}/ProcessInitiation/UpdateDoerTask`,
                     {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
@@ -1150,10 +1162,33 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
 
                     if (messageKey === 'task_completed') {
                         toast.success(statusMessageMap[messageKey]);
-                        navigate('/pages/Notification');
-                        setTimeout(() => {
-                            window.location.reload(); // Ensures fresh data reload on navigation
-                        }, 900);
+                        if (needAdhoc) {
+                            try {
+                                handleClose();
+                                const response = await axios.get(
+                                    `${config.API_URL_ACCOUNT}/ProcessTaskMaster/GetTemplateJson`
+                                );
+
+                                if (response.data.isSuccess) {
+                                    setAdhocLlist(response.data.getTemplateJsons);
+                                    setTimeout(() => {
+                                        setShowAdhocAfterSubmit(true);
+                                    }, 1000);
+                                }
+                            } catch (error) {
+                                console.error("Error fetching Adhoc list:", error);
+                                setTimeout(() => {
+                                    window.location.reload();
+                                }, 900);
+                            }
+                        } else {
+                            handleClose();
+                            navigate('/pages/Notification');
+
+                            setTimeout(() => {
+                                window.location.reload();
+                            }, 900);
+                        }
                     } else if (messageKey) {
                         toast.warning(statusMessageMap[messageKey]);
                     }
@@ -1447,10 +1482,115 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
             console.log(error)
         }
     }
+    const handleMandatoryChange = async () => {
+        setNeedAdhoc(!needAdhoc);
+    }
+    const handleSelectAdhoc = async (adhocID: number) => {
+        try {
+            const response = await axios.get(`${config.API_URL_ACCOUNT}/ProcessTaskMaster/GetTemplateJson`, {
+                params: { id: adhocID }
+            });
 
+            if (response.data.isSuccess) {
+                const rawAdhocJson = JSON.parse(response.data.getTemplateJsons[0].templateJson);
+                const transformedFormData = transformAdhocToFormData(rawAdhocJson);
 
+                setAdhocJson(transformedFormData);
+                setShowAdhocAfterSubmit(false); // Close the selection modal
+                setShow(false); // Close the main form modal
+
+                // Open a new modal with the adhoc form
+                setShowAdhocFormModal(true);
+                setCurrentAdhocForm(transformedFormData);
+            }
+        } catch (error) {
+            console.error("Error fetching Adhoc form:", error);
+            toast.error("Failed to load adhoc form");
+        }
+    };
+    const transformAdhocToFormData = (adhocJson: any) => {
+        return {
+            formId: adhocJson.name || "adhoc-form",
+            formName: adhocJson.name || "Adhoc Form",
+            approval_Console: "",
+            inputs: adhocJson.blocks.map((block: any) => {
+                const baseInput = {
+                    inputId: block.property.id,
+                    fieldId: block.property.id,
+                    type: mapComponentType(block.is),
+                    label: block.property.label,
+                    formName: adhocJson.name,
+                    formId: adhocJson.name,
+                    placeholder: block.property.placeholder,
+                    required: block.property.required === "true",
+                    visibility: block.property.isShow,
+                    value: "",
+                    size: block.property.size || "12"
+                };
+
+                // Add options if it's a select component
+                if (block.is === "Select" && block.property.options) {
+                    return {
+                        ...baseInput,
+                        options: block.property.options.map((opt: any) => ({
+                            id: opt.value,
+                            label: opt.label
+                        }))
+                    };
+                }
+
+                // Handle DateRange differently if needed
+                if (block.is === "DateRange") {
+                    return {
+                        ...baseInput,
+                        startDateId: `${block.property.id}_start`,
+                        endDateId: `${block.property.id}_end`
+                    };
+                }
+
+                return baseInput;
+            })
+        };
+    };
+    const mapComponentType = (componentType: string): string => {
+        const typeMap: Record<string, string> = {
+            "Select": "select",
+            "TextInput": "text",
+            "DateRange": "dateRange",
+            // Add other mappings as needed
+        };
+        return typeMap[componentType] || "text";
+    };
+
+    console.log(adhocJson)
     return (
         <>
+            {showAdhocFormModal && currentAdhocForm && (
+                <DynamicForm
+                    fromComponent="AccountProcess"
+                    formData={currentAdhocForm}
+                    formBuilderData={currentAdhocForm}
+                    taskNumber={taskNumber}
+                    data={data}
+                    show={showAdhocFormModal}
+                    parsedCondition={parsedCondition}
+                    taskName={taskName}
+                    setShow={setShowAdhocFormModal}
+                    preData={preData}
+                    projectName={projectName}
+                    taskCommonIDRow={taskCommonIDRow}
+                    taskStatus={taskStatus}
+                    processId={processId}
+                    moduleId={moduleId}
+                    ProcessInitiationID={ProcessInitiationID}
+                    approval_Console={approval_Console}
+                    problemSolver={problemSolver}
+                    approvarActions={approvarActions}
+                    finishPoint={finishPoint}
+                    rejectBlock={rejectBlock}
+                    rejectData={rejectData}
+                />
+            )}
             <Modal
                 size="xl"
                 className="p-3"
@@ -1460,6 +1600,22 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                 <Modal.Header closeButton className=" ">
                     <Modal.Title className="text-dark">Task Details</Modal.Title>
                 </Modal.Header>
+                {!needAdhoc && fromComponent !== 'AccountProcess' &&
+                    <>
+                        <Form.Group controlId="need_adhoc" className='d-flex  justify-content-end m-3 mb-0'>
+                            <Form.Check
+                                type="switch"
+                                id="need_adhoc"
+                                label="Do you need an Adhoc form?"
+                                checked={needAdhoc}
+                                onChange={handleMandatoryChange}
+                            />
+                        </Form.Group>
+                        <Form.Text className="text-warning d-flex   justify-content-end m-3 mt-0">
+                            Note: The form will only open once - this option won't appear again
+                        </Form.Text>
+                    </>
+                }
                 {location.pathname != '/pages/ApprovalConsole' && (
                     <div className="px-3">
                         {location.pathname !== '/pages/ApprovalConsole' && (
@@ -2295,6 +2451,49 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                     )}
                 </div>
 
+            </Modal>
+            <Modal className="p-2"
+                show={showAdhocAfterSubmit}
+                onHide={() => {
+                    setShowAdhocAfterSubmit(false);
+                    handleClose(); // Also close the main modal
+                }}
+                size="lg">
+                <Modal.Header closeButton>
+                    <Modal.Title className="text-dark">Select Adhoc Form</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    {adhocLlist.length > 0 ? (
+                        <Table striped bordered hover>
+                            <thead>
+                                <tr>
+                                    <th>Sr.no.</th>
+                                    <th>Form Name</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {adhocLlist.map((adhoc, index) => (
+                                    <tr key={adhoc.id}>
+                                        <td>{index + 1}</td>
+                                        <td>{adhoc.formName}</td>
+                                        <td>
+                                            <Button
+                                                variant="primary"
+                                                size="sm"
+                                                onClick={() => handleSelectAdhoc(adhoc.id)}
+                                            >
+                                                Select
+                                            </Button>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </Table>
+                    ) : (
+                        <p>No Adhoc Forms Available</p>
+                    )}
+                </Modal.Body>
             </Modal>
         </>
     )

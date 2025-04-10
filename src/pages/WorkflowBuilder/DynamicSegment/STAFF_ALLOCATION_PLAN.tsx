@@ -88,6 +88,7 @@ const STAFF_ALLOCATION_PLAN = forwardRef((props: any, ref) => {
 
     const getSpecializeRole = async (selectedRole: any) => {
         try {
+            console.log(selectedRole);
             if (selectedRole.name) {
                 const response = await axios.get(`${config.API_URL_APPLICATION}/CommonDropdown/GetSpecializedDesignation?CoreDesignation=${selectedRole.name}`);
                 console.log('response', response)
@@ -101,7 +102,10 @@ const STAFF_ALLOCATION_PLAN = forwardRef((props: any, ref) => {
     };
 
     useEffect(() => {
-        getSpecializeRole(selectedRole);
+        console.log(selectedRole);
+        if(selectedRole){
+            getSpecializeRole(selectedRole);
+        }
     }, [selectedRole]); // Re-fetch when the selected role changes
 
     function generateMonthData(): ThreeMonthData[] {

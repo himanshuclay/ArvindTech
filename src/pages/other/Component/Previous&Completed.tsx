@@ -41,9 +41,9 @@ const groupByMessName = (data: Task[]): GroupedData => {
 const MessCards: React.FC<{ data: Task[] }> = ({ data }) => {
     // Group the data
     const groupedData = groupByMessName(data);
-    console.log("yha dekhao",groupedData);
-    const formData = groupedData?.undefined ? groupedData.undefined[0]?.form_Json ? JSON.parse(groupedData.undefined[0]?.form_Json ) : {} : {}
-    const blockData = groupedData?.undefined ? groupedData.undefined[0]?.blockValue ? JSON.parse(groupedData.undefined[0]?.blockValue ) : {} : {}
+    console.log("yha dekhao", groupedData);
+    const formData = groupedData?.undefined ? groupedData.undefined[0]?.form_Json ? JSON.parse(groupedData.undefined[0]?.form_Json) : {} : {}
+    const blockData = groupedData?.undefined ? groupedData.undefined[0]?.blockValue ? JSON.parse(groupedData.undefined[0]?.blockValue) : {} : {}
     // console.log('groupedData', JSON.parse(groupedData.undefined[0].form_Json))
     const [form, setForm] = useState<FIELD>({ ...formData, editMode: true });
     const [property, setProperty] = useState<PROPERTY>({
@@ -86,11 +86,11 @@ const MessCards: React.FC<{ data: Task[] }> = ({ data }) => {
                     : (Object.entries(groupedData).map(([messName, messTasks]) => (
                         <>
                             {/* {form.blocks?.length === 0 && ( */}
-                                <Col key={messName} md={6} lg={4} className="">
-                                    <Card>
-                                        <Card.Header className="bg-primary text-white">
+                            <Col key={messName} className="">
+                                <div>
+                                    <div className="bg-primary text-white">
 
-                                            <h5 className="mb-0">
+                                        {/* <h5 className="mb-0">
                                                 {
                                                     messName &&
                                                         messName !== 'undefined' &&
@@ -99,54 +99,74 @@ const MessCards: React.FC<{ data: Task[] }> = ({ data }) => {
                                                         ? messName
                                                         : messTasks[0]?.taskName || 'Task'
                                                 }
-                                            </h5>
+                                            </h5> */}
 
 
-                                            {/* <h5>{messTasks[0]?.taskName || 'Task'}</h5> */}
+                                        {/* <h5>{messTasks[0]?.taskName || 'Task'}</h5> */}
 
 
-                                        </Card.Header>
-                                        <Card.Body>
-                                            {messTasks[0]?.messManager &&
-                                                <p className="m-0"><strong>Manager:</strong> {messTasks[0]?.messManager}</p>
-                                            }
-                                            {messTasks[0]?.managerNumber &&
-                                                <p className="m-0"><strong>Mess Manager Contact: </strong>
-                                                    <a
-                                                        href={`tel:${messTasks[0]?.managerNumber}`}
-                                                        className="ms-1 text-primary"
-                                                        style={{ textDecoration: "none" }}
-                                                        aria-label="Call"
-                                                    >
-                                                        <i className="ri-phone-fill" style={{ fontSize: "1rem" }}></i>
-                                                        {messTasks[0]?.managerNumber}
-                                                    </a>
-                                                </p>
-                                            }
-                                            {messTasks[0]?.managerNumber && messTasks[0]?.managerNumber &&
-                                                <hr />}
-                                            <h6>Tasks:</h6>
+                                    </div>
+                                    <div className="row m-0 g-3"> {/* 'g-3' adds gutter (space) between columns */}
+                                        {messTasks[0]?.messManager &&
+                                            <p className="m-0"><strong>Manager:</strong> {messTasks[0]?.messManager}</p>
+                                        }
+                                        {messTasks[0]?.managerNumber &&
+                                            <p className="m-0"><strong>Mess Manager Contact: </strong>
+                                                <a
+                                                    href={`tel:${messTasks[0]?.managerNumber}`}
+                                                    className="ms-1 text-primary"
+                                                    style={{ textDecoration: "none" }}
+                                                    aria-label="Call"
+                                                >
+                                                    <i className="ri-phone-fill" style={{ fontSize: "1rem" }}></i>
+                                                    {messTasks[0]?.managerNumber}
+                                                </a>
+                                            </p>
+                                        }
+                                        {messTasks[0]?.managerNumber && messTasks[0]?.managerNumber &&
+                                            <hr />}
+                                        <h6>Tasks:</h6>
 
-                                            {messTasks.map((task, index) => (
-                                                <div key={index} className="">
-
-                                                    {task.messTaskNumber ?
+                                        {messTasks.map((task, index) => (
+                                            <Card key={index} className="col-4 mb-3"> {/* Add margin-bottom 'mb-3' */}
+                                                <Card.Header className="bg-primary text-white">
+                                                    {/* Task name */}
+                                                    <h5>{task.taskName || 'Task'}</h5>
+                                                </Card.Header>
+                                                <Card.Body>
+                                                    {/* Manager details */}
+                                                    {task.messManager && (
+                                                        <p className="m-0"><strong>Manager:</strong> {task.messManager}</p>
+                                                    )}
+                                                    {task.managerNumber && (
                                                         <p className="m-0">
-                                                            <strong>Task ID:</strong> {task.messTaskNumber}
-                                                        </p> : ''
-                                                    }
+                                                            <strong>Mess Manager Contact: </strong>
+                                                            <a
+                                                                href={`tel:${task.managerNumber}`}
+                                                                className="ms-1 text-primary"
+                                                                style={{ textDecoration: "none" }}
+                                                                aria-label="Call"
+                                                            >
+                                                                <i className="ri-phone-fill" style={{ fontSize: "1rem" }}></i>
+                                                                {task.managerNumber}
+                                                            </a>
+                                                        </p>
+                                                    )}
+                                                    {task.managerNumber && (
+                                                        <hr />
+                                                    )}
+
+                                                    {/* Task inputs */}
                                                     {Array.isArray(task.inputs) && task.inputs.length > 0 ? (
                                                         <ul>
-                                                            {task.inputs.map(
-                                                                (input, i) =>
-                                                                    input.label && input.value !== "" && (
-                                                                        <li key={i}>
-                                                                            <strong>{input.label}:</strong> {input.value.toString()}
-                                                                        </li>
-                                                                    )
-                                                            )}
+                                                            {task.inputs.map((input, i) => (
+                                                                input.label && input.value !== "" && (
+                                                                    <li key={i}>
+                                                                        <strong>{input.label}:</strong> {input.value.toString()}
+                                                                    </li>
+                                                                )
+                                                            ))}
                                                         </ul>
-
                                                     ) : (
                                                         <Container className="my-5">
                                                             <Row className="justify-content-center">
@@ -159,13 +179,13 @@ const MessCards: React.FC<{ data: Task[] }> = ({ data }) => {
                                                             </Row>
                                                         </Container>
                                                     )}
-                                                    <hr />
+                                                </Card.Body>
+                                            </Card>
+                                        ))}
+                                    </div>
 
-                                                </div>
-                                            ))}
-                                        </Card.Body>
-                                    </Card>
-                                </Col>
+                                </div>
+                            </Col>
                             {/* )} */}
                             {form.blocks?.length && (
                                 <Editor form={form} setForm={setForm} property={property} setProperty={setProperty} blockValue={blockValue} setBlockValue={setBlockValue} isPreview={true} />

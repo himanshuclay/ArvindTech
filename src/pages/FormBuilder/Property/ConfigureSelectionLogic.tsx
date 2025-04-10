@@ -46,22 +46,21 @@ const ConfigureSelectionLogic: React.FC<Props> = ({ configureSelectionLogic, set
         }
     };
 
-    const handleRuleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>, index: number, field: keyof CONFIGURE_SELECTION_LOGICS) => {
-        let { value } = e.target;
+    const handleRuleChange = (name: string, value: string | string[], index: number) => {
 
         // Handle multi-select case for start2, where value is an array
-        if (field === 'start2') {
+        if (name === 'start2') {
             const selectedValues = Array.isArray(value) ? value : [value]; // Ensure value is always an array
             setConfigureSelectionLogics(prevRules => {
                 const updatedRules = [...prevRules];
-                updatedRules[index][field] = selectedValues;
+                updatedRules[index][name] = selectedValues;
                 return updatedRules;
             });
         } else {
-            // For other fields (single select or input), just assign the value directly
+            // For other names (single select or input), just assign the value directly
             setConfigureSelectionLogics(prevRules => {
                 const updatedRules = [...prevRules];
-                updatedRules[index][field] = value;
+                updatedRules[index][name] = value;
                 return updatedRules;
             });
         }
@@ -161,9 +160,7 @@ const ConfigureSelectionLogic: React.FC<Props> = ({ configureSelectionLogic, set
                                             onChange={(selectedOptions) => {
                                                 // Update the selected values as an array of strings
                                                 const selectedValues = selectedOptions.map((option: Option) => option.value);
-                                                handleRuleChange({
-                                                    target: { name: 'start2', value: selectedValues } // Ensure this is an array of strings
-                                                }, index, 'start2');
+                                                handleRuleChange( 'start2', selectedValues , index);
                                                 // Optionally, fetch columns when the start2 value changes
                                                 selectedValues.forEach(value => fetchColumnNames(value));
                                             }}
