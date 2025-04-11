@@ -128,16 +128,32 @@ const ProjectAssignTable: React.FC = () => {
 
   // Function to handle node selection
   const onNodeClick = useCallback((_event: React.MouseEvent, node: Node) => {
-    setSelectedNode(node); // ✅ Sets the node you're editing
-    console.log(node.data.blockValue);
-    setBlockValue(node.data.blockValue);
-    if (node.data.form?.blocks?.length) {
-      setShowFormBuilder(true);
-      setFormBuilder(node.data.form); // ✅ Prefill existing form
-      setIsAddFormBuilder(false);
-    } else {
-      if (node.data.form != "ADD_NODE")
-        setDynamicComponent(node.data.form);
+    console.log(node);
+    if(node.data.completedBy && node.data.completedBy == localStorage.getItem("EmpId")){
+      setSelectedNode(node); // ✅ Sets the node you're editing
+      console.log(node.data.blockValue);
+      console.log(setShowFormBuilder);
+      setBlockValue(node.data.blockValue);
+      if (node.data.form?.blocks?.length) {
+        setShowFormBuilder(true);
+        setFormBuilder(node.data.form); // ✅ Prefill existing form
+        setIsAddFormBuilder(false);
+      } else {
+        if (node.data.form != "ADD_NODE")
+          setDynamicComponent(node.data.form);
+      }
+    }else if(!node.data.completedBy){
+      setSelectedNode(node); // ✅ Sets the node you're editing
+      console.log(node.data.blockValue);
+      setBlockValue(node.data.blockValue);
+      if (node.data.form?.blocks?.length) {
+        setShowFormBuilder(true);
+        setFormBuilder(node.data.form); // ✅ Prefill existing form
+        setIsAddFormBuilder(false);
+      } else {
+        if (node.data.form != "ADD_NODE")
+          setDynamicComponent(node.data.form);
+      }
     }
   }, []);
 
@@ -402,32 +418,6 @@ const ProjectAssignTable: React.FC = () => {
           }
         </Modal.Body>
       </Modal>
-
-      {dynamicComponent && (
-        <Modal
-          show={true}
-          backdrop="static"
-          size='xl'
-          onHide={handleFormClose}
-        >
-          <Modal.Header closeButton>
-            <Modal.Title>Edit Task for</Modal.Title>
-          </Modal.Header>
-          <Modal.Body>
-            <fieldset disabled style={{ pointerEvents: "none" }}>
-              {dynamicComponent && componentMap[dynamicComponent] && React.createElement(componentMap[dynamicComponent], {
-                ref: (instance: any) => {
-                  if (instance) {
-                    componentRefMap.current[dynamicComponent] = instance;
-                  }
-                },
-                blockValue: blockValue
-              })}
-            </fieldset>
-          </Modal.Body>
-        </Modal>
-      )}
-
 
       {dynamicComponent && (
         <Modal
