@@ -164,6 +164,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
 
     const fileUploaderRef = useRef<FileUploaderHandle>(null);
 
+
     const [form, setForm] = useState<FIELD>({ ...formBuilderData, editMode: true });
     const [property, setProperty] = useState<PROPERTY>({
         label: '',
@@ -943,267 +944,281 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
         console.log('found')
 
 
-        if (fileUploaderRef.current) {
-            try {
-                await fileUploaderRef.current.uploadFiles();
-            } catch (error) {
-                console.error('Error uploading files:', error);
-                return; // Stop form submission if file upload fails
-            }
-        }
-        {
-            processId === 'ACC.01' && saveDataToLocalStorage()
-        }
 
-        const finalData = JSON.parse(localStorage.getItem(localStorageKey) ?? '[]')
-        localStorage.removeItem(localStorageKey)
-        console.log('Final Submitted Data:', finalData)
-        const role = localStorage.getItem('EmpId') || ''
+        try {
 
-        let found = false
-        finalData.forEach((mess: any) => {
-            mess.taskJson.inputs.forEach((input: any) => {
-                if (input.value === '11-1') {
-                    found = true
+
+            if (fileUploaderRef.current) {
+                try {
+                    await fileUploaderRef.current.uploadFiles();
+                } catch (error) {
+                    console.error('Error uploading files:', error);
+                    return; // Stop form submission if file upload fails
                 }
+            }
+
+
+            {
+                processId === 'ACC.01' && saveDataToLocalStorage()
+            }
+
+            const finalData = JSON.parse(localStorage.getItem(localStorageKey) ?? '[]')
+            localStorage.removeItem(localStorageKey)
+            console.log('Final Submitted Data:', finalData)
+            const role = localStorage.getItem('EmpId') || ''
+
+            let found = false
+            finalData.forEach((mess: any) => {
+                mess.taskJson.inputs.forEach((input: any) => {
+                    if (input.value === '11-1') {
+                        found = true
+                    }
+                })
             })
-        })
-        console.log(found)
+            console.log(found)
 
 
 
 
-        if (fromComponent === 'AccountProcess') {
-            const adhocRequestedData = {
-                projectName: projectNames,
-                moduleID: moduleId,
-                processID: processId,
-                taskCommonID: 1, // need to re work for this
-                adhocJson: JSON.stringify(globalTaskJson),
-                createdBy: role,
-            }
-
-            try {
-                const apiUrl = `${config.API_URL_ACCOUNT}/AdhocForm/InsertAdhocJsonMaster`
-                const response = await axios.post(apiUrl, adhocRequestedData)
-                console.log(response)
-
-                if (response.status >= 200 && response.status < 300) {
-                    console.log('ADHOC submitted successfully:', response.data)
-                    navigate('/pages/ProcessMaster')
-                } else {
-                    console.error(
-                        'Error submitting module:',
-                        response.status,
-                        response.statusText
-                    )
-                }
-            } catch (error: any) {
-                console.error('Error submitting module:', error.message || error)
-            }
-
-        }
-        if (fromComponent === 'PendingTask' || 'ApprovalConsole') {
-            console.log(approval_Console)
-            console.log("this is culprit", selectedCondition, parsedCondition);
-
-            const requestData = {
-                id: ProcessInitiationID || 0,
-                doerID: role || '',
-                task_Json:
-                    processId === 'ACC.01'
-                        ? typeof finalData === 'string' ? finalData : JSON.stringify(finalData)
-                        : typeof globalTaskJson === 'string' ? globalTaskJson : JSON.stringify(globalTaskJson),
-                isExpired: 0,
-                isCompleted: (() => {
-                    console.log('approval_Console:', approval_Console)
-                    console.log('taskStatus:', taskStatus)
-                    console.log('approvalStatus?.value:', approvalStatus?.value)
-
-                    const currentStatus =
-                        typeof taskStatus === 'string' && taskStatus.trim() !== ''
-                            ? taskStatus.trim()
-                            : 'Pending'
-
-                    console.log('Current Status:', currentStatus)
-
-                    if (
-                        approval_Console === 'Select Approval_Console' &&
-                        approvalStatus?.value === undefined
-                    ) {
-                        return 'Waiting for Approval'
-                        // console.log("wah wah");
-                    }
-
-                    const approvalValue =
-                        approvalStatus?.value?.trim().toLowerCase() || ''
-                    console.log("lllllll", approvalValue);
-                    if (currentStatus === 'Waiting for Approval') {
-                        if (approvalValue === 'reject') return 'Pending'
-                        if (['approvewithamendment', 'approve'].includes(approvalValue))
-                            return 'Completed'
-                    }
-                    if (approval_Console === '' &&
-                        approvalStatus?.value === undefined) {
-                        return 'Completed'
-                    }
-
-                    return currentStatus
-                })(),
-                task_Number: taskNumber,
-                summary: formState['summary'] || 'Task Summary',
-                condition_Json:
-                    fromComponent === 'PendingTask' && processId !== 'ACC.01'
-                        ? (selectedCondition && Object.keys(selectedCondition).length > 0
-                            ? JSON.stringify(selectedCondition)
-                            : parsedCondition)
-                        : parsedCondition,
-                taskCommonId: taskCommonIDRow,
-                staticCondition: parsedCondition,
-                taskStatus: taskStatus,
-                taskName: taskName,
-                rejectedJson:
-                    rejectBlock != "" ? rejectBlock : fromComponent === 'ApprovalConsole'
-                        ? approvalStatus?.value?.trim().toLowerCase() === 'reject'
-                            ? globalTaskJson
-                            : ''
-                        : '',
-                completedDate: `${new Date().toISOString().slice(0, 10)} ${new Date().toISOString().slice(11, 19)}`,
-                endprocessStatus: 'string',
-                // file: '',
-                updatedBy: role,
-                problemSolver: problemSolver,
-                projectName: projectName,
-            }
-
-            console.log(requestData)
-
-            try {
-
-                const parsedGlobalTaskJson = typeof globalTaskJson === "string" ? JSON.parse(globalTaskJson) : globalTaskJson;
-
-                if (!parsedGlobalTaskJson?.inputs?.length) {
-                    console.error("Invalid globalTaskJson structure or 'inputs' is missing:", parsedGlobalTaskJson);
-                    return;
+            if (fromComponent === 'AccountProcess') {
+                const adhocRequestedData = {
+                    projectName: projectNames,
+                    moduleID: moduleId,
+                    processID: processId,
+                    taskCommonID: 1, // need to re work for this
+                    adhocJson: JSON.stringify(globalTaskJson),
+                    createdBy: role,
                 }
 
-                const isAnyInputFilled = parsedGlobalTaskJson.inputs.some((input: any) => {
-                    if (Array.isArray(input.value)) {
-                        return input.value.length > 0;
+                try {
+                    const apiUrl = `${config.API_URL_ACCOUNT}/AdhocForm/InsertAdhocJsonMaster`
+                    const response = await axios.post(apiUrl, adhocRequestedData)
+                    console.log(response)
+
+                    if (response.status >= 200 && response.status < 300) {
+                        console.log('ADHOC submitted successfully:', response.data)
+                        navigate('/pages/ProcessMaster')
+                    } else {
+                        console.error(
+                            'Error submitting module:',
+                            response.status,
+                            response.statusText
+                        )
                     }
-                    return !!input.value?.trim();
-                });
+                } catch (error: any) {
+                    console.error('Error submitting module:', error.message || error)
+                }
 
-                // ✅ Additional Check: RenderedInputs must have value(s)
-                const isRenderedInputsValid = renderedInputs.every((input: Input) => {
-                    // Check if the input is required
-                    if (input.required === true) {
-                        const currentValue = formState[input.inputId] ?? input.value ?? '';
+            }
+            if (fromComponent === 'PendingTask' || 'ApprovalConsole') {
+                console.log(approval_Console)
+                console.log("this is culprit", selectedCondition, parsedCondition);
 
-                        if (Array.isArray(currentValue)) {
-                            // For required array inputs, it must have at least one value
-                            return currentValue.length > 0;
+                const requestData = {
+                    id: ProcessInitiationID || 0,
+                    doerID: role || '',
+                    task_Json:
+                        processId === 'ACC.01'
+                            ? typeof finalData === 'string' ? finalData : JSON.stringify(finalData)
+                            : typeof globalTaskJson === 'string' ? globalTaskJson : JSON.stringify(globalTaskJson),
+                    isExpired: 0,
+                    isCompleted: (() => {
+                        console.log('approval_Console:', approval_Console)
+                        console.log('taskStatus:', taskStatus)
+                        console.log('approvalStatus?.value:', approvalStatus?.value)
+
+                        const currentStatus =
+                            typeof taskStatus === 'string' && taskStatus.trim() !== ''
+                                ? taskStatus.trim()
+                                : 'Pending'
+
+                        console.log('Current Status:', currentStatus)
+
+                        if (
+                            approval_Console === 'Select Approval_Console' &&
+                            approvalStatus?.value === undefined
+                        ) {
+                            return 'Waiting for Approval'
+                            // console.log("wah wah");
                         }
-                        console.log("dgsfgsfgsfg", currentValue);
 
-                        // For required text/other inputs, it must not be an empty string
-                        return String(currentValue).trim() !== '';
-                    }
+                        const approvalValue =
+                            approvalStatus?.value?.trim().toLowerCase() || ''
+                        console.log("lllllll", approvalValue);
+                        if (currentStatus === 'Waiting for Approval') {
+                            if (approvalValue === 'reject') return 'Pending'
+                            if (['approvewithamendment', 'approve'].includes(approvalValue))
+                                return 'Completed'
+                        }
+                        if (approval_Console === '' &&
+                            approvalStatus?.value === undefined) {
+                            return 'Completed'
+                        }
 
-                    // If not required, consider it valid
-                    return true;
-                });
-
-
-                if (processId !== "ACC.01") {
-                    if (!isAnyInputFilled) {
-                        toast.dismiss();
-                        toast.error(`Please fill at least one required field.`);
-                        return;
-                    }
-
-                    if (!isRenderedInputsValid) {
-                        toast.dismiss();
-                        toast.error(`Please fill all visible required fields.`);
-                        return;
-                    }
+                        return currentStatus
+                    })(),
+                    task_Number: taskNumber,
+                    summary: formState['summary'] || 'Task Summary',
+                    condition_Json:
+                        fromComponent === 'PendingTask' && processId !== 'ACC.01'
+                            ? (selectedCondition && Object.keys(selectedCondition).length > 0
+                                ? JSON.stringify(selectedCondition)
+                                : parsedCondition)
+                            : parsedCondition,
+                    taskCommonId: taskCommonIDRow,
+                    staticCondition: parsedCondition,
+                    taskStatus: taskStatus,
+                    taskName: taskName,
+                    rejectedJson:
+                        rejectBlock != "" ? rejectBlock : fromComponent === 'ApprovalConsole'
+                            ? approvalStatus?.value?.trim().toLowerCase() === 'reject'
+                                ? globalTaskJson
+                                : ''
+                            : '',
+                    completedDate: `${new Date().toISOString().slice(0, 10)} ${new Date().toISOString().slice(11, 19)}`,
+                    endprocessStatus: 'string',
+                    // file: '',
+                    updatedBy: role,
+                    problemSolver: problemSolver,
+                    projectName: projectName,
                 }
 
-                console.log("this is payload", requestData);
+                console.log(requestData)
 
-                const response = await fetch(
-                    `${config.API_URL_ACCOUNT}/ProcessInitiation/UpdateDoerTask`,
-                    {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(requestData),
+                try {
+
+                    const parsedGlobalTaskJson = typeof globalTaskJson === "string" ? JSON.parse(globalTaskJson) : globalTaskJson;
+
+                    if (!parsedGlobalTaskJson?.inputs?.length) {
+                        console.error("Invalid globalTaskJson structure or 'inputs' is missing:", parsedGlobalTaskJson);
+                        return;
                     }
-                );
 
-                console.log(response);
+                    const isAnyInputFilled = parsedGlobalTaskJson.inputs.some((input: any) => {
+                        if (Array.isArray(input.value)) {
+                            return input.value.length > 0;
+                        }
+                        return !!input.value?.trim();
+                    });
 
-                if (response.ok) {
-                    const responseData = await response.json();
+                    // ✅ Additional Check: RenderedInputs must have value(s)
+                    const isRenderedInputsValid = renderedInputs.every((input: Input) => {
+                        // Check if the input is required
+                        if (input.required === true) {
+                            const currentValue = formState[input.inputId] ?? input.value ?? '';
 
-                    const statusMessageMap: { [key: string]: string } = {
-                        'approval_pending': 'Task has been sent for approval',
-                        'approval_rejected': 'Task has been rejected',
-                        'task_completed': 'Task Completed'
-                    };
+                            if (Array.isArray(currentValue)) {
+                                // For required array inputs, it must have at least one value
+                                return currentValue.length > 0;
+                            }
+                            console.log("dgsfgsfgsfg", currentValue);
 
-                    const messageKey =
-                        approval_Console === 'Select Approval_Console' && approvalStatus?.value === undefined
-                            ? 'approval_pending'
-                            : approval_Console === 'Select Approval_Console' && approvalStatus?.value === 'rejected'
-                                ? 'approval_rejected'
-                                : approval_Console === '' && approvalStatus?.value === undefined
-                                    ? 'task_completed'
-                                    : '';
+                            // For required text/other inputs, it must not be an empty string
+                            return String(currentValue).trim() !== '';
+                        }
 
-                    if (messageKey === 'task_completed') {
-                        toast.success(statusMessageMap[messageKey]);
-                        if (needAdhoc) {
-                            try {
-                                handleClose();
-                                const response = await axios.get(
-                                    `${config.API_URL_ACCOUNT}/ProcessTaskMaster/GetTemplateJson`
-                                );
+                        // If not required, consider it valid
+                        return true;
+                    });
 
-                                if (response.data.isSuccess) {
-                                    setAdhocLlist(response.data.getTemplateJsons);
+
+                    if (processId !== "ACC.01") {
+                        if (!isAnyInputFilled) {
+                            toast.dismiss();
+                            toast.error(`Please fill at least one required field.`);
+                            return;
+                        }
+
+                        if (!isRenderedInputsValid) {
+                            toast.dismiss();
+                            toast.error(`Please fill all visible required fields.`);
+                            return;
+                        }
+                    }
+
+                    console.log("this is payload", requestData);
+
+                    const response = await fetch(
+                        `${config.API_URL_ACCOUNT}/ProcessInitiation/UpdateDoerTask`,
+                        {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(requestData),
+                        }
+                    );
+
+                    console.log(response);
+
+                    if (response.ok) {
+                        const responseData = await response.json();
+
+                        const statusMessageMap: { [key: string]: string } = {
+                            'approval_pending': 'Task has been sent for approval',
+                            'approval_rejected': 'Task has been rejected',
+                            'task_completed': 'Task Completed'
+                        };
+
+                        const messageKey =
+                            approval_Console === 'Select Approval_Console' && approvalStatus?.value === undefined
+                                ? 'approval_pending'
+                                : approval_Console === 'Select Approval_Console' && approvalStatus?.value === 'rejected'
+                                    ? 'approval_rejected'
+                                    : approval_Console === '' && approvalStatus?.value === undefined
+                                        ? 'task_completed'
+                                        : '';
+
+                        if (messageKey === 'task_completed') {
+                            toast.success(statusMessageMap[messageKey]);
+                            if (needAdhoc) {
+                                try {
+                                    handleClose();
+                                    const response = await axios.get(
+                                        `${config.API_URL_ACCOUNT}/ProcessTaskMaster/GetTemplateJson`
+                                    );
+
+                                    if (response.data.isSuccess) {
+                                        setAdhocLlist(response.data.getTemplateJsons);
+                                        setTimeout(() => {
+                                            setShowAdhocAfterSubmit(true);
+                                        }, 1000);
+                                    }
+                                } catch (error) {
+                                    console.error("Error fetching Adhoc list:", error);
                                     setTimeout(() => {
-                                        setShowAdhocAfterSubmit(true);
-                                    }, 1000);
+                                        window.location.reload();
+                                    }, 900);
                                 }
-                            } catch (error) {
-                                console.error("Error fetching Adhoc list:", error);
+                            } else {
+                                handleClose();
+                                // navigate('/pages/Notification');
+
                                 setTimeout(() => {
                                     window.location.reload();
                                 }, 900);
                             }
-                        } else {
-                            handleClose();
-                            navigate('/pages/Notification');
-
-                            setTimeout(() => {
-                                window.location.reload();
-                            }, 900);
+                        } else if (messageKey) {
+                            toast.warning(statusMessageMap[messageKey]);
                         }
-                    } else if (messageKey) {
-                        toast.warning(statusMessageMap[messageKey]);
+
+                        setShow(false);
+                        console.log('Task updated successfully:', responseData);
+                    } else {
+                        console.error('Failed to update the task:', response.statusText);
                     }
 
-                    setShow(false);
-                    console.log('Task updated successfully:', responseData);
-                } else {
-                    console.error('Failed to update the task:', response.statusText);
+                } catch (error) {
+                    console.error('Error occurred while updating task:', error)
+                } finally {
                 }
-
-            } catch (error) {
-                console.error('Error occurred while updating task:', error)
-            } finally {
             }
+        } catch (error) {
+            console.error('Error during submission:', error);
+            return;
         }
+
+
+
+
     }
 
 
@@ -2111,7 +2126,6 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                                                                     additionalData={{
                                                                         ModuleID: moduleId,
                                                                         CreatedBy: 'yourUserID',
-                                                                        FileType: 'Weekly',
                                                                         TaskCommonID: taskCommonIDRow,
                                                                         Task_Number: taskNumber,
                                                                         ProcessInitiationID: ProcessInitiationID,
@@ -2124,8 +2138,8 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                                                                         handleChange(input.inputId, JSON.stringify(names));
                                                                     }}
                                                                     fileConfig={{
-                                                                        fileType: input.fileType,  // Example: '.png'
-                                                                        fileSize: input.fileSize    // Example: '1' means only 1 file allowed
+                                                                        fileType: input.fileType,
+                                                                        fileSize: input.fileSize
                                                                     }}
                                                                 />
 
@@ -2138,6 +2152,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                                                                         ))}
                                                                     </ul>
                                                                 )}
+
                                                             </div>
                                                         )}
 
