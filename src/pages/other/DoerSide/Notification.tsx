@@ -251,7 +251,7 @@ const ProjectAssignTable: React.FC = () => {
     try {
       const flag = 5;
       const response = await axios.get<ApiResponse>(
-        `${config.API_URL_ACCOUNT}/ProcessInitiation/GetFilterTask?initate processTaskCommonId=${taskCommonId}&Flag=${flag}`
+        `${config.API_URL_ACCOUNT}/ProcessInitiation/GetFilterTask?TaskCommonId=${taskCommonId}&Flag=${flag}`
       );
 
       if (response.data?.isSuccess) {
@@ -353,6 +353,8 @@ const ProjectAssignTable: React.FC = () => {
       setLoading(false);
     }
   };
+
+  console.log("this is predata",preData);
 
 
 

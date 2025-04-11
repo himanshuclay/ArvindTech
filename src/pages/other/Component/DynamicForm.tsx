@@ -1618,11 +1618,10 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                 }
                 {location.pathname != '/pages/ApprovalConsole' && (
                     <div className="px-3">
-                        {location.pathname !== '/pages/ApprovalConsole' && (
+                        
                             <div className="d-flex flex-wrap mx-3">
                                 {preData && preData.length > 0 && <MessCards data={preData} />}
                             </div>
-                        )}
                     </div>
                 )}
 

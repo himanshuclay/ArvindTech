@@ -334,7 +334,6 @@ const Editor: React.FC<EditorProps> = ({ form, setForm, property, setProperty, b
         >
             <fieldset disabled={isPreview}>
                 <div className='d-flex flex-wrap'>
-                    {/* {JSON.stringify(form.blocks)} */}
 
                     {form.blocks.length === 0 ? (
                         <p className="text-gray-400">Drag fields here...</p>
