@@ -81,7 +81,7 @@ const WorkflowBuilder: React.FC = () => {
     });
 
     const nodeTypes = useMemo(() => ({
-        custom: (props: any) => <CustomNode {...props} setNodes={setNodes} edges={edges} nodes={nodes} setEdges={setEdges} setWorkflowBuilder={setWorkflowBuilder} setSelectedNode={setSelectedNode}/>,
+        custom: (props: any) => <CustomNode {...props} setNodes={setNodes} edges={edges} nodes={nodes} setEdges={setEdges} setWorkflowBuilder={setWorkflowBuilder} setSelectedNode={setSelectedNode} />,
     }), [setNodes, edges]);
 
     const [formBuilder, setFormBuilder] = useState<FIELD>({
@@ -182,7 +182,7 @@ const WorkflowBuilder: React.FC = () => {
             type: 'custom',
             data: {
                 label: action ? LABEL[action] : form ? form.name : `New Node ${nodes.length + 1}`, handles: Math.floor(Math.random() * 4) + 1, form: action ? action : form || {},
-                taskNumber: `T${nodes.length - 1 }`,
+                taskNumber: `T${nodes.length - 1}`,
                 inputHandles: action ? INPUT_HANDLES[action] : 1,
                 outputHandles: action ? OUTPUT_HANDLES[action] : form.configureSelectionLogics.length ? form.configureSelectionLogics[0].start2.length : 1,
                 outputLabels: action ? OUTPUT_LABELS[action] : form.configureSelectionLogics.length ? form.configureSelectionLogics[0].start2 : '',
@@ -283,7 +283,7 @@ const WorkflowBuilder: React.FC = () => {
             console.log("Added new node:", newNodeId);
         } else {
             if (isCloseForm) {
-            console.log(formBuilder.configureSelectionLogics);
+                console.log(formBuilder.configureSelectionLogics);
                 setNodes((prevNodes) =>
                     prevNodes.map((node) =>
                         node.id === selectedNode.id

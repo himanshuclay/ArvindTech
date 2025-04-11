@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Button, Form, Modal } from 'react-bootstrap';
-import { END1, END2 } from '../Constant/Constant';
+// import { END1, END2 } from '../Constant/Constant';
 import { getBlockById } from '../Constant/Functions';
 import { CONFIGURE_SELECTION_LOGICS, FIELD } from '../Constant/Interface';
 import axios from 'axios';
@@ -23,7 +23,7 @@ interface Props {
 
 const ConfigureSelectionLogic: React.FC<Props> = ({ configureSelectionLogic, setConfigureSelectionLogic, form, setForm }) => {
     const [configureSelectionLogics, setConfigureSelectionLogics] = useState<CONFIGURE_SELECTION_LOGICS[]>(form.configureSelectionLogics || []);
-    const [mastersLists, setMasterLists] = useState<Option[]>([]);
+    const [, setMasterLists] = useState<Option[]>([]);
     const [columnLists, setColumnLists] = useState<{ [key: string]: Option[] }>({}); // Store column options
 
     const handleClose = () => {
@@ -56,11 +56,12 @@ const ConfigureSelectionLogic: React.FC<Props> = ({ configureSelectionLogic, set
                 updatedRules[index][name] = selectedValues;
                 return updatedRules;
             });
-        } else {
+        } else{
             // For other names (single select or input), just assign the value directly
+            const selectedValues = Array.isArray(value) ? value[0] : value; // Ensure value is always an array
             setConfigureSelectionLogics(prevRules => {
                 const updatedRules = [...prevRules];
-                updatedRules[index][name] = value;
+                updatedRules[index].start1 = selectedValues;
                 return updatedRules;
             });
         }
@@ -133,7 +134,7 @@ const ConfigureSelectionLogic: React.FC<Props> = ({ configureSelectionLogic, set
                                         <Form.Select
                                             name="start1"
                                             value={rule.start1}
-                                            onChange={(e) => handleRuleChange(e, index, 'start1')}
+                                            onChange={(e) => handleRuleChange('start1', e.target.value, index, )}
                                         >
                                             <option value="">Please select</option>
                                             {handleStart1(rule).options.map((option, optionIndex) => (
