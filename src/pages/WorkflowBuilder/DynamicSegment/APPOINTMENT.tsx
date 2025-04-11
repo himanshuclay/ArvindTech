@@ -1,9 +1,17 @@
-import React, { useState, forwardRef, useImperativeHandle } from 'react';
+import config from '@/config';
+import axios from 'axios';
+import React, { useState, forwardRef, useImperativeHandle, useEffect } from 'react';
 import { Col, Form, Row } from 'react-bootstrap';
 import Select from 'react-select';
 
+interface RECRUITER {
+    empId?: string;
+    employeeName?: string;
+}
+
 const APPOINTMENT = forwardRef((props: any, ref) => {
     const [blockValue, setBlockValue] = useState<{ [key: string]: string }>(props.blockValue ? props.blockValue : {});
+    const [recruiterList, setRecruiterList] = useState<RECRUITER[]>([]);
 
     const TYPE_OF_APPOINTMENT = [
         { label: 'New Appointment', value: 'newAppointment' },
@@ -23,11 +31,37 @@ const APPOINTMENT = forwardRef((props: any, ref) => {
     }));
 
     const handleSelectChange = (field: string) => (selectedOption: any) => {
+        console.log(field)
+        console.log(selectedOption)
         setBlockValue((prev) => ({
             ...prev,
             [field]: selectedOption ? selectedOption.value : '', // Only store the value part of the selected option
         }));
+        console.log(blockValue)
     };
+
+    const fetchInit = async () => {
+        try {
+            const response = await axios.get(`${config.API_URL_APPLICATION}/CommonDropdown/GetEmployeeListWithId`);
+            console.log(response)
+            if (response.data.isSuccess) {
+                setRecruiterList(response.data.employeeLists)
+            }
+
+        } catch (error) {
+            console.error(error);
+        }
+    }
+
+    useEffect(() => {
+        fetchInit();
+    },[])
+
+    const recruiterOptions = recruiterList.map(rec => ({
+        label: rec.employeeName || '',
+        value: rec.empId || ''
+    }));
+
 
     return (
         <div>
@@ -51,14 +85,16 @@ const APPOINTMENT = forwardRef((props: any, ref) => {
                     <Col lg={4}>
                         <Form.Group controlId="selectRecruiter">
                             <Form.Label>Select Recruiter</Form.Label>
-                            <Form.Control
-                                type="text"
+                            <Select
                                 placeholder="Enter Recruiter Name"
                                 name="selectRecruiter"
-                                value={blockValue.selectRecruiter}
-                                onChange={(e) =>
-                                    setBlockValue((prev) => ({ ...prev, selectRecruiter: e.target.value }))
+                                value={recruiterOptions.find(option => option.value === blockValue.selectRecruiter) || null}
+                                onChange={(selectedOption) =>
+                                    handleSelectChange('selectRecruiter')(selectedOption || null)
                                 }
+                                options={recruiterOptions}
+                                isSearchable={true}
+                                className='h45'
                             />
                         </Form.Group>
                     </Col>
@@ -82,13 +118,15 @@ const APPOINTMENT = forwardRef((props: any, ref) => {
                         <Form.Group controlId="employeeToBeTransferred">
                             <Form.Label>Employee to be Transferred</Form.Label>
                             <Select
+                                placeholder="Enter Recruiter Name"
                                 name="employeeToBeTransferred"
-                                value={TYPE_OF_APPOINTMENT.find(option => option.value === blockValue.employeeToBeTransferred) || null}
-                                onChange={handleSelectChange('employeeToBeTransferred')}
-                                options={TYPE_OF_APPOINTMENT}
+                                value={recruiterOptions.find(option => option.value === blockValue.employeeToBeTransferred) || null}
+                                onChange={(selectedOption) =>
+                                    handleSelectChange('employeeToBeTransferred')(selectedOption || null)
+                                }
+                                options={recruiterOptions}
                                 isSearchable={true}
-                                placeholder="Select Employee to be Transferred"
-                                className="h45"
+                                className='h45'
                             />
                         </Form.Group>
                     </Col>
