@@ -137,6 +137,7 @@ const ActiveNode = ({ activeNode, activeTaskId, setActiveNode, completedNodes, s
                 data: {
                     ...completeNode.data, // Ensure completeNode.data is spread
 
+
                 }
             }));
 

@@ -148,6 +148,7 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges
     useEffect(() => {
         getDoerList();
 
+
         getProjectList();
         getRoleList();
 
