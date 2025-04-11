@@ -222,11 +222,11 @@ const AccountProcess = () => {
         setTarget(event.target as HTMLElement);
     };
     const handleAdhocInitiation = () => {
-        if(!process.projectName){
+        if (!process.projectName) {
             toast.info('Please Select Project Name')
-        }else if(!process.taskNumber){
+        } else if (!process.taskNumber) {
             toast.info('Please Select Task Number')
-        }else{
+        } else {
             setShowAdhoc(true);
         }
     };
