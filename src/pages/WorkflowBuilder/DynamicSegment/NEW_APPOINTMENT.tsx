@@ -32,7 +32,7 @@ interface BlockValue {
 
 
 const NEW_APPOINTMENT = forwardRef((props: any, ref) => {
-    const [blockValue, setBlockValue] = useState<BlockValue>(props.blockValue ? props.blockValue :{
+    const [blockValue, setBlockValue] = useState<BlockValue>(Object.keys(props.blockValue).length ? props.blockValue : {
         updateInterviewedCandidates: {},
         finalizedCandidate: '',
         attendanceAndWorkingHoursPolicy: '',
@@ -58,7 +58,7 @@ const NEW_APPOINTMENT = forwardRef((props: any, ref) => {
                 [newCandidateValue]: { label: newCandidateValue }
             }
         }));
-        
+
         speak(`${newCandidateValue} added`);
     };
 
@@ -138,15 +138,15 @@ const NEW_APPOINTMENT = forwardRef((props: any, ref) => {
         <div>
             <Row>
                 <div>
-                    <p>Update Interviewed Candidates</p>
+                    <h5 className="my-2">Update Interviewed Candidates</h5>
                     <Button variant="primary" onClick={handleAddUpdateInterviewedCandidates}>
                         Add Candidate
                     </Button>
                 </div>
                 <Col lg={6}>
                     <Form.Group controlId="updateInterviewedCandidates">
-                        {Object.keys(blockValue.updateInterviewedCandidates).map((candidateKey, index) => (
-                            <div key={index} style={{ display: "flex", alignItems: "center", marginBottom: "8px", gap: "8px" }}>
+                        {blockValue.updateInterviewedCandidates && Object.keys(blockValue.updateInterviewedCandidates).map((candidateKey, index) => (
+                            <div className="mt-2" key={index} style={{ display: "flex", alignItems: "center", marginBottom: "8px", gap: "8px" }}>
                                 <Form.Control
                                     type="text"
                                     value={blockValue.updateInterviewedCandidates[candidateKey].label}
@@ -196,21 +196,24 @@ const NEW_APPOINTMENT = forwardRef((props: any, ref) => {
                     </Form.Group>
                 </Col>
 
-                <Col lg={6}>
-                    <h5>Finalized Candidate has agreed on the below policies:</h5>
+                <Row className="">
+                    <h5 className="my-2">Finalized Candidate has agreed on the below policies:</h5>
+                    <hr />
                     {Object.keys(blockValue).filter(key => key !== 'updateInterviewedCandidates' && key !== 'finalizedCandidate' && key !== 'dateOfJoining').map((policyKey) => (
-                        <Form.Group key={policyKey}>
-                            <Form.Label>{policyKey.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}</Form.Label>
-                            <Select
-                                options={YES_NO_OPTIONS}
-                                value={YES_NO_OPTIONS.find(option => option.value === blockValue[policyKey])}
-                                onChange={(selectedOption) => handleSelectChange(selectedOption, policyKey)}
-                                placeholder="Select Yes or No"
-                            />
-                        </Form.Group>
+                        <Col lg={6}>
+                            <Form.Group key={policyKey}>
+                                <Form.Label>{policyKey.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}</Form.Label>
+                                <Select
+                                    options={YES_NO_OPTIONS}
+                                    value={YES_NO_OPTIONS.find(option => option.value === blockValue[policyKey])}
+                                    onChange={(selectedOption) => handleSelectChange(selectedOption, policyKey)}
+                                    placeholder="Select Yes or No"
+                                />
+                            </Form.Group>
+                        </Col>
                     ))}
 
-                    <Form.Group>
+                    <Form.Group className="mt-2">
                         <Form.Label>Date of Joining</Form.Label>
                         <Flatpickr
                             value={blockValue.dateOfJoining}
@@ -220,7 +223,7 @@ const NEW_APPOINTMENT = forwardRef((props: any, ref) => {
                             placeholder="YYYY-MM-DD"
                         />
                     </Form.Group>
-                </Col>
+                </Row>
             </Row>
         </div>
     );

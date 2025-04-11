@@ -165,47 +165,54 @@ const ActiveNode = ({ activeNode, activeTaskId, setActiveNode, completedNodes, s
     return (
         <div>
             {completedNodes.map((completeNode: any, index: number) => (
-                <React.Fragment key={index}>
-                    {completeNode.data.form?.blocks?.length ? (
-                        <Editor
-                            form={completeNode.data.form}
-                            setForm={setForm}
-                            property={property}
-                            setProperty={setProperty}
-                            blockValue={completeNode.data.blockValue}
-                            setBlockValue={setBlockValue}
-                            isShowSave={false}
-                            isPreview={true}
-                        />
-                    ) : (
-                        <fieldset disabled>
-                            {React.createElement(componentMap[completeNode.data.form], {
-                                ref: (instance: any) => {
-                                    if (instance) {
-                                        componentRefMap.current[completeNode.data.form] = instance;
-                                    }
-                                },
-                                blockValue: completeNode.data.blockValue
-                            })}
-                        </fieldset>
-                    )}
-                </React.Fragment>
-            ))}
+                <div>
+                    <React.Fragment key={index}>
+                        {completeNode.data.form?.blocks?.length ? (
+                            <Editor
+                                form={completeNode.data.form}
+                                setForm={setForm}
+                                property={property}
+                                setProperty={setProperty}
+                                blockValue={completeNode.data.blockValue}
+                                setBlockValue={setBlockValue}
+                                isShowSave={false}
+                                isPreview={true}
+                            />
+                        ) : (
+                            <fieldset disabled>
+                                {React.createElement(componentMap[completeNode.data.form], {
+                                    ref: (instance: any) => {
+                                        if (instance) {
+                                            componentRefMap.current[completeNode.data.form] = instance;
+                                        }
+                                    },
+                                    blockValue: completeNode.data.blockValue
+                                })}
+                            </fieldset>
+                        )}
+                    </React.Fragment>
+                    <hr />
+                </div>
 
-            {form?.blocks?.length && (
-                <Editor form={form} setForm={setForm} property={property} setProperty={setProperty} blockValue={blockValue} setBlockValue={setBlockValue} isShowSave={false} />
-            )}
-            {dynamicComponent && componentMap[dynamicComponent] && (
-                React.createElement(componentMap[dynamicComponent], {
-                    ref: (instance: any) => {
-                        if (instance) {
-                            componentRefMap.current[dynamicComponent] = instance;
-                        }
-                    },
-                    blockValue: blockValue
-                })
-            )}
-            <button type="button" onClick={handleSumbitTask}>Save</button>
+            ))}
+            <div className="my-2">
+                {form?.blocks?.length ? (
+                    <Editor form={form} setForm={setForm} property={property} setProperty={setProperty} blockValue={blockValue} setBlockValue={setBlockValue} isShowSave={false} />
+                ) : ''}
+                {dynamicComponent && componentMap[dynamicComponent] && (
+                    React.createElement(componentMap[dynamicComponent], {
+                        ref: (instance: any) => {
+                            if (instance) {
+                                componentRefMap.current[dynamicComponent] = instance;
+                            }
+                        },
+                        blockValue: blockValue
+                    })
+                )}
+            </div>
+            <div className="d-flex justify-content-end p-3">
+                <button className="btn btn-primary" type="button" onClick={handleSumbitTask}>Save</button>
+            </div>
         </div>
     )
 }

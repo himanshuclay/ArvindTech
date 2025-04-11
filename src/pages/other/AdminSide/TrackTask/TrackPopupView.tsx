@@ -70,7 +70,7 @@ const TrackPopUpView: React.FC<ProcessCanvasProps> = ({ show, setShow, manageId 
         setLoading(true);
         try {
             const response = await axios.get<ApiResponse>(`${config.API_URL_ACCOUNT}/ProcessInitiation/GetFilterTask`, {
-                params: { flag: 10, id: manageId, }
+                params: { flag: 6, id: manageId, }
             });
             if (response.data?.isSuccess) {
                 const fetchedData = response.data.getFilterTasks || [];
