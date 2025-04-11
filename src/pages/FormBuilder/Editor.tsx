@@ -218,6 +218,7 @@ const Editor: React.FC<EditorProps> = ({ form, setForm, property, setProperty, b
                         `${config.API_URL_APPLICATION}/FormBuilder/GetValue`,
                         form.rules
                     );
+                    console.log('response', response)
                     if (response.data.isSuccess) {
                         const updatedActions = response.data.rules.map((rule: any) => {
                             rule.rule = JSON.parse(rule.rule);
@@ -237,7 +238,6 @@ const Editor: React.FC<EditorProps> = ({ form, setForm, property, setProperty, b
             }
         };
         fetchData();
-        console.log('rule called')
     }, [form.editMode]);
 
 
@@ -277,6 +277,7 @@ const Editor: React.FC<EditorProps> = ({ form, setForm, property, setProperty, b
     const someRule = () => {
         console.log('triggeredActions', triggeredActions)
         triggeredActions.forEach(action => {
+            console.log('action', action)
             if (action.type === 'show_hide' && action.block) {
                 const updatedBlock = manageShowHide(action.block, action.rule.rule, blockValue) as BASIC_FIELD;
                 setForm(prevForm => ({
@@ -315,7 +316,6 @@ const Editor: React.FC<EditorProps> = ({ form, setForm, property, setProperty, b
                 const changedKeys = Object.keys(blockValue).filter(
                     key => blockValue[key] !== prevBlockValue[key]
                 );
-
                 if (changedKeys.length === 0) return;
                 setPrevBlockValue(blockValue);
                 someRule();

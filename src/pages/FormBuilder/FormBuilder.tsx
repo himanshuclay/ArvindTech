@@ -85,6 +85,7 @@ const FormBuilder: React.FC<FormBuilderProps> = ({ formDetails, handleClose, for
 
     const handleSaveForm = async () => {
         try {
+            form.editMode = true;
             if (formBuilder && setFormBuilder && setIsCloseForm) {
                 setFormBuilder(form);
                 setIsCloseForm(true);
@@ -110,6 +111,7 @@ const FormBuilder: React.FC<FormBuilderProps> = ({ formDetails, handleClose, for
     }
     const handleAdhocSaveForm = async () => {
         try {
+            form.editMode = true;
             if (!form.name) {
                 toast.info("Please Fill Form Name");
                 return;
@@ -164,7 +166,7 @@ const FormBuilder: React.FC<FormBuilderProps> = ({ formDetails, handleClose, for
         const response = await axios.get(`${config.API_URL_APPLICATION}/FormBuilder/GetForm`, {
             params: { id: id }
         });
-        if (response.data.getForms.length)
+        if (response.data?.getForms.length)
             setForm(response.data.getForms[0]);
     }
     useEffect(() => {
@@ -175,8 +177,6 @@ const FormBuilder: React.FC<FormBuilderProps> = ({ formDetails, handleClose, for
         }
     }, [id]);
 
-    console.log('form', form)
-    console.log('formBuilder', formBuilder)
 
     // useEffect(() => {
     //     if (formBuilder) {

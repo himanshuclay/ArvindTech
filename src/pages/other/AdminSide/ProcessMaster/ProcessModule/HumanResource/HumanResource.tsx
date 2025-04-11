@@ -197,7 +197,7 @@ const HumanResource = () => {
             moduleName: process.moduleID,
             taskNumber: processID,
             createdBy: empName,
-            advance,
+            advance:JSON.stringify(advance),
         };
         console.log(payload)
         e.preventDefault();

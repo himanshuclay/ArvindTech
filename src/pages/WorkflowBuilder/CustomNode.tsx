@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { Col, Form, Modal, Row } from "react-bootstrap";
 import Select from 'react-select';
 import { Handle, Position } from 'reactflow';
-import { ASSIGN_DOER_TYPE, TASK_CREATION_TYPE, TIME_MANAGEMENT_OPTION, WEEKS } from "./Constant";
+import { ASSIGN_DOER_TYPE, TASK_BINDING_OPTION, TASK_CREATION_TYPE, TIME_MANAGEMENT_OPTION, WEEKS } from "./Constant";
 import Flatpickr from 'react-flatpickr';
 // import { speak } from "@/utils/speak";
 import { APPOINTMENT, NEW_APPOINTMENT } from "./Constant/Binding";
@@ -45,12 +45,13 @@ type NodeSetting = {
     bindingValues: any;
     doerTaskNumber: any;
     doerBlockName: any;
-    doerBlockOptions: any;
+    TaskBinding: any;
+    BindingOption: any;
     // Add an index signature to allow any string-based key
     [key: string]: any;
 };
 
-const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges, setWorkflowBuilder }: { data: any; id: string; setNodes: any; edges: any[], isCompleteTask: boolean, nodes: any[], setEdges: any; setWorkflowBuilder: any }) => {
+const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges, setWorkflowBuilder, setSelectedNode }: { data: any; id: string; setNodes: any; edges: any[], isCompleteTask: boolean, nodes: any[], setEdges: any; setWorkflowBuilder: any; setSelectedNode: any }) => {
     const [showSettings, setShowSettings] = useState(false);
     const [showBinding, setShowBinding] = useState(false);
     const [loading, setLoading] = useState(false);
@@ -83,7 +84,8 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges
         bindingValues: data.bindingValues || {},
         doerTaskNumber: data.doerTaskNumber || '',
         doerBlockName: data.doerBlockName || '',
-        doerBlockOptions: data.doerBlockOptions || '',
+        TaskBinding: data.TaskBinding || '',
+        BindingOption: data.BindingOption || '',
     });
 
     const [doerList, setDoerList] = useState<{ value: string; label: string }[]>([]);
@@ -152,8 +154,10 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges
     }, []);
 
     useEffect(() => {
-        let value = getPreviousTaskList(nodes, edges, "1", id);
-        setPerviousTaskList(value);
+        if(showSettings){
+            let value = getPreviousTaskList(nodes, edges, "1", id);
+            setPerviousTaskList(value);
+        }
     }, [showSettings])
 
     useEffect(() => {
@@ -174,7 +178,8 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges
             bindingValues: data.bindingValues || {},
             doerTaskNumber: data.doerTaskNumber || '',
             doerBlockName: data.doerBlockName || '',
-            doerBlockOptions: data.doerBlockOptions || '',
+            TaskBinding: data.TaskBinding || '',
+            BindingOption: data.BindingOption || '',
         });
     }, [data]);
 
@@ -207,7 +212,8 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges
         data.bindingValues = nodeSetting.bindingValues;
         data.doerTaskNumber = nodeSetting.doerTaskNumber;
         data.doerBlockName = nodeSetting.doerBlockName;
-        data.doerBlockOptions = nodeSetting.doerBlockOptions;
+        data.TaskBinding = nodeSetting.TaskBinding;
+        data.BindingOption = nodeSetting.BindingOption;
 
         setNodes((prevNodes: any) =>
             prevNodes.map((node: any) =>
@@ -231,7 +237,8 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges
                             bindingValues: nodeSetting.bindingValues,
                             doerTaskNumber: nodeSetting.doerTaskNumber,
                             doerBlockName: nodeSetting.doerBlockName,
-                            doerBlockOptions: nodeSetting.doerBlockOptions,
+                            TaskBinding: nodeSetting.TaskBinding,
+                            BindingOption: nodeSetting.BindingOption,
                         }
                     }
                     : node
@@ -350,33 +357,38 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges
         }));
     }
 
-    const cloneNode = () => {
-        // Find the node to clone
-        const nodeToClone = nodes.find((node) => node.id === id);
-        if (!nodeToClone) {
-            console.error(`Node with id ${id} not found.`);
-            return;
-        }
-    
-        // Create a new node by copying the existing node's properties
-        const clonedNode: Node = {
-            ...nodeToClone,
-            id: (nodes.length + 1).toString(),  // Assign a new unique ID
-            position: { x: nodeToClone.position.x + 50, y: nodeToClone.position.y + 50 }, // Slightly offset the position for visibility
-        };
-    
-        // Add the cloned node to the state
-        setNodes((nds: any) => [...nds, clonedNode]);
-    
-        // Optionally, you can also update the workflowBuilder state with the cloned node
-        setWorkflowBuilder((prevWorkflowBuilder: any) => ({
-            ...prevWorkflowBuilder,
-            nodes: [...prevWorkflowBuilder.nodes, clonedNode],
-        }));
-    
-        console.log('Cloned node:', clonedNode);
-    };
-    
+    // const cloneNode = () => {
+    //     // Find the node to clone
+    //     const nodeToClone = nodes.find((node) => node.id === id);
+    //     if (!nodeToClone) {
+    //         console.error(`Node with id ${id} not found.`);
+    //         return;
+    //     }
+
+    //     // Create a new node by copying the existing node's properties
+    //     const clonedNode: Node = {
+    //         ...nodeToClone,
+    //         id: (nodes.length + 1).toString(),  // Assign a new unique ID based on current nodes length
+    //         position: { x: nodeToClone.position.x + 50, y: nodeToClone.position.y + 50 }, // Slightly offset the position for visibility
+    //     };
+
+    //     // Add the cloned node to the state using the functional update form
+    //     setNodes((prevNodes: any) => {
+    //         const updatedNodes = [...prevNodes, clonedNode]; // Add the cloned node to the array
+    //         // Update the workflowBuilder state as well
+    //         setWorkflowBuilder((prevWorkflowBuilder: any) => ({
+    //             ...prevWorkflowBuilder,
+    //             nodes: updatedNodes,
+    //         }));
+    //         return updatedNodes;  // Return updated nodes state
+    //     });
+
+    //     setSelectedNode(clonedNode);  // Optionally select the cloned node
+
+    //     console.log('Cloned node:', clonedNode);
+    // };
+
+
 
 
     return (
@@ -389,9 +401,9 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges
                 <button className="setting-button-design" onClick={(e) => { e.stopPropagation(); setShowSettings(!showSettings); }} disabled={isCompleteTask}>
                     <i className="ri-settings-3-fill"></i>
                 </button>
-                <button className="setting-button-design" onClick={(e) => { e.stopPropagation(); cloneNode(); }} disabled={isCompleteTask}>
+                {/* <button className="setting-button-design" onClick={(e) => { e.stopPropagation(); cloneNode(); }} disabled={isCompleteTask}>
                     <i className="ri-file-copy-line"></i>
-                </button>
+                </button> */}
                 <button className="setting-button-design" onClick={(e) => { e.stopPropagation(); deleteNode(); }} disabled={isCompleteTask}>
                     <i className="ri-close-circle-line"></i>
                 </button>
@@ -713,6 +725,34 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges
                                     />
                                 </Form.Group>
                             </Col>
+                            <Col lg={3}>
+                                <Form.Group>
+                                    <Form.Label>Select Task Binding*</Form.Label>
+                                    <Select
+                                        options={previousTaskList}
+                                        value={previousTaskList.find(option => option.value === nodeSetting.TaskBinding)}
+                                        onChange={(selectedOption) =>
+                                            setNodeSetting(prev => ({ ...prev, TaskBinding: selectedOption?.value || '' }))
+                                        }
+                                        placeholder="Select a TaskBinding"
+                                    />
+                                </Form.Group>
+                            </Col>
+                            {nodeSetting.TaskBinding && (
+                                <Col lg={3}>
+                                    <Form.Group>
+                                        <Form.Label>Select Binding Option*</Form.Label>
+                                        <Select
+                                            options={TASK_BINDING_OPTION}
+                                            value={TASK_BINDING_OPTION.find(option => option.value === nodeSetting.BindingOption)}
+                                            onChange={(selectedOption) =>
+                                                setNodeSetting(prev => ({ ...prev, BindingOption: selectedOption?.value || '' }))
+                                            }
+                                            placeholder="Select a BindingOption"
+                                        />
+                                    </Form.Group>
+                                </Col>
+                            )}
                         </Row>
                     </Modal.Body>
                     <Modal.Footer>
