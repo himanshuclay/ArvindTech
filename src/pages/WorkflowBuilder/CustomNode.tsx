@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { Col, Form, Modal, Row } from "react-bootstrap";
 import Select from 'react-select';
 import { Handle, Position } from 'reactflow';
-import { ASSIGN_DOER_TYPE, TASK_BINDING_OPTION, TASK_CREATION_TYPE, TIME_MANAGEMENT_OPTION, WEEKS } from "./Constant";
+import { ASSIGN_DOER_TYPE, LOOPING_SETTING_START1, LOOPING_SETTING_START2, TASK_BINDING_OPTION, TASK_CREATION_TYPE, TIME_MANAGEMENT_OPTION, WEEKS } from "./Constant";
 import Flatpickr from 'react-flatpickr';
 // import { speak } from "@/utils/speak";
 import { APPOINTMENT, NEW_APPOINTMENT } from "./Constant/Binding";
@@ -47,6 +47,12 @@ type NodeSetting = {
     doerBlockName: any;
     TaskBinding: any;
     BindingOption: any;
+    loopingSetting: {
+        start1: string;
+        start2: string;
+        start3: string;
+        start4: string;
+    },
     // Add an index signature to allow any string-based key
     [key: string]: any;
 };
@@ -60,7 +66,9 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges
     const outputLabels = data.outputLabels || Array(outputHandles).fill("").map((_, i) => `Out ${i + 1}`);
     const [previousTaskList, setPerviousTaskList] = useState<{ label: string, value: string }[]>([]);
     const [previousBlockList, setPerviousBlockList] = useState<{ label: string, value: string }[]>([]);
+    const [previousLoopingBlockList, setPerviousLoopingBlockList] = useState<{ label: string, value: string }[]>([]);
     const [previousOptionsList, setPerviousOptionsList] = useState<{ label: string, value: string }[]>([]);
+    const [previousLoopingOptionsList, setPerviousLoopingOptionsList] = useState<{ label: string, value: string }[]>([]);
 
     const BINDING: { [key: string]: string[] } = {
         APPOINTMENT,
@@ -86,6 +94,7 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges
         doerBlockName: data.doerBlockName || '',
         TaskBinding: data.TaskBinding || '',
         BindingOption: data.BindingOption || '',
+        loopingSetting: data.loopingSetting || {},
     });
 
     const [doerList, setDoerList] = useState<{ value: string; label: string }[]>([]);
@@ -155,7 +164,7 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges
     }, []);
 
     useEffect(() => {
-        if(showSettings){
+        if (showSettings) {
             let value = getPreviousTaskList(nodes, edges, "1", id);
             setPerviousTaskList(value);
         }
@@ -181,6 +190,7 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges
             doerBlockName: data.doerBlockName || '',
             TaskBinding: data.TaskBinding || '',
             BindingOption: data.BindingOption || '',
+            loopingSetting: data.loopingSetting || {},
         });
     }, [data]);
 
@@ -215,6 +225,7 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges
         data.doerBlockName = nodeSetting.doerBlockName;
         data.TaskBinding = nodeSetting.TaskBinding;
         data.BindingOption = nodeSetting.BindingOption;
+        data.loopingSetting = nodeSetting.loopingSetting;
 
         setNodes((prevNodes: any) =>
             prevNodes.map((node: any) =>
@@ -240,6 +251,7 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges
                             doerBlockName: nodeSetting.doerBlockName,
                             TaskBinding: nodeSetting.TaskBinding,
                             BindingOption: nodeSetting.BindingOption,
+                            loopingSetting: nodeSetting.loopingSetting,
                         }
                     }
                     : node
@@ -321,31 +333,39 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges
 
     useEffect(() => {
         if (nodeSetting.doerTaskNumber) {
-            console.log("Selected Task Number:", nodeSetting.doerTaskNumber);
-
-            // Fetch the updated block names based on the selected task number
-            const value = getAllBlockName(nodes, nodeSetting.doerTaskNumber);
+            const value = getAllBlockName(nodes, nodeSetting.doerTaskNumber, 'Select');
             setPerviousBlockList(value);
-
-            // Reset doerBlockName to '' since the task number changed
             setNodeSetting(prev => ({
                 ...prev,
                 doerBlockName: '', // Reset block name to empty string
             }));
-
-            // Optionally clear previous options list
             setPerviousOptionsList([]);
         }
-    }, [nodeSetting.doerTaskNumber]); // Triggered whenever doerTaskNumber changes
+        if(nodeSetting.loopingSetting.start3){
+            const value = getAllBlockName(nodes, nodeSetting.loopingSetting.start3);
+            setPerviousLoopingBlockList(value);
+            setNodeSetting(prev => ({
+                ...prev,
+                loopingSetting: {
+                    ...prev.loopingSetting,
+                    start4: '',
+                }
+            }));
+            setPerviousLoopingOptionsList([]);
+        }
+    }, [nodeSetting.doerTaskNumber, nodeSetting.loopingSetting.start3]); // Triggered whenever doerTaskNumber changes
 
 
     useEffect(() => {
         if (nodeSetting.doerBlockName) {
-            console.log(nodeSetting.doerBlockName);
             const value = getAllBlockOptions(nodes, nodeSetting.doerTaskNumber, nodeSetting.doerBlockName);
             setPerviousOptionsList(value);
         }
-    }, [nodeSetting.doerBlockName])
+        if(nodeSetting.loopingSetting.start4){
+            const value = getAllBlockOptions(nodes, nodeSetting.loopingSetting.start3, nodeSetting.loopingSetting.start4);
+            setPerviousLoopingOptionsList(value);
+        }
+    }, [nodeSetting.doerBlockName, nodeSetting.loopingSetting.start4])
 
     const deleteNode = () => {
         setNodes((nds: any) => nds.filter((node: any) => node.id !== id));
@@ -754,6 +774,63 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges
                                     </Form.Group>
                                 </Col>
                             )}
+                        </Row>
+                        <hr />
+                        <p><strong>Looping Setting (Rules)</strong></p>
+                        {JSON.stringify(nodeSetting.loopingSetting)}
+                        <Row>
+                            <Col lg={3}>
+                                <Form.Group>
+                                    <Select
+                                        options={LOOPING_SETTING_START1}
+                                        value={LOOPING_SETTING_START1.find(option => option.value === nodeSetting.loopingSetting.start1)}
+                                        onChange={(selectedOption) =>
+                                            setNodeSetting(prev => ({ ...prev, loopingSetting: { ...prev.loopingSetting, start1: selectedOption?.value || '' } }))
+                                        }
+                                        placeholder="Select Start1"
+                                    />
+                                </Form.Group>
+                            </Col>
+                            <Col lg={3}>
+                                <Form.Group>
+                                    <Select
+                                        options={LOOPING_SETTING_START2}
+                                        value={LOOPING_SETTING_START2.find(option => option.value === nodeSetting.loopingSetting.start2)}
+                                        onChange={(selectedOption) =>
+                                            setNodeSetting(prev => ({ ...prev, loopingSetting: { ...prev.loopingSetting, start2: selectedOption?.value || '' } }))
+                                        }
+                                        placeholder="Select Start2"
+                                    />
+                                </Form.Group>
+                            </Col>
+                            <Col lg={3}>
+                                <Form.Group>
+                                    <Select
+                                        options={previousTaskList}
+                                        value={previousTaskList.find(option => option.value === nodeSetting.loopingSetting.start3)}
+                                        onChange={(selectedOption) =>
+                                            setNodeSetting(prev => ({ ...prev, loopingSetting: { ...prev.loopingSetting, start3: selectedOption?.value || '' } }))
+                                        }
+                                        placeholder="Select Start3"
+                                    />
+                                </Form.Group>
+                            </Col>
+                            <Col lg={3}>
+                                <Form.Group>
+                                    <Select
+                                        options={previousLoopingBlockList} // Updated block list based on task number
+                                        // Ensure value is either a valid option object or undefined/null if no selection
+                                        value={nodeSetting.loopingSetting.start3 ? previousLoopingBlockList.find(option => option.value === nodeSetting.loopingSetting.start4) : null}
+                                        onChange={(selectedOption) =>
+                                            setNodeSetting(prev => ({
+                                                ...prev,
+                                                loopingSetting: { ...prev.loopingSetting, start4: selectedOption?.value || '' }
+                                            }))
+                                        }
+                                        placeholder="Select a Block"
+                                    />
+                                </Form.Group>
+                            </Col>
                         </Row>
                     </Modal.Body>
                     <Modal.Footer>

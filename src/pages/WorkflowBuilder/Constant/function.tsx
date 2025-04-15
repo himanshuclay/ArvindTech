@@ -107,14 +107,14 @@ const getPreviousTaskList = (
     return result;
 };
 
-const getAllBlockName = (nodes: Node[], id: string) => {
+const getAllBlockName = (nodes: Node[], id: string, selection?: string) => {
     const node = nodes.find(n => n.id == id);
     let blockNameList: { label: string, value: string }[] = [];
     if (node) {
         if (typeof node?.data.form === "string") {
 
         } else {
-            const blockName = getBlockNameOptions(node?.data.form.blocks, 'Select');
+            const blockName = getBlockNameOptions(node?.data.form.blocks, selection);
             blockNameList = blockName;
         }
     }
@@ -129,7 +129,9 @@ const getAllBlockOptions = (nodes: Node[], taskNumber: string, blockId: string) 
 
         } else {
             const block = node?.data.form.blocks.find((block: any) => block.property.id === blockId);
-            blockOptions = block.property.options;
+            if(block){
+                blockOptions = block.property.options;
+            }
         }
     }
     return blockOptions;

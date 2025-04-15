@@ -75,6 +75,14 @@ const TASK_BINDING_OPTION = [
     {label: 'Form and Value with Edit Mode', value: 'formAndValueWithEditMode'},
 ]
 
+const LOOPING_SETTING_START1 = [
+    {label: 'Looping', value: 'LOOPING'},
+]
+
+const LOOPING_SETTING_START2 = [
+    {label: 'Where', value: 'Where'},
+]
+
 
 
 export {
@@ -87,4 +95,6 @@ export {
     TASK_CREATION_TYPE,
     WEEKS,
     TASK_BINDING_OPTION,
+    LOOPING_SETTING_START1,
+    LOOPING_SETTING_START2,
 }
