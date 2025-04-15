@@ -8,18 +8,11 @@ import logo from '@/assets/images/logo.png'
 import logoSm from '@/assets/images/logo-sm.png'
 import logoDark from '@/assets/images/logo-dark.png'
 import profilePic from '@/assets/images/avatar.png'
-import avatar1 from '@/assets/images/users/avatar-1.jpg'
-import avatar2 from '@/assets/images/users/avatar-2.jpg'
-import avatar3 from '@/assets/images/users/avatar-3.jpg'
-import avatar4 from '@/assets/images/users/avatar-4.jpg'
-import avatar5 from '@/assets/images/users/avatar-5.jpg'
+
 
 // components
 import {
-	LanguageDropdown,
-	MessageDropdown,
 	ProfileDropdown,
-	SearchDropDown,
 } from '@/components'
 import { useThemeCustomizer } from '@/components'
 import { useViewport } from '@/hooks'
@@ -28,10 +21,6 @@ import config from '@/config'
 /**
  * for subtraction minutes
  */
-function subtractHours(date: Date, minutes: number) {
-	date.setMinutes(date.getMinutes() - minutes)
-	return date
-}
 export interface MessageItem {
 	id: number
 	name: string
@@ -53,43 +42,6 @@ export interface ProfileOption {
 	icon: string
 	redirectTo: string
 }
-const Messages: MessageItem[] = [
-	{
-		id: 1,
-		name: 'Cristina Pride',
-		subText: 'Hi, How are you? What about our next meeting',
-		avatar: avatar1,
-		createdAt: subtractHours(new Date(), 1440),
-	},
-	{
-		id: 2,
-		name: 'Sam Garret',
-		subText: 'Yeah everything is fine',
-		avatar: avatar2,
-		createdAt: subtractHours(new Date(), 2880),
-	},
-	{
-		id: 3,
-		name: 'Karen Robinson',
-		subText: "Wow that's great",
-		avatar: avatar3,
-		createdAt: subtractHours(new Date(), 2880),
-	},
-	{
-		id: 4,
-		name: 'Sherry Marshall',
-		subText: 'Hi, How are you? What about our next meeting',
-		avatar: avatar4,
-		createdAt: subtractHours(new Date(), 4320),
-	},
-	{
-		id: 5,
-		name: 'Shawn Millard',
-		subText: 'Yeah everything is fine',
-		avatar: avatar5,
-		createdAt: subtractHours(new Date(), 5760),
-	},
-]
 
 
 const profileMenus: ProfileOption[] = [
@@ -195,21 +147,6 @@ const Topbar = ({ toggleMenu, navOpen }: TopbarProps) => {
 			setEmpID(storedEmpID)
 		}
 	}, [])
-	/**
-	 * Toggle Dark Mode
-	 */
-	// const toggleDarkMode = () => {
-	// 	if (settings.theme === 'dark') {
-	// 		updateSettings({ theme: ThemeSettings.theme.light })
-	// 	} else {
-	// 		updateSettings({ theme: ThemeSettings.theme.dark })
-	// 	}
-	// }
-
-	// const handleRightSideBar = () => {
-	// 	updateSettings({ rightSidebar: ThemeSettings.rightSidebar.show })
-	// }
-
 
 	useEffect(() => {
 		const fetchNotificationCount = async () => {
@@ -285,30 +222,9 @@ const Topbar = ({ toggleMenu, navOpen }: TopbarProps) => {
 								<span />
 							</div>
 						</button>
-						{/* Topbar Search Form */}
-						{/* <div className="app-search d-none d-lg-block">
-							<form>
-								<div className="input-group">
-									<input
-										type="search"
-										className="form-control"
-										placeholder="Search..."
-									/>
-									<span className="ri-search-line search-icon text-muted" />
-								</div>
-							</form>
-						</div> */}
 					</div>
 					<ul className="topbar-menu d-flex align-items-center gap-3">
-						<li className="dropdown d-lg-none">
-							<SearchDropDown />
-						</li>
-						<li className="dropdown">
-							<LanguageDropdown />
-						</li>
-						<li className="dropdown notification-list">
-							<MessageDropdown messages={Messages} />
-						</li>
+
 						<li className="position-relative notification-bell me-3">
 							<Link to={"/pages/NotificationPage"}>
 								<i className="text-primary fs-2 ri-notification-line"></i>

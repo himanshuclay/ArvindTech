@@ -1,5 +1,5 @@
-import profilePic from '@/assets/images/users/avatar-1.jpg'
-import profilePic2 from '@/assets/images/users/avatar-5.jpg'
+// import profilePic from '@/assets/images/users/avatar-1.jpg'
+// import profilePic2 from '@/assets/images/users/avatar-5.jpg'
 
 interface Statistic {
 	title: string
@@ -47,43 +47,43 @@ export const statistics: Statistic[] = [
 	},
 ]
 
-export const chatMessages = [
-	{
-		id: 1,
-		userPic: profilePic2,
-		userName: 'Geneva',
-		text: 'Hello!',
-		postedOn: '10:00',
-	},
-	{
-		id: 2,
-		userPic: profilePic,
-		userName: 'Shikhar',
-		text: 'Hi, How are you? What about our next meeting?',
-		postedOn: '10:01',
-	},
-	{
-		id: 3,
-		userPic: profilePic2,
-		userName: 'Geneva',
-		text: 'Yeah everything is fine',
-		postedOn: '10:02',
-	},
-	{
-		id: 4,
-		userPic: profilePic,
-		userName: 'Shikhar',
-		text: "Wow that's great!",
-		postedOn: '10:03',
-	},
-	{
-		id: 5,
-		userPic: profilePic2,
-		userName: 'Geneva',
-		text: 'Cool!',
-		postedOn: '10:03',
-	},
-]
+// export const chatMessages = [
+// 	{
+// 		id: 1,
+// 		userPic: profilePic2,
+// 		userName: 'Geneva',
+// 		text: 'Hello!',
+// 		postedOn: '10:00',
+// 	},
+// 	{
+// 		id: 2,
+// 		userPic: profilePic,
+// 		userName: 'Thomson',
+// 		text: 'Hi, How are you? What about our next meeting?',
+// 		postedOn: '10:01',
+// 	},
+// 	{
+// 		id: 3,
+// 		userPic: profilePic2,
+// 		userName: 'Geneva',
+// 		text: 'Yeah everything is fine',
+// 		postedOn: '10:02',
+// 	},
+// 	{
+// 		id: 4,
+// 		userPic: profilePic,
+// 		userName: 'Thomson',
+// 		text: "Wow that's great!",
+// 		postedOn: '10:03',
+// 	},
+// 	{
+// 		id: 5,
+// 		userPic: profilePic2,
+// 		userName: 'Geneva',
+// 		text: 'Cool!',
+// 		postedOn: '10:03',
+// 	},
+// ]
 
 export const projects: ProjectData[] = [
 	{

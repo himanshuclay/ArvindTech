@@ -35,7 +35,7 @@ const ProfileDropdown = ({
 				</span>
 				<span className="d-lg-block d-none">
 					<h5 className="my-0 fw-normal d-flex align-items-center">
-						<div className='d-flex flex-column mr-2'>
+						<div className='d-flex flex-column mr-2 me-3'>
 							{username} <br />
 							<small className='text-uppercase mt-1'>{userid}</small>
 						</div>{' '}

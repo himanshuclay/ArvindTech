@@ -71,9 +71,9 @@ const Error404 = () => {
 			</div>
 			<footer className="footer footer-alt fw-medium">
 				<span className="text-dark-emphasis">
-					{new Date().getFullYear()} © Clay TechSystem
-				</span>
-			</footer>
+	{ new Date().getFullYear() } © Clay TechSystem
+				</span >
+			</footer >
 		</>
 	)
 }
