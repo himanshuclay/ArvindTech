@@ -1,9 +1,9 @@
 import { Link } from 'react-router-dom'
 
 //images
-import logoDark from '@/assets/images/logo-dark.png'
-import logo from '@/assets/images/logo-dark.png'
-import logoSm from '@/assets/images/logo-dark.png'
+import logoDark from '@/assets/images/Clayimage.png'
+import logo from '@/assets/images/Clayimage.png'
+import logoSm from '@/assets/images/Clayimage.png'
 import { getMenuItems, useAuthContext } from '@/common'
 import AppMenu from './Menu'
 import SimpleBar from 'simplebar-react'
@@ -25,7 +25,7 @@ const LeftSidebar = () => {
 	return (
 		<>
 			<div className="leftside-menu menuitem-active bg-white  ">
-				<Link to="/ModuleMaster" className="logo logo-light">
+				<Link to="/" className="logo logo-light">
 					<span className="logo-lg">
 						<img src={logo} style={{ width: '70%', height: 'auto', padding: '0' }} alt="logo" />
 					</span>

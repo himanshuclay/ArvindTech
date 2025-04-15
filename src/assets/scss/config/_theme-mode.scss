@@ -47,9 +47,9 @@ html[data-menu-color="light"] {
 
 // Dark Left Sidebar
 html[data-menu-color="dark"] {
-    --#{$prefix}menu-bg:                                 #1a2942;
-    --#{$prefix}menu-item-color:                       #70809a;
-    --#{$prefix}menu-item-hover-color:                 #3bc0c3;
+    --#{$prefix}menu-bg:                               #ecf3fd;
+    --#{$prefix}menu-item-color:                       #495057;
+    --#{$prefix}menu-item-hover-color:                 #001f61;
     --#{$prefix}menu-item-active-color:                #3bc0c3;
     --#{$prefix}menu-item-active-bg:                     #{rgba($white, 0.07)};
     --#{$prefix}menu-condensed-link-bg:                #162339;
