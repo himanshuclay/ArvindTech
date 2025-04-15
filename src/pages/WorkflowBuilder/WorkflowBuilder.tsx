@@ -21,7 +21,7 @@ import { toast } from 'react-toastify';
 import axios from 'axios';
 import config from '@/config';
 import STAFF_ALLOCATION_PLAN from './DynamicSegment/STAFF_ALLOCATION_PLAN';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import APPOINTMENT from './DynamicSegment/APPOINTMENT';
 import { INPUT_HANDLES, LABEL, OUTPUT_HANDLES, OUTPUT_LABELS } from './Constant';
 import NEW_APPOINTMENT from './DynamicSegment/NEW_APPOINTMENT';
@@ -31,6 +31,8 @@ import UPDATE_EMPLOYEE from './DynamicSegment/UPDATE_EMPLOYEE';
 import APPOINTMENT_LETTER from './DynamicSegment/APPOINTMENT_LETTER';
 import ASSIGN_TASK from './DynamicSegment/ASSIGN_TASK';
 import CustomNode from './CustomNode';
+import BUSINESS_GROWTH_REVIEW from './DynamicSegment/BUSINESS_GROWTH_REVIEW';
+import SALARY_PROCESSING from './DynamicSegment/SELARY_PROCESSING';
 
 const initialNodes: Node[] = [
     { id: '1', type: 'input', data: { label: 'Start Node', inputHandles: 1, outputHandles: 1 }, position: { x: 100, y: 100 } },
@@ -63,6 +65,7 @@ interface WorkflowBuilderConfig {
 
 
 const WorkflowBuilder: React.FC = () => {
+    const navigate = useNavigate();
     const { id } = useParams<{ id: string }>();
     const [, setEditMode] = useState<boolean>(false);
     const [nodes, setNodes] = useNodesState(initialNodes);
@@ -78,7 +81,7 @@ const WorkflowBuilder: React.FC = () => {
     });
 
     const nodeTypes = useMemo(() => ({
-        custom: (props: any) => <CustomNode {...props} setNodes={setNodes} edges={edges}  />,
+        custom: (props: any) => <CustomNode {...props} setNodes={setNodes} edges={edges} nodes={nodes} setEdges={setEdges} setWorkflowBuilder={setWorkflowBuilder} setSelectedNode={setSelectedNode} />,
     }), [setNodes, edges]);
 
     const [formBuilder, setFormBuilder] = useState<FIELD>({
@@ -87,6 +90,7 @@ const WorkflowBuilder: React.FC = () => {
         editMode: true,
         blockCount: 0,
         rules: [],
+        configureSelectionLogics: [],
         advance: {
             backgroundColor: '',
             color: '',
@@ -98,6 +102,7 @@ const WorkflowBuilder: React.FC = () => {
         editMode: true,
         blockCount: 0,
         rules: [],
+        configureSelectionLogics: [],
         advance: {
             backgroundColor: '',
             color: '',
@@ -177,10 +182,10 @@ const WorkflowBuilder: React.FC = () => {
             type: 'custom',
             data: {
                 label: action ? LABEL[action] : form ? form.name : `New Node ${nodes.length + 1}`, handles: Math.floor(Math.random() * 4) + 1, form: action ? action : form || {},
-                taskNumber: `T${nodes.length - 1 }`,
+                taskNumber: `T${nodes.length - 1}`,
                 inputHandles: action ? INPUT_HANDLES[action] : 1,
-                outputHandles: action ? OUTPUT_HANDLES[action] : 1,
-                outputLabels: action ? OUTPUT_LABELS[action] : '',
+                outputHandles: action ? OUTPUT_HANDLES[action] : form.configureSelectionLogics.length ? form.configureSelectionLogics[0].start2.length : 1,
+                outputLabels: action ? OUTPUT_LABELS[action] : form.configureSelectionLogics.length ? form.configureSelectionLogics[0].start2 : '',
             },
             position: { x, y },
         };
@@ -196,9 +201,6 @@ const WorkflowBuilder: React.FC = () => {
     const toggleWorkflowSetting = () => {
         setShowSettings(!showSettings);
     };
-
- 
-
 
 
 
@@ -281,7 +283,7 @@ const WorkflowBuilder: React.FC = () => {
             console.log("Added new node:", newNodeId);
         } else {
             if (isCloseForm) {
-
+                console.log(formBuilder.configureSelectionLogics);
                 setNodes((prevNodes) =>
                     prevNodes.map((node) =>
                         node.id === selectedNode.id
@@ -291,7 +293,9 @@ const WorkflowBuilder: React.FC = () => {
                                     ...node.data,
                                     label: formBuilder.name || node.data.label,
                                     form: formBuilder,
-                                }
+                                    "outputHandles": formBuilder.configureSelectionLogics.length ? formBuilder.configureSelectionLogics[0].start2 : node.data.outputHandles,
+                                    "outputLabels": formBuilder.configureSelectionLogics.length ? formBuilder.configureSelectionLogics[0].start2 : node.data.outputLabels,
+                                },
                             }
                             : node
                     )
@@ -307,11 +311,15 @@ const WorkflowBuilder: React.FC = () => {
                                     ...node.data,
                                     label: formBuilder.name || node.data.label,
                                     form: formBuilder,
-                                }
+                                    "outputHandles": formBuilder.configureSelectionLogics.length ? formBuilder.configureSelectionLogics[0].start2 : node.data.outputHandles,
+                                    "outputLabels": formBuilder.configureSelectionLogics.length ? formBuilder.configureSelectionLogics[0].start2 : node.data.outputLabels,
+                                },
+
                             }
                             : node
                     ),
                 }));
+                console.log('workflowBuilder', workflowBuilder)
 
                 setShowFormBuilder(false);
                 setIsAddFormBuilder(false);
@@ -361,6 +369,7 @@ const WorkflowBuilder: React.FC = () => {
             console.log('response', response)
             if (response.data.isSuccess) {
                 toast.success(response.data.message);
+                navigate('/pages/WorkflowBuilderList')
             } else {
                 toast.error(response.data.message)
             }
@@ -384,6 +393,8 @@ const WorkflowBuilder: React.FC = () => {
         UPDATE_EMPLOYEE,
         APPOINTMENT_LETTER,
         ASSIGN_TASK,
+        BUSINESS_GROWTH_REVIEW,
+        SALARY_PROCESSING,
     }
 
     const handleClose = () => {
@@ -394,13 +405,11 @@ const WorkflowBuilder: React.FC = () => {
         try {
             console.log(id)
             const response = await axios.get(`${config.API_URL_ACCOUNT}/WorkflowBuilder/GetWorkflowBuilder?ID=${id}`);
-            console.log('response', response)
             if (response.data.isSuccess) {
                 const fetchedModule = response.data.workflowBuilderLists[0];
                 setName(fetchedModule.name);
                 setNodes(JSON.parse(fetchedModule.workflowBuilder).nodes)
                 setEdges(JSON.parse(fetchedModule.workflowBuilder).edges)
-                console.log('fetchedModule', JSON.parse(fetchedModule.workflowBuilder))
                 // setWorkflowBuilder(fetchedModule);
             } else {
                 console.error(response.data.message);
@@ -524,6 +533,8 @@ const WorkflowBuilder: React.FC = () => {
                     <div draggable onDragStart={(e) => handleDragStart(e, 'UPDATE_EMPLOYEE')} style={{ padding: '10px', border: '1px solid #ccc', cursor: 'grab', marginBottom: '10px' }}>Update Employee</div>
                     <div draggable onDragStart={(e) => handleDragStart(e, 'APPOINTMENT_LETTER')} style={{ padding: '10px', border: '1px solid #ccc', cursor: 'grab', marginBottom: '10px' }}>Appointment Letter</div>
                     <div draggable onDragStart={(e) => handleDragStart(e, 'ASSIGN_TASK')} style={{ padding: '10px', border: '1px solid #ccc', cursor: 'grab', marginBottom: '10px' }}>Assign Task</div>
+                    <div draggable onDragStart={(e) => handleDragStart(e, 'BUSINESS_GROWTH_REVIEW')} style={{ padding: '10px', border: '1px solid #ccc', cursor: 'grab', marginBottom: '10px' }}>Business Growth Review</div>
+                    <div draggable onDragStart={(e) => handleDragStart(e, 'SALARY_PROCESSING')} style={{ padding: '10px', border: '1px solid #ccc', cursor: 'grab', marginBottom: '10px' }}>Salary Processing</div>
                     {workflowBuilder.apiSetting.map((api) => (
                         <div key={api.id}>{api.name}</div>
                     ))}

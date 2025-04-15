@@ -15,6 +15,8 @@ interface Props {
         handleAdhocSaveForm: () => void;
         showWorkflowBuilder?: boolean;
         isShowSaveButton?: boolean;
+        configureSelectionLogic: boolean, 
+        setConfigureSelectionLogic: (id: boolean) => void;
     }
 }
 
@@ -43,6 +45,9 @@ const Action: React.FC<Props> = ({ actionProps }) => {
     const handleRule = () => {
         actionProps.setShowRule(!actionProps.showRule);
     }
+    const handleLinks = () => {
+        actionProps.setConfigureSelectionLogic(!actionProps.configureSelectionLogic);
+    }
     const handleResetForm = () => {
         actionProps.setForm({
             name: '',
@@ -50,6 +55,7 @@ const Action: React.FC<Props> = ({ actionProps }) => {
             blockCount: 0,
             editMode: true,
             rules: [],
+            configureSelectionLogics: [],
             advance: {
                 backgroundColor: '',
                 color: '',
@@ -66,6 +72,8 @@ const Action: React.FC<Props> = ({ actionProps }) => {
             name: newName
         }));
     };
+
+    
     
     return (
 
@@ -107,6 +115,9 @@ const Action: React.FC<Props> = ({ actionProps }) => {
                     }
                     <a data-tooltip-id="tooltip" data-tooltip-content="Rules">
                         <i className="ri-menu-line cursor-pointer p-1 fs-18" onClick={handleRule}></i>
+                    </a>
+                    <a data-tooltip-id="tooltip" data-tooltip-content="Links">
+                        <i className="ri-links-fill cursor-pointer p-1 fs-18" onClick={handleLinks}></i>
                     </a>
                 </div>
 

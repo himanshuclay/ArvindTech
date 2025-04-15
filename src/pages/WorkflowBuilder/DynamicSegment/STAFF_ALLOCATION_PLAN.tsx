@@ -80,9 +80,8 @@ const STAFF_ALLOCATION_PLAN = forwardRef((props: any, ref) => {
     const [threeMonthData, setThreeMonthData] = useState<ThreeMonthData[]>(generateMonthData());
     const [projectSectionBifurcationData, setProjectSectionBifurcationData] = useState<ProjectSectionBifurcation>(initialProjectSectionBifurcation);
 
-    const [confirmStaffAllocationPlan, setConfirmStaffAllocationPlan] = useState<string>("");
 
-    const [blockValue, setBlockValue] = useState<{ [key: string]: string }>({});
+    const [blockValue, setBlockValue] = useState<{ [key: string]: string }>(props.blockValue ? props.blockValue : {});
 
     const [options, setOptions] = useState<OPTION[]>([]);
 
@@ -101,7 +100,10 @@ const STAFF_ALLOCATION_PLAN = forwardRef((props: any, ref) => {
     };
 
     useEffect(() => {
-        getSpecializeRole(selectedRole);
+        console.log(selectedRole);
+        if (selectedRole) {
+            getSpecializeRole(selectedRole);
+        }
     }, [selectedRole]); // Re-fetch when the selected role changes
 
     function generateMonthData(): ThreeMonthData[] {
@@ -342,30 +344,30 @@ const STAFF_ALLOCATION_PLAN = forwardRef((props: any, ref) => {
 
     const handleSaveProjectSectionBifurcationData = () => {
         console.log('Saving Project Section Bifurcation Data:', projectSectionBifurcationData);
-    
+
         if (selectedDeptIndex === null || selectedRoleIndex === null) return;
-    
+
         const updatedDepartments = [...department];
         const roleToUpdate = updatedDepartments[selectedDeptIndex].designation[selectedRoleIndex];
-    
+
         roleToUpdate.projectSectionBifurcation = { ...projectSectionBifurcationData };
-    
+
         // ✅ Save to blockValue
         const newBlockValues: { [key: string]: string } = {};
         Object.entries(projectSectionBifurcationData).forEach(([section, value]) => {
             const key = `projectSection_${section}_${selectedDeptIndex}_${selectedRoleIndex}`;
             newBlockValues[key] = value.toString();
         });
-    
+
         setBlockValue((prev) => ({
             ...prev,
             ...newBlockValues,
         }));
-    
+
         setDepartment(updatedDepartments);
         handleCloseProjectSectionBifurcationModal();
     };
-    
+
 
     // Modal Openers
     const handleOpenModal = (departIndex: number, roleIndex: number, role: DESIGNATION) => {
@@ -417,9 +419,9 @@ const STAFF_ALLOCATION_PLAN = forwardRef((props: any, ref) => {
         setSelectedRole(role);
         setSelectedDeptIndex(departIndex);
         setSelectedRoleIndex(roleIndex);
-    
+
         const updatedBifurcation: ProjectSectionBifurcation = { ...initialProjectSectionBifurcation };
-    
+
         Object.keys(initialProjectSectionBifurcation).forEach((section) => {
             const key = `projectSection_${section}_${departIndex}_${roleIndex}`;
             if (blockValue[key] !== undefined) {
@@ -429,11 +431,11 @@ const STAFF_ALLOCATION_PLAN = forwardRef((props: any, ref) => {
                     role.projectSectionBifurcation[section as keyof ProjectSectionBifurcation] || 0;
             }
         });
-    
+
         setProjectSectionBifurcationData(updatedBifurcation);
         setShowProjectSectionBifurcationModal(true);
     };
-    
+
 
     const getDepartmentTotalEstimate = (dept: DEPARTMENT, departIndex: number, selection: string): number => {
         // Sum values from block_0_ keys in blockValue
@@ -504,13 +506,15 @@ const STAFF_ALLOCATION_PLAN = forwardRef((props: any, ref) => {
                                 <td>0</td>
                                 <td>Submit/Edit</td>
                                 <td>
-                                    <button onClick={() => handleToggleDepartment(departIndex)} style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
-                                        {depart.isExpanded ? (
-                                            <i className="ri-arrow-down-s-line"></i>
-                                        ) : (
-                                            <i className="ri-arrow-right-s-line"></i>
-                                        )}
-                                    </button>
+                                    {depart.designation.length ?
+                                        <button onClick={() => handleToggleDepartment(departIndex)} style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
+                                            {depart.isExpanded ? (
+                                                <i className="ri-arrow-down-s-line"></i>
+                                            ) : (
+                                                <i className="ri-arrow-right-s-line"></i>
+                                            )}
+                                        </button>
+                                        : ''}
                                 </td>
                             </tr>
                             {depart.isExpanded && depart.designation.map((role, roleIndex) => (
@@ -688,8 +692,11 @@ const STAFF_ALLOCATION_PLAN = forwardRef((props: any, ref) => {
                 <Form.Label>Confirm Staff Allocation Plan Has Been Filled Properly</Form.Label>
                 <Form.Control
                     as="select"
-                    value={confirmStaffAllocationPlan}
-                    onChange={(e) => setConfirmStaffAllocationPlan(e.target.value)}
+                    value={blockValue.confirmStaffAllocationPlan}
+                    onChange={(e) => setBlockValue((prev) => ({
+                        ...prev,
+                        confirmStaffAllocationPlan: e.target.value,  // Create dynamic key using department and role index
+                    }))}
                 >
                     <option value="">Select</option>
                     <option value="yes">Yes</option>

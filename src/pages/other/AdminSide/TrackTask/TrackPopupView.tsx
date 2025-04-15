@@ -70,11 +70,11 @@ const TrackPopUpView: React.FC<ProcessCanvasProps> = ({ show, setShow, manageId 
         setLoading(true);
         try {
             const response = await axios.get<ApiResponse>(`${config.API_URL_ACCOUNT}/ProcessInitiation/GetFilterTask`, {
-                params: { flag: 10, id: manageId, }
+                params: { flag: 6, id: manageId, }
             });
             if (response.data?.isSuccess) {
                 const fetchedData = response.data.getFilterTasks || [];
-                // console.log(fetchedData);
+                console.log(fetchedData);
 
                 // Filter and transform data
                 const filteredTasks = fetchedData
@@ -133,6 +133,8 @@ const TrackPopUpView: React.FC<ProcessCanvasProps> = ({ show, setShow, manageId 
                                 .map((input: any) => ({
                                     label: input.label,
                                     value: optionsMap[input.value] || input.value, // Replace value with label if available
+                                    type: input.type,
+
                                 }));
 
                             // Return transformed task object
@@ -148,6 +150,8 @@ const TrackPopUpView: React.FC<ProcessCanvasProps> = ({ show, setShow, manageId 
                                 messTaskNumber: taskJson.messTaskNumber || '',
                                 taskName: label || fetchedData[0].taskName,
                                 inputs: filteredInputsData,
+                                id: task.id,
+                                taskCommonId: task.taskCommonId,
                             };
                         });
                     });

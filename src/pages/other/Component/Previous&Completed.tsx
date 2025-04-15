@@ -1,5 +1,7 @@
+import config from "@/config";
 import { FIELD, PROPERTY } from "@/pages/FormBuilder/Constant/Interface";
 import Editor from "@/pages/FormBuilder/Editor";
+import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { Alert, Card, Col, Container, Row } from "react-bootstrap";
 
@@ -7,6 +9,7 @@ import { Alert, Card, Col, Container, Row } from "react-bootstrap";
 interface Input {
     label: string;
     value: string | number | boolean;
+    type: string | number | boolean;
 }
 
 interface Task {
@@ -18,6 +21,8 @@ interface Task {
     taskName: string;
     inputs: Input[];
     form_Json: any;
+    id: number;
+    taskCommonId: number;
     blockValue: any;
 }
 
@@ -41,9 +46,9 @@ const groupByMessName = (data: Task[]): GroupedData => {
 const MessCards: React.FC<{ data: Task[] }> = ({ data }) => {
     // Group the data
     const groupedData = groupByMessName(data);
-    console.log("yha dekhao",groupedData);
-    const formData = groupedData?.undefined ? groupedData.undefined[0]?.form_Json ? JSON.parse(groupedData.undefined[0]?.form_Json ) : {} : {}
-    const blockData = groupedData?.undefined ? groupedData.undefined[0]?.blockValue ? JSON.parse(groupedData.undefined[0]?.blockValue ) : {} : {}
+    console.log("yha dekhao", groupedData);
+    const formData = groupedData?.undefined ? groupedData.undefined[0]?.form_Json ? JSON.parse(groupedData.undefined[0]?.form_Json) : {} : {}
+    const blockData = groupedData?.undefined ? groupedData.undefined[0]?.blockValue ? JSON.parse(groupedData.undefined[0]?.blockValue) : {} : {}
     // console.log('groupedData', JSON.parse(groupedData.undefined[0].form_Json))
     const [form, setForm] = useState<FIELD>({ ...formData, editMode: true });
     const [property, setProperty] = useState<PROPERTY>({
@@ -68,6 +73,67 @@ const MessCards: React.FC<{ data: Task[] }> = ({ data }) => {
         }))
         console.log('form', form)
     }, [])
+
+
+    console.log(data)
+    const downloadFile = async (processInitiationID: number, taskCommonID: number) => {
+        try {
+            // Step 1: Fetch file URLs
+            const response = await axios.get(
+                `${config.API_URL_ACCOUNT}/FileUpload/GetFileUrls?ProcessInitiationID=${processInitiationID}&TaskCommonID=${taskCommonID}`
+            );
+
+            if (response.status === 200) {
+                const fileUrls = response.data.fileUrls;
+
+                if (fileUrls && fileUrls.length > 0) {
+                    const fileUrl = fileUrls[0]; // The first file URL
+                    console.log(fileUrl);
+
+                    try {
+                        // Step 2: Fetch the file content using the DownloadFile API
+                        const downloadResponse = await axios({
+                            method: 'GET',
+                            url: `${config.API_URL_ACCOUNT}/FileUpload/DownloadFile`,
+                            params: { url: fileUrl },
+                            responseType: 'blob', // Make sure to set the response type to 'blob' for binary files
+                        });
+
+                        // Step 3: Create an object URL and trigger the download
+                        const url = window.URL.createObjectURL(new Blob([downloadResponse.data]));
+                        const link = document.createElement('a');
+                        link.href = url;
+
+                        const fileName = fileUrl.substring(fileUrl.lastIndexOf('/') + 1);
+
+                        const fileExtension = fileUrl.split('.').pop();
+
+                        const finalFileName = `${fileName}.${fileExtension}`;
+
+                        link.setAttribute('download', finalFileName);
+                        document.body.appendChild(link);
+                        link.click(); // Trigger the download
+
+                        // Clean up by revoking the object URL
+                        window.URL.revokeObjectURL(url);
+                    } catch (downloadError) {
+                        console.error('Error downloading the file:', downloadError);
+                    }
+
+                } else {
+                    console.error("File URL not found in the response.");
+                }
+            } else {
+                console.error("Failed to fetch file URL from the API.");
+            }
+        } catch (error) {
+            console.error("Error fetching file URLs:", error);
+        }
+    };
+
+
+
+
     return (
         <div className="container mt-2 ">
             <Row>
@@ -86,11 +152,11 @@ const MessCards: React.FC<{ data: Task[] }> = ({ data }) => {
                     : (Object.entries(groupedData).map(([messName, messTasks]) => (
                         <>
                             {/* {form.blocks?.length === 0 && ( */}
-                                <Col key={messName} md={6} lg={4} className="">
-                                    <Card>
-                                        <Card.Header className="bg-primary text-white">
+                            <Col key={messName} className="">
+                                <div>
+                                    <div className="bg-primary text-white">
 
-                                            <h5 className="mb-0">
+                                        {/* <h5 className="mb-0">
                                                 {
                                                     messName &&
                                                         messName !== 'undefined' &&
@@ -99,54 +165,76 @@ const MessCards: React.FC<{ data: Task[] }> = ({ data }) => {
                                                         ? messName
                                                         : messTasks[0]?.taskName || 'Task'
                                                 }
-                                            </h5>
+                                            </h5> */}
 
 
-                                            {/* <h5>{messTasks[0]?.taskName || 'Task'}</h5> */}
 
 
-                                        </Card.Header>
-                                        <Card.Body>
-                                            {messTasks[0]?.messManager &&
-                                                <p className="m-0"><strong>Manager:</strong> {messTasks[0]?.messManager}</p>
-                                            }
-                                            {messTasks[0]?.managerNumber &&
-                                                <p className="m-0"><strong>Mess Manager Contact: </strong>
-                                                    <a
-                                                        href={`tel:${messTasks[0]?.managerNumber}`}
-                                                        className="ms-1 text-primary"
-                                                        style={{ textDecoration: "none" }}
-                                                        aria-label="Call"
-                                                    >
-                                                        <i className="ri-phone-fill" style={{ fontSize: "1rem" }}></i>
-                                                        {messTasks[0]?.managerNumber}
-                                                    </a>
-                                                </p>
-                                            }
-                                            {messTasks[0]?.managerNumber && messTasks[0]?.managerNumber &&
-                                                <hr />}
-                                            <h6>Tasks:</h6>
+                                        {/* <h5>{messTasks[0]?.taskName || 'Task'}</h5> */}
 
-                                            {messTasks.map((task, index) => (
-                                                <div key={index} className="">
 
-                                                    {task.messTaskNumber ?
+                                    </div>
+                                    <div className="row m-0 g-3"> {/* 'g-3' adds gutter (space) between columns */}
+                                        {messTasks[0]?.messManager &&
+                                            <p className="m-0"><strong>Manager:</strong> {messTasks[0]?.messManager}</p>
+                                        }
+                                        {messTasks[0]?.managerNumber &&
+                                            <p className="m-0"><strong>Mess Manager Contact: </strong>
+                                                <a
+                                                    href={`tel:${messTasks[0]?.managerNumber}`}
+                                                    className="ms-1 text-primary"
+                                                    style={{ textDecoration: "none" }}
+                                                    aria-label="Call"
+                                                >
+                                                    <i className="ri-phone-fill" style={{ fontSize: "1rem" }}></i>
+                                                    {messTasks[0]?.managerNumber}
+                                                </a>
+                                            </p>
+                                        }
+                                        {messTasks[0]?.managerNumber && messTasks[0]?.managerNumber &&
+                                            <hr />}
+                                        <h6>Tasks:</h6>
+
+                                        {messTasks.map((task, index) => (
+                                            <Card key={index} className="col-4 mb-3"> {/* Add margin-bottom 'mb-3' */}
+                                                <Card.Header className="bg-primary text-white">
+                                                    {/* Task name */}
+                                                    <h5>{task.taskName || 'Task'}</h5>
+                                                </Card.Header>
+                                                <Card.Body>
+                                                    {/* Manager details */}
+                                                    {task.messManager && (
+                                                        <p className="m-0"><strong>Manager:</strong> {task.messManager}</p>
+                                                    )}
+                                                    {task.managerNumber && (
                                                         <p className="m-0">
-                                                            <strong>Task ID:</strong> {task.messTaskNumber}
-                                                        </p> : ''
-                                                    }
+                                                            <strong>Mess Manager Contact: </strong>
+                                                            <a
+                                                                href={`tel:${task.managerNumber}`}
+                                                                className="ms-1 text-primary"
+                                                                style={{ textDecoration: "none" }}
+                                                                aria-label="Call"
+                                                            >
+                                                                <i className="ri-phone-fill" style={{ fontSize: "1rem" }}></i>
+                                                                {task.managerNumber}
+                                                            </a>
+                                                        </p>
+                                                    )}
+                                                    {task.managerNumber && (
+                                                        <hr />
+                                                    )}
+
+                                                    {/* Task inputs */}
                                                     {Array.isArray(task.inputs) && task.inputs.length > 0 ? (
                                                         <ul>
-                                                            {task.inputs.map(
-                                                                (input, i) =>
-                                                                    input.label && input.value !== "" && (
-                                                                        <li key={i}>
-                                                                            <strong>{input.label}:</strong> {input.value.toString()}
-                                                                        </li>
-                                                                    )
-                                                            )}
+                                                            {task.inputs.map((input, i) => (
+                                                                input.label && input.value !== "" && (
+                                                                    <li key={i}>
+                                                                        <strong>{input.label}:</strong> {input.value.toString()}
+                                                                    </li>
+                                                                )
+                                                            ))}
                                                         </ul>
-
                                                     ) : (
                                                         <Container className="my-5">
                                                             <Row className="justify-content-center">
@@ -159,13 +247,22 @@ const MessCards: React.FC<{ data: Task[] }> = ({ data }) => {
                                                             </Row>
                                                         </Container>
                                                     )}
-                                                    <hr />
+                                                </Card.Body>
 
-                                                </div>
-                                            ))}
-                                        </Card.Body>
-                                    </Card>
-                                </Col>
+                                                {Array.isArray(task.inputs) && task.inputs.some((input) => input.type === "file") && (
+                                                    <button
+                                                        onClick={() => downloadFile(task.id, task.taskCommonId)}
+                                                        className="btn btn-primary"
+                                                    >
+                                                        Download File
+                                                    </button>
+                                                )}
+                                            </Card>
+                                        ))}
+                                    </div>
+
+                                </div>
+                            </Col>
                             {/* )} */}
                             {form.blocks?.length && (
                                 <Editor form={form} setForm={setForm} property={property} setProperty={setProperty} blockValue={blockValue} setBlockValue={setBlockValue} isPreview={true} />

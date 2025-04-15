@@ -17,7 +17,7 @@ import MultiSelectDropdown from './Components/MultiSelect';
 import AmountInput from './Components/AmountInput';
 import FloatInput from './Components/FloatInput';
 import Looper from './Components/Looper';
-import { speak } from '@/utils/speak';
+// import { speak } from '@/utils/speak';
 
 
 
@@ -151,7 +151,7 @@ const Editor: React.FC<EditorProps> = ({ form, setForm, property, setProperty, b
         // Check if dropped in main editor area
         if (dropZone === "Editor") {
             droppedField.property.id = `Block_${form.blockCount + 1}`;
-            speak(`${droppedField.is} dropped successfully`);
+            // speak(`${droppedField.is} dropped successfully`);
 
             setForm(prevForm => ({
                 ...prevForm,
@@ -218,6 +218,7 @@ const Editor: React.FC<EditorProps> = ({ form, setForm, property, setProperty, b
                         `${config.API_URL_APPLICATION}/FormBuilder/GetValue`,
                         form.rules
                     );
+                    console.log('response', response)
                     if (response.data.isSuccess) {
                         const updatedActions = response.data.rules.map((rule: any) => {
                             rule.rule = JSON.parse(rule.rule);
@@ -237,7 +238,6 @@ const Editor: React.FC<EditorProps> = ({ form, setForm, property, setProperty, b
             }
         };
         fetchData();
-        console.log('rule called')
     }, [form.editMode]);
 
 
@@ -277,6 +277,7 @@ const Editor: React.FC<EditorProps> = ({ form, setForm, property, setProperty, b
     const someRule = () => {
         console.log('triggeredActions', triggeredActions)
         triggeredActions.forEach(action => {
+            console.log('action', action)
             if (action.type === 'show_hide' && action.block) {
                 const updatedBlock = manageShowHide(action.block, action.rule.rule, blockValue) as BASIC_FIELD;
                 setForm(prevForm => ({
@@ -315,7 +316,6 @@ const Editor: React.FC<EditorProps> = ({ form, setForm, property, setProperty, b
                 const changedKeys = Object.keys(blockValue).filter(
                     key => blockValue[key] !== prevBlockValue[key]
                 );
-
                 if (changedKeys.length === 0) return;
                 setPrevBlockValue(blockValue);
                 someRule();
@@ -334,7 +334,6 @@ const Editor: React.FC<EditorProps> = ({ form, setForm, property, setProperty, b
         >
             <fieldset disabled={isPreview}>
                 <div className='d-flex flex-wrap'>
-                    {/* {JSON.stringify(form.blocks)} */}
 
                     {form.blocks.length === 0 ? (
                         <p className="text-gray-400">Drag fields here...</p>

@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import Editor from "../FormBuilder/Editor";
-import { FIELD, PROPERTY } from "../FormBuilder/Constant/Interface";
+import { BLOCK_VALUE, FIELD, PROPERTY } from "../FormBuilder/Constant/Interface";
 // import axios from "axios";
 // import config from "@/config";
 // import { toast } from "react-toastify";
@@ -35,6 +35,7 @@ const ActiveNode = ({ activeNode, activeTaskId, setActiveNode, completedNodes, s
                 },
             }
     );
+
     const [dynamicComponent,] = useState<string>(activeNode.data?.form?.blocks?.length ? '' : activeNode.data.form);
     const componentRefMap = useRef<{ [key: string]: any }>({});
 
@@ -53,7 +54,7 @@ const ActiveNode = ({ activeNode, activeTaskId, setActiveNode, completedNodes, s
         isShow: false,
         disabled: false,
     })
-    const [blockValue, setBlockValue] = useState({})
+    const [blockValue, setBlockValue] = useState<BLOCK_VALUE>(activeNode.data.blockValue ? activeNode.data.blockValue : {})
     useEffect(() => {
         setForm((preForm) => ({
             ...preForm,
@@ -65,6 +66,7 @@ const ActiveNode = ({ activeNode, activeTaskId, setActiveNode, completedNodes, s
             activeNode.data['blockValue'] = blockValue;
             activeNode.data['status'] = "completed";
             activeNode.data['completedBy'] = localStorage.getItem("EmpId");
+            activeNode.data['completedBy'] = localStorage.getItem("EmpId");
             activeNode.data.form = dynamicComponent ? dynamicComponent : form;
             // let formData;
             if (componentRefMap.current[dynamicComponent]) {
@@ -74,7 +76,7 @@ const ActiveNode = ({ activeNode, activeTaskId, setActiveNode, completedNodes, s
             const query: any = {
                 id: activeTaskId,
             }
-            if (activeNode.data.outputLabels.length > 1) {
+            if (Array.isArray(activeNode.data.outputLabels) && activeNode.data.outputLabels.length > 1) {
                 const activeLabel = activeNode.data.blockValue?.typeOfAppointment;
                 const matchedActiveLabel = activeNode.data.outputLabels.find(
                     (label: any) => label === activeLabel
@@ -106,6 +108,10 @@ const ActiveNode = ({ activeNode, activeTaskId, setActiveNode, completedNodes, s
             activeNode.data['nextNode']['id'] = activeNode.id;
             activeNode.data['nextNode']['sourceHandle'] = query.outputLabel;
             query.jsonInput = JSON.stringify(activeNode)
+            activeNode.data['nextNode'] = {};
+            activeNode.data['nextNode']['id'] = activeNode.id;
+            activeNode.data['nextNode']['sourceHandle'] = query.outputLabel;
+            query.jsonInput = JSON.stringify(activeNode)
             const response = await axios.post(
                 `${config.API_URL_ACCOUNT}/ProcessInitiation/UpdateTemplateJson`,
                 query
@@ -131,6 +137,7 @@ const ActiveNode = ({ activeNode, activeTaskId, setActiveNode, completedNodes, s
                 data: {
                     ...completeNode.data, // Ensure completeNode.data is spread
 
+
                 }
             }));
 
@@ -139,6 +146,9 @@ const ActiveNode = ({ activeNode, activeTaskId, setActiveNode, completedNodes, s
 
             // Update state with the new array of completed nodes
             setCompletedNodes(updatedNodes);
+        }
+        if (activeNode.data) {
+            console.log(activeNode.data)
         }
     }, []);
     const componentMap: { [key: string]: React.FC<any> } = {
@@ -154,36 +164,55 @@ const ActiveNode = ({ activeNode, activeTaskId, setActiveNode, completedNodes, s
 
     return (
         <div>
-            {completedNodes.map((completeNode: any) => (
-                <>
-                    {/* {JSON.stringify(completeNode.data.blockValue)} */}
-                    {completeNode.data.form?.blocks?.length ? (
-                        <Editor form={completeNode.data.form} setForm={setForm} property={property} setProperty={setProperty} blockValue={completeNode.data.blockValue} setBlockValue={setBlockValue} isShowSave={false} isPreview={true} />
-                    ) : (
-                        React.createElement(componentMap[completeNode.data.form], {
-                            ref: (instance: any) => {
-                                if (instance) {
-                                    componentRefMap.current[completeNode.data.form] = instance;
-                                }
-                            },
-                            blockValue: completeNode.data.blockValue
-                        })
-                    )}
-                </>
+            {completedNodes.map((completeNode: any, index: number) => (
+                <div>
+                    <React.Fragment key={index}>
+                        {completeNode.data.form?.blocks?.length ? (
+                            <Editor
+                                form={completeNode.data.form}
+                                setForm={setForm}
+                                property={property}
+                                setProperty={setProperty}
+                                blockValue={completeNode.data.blockValue}
+                                setBlockValue={setBlockValue}
+                                isShowSave={false}
+                                isPreview={true}
+                            />
+                        ) : (
+                            <fieldset disabled>
+                                {React.createElement(componentMap[completeNode.data.form], {
+                                    ref: (instance: any) => {
+                                        if (instance) {
+                                            componentRefMap.current[completeNode.data.form] = instance;
+                                        }
+                                    },
+                                    blockValue: completeNode.data.blockValue
+                                })}
+                            </fieldset>
+                        )}
+                    </React.Fragment>
+                    <hr />
+                </div>
+
             ))}
-            {form?.blocks?.length && (
-                <Editor form={form} setForm={setForm} property={property} setProperty={setProperty} blockValue={blockValue} setBlockValue={setBlockValue} isShowSave={false} />
-            )}
-            {dynamicComponent && componentMap[dynamicComponent] && (
-                React.createElement(componentMap[dynamicComponent], {
-                    ref: (instance: any) => {
-                        if (instance) {
-                            componentRefMap.current[dynamicComponent] = instance;
-                        }
-                    }
-                })
-            )}
-            <button type="button" onClick={handleSumbitTask}>Save</button>
+            <div className="my-2">
+                {form?.blocks?.length ? (
+                    <Editor form={form} setForm={setForm} property={property} setProperty={setProperty} blockValue={blockValue} setBlockValue={setBlockValue} isShowSave={false} />
+                ) : ''}
+                {dynamicComponent && componentMap[dynamicComponent] && (
+                    React.createElement(componentMap[dynamicComponent], {
+                        ref: (instance: any) => {
+                            if (instance) {
+                                componentRefMap.current[dynamicComponent] = instance;
+                            }
+                        },
+                        blockValue: blockValue
+                    })
+                )}
+            </div>
+            <div className="d-flex justify-content-end p-3">
+                <button className="btn btn-primary" type="button" onClick={handleSumbitTask}>Save</button>
+            </div>
         </div>
     )
 }

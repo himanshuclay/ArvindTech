@@ -39,6 +39,22 @@ interface Process {
     problemSolver: any;
 }
 
+interface DESIGNATION {
+    name: string;
+    id: number;
+}
+
+interface DEPARTMENT {
+    name: string;
+    id: number;
+    designation: DESIGNATION[];
+    isExpanded: boolean;
+}
+
+interface ADVANCE {
+    department?: string;
+    designation?: string;
+}
 
 
 const HumanResource = () => {
@@ -50,6 +66,7 @@ const HumanResource = () => {
     const [showLink, setShowLink] = useState(false);
     const [iframeUrl, setIframeUrl] = useState("");
     const [urlError, setUrlError] = useState("");
+    const [advance, setAdvance] = useState<ADVANCE>({})
     const [process, setProcess] = useState<Process>({
         id: 0,
         moduleName: '',
@@ -85,10 +102,28 @@ const HumanResource = () => {
 
     const [target, setTarget] = useState<HTMLElement | null>(null);
     const ref = useRef(null);
+    const [department, setDepartment] = useState<DEPARTMENT[]>([]);
+    const [designation, setDesignation] = useState<DESIGNATION[]>([]);
 
     const handleClick = (event: React.MouseEvent<HTMLElement>) => {
         setShow(!show);
         setTarget(event.target as HTMLElement);
+    };
+
+    const getDepartmentDesignation = async () => {
+        try {
+            const response = await axios.get(`${config.API_URL_ACCOUNT}/WorkflowBuilder/GetDepartmentandDesignation`);
+            console.log('response', response)
+            if (response.data.isSuccess) {
+                const departmentsWithExpand = response.data.department.map((dept: any) => ({
+                    ...dept,
+                    isExpanded: false,
+                }));
+                setDepartment(departmentsWithExpand);
+            }
+        } catch (error) {
+            console.error(error);
+        }
     };
 
     useEffect(() => {
@@ -98,6 +133,7 @@ const HumanResource = () => {
         if (storedEmpName || storedEmpID) {
             setEmpName(`${storedEmpName} - ${storedEmpID}`);
         }
+        getDepartmentDesignation();
     }, []);
 
     useEffect(() => {
@@ -160,7 +196,8 @@ const HumanResource = () => {
         const payload = {
             moduleName: process.moduleID,
             taskNumber: processID,
-            createdBy: empName
+            createdBy: empName,
+            advance:JSON.stringify(advance),
         };
         console.log(payload)
         e.preventDefault();
@@ -189,6 +226,22 @@ const HumanResource = () => {
         setShowLink(false)
     };
 
+    const handleSelectChange = (e: any) => {
+        setAdvance(advance => ({
+            ...advance,
+            [e.target.name]: e.target.value,
+        }));
+    }
+
+    const handleDesignation = (e: any) => {
+        console.log(e.target.value, department)
+        const designation = department.find(d => d.id == e.target.value);
+        console.log(designation);
+        if (designation) {
+            setDesignation(designation?.designation);
+        }
+    }
+
 
     return (
         <div>
@@ -198,15 +251,10 @@ const HumanResource = () => {
                 <div className="d-flex bg-white p-2 my-2 justify-content-between align-items-center fs-20 rounded-3 border">
                     <span><i className="ri-file-list-line me-2"></i><span className='fw-bold'>Process Initiation </span></span>
                 </div>
-
                 <div className='bg-white p-2 rounded-3 border'>
                     <Form onSubmit={handleSubmit}>
                         <Row>
-
-
-
-
-                            <Col lg={6}>
+                            <Col lg={4}>
                                 <Form.Group controlId="moduleDisplayName" className="mb-3">
                                     <Form.Label>Module Name</Form.Label>
                                     <Form.Control
@@ -218,8 +266,7 @@ const HumanResource = () => {
                                     />
                                 </Form.Group>
                             </Col>
-
-                            <Col lg={6}>
+                            <Col lg={4}>
                                 <Form.Group controlId="processDisplayName" className="mb-3">
                                     <Form.Label>Process Name</Form.Label>
                                     <Form.Control
@@ -231,11 +278,7 @@ const HumanResource = () => {
                                     />
                                 </Form.Group>
                             </Col>
-
-
-
-
-                            <Col lg={6}>
+                            <Col lg={4}>
                                 <Form.Group controlId="processObjective" className="mb-3">
                                     <Form.Label>Process Objective:</Form.Label>
                                     <Form.Control
@@ -247,8 +290,7 @@ const HumanResource = () => {
                                     />
                                 </Form.Group>
                             </Col>
-
-                            <Col lg={6}>
+                            <Col lg={4}>
                                 <Form.Group controlId="processFlowchart" className="mb-3 position-relative">
                                     <Form.Label>Process Flowchart:</Form.Label>
                                     <Form.Control
@@ -257,7 +299,6 @@ const HumanResource = () => {
                                         readOnly
                                         disabled
                                     />
-
                                     {process.processFlowchart && (
                                         <div className="mt-2 position-absolute download-file">
                                             <a
@@ -271,9 +312,7 @@ const HumanResource = () => {
                                     )}
                                 </Form.Group>
                             </Col>
-
-
-                            <Col lg={6}>
+                            <Col lg={4}>
                                 <Form.Group controlId="misExempt" className="mb-3">
                                     <Form.Label>MIS Exempt:</Form.Label>
                                     <Form.Control
@@ -285,8 +324,7 @@ const HumanResource = () => {
                                     />
                                 </Form.Group>
                             </Col>
-
-                            <Col lg={6}>
+                            <Col lg={4}>
                                 <Form.Group controlId="status1" className="mb-3">
                                     <Form.Label>Status:</Form.Label>
                                     <Form.Control
@@ -298,8 +336,7 @@ const HumanResource = () => {
                                     />
                                 </Form.Group>
                             </Col>
-
-                            <Col lg={6}>
+                            <Col lg={4}>
                                 <Form.Group controlId="processOwnerName" className="mb-3">
                                     <Form.Label>Process Owner Name</Form.Label>
                                     <Form.Control
@@ -311,7 +348,7 @@ const HumanResource = () => {
                                     />
                                 </Form.Group>
                             </Col>
-                            <Col lg={6}>
+                            <Col lg={4}>
                                 <Form.Group controlId="link" className="mb-3 position-relative">
                                     <Form.Label>Link</Form.Label>
                                     <Form.Control
@@ -320,14 +357,49 @@ const HumanResource = () => {
                                         value={process.link}
                                         placeholder="e.g., https://www.example.com"
                                         disabled
-
                                     />
                                     <Form.Control.Feedback type="invalid">{urlError}</Form.Control.Feedback>
                                     <div onClick={handleOpenLink} className="mt-2 link-btn p-1"><i className="ri-eye-fill"></i></div>
-
-
                                 </Form.Group>
                             </Col>
+                            {processID === 'HR.02' &&
+                                <Col lg={4}>
+                                    <Form.Group controlId='department' className='mb-3 position-relative'>
+                                        <Form.Label>Department</Form.Label>
+                                        <Form.Select
+                                            name="department"
+                                            value={advance.department}
+                                            onChange={(e) => { handleSelectChange(e); handleDesignation(e) }}
+                                        >
+                                            <option value="">Please select</option>
+                                            {department?.map((option, index) => (
+                                                <option key={index} value={option.id}>
+                                                    {option.name}
+                                                </option>
+                                            ))}
+                                        </Form.Select>
+                                    </Form.Group>
+                                </Col>
+                            }
+                            {advance.department &&
+                                <Col lg={4}>
+                                    <Form.Group controlId='designation' className='mb-3 position-relative'>
+                                        <Form.Label>Designation</Form.Label>
+                                        <Form.Select
+                                            name="designation"
+                                            value={advance.designation}
+                                            onChange={(e) => handleSelectChange(e)}
+                                        >
+                                            <option value="">Please select</option>
+                                            {designation?.map((option, index) => (
+                                                <option key={index} value={option.id}>
+                                                    {option.name}
+                                                </option>
+                                            ))}
+                                        </Form.Select>
+                                    </Form.Group>
+                                </Col>
+                            }
                         </Row>
 
                         <Row>

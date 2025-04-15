@@ -7,7 +7,7 @@ import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import config from '@/config';
 import MessCards from '../Component/Previous&Completed';
 import { getPlannedDate } from '../Component/PlanDateFunction';
-import ReactFlow, { Background, Controls, Edge, MiniMap, Node, useEdgesState, useNodesState } from 'reactflow';
+import ReactFlow, { Background, Controls, MiniMap, Node, useEdgesState, useNodesState } from 'reactflow';
 import CustomNode from '@/pages/WorkflowBuilder/CustomNode';
 import { FIELD } from '@/pages/FormBuilder/Constant/Interface';
 import STAFF_ALLOCATION_PLAN from '@/pages/WorkflowBuilder/DynamicSegment/STAFF_ALLOCATION_PLAN';
@@ -69,16 +69,7 @@ interface Column {
   visible: boolean;
 }
 
-interface APISetting {
-  name: string;
-  api: string;
-  id: number;
-}
-interface WorkflowBuilderConfig {
-  apiSetting: APISetting[];
-  edges: Edge[];
-  nodes: Node[];
-}
+
 
 
 const ProjectAssignTable: React.FC = () => {
@@ -98,6 +89,7 @@ const ProjectAssignTable: React.FC = () => {
     blocks: [],
     editMode: true,
     blockCount: 0,
+    configureSelectionLogics: [],
     rules: [],
     advance: {
       backgroundColor: '',
@@ -133,24 +125,35 @@ const ProjectAssignTable: React.FC = () => {
     { id: 'isCompleted', label: 'Status', visible: true },
   ]);
 
-  const [workflowBuilder,] = useState<WorkflowBuilderConfig>({
-    apiSetting: [],
-    edges: [],
-    nodes: [],
-  });
 
   // Function to handle node selection
   const onNodeClick = useCallback((_event: React.MouseEvent, node: Node) => {
-    setSelectedNode(node); // ✅ Sets the node you're editing
-    console.log(node.data.blockValue);
-    setBlockValue(node.data.blockValue);
-    if (node.data.form?.blocks?.length) {
-      setShowFormBuilder(true);
-      setFormBuilder(node.data.form); // ✅ Prefill existing form
-      setIsAddFormBuilder(false);
-    } else {
-      if (node.data.form != "ADD_NODE")
-        setDynamicComponent(node.data.form);
+    console.log(node);
+    if(node.data.completedBy && node.data.completedBy == localStorage.getItem("EmpId")){
+      setSelectedNode(node); // ✅ Sets the node you're editing
+      console.log(node.data.blockValue);
+      console.log(setShowFormBuilder);
+      setBlockValue(node.data.blockValue);
+      if (node.data.form?.blocks?.length) {
+        setShowFormBuilder(true);
+        setFormBuilder(node.data.form); // ✅ Prefill existing form
+        setIsAddFormBuilder(false);
+      } else {
+        if (node.data.form != "ADD_NODE")
+          setDynamicComponent(node.data.form);
+      }
+    }else if(!node.data.completedBy){
+      setSelectedNode(node); // ✅ Sets the node you're editing
+      console.log(node.data.blockValue);
+      setBlockValue(node.data.blockValue);
+      if (node.data.form?.blocks?.length) {
+        setShowFormBuilder(true);
+        setFormBuilder(node.data.form); // ✅ Prefill existing form
+        setIsAddFormBuilder(false);
+      } else {
+        if (node.data.form != "ADD_NODE")
+          setDynamicComponent(node.data.form);
+      }
     }
   }, []);
 
@@ -184,7 +187,37 @@ const ProjectAssignTable: React.FC = () => {
           }
         );
         console.log('response', response)
+        setLoading(true);
+        try {
+          const role = localStorage.getItem('EmpId') || '';
+          const response = await axios.get<ApiResponse>(
+            `${config.API_URL_ACCOUNT}/ProcessInitiation/GetFilterTask`,
+            {
+              params: {
+                Flag: 2,
+                DoerId: role,
+                PageIndex: currentPage, // Adding pagination support
+              },
+            }
+          );
+          console.log('response', response)
 
+          if (response.data?.isSuccess) {
+            setData(response.data.getFilterTasks || []);
+            setTotalPages(Math.ceil(response.data.totalCount / 10)); // Setting pagination
+            console.log(response.data.getFilterTasks || []);
+          } else {
+            console.error('API Response Error:', response.data?.message || 'Unknown error');
+          }
+        } catch (error) {
+          if (axios.isAxiosError(error)) {
+            console.error('Axios Error:', error.message);
+          } else {
+            console.error('Unexpected Error:', error);
+          }
+        } finally {
+          setLoading(false);
+        }
         if (response.data?.isSuccess) {
           setData(response.data.getFilterTasks || []);
           setTotalPages(Math.ceil(response.data.totalCount / 10)); // Setting pagination
@@ -309,25 +342,17 @@ const ProjectAssignTable: React.FC = () => {
     fetchPreData(taskCommonId);
     setShow(true);
     if (item.templateJson) {
-      console.log('if')
       const templateJson = JSON.parse(item.templateJson);
       setNodes(templateJson.nodes);
       setEdges(templateJson.edges);
-      // setWorkflowBuilder({
-      //   apiSetting: templateJson.apiSetting,
-      //   edges: templateJson.edges,
-      //   nodes: templateJson.nodes,
-      // })
     }
   };
-
-  console.log(preData)
-
 
   const handleClose = () => {
     setShow(false);
     setPreData([]);
   };
+
 
   const handleFormClose = () => {
     setDynamicComponent('')
@@ -357,6 +382,7 @@ const ProjectAssignTable: React.FC = () => {
 
 
 
+
   return (
     <>
       <Modal size='xl' show={show} onHide={handleClose} placement="end">
@@ -369,11 +395,10 @@ const ProjectAssignTable: React.FC = () => {
             <MessCards data={preData} />
             :
             <>
-              {/* {JSON.stringify(workflowBuilder)} */}
               <div className='col-12' style={{ height: 'calc(100vh - 200px)', position: 'relative' }}>
                 <ReactFlow
-                  nodes={nodes || workflowBuilder.nodes}
-                  edges={edges || workflowBuilder.edges}
+                  nodes={nodes}
+                  edges={edges}
                   // onNodesChange={handleNodesChange}
                   // onEdgesChange={onEdgesChange}
                   // onConnect={onConnect}
@@ -557,7 +582,6 @@ const ProjectAssignTable: React.FC = () => {
               </DragDropContext>
             )}
           </>
-
         )}
       </div>
       <div className="d-flex justify-content-center align-items-center bg-white w-20 rounded-5 m-auto py-1 pb-1 my-2 pagination-rounded">

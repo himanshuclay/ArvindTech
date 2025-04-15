@@ -151,14 +151,20 @@ const ProjectAssignTable: React.FC = () => {
 
   useEffect(() => {
     if (workflowData) {
-      console.log('workflowData', workflowData)
       // getActiveNode(workflowData);
       // const start = workflowData.edges.find(e => e.source == "1");
       // const activeNode = workflowData.nodes.find(n => n.id === start?.target);
       const completedNodes = getCompletedNodes(workflowData, "1");
-      console.log('completedNodes', completedNodes)
       const activeNode = getActiveNode(workflowData, "1");
+      console.log(activeNode)
       if (activeNode) {
+        if(activeNode.data.TaskBinding && activeNode.data.BindingOption === "formAndValueWithEditMode"){
+          let extraActive = completedNodes.find(node => node.id === activeNode.data.TaskBinding);
+          if(extraActive){
+            activeNode.data.form = extraActive.data.form;
+            activeNode.data.blockValue = extraActive.data.blockValue;
+          }
+        }
         setCompletedNodes(completedNodes);
         setActiveNode(activeNode);
       } else {
@@ -169,7 +175,6 @@ const ProjectAssignTable: React.FC = () => {
   }, [workflowData])
 
 
-  console.log(data)
   const handleClear = async () => {
     setDoerName('');
     setTaskNumberName('');
@@ -223,7 +228,6 @@ const ProjectAssignTable: React.FC = () => {
             },
           }
         );
-        console.log(response)
 
         if (response.data && response.data.isSuccess) {
           const fetchedData = response.data.getFilterTasks || [];
@@ -253,7 +257,6 @@ const ProjectAssignTable: React.FC = () => {
       if (response.data?.isSuccess) {
         const fetchedData = response.data.getFilterTasks || [];
 
-        console.log('fetchedData', fetchedData)
 
         // Filter and transform data
         const filteredTasks = fetchedData
@@ -266,20 +269,16 @@ const ProjectAssignTable: React.FC = () => {
             try {
               // Parse task_Json and check its structure
               taskJsonArray = JSON.parse(task.task_Json);
-              console.log("Parsed taskJsonArray:", taskJsonArray);
             } catch (error) {
-              console.error("Error parsing task_Json:", task.task_Json, error);
               return []; // Return an empty array if parsing fails
             }
 
             // If taskJsonArray is not an array, log and handle accordingly
             if (!Array.isArray(taskJsonArray)) {
               console.error("taskJsonArray is not an array:", taskJsonArray);
-              console.log("task_Json is not in the expected array format:", task.task_Json);
 
               // Handle taskJsonArray as an object if it's an object
               if (typeof taskJsonArray === "object" && taskJsonArray !== null) {
-                console.log("task_Json is an object:", taskJsonArray);
                 // Transform the object into an array for processing
                 taskJsonArray = [taskJsonArray]; // Wrap the object in an array
               } else {
@@ -300,7 +299,6 @@ const ProjectAssignTable: React.FC = () => {
                 console.error("Invalid inputs:", inputs);
                 return [];
               }
-              console.log(inputs);
 
               // Map options for replacing value with label
               const optionsMap = inputs.reduce((map: Record<string, string>, input: any) => {
@@ -323,7 +321,6 @@ const ProjectAssignTable: React.FC = () => {
               const label = input ? input.label : null;
 
               // Return transformed task object
-              console.log('33333333333333333333', task)
               return {
                 messID: taskJson.messID,
                 messName: taskJson.messName,
@@ -356,6 +353,8 @@ const ProjectAssignTable: React.FC = () => {
       setLoading(false);
     }
   };
+
+  console.log("this is predata",preData);
 
 
 
@@ -414,7 +413,6 @@ const ProjectAssignTable: React.FC = () => {
     fetchPreData(taskCommonId);
     setParsedCondition(taskCondition);
     handleShow();
-    console.log(item.templateJson);
     if(item.templateJson)
     {
     const templateJson = JSON.parse(item.templateJson);
@@ -486,7 +484,6 @@ const ProjectAssignTable: React.FC = () => {
   const handleViewEditOutput = (taskCommonId: any) => {
     handleShowviewOutput();
     fetchPreData(taskCommonId);
-    console.log(preData)
   };
 
   // useEffect(() => {

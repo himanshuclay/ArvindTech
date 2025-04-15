@@ -1052,6 +1052,13 @@ input.numInput.cur-year:hover {
   cursor: pointer;
 }
 
+.setting-button-design{
+  background: none;
+  border: none;
+  cursor: pointer;
+ 
+}
+
 .input-handle,
 .output-handle {
   background: #555;
@@ -1195,10 +1202,76 @@ input.numInput.cur-year:hover {
 
 .truncated-text div:first-child {
   overflow: hidden;
-    white-space: nowrap;
-    text-overflow: ellipsis;
-    max-width: 450px!important;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  max-width: 450px !important;
 }
+
 .profile_top {
   top: -50px !important;
+}
+
+
+
+
+
+.task-cards-container {
+  display: grid;
+  gap: 15px;
+  transition: all 0.3s ease;
+}
+
+.task-card {
+  transition: opacity 0.3s ease;
+  width: 100%;
+  /* Make the card fill the container width */
+  cursor: pointer;
+}
+
+.task-details-container {
+  transition: all 0.3s ease;
+  padding-left: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  position: sticky;
+  top: 0;
+  animation: fadeInRight 0.5s ease-out forwards
+}
+
+.task-details-card {
+  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  background-color: #f9f9f9;
+  border: 1px solid #ddd;
+}
+
+
+
+.task-details-container h4 {
+  margin-bottom: 20px;
+}
+
+@keyframes fadeInRight {
+  0% {
+    opacity: 0;
+    transform: translate3d(100%, 0, 0);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateZ(0);
+  }
+}
+
+.index-style {
+  background: #dddbdb;
+  height: 25px;
+  width: 25px;
+  border-radius: 50%;
+  color: #000000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
 }

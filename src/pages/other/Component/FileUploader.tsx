@@ -6,7 +6,6 @@ interface FileUploaderProps {
     additionalData: {
         ModuleID: string;
         CreatedBy: string;
-        FileType: string;
         TaskCommonID: number;
         Task_Number: string;
         ProcessInitiationID: number;
@@ -27,6 +26,7 @@ export interface FileUploaderHandle {
 const FileUploader = forwardRef<FileUploaderHandle, FileUploaderProps>(
     ({ additionalData, onFileSelect, fileConfig }, ref) => {
         console.log("bring him back0")
+        console.log(additionalData)
 
 
         const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
@@ -93,7 +93,6 @@ const FileUploader = forwardRef<FileUploaderHandle, FileUploaderProps>(
                 });
 
                 formData.append('FileType', 'document');
-                formData.append('fileUploadRequest.FileType', additionalData.FileType);
                 formData.append('fileUploadRequest.ModuleID', additionalData.ModuleID);
                 formData.append('fileUploadRequest.ProcessID', additionalData.ProcessID);
                 formData.append('fileUploadRequest.Task_Number', additionalData.Task_Number);
@@ -104,7 +103,7 @@ const FileUploader = forwardRef<FileUploaderHandle, FileUploaderProps>(
 
                 try {
                     const response = await axios.post(
-                        `${config.API_URL_APPLICATION}/FileUpload/UploadFiles`,
+                        `${config.API_URL_ACCOUNT}/FileUpload/UploadFiles`,
                         formData,
                         {
                             headers: { 'Content-Type': 'multipart/form-data' },

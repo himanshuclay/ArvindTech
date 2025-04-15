@@ -27,6 +27,8 @@ const OUTPUT_LABELS: Record<string, string[]> = {
     UPDATE_EMPLOYEE: [ 'newAppointment', 'oldStaffTransfer'],
     APPOINTMENT_LETTER: [ 'Appointment Letter'],
     ASSIGN_TASK: [ 'Assign Task'],
+    BUSINESS_GROWTH_REVIEW: [ 'Business Growth Review'],
+    SALARY_PROCESSING: [ 'Salary Processing'],
 };
 
 const LABEL: Record<string, string> = {
@@ -36,11 +38,14 @@ const LABEL: Record<string, string> = {
     INDUCTION: 'Induction',
     UPDATE_EMPLOYEE: 'Update Employee',
     APPOINTMENT_LETTER: 'Appointment Letter',
-    ASSIGN_TASK: 'Assign Task'
+    ASSIGN_TASK: 'Assign Task',
+    BUSINESS_GROWTH_REVIEW: 'Business Growth Review',
+    SALARY_PROCESSING: 'Salary Processing',
 }
 const ASSIGN_DOER_TYPE = [
     { label: 'Fixed Doer', value: 'fixedDoer' },
     { label: 'Project With Doer', value: 'projectWithDoer' },
+    { label: 'Project With Form Input', value: 'projectWithFormInput' },
 ];
 const TIME_MANAGEMENT_OPTION = [
     { label: 'Only Days', value: 'onlyDays' },
@@ -66,6 +71,18 @@ const WEEKS = [
     { label: 'Saturday', value: 'saturday' },
 ];
 
+const TASK_BINDING_OPTION = [
+    {label: 'Form and Value with Edit Mode', value: 'formAndValueWithEditMode'},
+]
+
+const LOOPING_SETTING_START1 = [
+    {label: 'Looping', value: 'LOOPING'},
+]
+
+const LOOPING_SETTING_START2 = [
+    {label: 'Where', value: 'Where'},
+]
+
 
 
 export {
@@ -77,4 +94,7 @@ export {
     TIME_MANAGEMENT_OPTION,
     TASK_CREATION_TYPE,
     WEEKS,
+    TASK_BINDING_OPTION,
+    LOOPING_SETTING_START1,
+    LOOPING_SETTING_START2,
 }
