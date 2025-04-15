@@ -237,7 +237,6 @@ const Editor: React.FC<EditorProps> = ({ form, setForm, property, setProperty, b
                 console.error('FormBuilder/Editor', error);
             }
         };
-        isFirstRun.current = true;
         fetchData();
     }, [form.editMode]);
 

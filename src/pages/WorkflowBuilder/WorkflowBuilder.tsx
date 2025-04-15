@@ -15,7 +15,7 @@ import ReactFlow, {
 import 'reactflow/dist/style.css';
 import WorkflowBuilderSetting from './WorkflowBuilderSetting';
 import FormBuilder from '../FormBuilder/FormBuilder';
-import { Form, Modal } from 'react-bootstrap';
+import { Button, Form, Modal } from 'react-bootstrap';
 import { FIELD } from '../FormBuilder/Constant/Interface';
 import { toast } from 'react-toastify';
 import axios from 'axios';
@@ -470,7 +470,7 @@ const WorkflowBuilder: React.FC = () => {
     return (
         <div>
             {/* Top Navigation Bar */}
-            <div className='bg-white d-flex align-items-center justify-content-between p-3' style={{ height: '3rem', borderBottom: '1px solid #ddd' }}>
+            <div className='bg-white d-flex align-items-center justify-content-between p-3 my-2' style={{ height: '3rem', borderBottom: '1px solid #ddd' }}>
                 <h5 className='m-0'>Workflow Builder</h5>
                 <Form.Group>
                     <Form.Control
@@ -481,7 +481,7 @@ const WorkflowBuilder: React.FC = () => {
                     />
                 </Form.Group>
                 <i onClick={toggleWorkflowSetting} className='ri-settings-5-fill' style={{ fontSize: '1.5rem', cursor: 'pointer' }}></i>
-                <button type='button' onClick={handleSaveWorkflowBuilder}>save workflow</button>
+                <Button type='button' onClick={handleSaveWorkflowBuilder}>save workflow</Button>
             </div>
             <div className='row d-flex'>
                 <div className='col-9' style={{ height: 'calc(100vh - 200px)', position: 'relative' }}>
