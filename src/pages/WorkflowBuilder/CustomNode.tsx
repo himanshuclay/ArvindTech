@@ -68,7 +68,7 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges
     const [previousBlockList, setPerviousBlockList] = useState<{ label: string, value: string }[]>([]);
     const [previousLoopingBlockList, setPerviousLoopingBlockList] = useState<{ label: string, value: string }[]>([]);
     const [previousOptionsList, setPerviousOptionsList] = useState<{ label: string, value: string }[]>([]);
-    const [previousLoopingOptionsList, setPerviousLoopingOptionsList] = useState<{ label: string, value: string }[]>([]);
+    const [, setPerviousLoopingOptionsList] = useState<{ label: string, value: string }[]>([]);
 
     const BINDING: { [key: string]: string[] } = {
         APPOINTMENT,
