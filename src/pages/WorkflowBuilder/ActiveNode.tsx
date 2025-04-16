@@ -55,6 +55,9 @@ const ActiveNode = ({ activeNode, activeTaskId, setActiveNode, completedNodes, s
         disabled: false,
     })
     const [blockValue, setBlockValue] = useState<BLOCK_VALUE>(activeNode.data.blockValue ? activeNode.data.blockValue : {})
+
+    const [loopSection, ] = useState(activeNode.data.taskLoop?.loopID ? activeNode.data.taskLoop.loopBlockValue : []);
+    const [activeLoop, setActiveLoop] = useState(loopSection.length ? loopSection[0] : '');
     useEffect(() => {
         setForm((preForm) => ({
             ...preForm,
@@ -112,8 +115,14 @@ const ActiveNode = ({ activeNode, activeTaskId, setActiveNode, completedNodes, s
             activeNode.data['nextNode']['id'] = activeNode.id;
             activeNode.data['nextNode']['sourceHandle'] = query.outputLabel;
             query.jsonInput = JSON.stringify(activeNode)
+
+            if(activeLoop){
+                query.activeLoop = activeLoop;
+                query.loopId = activeNode.data.taskLoop.loopID;
+            }
+            console.log(query)
             const response = await axios.post(
-                `${config.API_URL_ACCOUNT}/ProcessInitiation/UpdateTemplateJson`,
+                `${config.API_URL_ACCOUNT}/ProcessInitiation/UpdateTemplateJson1`,
                 query
             );
             if (response.data.isSuccess) {
@@ -162,6 +171,34 @@ const ActiveNode = ({ activeNode, activeTaskId, setActiveNode, completedNodes, s
         ASSIGN_TASK,
     };
 
+
+    const handlePrevious = () => {
+        const index = loopSection.findIndex((loop: any) => loop === activeLoop);
+    
+        // Check if index is greater than 0 (to avoid accessing negative index)
+        if (index > 0) {
+            setActiveLoop(loopSection[index - 1]);
+        } else {
+            // Optionally, you could set it to the last item if you want to cycle through the array
+            // setActiveLoop(loopSection[loopSection.length - 1]);
+            console.log("Already at the first item");
+        }
+    }
+    
+    const handleNext = () => {
+        const index = loopSection.findIndex((loop: any) => loop === activeLoop);
+    
+        // Check if index is less than loopSection.length - 1 (to avoid accessing index out of bounds)
+        if (index < loopSection.length - 1) {
+            setActiveLoop(loopSection[index + 1]);
+        } else {
+            // Optionally, you could set it to the first item if you want to cycle through the array
+            // setActiveLoop(loopSection[0]);
+            console.log("Already at the last item");
+        }
+    }
+    
+
     return (
         <div>
             {completedNodes.map((completeNode: any, index: number) => (
@@ -195,6 +232,8 @@ const ActiveNode = ({ activeNode, activeTaskId, setActiveNode, completedNodes, s
                 </div>
 
             ))}
+
+            {activeNode.data.label && (<div>{activeNode.data.label}{activeLoop ? activeLoop.split('-')[1] : ''}</div>)}
             <div className="my-2">
                 {form?.blocks?.length ? (
                     <Editor form={form} setForm={setForm} property={property} setProperty={setProperty} blockValue={blockValue} setBlockValue={setBlockValue} isShowSave={false} />
@@ -213,6 +252,12 @@ const ActiveNode = ({ activeNode, activeTaskId, setActiveNode, completedNodes, s
             <div className="d-flex justify-content-end p-3">
                 <button className="btn btn-primary" type="button" onClick={handleSumbitTask}>Save</button>
             </div>
+            {loopSection.length && (
+                <button type="button" onClick={handlePrevious}>Previous</button>
+            )}
+            {loopSection.length && (
+                <button type="button" onClick={handleNext}>Next</button>
+            )}
         </div>
     )
 }

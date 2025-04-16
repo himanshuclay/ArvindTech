@@ -344,29 +344,44 @@ const STAFF_ALLOCATION_PLAN = forwardRef((props: any, ref) => {
 
     const handleSaveProjectSectionBifurcationData = () => {
         console.log('Saving Project Section Bifurcation Data:', projectSectionBifurcationData);
-
+    
         if (selectedDeptIndex === null || selectedRoleIndex === null) return;
-
+    
+        // Step 1: Calculate TotalSiteRequirement
+        const { TotalSiteRequirement, ...sectionData } = projectSectionBifurcationData;
+        const total = Object.values(sectionData)
+            .map(val => Number(val)) // Ensure numeric
+            .filter(val => !isNaN(val))
+            .reduce((acc, curr) => acc + curr, 0);
+    
+        // Step 2: Re-assign with total included
+        const updatedData = {
+            ...sectionData,
+            TotalSiteRequirement: total
+        };
+    
+        // Step 3: Update Department structure
         const updatedDepartments = [...department];
         const roleToUpdate = updatedDepartments[selectedDeptIndex].designation[selectedRoleIndex];
-
-        roleToUpdate.projectSectionBifurcation = { ...projectSectionBifurcationData };
-
-        // ✅ Save to blockValue
+        roleToUpdate.projectSectionBifurcation = updatedData;
+    
+        // Step 4: Update blockValue keys
         const newBlockValues: { [key: string]: string } = {};
-        Object.entries(projectSectionBifurcationData).forEach(([section, value]) => {
+        Object.entries(updatedData).forEach(([section, value]) => {
             const key = `projectSection_${section}_${selectedDeptIndex}_${selectedRoleIndex}`;
             newBlockValues[key] = value.toString();
         });
-
+    
+        // Step 5: Update states
         setBlockValue((prev) => ({
             ...prev,
             ...newBlockValues,
         }));
-
+    
         setDepartment(updatedDepartments);
         handleCloseProjectSectionBifurcationModal();
     };
+    
 
 
     // Modal Openers
@@ -448,6 +463,8 @@ const STAFF_ALLOCATION_PLAN = forwardRef((props: any, ref) => {
             0
         );
 
+        console.log('totalBlockValue',totalBlockValue, blockValue, selection, departIndex)
+
         // Return the sum of total block values and the department's estimate
         return totalBlockValue + totalEstimateFromDept;
     };
@@ -503,7 +520,7 @@ const STAFF_ALLOCATION_PLAN = forwardRef((props: any, ref) => {
                                 <td>{getDepartmentTotalEstimate(depart, departIndex, 'availableatSite')}</td>
                                 <td>{getDepartmentTotalEstimate(depart, departIndex, 'jvPartnerCount')}</td>
                                 <td>0</td>
-                                <td>0</td>
+                                <td>{getDepartmentTotalEstimate(depart, departIndex, 'projectSection_TotalSiteRequirement')}</td>
                                 <td>Submit/Edit</td>
                                 <td>
                                     {depart.designation.length ?
