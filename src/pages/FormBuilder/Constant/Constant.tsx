@@ -147,26 +147,6 @@ const FIELD_LIST = [
         }
     },
     {
-        name: "DateRange",
-        is: "DateRange",
-        property: {
-            label: "Label",
-            placeholder: "placeholder",
-            required: "false",
-            advance: {
-                backgroundColor: '#fff',
-                color: '#000',
-
-            },
-            isShow: true,
-            disabled: false,
-            startDateId: "",
-            endDateId: "",
-            size: '12'
-
-        }
-    },
-    {
         name: "Select",
         is: "Select",
         property: {
@@ -238,6 +218,26 @@ const FIELD_LIST = [
             placeholder: "placeholder",
             required: "false",
 
+            advance: {
+                backgroundColor: '#fff',
+                color: '#000',
+
+            },
+            isShow: true,
+            disabled: false,
+            size: '12'
+
+        }
+    },
+    {
+        name: "RadioInput",
+        is: "RadioInput",
+        property: {
+            label: "Radio",
+            placeholder: "placeholder",
+            required: "false",
+            groupInput: '',
+            value: '',
             advance: {
                 backgroundColor: '#fff',
                 color: '#000',

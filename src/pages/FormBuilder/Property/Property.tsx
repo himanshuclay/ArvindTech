@@ -276,17 +276,27 @@ const Property: React.FC<Props> = ({ form, setForm, property, setProperty, remov
             {property.hasOwnProperty('value') !== undefined && (
                 <div className='d-flex justify-content-between align-items-center mt-2'>
                     <label className='col-6'>Value</label>
-                    <select
+                    <input
+                        type="text"
                         name="value"
                         className="border p-2 rounded col-6"
                         value={property.value}
                         onChange={handleChange}
-                    >
-                        <option value="">Select options</option>
-                        {property?.options?.map((option, index) => (
-                            <option value={option.value}>{option.label}</option>
-                        ))}
-                    </select>
+                        placeholder="Enter value"
+                    />
+                </div>
+            )}
+            {property.hasOwnProperty('groupName') !== undefined && (
+                <div className='d-flex justify-content-between align-items-center mt-2'>
+                    <label className='col-6'>Group Name</label>
+                    <input
+                        type="text"
+                        name="groupName"
+                        className="border p-2 rounded col-6"
+                        value={property.groupName}
+                        onChange={handleChange}
+                        placeholder="Enter Group Name"
+                    />
                 </div>
             )}
 

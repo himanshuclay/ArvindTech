@@ -56,8 +56,10 @@ const ActiveNode = ({ activeNode, activeTaskId, setActiveNode, completedNodes, s
     })
     const [blockValue, setBlockValue] = useState<BLOCK_VALUE>(activeNode.data.blockValue ? activeNode.data.blockValue : {})
 
-    const [loopSection, ] = useState(activeNode.data.taskLoop?.loopID ? activeNode.data.taskLoop.loopBlockValue : []);
+    const [loopSection,] = useState(activeNode.data.taskLoop?.loopID ? activeNode.data.taskLoop.loopBlockValue : []);
     const [activeLoop, setActiveLoop] = useState(loopSection.length ? loopSection[0] : '');
+    const [validationErrors, setValidationErrors] = useState<{ [key: string]: string }>({});
+
     useEffect(() => {
         setForm((preForm) => ({
             ...preForm,
@@ -66,69 +68,84 @@ const ActiveNode = ({ activeNode, activeTaskId, setActiveNode, completedNodes, s
     }, [])
     const handleSumbitTask = async () => {
         try {
-            activeNode.data['blockValue'] = blockValue;
-            activeNode.data['status'] = "completed";
-            activeNode.data['completedBy'] = localStorage.getItem("EmpId");
-            activeNode.data['completedBy'] = localStorage.getItem("EmpId");
-            activeNode.data.form = dynamicComponent ? dynamicComponent : form;
-            // let formData;
-            if (componentRefMap.current[dynamicComponent]) {
-                activeNode.data['blockValue'] = componentRefMap.current[dynamicComponent]?.[dynamicComponent]?.();
-                // formData = componentRefMap.current[dynamicComponent]?.getAppointmentData?.().typeOfAppointment;
-            }
-            const query: any = {
-                id: activeTaskId,
-            }
-            if (Array.isArray(activeNode.data.outputLabels) && activeNode.data.outputLabels.length > 1) {
-                const activeLabel = activeNode.data.blockValue?.typeOfAppointment;
-                const matchedActiveLabel = activeNode.data.outputLabels.find(
-                    (label: any) => label === activeLabel
-                );
+            const errors: { [key: string]: string } = {};
 
-                if (matchedActiveLabel) {
-                    // Direct match in the active node
-                    query["outputLabel"] = matchedActiveLabel;
+            form.blocks.forEach(block => {
+                if (block.property.required === "true" && (!block.property.value || block.property.value.trim() === "")) {
+                    errors[block.property.id] = `${block.property.label} is required`;
+                }
+            });
+console.log('errors', errors)
+            setValidationErrors(errors);
+            if (Object.keys(errors).length === 0) {
+                activeNode.data['blockValue'] = blockValue;
+                activeNode.data['status'] = "completed";
+                activeNode.data['completedBy'] = localStorage.getItem("EmpId");
+                activeNode.data['completedBy'] = localStorage.getItem("EmpId");
+                activeNode.data.form = dynamicComponent ? dynamicComponent : form;
+                // let formData;
+                if (componentRefMap.current[dynamicComponent]) {
+                    activeNode.data['blockValue'] = componentRefMap.current[dynamicComponent]?.[dynamicComponent]?.();
+                    // formData = componentRefMap.current[dynamicComponent]?.getAppointmentData?.().typeOfAppointment;
+                }
+                const query: any = {
+                    id: activeTaskId,
+                }
+                if (Array.isArray(activeNode.data.outputLabels) && activeNode.data.outputLabels.length > 1) {
+                    const activeLabel = activeNode.data.blockValue?.typeOfAppointment;
+                    const matchedActiveLabel = activeNode.data.outputLabels.find(
+                        (label: any) => label === activeLabel
+                    );
 
-                } else {
-                    // Try matching against completed nodes
-                    for (const completeNode of completedNodes) {
-                        const completedLabel = completeNode.data.blockValue?.typeOfAppointment;
-                        console.log(completedLabel, activeNode.data.outputLabels)
-                        const matched = activeNode.data.outputLabels.find(
-                            (label: any) => label === completedLabel
-                        );
-                        console.log(matched)
-                        if (matched) {
-                            query["outputLabel"] = matched;
-                            break; // ✅ Exit loop once match is found
+                    if (matchedActiveLabel) {
+                        // Direct match in the active node
+                        query["outputLabel"] = matchedActiveLabel;
+
+                    } else {
+                        // Try matching against completed nodes
+                        for (const completeNode of completedNodes) {
+                            const completedLabel = completeNode.data.blockValue?.typeOfAppointment;
+                            console.log(completedLabel, activeNode.data.outputLabels)
+                            const matched = activeNode.data.outputLabels.find(
+                                (label: any) => label === completedLabel
+                            );
+                            console.log(matched)
+                            if (matched) {
+                                query["outputLabel"] = matched;
+                                break; // ✅ Exit loop once match is found
+                            }
                         }
                     }
                 }
+
+                console.log('query', query);
+                activeNode.data['nextNode'] = {};
+                activeNode.data['nextNode']['id'] = activeNode.id;
+                activeNode.data['nextNode']['sourceHandle'] = query.outputLabel;
+                query.jsonInput = JSON.stringify(activeNode)
+                activeNode.data['nextNode'] = {};
+                activeNode.data['nextNode']['id'] = activeNode.id;
+                activeNode.data['nextNode']['sourceHandle'] = query.outputLabel;
+                query.jsonInput = JSON.stringify(activeNode)
+
+                if (activeLoop) {
+                    query.activeLoop = activeLoop;
+                    query.loopId = activeNode.data.taskLoop.loopID;
+                }
+                console.log(query)
+                const response = await axios.post(
+                    `${config.API_URL_ACCOUNT}/ProcessInitiation/UpdateTemplateJson1`,
+                    query
+                );
+                if (response.data.isSuccess) {
+                    toast.success(response.data.message);
+                    setActiveNode("");
+                }
+            } else {
+                console.log('Validation Errors:', errors);
             }
 
-            console.log('query', query);
-            activeNode.data['nextNode'] = {};
-            activeNode.data['nextNode']['id'] = activeNode.id;
-            activeNode.data['nextNode']['sourceHandle'] = query.outputLabel;
-            query.jsonInput = JSON.stringify(activeNode)
-            activeNode.data['nextNode'] = {};
-            activeNode.data['nextNode']['id'] = activeNode.id;
-            activeNode.data['nextNode']['sourceHandle'] = query.outputLabel;
-            query.jsonInput = JSON.stringify(activeNode)
 
-            if(activeLoop){
-                query.activeLoop = activeLoop;
-                query.loopId = activeNode.data.taskLoop.loopID;
-            }
-            console.log(query)
-            const response = await axios.post(
-                `${config.API_URL_ACCOUNT}/ProcessInitiation/UpdateTemplateJson1`,
-                query
-            );
-            if (response.data.isSuccess) {
-                toast.success(response.data.message);
-                setActiveNode("");
-            }
 
 
         } catch (error) {
@@ -174,7 +191,7 @@ const ActiveNode = ({ activeNode, activeTaskId, setActiveNode, completedNodes, s
 
     const handlePrevious = () => {
         const index = loopSection.findIndex((loop: any) => loop === activeLoop);
-    
+
         // Check if index is greater than 0 (to avoid accessing negative index)
         if (index > 0) {
             setActiveLoop(loopSection[index - 1]);
@@ -184,10 +201,10 @@ const ActiveNode = ({ activeNode, activeTaskId, setActiveNode, completedNodes, s
             console.log("Already at the first item");
         }
     }
-    
+
     const handleNext = () => {
         const index = loopSection.findIndex((loop: any) => loop === activeLoop);
-    
+
         // Check if index is less than loopSection.length - 1 (to avoid accessing index out of bounds)
         if (index < loopSection.length - 1) {
             setActiveLoop(loopSection[index + 1]);
@@ -197,7 +214,7 @@ const ActiveNode = ({ activeNode, activeTaskId, setActiveNode, completedNodes, s
             console.log("Already at the last item");
         }
     }
-    
+
 
     return (
         <div>
@@ -234,9 +251,18 @@ const ActiveNode = ({ activeNode, activeTaskId, setActiveNode, completedNodes, s
             ))}
 
             {activeNode.data.label && (<div>{activeNode.data.label}{activeLoop ? activeLoop.split('-')[1] : ''}</div>)}
-            <div className="my-2">
+            <div className="my-2 position-relative">
                 {form?.blocks?.length ? (
-                    <Editor form={form} setForm={setForm} property={property} setProperty={setProperty} blockValue={blockValue} setBlockValue={setBlockValue} isShowSave={false} />
+                    <Editor
+                        form={form}
+                        setForm={setForm}
+                        property={property}
+                        setProperty={setProperty}
+                        blockValue={blockValue}
+                        setBlockValue={setBlockValue}
+                        isShowSave={false}
+                        validationErrorsList={validationErrors}
+                    />
                 ) : ''}
                 {dynamicComponent && componentMap[dynamicComponent] && (
                     React.createElement(componentMap[dynamicComponent], {
@@ -248,16 +274,16 @@ const ActiveNode = ({ activeNode, activeTaskId, setActiveNode, completedNodes, s
                         blockValue: blockValue
                     })
                 )}
+                {loopSection.length && (
+                    <button className="position-absolute top-50" type="button" onClick={handlePrevious}><i className="ri-arrow-left-wide-line"></i></button>
+                )}
+                {loopSection.length && (
+                    <button className="position-absolute top-50 end-0" type="button" onClick={handleNext}><i className="ri-arrow-right-wide-line"></i></button>
+                )}
             </div>
             <div className="d-flex justify-content-end p-3">
                 <button className="btn btn-primary" type="button" onClick={handleSumbitTask}>Save</button>
             </div>
-            {loopSection.length && (
-                <button type="button" onClick={handlePrevious}>Previous</button>
-            )}
-            {loopSection.length && (
-                <button type="button" onClick={handleNext}>Next</button>
-            )}
         </div>
     )
 }

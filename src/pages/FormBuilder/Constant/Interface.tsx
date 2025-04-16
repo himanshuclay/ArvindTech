@@ -85,6 +85,7 @@ interface PROPERTY {
     blocks?: BASIC_FIELD[];  
     blockCount?: number;
     mode?: string;
+    groupName?: string;
 }
 interface OPTION { label: string; value: string }
 interface BLOCK_VALUE {

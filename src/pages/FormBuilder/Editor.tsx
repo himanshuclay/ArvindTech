@@ -17,6 +17,7 @@ import MultiSelectDropdown from './Components/MultiSelect';
 import AmountInput from './Components/AmountInput';
 import FloatInput from './Components/FloatInput';
 import Looper from './Components/Looper';
+import RadioInput from './Components/RadioInput';
 // import { speak } from '@/utils/speak';
 
 
@@ -31,6 +32,7 @@ interface EditorProps {
     expandedRow?: number | null;
     isShowSave?: boolean;
     isPreview?: boolean;
+    validationErrorsList?: {[key: string]: string};
 }
 
 interface DynamicComponentProps {
@@ -59,6 +61,7 @@ const componentsMap = {
     AmountInput,
     FloatInput,
     Looper,
+    RadioInput,
 };
 
 const DynamicComponentRenderer: React.FC<DynamicComponentProps> = ({ form, setForm, componentType, block, handleChange, validationErrors, blockValue, setBlockValue, setProperty }) => {
@@ -67,6 +70,7 @@ const DynamicComponentRenderer: React.FC<DynamicComponentProps> = ({ form, setFo
     if (!ComponentToRender) {
         return <p>Component not found!</p>;
     }
+    console.log('validationErrors', validationErrors)
 
     return (
         // <div className={`${form.editMode ? 'cursor-not-allowed' : ''}`}>
@@ -87,7 +91,7 @@ const DynamicComponentRenderer: React.FC<DynamicComponentProps> = ({ form, setFo
     );
 };
 
-const Editor: React.FC<EditorProps> = ({ form, setForm, property, setProperty, blockValue, setBlockValue, expandedRow, isShowSave = true, isPreview = false }) => {
+const Editor: React.FC<EditorProps> = ({ form, setForm, property, setProperty, blockValue, setBlockValue, expandedRow, isShowSave = true, isPreview = false, validationErrorsList }) => {
     const [validationErrors, setValidationErrors] = useState<{ [key: string]: string }>({});
     const [triggeredActions, setTriggeredActions] = useState<TRIGGER_ACTION[]>([]);
     const [draggingOver, setDraggingOver] = useState<{ [key: string]: boolean }>({});  // Track if drag is over a zone
@@ -323,6 +327,12 @@ const Editor: React.FC<EditorProps> = ({ form, setForm, property, setProperty, b
             }
         }
     }, [blockValue, triggeredActions]);
+
+    useEffect(() => {
+        if(validationErrorsList){
+            setValidationErrors(validationErrorsList);
+        }
+    },[validationErrorsList])
 
 
     return (
