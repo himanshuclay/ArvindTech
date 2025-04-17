@@ -10,6 +10,7 @@ import Password from "../Components/Password";
 import PhoneInput from "../Components/PhoneInput";
 import Select from "../Components/Select";
 import TextInput from "../Components/TextInput";
+import Paragraph from "../Components/Paragraph";
 
 const componentsMap = {
     TextInput,
@@ -24,6 +25,7 @@ const componentsMap = {
     MultiSelectDropdown,
     AmountInput,
     FloatInput,
+    Paragraph
 };
 
 interface FIELD {

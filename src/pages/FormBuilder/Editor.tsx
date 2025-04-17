@@ -4,6 +4,7 @@ import axios from 'axios';
 import { getBlockById, manageBind, manageShowHide } from './Constant/Functions';
 import { BASIC_FIELD, BLOCK_VALUE, FIELD, PROPERTY, RULE, TRIGGER_ACTION } from './Constant/Interface';
 import TextInput from './Components/TextInput';
+import Paragraph from './Components/Paragraph';
 import NumberInput from './Components/NumberInput';
 import EmailInput from './Components/EmailInput';
 import PhoneInput from './Components/PhoneInput';
@@ -62,6 +63,7 @@ const componentsMap = {
     FloatInput,
     Looper,
     RadioInput,
+    Paragraph
 };
 
 const DynamicComponentRenderer: React.FC<DynamicComponentProps> = ({ form, setForm, componentType, block, handleChange, validationErrors, blockValue, setBlockValue, setProperty }) => {
