@@ -2,12 +2,18 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import path from 'path';
 
-// https://vitejs.dev/config/
 export default defineConfig({
-  base: '', // Adjust this to match your GitHub repo name with leading and trailing slashes
+  base: '/',
   plugins: [react()],
   server: {
     port: 3000,
+    host: true,
+    headers: {
+      'X-Content-Type-Options': 'nosniff',
+      'Cache-Control': 'no-store',
+      'Pragma': 'no-cache',
+      'Referrer-Policy': 'strict-origin-when-cross-origin'
+    }
   },
   define: { 'process.env': {} },
   resolve: {

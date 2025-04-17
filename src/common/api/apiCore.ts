@@ -4,7 +4,7 @@ import config from '@/config'
 
 // content type
 axios.defaults.headers.post['Content-Type'] = 'application/json'
-axios.defaults.baseURL = config.API_URL_APPLICATION || config.API_URL_ACCOUNT;
+axios.defaults.baseURL = config.API_URL_APPLICATION
 
 // intercepting to capture errors
 axios.interceptors.response.use(
@@ -66,8 +66,8 @@ class APICore {
 		if (params) {
 			const queryString = params
 				? Object.keys(params)
-						.map((key) => key + '=' + params[key])
-						.join('&')
+					.map((key) => key + '=' + params[key])
+					.join('&')
 				: ''
 			response = axios.get(`${url}?${queryString}`, params)
 		} else {
@@ -81,8 +81,8 @@ class APICore {
 		if (params) {
 			const queryString = params
 				? Object.keys(params)
-						.map((key) => key + '=' + params[key])
-						.join('&')
+					.map((key) => key + '=' + params[key])
+					.join('&')
 				: ''
 			response = axios.get(`${url}?${queryString}`, { responseType: 'blob' })
 		} else {
@@ -97,8 +97,8 @@ class APICore {
 		if (params) {
 			queryString = params
 				? Object.keys(params)
-						.map((key) => key + '=' + params[key])
-						.join('&')
+					.map((key) => key + '=' + params[key])
+					.join('&')
 				: ''
 		}
 

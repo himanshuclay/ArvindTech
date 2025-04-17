@@ -308,10 +308,6 @@ const LnMaster: React.FC = () => {
     return (
         <>
 
-            <div className="d-flex bg-white p-2 my-2 justify-content-between align-items-center fs-20">
-                <span><i className="ri-file-list-line me-2"></i><span className='fw-bold test-nowrap'>Track Task</span></span>
-
-            </div>
             <div className='bg-white p-2 pb-2'>
                 <Form
                     onSubmit={(e) => {
@@ -796,7 +792,7 @@ const LnMaster: React.FC = () => {
                                                                         </Col>
                                                                         <Col lg={3} className='mt-2'>
                                                                             <td><h5>Completed Date :</h5></td>
-                                                                            <td><h5 className='text-primary'>{item.completedDate ? format(new Date(item.completedDate), 'dd-MMM-yyyy HH:mm'): '--'}</h5></td>
+                                                                            <td><h5 className='text-primary'>{item.completedDate ? format(new Date(item.completedDate), 'dd-MMM-yyyy HH:mm') : '--'}</h5></td>
                                                                         </Col>
                                                                         <Col lg={3} className=''>
                                                                             <div className=' d-flex justify-content-end align-items-center'>

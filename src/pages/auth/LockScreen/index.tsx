@@ -8,7 +8,6 @@ import AuthLayout from '../AuthLayout'
 import { VerticalForm, FormInput, PageBreadcrumb } from '@/components'
 
 // images
-import avatar1 from '@/assets/images/users/avatar-1.jpg'
 import { User } from '@/types'
 
 interface UserData {
@@ -52,10 +51,9 @@ const LockScreen = () => {
 		<>
 			<PageBreadcrumb title="Lock Screen" />
 			<AuthLayout
-				authTitle="Hi ! Shikhar"
+				authTitle="Hi ! Thomson"
 				helpText="Enter your password to access the admin."
 				starterClass
-				userImage={avatar1}
 				bottomLinks={<BottomLink />}
 				hasThirdPartyLogin
 			>

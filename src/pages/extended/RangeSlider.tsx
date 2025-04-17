@@ -14,7 +14,6 @@ const RangeSlider = () => {
 	return (
 		<>
 			<PageBreadcrumb title="Range Slider" subName="Extended UI" />
-			
 			<Row>
 				<Col xl={6}>
 					<Card>

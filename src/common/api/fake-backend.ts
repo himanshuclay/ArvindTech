@@ -1,85 +1,113 @@
-import axios, { AxiosError } from 'axios';
-import MockAdapter from 'axios-mock-adapter';
-import { toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
-import config from '@/config';
+import axios from 'axios'
+import MockAdapter from 'axios-mock-adapter'
 
-
+type User = {
+	id: number
+	email?: string
+	username: string
+	password: string
+	firstName: string
+	lastName: string
+	role: string
+	token: string
+}
 
 const TOKEN =
-  'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJjb2RlcnRoZW1lcyIsImlhdCI6MTU4NzM1NjY0OSwiZXhwIjoxOTAyODg5NDQ5LCJhdWQiOiJjb2RlcnRoZW1lcy5jb20iLCJzdWIiOiJzdXBwb3J0QGNvZGVydGhlbWVzLmNvbSIsImxhc3ROYW1lIjoiVGVzdCIsIkVtYWlsIjoic3VwcG9ydEBjb2RlcnRoZW1lcy5jb20iLCJSb2xlIjoiQWRtaW4iLCJmaXJzdE5hbWUiOiJIeXBlciJ9.P27f7JNBF-vOaJFpkn-upfEh3zSprYfyhTOYhijykdI';
+	'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJjb2RlcnRoZW1lcyIsImlhdCI6MTU4NzM1NjY0OSwiZXhwIjoxOTAyODg5NDQ5LCJhdWQiOiJjb2RlcnRoZW1lcy5jb20iLCJzdWIiOiJzdXBwb3J0QGNvZGVydGhlbWVzLmNvbSIsImxhc3ROYW1lIjoiVGVzdCIsIkVtYWlsIjoic3VwcG9ydEBjb2RlcnRoZW1lcy5jb20iLCJSb2xlIjoiQWRtaW4iLCJmaXJzdE5hbWUiOiJIeXBlciJ9.P27f7JNBF-vOaJFpkn-upfEh3zSprYfyhTOYhijykdI'
 
-const mock = new MockAdapter(axios, { onNoMatch: 'passthrough' });
+const mock = new MockAdapter(axios, { onNoMatch: 'passthrough' })
 
-interface ErrorResponse {
-  message: string;
-  // Add any other properties if your error response contains more details
-}
+const users: User[] = [
+	{
+		id: 1,
+		email: '',
+		username: 'Velonic',
+		password: 'Velonic',
+		firstName: 'Velonic',
+		lastName: 'Techzaa',
+		role: 'Admin',
+		token: TOKEN,
+	},
+]
 
 export default function configureFakeBackend() {
-  async function loginUser(email: string, password: string) {
-    try {
-      const response = await axios.post(`${config.API_URL_APPLICATION}/Login/GetLogin`, {
-        email,
-        password,
-      });
+	mock.onPost('/login').reply(function (config) {
+		return new Promise(function (resolve, reject) {
+			setTimeout(function () {
+				// get parameters from post request
+				const params = JSON.parse(config.data)
+				// find if any user matches login credentials
+				const filteredUsers = users.filter((user) => {
+					return (
+						user.email === params.email && user.password === params.password
+					)
+				})
+				if (filteredUsers.length) {
+					// if login details are valid return user details and fake jwt token
+					const user = filteredUsers[0]
+					resolve([200, user])
+				} else {
+					// else return error
+					resolve([401, { message: 'Email or password is incorrect' }])
+				}
+			}, 1000)
+		})
+	})
 
-      const { isSuccess, message, loginData, getEmployeeDetailsbyEmpId, token } = response.data;
+	mock.onPost('/register').reply(function (config) {
+		return new Promise(function (resolve, reject) {
+			setTimeout(function () {
+				// get parameters from post request
+				const params = JSON.parse(config.data)
 
-      if (isSuccess) {
-        let user;
-        if (loginData) {
-          user = loginData;
-        } else if (getEmployeeDetailsbyEmpId) {
-          user = getEmployeeDetailsbyEmpId;
-        }
+				// add new users
+				const [firstName, lastName] = params.fullname.split(' ')
+				const newUser: User = {
+					id: users.length + 1,
+					email: params.email,
+					username: firstName,
+					password: params.password,
+					firstName: firstName,
+					lastName: lastName,
+					role: 'Admin',
+					token: TOKEN,
+				}
+				users.push(newUser)
 
-        localStorage.setItem('EmpId', user.empID);
-        localStorage.setItem('role', user.role);
-        localStorage.setItem('EmpName', user.employeeName);
-        localStorage.setItem('token', token);
+				resolve([200, newUser])
+			}, 1000)
+		})
+	})
 
-        const userWithToken = {
-          ...user,
-          token: TOKEN,
-        };
+	mock.onPost('/forget-password').reply(function (config) {
+		return new Promise(function (resolve, reject) {
+			setTimeout(function () {
+				// get parameters from post request
+				const params = JSON.parse(config.data)
 
-        localStorage.removeItem('errorMessage');
-        return { status: 200, data: userWithToken };
-      } else {
-        toast.error(message || 'Email or password is incorrect');
-        return Promise.reject({ status: 401, message: message || 'Email or password is incorrect' });
-      }
-    } catch (error: any) {
-      localStorage.setItem('errorMessage', error);
-      // toast.error(error); 
-      console.error('Login error:', error);
-      return Promise.reject({ status: 500, message: 'Something went wrong. Please try again later.' });
-    }
-  }
+				// find if any user matches login credentials
+				const filteredUsers = users.filter((user) => {
+					return user.email === params.email
+				})
 
-  // Mock API call handling
-  mock.onPost('/login').reply(async function (config) {
-    try {
-      const params = JSON.parse(config.data);
-      const { email, password } = params;
-
-      const result = await loginUser(email, password);
-
-      if (result && result.status === 200) {
-        return [200, result.data]; // Return success response
-      } else {
-        return [result.status || 400, { message: 'Login failed' }]; // Return error response
-      }
-    } catch (error) {
-      console.error('Mock login error:', error);
-      const axiosError = error as AxiosError;
-      const status = axiosError.response?.status || 500;
-      const message = (axiosError.response?.data as ErrorResponse)?.message || 'Login failed. Please try again.';
-
-      return [status, { message }];
-    }
-  });
+				if (filteredUsers.length) {
+					// if login details are valid return user details and fake jwt token
+					const responseJson = {
+						message:
+							"We've sent you a link to reset password to your registered email.",
+					}
+					resolve([200, responseJson])
+				} else {
+					// else return error
+					resolve([
+						401,
+						{
+							message:
+								'Sorry, we could not find any registered user with entered email',
+						},
+					])
+				}
+			}, 1000)
+		})
+	})
 }
-
-

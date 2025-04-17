@@ -15,45 +15,34 @@ const getHorizontalMenuItems = () => {
 
 const findAllParent = (
 	menuItems: MenuItemTypes[],
-	menuItem: MenuItemTypes,
-	visitedKeys: Set<string> = new Set()
-  ): string[] => {
+	menuItem: MenuItemTypes
+): string[] => {
 	let parents: string[] = []
-  
-	const parent = findMenuItem(menuItems, menuItem.parentKey, visitedKeys)
-  
+	const parent = findMenuItem(menuItems, menuItem.parentKey)
+
 	if (parent) {
-	  parents.push(parent.key)
-	  if (parent.parentKey && !visitedKeys.has(parent.parentKey)) {
-		// Mark the parent as visited before recursion
-		visitedKeys.add(parent.key)
-		parents = [...parents, ...findAllParent(menuItems, parent, visitedKeys)]
-	  }
+		parents.push(parent.key)
+		if (parent.parentKey) {
+			parents = [...parents, ...findAllParent(menuItems, parent)]
+		}
 	}
 	return parents
-  }
-  
-  const findMenuItem = (
+}
+
+const findMenuItem = (
 	menuItems: MenuItemTypes[] | undefined,
-	menuItemKey: MenuItemTypes['key'] | undefined,
-	visitedKeys: Set<string> = new Set()
-  ): MenuItemTypes | null => {
+	menuItemKey: MenuItemTypes['key'] | undefined
+): MenuItemTypes | null => {
 	if (menuItems && menuItemKey) {
-	  for (let i = 0; i < menuItems.length; i++) {
-		// Skip already visited items to prevent infinite recursion
-		if (visitedKeys.has(menuItems[i].key)) continue
-  
-		if (menuItems[i].key === menuItemKey) {
-		  return menuItems[i]
+		for (let i = 0; i < menuItems.length; i++) {
+			if (menuItems[i].key === menuItemKey) {
+				return menuItems[i]
+			}
+			let found = findMenuItem(menuItems[i].children, menuItemKey)
+			if (found) return found
 		}
-  
-		visitedKeys.add(menuItems[i].key)
-		let found = findMenuItem(menuItems[i].children, menuItemKey, visitedKeys)
-		if (found) return found
-	  }
 	}
 	return null
-  }
-  
-  export { findAllParent, findMenuItem, getMenuItems, getHorizontalMenuItems }
-  
+}
+
+export { findAllParent, findMenuItem, getMenuItems, getHorizontalMenuItems }

@@ -2,8 +2,8 @@ import React, { ReactNode, useEffect } from 'react'
 
 //images
 // import authImg from '@/assets/images/auth-img.jpg'
-import logo from '@/assets/images/logo-dark.png'
-import logoDark from '@/assets/images/logo-dark.png'
+import logo from '@/assets/images/Clayimage.png'
+import logoDark from '@/assets/images/Clayimage.png'
 
 import { Card, Col, Container, Image, Row } from 'react-bootstrap'
 // import { Link } from 'react-router-dom'
@@ -112,7 +112,7 @@ const AuthLayout = ({
 			</div>
 			<footer className="footer footer-alt fw-medium">
 				<span className="text-dark">
-					{new Date().getFullYear()} ©  Arvindtechno
+					{new Date().getFullYear()} ©  Clay TechSystem
 				</span>
 			</footer>
 		</div>
