@@ -128,7 +128,7 @@ const Editor: React.FC<EditorProps> = ({ form, setForm, property, setProperty, b
         const errors: { [key: string]: string } = {};
 
         form.blocks.forEach(block => {
-            if (block.property.required === "true" && (!block.property.value || block.property.value.trim() === "")) {
+            if (block.property.validation === "required" && (!block.property.value || block.property.value.trim() === "")) {
                 errors[block.property.id] = `${block.property.label} is required`;
             }
         });

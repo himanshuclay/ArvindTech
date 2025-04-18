@@ -23,7 +23,7 @@ interface BasicField {
 }
 
 const PhoneInput: React.FC<Props> = ({ block, handleChange, validationErrors = {}, editMode = false }) => {
-    const isRequired = block.property.required === "true";
+    const isRequired = block.property.validation === "required";
 
     return (
         <div>

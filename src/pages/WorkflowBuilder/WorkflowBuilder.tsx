@@ -138,14 +138,14 @@ const WorkflowBuilder: React.FC = () => {
         (params: Connection) => {
             setEdges((existingEdges) => {
                 // Check if the output handle already has a connection
-                const isAlreadyConnected = existingEdges.some(
-                    (edge) => edge.source === params.source && edge.sourceHandle === params.sourceHandle
-                );
+                // const isAlreadyConnected = existingEdges.some(
+                //     (edge) => edge.source === params.source && edge.sourceHandle === params.sourceHandle
+                // );
 
-                if (isAlreadyConnected) {
-                    alert("This output handle already has a connection.");
-                    return existingEdges; // Prevent multiple connections on the same output
-                }
+                // if (isAlreadyConnected) {
+                //     alert("This output handle already has a connection.");
+                //     return existingEdges; // Prevent multiple connections on the same output
+                // }
 
 
                 const newEdge: Edge = {

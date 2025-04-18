@@ -118,22 +118,6 @@ const Property: React.FC<Props> = ({ form, setForm, property, setProperty, remov
                 </div>
             )}
 
-            {/* Required Field */}
-            {property.hasOwnProperty('required') !== undefined && (
-                <div className='d-flex justify-content-between align-items-center mt-2'>
-                    <label className='col-6'>Required</label>
-                    <select
-                        name="required"
-                        className="border p-2 rounded col-6"
-                        value={property.required.toString()}
-                        onChange={handleChange}
-                    >
-                        <option value="true">Yes</option>
-                        <option value="false">No</option>
-                    </select>
-                </div>
-            )}
-
             {property.hasOwnProperty('disabled') !== undefined && (
                 <div className='d-flex justify-content-between align-items-center mt-2'>
                     <label className='col-6'>Disabled</label>
@@ -182,20 +166,6 @@ const Property: React.FC<Props> = ({ form, setForm, property, setProperty, remov
                         onChange={handleChange}
                     >
                         <option value="none">None</option>
-                        <option value="today">Today</option>
-                    </select>
-                </div>
-            )}
-            {property.hasOwnProperty('Validation') && (
-                <div className='d-flex justify-content-between align-items-center mt-2'>
-                    <label className='col-6'>Validation</label>
-                    <select
-                        name="validation"
-                        className="border p-2 rounded col-6"
-                        value={property.validation}
-                        onChange={handleChange}
-                    >
-                        <option value="none">None</option>
                         <option value="futureDateOnly(includingToday)">Future Date Only (including Today)</option>
                         <option value="today">Today</option>
                         <option value="futureDateOnly(Max15Days)">Future Date Only (Max 15 Days)</option>
@@ -207,6 +177,26 @@ const Property: React.FC<Props> = ({ form, setForm, property, setProperty, remov
                         <option value="blockWeek">Block Week</option>
                         <option value="blockMonth">Block Month</option>
                         <option value="blockYear">Block Year</option>
+                    </select>
+                </div>
+            )}
+            {property.hasOwnProperty('validation') && (
+                <div className='d-flex justify-content-between align-items-center mt-2'>
+                    <label className='col-6'>Validation</label>
+                    <select
+                        name="validation"
+                        className="border p-2 rounded col-6"
+                        value={property.validation}
+                        onChange={handleChange}
+                    >
+                        <option value="none">None</option>
+                        <option value="required">Required</option>
+                        {['NumberInput'].includes(property.type) && (
+                            <>
+                                <option value="nonNegativeInteger">Non Negative Integer</option>
+                                <option value="positiveIntegerGreaterZero">Positive Integer Greater Zero</option>
+                            </>
+                        )}
                     </select>
                 </div>
             )}

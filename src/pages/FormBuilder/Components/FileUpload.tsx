@@ -20,7 +20,7 @@ const FileUpload: React.FC<Props> = ({
     setBlockValue
 }) => {
 
-    const isRequired = block.property.required === "true";
+    const isRequired = block.property.validation === "required";
     const isDisabled = !!(block.property.disabled);
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {

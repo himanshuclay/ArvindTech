@@ -23,7 +23,7 @@ const MultiSelectDropdown: React.FC<Props> = ({
     form,
     setForm,
 }) => {
-    const isRequired = block.property.required === "true";
+    const isRequired = block.property.validation === "required";
 
     // Convert block options into react-select format
     const options = block.property.options?.map((option) => ({

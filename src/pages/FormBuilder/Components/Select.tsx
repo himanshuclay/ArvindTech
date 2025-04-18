@@ -13,7 +13,7 @@ interface Props {
 }
 
 const Select: React.FC<Props> = ({ block, handleChange, validationErrors = {}, editMode, blockValue, setBlockValue }) => {
-    const isRequired = block.property.required === "true";
+    const isRequired = block.property.validation === "required";
 
     const handleSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
         const { value } = e.target;

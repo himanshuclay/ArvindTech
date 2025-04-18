@@ -3,9 +3,10 @@ const FIELD_LIST = [
         name: "Text Input",
         is: "TextInput",
         property: {
+            type: "TextInput",
             label: "Label",
             placeholder: "placeholder",
-            required: "false",
+            validation: "",
             advance: {
                 backgroundColor: '#fff',
                 color: '#000',
@@ -19,9 +20,10 @@ const FIELD_LIST = [
         name: "Paragraph",
         is: "Paragraph",
         property: {
+            type: "Paragraph",
             label: "Paragraph Label",
             placeholder: "This is a read-only paragraph meant for displaying static information.",
-            required: "false",
+            validation: "",
             advance: {
                 backgroundColor: '#fff',
                 color: '#000',
@@ -30,21 +32,21 @@ const FIELD_LIST = [
             disabled: false,
             size: '12'
         }
-    },    
+    },
     {
         name: "Number Input",
         is: "NumberInput",
         property: {
+            type: "NumberInput",
             label: "Label",
             placeholder: "placeholder",
-            required: "false",
+            validation: "",
             advance: {
                 backgroundColor: '#fff',
                 color: '#000',
 
             },
             isShow: true,
-            validation: '',
             disabled: false,
             size: '12'
 
@@ -55,9 +57,10 @@ const FIELD_LIST = [
         name: "AmountInput",
         is: "AmountInput",
         property: {
+            type: "AmountInput",
             label: "AmountInput",
             placeholder: "placeholder",
-            required: "false",
+            validation: "",
             advance: {
                 backgroundColor: '#fff',
                 color: '#000',
@@ -74,9 +77,10 @@ const FIELD_LIST = [
         name: "FloatInput",
         is: "FloatInput",
         property: {
+            type: "FloatInput",
             label: "FloatInput",
             placeholder: "placeholder",
-            required: "false",
+            validation: "",
             advance: {
                 backgroundColor: '#fff',
                 color: '#000',
@@ -93,9 +97,10 @@ const FIELD_LIST = [
         name: "Email",
         is: "EmailInput",
         property: {
+            type: "EmailInput",
             label: "Label",
             placeholder: "placeholder",
-            required: "false",
+            validation: "",
             advance: {
                 backgroundColor: '#fff',
                 color: '#000',
@@ -111,9 +116,10 @@ const FIELD_LIST = [
         name: "Phone Number",
         is: "PhoneInput",
         property: {
+            type: "PhoneInput",
             label: "Label",
             placeholder: "placeholder",
-            required: "false",
+            validation: "",
             advance: {
                 backgroundColor: '#fff',
                 color: '#000',
@@ -129,9 +135,10 @@ const FIELD_LIST = [
         name: "Password",
         is: "Password",
         property: {
+            type: "Password",
             label: "Label",
             placeholder: "placeholder",
-            required: "false",
+            validation: "",
             advance: {
                 backgroundColor: '#fff',
                 color: '#000',
@@ -147,9 +154,10 @@ const FIELD_LIST = [
         name: "DateInput",
         is: "DateInput",
         property: {
+            type: "DateInput",
             label: "DateInput",
             placeholder: "placeholder",
-            required: "false",
+            validation: "",
             advance: {
                 backgroundColor: '#fff',
                 color: '#000',
@@ -167,9 +175,10 @@ const FIELD_LIST = [
         name: "Select",
         is: "Select",
         property: {
+            type: "Select",
             label: "Select",
             placeholder: "placeholder",
-            required: "false",
+            validation: "",
             options: [],
 
             advance: {
@@ -187,9 +196,10 @@ const FIELD_LIST = [
         name: "MultiSelect",
         is: "MultiSelectDropdown",
         property: {
+            type: "MultiSelectDropdown",
             label: "MultiSelect",
             placeholder: "placeholder",
-            required: "false",
+            validation: "",
             options: [],
 
             advance: {
@@ -209,9 +219,10 @@ const FIELD_LIST = [
         name: "Looper",
         is: "Looper",
         property: {
+            type: "Looper",
             label: "Looper",
             placeholder: "placeholder",
-            required: "false",
+            validation: "",
             options: [],
 
             advance: {
@@ -231,9 +242,10 @@ const FIELD_LIST = [
         name: "FileUpload",
         is: "FileUpload",
         property: {
+            type: "FileUpload",
             label: "FileUpload",
             placeholder: "placeholder",
-            required: "false",
+            validation: "",
 
             advance: {
                 backgroundColor: '#fff',
@@ -250,9 +262,10 @@ const FIELD_LIST = [
         name: "RadioInput",
         is: "RadioInput",
         property: {
+            type: "RadioInput",
             label: "Radio",
             placeholder: "placeholder",
-            required: "false",
+            validation: "",
             groupInput: '',
             value: '',
             advance: {
@@ -270,9 +283,10 @@ const FIELD_LIST = [
         name: "CheckboxInput",
         is: "CheckboxInput",
         property: {
+            type: "CheckboxInput",
             label: "Checkbox",
             placeholder: "placeholder",
-            required: "false",
+            validation: "",
             value: '',
             advance: {
                 backgroundColor: '#fff',
