@@ -54,6 +54,8 @@ type NodeSetting = {
         start4: string;
     },
     problemSolver: string;
+    isExpirable: boolean;
+
     // Add an index signature to allow any string-based key
     [key: string]: any;
 };
@@ -97,6 +99,7 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges
         BindingOption: data.BindingOption || '',
         loopingSetting: data.loopingSetting || {},
         problemSolver: data.problemSolver || '',
+        isExpirable: data.isExpirable || '',
     });
 
     const [doerList, setDoerList] = useState<{ value: string; label: string }[]>([]);
@@ -192,6 +195,7 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges
             BindingOption: data.BindingOption || '',
             loopingSetting: data.loopingSetting || {},
             problemSolver: data.problemSolver || '',
+            isExpirable: data.isExpirable || '',
         });
     }, [data]);
 
@@ -228,6 +232,7 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges
         data.BindingOption = nodeSetting.BindingOption;
         data.loopingSetting = nodeSetting.loopingSetting;
         data.problemSolver = nodeSetting.problemSolver;
+        data.isExpirable = nodeSetting.isExpirable;
 
         setNodes((prevNodes: any) =>
             prevNodes.map((node: any) =>
@@ -255,6 +260,7 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges
                             BindingOption: nodeSetting.BindingOption,
                             loopingSetting: nodeSetting.loopingSetting,
                             problemSolver: nodeSetting.problemSolver,
+                            isExpirable: nodeSetting.isExpirable,
                         }
                     }
                     : node
@@ -275,6 +281,18 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges
             [e.target.name]: e.target.value,  // Dynamically update the field in the state
         }));
     };
+
+    const handleBooleanChanges = (e: React.ChangeEvent<HTMLInputElement>): void => {
+        console.log(e.target.checked);  // Log the new boolean value
+    
+        // Update the state with the changed value (true or false based on the checkbox)
+        // setNodeSetting((prev) => ({
+        //     ...prev,
+        //     [e.target.name]: e.target.checked === "true" ? true : false,  // Dynamically update the boolean field in the state
+        // }));
+    };
+    
+
 
     const getBorderStyle = () => {
         if (!nodeSetting.assignDoerType || nodeSetting.assignDoerType.trim() === '') {
@@ -864,6 +882,72 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges
                             </Col>
                         </Row>
                         <hr />
+                        <p><strong>Expiry Logic</strong></p>
+                        <Row className=" mx-1 ">
+                            {/* Is Expirable Radio Buttons */}
+                            <Col lg={2}>
+                                <Form.Group controlId="isExpirable" className="mb-3 mt-1">
+                                    <Form.Label className="fs-16">Is Expirable</Form.Label>
+                                    <div className="d-flex">
+                                        <Form.Check
+                                            inline
+                                            type="radio"
+                                            id="statusDeactive"
+                                            name="isExpirable"
+                                            value="false"
+                                            label="No"
+                                            checked={nodeSetting.isExpirable === false}
+                                            onChange={handleBooleanChanges}
+                                        />
+                                        <Form.Check
+                                            inline
+                                            type="radio"
+                                            id="statusActive"
+                                            name="isExpirable"
+                                            value={1}
+                                            label="Yes"
+                                            checked={isExpirable === 1}
+                                            onChange={() => handleChangeExpirable(1)}
+                                        />
+                                    </div>
+                                </Form.Group>
+                            </Col>
+                            {isExpirable === 1 && (
+                                <Col lg={8} className="d-flex flex-row mt-2">
+                                    <Form.Group className="mx-2">
+                                        <Form.Label>Expiration Logic</Form.Label>
+                                        <Select
+                                            name="sundayLogic"
+                                            options={ExpiryLogic}
+                                            value={
+                                                ExpiryLogic.find(
+                                                    (opt) => opt.value === expiryLogic
+                                                ) || null
+                                            }
+                                            onChange={(selectedOption) => {
+                                                setExpiryLogic(selectedOption?.value)
+                                                setExpirationTime('')
+                                            }}
+                                            placeholder="Select expiry Logic"
+                                            required
+                                        />
+                                    </Form.Group>
+                                    {expiryLogic === `Expire On Defined Time` && (
+                                        <Form.Group className="ms-2">
+                                            <Form.Label>Expiration Time (hr)</Form.Label>
+                                            <Form.Control
+                                                type="number"
+                                                name="expirationTime"
+                                                value={expirationTime}
+                                                onChange={(e) => setExpirationTime(e.target.value)}
+                                                placeholder="Enter Time in Hours"
+                                                required
+                                            />
+                                        </Form.Group>
+                                    )}
+                                </Col>
+                            )}
+                        </Row>
 
 
                     </Modal.Body>
