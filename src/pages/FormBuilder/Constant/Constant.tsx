@@ -347,6 +347,11 @@ const START3 = [
     { label: 'state', value: 'STATE' }
 ]
 
+const EXPIRY_LOGIC = [
+    { label: 'Expire On Defined Time', value: 'expireOnDefinedTime' },
+    { label: 'Expire On Next Task Initiation', value: 'expireOnNextTaskInitiation' },
+]
+
 
 
 export {
@@ -357,5 +362,6 @@ export {
     END1,
     SHOW_HIDE,
     END2,
-    START3
+    START3,
+    EXPIRY_LOGIC,
 }
