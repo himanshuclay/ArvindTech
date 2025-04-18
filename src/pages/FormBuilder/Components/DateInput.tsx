@@ -65,10 +65,85 @@ const DateInput: React.FC<Props> = ({
                                         dateFormat: "Y-m-d",
                                         time_24hr: false,
                                         mode: dateMode,  // Use the validated dateMode here
+                                        ...(block.property.dateSelection === 'futureDateOnly(includingToday)' && {
+                                            minDate: new Date(),
+                                            maxDate: '',
+                                        }),
                                         ...(block.property.dateSelection === 'today' && {
                                             minDate: new Date(),
                                             maxDate: new Date(),
                                         }),
+                                        ...(block.property.dateSelection === 'futureDateOnly(Max15Days)' && {
+                                            minDate: new Date(),
+                                            maxDate: new Date(new Date().setDate(new Date().getDate() + 15)),
+                                        }),
+                                        ...(block.property.dateSelection === 'anyPastDateSelection' && {
+                                            minDate: '',
+                                            maxDate: new Date(),
+                                        }),
+                                        ...(block.property.dateSelection === 'anyPastDateWithNotBeyondPastDate' && {
+                                            minDate: block.property.minAllowedDate,
+                                            maxDate: new Date(),
+                                        }),
+                                        ...(block.property.dateSelection === 'anyFutureDateWithNotBeyondFutureDate' && {
+                                            minDate: new Date(),
+                                            maxDate: block.property.minAllowedDate,
+                                        }),
+                                        ...(block.property.dateSelection === 'notToday' && {
+                                            disable: [new Date()],
+                                        }),
+                                        ...(block.property.dateSelection === 'notThisDate' && block.property.minAllowedDate && {
+                                            disable: [new Date(block.property.minAllowedDate)],
+                                        }),
+                                        ...(block.property.dateSelection === 'blockWeek' && block.property.minAllowedDate
+                                            ? {
+                                                disable: [
+                                                    function (date: Date) {
+                                                        const minDateStr = block.property.minAllowedDate!;
+                                                        const refDate = new Date(minDateStr); // Now it's definitely string
+
+                                                        const day = refDate.getDay(); // Sunday = 0
+                                                        const startOfWeek = new Date(refDate);
+                                                        startOfWeek.setDate(refDate.getDate() - day); // Sunday of the week
+
+                                                        const endOfWeek = new Date(startOfWeek);
+                                                        endOfWeek.setDate(startOfWeek.getDate() + 6); // Saturday of the same week
+
+                                                        return date >= startOfWeek && date <= endOfWeek;
+                                                    }
+                                                ]
+                                            }
+                                            : {}
+                                        ),
+                                        ...(block.property.dateSelection === 'blockMonth' && block.property.minAllowedDate
+                                            ? {
+                                                disable: [
+                                                    function (date: Date) {
+                                                        const refDate = new Date(block.property.minAllowedDate!); // e.g., '2025-04-01'
+                                                        const blockMonth = refDate.getMonth(); // April = 3 (0-indexed)
+                                                        const blockYear = refDate.getFullYear();
+
+                                                        return (
+                                                            date.getMonth() === blockMonth &&
+                                                            date.getFullYear() === blockYear
+                                                        );
+                                                    }
+                                                ]
+                                            }
+                                            : {}
+                                        ),
+                                        ...(block.property.dateSelection === 'blockYear' && block.property.minAllowedDate
+                                            ? {
+                                                disable: [
+                                                    function (date: Date) {
+                                                        const refYear = new Date(block.property.minAllowedDate!).getFullYear(); // e.g., 2025
+
+                                                        return date.getFullYear() === refYear;
+                                                    }
+                                                ]
+                                            }
+                                            : {})
+
                                     }}
                                     className={`form-control ${validationErrors[id] ? "is-invalid" : ""}`}
                                 />

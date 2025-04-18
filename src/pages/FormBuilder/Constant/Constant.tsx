@@ -265,6 +265,25 @@ const FIELD_LIST = [
 
         }
     },
+    {
+        name: "CheckboxInput",
+        is: "CheckboxInput",
+        property: {
+            label: "Checkbox",
+            placeholder: "placeholder",
+            required: "false",
+            value: '',
+            advance: {
+                backgroundColor: '#fff',
+                color: '#000',
+
+            },
+            isShow: true,
+            disabled: false,
+            size: '12'
+
+        }
+    },
 ]
 
 const START1 = [

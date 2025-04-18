@@ -53,6 +53,7 @@ type NodeSetting = {
         start3: string;
         start4: string;
     },
+    problemSolver: string;
     // Add an index signature to allow any string-based key
     [key: string]: any;
 };
@@ -95,6 +96,7 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges
         TaskBinding: data.TaskBinding || '',
         BindingOption: data.BindingOption || '',
         loopingSetting: data.loopingSetting || {},
+        problemSolver: data.problemSolver || '',
     });
 
     const [doerList, setDoerList] = useState<{ value: string; label: string }[]>([]);
@@ -154,13 +156,11 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges
     };
 
 
+
     useEffect(() => {
         getDoerList();
-
-
         getProjectList();
         getRoleList();
-
     }, []);
 
     useEffect(() => {
@@ -191,6 +191,7 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges
             TaskBinding: data.TaskBinding || '',
             BindingOption: data.BindingOption || '',
             loopingSetting: data.loopingSetting || {},
+            problemSolver: data.problemSolver || '',
         });
     }, [data]);
 
@@ -226,6 +227,7 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges
         data.TaskBinding = nodeSetting.TaskBinding;
         data.BindingOption = nodeSetting.BindingOption;
         data.loopingSetting = nodeSetting.loopingSetting;
+        data.problemSolver = nodeSetting.problemSolver;
 
         setNodes((prevNodes: any) =>
             prevNodes.map((node: any) =>
@@ -252,6 +254,7 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges
                             TaskBinding: nodeSetting.TaskBinding,
                             BindingOption: nodeSetting.BindingOption,
                             loopingSetting: nodeSetting.loopingSetting,
+                            problemSolver: nodeSetting.problemSolver,
                         }
                     }
                     : node
@@ -341,7 +344,7 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges
             }));
             setPerviousOptionsList([]);
         }
-        if(nodeSetting.loopingSetting.start3){
+        if (nodeSetting.loopingSetting.start3) {
             const value = getAllBlockName(nodes, nodeSetting.loopingSetting.start3);
             setPerviousLoopingBlockList(value);
             setNodeSetting(prev => ({
@@ -361,7 +364,7 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges
             const value = getAllBlockOptions(nodes, nodeSetting.doerTaskNumber, nodeSetting.doerBlockName);
             setPerviousOptionsList(value);
         }
-        if(nodeSetting.loopingSetting.start4){
+        if (nodeSetting.loopingSetting.start4) {
             const value = getAllBlockOptions(nodes, nodeSetting.loopingSetting.start3, nodeSetting.loopingSetting.start4);
             setPerviousLoopingOptionsList(value);
         }
@@ -408,7 +411,6 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges
 
     //     console.log('Cloned node:', clonedNode);
     // };
-
 
 
 
@@ -777,7 +779,6 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges
                         </Row>
                         <hr />
                         <p><strong>Looping Setting (Rules)</strong></p>
-                        {JSON.stringify(nodeSetting.loopingSetting)}
                         <Row>
                             <Col lg={3}>
                                 <Form.Group>
@@ -832,6 +833,39 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges
                                 </Form.Group>
                             </Col>
                         </Row>
+                        <hr />
+                        <p><strong>Problem Solver</strong></p>
+                        <Row>
+                            <Col lg={3}>
+                                <Form.Group className="col-12 my-1">
+                                    <Form.Label>Problem Solver</Form.Label>
+                                    <Select
+                                        options={[
+                                            ...doerList,
+                                            { value: "ProjectCoordinator", label: "Project Coordinator" },
+                                            { value: "ProjectIncharge", label: "Project Incharge" }
+                                        ]}
+                                        value={[
+                                            ...doerList,
+                                            { value: "ProjectCoordinator", label: "Project Coordinator" },
+                                            { value: "ProjectIncharge", label: "Project Incharge" }
+                                        ].find(option => option.value === nodeSetting.problemSolver) || null}
+                                        onChange={(selectedOption) =>
+                                            setNodeSetting(prev => ({
+                                                ...prev,
+                                                problemSolver: selectedOption?.value || ''
+                                            }))
+                                        }
+                                        placeholder="Select a Doer"
+                                        isClearable
+                                        isSearchable
+                                    />
+                                </Form.Group>
+                            </Col>
+                        </Row>
+                        <hr />
+
+
                     </Modal.Body>
                     <Modal.Footer>
                         <button className="close-button" onClick={() => setShowSettings(false)}>Close</button>

@@ -19,6 +19,7 @@ import AmountInput from './Components/AmountInput';
 import FloatInput from './Components/FloatInput';
 import Looper from './Components/Looper';
 import RadioInput from './Components/RadioInput';
+import CheckboxInput from './Components/CheckboxInput';
 // import { speak } from '@/utils/speak';
 
 
@@ -63,7 +64,8 @@ const componentsMap = {
     FloatInput,
     Looper,
     RadioInput,
-    Paragraph
+    Paragraph,
+    CheckboxInput,
 };
 
 const DynamicComponentRenderer: React.FC<DynamicComponentProps> = ({ form, setForm, componentType, block, handleChange, validationErrors, blockValue, setBlockValue, setProperty }) => {

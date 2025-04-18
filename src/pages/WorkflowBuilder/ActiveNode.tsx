@@ -75,7 +75,6 @@ const ActiveNode = ({ activeNode, activeTaskId, setActiveNode, completedNodes, s
                     errors[block.property.id] = `${block.property.label} is required`;
                 }
             });
-console.log('errors', errors)
             setValidationErrors(errors);
             if (Object.keys(errors).length === 0) {
                 activeNode.data['blockValue'] = blockValue;
@@ -83,39 +82,44 @@ console.log('errors', errors)
                 activeNode.data['completedBy'] = localStorage.getItem("EmpId");
                 activeNode.data['completedBy'] = localStorage.getItem("EmpId");
                 activeNode.data.form = dynamicComponent ? dynamicComponent : form;
-                // let formData;
                 if (componentRefMap.current[dynamicComponent]) {
                     activeNode.data['blockValue'] = componentRefMap.current[dynamicComponent]?.[dynamicComponent]?.();
-                    // formData = componentRefMap.current[dynamicComponent]?.getAppointmentData?.().typeOfAppointment;
                 }
                 const query: any = {
                     id: activeTaskId,
                 }
                 if (Array.isArray(activeNode.data.outputLabels) && activeNode.data.outputLabels.length > 1) {
-                    const activeLabel = activeNode.data.blockValue?.typeOfAppointment;
-                    const matchedActiveLabel = activeNode.data.outputLabels.find(
-                        (label: any) => label === activeLabel
-                    );
+                    // activeNode.data.outputLabels.map((output: any) => {
+                    //     console.log('output', output)
+                    //     console.log('activeNode.data.blockValue', activeNode.data.blockValue)
+                    //     if(activeNode.data.blockValue[output]){
+                    //         query["outputLabel"] = output;
+                    //     }
+                    // })
+                    // const activeLabel = activeNode.data.blockValue?.typeOfAppointment;
+                    // const matchedActiveLabel = activeNode.data.outputLabels.find(
+                    //     (label: any) => label === activeLabel
+                    // );
 
-                    if (matchedActiveLabel) {
-                        // Direct match in the active node
-                        query["outputLabel"] = matchedActiveLabel;
+                    // if (matchedActiveLabel) {
+                    //     // Direct match in the active node
+                    //     query["outputLabel"] = matchedActiveLabel;
 
-                    } else {
-                        // Try matching against completed nodes
-                        for (const completeNode of completedNodes) {
-                            const completedLabel = completeNode.data.blockValue?.typeOfAppointment;
-                            console.log(completedLabel, activeNode.data.outputLabels)
-                            const matched = activeNode.data.outputLabels.find(
-                                (label: any) => label === completedLabel
-                            );
-                            console.log(matched)
-                            if (matched) {
-                                query["outputLabel"] = matched;
-                                break; // ✅ Exit loop once match is found
-                            }
-                        }
-                    }
+                    // } else {
+                    //     // Try matching against completed nodes
+                    //     for (const completeNode of completedNodes) {
+                    //         const completedLabel = completeNode.data.blockValue?.typeOfAppointment;
+                    //         console.log(completedLabel, activeNode.data.outputLabels)
+                    //         const matched = activeNode.data.outputLabels.find(
+                    //             (label: any) => label === completedLabel
+                    //         );
+                    //         console.log(matched)
+                    //         if (matched) {
+                    //             query["outputLabel"] = matched;
+                    //             break; // ✅ Exit loop once match is found
+                    //         }
+                    //     }
+                    // }
                 }
 
                 console.log('query', query);

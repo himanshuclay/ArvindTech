@@ -11,6 +11,7 @@ import PhoneInput from "../Components/PhoneInput";
 import Select from "../Components/Select";
 import TextInput from "../Components/TextInput";
 import Paragraph from "../Components/Paragraph";
+import CheckboxInput from "../Components/CheckboxInput";
 
 const componentsMap = {
     TextInput,
@@ -25,7 +26,8 @@ const componentsMap = {
     MultiSelectDropdown,
     AmountInput,
     FloatInput,
-    Paragraph
+    Paragraph,
+    CheckboxInput,
 };
 
 interface FIELD {
@@ -88,6 +90,7 @@ interface PROPERTY {
     blockCount?: number;
     mode?: string;
     groupName?: string;
+    minAllowedDate?: string;
 }
 interface OPTION { label: string; value: string }
 interface BLOCK_VALUE {

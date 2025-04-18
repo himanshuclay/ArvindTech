@@ -9,7 +9,7 @@ import MessCards from '../Component/Previous&Completed';
 import { getPlannedDate } from '../Component/PlanDateFunction';
 import ReactFlow, { Background, Controls, MiniMap, Node, useEdgesState, useNodesState } from 'reactflow';
 import CustomNode from '@/pages/WorkflowBuilder/CustomNode';
-import { FIELD } from '@/pages/FormBuilder/Constant/Interface';
+import { FIELD, PROPERTY } from '@/pages/FormBuilder/Constant/Interface';
 import STAFF_ALLOCATION_PLAN from '@/pages/WorkflowBuilder/DynamicSegment/STAFF_ALLOCATION_PLAN';
 import APPOINTMENT from '@/pages/WorkflowBuilder/DynamicSegment/APPOINTMENT';
 import NEW_APPOINTMENT from '@/pages/WorkflowBuilder/DynamicSegment/NEW_APPOINTMENT';
@@ -18,6 +18,7 @@ import INDUCTION from '@/pages/WorkflowBuilder/DynamicSegment/INDUCTION';
 import UPDATE_EMPLOYEE from '@/pages/WorkflowBuilder/DynamicSegment/UPDATE_EMPLOYEE';
 import APPOINTMENT_LETTER from '@/pages/WorkflowBuilder/DynamicSegment/APPOINTMENT_LETTER';
 import ASSIGN_TASK from '@/pages/WorkflowBuilder/DynamicSegment/ASSIGN_TASK';
+import Editor from '@/pages/FormBuilder/Editor';
 // import CustomNode from '@/pages/WorkflowBuilder/CustomNode';
 
 
@@ -83,8 +84,8 @@ const ProjectAssignTable: React.FC = () => {
   const [edges, setEdges] = useEdgesState([]);
 
   const [, setSelectedNode] = useState<Node | null>(null);
-  const [, setShowFormBuilder] = useState(false);
-  const [, setFormBuilder] = useState<FIELD>({
+  const [showFormBuilder, setShowFormBuilder] = useState(false);
+  const [formBuilder, setFormBuilder] = useState<FIELD>({
     name: '',
     blocks: [],
     editMode: true,
@@ -96,6 +97,20 @@ const ProjectAssignTable: React.FC = () => {
       color: '',
     }
   });
+  const [property, setProperty] = useState<PROPERTY>({
+    label: '',
+    id: '',
+    placeholder: '',
+    value: '',
+    required: "false",
+    options: [{ label: '', value: '' }],
+    advance: {
+        backgroundColor: '',
+        color: '',
+    },
+    isShow: false,
+    disabled: false,
+})
   const [, setIsAddFormBuilder] = useState(false);
   const [dynamicComponent, setDynamicComponent] = useState<string>('');
 
@@ -129,10 +144,10 @@ const ProjectAssignTable: React.FC = () => {
   // Function to handle node selection
   const onNodeClick = useCallback((_event: React.MouseEvent, node: Node) => {
     console.log(node);
-    if(node.data.completedBy && node.data.completedBy == localStorage.getItem("EmpId")){
+    if (node.data.completedBy && node.data.completedBy == localStorage.getItem("EmpId")) {
       setSelectedNode(node); // ✅ Sets the node you're editing
-      console.log(node.data.blockValue);
-      console.log(setShowFormBuilder);
+      // console.log(node.data.blockValue);
+      // console.log(setShowFormBuilder);
       setBlockValue(node.data.blockValue);
       if (node.data.form?.blocks?.length) {
         setShowFormBuilder(true);
@@ -142,18 +157,18 @@ const ProjectAssignTable: React.FC = () => {
         if (node.data.form != "ADD_NODE")
           setDynamicComponent(node.data.form);
       }
-    }else if(!node.data.completedBy){
-      setSelectedNode(node); // ✅ Sets the node you're editing
-      console.log(node.data.blockValue);
-      setBlockValue(node.data.blockValue);
-      if (node.data.form?.blocks?.length) {
-        setShowFormBuilder(true);
-        setFormBuilder(node.data.form); // ✅ Prefill existing form
-        setIsAddFormBuilder(false);
-      } else {
-        if (node.data.form != "ADD_NODE")
-          setDynamicComponent(node.data.form);
-      }
+    } else if (!node.data.completedBy) {
+      // setSelectedNode(node); // ✅ Sets the node you're editing
+      // console.log(node.data.blockValue);
+      // setBlockValue(node.data.blockValue);
+      // if (node.data.form?.blocks?.length) {
+      //   setShowFormBuilder(true);
+      //   setFormBuilder(node.data.form); // ✅ Prefill existing form
+      //   setIsAddFormBuilder(false);
+      // } else {
+      //   if (node.data.form != "ADD_NODE")
+      //     setDynamicComponent(node.data.form);
+      // }
     }
   }, []);
 
@@ -356,6 +371,7 @@ const ProjectAssignTable: React.FC = () => {
 
   const handleFormClose = () => {
     setDynamicComponent('')
+    setShowFormBuilder(false);
   };
 
 
@@ -416,6 +432,26 @@ const ProjectAssignTable: React.FC = () => {
               </div>
             </>
           }
+        </Modal.Body>
+      </Modal>
+
+      <Modal size='xl' show={showFormBuilder} onHide={handleFormClose} placement="end">
+        <Modal.Header closeButton>
+          <Modal.Title>Task Details</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          {formBuilder?.blocks?.length ? (
+            <Editor
+            form={formBuilder}
+            setForm={setFormBuilder}
+            property={property}
+            setProperty={setProperty}
+            blockValue={blockValue}
+            setBlockValue={setBlockValue}
+            isShowSave={false}
+            isPreview={true}
+            />
+          ) : ''}
         </Modal.Body>
       </Modal>
 

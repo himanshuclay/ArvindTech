@@ -2,6 +2,7 @@ import React from 'react';
 import { Accordion, Col, Form, Row } from 'react-bootstrap';
 import { FIELD, PROPERTY } from '../Constant/Interface';
 import { updatePropertyByID } from '../Constant/Functions';
+import Flatpickr from 'react-flatpickr';
 
 interface Props {
     form: FIELD;
@@ -180,8 +181,46 @@ const Property: React.FC<Props> = ({ form, setForm, property, setProperty, remov
                         onChange={handleChange}
                     >
                         <option value="none">None</option>
+                        <option value="futureDateOnly(includingToday)">Future Date Only (including Today)</option>
                         <option value="today">Today</option>
+                        <option value="futureDateOnly(Max15Days)">Future Date Only (Max 15 Days)</option>
+                        <option value="anyPastDateSelection">Any past Date selection</option>
+                        <option value="anyPastDateWithNotBeyondPastDate">Any Past Date With Not Beyond Past Date</option>
+                        <option value="anyFutureDateWithNotBeyondFutureDate">Any Future Date With Not Beyond Future Date</option>
+                        <option value="notToday">Not Today</option>
+                        <option value="notThisDate">Not This Date</option>
+                        <option value="blockWeek">Block Week</option>
+                        <option value="blockMonth">Block Month</option>
+                        <option value="blockYear">Block Year</option>
                     </select>
+                </div>
+            )}
+            {property.dateSelection && ["notThisDate", "anyPastDateWithNotBeyondPastDate", "anyFutureDateWithNotBeyondFutureDate", "blockWeek", "blockMonth", "blockYear"].includes(property.dateSelection) && (
+                <div className='d-flex justify-content-between align-items-center mt-2'>
+                    <label className='col-6'>Date Selection</label>
+                    <Flatpickr
+                        name="minAllowedDate"
+                        value={property.minAllowedDate}
+                        onChange={(selectedDates) => {
+                            const formattedDate = selectedDates.length > 0
+                                ? selectedDates[0].toISOString().split('T')[0]
+                                : '';
+
+                            const syntheticEvent = {
+                                target: { name: 'minAllowedDate', value: formattedDate }
+                            } as React.ChangeEvent<HTMLInputElement>;
+
+                            handleChange(syntheticEvent); // Your existing handler
+                        }}
+                        options={{
+                            enableTime: false,
+                            altInput: true,
+                            altFormat: 'Y-m-d',
+                            dateFormat: "Y-m-d",
+                            time_24hr: false,
+                            mode: 'single',  // Use the validated dateMode here
+                        }}
+                    />
                 </div>
             )}
             {property.hasOwnProperty('dateFormate') && (
