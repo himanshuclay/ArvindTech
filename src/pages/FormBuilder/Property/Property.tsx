@@ -162,7 +162,7 @@ const Property: React.FC<Props> = ({ form, setForm, property, setProperty, remov
                     <select
                         name="dateSelection"
                         className="border p-2 rounded col-6"
-                        value={property.validation}
+                        value={property.dateSelection}
                         onChange={handleChange}
                     >
                         <option value="none">None</option>
@@ -330,14 +330,14 @@ const Property: React.FC<Props> = ({ form, setForm, property, setProperty, remov
                     />
                 </div>
             )}
-            {property.hasOwnProperty('groupName') !== undefined && (
+            {property.hasOwnProperty('groupName') && (
                 <div className='d-flex justify-content-between align-items-center mt-2'>
                     <label className='col-6'>Group Name</label>
                     <input
                         type="text"
                         name="groupName"
                         className="border p-2 rounded col-6"
-                        value={property.groupName}
+                        value={property.groupName || ''}
                         onChange={handleChange}
                         placeholder="Enter Group Name"
                     />

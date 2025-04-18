@@ -128,10 +128,24 @@ const Editor: React.FC<EditorProps> = ({ form, setForm, property, setProperty, b
         const errors: { [key: string]: string } = {};
 
         form.blocks.forEach(block => {
-            if (block.property.validation === "required" && (!block.property.value || block.property.value.trim() === "")) {
-                errors[block.property.id] = `${block.property.label} is required`;
+            const { validation, value, label, id } = block.property;
+        
+            // Trimmed value for consistency
+            const trimmedValue = value?.toString().trim() || "";
+        
+            if (validation === "required" && trimmedValue === "") {
+                errors[id] = `${label} is required`;
+            }
+        
+            if (validation === "nonNegativeInteger" && !/^\d+$/.test(trimmedValue)) {
+                errors[id] = `${label} must be a non-negative integer`;
+            }
+        
+            if (validation === "positiveIntegerGreaterZero" && !/^[1-9]\d*$/.test(trimmedValue)) {
+                errors[id] = `${label} must be a positive integer greater than zero`;
             }
         });
+        
 
         setValidationErrors(errors);
 
