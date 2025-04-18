@@ -195,6 +195,7 @@ const [property, setProperty] = useState<PROPERTY>({
     id: '',
     placeholder: '',
     value: '',
+    type: '',
     required: "false",
     options: [{ label: '', value: '' }],
     advance: {

@@ -1,37 +1,37 @@
 import React from 'react';
 import { Form, InputGroup } from 'react-bootstrap';
-import { PROPERTY } from '../Constant/Interface';
+import { BASIC_FIELD, BLOCK_VALUE } from '../Constant/Interface';
 
 interface Props {
-    block: BasicField;  // Field with name and properties
+    block: BASIC_FIELD;
     handleChange: (e: React.ChangeEvent<HTMLInputElement>, id: string) => void;
-    validationErrors?: { [key: string]: string };  // Optional validation errors
-    editMode?: boolean;  // Disable input if true
+    validationErrors?: { [key: string]: string };
+    editMode?: boolean;
+    blockValue: BLOCK_VALUE;
+    setBlockValue: React.Dispatch<React.SetStateAction<BLOCK_VALUE>>;
 }
 
-interface BasicField {
-    name: string;
-    property: PROPERTY;
-}
 
 const AmountInput: React.FC<Props> = ({
     block,
     handleChange,
     validationErrors = {},
-    editMode = false,
+    editMode,
+    blockValue,
+    setBlockValue
 }) => {
     const isRequired = block.property.required === 'true';
 
     // Only allow numbers with optional 2 decimal places
-    const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const value = e.target.value;
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const { value } = e.target;
 
-        // Regular expression for a number with up to 2 decimal places
-        const regex = /^\d*\.?\d{0,2}$/;
+        setBlockValue((prevState) => ({
+            ...prevState,
+            [block.property.id]: value,
+        }));
 
-        if (value === '' || regex.test(value)) {
-            handleChange(e, block.property.id);
-        }
+        handleChange(e, block.property.id);
     };
 
     return (
@@ -48,8 +48,8 @@ const AmountInput: React.FC<Props> = ({
                         <Form.Control
                             type="text"
                             name={block.property.id}
-                            value={block.property.value}
-                            onChange={handleAmountChange}
+                            value={blockValue[block.property.id] || ''}
+                            onChange={handleInputChange}
                             placeholder={block.property.placeholder || 'Enter amount'}
                             disabled={editMode}
                             className={validationErrors[block.property.id] ? 'is-invalid' : ''}

@@ -4,6 +4,7 @@ import axios from 'axios';
 import { getBlockById, manageBind, manageShowHide } from './Constant/Functions';
 import { BASIC_FIELD, BLOCK_VALUE, FIELD, PROPERTY, RULE, TRIGGER_ACTION } from './Constant/Interface';
 import TextInput from './Components/TextInput';
+import Paragraph from './Components/Paragraph';
 import NumberInput from './Components/NumberInput';
 import EmailInput from './Components/EmailInput';
 import PhoneInput from './Components/PhoneInput';
@@ -17,6 +18,8 @@ import MultiSelectDropdown from './Components/MultiSelect';
 import AmountInput from './Components/AmountInput';
 import FloatInput from './Components/FloatInput';
 import Looper from './Components/Looper';
+import RadioInput from './Components/RadioInput';
+import CheckboxInput from './Components/CheckboxInput';
 // import { speak } from '@/utils/speak';
 
 
@@ -31,6 +34,7 @@ interface EditorProps {
     expandedRow?: number | null;
     isShowSave?: boolean;
     isPreview?: boolean;
+    validationErrorsList?: {[key: string]: string};
 }
 
 interface DynamicComponentProps {
@@ -59,6 +63,9 @@ const componentsMap = {
     AmountInput,
     FloatInput,
     Looper,
+    RadioInput,
+    Paragraph,
+    CheckboxInput,
 };
 
 const DynamicComponentRenderer: React.FC<DynamicComponentProps> = ({ form, setForm, componentType, block, handleChange, validationErrors, blockValue, setBlockValue, setProperty }) => {
@@ -67,6 +74,7 @@ const DynamicComponentRenderer: React.FC<DynamicComponentProps> = ({ form, setFo
     if (!ComponentToRender) {
         return <p>Component not found!</p>;
     }
+    console.log('validationErrors', validationErrors)
 
     return (
         // <div className={`${form.editMode ? 'cursor-not-allowed' : ''}`}>
@@ -87,7 +95,7 @@ const DynamicComponentRenderer: React.FC<DynamicComponentProps> = ({ form, setFo
     );
 };
 
-const Editor: React.FC<EditorProps> = ({ form, setForm, property, setProperty, blockValue, setBlockValue, expandedRow, isShowSave = true, isPreview = false }) => {
+const Editor: React.FC<EditorProps> = ({ form, setForm, property, setProperty, blockValue, setBlockValue, expandedRow, isShowSave = true, isPreview = false, validationErrorsList }) => {
     const [validationErrors, setValidationErrors] = useState<{ [key: string]: string }>({});
     const [triggeredActions, setTriggeredActions] = useState<TRIGGER_ACTION[]>([]);
     const [draggingOver, setDraggingOver] = useState<{ [key: string]: boolean }>({});  // Track if drag is over a zone
@@ -120,10 +128,24 @@ const Editor: React.FC<EditorProps> = ({ form, setForm, property, setProperty, b
         const errors: { [key: string]: string } = {};
 
         form.blocks.forEach(block => {
-            if (block.property.required === "true" && (!block.property.value || block.property.value.trim() === "")) {
-                errors[block.property.id] = `${block.property.label} is required`;
+            const { validation, value, label, id } = block.property;
+        
+            // Trimmed value for consistency
+            const trimmedValue = value?.toString().trim() || "";
+        
+            if (validation === "required" && trimmedValue === "") {
+                errors[id] = `${label} is required`;
+            }
+        
+            if (validation === "nonNegativeInteger" && !/^\d+$/.test(trimmedValue)) {
+                errors[id] = `${label} must be a non-negative integer`;
+            }
+        
+            if (validation === "positiveIntegerGreaterZero" && !/^[1-9]\d*$/.test(trimmedValue)) {
+                errors[id] = `${label} must be a positive integer greater than zero`;
             }
         });
+        
 
         setValidationErrors(errors);
 
@@ -323,6 +345,12 @@ const Editor: React.FC<EditorProps> = ({ form, setForm, property, setProperty, b
             }
         }
     }, [blockValue, triggeredActions]);
+
+    useEffect(() => {
+        if(validationErrorsList){
+            setValidationErrors(validationErrorsList);
+        }
+    },[validationErrorsList])
 
 
     return (

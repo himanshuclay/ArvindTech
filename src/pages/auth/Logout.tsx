@@ -21,7 +21,7 @@ const Logout = () => {
 		return (
 			<Row>
 				<Col xs={12} className="text-center">
-					<p className="text-dark-emphasis">
+					<p className="text-dark-emphasis mt-2">
 						Back To{' '}
 						<Link
 							to="/auth/login"
@@ -45,7 +45,7 @@ const Logout = () => {
 				starterClass
 			>
 				<div className="logout-icon m-auto">
-					<Image fluid src={shield} alt="" />
+					<Image fluid src={shield} alt="" className='w-50' />
 				</div>
 			</AuthLayout>
 		</>

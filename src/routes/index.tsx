@@ -10,6 +10,7 @@ import WorkflowBuilderList from '@/pages/WorkflowBuilder/WorkflowBuilderList.tsx
 import WorkflowBuilder from '@/pages/WorkflowBuilder/WorkflowBuilder.tsx'
 import Workflow from '@/pages/WorkflowBuilder/Workflow.tsx'
 import ProcessConfiguration from '@/pages/ProcessConfiguration/ProcessConfiguration.tsx'
+import ProcessRelation from '@/pages/ProcessConfiguration/ProcessRelation.tsx'
 import OtherTask from '@/pages/other/AdminSide/TrackTask/OtherTask.tsx'
 import Modules from '@/pages/other/DoerSide/Modules.tsx'
 import Process from '@/pages/other/DoerSide/Process.tsx'
@@ -978,6 +979,12 @@ const customPagesRoutes = {
 			path: 'pages/ProcessConfiguration',
 			name: 'Process Configuration',
 			element: <ProcessConfiguration />,
+			route: PrivateRoute,
+		},
+		{
+			path: 'pages/ProcessRelation',
+			name: 'Process Relation',
+			element: <ProcessRelation />,
 			route: PrivateRoute,
 		},
 		{

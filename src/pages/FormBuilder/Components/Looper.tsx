@@ -33,8 +33,10 @@ import FileUpload from "./FileUpload";
 import DateInput from "./DateInput";
 import MultiSelectDropdown from "./MultiSelect";
 import AmountInput from "./AmountInput";
+import Paragraph from './Paragraph';
 import FloatInput from "./FloatInput";
 import { speak } from "@/utils/speak";
+import CheckboxInput from "./CheckboxInput";
 
 const componentsMap = {
     TextInput,
@@ -49,6 +51,8 @@ const componentsMap = {
     MultiSelectDropdown,
     AmountInput,
     FloatInput,
+    Paragraph,
+    CheckboxInput
 };
 
 interface DynamicComponentProps {

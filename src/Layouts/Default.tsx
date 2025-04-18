@@ -5,24 +5,22 @@ import { useThemeContext } from '../common/context'
 import { changeHTMLAttribute } from '../utils'
 
 const loading = () => {
-    console.log('fallback arrived')
-    return <></>
+	console.log('fallback arrived')
+	return <></>
 }
 
 interface DefaultLayoutProps {
-    children?: ReactNode
+	children?: ReactNode
 }
 
 const DefaultLayout = ({ children }: DefaultLayoutProps) => {
-    const { settings } = useThemeContext()
+	const { settings } = useThemeContext()
 
-    useEffect(() => {
-        if (typeof window !== 'undefined') {
-            changeHTMLAttribute('data-bs-theme', settings.theme)
-        }
-    }, [settings.theme])
+	useEffect(() => {
+		changeHTMLAttribute('data-bs-theme', settings.theme)
+	}, [settings.theme])
 
-    return <Suspense fallback={loading()}>{children}</Suspense>
+	return <Suspense fallback={loading()}>{children}</Suspense>
 }
 
 export default DefaultLayout

@@ -138,14 +138,14 @@ const WorkflowBuilder: React.FC = () => {
         (params: Connection) => {
             setEdges((existingEdges) => {
                 // Check if the output handle already has a connection
-                const isAlreadyConnected = existingEdges.some(
-                    (edge) => edge.source === params.source && edge.sourceHandle === params.sourceHandle
-                );
+                // const isAlreadyConnected = existingEdges.some(
+                //     (edge) => edge.source === params.source && edge.sourceHandle === params.sourceHandle
+                // );
 
-                if (isAlreadyConnected) {
-                    alert("This output handle already has a connection.");
-                    return existingEdges; // Prevent multiple connections on the same output
-                }
+                // if (isAlreadyConnected) {
+                //     alert("This output handle already has a connection.");
+                //     return existingEdges; // Prevent multiple connections on the same output
+                // }
 
 
                 const newEdge: Edge = {
@@ -470,7 +470,7 @@ const WorkflowBuilder: React.FC = () => {
     return (
         <div>
             {/* Top Navigation Bar */}
-            <div className='bg-white d-flex align-items-center justify-content-between p-3' style={{ height: '3rem', borderBottom: '1px solid #ddd' }}>
+            <div className='bg-white d-flex align-items-center justify-content-between p-4' style={{ height: '3rem', borderBottom: '1px solid #ddd' }}>
                 <h5 className='m-0'>Workflow Builder</h5>
                 <Form.Group>
                     <Form.Control
@@ -481,7 +481,7 @@ const WorkflowBuilder: React.FC = () => {
                     />
                 </Form.Group>
                 <i onClick={toggleWorkflowSetting} className='ri-settings-5-fill' style={{ fontSize: '1.5rem', cursor: 'pointer' }}></i>
-                <button type='button' onClick={handleSaveWorkflowBuilder}>save workflow</button>
+                <button type='button' className='btn btn-primary' onClick={handleSaveWorkflowBuilder}><i className="ri-save-fill"></i> workflow</button>
             </div>
             <div className='row d-flex'>
                 <div className='col-9' style={{ height: 'calc(100vh - 200px)', position: 'relative' }}>

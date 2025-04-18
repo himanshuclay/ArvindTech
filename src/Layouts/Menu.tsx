@@ -41,9 +41,8 @@ const MenuItemWithChildren = ({
 		<li className={`side-nav-item ${open ? 'menuitem-active' : ''}`}>
 			<Link
 				to="#"
-				className={`side-nav-link ${linkClassName} ${
-					activeMenuItems!.includes(item.key) ? 'open' : ''
-				}`}
+				className={`side-nav-link ${linkClassName} ${activeMenuItems!.includes(item.key) ? 'open' : ''
+					}`}
 				aria-expanded={open}
 				data-menu-key={item.key}
 				onClick={toggleMenuItem}
@@ -226,7 +225,6 @@ const AppMenu = ({ menuItems }: AppMenuProps) => {
 
 	useEffect(() => {
 		activeMenu()
-		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [menuItems])
 
 	return (

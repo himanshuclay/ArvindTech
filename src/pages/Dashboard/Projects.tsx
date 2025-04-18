@@ -8,7 +8,7 @@ import { projects } from './data'
 
 const Projects = () => {
 	return (
-		<CustomCardPortlet cardTitle="Projects" titleClass="header-title">
+		<CustomCardPortlet cardTitle="Requested Sandboxes" titleClass="header-title">
 			<Table hover responsive className="table-nowrap mb-0">
 				<thead>
 					<tr>
@@ -17,7 +17,6 @@ const Projects = () => {
 						<th>Start Date</th>
 						<th>Due Date</th>
 						<th>Status</th>
-						<th>Assign</th>
 					</tr>
 				</thead>
 				<tbody>
@@ -30,11 +29,11 @@ const Projects = () => {
 								<td>{project.dueDate}</td>
 								<td>
 									<span
-										className={`badge bg-${project.variant}-subtle text-${project.variant}`}>
+										className={`badge bg-${project.variant}-subtle text-${project.variant}`}
+									>
 										{project.status}
 									</span>
 								</td>
-								<td>Techzaa Studio</td>
 							</tr>
 						)
 					})}

@@ -20,19 +20,19 @@ const TextInput: React.FC<Props> = ({
     setBlockValue
 }) => {
 
-    const isRequired = block.property.required === "true";
+    const isRequired = block.property.validation === "required";
     const isDisabled = !!(block.property.disabled);
 
-    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const { value } = e.target;
+        const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+            const { value } = e.target;
 
-        setBlockValue((prevState) => ({
-            ...prevState,
-            [block.property.id]: value,
-        }));
+            setBlockValue((prevState) => ({
+                ...prevState,
+                [block.property.id]: value,
+            }));
 
-        handleChange(e, block.property.id);
-    };
+            handleChange(e, block.property.id);
+        };
 
     return (
         <div>

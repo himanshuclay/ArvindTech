@@ -1052,11 +1052,11 @@ input.numInput.cur-year:hover {
   cursor: pointer;
 }
 
-.setting-button-design{
+.setting-button-design {
   background: none;
   border: none;
   cursor: pointer;
- 
+
 }
 
 .input-handle,
@@ -1274,4 +1274,9 @@ input.numInput.cur-year:hover {
   align-items: center;
   justify-content: center;
 
+}
+
+.h-100 .table-responsive
+{
+  height: 100%;
 }
