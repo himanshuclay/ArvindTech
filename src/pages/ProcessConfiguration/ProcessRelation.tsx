@@ -21,25 +21,36 @@ const ProcessRelation: React.FC = () => {
     const [relations, setRelations] = useState<Configuration[]>([]);
     const [templateOptions, setTemplateOptions] = useState<TemplateOption[]>([]);
 
-    useEffect(() => {
-        const fetchTemplates = async () => {
-            try {
-                const res = await axios.get(`${config.API_URL_ACCOUNT}/ProcessTaskMaster/GetTemplateJson`);
-                if (res.data.isSuccess) {
-                    const options = res.data.getTemplateJsons.map((item: any) => ({
-                        label: item.formName,
-                        value: item.formName
-                    }));
-                    setTemplateOptions(options);
-
-                }
-                console.log(templateOptions);
-            } catch (err) {
-                toast.error("Failed to fetch templates.");
+    const fetchRelations = async () => {
+        try {
+            const res = await axios.get(`${config.API_URL_ACCOUNT}/ProcessInitiation/GetStartItem`);
+            if (res.data.isSuccess) {
+                setRelations(res.data.startItems); // assumes the response is in [{start1: '', start2: ''}, ...] format
             }
-        };
+        } catch (err) {
+            toast.error("Failed to fetch saved relations.");
+        }
+    };
+    const fetchTemplates = async () => {
+        try {
+            const res = await axios.get(`${config.API_URL_ACCOUNT}/WorkflowBuilder/GetWorkflowBuilder`);
+            if (res.data.isSuccess) {
+                const options = res.data.workflowBuilderLists.map((item: any) => ({
+                    label: item.name,
+                    value: item.id.toString()
+                }));
+                setTemplateOptions(options);
 
+            }
+            console.log(templateOptions);
+        } catch (err) {
+            toast.error("Failed to fetch templates.");
+        }
+    };
+
+    useEffect(() => {
         fetchTemplates();
+        fetchRelations();
     }, []);
 
     const handleAddRelation = () => {
@@ -58,11 +69,23 @@ const ProcessRelation: React.FC = () => {
         setRelations(updated);
     };
 
-    const handleSave = () => {
-        const json = JSON.stringify(relations);
-        localStorage.setItem("processRelations", json);
-        toast.success("Relations saved to local storage!");
+    const handleSave = async () => {
+        try {
+            console.log(relations);
+            const response = await axios.post(`${config.API_URL_ACCOUNT}/ProcessInitiation/InsertStartItem`, relations);
+
+            if (response.data?.isSuccess) {
+                toast.success("Relations saved successfully!");
+            } else {
+                toast.error(response.data?.message || "Failed to save relations.");
+            }
+        } catch (error) {
+            console.error("API Error:", error);
+            toast.error("An error occurred while saving relations.");
+        }
+
     };
+    
 
     return (
         <div className="container mt-4">
@@ -82,51 +105,53 @@ const ProcessRelation: React.FC = () => {
             ) : (
                 <Card className="shadow-sm" style={{ height: "calc(100vh - 184px)", overflowY: "auto" }}>
                     <Card.Body>
-                        <Table responsive bordered className="align-middle">
-                            <thead className="table-light text-center">
-                                <tr>
-                                    <th>Start Form</th>
-                                    <th style={{ width: "50px" }}>→</th>
-                                    <th>End Form</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {relations.map((relation, index) => (
-                                    <tr key={index}>
-                                        <td>
-                                            <Select
-                                                options={templateOptions}
-                                                value={templateOptions.find(opt => opt.value === relation.start1) || null}
-                                                onChange={(selected) =>
-                                                    handleSelectChange(index, "start1", selected?.value || "")
-                                                }
-                                                placeholder="Select Start Form"
-                                            />
-                                        </td>
-                                        <td className="text-center">→</td>
-                                        <td>
-                                            <Select
-                                                options={templateOptions}
-                                                value={templateOptions.find(opt => opt.value === relation.start2) || null}
-                                                onChange={(selected) =>
-                                                    handleSelectChange(index, "start2", selected?.value || "")
-                                                }
-                                                placeholder="Select End Form"
-                                            />
-                                        </td>
-                                        <td className="text-center">
-                                            <i
-                                                className="ri-indeterminate-circle-line text-danger fs-5 mx-2 cursor-pointer"
-                                                onClick={() => handleRemoveRelation(index)}
-                                                title="Remove Relation"
-                                            ></i>
-                                        </td>
-
+                        <div className="h-100">
+                            <Table responsive bordered className="align-middle">
+                                <thead className="table-light text-center">
+                                    <tr>
+                                        <th>Start Form</th>
+                                        <th style={{ width: "50px" }}>→</th>
+                                        <th>End Form</th>
+                                        <th>Actions</th>
                                     </tr>
-                                ))}
-                            </tbody>
-                        </Table>
+                                </thead>
+                                <tbody>
+                                    {relations.map((relation, index) => (
+                                        <tr key={index}>
+                                            <td>
+                                                <Select
+                                                    options={templateOptions}
+                                                    value={templateOptions.find(opt => opt.value === relation.start1) || null}
+                                                    onChange={(selected) =>
+                                                        handleSelectChange(index, "start1", selected?.value || "")
+                                                    }
+                                                    placeholder="Select Start Form"
+                                                />
+                                            </td>
+                                            <td className="text-center">→</td>
+                                            <td>
+                                                <Select
+                                                    options={templateOptions}
+                                                    value={templateOptions.find(opt => opt.value === relation.start2) || null}
+                                                    onChange={(selected) =>
+                                                        handleSelectChange(index, "start2", selected?.value || "")
+                                                    }
+                                                    placeholder="Select End Form"
+                                                />
+                                            </td>
+                                            <td className="text-center">
+                                                <i
+                                                    className="ri-indeterminate-circle-line text-danger fs-5 mx-2 cursor-pointer"
+                                                    onClick={() => handleRemoveRelation(index)}
+                                                    title="Remove Relation"
+                                                ></i>
+                                            </td>
+
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </Table>
+                        </div>
                     </Card.Body>
                     <div className="text-end m-2">
                         <Button variant="primary" onClick={handleSave}>Save Relation</Button>
