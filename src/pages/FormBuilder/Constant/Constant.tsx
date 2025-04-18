@@ -44,6 +44,7 @@ const FIELD_LIST = [
 
             },
             isShow: true,
+            validation: '',
             disabled: false,
             size: '12'
 
@@ -184,7 +185,7 @@ const FIELD_LIST = [
     },
     {
         name: "MultiSelect",
-        is: "MultiSelect",
+        is: "MultiSelectDropdown",
         property: {
             label: "MultiSelect",
             placeholder: "placeholder",

@@ -188,6 +188,11 @@ const WorkflowBuilderList = () => {
                   Configuration
                 </Button>
               </Link>
+              <Link to='/pages/ProcessRelation'>
+                <Button variant="primary" className="me-2">
+                  Process Relation
+                </Button>
+              </Link>
             </>
 
           )}

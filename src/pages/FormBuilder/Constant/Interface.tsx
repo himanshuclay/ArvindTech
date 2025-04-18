@@ -79,7 +79,8 @@ interface PROPERTY {
     startDateId?: string;
     endDateId?:string;
     size?:string;
-    dateSelection?: string;  
+    dateSelection?: string;
+    validation?: string;  
     dateFormate?: string;  
     currencySymbol?: string;  
     decimalLimit?: string;  

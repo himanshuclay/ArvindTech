@@ -4,6 +4,7 @@ import { FIELD, PROPERTY } from '../Constant/Interface';
 import { updatePropertyByID } from '../Constant/Functions';
 import Flatpickr from 'react-flatpickr';
 
+
 interface Props {
     form: FIELD;
     setForm: React.Dispatch<React.SetStateAction<FIELD>>;
@@ -177,7 +178,21 @@ const Property: React.FC<Props> = ({ form, setForm, property, setProperty, remov
                     <select
                         name="dateSelection"
                         className="border p-2 rounded col-6"
-                        value={property.dateSelection}
+                        value={property.validation}
+                        onChange={handleChange}
+                    >
+                        <option value="none">None</option>
+                        <option value="today">Today</option>
+                    </select>
+                </div>
+            )}
+            {property.hasOwnProperty('Validation') && (
+                <div className='d-flex justify-content-between align-items-center mt-2'>
+                    <label className='col-6'>Validation</label>
+                    <select
+                        name="validation"
+                        className="border p-2 rounded col-6"
+                        value={property.validation}
                         onChange={handleChange}
                     >
                         <option value="none">None</option>
