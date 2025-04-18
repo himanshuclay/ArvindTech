@@ -223,6 +223,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({ formData, messName, showMessM
         id: '',
         placeholder: '',
         value: '',
+        type: '',
         required: "false",
         options: [{ label: '', value: '' }],
         advance: {

@@ -36,6 +36,7 @@ import AmountInput from "./AmountInput";
 import Paragraph from './Paragraph';
 import FloatInput from "./FloatInput";
 import { speak } from "@/utils/speak";
+import CheckboxInput from "./CheckboxInput";
 
 const componentsMap = {
     TextInput,
@@ -50,7 +51,8 @@ const componentsMap = {
     MultiSelectDropdown,
     AmountInput,
     FloatInput,
-    Paragraph
+    Paragraph,
+    CheckboxInput
 };
 
 interface DynamicComponentProps {

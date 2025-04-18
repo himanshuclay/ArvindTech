@@ -171,6 +171,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
         id: '',
         placeholder: '',
         value: '',
+        type: '',
         required: "false",
         options: [{ label: '', value: '' }],
         advance: {

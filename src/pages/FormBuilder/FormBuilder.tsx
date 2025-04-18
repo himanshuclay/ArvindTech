@@ -45,6 +45,7 @@ const FormBuilder: React.FC<FormBuilderProps> = ({ formDetails, handleClose, for
         id: '',
         placeholder: '',
         value: '',
+        type: '',
         required: "false",
         options: [{ label: '', value: '' }],
         advance: {
@@ -73,6 +74,7 @@ const FormBuilder: React.FC<FormBuilderProps> = ({ formDetails, handleClose, for
             placeholder: '',
             required: "false",
             value: '',
+            type: '',
             options: [{ label: '', value: '' }],
             advance: {
                 backgroundColor: '',

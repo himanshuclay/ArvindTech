@@ -46,6 +46,7 @@ const ActiveNode = ({ activeNode, activeTaskId, setActiveNode, completedNodes, s
         placeholder: '',
         value: '',
         required: "false",
+        type: '',
         options: [{ label: '', value: '' }],
         advance: {
             backgroundColor: '',

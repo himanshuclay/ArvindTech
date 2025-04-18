@@ -56,6 +56,7 @@ const MessCards: React.FC<{ data: Task[] }> = ({ data }) => {
         id: '',
         placeholder: '',
         value: '',
+        type: '',
         required: "false",
         options: [{ label: '', value: '' }],
         advance: {

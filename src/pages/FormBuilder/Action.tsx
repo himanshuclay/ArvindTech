@@ -32,6 +32,7 @@ const Action: React.FC<Props> = ({ actionProps }) => {
             placeholder: '',
             required: "false",
             value: '',
+            type: '',
             options: [{ label: '', value: '' }],
             advance: {
                 backgroundColor: '',

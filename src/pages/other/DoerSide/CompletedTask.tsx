@@ -102,6 +102,7 @@ const ProjectAssignTable: React.FC = () => {
     id: '',
     placeholder: '',
     value: '',
+    type: '',
     required: "false",
     options: [{ label: '', value: '' }],
     advance: {
