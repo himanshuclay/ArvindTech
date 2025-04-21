@@ -33,6 +33,8 @@ import ASSIGN_TASK from './DynamicSegment/ASSIGN_TASK';
 import CustomNode from './CustomNode';
 import BUSINESS_GROWTH_REVIEW from './DynamicSegment/BUSINESS_GROWTH_REVIEW';
 import SALARY_PROCESSING from './DynamicSegment/SELARY_PROCESSING';
+import { extractRecursively } from './Constant/function';
+
 
 const initialNodes: Node[] = [
     { id: '1', type: 'input', data: { label: 'Start Node', inputHandles: 1, outputHandles: 1 }, position: { x: 100, y: 100 } },
@@ -185,7 +187,7 @@ const WorkflowBuilder: React.FC = () => {
                 taskNumber: `T${nodes.length - 1}`,
                 inputHandles: action ? INPUT_HANDLES[action] : 1,
                 outputHandles: action ? OUTPUT_HANDLES[action] : form.configureSelectionLogics.length ? form.configureSelectionLogics[0].start2.length : 1,
-                outputLabels: action ? OUTPUT_LABELS[action] : form.configureSelectionLogics.length ? form.configureSelectionLogics[0].start2 : '',
+                outputLabels: action ? OUTPUT_LABELS[action] : form.configureSelectionLogics.length ? extractRecursively(form.configureSelectionLogics) : '',
             },
             position: { x, y },
         };
@@ -269,6 +271,7 @@ const WorkflowBuilder: React.FC = () => {
         };
     }, [selectedEdge]);
 
+
     useEffect(() => {
         if (formBuilder.blocks.length === 0) return;
 
@@ -294,7 +297,7 @@ const WorkflowBuilder: React.FC = () => {
                                     label: formBuilder.name || node.data.label,
                                     form: formBuilder,
                                     "outputHandles": formBuilder.configureSelectionLogics.length ? formBuilder.configureSelectionLogics[0].start2 : node.data.outputHandles,
-                                    "outputLabels": formBuilder.configureSelectionLogics.length ? formBuilder.configureSelectionLogics[0].start2 : node.data.outputLabels,
+                                    "outputLabels": formBuilder.configureSelectionLogics.length ? extractRecursively(formBuilder.configureSelectionLogics) : node.data.outputLabels,
                                 },
                             }
                             : node
@@ -312,7 +315,7 @@ const WorkflowBuilder: React.FC = () => {
                                     label: formBuilder.name || node.data.label,
                                     form: formBuilder,
                                     "outputHandles": formBuilder.configureSelectionLogics.length ? formBuilder.configureSelectionLogics[0].start2 : node.data.outputHandles,
-                                    "outputLabels": formBuilder.configureSelectionLogics.length ? formBuilder.configureSelectionLogics[0].start2 : node.data.outputLabels,
+                                    "outputLabels": formBuilder.configureSelectionLogics.length ? extractRecursively(formBuilder.configureSelectionLogics) : node.data.outputLabels,
                                 },
 
                             }

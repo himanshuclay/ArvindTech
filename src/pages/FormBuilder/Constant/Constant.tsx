@@ -352,6 +352,18 @@ const EXPIRY_LOGIC = [
     { label: 'Expire On Next Task Initiation', value: 'expireOnNextTaskInitiation' },
 ]
 
+const OPTIONS_SUNDAY_LOGIC = [
+    {
+        value: 'Increase Planned day by 1 Day ',
+        label: 'Increase Planned day by 1 Day ',
+    },
+    {
+        value: 'Keep making task as per logic ',
+        label: 'Keep making task as per logic ',
+    },
+    { value: 'Skip Creating task', label: 'Skip Creating task' },
+]
+
 
 
 export {
@@ -364,4 +376,5 @@ export {
     END2,
     START3,
     EXPIRY_LOGIC,
+    OPTIONS_SUNDAY_LOGIC
 }

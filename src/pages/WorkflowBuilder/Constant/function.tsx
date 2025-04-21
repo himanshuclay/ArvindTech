@@ -1,4 +1,4 @@
-import { BASIC_FIELD } from "@/pages/FormBuilder/Constant/Interface";
+import { BASIC_FIELD, LOGIC_ITEM } from "@/pages/FormBuilder/Constant/Interface";
 import { Edge, Node } from "reactflow";
 interface APISetting {
     name: string;
@@ -137,7 +137,20 @@ const getAllBlockOptions = (nodes: Node[], taskNumber: string, blockId: string) 
     return blockOptions;
 }
 
-
+const extractRecursively = (data: LOGIC_ITEM[], index = 0, acc: string[] = []): string[] => {
+    if (index >= data.length) return acc;
+  
+    const current = data[index];
+  
+    const recurseStart2 = (arr: string[], i = 0): string[] => {
+      if (i >= arr.length) return acc;
+      acc.push(`${current.start1}.${arr[i]}`);
+      return recurseStart2(arr, i + 1);
+    };
+  
+    recurseStart2(current.start2);
+    return extractRecursively(data, index + 1, acc);
+  };
 
 
 export {
@@ -147,4 +160,5 @@ export {
     getPreviousTaskList,
     getAllBlockName,
     getAllBlockOptions,
+    extractRecursively,
 }

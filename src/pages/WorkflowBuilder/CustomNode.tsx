@@ -11,7 +11,7 @@ import { APPOINTMENT, NEW_APPOINTMENT } from "./Constant/Binding";
 import { getAllBlockName, getAllBlockOptions, getBlockName, getPreviousTaskList } from "./Constant/function";
 import { toast } from "react-toastify";
 import { speak } from "@/utils/speak";
-import { EXPIRY_LOGIC } from "../FormBuilder/Constant/Constant";
+import { EXPIRY_LOGIC, OPTIONS_SUNDAY_LOGIC } from "../FormBuilder/Constant/Constant";
 
 interface DROP_DOWN {
     empId: string;
@@ -201,6 +201,7 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges
     }, [data]);
 
     const handleSaveDoer = () => {
+        console.log('nodeSetting', nodeSetting);
         const validationRules = [
             { field: 'label', message: 'Please Enter Task Name.' },
             { field: 'taskNumber', message: 'Please Enter Task Number.' },
@@ -215,7 +216,8 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges
                 return;
             }
         }
-        data.assignDoerType = nodeSetting.assignDoerType;
+        data = { ...nodeSetting },
+            data.assignDoerType = nodeSetting.assignDoerType;
         data.doer = nodeSetting.doer;
         data.role = nodeSetting.role
         data.taskTimeOptions = nodeSetting.taskTimeOptions;
@@ -285,14 +287,14 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges
 
     const handleBooleanChanges = (e: React.ChangeEvent<HTMLInputElement>): void => {
         console.log(e.target.value);  // Log the new boolean value
-    
+
         // Update the state with the changed value (true or false based on the checkbox)
         setNodeSetting((prev) => ({
             ...prev,
             [e.target.name]: e.target.value === "true" ? true : false,  // Dynamically update the boolean field in the state
         }));
     };
-    
+
 
 
     const getBorderStyle = () => {
@@ -883,68 +885,86 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges
                             </Col>
                         </Row>
                         <hr />
-                        <p><strong>Expiry Logic</strong></p>
                         <Row className=" mx-1 ">
+                            <p><strong>Expiry Logic</strong></p>
                             {/* Is Expirable Radio Buttons */}
-                            <Col lg={2}>
-                                <Form.Group controlId="isExpirable" className="mb-3 mt-1">
-                                    <Form.Label className="fs-16">Is Expirable</Form.Label>
-                                    <div className="d-flex">
-                                        <Form.Check
-                                            inline
-                                            type="radio"
-                                            id="statusDeactive"
-                                            name="isExpirable"
-                                            value="false"
-                                            label="No"
-                                            checked={nodeSetting.isExpirable === false}
-                                            onChange={handleBooleanChanges}
-                                        />
-                                        <Form.Check
-                                            inline
-                                            type="radio"
-                                            id="statusActive"
-                                            name="isExpirable"
-                                            value="true"
-                                            label="Yes"
-                                            checked={nodeSetting.isExpirable === true}
-                                            onChange={handleBooleanChanges}
-                                        />
-                                    </div>
-                                </Form.Group>
-                            </Col>
-                            {nodeSetting.isExpirable && (
-                                <Col lg={8} className="d-flex flex-row mt-2">
-                                    <Form.Group className="mx-2">
-                                        <Form.Label>Expiration Logic</Form.Label>
-                                        <Select
-                                            name="sundayLogic"
-                                            options={EXPIRY_LOGIC}
-                                            value={
-                                                EXPIRY_LOGIC.find((opt) => opt.value === nodeSetting.sundayLogic) || null
-                                            }
-                                            onChange={(selectedOption) =>
-                                                setNodeSetting(prev => ({ ...prev, sundayLogic: selectedOption?.value || '' }))
-                                            }
-                                            placeholder="Select expiry Logic"
-                                            required
-                                        />
+                            <Col className="row" lg={8}>
+                                <Col lg={3}>
+                                    <Form.Group controlId="isExpirable" className="mb-3 mt-1">
+                                        <Form.Label className="fs-16">Is Expirable</Form.Label>
+                                        <div className="d-flex">
+                                            <Form.Check
+                                                inline
+                                                type="radio"
+                                                id="statusDeactive"
+                                                name="isExpirable"
+                                                value="false"
+                                                label="No"
+                                                checked={nodeSetting.isExpirable === false}
+                                                onChange={handleBooleanChanges}
+                                            />
+                                            <Form.Check
+                                                inline
+                                                type="radio"
+                                                id="statusActive"
+                                                name="isExpirable"
+                                                value="true"
+                                                label="Yes"
+                                                checked={nodeSetting.isExpirable === true}
+                                                onChange={handleBooleanChanges}
+                                            />
+                                        </div>
                                     </Form.Group>
-                                    {nodeSetting.sundayLogic === `expireOnDefinedTime` && (
-                                        <Form.Group className="ms-2">
-                                            <Form.Label>Expiration Time (hr)</Form.Label>
-                                            <Form.Control
-                                                type="number"
-                                                name="expirationTime"
-                                                value={nodeSetting.expirationTime}
-                                                onChange={handleTaskTimeChange}
-                                                placeholder="Enter Time in Hours"
+                                </Col>
+                                {nodeSetting.isExpirable && (
+                                    <Col lg={9} className="d-flex flex-row">
+                                        <Form.Group className="mx-2">
+                                            <Form.Label>Expiration Logic</Form.Label>
+                                            <Select
+                                                name="expiryLogic" // ✅ Corrected spelling
+                                                options={EXPIRY_LOGIC}
+                                                value={EXPIRY_LOGIC.find((opt) => opt.value === nodeSetting.expiryLogic) || null}
+                                                onChange={(selectedOption) =>
+                                                    setNodeSetting(prev => ({ ...prev, expiryLogic: selectedOption?.value || '' }))
+                                                }
+                                                placeholder="Select expiry Logic"
                                                 required
                                             />
                                         </Form.Group>
-                                    )}
-                                </Col>
-                            )}
+
+                                        {nodeSetting.expiryLogic === `expireOnDefinedTime` && (
+                                            <Form.Group className="ms-2">
+                                                <Form.Label>Expiration Time (hr)</Form.Label>
+                                                <Form.Control
+                                                    type="number"
+                                                    name="expirationTime"
+                                                    value={nodeSetting.expirationTime}
+                                                    onChange={handleTaskTimeChange}
+                                                    placeholder="Enter Time in Hours"
+                                                    required
+                                                />
+                                            </Form.Group>
+                                        )}
+                                    </Col>
+                                )}
+                            </Col>
+                            <Col lg={4} className="">
+                                <Form.Group controlId="sundayLogic" className="mb-3">
+                                    <Form.Label>Sunday Logic</Form.Label>
+                                    <Select
+                                        name="sundayLogic"
+                                        options={OPTIONS_SUNDAY_LOGIC}
+                                        value={
+                                            OPTIONS_SUNDAY_LOGIC.find((opt) => opt.value === nodeSetting.sundayLogic) || null
+                                        }
+                                        onChange={(selectedOption) =>
+                                            setNodeSetting(prev => ({ ...prev, sundayLogic: selectedOption?.value || '' }))
+                                        }
+                                        placeholder="Select Sunday Logic"
+                                        required
+                                    />
+                                </Form.Group>
+                            </Col>
                         </Row>
 
 
