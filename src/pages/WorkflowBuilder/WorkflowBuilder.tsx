@@ -81,11 +81,7 @@ const WorkflowBuilder: React.FC = () => {
     });
 
     const nodeTypes = useMemo(() => ({
-<<<<<<< Updated upstream
         custom: (props: any) => <CustomNode {...props} setNodes={setNodes} edges={edges} nodes={nodes} setEdges={setEdges} setWorkflowBuilder={setWorkflowBuilder} setSelectedNode={setSelectedNode} />,
-=======
-        custom: (props: any) => <CustomNode {...props} setNodes={setNodes} edges={edges}  />,
->>>>>>> Stashed changes
     }), [setNodes, edges]);
 
     const [formBuilder, setFormBuilder] = useState<FIELD>({
@@ -206,12 +202,6 @@ const WorkflowBuilder: React.FC = () => {
         setShowSettings(!showSettings);
     };
 
-<<<<<<< Updated upstream
-=======
- 
-
-
->>>>>>> Stashed changes
 
 
     const handleDragStart = (e: React.DragEvent<HTMLDivElement>, field: string) => {

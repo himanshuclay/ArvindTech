@@ -20,7 +20,6 @@ interface DROP_DOWN {
     identifier?: string;
 }
 
-<<<<<<< Updated upstream
 interface roleDropDown {
     roleName: string;
     id: number;
@@ -63,9 +62,6 @@ type NodeSetting = {
 };
 
 const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges, setWorkflowBuilder, setSelectedNode }: { data: any; id: string; setNodes: any; edges: any[], isCompleteTask: boolean, nodes: any[], setEdges: any; setWorkflowBuilder: any; setSelectedNode: any }) => {
-=======
-const CustomNode = ({ data, id, setNodes, edges, isCompleteTask }: { data: any; id: string; setNodes: any; edges: any[], isCompleteTask: boolean }) => {
->>>>>>> Stashed changes
     const [showSettings, setShowSettings] = useState(false);
     const [showBinding, setShowBinding] = useState(false);
     const [loading, setLoading] = useState(false);
@@ -303,13 +299,8 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask }: { data: any; 
         if (!nodeSetting.assignDoerType || nodeSetting.assignDoerType.trim() === '') {
             return { border: '2px solid red' };
         }
-<<<<<<< Updated upstream
         if (isCompleteTask && data.completedBy == localStorage.getItem("EmpId")) {
             return { border: '4px solid green' };
-=======
-        if(isCompleteTask && data.completedBy == localStorage.getItem("EmpId")){
-            return {border: '4px solid green'};
->>>>>>> Stashed changes
         }
         return {};
     };
@@ -445,7 +436,6 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask }: { data: any; 
     return (
         <div className="custom-node" style={getBorderStyle()}>
             {/* Settings Icon */}
-<<<<<<< Updated upstream
             <div className="settings-button">
                 <button className="setting-button-design" onClick={(e) => { e.stopPropagation(); setShowBinding(!showBinding); }} disabled={isCompleteTask}>
                     <i className="ri-git-merge-line"></i>
@@ -460,11 +450,6 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask }: { data: any; 
                     <i className="ri-close-circle-line"></i>
                 </button>
             </div>
-=======
-            <button className="settings-button" onClick={(e) => { e.stopPropagation(); setShowSettings(!showSettings); }} disabled={isCompleteTask}>
-                <i className="ri-settings-3-fill"></i>
-            </button>
->>>>>>> Stashed changes
 
             {/* Settings Modal */}
             <Modal show={showSettings} backdrop="static" size='xl'>
