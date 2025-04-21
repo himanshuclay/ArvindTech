@@ -7,9 +7,15 @@ import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import config from '@/config';
 import MessCards from '../Component/Previous&Completed';
 import { getPlannedDate } from '../Component/PlanDateFunction';
+<<<<<<< Updated upstream
 import ReactFlow, { Background, Controls, MiniMap, Node, useEdgesState, useNodesState } from 'reactflow';
 import CustomNode from '@/pages/WorkflowBuilder/CustomNode';
 import { FIELD, PROPERTY } from '@/pages/FormBuilder/Constant/Interface';
+=======
+import ReactFlow, { Background, Controls, Edge, MiniMap, Node, useEdgesState, useNodesState } from 'reactflow';
+import CustomNode from '@/pages/WorkflowBuilder/CustomNode';
+import { FIELD } from '@/pages/FormBuilder/Constant/Interface';
+>>>>>>> Stashed changes
 import STAFF_ALLOCATION_PLAN from '@/pages/WorkflowBuilder/DynamicSegment/STAFF_ALLOCATION_PLAN';
 import APPOINTMENT from '@/pages/WorkflowBuilder/DynamicSegment/APPOINTMENT';
 import NEW_APPOINTMENT from '@/pages/WorkflowBuilder/DynamicSegment/NEW_APPOINTMENT';
@@ -18,7 +24,10 @@ import INDUCTION from '@/pages/WorkflowBuilder/DynamicSegment/INDUCTION';
 import UPDATE_EMPLOYEE from '@/pages/WorkflowBuilder/DynamicSegment/UPDATE_EMPLOYEE';
 import APPOINTMENT_LETTER from '@/pages/WorkflowBuilder/DynamicSegment/APPOINTMENT_LETTER';
 import ASSIGN_TASK from '@/pages/WorkflowBuilder/DynamicSegment/ASSIGN_TASK';
+<<<<<<< Updated upstream
 import Editor from '@/pages/FormBuilder/Editor';
+=======
+>>>>>>> Stashed changes
 // import CustomNode from '@/pages/WorkflowBuilder/CustomNode';
 
 
@@ -70,7 +79,16 @@ interface Column {
   visible: boolean;
 }
 
-
+interface APISetting {
+  name: string;
+  api: string;
+  id: number;
+}
+interface WorkflowBuilderConfig {
+  apiSetting: APISetting[];
+  edges: Edge[];
+  nodes: Node[];
+}
 
 
 const ProjectAssignTable: React.FC = () => {
@@ -83,20 +101,28 @@ const ProjectAssignTable: React.FC = () => {
   const [nodes, setNodes] = useNodesState([]);
   const [edges, setEdges] = useEdgesState([]);
 
+<<<<<<< Updated upstream
   const [, setSelectedNode] = useState<Node | null>(null);
+=======
+  const [selectedNode, setSelectedNode] = useState<Node | null>(null);
+>>>>>>> Stashed changes
   const [showFormBuilder, setShowFormBuilder] = useState(false);
   const [formBuilder, setFormBuilder] = useState<FIELD>({
     name: '',
     blocks: [],
     editMode: true,
     blockCount: 0,
+<<<<<<< Updated upstream
     configureSelectionLogics: [],
+=======
+>>>>>>> Stashed changes
     rules: [],
     advance: {
       backgroundColor: '',
       color: '',
     }
   });
+<<<<<<< Updated upstream
   const [property, setProperty] = useState<PROPERTY>({
     label: '',
     id: '',
@@ -113,6 +139,9 @@ const ProjectAssignTable: React.FC = () => {
     disabled: false,
 })
   const [, setIsAddFormBuilder] = useState(false);
+=======
+  const [isAddFormBuilder, setIsAddFormBuilder] = useState(false);
+>>>>>>> Stashed changes
   const [dynamicComponent, setDynamicComponent] = useState<string>('');
 
   const componentMap: { [key: string]: React.FC<any> } = {
@@ -141,6 +170,7 @@ const ProjectAssignTable: React.FC = () => {
     { id: 'isCompleted', label: 'Status', visible: true },
   ]);
 
+<<<<<<< Updated upstream
 
   // Function to handle node selection
   const onNodeClick = useCallback((_event: React.MouseEvent, node: Node) => {
@@ -170,6 +200,26 @@ const ProjectAssignTable: React.FC = () => {
       //   if (node.data.form != "ADD_NODE")
       //     setDynamicComponent(node.data.form);
       // }
+=======
+  const [workflowBuilder, setWorkflowBuilder] = useState<WorkflowBuilderConfig>({
+    apiSetting: [],
+    edges: [],
+    nodes: [],
+  });
+
+  // Function to handle node selection
+  const onNodeClick = useCallback((_event: React.MouseEvent, node: Node) => {
+    setSelectedNode(node); // ✅ Sets the node you're editing
+    console.log(node.data.blockValue);
+    setBlockValue(node.data.blockValue);
+    if (node.data.form?.blocks?.length) {
+      setShowFormBuilder(true);
+      setFormBuilder(node.data.form); // ✅ Prefill existing form
+      setIsAddFormBuilder(false);
+    } else {
+      if (node.data.form != "ADD_NODE")
+        setDynamicComponent(node.data.form);
+>>>>>>> Stashed changes
     }
   }, []);
 
@@ -203,6 +253,7 @@ const ProjectAssignTable: React.FC = () => {
           }
         );
         console.log('response', response)
+<<<<<<< Updated upstream
         setLoading(true);
         try {
           const role = localStorage.getItem('EmpId') || '';
@@ -241,6 +292,16 @@ const ProjectAssignTable: React.FC = () => {
         } else {
           console.error('API Response Error:', response.data?.message || 'Unknown error');
         }
+=======
+
+        if (response.data?.isSuccess) {
+          setData(response.data.getFilterTasks || []);
+          setTotalPages(Math.ceil(response.data.totalCount / 10)); // Setting pagination
+          console.log(response.data.getFilterTasks || []);
+        } else {
+          console.error('API Response Error:', response.data?.message || 'Unknown error');
+        }
+>>>>>>> Stashed changes
       } catch (error) {
         if (axios.isAxiosError(error)) {
           console.error('Axios Error:', error.message);
@@ -358,15 +419,31 @@ const ProjectAssignTable: React.FC = () => {
     fetchPreData(taskCommonId);
     setShow(true);
     if (item.templateJson) {
+<<<<<<< Updated upstream
       const templateJson = JSON.parse(item.templateJson);
       setNodes(templateJson.nodes);
       setEdges(templateJson.edges);
+=======
+      console.log('if')
+      const templateJson = JSON.parse(item.templateJson);
+      setNodes(templateJson.nodes);
+      setEdges(templateJson.edges);
+      // setWorkflowBuilder({
+      //   apiSetting: templateJson.apiSetting,
+      //   edges: templateJson.edges,
+      //   nodes: templateJson.nodes,
+      // })
+>>>>>>> Stashed changes
     }
   };
 
   const handleClose = () => {
     setShow(false);
     setPreData([]);
+  };
+
+  const handleFormClose = () => {
+    setDynamicComponent('')
   };
 
 
@@ -399,7 +476,10 @@ const ProjectAssignTable: React.FC = () => {
 
 
 
+<<<<<<< Updated upstream
 
+=======
+>>>>>>> Stashed changes
   return (
     <>
       <Modal size='xl' show={show} onHide={handleClose} placement="end">
@@ -412,10 +492,18 @@ const ProjectAssignTable: React.FC = () => {
             <MessCards data={preData} />
             :
             <>
+<<<<<<< Updated upstream
               <div className='col-12' style={{ height: 'calc(100vh - 200px)', position: 'relative' }}>
                 <ReactFlow
                   nodes={nodes}
                   edges={edges}
+=======
+              {/* {JSON.stringify(workflowBuilder)} */}
+              <div className='col-12' style={{ height: 'calc(100vh - 200px)', position: 'relative' }}>
+                <ReactFlow
+                  nodes={nodes || workflowBuilder.nodes}
+                  edges={edges || workflowBuilder.edges}
+>>>>>>> Stashed changes
                   // onNodesChange={handleNodesChange}
                   // onEdgesChange={onEdgesChange}
                   // onConnect={onConnect}
@@ -436,6 +524,7 @@ const ProjectAssignTable: React.FC = () => {
         </Modal.Body>
       </Modal>
 
+<<<<<<< Updated upstream
       <Modal size='xl' show={showFormBuilder} onHide={handleFormClose} placement="end">
         <Modal.Header closeButton>
           <Modal.Title>Task Details</Modal.Title>
@@ -456,6 +545,8 @@ const ProjectAssignTable: React.FC = () => {
         </Modal.Body>
       </Modal>
 
+=======
+>>>>>>> Stashed changes
       {dynamicComponent && (
         <Modal
           show={true}

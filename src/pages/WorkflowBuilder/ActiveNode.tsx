@@ -69,6 +69,7 @@ const ActiveNode = ({ activeNode, activeTaskId, setActiveNode, completedNodes, s
     }, [])
     const handleSumbitTask = async () => {
         try {
+<<<<<<< Updated upstream
             const errors: { [key: string]: string } = {};
 
             form.blocks.forEach(block => {
@@ -148,6 +149,59 @@ const ActiveNode = ({ activeNode, activeTaskId, setActiveNode, completedNodes, s
                 }
             } else {
                 console.log('Validation Errors:', errors);
+=======
+            activeNode.data['blockValue'] = blockValue;
+            activeNode.data['status'] = "completed";
+            activeNode.data['completedBy'] = localStorage.getItem("EmpId");
+            activeNode.data.form = dynamicComponent ? dynamicComponent : form;
+            let formData;
+            if (componentRefMap.current[dynamicComponent]) {
+                activeNode.data['blockValue'] = componentRefMap.current[dynamicComponent]?.[dynamicComponent]?.();
+                formData = componentRefMap.current[dynamicComponent]?.getAppointmentData?.().typeOfAppointment;
+            }
+            const query: any = {
+                id: activeTaskId,
+            }
+            if (activeNode.data.outputLabels.length > 1) {
+                const activeLabel = activeNode.data.blockValue?.typeOfAppointment;
+                const matchedActiveLabel = activeNode.data.outputLabels.find(
+                    (label: any) => label === activeLabel
+                );
+
+                if (matchedActiveLabel) {
+                    // Direct match in the active node
+                    query["outputLabel"] = matchedActiveLabel;
+
+                } else {
+                    // Try matching against completed nodes
+                    for (const completeNode of completedNodes) {
+                        const completedLabel = completeNode.data.blockValue?.typeOfAppointment;
+                        console.log(completedLabel, activeNode.data.outputLabels)
+                        const matched = activeNode.data.outputLabels.find(
+                            (label: any) => label === completedLabel
+                        );
+                        console.log(matched)
+                        if (matched) {
+                            query["outputLabel"] = matched;
+                            break; // ✅ Exit loop once match is found
+                        }
+                    }
+                }
+            }
+
+            console.log('query', query);
+            activeNode.data['nextNode'] = {};
+            activeNode.data['nextNode']['id'] = activeNode.id;
+            activeNode.data['nextNode']['sourceHandle'] = query.outputLabel;
+            query.jsonInput = JSON.stringify(activeNode)
+            const response = await axios.post(
+                `${config.API_URL_ACCOUNT}/ProcessInitiation/UpdateTemplateJson`,
+                query
+            );
+            if (response.data.isSuccess) {
+                toast.success(response.data.message);
+                setActiveNode("");
+>>>>>>> Stashed changes
             }
 
 
