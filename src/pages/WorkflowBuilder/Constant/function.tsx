@@ -137,6 +137,21 @@ const getAllBlockOptions = (nodes: Node[], taskNumber: string, blockId: string) 
     return blockOptions;
 }
 
+const updateIsPermanentRecursively = (
+    blocks: BASIC_FIELD[],
+    index: number = 0
+  ): BASIC_FIELD[] => {
+    if (index >= blocks.length) return blocks;
+  
+    const currentBlock = blocks[index];
+  
+    if (currentBlock.property.hasOwnProperty('isPermanent')) {
+      currentBlock.property.isPermanent = false;
+    }
+  
+    return updateIsPermanentRecursively(blocks, index + 1);
+  };
+
 const extractRecursively = (data: LOGIC_ITEM[], index = 0, acc: string[] = []): string[] => {
     if (index >= data.length) return acc;
   

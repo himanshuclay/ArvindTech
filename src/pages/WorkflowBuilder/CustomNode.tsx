@@ -12,6 +12,7 @@ import { getAllBlockName, getAllBlockOptions, getBlockName, getPreviousTaskList 
 import { toast } from "react-toastify";
 import { speak } from "@/utils/speak";
 import { EXPIRY_LOGIC, OPTIONS_SUNDAY_LOGIC } from "../FormBuilder/Constant/Constant";
+import { node } from "prop-types";
 
 interface DROP_DOWN {
     empId: string;
@@ -439,9 +440,11 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges
         <div className="custom-node" style={getBorderStyle()}>
             {/* Settings Icon */}
             <div className="settings-button">
+                {typeof data.form != "string" &&(
                 <button className="setting-button-design" onClick={(e) => { e.stopPropagation(); setShowBinding(!showBinding); }} disabled={isCompleteTask}>
                     <i className="ri-git-merge-line"></i>
                 </button>
+                ) }
                 <button className="setting-button-design" onClick={(e) => { e.stopPropagation(); setShowSettings(!showSettings); }} disabled={isCompleteTask}>
                     <i className="ri-settings-3-fill"></i>
                 </button>
