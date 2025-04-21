@@ -298,7 +298,7 @@ const Editor: React.FC<EditorProps> = ({ form, setForm, property, setProperty, b
         }
     };
     const someRule = () => {
-        console.log('triggeredActions', triggeredActions)
+        // console.log('triggeredActions', form.blocks)
         triggeredActions.forEach(action => {
             console.log('action', action)
             if (action.type === 'show_hide' && action.block) {

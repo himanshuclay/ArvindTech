@@ -93,6 +93,7 @@ interface PROPERTY {
     groupName?: string;
     minAllowedDate?: string;
     type: string;
+    isPermanent?: boolean;
 }
 interface OPTION { label: string; value: string }
 interface BLOCK_VALUE {

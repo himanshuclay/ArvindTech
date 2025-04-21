@@ -36,7 +36,7 @@ const TextInput: React.FC<Props> = ({
 
     return (
         <div>
-            {(block.property.isShow || editMode) && (
+            {(block.property.isShow || block.property.isPermanent || editMode) && (
                 <Form.Group controlId={block.property.id} className="mb-3">
                     <Form.Label>
                         {block.property.label}
