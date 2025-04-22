@@ -1,9 +1,9 @@
 import { Link } from 'react-router-dom'
 
 //images
-import logoDark from '@/assets/images/Clayimage.png'
-import logo from '@/assets/images/Clayimage.png'
-import logoSm from '@/assets/images/Clayimage.png'
+import logoDark from '@/assets/images/logo-dark.png'
+import logo from '@/assets/images/logo-dark.png'
+import logoSm from '@/assets/images/logo-dark.png'
 import { getMenuItems, useAuthContext } from '@/common'
 import AppMenu from './Menu'
 import SimpleBar from 'simplebar-react'
