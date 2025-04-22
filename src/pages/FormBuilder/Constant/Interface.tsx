@@ -93,6 +93,7 @@ interface PROPERTY {
     groupName?: string;
     minAllowedDate?: string;
     type: string;
+    isPermanent?: boolean;
 }
 interface OPTION { label: string; value: string }
 interface BLOCK_VALUE {
@@ -107,7 +108,14 @@ interface TRIGGER_ACTION {
         rule: RULE;
         value: string | OPTION[];
     };
-  }
+}
 
-export type { FIELD, PROPERTY, BASIC_FIELD, RULE, BLOCK_VALUE, ADVANCE, OPTION, TRIGGER_ACTION, CONFIGURE_SELECTION_LOGICS };
+interface LOGIC_ITEM{
+    start1: string;
+    start2: string[];
+    [key: string]: any;
+}
+
+
+export type { FIELD, PROPERTY, BASIC_FIELD, RULE, BLOCK_VALUE, ADVANCE, OPTION, TRIGGER_ACTION, CONFIGURE_SELECTION_LOGICS, LOGIC_ITEM };
 

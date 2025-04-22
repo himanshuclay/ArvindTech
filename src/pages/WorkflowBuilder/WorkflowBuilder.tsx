@@ -15,7 +15,7 @@ import ReactFlow, {
 import 'reactflow/dist/style.css';
 import WorkflowBuilderSetting from './WorkflowBuilderSetting';
 import FormBuilder from '../FormBuilder/FormBuilder';
-import { Form, Modal } from 'react-bootstrap';
+import { Form, Modal, Button } from 'react-bootstrap';
 import { FIELD } from '../FormBuilder/Constant/Interface';
 import { toast } from 'react-toastify';
 import axios from 'axios';
@@ -33,6 +33,8 @@ import ASSIGN_TASK from './DynamicSegment/ASSIGN_TASK';
 import CustomNode from './CustomNode';
 import BUSINESS_GROWTH_REVIEW from './DynamicSegment/BUSINESS_GROWTH_REVIEW';
 import SALARY_PROCESSING from './DynamicSegment/SELARY_PROCESSING';
+import { extractRecursively } from './Constant/function';
+
 
 const initialNodes: Node[] = [
     { id: '1', type: 'input', data: { label: 'Start Node', inputHandles: 1, outputHandles: 1 }, position: { x: 100, y: 100 } },
@@ -72,6 +74,7 @@ const WorkflowBuilder: React.FC = () => {
     const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
     const [selectedEdge, setSelectedEdge] = useState<Edge | null>(null)
     const [selectedNode, setSelectedNode] = useState<Node | null>(null);
+    const [confirmation, setConfirmation] = useState(false);
     // const [nodeId, setNodeId] = useState<number>(3);
     const [showSettings, setShowSettings] = useState<boolean>(false);
     const [workflowBuilder, setWorkflowBuilder] = useState<WorkflowBuilderConfig>({
@@ -185,7 +188,7 @@ const WorkflowBuilder: React.FC = () => {
                 taskNumber: `T${nodes.length - 1}`,
                 inputHandles: action ? INPUT_HANDLES[action] : 1,
                 outputHandles: action ? OUTPUT_HANDLES[action] : form.configureSelectionLogics.length ? form.configureSelectionLogics[0].start2.length : 1,
-                outputLabels: action ? OUTPUT_LABELS[action] : form.configureSelectionLogics.length ? form.configureSelectionLogics[0].start2 : '',
+                outputLabels: action ? OUTPUT_LABELS[action] : form.configureSelectionLogics.length ? extractRecursively(form.configureSelectionLogics) : '',
             },
             position: { x, y },
         };
@@ -269,6 +272,7 @@ const WorkflowBuilder: React.FC = () => {
         };
     }, [selectedEdge]);
 
+
     useEffect(() => {
         if (formBuilder.blocks.length === 0) return;
 
@@ -294,7 +298,7 @@ const WorkflowBuilder: React.FC = () => {
                                     label: formBuilder.name || node.data.label,
                                     form: formBuilder,
                                     "outputHandles": formBuilder.configureSelectionLogics.length ? formBuilder.configureSelectionLogics[0].start2 : node.data.outputHandles,
-                                    "outputLabels": formBuilder.configureSelectionLogics.length ? formBuilder.configureSelectionLogics[0].start2 : node.data.outputLabels,
+                                    "outputLabels": formBuilder.configureSelectionLogics.length ? extractRecursively(formBuilder.configureSelectionLogics) : node.data.outputLabels,
                                 },
                             }
                             : node
@@ -312,7 +316,7 @@ const WorkflowBuilder: React.FC = () => {
                                     label: formBuilder.name || node.data.label,
                                     form: formBuilder,
                                     "outputHandles": formBuilder.configureSelectionLogics.length ? formBuilder.configureSelectionLogics[0].start2 : node.data.outputHandles,
-                                    "outputLabels": formBuilder.configureSelectionLogics.length ? formBuilder.configureSelectionLogics[0].start2 : node.data.outputLabels,
+                                    "outputLabels": formBuilder.configureSelectionLogics.length ? extractRecursively(formBuilder.configureSelectionLogics) : node.data.outputLabels,
                                 },
 
                             }
@@ -365,6 +369,8 @@ const WorkflowBuilder: React.FC = () => {
                 id,
                 name,
                 workflowBuilder: JSON.stringify(workflowBuilder),
+                createdBy: localStorage.getItem('EmpName') + '-' + localStorage.getItem("EmpId"),
+                updatedBy: localStorage.getItem('EmpName') + '-' + localStorage.getItem("EmpId"),
             });
             console.log('response', response)
             if (response.data.isSuccess) {
@@ -400,6 +406,10 @@ const WorkflowBuilder: React.FC = () => {
     const handleClose = () => {
         setDynamicComponent('');
     }
+    // const handleFormBuilderClose = () => {
+    //     // setDynamicComponent('');
+    //     setConfirmation(true);
+    // }
 
     const fetchDoerById = async (id: string) => {
         try {
@@ -515,8 +525,9 @@ const WorkflowBuilder: React.FC = () => {
                         show={showFormBuilder}
                         backdrop="static" // Prevent closing when clicking outside the modal
                         size='xl'
+                        onHide={() => setShowFormBuilder(false)}
                     >
-                        <Modal.Header>
+                        <Modal.Header closeButton>
                             <Modal.Title>Edit Task for</Modal.Title>
                         </Modal.Header>
                         <Modal.Body>
@@ -553,6 +564,25 @@ const WorkflowBuilder: React.FC = () => {
                             </Modal.Body>
                         </Modal>
                     )}
+                    <Modal show={confirmation}>
+                        <Modal.Header closeButton>
+                            <Modal.Title>Confirm Deletion</Modal.Title>
+                        </Modal.Header>
+                        <Modal.Body>
+                            Are you sure you want to delete this 
+                        </Modal.Body>
+                        <Modal.Footer>
+                            <Button variant="secondary" onClick= {()=> {setConfirmation(false), setShowFormBuilder(false);}}>
+                                No
+                            </Button>
+                            <Button
+                                variant="danger"
+                                onClick={() => setConfirmation(true)}
+                            >
+                                Yes
+                            </Button>
+                        </Modal.Footer>
+                    </Modal>
                 </div>
             </div>
         </div>

@@ -950,7 +950,6 @@ const TaskCondition: React.FC<ProcessCanvasProps> = ({
 										)}
 									</Col>
 								)}
-								<Col></Col>
 							</Row>
 							<Col lg={4} className=" mx-2 ">
 								<Form.Group controlId="sundayLogic" className="mb-3">

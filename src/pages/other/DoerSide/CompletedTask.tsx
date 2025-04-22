@@ -399,7 +399,6 @@ const ProjectAssignTable: React.FC = () => {
 
 
 
-
   return (
     <>
       <Modal size='xl' show={show} onHide={handleClose} placement="end">

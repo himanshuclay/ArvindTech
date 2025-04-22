@@ -17,6 +17,7 @@ import config from "@/config";
 import { toast } from "react-toastify";
 
 const ActiveNode = ({ activeNode, activeTaskId, setActiveNode, completedNodes, setCompletedNodes }: { activeNode: any; activeTaskId: number; setActiveNode: (value: any) => void; completedNodes: any; setCompletedNodes: (value: any) => void; }) => {
+    console.log('activeNode', activeNode)
     const [form, setForm] = useState<FIELD>(
         activeNode.data?.form?.blocks?.length
             ? {
@@ -90,13 +91,18 @@ const ActiveNode = ({ activeNode, activeTaskId, setActiveNode, completedNodes, s
                     id: activeTaskId,
                 }
                 if (Array.isArray(activeNode.data.outputLabels) && activeNode.data.outputLabels.length > 1) {
-                    // activeNode.data.outputLabels.map((output: any) => {
-                    //     console.log('output', output)
-                    //     console.log('activeNode.data.blockValue', activeNode.data.blockValue)
-                    //     if(activeNode.data.blockValue[output]){
-                    //         query["outputLabel"] = output;
-                    //     }
-                    // })
+                    activeNode.data.outputLabels.forEach((output: any) => {
+                        const cleanedOutput = output.includes('.') ? output.split('.')[1] : output;
+                    
+                        const isMatch = Object.values(activeNode.data.blockValue).includes(cleanedOutput);
+                    
+                        if (isMatch) {
+                            console.log('Matched output:', cleanedOutput);
+                            query["outputLabel"] = cleanedOutput;
+                        }
+                    });
+                    
+                    
                     // const activeLabel = activeNode.data.blockValue?.typeOfAppointment;
                     // const matchedActiveLabel = activeNode.data.outputLabels.find(
                     //     (label: any) => label === activeLabel
@@ -128,10 +134,7 @@ const ActiveNode = ({ activeNode, activeTaskId, setActiveNode, completedNodes, s
                 activeNode.data['nextNode']['id'] = activeNode.id;
                 activeNode.data['nextNode']['sourceHandle'] = query.outputLabel;
                 query.jsonInput = JSON.stringify(activeNode)
-                activeNode.data['nextNode'] = {};
-                activeNode.data['nextNode']['id'] = activeNode.id;
-                activeNode.data['nextNode']['sourceHandle'] = query.outputLabel;
-                query.jsonInput = JSON.stringify(activeNode)
+                console.log('activeNode', activeNode)
 
                 if (activeLoop) {
                     query.activeLoop = activeLoop;
@@ -223,7 +226,7 @@ const ActiveNode = ({ activeNode, activeTaskId, setActiveNode, completedNodes, s
 
     return (
         <div>
-            {completedNodes.map((completeNode: any, index: number) => (
+            {/* {completedNodes.map((completeNode: any, index: number) => (
                 <div>
                     <React.Fragment key={index}>
                         {completeNode.data.form?.blocks?.length ? (
@@ -253,7 +256,7 @@ const ActiveNode = ({ activeNode, activeTaskId, setActiveNode, completedNodes, s
                     <hr />
                 </div>
 
-            ))}
+            ))} */}
 
             {activeNode.data.label && (<div>{activeNode.data.label}{activeLoop ? activeLoop.split('-')[1] : ''}</div>)}
             <div className="my-2 position-relative">

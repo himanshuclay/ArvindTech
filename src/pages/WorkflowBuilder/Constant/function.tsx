@@ -1,4 +1,4 @@
-import { BASIC_FIELD } from "@/pages/FormBuilder/Constant/Interface";
+import { BASIC_FIELD, LOGIC_ITEM } from "@/pages/FormBuilder/Constant/Interface";
 import { Edge, Node } from "reactflow";
 interface APISetting {
     name: string;
@@ -27,6 +27,7 @@ const getSource = (
 
 const getActiveNode: any = (workflowData: WorkflowBuilderConfig, id: string, sourceHandle?: string) => {
     const activeNode = getSource(workflowData, id, sourceHandle);
+    console.log('activeNode', activeNode)
     if (activeNode?.data.status === "completed") {
         return getActiveNode(workflowData, activeNode.data.nextNode.id, activeNode.data.nextNode.sourceHandle);
     } else {
@@ -137,7 +138,35 @@ const getAllBlockOptions = (nodes: Node[], taskNumber: string, blockId: string) 
     return blockOptions;
 }
 
+const updateIsPermanentRecursively = (
+    blocks: BASIC_FIELD[],
+    index: number = 0
+  ): BASIC_FIELD[] => {
+    if (index >= blocks.length) return blocks;
+  
+    const currentBlock = blocks[index];
+  
+    if (currentBlock.property.hasOwnProperty('isPermanent')) {
+      currentBlock.property.isPermanent = false;
+    }
+  
+    return updateIsPermanentRecursively(blocks, index + 1);
+  };
 
+const extractRecursively = (data: LOGIC_ITEM[], index = 0, acc: string[] = []): string[] => {
+    if (index >= data.length) return acc;
+  
+    const current = data[index];
+  
+    const recurseStart2 = (arr: string[], i = 0): string[] => {
+      if (i >= arr.length) return acc;
+      acc.push(`${current.start1}.${arr[i]}`);
+      return recurseStart2(arr, i + 1);
+    };
+  
+    recurseStart2(current.start2);
+    return extractRecursively(data, index + 1, acc);
+  };
 
 
 export {
@@ -147,4 +176,6 @@ export {
     getPreviousTaskList,
     getAllBlockName,
     getAllBlockOptions,
+    extractRecursively,
+    updateIsPermanentRecursively,
 }
