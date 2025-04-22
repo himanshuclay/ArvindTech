@@ -176,13 +176,13 @@ const Dashboard = () => {
 			) : (<>
 
 
-				<Row className="mt-3 text-dark">
+				{/* <Row className="mt-3 text-dark">
 					<Col lg={6}>
 						<Row className='mb-3'>
 							<Col>
 								<div className='d-flex justify-content-between align-items-center py-3  px-3 bg-white rounded shadow-sm'>
 									<div>
-										<p className='mb-1'>Doers Managed By Me</p>
+										<p className='mb-1'>Total Orders</p>
 										<h3>146</h3>
 									</div>
 									<div><i className='ri-group-line fs-18'></i></div>
@@ -266,7 +266,72 @@ const Dashboard = () => {
 					</Col>
 
 
-				</Row>
+				</Row> */}
+				<div className="row mt-4">
+					<div className="col-xxl-3 col-sm-6">
+						<div className="card widget-flat text-bg-success">
+							<div className="card-body">
+								<div className="float-end">
+									<i className="ri-shopping-cart-line widget-icon"></i>
+								</div>
+								<h6 className="text-uppercase mt-0" title="Customers">Total Orders</h6>
+								<h2 className="my-2">200</h2>
+								<p className="mb-0">
+									<span className="badge bg-white bg-opacity-10 me-1">2.97%</span>
+									<span className="text-nowrap">Since last month</span>
+								</p>
+							</div>
+						</div>
+					</div>
+
+					<div className="col-xxl-3 col-sm-6">
+						<div className="card widget-flat text-bg-purple">
+							<div className="card-body">
+								<div className="float-end">
+									<i className="ri-wallet-2-line widget-icon"></i>
+								</div>
+								<h6 className="text-uppercase mt-0" title="Customers">Total Purchase Orders (POs)</h6>
+								<h2 className="my-2">145</h2>
+								<p className="mb-0">
+									<span className="badge bg-white bg-opacity-10 me-1">18.25%</span>
+									<span className="text-nowrap">Since last month</span>
+								</p>
+							</div>
+						</div>
+					</div>
+
+					<div className="col-xxl-3 col-sm-6">
+						<div className="card widget-flat text-bg-info">
+							<div className="card-body">
+								<div className="float-end">
+									<i className="ri-shopping-basket-line widget-icon"></i>
+								</div>
+								<h6 className="text-uppercase mt-0" title="Customers">Total Order Value</h6>
+								<h2 className="my-2">$753458</h2>
+								<p className="mb-0">
+									<span className="badge bg-white bg-opacity-25 me-1">-5.75%</span>
+									<span className="text-nowrap">Since last month</span>
+								</p>
+							</div>
+						</div>
+					</div>
+
+					<div className="col-xxl-3 col-sm-6">
+						<div className="card widget-flat text-bg-primary">
+							<div className="card-body">
+								<div className="float-end">
+									<i className="ri-group-2-line widget-icon"></i>
+								</div>
+								<h6 className="text-uppercase mt-0" title="Customers">Users</h6>
+								<h2 className="my-2">63,154</h2>
+								<p className="mb-0">
+									<span className="badge bg-white bg-opacity-10 me-1">8.21%</span>
+									<span className="text-nowrap">Since last month</span>
+								</p>
+							</div>
+						</div>
+					</div>
+				</div>
 
 
 				<Row className='mt-4'>
