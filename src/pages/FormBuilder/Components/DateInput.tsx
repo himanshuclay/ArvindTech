@@ -4,19 +4,21 @@ import { BASIC_FIELD, BLOCK_VALUE } from '../Constant/Interface';
 import Flatpickr from 'react-flatpickr';
 
 interface Props {
-    block: BASIC_FIELD;
-    handleChange: (e: React.ChangeEvent<HTMLInputElement>, id: string) => void;
-    validationErrors?: { [key: string]: string };
-    editMode?: boolean;
-    blockValue: BLOCK_VALUE;
+     block: BASIC_FIELD;
+        handleChange: (e: React.ChangeEvent<HTMLInputElement>, id: string) => void;
+        validationErrors?: { [key: string]: string };
+        editMode?: boolean;
+        blockValue: BLOCK_VALUE;
+        setBlockValue: React.Dispatch<React.SetStateAction<BLOCK_VALUE>>;
 }
 
 const DateInput: React.FC<Props> = ({
     block,
     handleChange,
     validationErrors = {},
-    editMode = false,
-    blockValue
+    editMode,
+    blockValue,
+    setBlockValue
 }) => {
     const { id, label, placeholder, required, disabled, isShow, dateFormate, mode } = block.property;
 
@@ -32,13 +34,19 @@ const DateInput: React.FC<Props> = ({
         const formattedDate = selectedDates.length > 0
             ? selectedDates[0].toISOString().split('T')[0]
             : '';
-
+    
+        setBlockValue((prevState) => ({
+            ...prevState,
+            [id]: formattedDate,
+        }));
+    
         const syntheticEvent = {
             target: { value: formattedDate }
         } as React.ChangeEvent<HTMLInputElement>;
-
+    
         handleChange(syntheticEvent, id);
     };
+    
 
     return (
         <div>

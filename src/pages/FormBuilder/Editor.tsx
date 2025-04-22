@@ -20,6 +20,7 @@ import FloatInput from './Components/FloatInput';
 import Looper from './Components/Looper';
 import RadioInput from './Components/RadioInput';
 import CheckboxInput from './Components/CheckboxInput';
+import { updateIsPermanentRecursively } from '../WorkflowBuilder/Constant/function';
 // import { speak } from '@/utils/speak';
 
 
@@ -299,6 +300,13 @@ const Editor: React.FC<EditorProps> = ({ form, setForm, property, setProperty, b
     };
     const someRule = () => {
         // console.log('triggeredActions', form.blocks)
+        let formBlock = updateIsPermanentRecursively(form.blocks)
+        if(formBlock.length){
+            setForm(prevForm => ({
+                ...prevForm,
+                blocks: formBlock,
+            }));
+        }
         triggeredActions.forEach(action => {
             console.log('action', action)
             if (action.type === 'show_hide' && action.block) {
@@ -361,6 +369,7 @@ const Editor: React.FC<EditorProps> = ({ form, setForm, property, setProperty, b
             onDragOver={(e) => handleDragOver(e, 'Editor')}
             onDragLeave={(e) => handleDragLeave(e, 'Editor')}
         >
+            {/* {JSON.stringify(blockValue)} */}
             <fieldset disabled={isPreview}>
                 <div className='d-flex flex-wrap'>
 

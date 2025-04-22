@@ -27,6 +27,7 @@ const getSource = (
 
 const getActiveNode: any = (workflowData: WorkflowBuilderConfig, id: string, sourceHandle?: string) => {
     const activeNode = getSource(workflowData, id, sourceHandle);
+    console.log('activeNode', activeNode)
     if (activeNode?.data.status === "completed") {
         return getActiveNode(workflowData, activeNode.data.nextNode.id, activeNode.data.nextNode.sourceHandle);
     } else {
@@ -176,4 +177,5 @@ export {
     getAllBlockName,
     getAllBlockOptions,
     extractRecursively,
+    updateIsPermanentRecursively,
 }

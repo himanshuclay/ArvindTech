@@ -15,7 +15,7 @@ import ReactFlow, {
 import 'reactflow/dist/style.css';
 import WorkflowBuilderSetting from './WorkflowBuilderSetting';
 import FormBuilder from '../FormBuilder/FormBuilder';
-import { Form, Modal } from 'react-bootstrap';
+import { Form, Modal, Button } from 'react-bootstrap';
 import { FIELD } from '../FormBuilder/Constant/Interface';
 import { toast } from 'react-toastify';
 import axios from 'axios';
@@ -74,6 +74,7 @@ const WorkflowBuilder: React.FC = () => {
     const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
     const [selectedEdge, setSelectedEdge] = useState<Edge | null>(null)
     const [selectedNode, setSelectedNode] = useState<Node | null>(null);
+    const [confirmation, setConfirmation] = useState(false);
     // const [nodeId, setNodeId] = useState<number>(3);
     const [showSettings, setShowSettings] = useState<boolean>(false);
     const [workflowBuilder, setWorkflowBuilder] = useState<WorkflowBuilderConfig>({
@@ -368,6 +369,8 @@ const WorkflowBuilder: React.FC = () => {
                 id,
                 name,
                 workflowBuilder: JSON.stringify(workflowBuilder),
+                createdBy: localStorage.getItem('EmpName') + '-' + localStorage.getItem("EmpId"),
+                updatedBy: localStorage.getItem('EmpName') + '-' + localStorage.getItem("EmpId"),
             });
             console.log('response', response)
             if (response.data.isSuccess) {
@@ -402,6 +405,10 @@ const WorkflowBuilder: React.FC = () => {
 
     const handleClose = () => {
         setDynamicComponent('');
+    }
+    const handleFormBuilderClose = () => {
+        // setDynamicComponent('');
+        setConfirmation(true);
     }
 
     const fetchDoerById = async (id: string) => {
@@ -518,8 +525,9 @@ const WorkflowBuilder: React.FC = () => {
                         show={showFormBuilder}
                         backdrop="static" // Prevent closing when clicking outside the modal
                         size='xl'
+                        onHide={() => setShowFormBuilder(false)}
                     >
-                        <Modal.Header>
+                        <Modal.Header closeButton>
                             <Modal.Title>Edit Task for</Modal.Title>
                         </Modal.Header>
                         <Modal.Body>
@@ -556,6 +564,25 @@ const WorkflowBuilder: React.FC = () => {
                             </Modal.Body>
                         </Modal>
                     )}
+                    <Modal show={confirmation}>
+                        <Modal.Header closeButton>
+                            <Modal.Title>Confirm Deletion</Modal.Title>
+                        </Modal.Header>
+                        <Modal.Body>
+                            Are you sure you want to delete this 
+                        </Modal.Body>
+                        <Modal.Footer>
+                            <Button variant="secondary" onClick= {()=> {setConfirmation(false), setShowFormBuilder(false);}}>
+                                No
+                            </Button>
+                            <Button
+                                variant="danger"
+                                onClick={() => setConfirmation(true)}
+                            >
+                                Yes
+                            </Button>
+                        </Modal.Footer>
+                    </Modal>
                 </div>
             </div>
         </div>
