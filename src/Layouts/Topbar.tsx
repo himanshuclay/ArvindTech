@@ -6,7 +6,7 @@ import { useEffect, useState } from 'react'
 // assets
 import logo from '@/assets/images/logo.png'
 import logoSm from '@/assets/images/logo-sm.png'
-import logoDark from '@/assets/images/logo-dark.png'
+import logoDark from '@/assets/images/Clayimage.png'
 import profilePic from '@/assets/images/avatar.png'
 
 

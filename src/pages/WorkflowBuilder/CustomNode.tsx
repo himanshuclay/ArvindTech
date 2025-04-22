@@ -12,7 +12,7 @@ import { getAllBlockName, getAllBlockOptions, getBlockName, getPreviousTaskList 
 import { toast } from "react-toastify";
 import { speak } from "@/utils/speak";
 import { EXPIRY_LOGIC, OPTIONS_SUNDAY_LOGIC } from "../FormBuilder/Constant/Constant";
-import { node } from "prop-types";
+// import { node } from "prop-types";
 
 interface DROP_DOWN {
     empId: string;

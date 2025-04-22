@@ -34,6 +34,10 @@
   flex-direction: column;
 }
 
+tr td {
+  padding: 1rem 0.6rem!important;
+}
+
 .loader-fixed {
   display: flex;
   justify-content: center;

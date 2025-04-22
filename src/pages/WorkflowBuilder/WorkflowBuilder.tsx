@@ -406,10 +406,10 @@ const WorkflowBuilder: React.FC = () => {
     const handleClose = () => {
         setDynamicComponent('');
     }
-    const handleFormBuilderClose = () => {
-        // setDynamicComponent('');
-        setConfirmation(true);
-    }
+    // const handleFormBuilderClose = () => {
+    //     // setDynamicComponent('');
+    //     setConfirmation(true);
+    // }
 
     const fetchDoerById = async (id: string) => {
         try {

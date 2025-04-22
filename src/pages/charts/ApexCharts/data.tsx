@@ -1411,36 +1411,36 @@ export const SimplePieOpt: ApexOptions = {
 // Simple Donut Chart
 export const SimpleDonutOpt: ApexOptions = {
 	chart: {
-		height: 320,
-		type: 'donut',
+	  height: 320,
+	  type: 'donut',
 	},
-	series: [40, 60, 45, 22, 18],
+	series: [50, 40, 10], // Example: Total Orders = 50, Completed Orders = 40, Pending Orders = 10
 	legend: {
-		show: true,
-		position: 'bottom',
-		horizontalAlign: 'center',
-		// verticalAlign: 'middle',
-		floating: false,
-		fontSize: '14px',
-		offsetX: 0,
-		offsetY: 7,
+	  show: true,
+	  position: 'bottom',
+	  horizontalAlign: 'center',
+	  floating: false,
+	  fontSize: '14px',
+	  offsetX: 0,
+	  offsetY: 7,
 	},
-	labels: ['Series 1', 'Series 2', 'Series 3', 'Series 4', 'Series 5'],
-	colors: ['#3bc0c3', '#6c757d', '#4489e4', '#d03f3f', '#edc755'],
+	labels: ['Total Orders', 'Completed Orders', 'Pending Orders'],
+	colors: ['#3bc0c3', '#4489e4', '#d03f3f'], // Colors for each segment
 	responsive: [
-		{
-			breakpoint: 600,
-			options: {
-				chart: {
-					height: 240,
-				},
-				legend: {
-					show: false,
-				},
-			},
+	  {
+		breakpoint: 600,
+		options: {
+		  chart: {
+			height: 240,
+		  },
+		  legend: {
+			show: false,
+		  },
 		},
+	  },
 	],
-}
+  }
+  
 
 //   BasicPolar Area Chart
 export const BasicPolarAreaOpt: ApexOptions = {
