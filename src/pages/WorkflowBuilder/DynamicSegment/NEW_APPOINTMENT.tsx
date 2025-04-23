@@ -32,7 +32,7 @@ interface BlockValue {
 
 
 const NEW_APPOINTMENT = forwardRef((props: any, ref) => {
-    const [blockValue, setBlockValue] = useState<BlockValue>(Object.keys(props.blockValue).length ? props.blockValue : {
+    const [blockValue, setBlockValue] = useState<BlockValue>(props.blockValue && Object.keys(props.blockValue).length ? props.blockValue : {
         updateInterviewedCandidates: {},
         finalizedCandidate: '',
         attendanceAndWorkingHoursPolicy: '',
