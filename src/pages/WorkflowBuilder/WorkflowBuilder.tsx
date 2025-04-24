@@ -347,32 +347,27 @@ const WorkflowBuilder: React.FC = () => {
     }, [edges])
 
     const handleSaveWorkflowBuilder = async () => {
-        console.log('Final updated workflowBuilder:', workflowBuilder);
-
-        console.log('nodes', nodes)
-        console.log('name', name)
-
         try {
             if (!name) {
                 toast.info("Please Fill Workflow Name");
                 return;
             }
-            // Update workflowBuilder with the latest nodes before saving
             setWorkflowBuilder((prev) => ({
                 ...prev,
                 nodes: nodes,  // Ensure latest nodes with doer info is saved
             }));
-
-
+            let updateNode = {
+                edges,
+                nodes,
+            }
             const response = await axios.post(
                 `${config.API_URL_ACCOUNT}/WorkflowBuilder/InsertWorkflowBuilder`, {
                 id,
                 name,
-                workflowBuilder: JSON.stringify(workflowBuilder),
+                workflowBuilder: JSON.stringify(updateNode),
                 createdBy: localStorage.getItem('EmpName') + '-' + localStorage.getItem("EmpId"),
                 updatedBy: localStorage.getItem('EmpName') + '-' + localStorage.getItem("EmpId"),
             });
-            console.log('response', response)
             if (response.data.isSuccess) {
                 toast.success(response.data.message);
                 navigate('/pages/WorkflowBuilderList')
@@ -406,10 +401,7 @@ const WorkflowBuilder: React.FC = () => {
     const handleClose = () => {
         setDynamicComponent('');
     }
-    // const handleFormBuilderClose = () => {
-    //     // setDynamicComponent('');
-    //     setConfirmation(true);
-    // }
+
 
     const fetchDoerById = async (id: string) => {
         try {
