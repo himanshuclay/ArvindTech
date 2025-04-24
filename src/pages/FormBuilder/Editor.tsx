@@ -298,16 +298,18 @@ const Editor: React.FC<EditorProps> = ({ form, setForm, property, setProperty, b
     };
     const someRule = () => {
         // console.log('triggeredActions', form.blocks)
-        let formBlock = updateIsPermanentRecursively(form.blocks)
-        if(formBlock.length){
-            setForm(prevForm => ({
-                ...prevForm,
-                blocks: formBlock,
-            }));
-        }
-        triggeredActions.forEach(action => {
+        let formBlock = updateIsPermanentRecursively(triggeredActions);
+        // if(formBlock.length){
+        //     setForm(prevForm => ({
+        //         ...prevForm,
+        //         blocks: formBlock,
+        //     }));
+        // }
+        console.log('triggeredActions', formBlock)
+        formBlock.forEach(action => {
             if (action.type === 'show_hide' && action.block) {
                 const updatedBlock = manageShowHide(action.block, action.rule.rule, blockValue) as BASIC_FIELD;
+                console.log('updatedBlock', updatedBlock)
                 setForm(prevForm => ({
                     ...prevForm,
                     blocks: prevForm.blocks.map(block =>
