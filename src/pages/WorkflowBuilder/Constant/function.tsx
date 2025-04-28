@@ -1,4 +1,4 @@
-import { BASIC_FIELD, LOGIC_ITEM } from "@/pages/FormBuilder/Constant/Interface";
+import { BASIC_FIELD, LOGIC_ITEM, TRIGGER_ACTION } from "@/pages/FormBuilder/Constant/Interface";
 import { Edge, Node } from "reactflow";
 interface APISetting {
     name: string;
@@ -139,18 +139,17 @@ const getAllBlockOptions = (nodes: Node[], taskNumber: string, blockId: string) 
 }
 
 const updateIsPermanentRecursively = (
-    blocks: BASIC_FIELD[],
+    triggeredActions: TRIGGER_ACTION[],
     index: number = 0
-  ): BASIC_FIELD[] => {
-    if (index >= blocks.length) return blocks;
+  ): TRIGGER_ACTION[] => {
+    if (index >= triggeredActions.length) return triggeredActions;
   
-    const currentBlock = blocks[index];
-  
-    if (currentBlock.property.hasOwnProperty('isPermanent')) {
-      currentBlock.property.isPermanent = false;
+    const currentBlock = triggeredActions[index];
+    if (currentBlock.block && currentBlock.block.property.hasOwnProperty('isPermanent')) {
+      currentBlock.block.property.isPermanent = false;
     }
   
-    return updateIsPermanentRecursively(blocks, index + 1);
+    return updateIsPermanentRecursively(triggeredActions, index + 1);
   };
 
 const extractRecursively = (data: LOGIC_ITEM[], index = 0, acc: string[] = []): string[] => {

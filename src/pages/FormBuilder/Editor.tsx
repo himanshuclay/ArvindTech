@@ -71,7 +71,6 @@ const componentsMap = {
 
 const DynamicComponentRenderer: React.FC<DynamicComponentProps> = ({ form, setForm, componentType, block, handleChange, validationErrors, blockValue, setBlockValue, setProperty }) => {
     const ComponentToRender = componentsMap[componentType];
-
     if (!ComponentToRender) {
         return <p>Component not found!</p>;
     }
@@ -241,7 +240,6 @@ const Editor: React.FC<EditorProps> = ({ form, setForm, property, setProperty, b
                         `${config.API_URL_APPLICATION}/FormBuilder/GetValue`,
                         form.rules
                     );
-                    console.log('response', response)
                     if (response.data.isSuccess) {
                         const updatedActions = response.data.rules.map((rule: any) => {
                             rule.rule = JSON.parse(rule.rule);
@@ -300,17 +298,18 @@ const Editor: React.FC<EditorProps> = ({ form, setForm, property, setProperty, b
     };
     const someRule = () => {
         // console.log('triggeredActions', form.blocks)
-        let formBlock = updateIsPermanentRecursively(form.blocks)
-        if(formBlock.length){
-            setForm(prevForm => ({
-                ...prevForm,
-                blocks: formBlock,
-            }));
-        }
-        triggeredActions.forEach(action => {
-            console.log('action', action)
+        let formBlock = updateIsPermanentRecursively(triggeredActions);
+        // if(formBlock.length){
+        //     setForm(prevForm => ({
+        //         ...prevForm,
+        //         blocks: formBlock,
+        //     }));
+        // }
+        console.log('triggeredActions', formBlock)
+        formBlock.forEach(action => {
             if (action.type === 'show_hide' && action.block) {
                 const updatedBlock = manageShowHide(action.block, action.rule.rule, blockValue) as BASIC_FIELD;
+                console.log('updatedBlock', updatedBlock)
                 setForm(prevForm => ({
                     ...prevForm,
                     blocks: prevForm.blocks.map(block =>
@@ -319,8 +318,6 @@ const Editor: React.FC<EditorProps> = ({ form, setForm, property, setProperty, b
                 }));
             } else if (action.type === 'bind' && action.bindBlock) {
                 const updatedBlockValue = manageBind(action.bindBlock, blockValue, action.rule);
-                console.log('updatedBlockValue', updatedBlockValue)
-                console.log('form', form)
                 if (['Select', 'MultiSelect'].includes(action.bindBlock.is)) {
                     setForm(prevForm => ({
                         ...prevForm,
@@ -391,7 +388,6 @@ const Editor: React.FC<EditorProps> = ({ form, setForm, property, setProperty, b
                                         )}
                                     </div>
                                 )}
-
                                 <div
                                     id={block.property.id}
                                     key={index}
