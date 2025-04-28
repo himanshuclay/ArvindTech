@@ -1,12 +1,11 @@
-import { Col, Row, Card } from 'react-bootstrap'
+import { Button, Col, Form, Row } from 'react-bootstrap'
 import { useEffect, useState } from 'react';
-import ReactApexChart from 'react-apexcharts'
 import axios from 'axios';
-// import config from '@/config';
-// import Flatpickr from 'react-flatpickr';
+import config from '@/config';
+import Flatpickr from 'react-flatpickr';
 import 'flatpickr/dist/themes/material_green.css';
-// import Select from 'react-select';
-// import { Doughnut } from "react-chartjs-2";
+import Select from 'react-select';
+import { Doughnut } from "react-chartjs-2";
 import { PageBreadcrumb } from '@/components';
 import {
 	Chart as ChartJS,
@@ -14,52 +13,27 @@ import {
 	Tooltip,
 	Legend,
 } from "chart.js";
-import { SimpleDonutOpt } from '../charts/ApexCharts/data';
 
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
-// // Define API response type
-// interface MISReportData {
-// 	isSuccess: boolean;
-// 	message: string;
-// 	totalTasks: number;
-// 	tasksNotDone: number;
-// 	taskNotDoneOnTime: number;
-// 	p1: number;
-// 	p2: number;
-// }
+// Define API response type
+interface MISReportData {
+	isSuccess: boolean;
+	message: string;
+	totalTasks: number;
+	tasksNotDone: number;
+	taskNotDoneOnTime: number;
+	p1: number;
+	p2: number;
+}
 
 
 const Dashboard = () => {
 
-	// const [startDate, setStartDate] = useState<string>("2025-02-24");
-	// const [endDate, setEndDate] = useState<string>("2025-03-03");
-	// const [data, setData] = useState<MISReportData | null>(null);
-
-	const [dashboardData, setDashboardData] = useState({
-		totalOrderCount: 0,
-		totalPurchaseOrderCount: 0,
-		totalOrderValue: 0,
-		totalCompletedOrderCount: 0,
-	});
-
-	useEffect(() => {
-		axios.get('https://arvindo-api.clay.in/api/ProcessInitiation/GetProcurementOrder')
-			.then((response) => {
-				if (response.data.isSuccess) {
-					setDashboardData({
-						totalOrderCount: response.data.totalOrderCount,
-						totalPurchaseOrderCount: response.data.totalPurchaseOrderCount,
-						totalOrderValue: response.data.totalOrderValue,
-						totalCompletedOrderCount: response.data.totalCompletedOrderCount,
-					});
-				}
-			})
-			.catch((error) => {
-				console.error("There was an error fetching the data!", error);
-			});
-	}, []);
+	const [startDate, setStartDate] = useState<string>("2025-02-24");
+	const [endDate, setEndDate] = useState<string>("2025-03-03");
+	const [data, setData] = useState<MISReportData | null>(null);
 
 	// const getPastMondays = (): string[] => {
 	// 	const mondays: string[] = [];
@@ -80,113 +54,113 @@ const Dashboard = () => {
 	// 	return mondays;
 	// };
 
-	// const handleStartDateChange = ([date]: Date[]) => {
-	// 	console.log(date);
-	// 	if (!date) return;
+	const handleStartDateChange = ([date]: Date[]) => {
+		console.log(date);
+		if (!date) return;
 
-	// 	const adjustedDate = new Date(date.getTime() - (date.getTimezoneOffset() * 60000));
-	// 	const formattedStartDate = adjustedDate.toISOString().split("T")[0];
+		const adjustedDate = new Date(date.getTime() - (date.getTimezoneOffset() * 60000));
+		const formattedStartDate = adjustedDate.toISOString().split("T")[0];
 
-	// 	console.log(formattedStartDate);
+		console.log(formattedStartDate);
 
-	// 	const sundayDate = new Date(date);
-	// 	sundayDate.setDate(date.getDate() + 6);
-	// 	const formattedEndDate = sundayDate.toISOString().split("T")[0];
+		const sundayDate = new Date(date);
+		sundayDate.setDate(date.getDate() + 6);
+		const formattedEndDate = sundayDate.toISOString().split("T")[0];
 
-	// 	setStartDate(formattedStartDate);
-	// 	setEndDate(formattedEndDate);
-	// };
+		setStartDate(formattedStartDate);
+		setEndDate(formattedEndDate);
+	};
 
 
 
-	// const fetchMISData = async () => {
-	// 	if (!startDate || !endDate) {
-	// 		alert("Please select a valid date range (Monday to Sunday).");
-	// 		return;
-	// 	}
+	const fetchMISData = async () => {
+		if (!startDate || !endDate) {
+			alert("Please select a valid date range (Monday to Sunday).");
+			return;
+		}
 
-	// 	try {
-	// 		const response = await axios.get<MISReportData>(
-	// 			`${config.API_URL_ACCOUNT}/MIS/GetMISReport?DoerID=llp03411&StartDate=${startDate}&EndDate=${endDate}`
-	// 		);
-	// 		if (response.data.isSuccess) {
-	// 			setData(response.data);
-	// 		}
-	// 	} catch (error) {
-	// 		console.error("Error fetching MIS data:", error);
-	// 	}
-	// };
+		try {
+			const response = await axios.get<MISReportData>(
+				`${config.API_URL_ACCOUNT}/MIS/GetMISReport?DoerID=llp03411&StartDate=${startDate}&EndDate=${endDate}`
+			);
+			if (response.data.isSuccess) {
+				setData(response.data);
+			}
+		} catch (error) {
+			console.error("Error fetching MIS data:", error);
+		}
+	};
 
-	// useEffect(() => {
-	// 	if (startDate && endDate) {
-	// 		fetchMISData();
-	// 	}
-	// }, [startDate, endDate]);
+	useEffect(() => {
+		if (startDate && endDate) {
+			fetchMISData();
+		}
+	}, [startDate, endDate]);
 
 	// if (!data) {
 	// 	return <p>Loading...</p>;
 	// }
 
-	// const p1 = data?.p1 ?? 0;
-	// const p2 = data?.p2 ?? 0;
-	// const totalTasks = data?.totalTasks ?? 0;
-	// const tasksNotDone = data?.tasksNotDone ?? 0;
-	// const taskNotDoneOnTime = data?.taskNotDoneOnTime ?? 0;
+	const p1 = data?.p1 ?? 0;
+	const p2 = data?.p2 ?? 0;
+	const totalTasks = data?.totalTasks ?? 0;
+	const tasksNotDone = data?.tasksNotDone ?? 0;
+	const taskNotDoneOnTime = data?.taskNotDoneOnTime ?? 0;
 
 
-	// const taskCompleted = totalTasks - tasksNotDone;
-	// const taskChartData = {
-	// 	labels: ["Completed Tasks", "Tasks Not Done", "Tasks Not Done on Time"],
-	// 	datasets: [
-	// 		{
-	// 			data: [taskCompleted, tasksNotDone, taskNotDoneOnTime],
-	// 			backgroundColor: ["#28a745", "#dc3545", "#ffc107"],
-	// 			hoverBackgroundColor: ["#218838", "#c82333", "#e0a800"],
-	// 		},
-	// 	],
-	// };
+	const taskCompleted = totalTasks - tasksNotDone;
+	const taskChartData = {
+		labels: ["Completed Tasks", "Tasks Not Done", "Tasks Not Done on Time"],
+		datasets: [
+			{
+				data: [taskCompleted, tasksNotDone, taskNotDoneOnTime],
+				backgroundColor: ["#28a745", "#dc3545", "#ffc107"],
+				hoverBackgroundColor: ["#218838", "#c82333", "#e0a800"],
+			},
+		],
+	};
 
-	// const taskChartOptions = {
-	// 	responsive: true,
-	// 	maintainAspectRatio: false,
-	// 	plugins: {
-	// 		legend: {
-	// 			position: "bottom" as const,
-	// 		},
-	// 		tooltip: {
-	// 			callbacks: {
-	// 				label: (tooltipItem: any) => `${tooltipItem.raw.toFixed(2)} Tasks`,
-	// 			},
-	// 		},
-	// 	},
-	// };
+	const taskChartOptions = {
+		responsive: true,
+		maintainAspectRatio: false,
+		plugins: {
+			legend: {
+				position: "bottom" as const,
+			},
+			tooltip: {
+				callbacks: {
+					label: (tooltipItem: any) => `${tooltipItem.raw.toFixed(2)} Tasks`,
+				},
+			},
+		},
+	};
 
 	// 📉 Chart 2: P1 & P2 Performance
-	// const performanceChartData = {
-	// 	labels: ["P1 Performance", "P2 Performance"],
-	// 	datasets: [
-	// 		{
-	// 			data: [Math.abs(p1), Math.abs(p2)], // Convert negative values to positive for visualization
-	// 			backgroundColor: ["#FF4560", "#008FFB"],
-	// 			hoverBackgroundColor: ["#FF6384", "#36A2EB"],
-	// 		},
-	// 	],
-	// };
+	const performanceChartData = {
+		labels: ["P1 Performance", "P2 Performance"],
+		datasets: [
+			{
+				data: [Math.abs(p1), Math.abs(p2)], // Convert negative values to positive for visualization
+				backgroundColor: ["#FF4560", "#008FFB"],
+				hoverBackgroundColor: ["#FF6384", "#36A2EB"],
+			},
+		],
+	};
 
-	// const performanceChartOptions = {
-	// 	responsive: true,
-	// 	maintainAspectRatio: false,
-	// 	plugins: {
-	// 		legend: {
-	// 			position: "bottom" as const,
-	// 		},
-	// 		tooltip: {
-	// 			callbacks: {
-	// 				label: (tooltipItem: any) => `${tooltipItem.raw.toFixed(2)}%`,
-	// 			},
-	// 		},
-	// 	},
-	// };
+	const performanceChartOptions = {
+		responsive: true,
+		maintainAspectRatio: false,
+		plugins: {
+			legend: {
+				position: "bottom" as const,
+			},
+			tooltip: {
+				callbacks: {
+					label: (tooltipItem: any) => `${tooltipItem.raw.toFixed(2)}%`,
+				},
+			},
+		},
+	};
 
 
 	return (
@@ -194,7 +168,7 @@ const Dashboard = () => {
 			<PageBreadcrumb title="Welcome!" />
 
 
-			{!dashboardData ? (
+			{!data ? (
 				<div className='loader-container'>
 					<div className="loader"></div>
 					<div className='mt-2'>Please Wait!</div>
@@ -202,13 +176,13 @@ const Dashboard = () => {
 			) : (<>
 
 
-				{/* <Row className="mt-3 text-dark">
+				<Row className="mt-3 text-dark">
 					<Col lg={6}>
 						<Row className='mb-3'>
 							<Col>
 								<div className='d-flex justify-content-between align-items-center py-3  px-3 bg-white rounded shadow-sm'>
 									<div>
-										<p className='mb-1'>Total Orders</p>
+										<p className='mb-1'>Doers Managed By Me</p>
 										<h3>146</h3>
 									</div>
 									<div><i className='ri-group-line fs-18'></i></div>
@@ -292,150 +266,10 @@ const Dashboard = () => {
 					</Col>
 
 
-				</Row> */}
-				<div className="row mt-4">
-					{/* Total Orders Card */}
-					<div className="col-xxl-4 col-sm-6">
-						<div className="card widget-flat text-bg-success">
-							<div className="card-body">
-								<div className="float-end">
-									<i className="ri-shopping-cart-line widget-icon"></i>
-								</div>
-								<h6 className="text-uppercase mt-0" title="Customers">Total Orders</h6>
-								<h2 className="my-2">{dashboardData.totalOrderCount}</h2>
-								<p className="mb-0">
-									<span className="badge bg-white bg-opacity-10 me-1">2.97%</span>
-									<span className="text-nowrap">Since last month</span>
-								</p>
-							</div>
-						</div>
-					</div>
-
-					{/* Total Purchase Orders Card */}
-					<div className="col-xxl-4 col-sm-6">
-						<div className="card widget-flat text-bg-purple">
-							<div className="card-body">
-								<div className="float-end">
-									<i className="ri-wallet-2-line widget-icon"></i>
-								</div>
-								<h6 className="text-uppercase mt-0" title="Customers">Total Purchase Orders (POs)</h6>
-								<h2 className="my-2">{dashboardData.totalPurchaseOrderCount}</h2>
-								<p className="mb-0">
-									<span className="badge bg-white bg-opacity-10 me-1">18.25%</span>
-									<span className="text-nowrap">Since last month</span>
-								</p>
-							</div>
-						</div>
-					</div>
-
-					{/* Total Order Value Card */}
-					<div className="col-xxl-4 col-sm-6">
-						<div className="card widget-flat text-bg-info">
-							<div className="card-body">
-								<div className="float-end">
-									<i className="ri-shopping-basket-line widget-icon"></i>
-								</div>
-								<h6 className="text-uppercase mt-0" title="Customers">Total Order Value</h6>
-								<h2 className="my-2">₹{dashboardData.totalOrderValue}</h2>
-								<p className="mb-0">
-									<span className="badge bg-white bg-opacity-25 me-1">-5.75%</span>
-									<span className="text-nowrap">Since last month</span>
-								</p>
-							</div>
-						</div>
-					</div>
-				</div>
-				<Row>
-					<Col xl={6}>
-						<Card>
-							<Card.Body>
-								<h4 className="header-title">Total Orders</h4>
-								<div>
-									<ReactApexChart
-										className="apex-charts"
-										options={SimpleDonutOpt}
-										height={320}
-										series={SimpleDonutOpt.series}
-										type="donut"
-									/>
-								</div>
-							</Card.Body>
-						</Card>
-					</Col>
-					<div className="col-xl-6">
-						<div className="card">
-							<div className="card-body p-0">
-								<div id="yearly-sales-collapse" className="collapse show">
-
-									<div className="table-responsive">
-										<table className="table table-nowrap table-hover mb-0">
-											<thead>
-												<tr>
-													<th>#</th>
-													<th>Vendor Name</th>
-													<th>Total Purchase Orders</th>
-													<th>Due Date</th>
-													<th>Total Amount</th>
-												</tr>
-											</thead>
-											<tbody>
-												{/* First Entry */}
-												<tr>
-													<td>1</td>
-													<td>Aether Chemicals
-													</td>
-													<td>12</td>
-													<td>31/05/2025</td>
-													<td>₹1,260,000</td>
-												</tr>
-												{/* Second Entry */}
-												<tr>
-													<td>2</td>
-													<td>Kepler Tech
-													</td>
-													<td>12</td>
-													<td>30/06/2025</td>
-													<td>₹1,320,000</td>
-												</tr>
-												{/* Third Entry */}
-												<tr>
-													<td>3</td>
-													<td>Stratos Equipments
-													</td>
-													<td>11</td>
-													<td>15/06/2025</td>
-													<td>₹1,200,000</td>
-												</tr>
-												{/* Fourth Entry */}
-												<tr>
-													<td>4</td>
-													<td>Astro Medics
-													</td>
-													<td>11</td>
-													<td>25/07/2025</td>
-													<td>₹1,210,000</td>
-												</tr>
-												{/* Fifth Entry */}
-												<tr>
-													<td>5</td>
-													<td>Falcon Mechanics
-													</td>
-													<td>4</td>
-													<td>10/08/2025</td>
-													<td>₹1,200,000</td>
-												</tr>
-											</tbody>
-										</table>
-									</div>
-
-								</div>
-							</div>
-						</div>
-					</div>
 				</Row>
 
 
-				{/* <Row className='mt-4'>
+				<Row className='mt-4'>
 
 					<Col lg={6}>
 						<Form>
@@ -447,9 +281,10 @@ const Dashboard = () => {
 												enableTime: false,
 												dateFormat: "Y-m-d",
 												time_24hr: false,
-												maxDate: new Date(), 
+												maxDate: new Date(), // Restrict future dates
 												disable: [
 													function (date) {
+														// return true to disable
 														return (date.getDay() !== 1);
 
 													}
@@ -490,7 +325,16 @@ const Dashboard = () => {
 									<Form.Group controlId="departmentName" className="mb-3">
 										<Select
 											name="departmentName"
-							
+											// value={departmentList.find((emp) => emp.name === employee.departmentName)}
+											// onChange={(selectedOption) => {
+											// 	setEmployee({
+											// 		...employee,
+											// 		departmentName: selectedOption?.name || "",
+											// 	});
+											// }}
+											// getOptionLabel={(emp) => emp.name}
+											// getOptionValue={(emp) => emp.name}
+											// options={departmentList}
 											isSearchable={true}
 											placeholder="Choose User"
 										/>
@@ -557,6 +401,7 @@ const Dashboard = () => {
 								</div>
 							</Col>
 
+							{/* P1 & P2 Performance Chart */}
 							<Col lg={6}>
 								<div className="pt-2 text-dark">
 									<div className="text-center taskpercentage">
@@ -571,11 +416,34 @@ const Dashboard = () => {
 									</div>
 								</div>
 							</Col>
-							
+							{/* <Col lg={4}>
+							<div className='pt-2 text-dark '>
+								<div className='text-center  taskpercentage'>
+									<div className='bg-primary text-white px-2 mb-2 py-1 rounded '>
+										<i className='ri-group-line fs-18 '></i>
+									</div>
+									<h4>P2:0 %</h4>
+									<p className='mb-1 fs-11'>Tasks Not Done on time: 00</p>
+								</div>
+
+							</div>
+						</Col>
+						<Col lg={4}>
+							<div className='pt-2 text-dark '>
+								<div className='text-center  taskpercentage'>
+									<div className='bg-primary text-white px-2 mb-2 py-1 rounded '>
+										<i className='ri-group-line fs-18 '></i>
+									</div>
+									<h4>P3:0 %</h4>
+									<p className='mb-1 fs-11'>Delay Hours: 00 Hrs</p>
+								</div>
+
+							</div>
+						</Col> */}
 						</Row>
 
 					</Col>
-				</Row> */}
+				</Row>
 			</>)
 			}
 

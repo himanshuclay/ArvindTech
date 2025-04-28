@@ -388,7 +388,6 @@ const Editor: React.FC<EditorProps> = ({ form, setForm, property, setProperty, b
                                         )}
                                     </div>
                                 )}
-
                                 <div
                                     id={block.property.id}
                                     key={index}

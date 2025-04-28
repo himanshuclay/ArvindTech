@@ -45,6 +45,7 @@ type NodeSetting = {
     doerAssignList: any;
     bindingValues: any;
     doerTaskNumber: any;
+    taskOutputlables: any;
     doerBlockName: any;
     TaskBinding: any;
     BindingOption: any;
@@ -101,6 +102,7 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges
         loopingSetting: data.loopingSetting || {},
         problemSolver: data.problemSolver || '',
         isExpirable: data.isExpirable || '',
+        taskOutputlables: data.taskOutputlables || '',
     });
 
     const [doerList, setDoerList] = useState<{ value: string; label: string }[]>([]);
@@ -197,6 +199,7 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges
             loopingSetting: data.loopingSetting || {},
             problemSolver: data.problemSolver || '',
             isExpirable: data.isExpirable || '',
+            taskOutputlables: data.taskOutputlables || '',
         });
     }, [data]);
 
@@ -389,6 +392,7 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges
             const value = getAllBlockOptions(nodes, nodeSetting.loopingSetting.start3, nodeSetting.loopingSetting.start4);
             setPerviousLoopingOptionsList(value);
         }
+        console.log(nodes);
     }, [nodeSetting.doerBlockName, nodeSetting.loopingSetting.start4])
 
     const deleteNode = () => {
@@ -439,11 +443,11 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges
         <div className="custom-node" style={getBorderStyle()}>
             {/* Settings Icon */}
             <div className="settings-button">
-                {typeof data.form != "string" &&(
-                <button className="setting-button-design" onClick={(e) => { e.stopPropagation(); setShowBinding(!showBinding); }} disabled={isCompleteTask}>
-                    <i className="ri-git-merge-line"></i>
-                </button>
-                ) }
+                {typeof data.form != "string" && (
+                    <button className="setting-button-design" onClick={(e) => { e.stopPropagation(); setShowBinding(!showBinding); }} disabled={isCompleteTask}>
+                        <i className="ri-git-merge-line"></i>
+                    </button>
+                )}
                 <button className="setting-button-design" onClick={(e) => { e.stopPropagation(); setShowSettings(!showSettings); }} disabled={isCompleteTask}>
                     <i className="ri-settings-3-fill"></i>
                 </button>
@@ -887,6 +891,7 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges
                             </Col>
                         </Row>
                         <hr />
+
                         <Row className=" mx-1 ">
                             <p><strong>Expiry Logic</strong></p>
                             {/* Is Expirable Radio Buttons */}
@@ -968,8 +973,66 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges
                                 </Form.Group>
                             </Col>
                         </Row>
+                        <Row>
+                            <Col lg={3}>
+                                <Form.Group>
+                                    <Form.Label>Task Name*</Form.Label>
+                                    <Select
+                                        options={previousTaskList}
+                                        value={previousTaskList.find(option => option.value === nodeSetting.doerTaskNumber)}
+                                        onChange={(selectedOption) => {
+                                            const selectedTaskNumber = selectedOption?.value || '';
+                                            const matchedNode = nodes.find(
+                                                (node: any) => node.id === selectedTaskNumber
+                                            );
+                                            const outputLabels = matchedNode?.data?.outputLabels || [];
+                                            setNodeSetting(prev => ({
+                                                ...prev,
+                                                preTaskLabels: selectedTaskNumber,
+                                                selectedOutputs: [],
+                                                matchedOutputLabels: outputLabels
+                                            }));
 
+                                            console.log("Matched Node:", matchedNode);
+                                            console.log("Output Labels:", outputLabels);
 
+                                        }}
+
+                                        placeholder="Select a Task"
+                                    />
+                                </Form.Group>
+                            </Col>
+                            {JSON.stringify(nodeSetting.selectedOutputs)}
+                          {nodeSetting.matchedOutputLabels?.length > 0 && (
+                                <Col lg={6}>
+                                    <Form.Group>
+                                        <Form.Label>Select Output Labels</Form.Label>
+                                        <div className="d-flex flex-wrap gap-2">
+                                            {nodeSetting.matchedOutputLabels.map((label: string) => (
+                                                <Form.Check
+                                                    key={label}
+                                                    type="checkbox"
+                                                    label={label}
+                                                    checked={nodeSetting.selectedOutputs?.includes(label)}
+                                                    onChange={(e) => {
+                                                        const checked = e.target.checked;
+                                                        setNodeSetting(prev => {
+                                                            const current = prev.selectedOutputs || [];
+                                                            return {
+                                                                ...prev,
+                                                                selectedOutputs: checked
+                                                                    ? [...current, label]
+                                                                    : current.filter((l: string) => l !== label)
+                                                            };
+                                                        });
+                                                    }}
+                                                />
+                                            ))}
+                                        </div>
+                                    </Form.Group>
+                                </Col>
+                            )}
+                        </Row>
                     </Modal.Body>
                     <Modal.Footer>
                         <button className="close-button" onClick={() => setShowSettings(false)}>Close</button>

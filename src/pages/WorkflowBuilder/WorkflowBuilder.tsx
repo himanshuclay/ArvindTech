@@ -483,7 +483,7 @@ const WorkflowBuilder: React.FC = () => {
                     />
                 </Form.Group>
                 <i onClick={toggleWorkflowSetting} className='ri-settings-5-fill' style={{ fontSize: '1.5rem', cursor: 'pointer' }}></i>
-                <button type='button' className='btn btn-primary' onClick={handleSaveWorkflowBuilder}><i className="ri-save-fill"></i> workflow</button>
+                <button type='button' className='btn btn-primary' onClick={handleSaveWorkflowBuilder}><i className="ri-save-fill"></i> Save Process</button>
             </div>
             <div className='row d-flex'>
                 <div className='col-9' style={{ height: 'calc(100vh - 200px)', position: 'relative' }}>
@@ -506,7 +506,7 @@ const WorkflowBuilder: React.FC = () => {
                     </ReactFlow>
 
                 </div>
-                <div className='bg-white col-3'>
+                <div className='bg-white col-3 form-compo'>
                     {showSettings && (
                         <div style={{ position: 'absolute', top: '3rem', right: '0', width: '300px', background: 'white', border: '1px solid #ddd', boxShadow: '0px 4px 6px rgba(0,0,0,0.1)', padding: '10px', borderRadius: '5px', zIndex: 10 }}>
                             <WorkflowBuilderSetting workflowBuilder={workflowBuilder} setWorkflowBuilder={setWorkflowBuilder} />
