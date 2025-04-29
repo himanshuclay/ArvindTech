@@ -45,7 +45,7 @@ const CheckboxInput: React.FC<Props> = ({
                         label={block.property.label}
                         checked={!!blockValue[block.property.id]}
                         onChange={handleInputChange}
-                        disabled={editMode}
+                        disabled={editMode || block.property.disabled}
                         className={validationErrors[block.property.id] ? 'is-invalid' : ''}
                     />
                     {validationErrors[block.property.id] && (

@@ -89,7 +89,7 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges
         taskTimeOptions: data.taskTimeOptions || '',
         days: data.days || '',
         taskCreationType: data.taskCreationType || '',
-        time: data.time || '',
+        time: data.time || '2025-04-29T14:30:00.000Z',
         hours: data.hours || '',
         weeks: data.weeks || '',
         label: data.label || '',
@@ -184,7 +184,7 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges
             taskTimeOptions: data.taskTimeOptions || '',
             days: data.taskTime || '',
             taskCreationType: data.taskCreationType || '',
-            time: data.time || '',
+            time: data.time || '2025-04-29T14:30:00.000Z',
             role: data.role || '',
             hours: data.hours || '',
             weeks: data.weeks || '',
@@ -317,6 +317,7 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges
         });
         if (typeof data.form != "string" && data.form?.blocks?.length) {
             const blockNames = getBlockName(data.form.blocks);
+            console.log('blockNames', blockNames)
             setBlockName(blockNames);
 
         } else {

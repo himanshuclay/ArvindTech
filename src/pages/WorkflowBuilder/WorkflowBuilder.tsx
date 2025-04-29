@@ -157,7 +157,7 @@ const WorkflowBuilder: React.FC = () => {
                     type: 'smoothstep', // Edge type (options: 'step', 'straight', 'bezier')
                     animated: true,
                     style: {
-                        stroke: '#007bff', // Edge color
+                        stroke: '#777777', // Edge color
                         strokeWidth: 2,
                         strokeDasharray: '5,5', // Dashed line
                     },

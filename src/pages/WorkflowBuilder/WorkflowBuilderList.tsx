@@ -1,11 +1,12 @@
 import axios from 'axios';
 import { useState, useEffect } from 'react';
-import { Button, Pagination, Table, Container, Row, Col, Alert, Form, DropdownButton } from 'react-bootstrap';
+import { Button, Pagination, Table, Container, Row, Col, Alert, Form, DropdownButton, ButtonGroup } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import config from '@/config';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
+import Select from 'react-select';
 
 
 
@@ -42,6 +43,8 @@ const WorkflowBuilderList = () => {
   const [totalPages, setTotalPages] = useState(1);
   const [, setMessList] = useState<MessList[]>([]);
   const [searchTriggered,] = useState(false);
+  const [templateName, setTemplateName] = useState('');
+  const [templateList, setTemplateList] = useState<string[]>([]);
 
 
 
@@ -141,7 +144,6 @@ const WorkflowBuilderList = () => {
     const fetchData = async (endpoint: string, setter: Function, listName: string) => {
       try {
         const response = await axios.get(`${config.API_URL_APPLICATION1}/${endpoint}`);
-        console.log('response', response)
         if (response.data.isSuccess) {
           setter(response.data[listName]);
         } else {
@@ -155,6 +157,7 @@ const WorkflowBuilderList = () => {
 
 
     fetchData('DrawingMaster/GetDrawing', setMessList, 'workflowBuilderLists');
+    fetchData('CommonDropdown/GetTemplateList', setTemplateList, 'templateList');
 
   }, []);
 
@@ -169,6 +172,11 @@ const WorkflowBuilderList = () => {
     );
   };
 
+
+  const handleClear = () => {
+    setTemplateName('');
+    setCurrentPage(1);
+  };
 
   return (
     <>
@@ -199,7 +207,44 @@ const WorkflowBuilderList = () => {
 
         </div>
       </div>
+      <div className="bg-white p-2 pb-2">
+        <Form onSubmit={(e) => {
+          e.preventDefault();
+          handleSearch();
+          setCurrentPage(1);
+        }}>
+          <Row>
+            <Col lg={4}>
+              <Form.Group controlId="ModuleDisplayName">
+                <Form.Label>Template Name</Form.Label>
 
+                <Select
+                  name="searchProjectName"
+                  value={templateList.find(item => item === templateName) || null} // handle null
+                  onChange={(selectedOption) => setTemplateName(selectedOption ? selectedOption : "")} // null check
+                  options={templateList}
+                  isSearchable={true}
+                  placeholder="Select Template Name"
+                  className="h45"
+                />
+              </Form.Group>
+            </Col>
+            <Col lg={4} className='align-items-end d-flex justify-content-end mt-3'>
+
+              <ButtonGroup aria-label="Basic example" className='w-100'>
+                <Button type="button" variant="primary" onClick={handleClear}>
+                  <i className="ri-loop-left-line"></i>
+                </Button>
+                &nbsp;
+                <Button type="submit" variant="primary" >
+                  Search
+                </Button>
+              </ButtonGroup>
+            </Col>
+          </Row>
+
+        </Form>
+      </div>
       <div className='bg-white p-2 pb-2'>
 
 

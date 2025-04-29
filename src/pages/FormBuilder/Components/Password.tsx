@@ -41,7 +41,7 @@ const Password: React.FC<Props> = ({ block, handleChange, validationErrors = {},
                     value={block.property.value}
                     onChange={(e) => handleChange(e as React.ChangeEvent<HTMLInputElement>, block.property.id)}  // Handle change with ID
                     placeholder={block.property.placeholder}
-                    disabled={editMode}  // Disable input if in edit mode
+                    disabled={editMode || block.property.disabled}  // Disable input if in edit mode
                     className={validationErrors[block.property.id] ? "is-invalid" : ""}
                 />
 

@@ -318,7 +318,8 @@ const Editor: React.FC<EditorProps> = ({ form, setForm, property, setProperty, b
                 }));
             } else if (action.type === 'bind' && action.bindBlock) {
                 const updatedBlockValue = manageBind(action.bindBlock, blockValue, action.rule);
-                if (['Select', 'MultiSelect'].includes(action.bindBlock.is)) {
+                console.log('updatedBlockValue', updatedBlockValue, action.bindBlock.is)
+                if (['Select', 'MultiSelectDropdown'].includes(action.bindBlock.is)) {
                     setForm(prevForm => ({
                         ...prevForm,
                         blocks: prevForm.blocks.map(block =>

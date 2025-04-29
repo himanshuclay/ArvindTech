@@ -30,11 +30,11 @@ const FloatInput: React.FC<Props> = ({
         placeholder = 'Enter value',
         prefix = '',
         isShow = false,
-        required = 'false',
+        validation = 'false',
         decimalLimit = 2, // Default decimal limit
     } = block.property;
 
-    const isRequired = required === 'true';
+    const isRequired = validation === 'required';
 
     const handleFloatChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const val = e.target.value;
@@ -46,7 +46,7 @@ const FloatInput: React.FC<Props> = ({
     };
 
     const validationError = validationErrors[id];
-    const disabled = editMode;
+    const disabled = editMode ||block.property.disabled;
 
     if (!isShow && !editMode) return null;
 
