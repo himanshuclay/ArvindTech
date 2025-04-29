@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import axios from 'axios';
 import { Button, Table, Container, Row, Col, Alert, Collapse, Pagination, Form, ButtonGroup, Modal } from 'react-bootstrap'; // Assuming DynamicForm is in the same directory
@@ -14,9 +14,10 @@ import { toast } from 'react-toastify';
 import Flatpickr from 'react-flatpickr';
 import Select from 'react-select';
 import { BLOCK_VALUE, FIELD } from '@/pages/FormBuilder/Constant/Interface';
-import { Edge, Node } from 'reactflow';
+import ReactFlow, { Background, Controls, Edge, MiniMap, Node, useEdgesState, useNodesState } from 'reactflow';
 import ActiveNode from '@/pages/WorkflowBuilder/ActiveNode';
 import { getActiveNode, getCompletedNodes } from '@/pages/WorkflowBuilder/Constant/function';
+import CustomNode from '@/pages/WorkflowBuilder/CustomNode';
 
 
 
@@ -131,6 +132,8 @@ const ProjectAssignTable: React.FC = () => {
   const [activeTaskId, setActiveTaskId] = useState(0);
   // const [doerList, ] = useState<dropDownList[]>([]);
   const [, setDoerName] = useState('');
+  // const [nodes, setNodes] = useNodesState([]);
+  // const [edges, setEdges] = useEdgesState([]);
 
   const [expandedRow, setExpandedRow] = useState<number | null>(null); // For row expansion
   interface APISetting {
@@ -149,30 +152,30 @@ const ProjectAssignTable: React.FC = () => {
   const [activeNode, setActiveNode] = useState<Node | "">("");
   const [completedNodes, setCompletedNodes] = useState<Node[] | "">("");
 
-  useEffect(() => {
-    if (workflowData) {
-      // getActiveNode(workflowData);
-      // const start = workflowData.edges.find(e => e.source == "1");
-      // const activeNode = workflowData.nodes.find(n => n.id === start?.target);
-      const completedNodes = getCompletedNodes(workflowData, "1");
-      const activeNode = getActiveNode(workflowData, "1");
-      console.log(activeNode)
-      if (activeNode) {
-        if(activeNode.data.TaskBinding && activeNode.data.BindingOption === "formAndValueWithEditMode"){
-          let extraActive = completedNodes.find(node => node.id === activeNode.data.TaskBinding);
-          if(extraActive){
-            activeNode.data.form = extraActive.data.form;
-            activeNode.data.blockValue = extraActive.data.blockValue;
-          }
-        }
-        setCompletedNodes(completedNodes);
-        setActiveNode(activeNode);
-      } else {
-        setActiveNode(""); // or handle it differently
-      }
+  // useEffect(() => {
+  //   if (workflowData) {
+  //     // getActiveNode(workflowData);
+  //     // const start = workflowData.edges.find(e => e.source == "1");
+  //     // const activeNode = workflowData.nodes.find(n => n.id === start?.target);
+  //     const completedNodes = getCompletedNodes(workflowData, "1");
+  //     const activeNode = getActiveNode(workflowData, "1");
+  //     console.log(activeNode)
+  //     if (activeNode) {
+  //       if (activeNode.data.TaskBinding && activeNode.data.BindingOption === "formAndValueWithEditMode") {
+  //         let extraActive = completedNodes.find(node => node.id === activeNode.data.TaskBinding);
+  //         if (extraActive) {
+  //           activeNode.data.form = extraActive.data.form;
+  //           activeNode.data.blockValue = extraActive.data.blockValue;
+  //         }
+  //       }
+  //       setCompletedNodes(completedNodes);
+  //       setActiveNode(activeNode);
+  //     } else {
+  //       setActiveNode(""); // or handle it differently
+  //     }
 
-    }
-  }, [workflowData])
+  //   }
+  // }, [workflowData])
 
 
   const handleClear = async () => {
@@ -354,7 +357,7 @@ const ProjectAssignTable: React.FC = () => {
     }
   };
 
-  console.log("this is predata",preData);
+  console.log("this is predata", preData);
 
 
 
@@ -409,18 +412,32 @@ const ProjectAssignTable: React.FC = () => {
   const handleShow = () => setShow(true);
 
   const handleEdit = (taskCommonId: number, taskCondition: string, item: any) => {
-    setTaskCommonIdRow(taskCommonId);
-    fetchPreData(taskCommonId);
-    setParsedCondition(taskCondition);
-    handleShow();
-    if(item.templateJson)
-    {
-    const templateJson = JSON.parse(item.templateJson);
-    if (templateJson.edges && templateJson.edges.length) {
-      setWorkflowData(templateJson)
-      setActiveTaskId(item.id);
-    } 
-  }
+    if (item.templateJson) {
+      const templateJson = JSON.parse(item.templateJson);
+      if (templateJson.edges && templateJson.edges.length) {
+        const doerId = localStorage.getItem("EmpId");
+        if (doerId) {
+          const activeNode = getActiveNode(templateJson.nodes, doerId);
+          console.log(activeNode)
+          if (activeNode) {
+            setActiveNode(activeNode);
+            setActiveTaskId(item.id);
+          }
+        }
+      }
+    } else if (item.task_Json) {
+      setTaskCommonIdRow(taskCommonId);
+      fetchPreData(taskCommonId);
+      setParsedCondition(taskCondition);
+      handleShow();
+    }
+    // if (item.templateJson) {
+    //   const templateJson = JSON.parse(item.templateJson);
+    //   if (templateJson.edges && templateJson.edges.length) {
+    //     setWorkflowData(templateJson)
+    //     setActiveTaskId(item.id);
+    //   }
+    // }
 
   };
 
@@ -497,7 +514,38 @@ const ProjectAssignTable: React.FC = () => {
   const handleCloseActiveForm = () => {
     setActiveNode("")
   }
-
+  // const nodeTypes = useMemo(() => ({
+  //   custom: (props: any) => <CustomNode {...props} setNodes={setNodes} edges={edges} isCompleteTask={true} />,
+  // }), [setNodes, edges]);  // ✅ Include edges in dependencies
+  // const onNodeClick = useCallback((_event: React.MouseEvent, node: Node) => {
+  //   console.log(node);
+  //   if (node.data.completedBy && node.data.completedBy == localStorage.getItem("EmpId")) {
+  //     setSelectedNode(node); // ✅ Sets the node you're editing
+  //     // console.log(node.data.blockValue);
+  //     // console.log(setShowFormBuilder);
+  //     setBlockValue(node.data.blockValue);
+  //     if (node.data.form?.blocks?.length) {
+  //       setShowFormBuilder(true);
+  //       setFormBuilder(node.data.form); // ✅ Prefill existing form
+  //       setIsAddFormBuilder(false);
+  //     } else {
+  //       if (node.data.form != "ADD_NODE")
+  //         setDynamicComponent(node.data.form);
+  //     }
+  //   } else if (!node.data.completedBy) {
+  //     // setSelectedNode(node); // ✅ Sets the node you're editing
+  //     // console.log(node.data.blockValue);
+  //     // setBlockValue(node.data.blockValue);
+  //     // if (node.data.form?.blocks?.length) {
+  //     //   setShowFormBuilder(true);
+  //     //   setFormBuilder(node.data.form); // ✅ Prefill existing form
+  //     //   setIsAddFormBuilder(false);
+  //     // } else {
+  //     //   if (node.data.form != "ADD_NODE")
+  //     //     setDynamicComponent(node.data.form);
+  //     // }
+  //   }
+  // }, []);
   return (
 
     <>
@@ -1026,8 +1074,27 @@ const ProjectAssignTable: React.FC = () => {
         <Modal show={true} onHide={handleCloseActiveForm} size='xl'>
           <Modal.Header closeButton></Modal.Header>
           <Modal.Body>
-            <ActiveNode activeNode={activeNode} activeTaskId={activeTaskId} setActiveNode={setActiveNode} completedNodes={completedNodes} setCompletedNodes={setCompletedNodes}/>
 
+            {/* <div className='col-12' style={{ height: 'calc(100vh - 200px)', position: 'relative' }}>
+              <ReactFlow
+                nodes={nodes}
+                edges={edges}
+                // onNodesChange={handleNodesChange}
+                // onEdgesChange={onEdgesChange}
+                // onConnect={onConnect}
+                nodeTypes={nodeTypes}
+                fitView
+                // onDrop={handleDrop}
+                // onDragOver={handleDragOver}
+                // onEdgeClick={handleEdgeClick}
+                // onNodeClick={onNodeClick}
+              >
+                <MiniMap />
+                <Controls />
+                <Background />
+              </ReactFlow>
+            </div> */}
+            <ActiveNode activeNode={activeNode} activeTaskId={activeTaskId} setActiveNode={setActiveNode} completedNodes={completedNodes} setCompletedNodes={setCompletedNodes} />
           </Modal.Body>
         </Modal>
       )}

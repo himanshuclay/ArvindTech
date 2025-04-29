@@ -94,6 +94,7 @@ interface PROPERTY {
     minAllowedDate?: string;
     type: string;
     isPermanent?: boolean;
+    dateValue?: string;
 }
 interface OPTION { label: string; value: string }
 interface BLOCK_VALUE {

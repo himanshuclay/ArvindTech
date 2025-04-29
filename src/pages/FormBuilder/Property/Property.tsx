@@ -261,7 +261,7 @@ const Property: React.FC<Props> = ({ form, setForm, property, setProperty, remov
             )}
             {property.hasOwnProperty('currencySymbol') && (
                 <div className='d-flex justify-content-between align-items-center mt-2'>
-                    <label className='col-6'>Date Selection</label>
+                    <label className='col-6'>Currency Icon</label>
                     <select
                         name="currencySymbol"
                         className="border p-2 rounded col-6"
@@ -275,7 +275,7 @@ const Property: React.FC<Props> = ({ form, setForm, property, setProperty, remov
             )}
             {property.hasOwnProperty('decimalLimit') && (
                 <div className='d-flex justify-content-between align-items-center mt-2'>
-                    <label className='col-6'>Date Selection</label>
+                    <label className='col-6'>Decimal Values</label>
                     <select
                         name="decimalLimit"
                         className="border p-2 rounded col-6"
@@ -292,7 +292,7 @@ const Property: React.FC<Props> = ({ form, setForm, property, setProperty, remov
             )}
             {property.hasOwnProperty('prefix') && (
                 <div className='d-flex justify-content-between align-items-center mt-2'>
-                    <label className='col-6'>Date Selection</label>
+                    <label className='col-6'>Icon</label>
                     <select
                         name="prefix"
                         className="border p-2 rounded col-6"
@@ -300,6 +300,8 @@ const Property: React.FC<Props> = ({ form, setForm, property, setProperty, remov
                         onChange={handleChange}
                     >
                         <option value="%">%</option>
+                        <option value="₹">₹</option>
+
                     </select>
                 </div>
             )}
@@ -317,7 +319,7 @@ const Property: React.FC<Props> = ({ form, setForm, property, setProperty, remov
                     </select>
                 </div>
             )}
-            {property.hasOwnProperty('value') !== undefined && (
+            {property.hasOwnProperty('value') && (
                 <div className='d-flex justify-content-between align-items-center mt-2'>
                     <label className='col-6'>Value</label>
                     <input
@@ -327,6 +329,34 @@ const Property: React.FC<Props> = ({ form, setForm, property, setProperty, remov
                         value={property.value}
                         onChange={handleChange}
                         placeholder="Enter value"
+                    />
+                </div>
+            )}
+            {property.hasOwnProperty('dateValue') && (
+                <div className='d-flex justify-content-between align-items-center mt-2'>
+                    <label className='col-6'>Value</label>
+                    <Flatpickr
+                        name="dateValue"
+                        value={property.dateValue || ''}
+                        onChange={(selectedDates) => {
+                            const formattedDate = selectedDates.length > 0
+                                ? selectedDates[0].toISOString().split('T')[0]
+                                : '';
+
+                            const syntheticEvent = {
+                                target: { name: 'dateValue', value: formattedDate }
+                            } as React.ChangeEvent<HTMLInputElement>;
+
+                            handleChange(syntheticEvent); // Your existing handler
+                        }}
+                        options={{
+                            enableTime: false,
+                            altInput: true,
+                            altFormat: 'Y-m-d',
+                            dateFormat: "Y-m-d",
+                            time_24hr: false,
+                            mode: 'single',  // Use the validated dateMode here
+                        }}
                     />
                 </div>
             )}

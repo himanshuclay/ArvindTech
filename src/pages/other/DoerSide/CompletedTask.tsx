@@ -359,6 +359,7 @@ const ProjectAssignTable: React.FC = () => {
     setShow(true);
     if (item.templateJson) {
       const templateJson = JSON.parse(item.templateJson);
+      console.log(templateJson)
       setNodes(templateJson.nodes);
       setEdges(templateJson.edges);
     }
@@ -412,6 +413,7 @@ const ProjectAssignTable: React.FC = () => {
             :
             <>
               <div className='col-12' style={{ height: 'calc(100vh - 200px)', position: 'relative' }}>
+                {/* {JSON.stringify(nodes)} */}
                 <ReactFlow
                   nodes={nodes}
                   edges={edges}

@@ -73,7 +73,7 @@ const ActiveNode = ({ activeNode, activeTaskId, setActiveNode, completedNodes, s
             const errors: { [key: string]: string } = {};
 
             form.blocks.forEach(block => {
-                if (block.property.required === "true" && (!block.property.value || block.property.value.trim() === "")) {
+                if (block.property.validation === "required" && (!block.property.value || block.property.value.trim() === "")) {
                     errors[block.property.id] = `${block.property.label} is required`;
                 }
             });
@@ -84,57 +84,56 @@ const ActiveNode = ({ activeNode, activeTaskId, setActiveNode, completedNodes, s
                 activeNode.data['completedBy'] = localStorage.getItem("EmpId");
                 activeNode.data['completedBy'] = localStorage.getItem("EmpId");
                 activeNode.data.form = dynamicComponent ? dynamicComponent : form;
-                if (componentRefMap.current[dynamicComponent]) {
-                    activeNode.data['blockValue'] = componentRefMap.current[dynamicComponent]?.[dynamicComponent]?.();
-                }
+                // if (componentRefMap.current[dynamicComponent]) {
+                //     activeNode.data['blockValue'] = componentRefMap.current[dynamicComponent]?.[dynamicComponent]?.();
+                // }
                 const query: any = {
                     id: activeTaskId,
                 }
-                if (Array.isArray(activeNode.data.outputLabels) && activeNode.data.outputLabels.length > 1) {
-                    activeNode.data.outputLabels.forEach((output: any) => {
-                        const cleanedOutput = output.includes('.') ? output.split('.')[1] : output;
+                // if (Array.isArray(activeNode.data.outputLabels) && activeNode.data.outputLabels.length > 1) {
+                //     activeNode.data.outputLabels.forEach((output: any) => {
+                //         const cleanedOutput = output.includes('.') ? output.split('.')[1] : output;
                     
-                        const isMatch = Object.values(activeNode.data.blockValue).includes(cleanedOutput);
+                //         const isMatch = Object.values(activeNode.data.blockValue).includes(cleanedOutput);
                     
-                        if (isMatch) {
-                            console.log('Matched output:', cleanedOutput);
-                            query["outputLabel"] = cleanedOutput;
-                        }
-                    });
+                //         if (isMatch) {
+                //             console.log('Matched output:', cleanedOutput);
+                //             query["outputLabel"] = cleanedOutput;
+                //         }
+                //     });
                     
                     
-                    // const activeLabel = activeNode.data.blockValue?.typeOfAppointment;
-                    // const matchedActiveLabel = activeNode.data.outputLabels.find(
-                    //     (label: any) => label === activeLabel
-                    // );
+                //     // const activeLabel = activeNode.data.blockValue?.typeOfAppointment;
+                //     // const matchedActiveLabel = activeNode.data.outputLabels.find(
+                //     //     (label: any) => label === activeLabel
+                //     // );
 
-                    // if (matchedActiveLabel) {
-                    //     // Direct match in the active node
-                    //     query["outputLabel"] = matchedActiveLabel;
+                //     // if (matchedActiveLabel) {
+                //     //     // Direct match in the active node
+                //     //     query["outputLabel"] = matchedActiveLabel;
 
-                    // } else {
-                    //     // Try matching against completed nodes
-                    //     for (const completeNode of completedNodes) {
-                    //         const completedLabel = completeNode.data.blockValue?.typeOfAppointment;
-                    //         console.log(completedLabel, activeNode.data.outputLabels)
-                    //         const matched = activeNode.data.outputLabels.find(
-                    //             (label: any) => label === completedLabel
-                    //         );
-                    //         console.log(matched)
-                    //         if (matched) {
-                    //             query["outputLabel"] = matched;
-                    //             break; // ✅ Exit loop once match is found
-                    //         }
-                    //     }
-                    // }
-                }
+                //     // } else {
+                //     //     // Try matching against completed nodes
+                //     //     for (const completeNode of completedNodes) {
+                //     //         const completedLabel = completeNode.data.blockValue?.typeOfAppointment;
+                //     //         console.log(completedLabel, activeNode.data.outputLabels)
+                //     //         const matched = activeNode.data.outputLabels.find(
+                //     //             (label: any) => label === completedLabel
+                //     //         );
+                //     //         console.log(matched)
+                //     //         if (matched) {
+                //     //             query["outputLabel"] = matched;
+                //     //             break; // ✅ Exit loop once match is found
+                //     //         }
+                //     //     }
+                //     // }
+                // }
 
-                console.log('query', query);
-                activeNode.data['nextNode'] = {};
-                activeNode.data['nextNode']['id'] = activeNode.id;
-                activeNode.data['nextNode']['sourceHandle'] = query.outputLabel;
+                // console.log('query', query);
+                // activeNode.data['nextNode'] = {};
+                // activeNode.data['nextNode']['id'] = activeNode.id;
+                // activeNode.data['nextNode']['sourceHandle'] = query.outputLabel;
                 query.jsonInput = JSON.stringify(activeNode)
-                console.log('activeNode', activeNode)
 
                 if (activeLoop) {
                     query.activeLoop = activeLoop;

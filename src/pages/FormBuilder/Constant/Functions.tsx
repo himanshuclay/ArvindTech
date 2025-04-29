@@ -19,7 +19,7 @@ interface Rule {
 }
 
 const manageBind = (block: BASIC_FIELD, blockValue: BLOCK_VALUE, rule: Rule): BASIC_FIELD | BLOCK_VALUE => {
-    if (['Select', 'MultiSelect'].includes(block.is)) {
+    if (['Select', 'MultiSelectDropdown'].includes(block.is)) {
         const updatedBlock: BASIC_FIELD = {
             ...block,
             property: {

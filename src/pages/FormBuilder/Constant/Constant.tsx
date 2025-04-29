@@ -169,6 +169,7 @@ const FIELD_LIST = [
             dateSelection: "none",
             dateFormate: 'Y-m-d',
             mode: 'single',
+            dateValue: '',
         }
     },
     {
