@@ -209,7 +209,6 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges
             { field: 'label', message: 'Please Enter Task Name.' },
             { field: 'taskNumber', message: 'Please Enter Task Number.' },
             { field: 'assignDoerType', message: 'Please Select Assign Doer Type.' },
-            { field: 'doer', message: 'Please Select Doer.' },
         ];
 
         for (const rule of validationRules) {
