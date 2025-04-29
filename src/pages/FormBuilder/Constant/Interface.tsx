@@ -75,7 +75,7 @@ interface PROPERTY {
     options: OPTION[];
     advance: ADVANCE;
     isShow: boolean;
-    disabled: boolean;
+    disabled: string;
     startDateId?: string;
     endDateId?:string;
     size?:string;

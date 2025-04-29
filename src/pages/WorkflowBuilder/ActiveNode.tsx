@@ -54,7 +54,7 @@ const ActiveNode = ({ activeNode, activeTaskId, setActiveNode, completedNodes, s
             color: '',
         },
         isShow: false,
-        disabled: false,
+        disabled: 'false',
     })
     const [blockValue, setBlockValue] = useState<BLOCK_VALUE>(activeNode.data.blockValue ? activeNode.data.blockValue : {})
 
