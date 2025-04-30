@@ -157,7 +157,7 @@ const MultiSelectDropdown: React.FC<Props> = ({
                                     options={options}
                                     value={selectedOptions}
                                     onChange={handleMultiSelectChange}
-                                    isDisabled={editMode  || block.property.disabled}
+                                    isDisabled={editMode  || block.property.disabled === 'true' ? true : false}
                                     className={validationErrors[block.property.id] ? "is-invalid" : ""}
                                 />
 

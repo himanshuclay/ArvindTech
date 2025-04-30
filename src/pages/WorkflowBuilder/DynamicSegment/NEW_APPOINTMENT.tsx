@@ -97,11 +97,13 @@ const NEW_APPOINTMENT = forwardRef((props: any, ref) => {
     };
 
     const handleDateChange = (selectedDates: Date[]) => {
-        setBlockValue(prev => ({
-            ...prev,
-            dateOfJoining: selectedDates.length > 0 ? selectedDates[0].toISOString().split('T')[0] : ''
-        }));
+        const dateOfJoining = selectedDates.length
+            ? new Date(selectedDates[0].setHours(0, 0, 0, 0)).toLocaleDateString('en-CA') // 'en-CA' format ensures YYYY-MM-DD
+            : '';
+        setBlockValue(prev => ({ ...prev, dateOfJoining }));
     };
+    
+
 
     const handleFileChange = (candidateKey: string, event: React.ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0] || null;
@@ -223,6 +225,7 @@ const NEW_APPOINTMENT = forwardRef((props: any, ref) => {
                             placeholder="YYYY-MM-DD"
                         />
                     </Form.Group>
+
                 </Row>
             </Row>
         </div>

@@ -110,7 +110,7 @@ const ProjectAssignTable: React.FC = () => {
         color: '',
     },
     isShow: false,
-    disabled: false,
+    disabled: "false",
 })
   const [, setIsAddFormBuilder] = useState(false);
   const [dynamicComponent, setDynamicComponent] = useState<string>('');

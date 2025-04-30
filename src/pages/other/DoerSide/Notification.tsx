@@ -18,7 +18,7 @@ import { BLOCK_VALUE, FIELD } from '@/pages/FormBuilder/Constant/Interface';
 import { Node } from 'reactflow';
 // import ReactFlow, { Background, Controls, Edge, MiniMap, Node, useEdgesState, useNodesState } from 'reactflow';
 import ActiveNode from '@/pages/WorkflowBuilder/ActiveNode';
-import { getActiveNode } from '@/pages/WorkflowBuilder/Constant/function';
+import { getActiveNode, getCompletedNodes } from '@/pages/WorkflowBuilder/Constant/function';
 // import { getActiveNode, getCompletedNodes } from '@/pages/WorkflowBuilder/Constant/function';
 
 // import CustomNode from '@/pages/WorkflowBuilder/CustomNode';
@@ -422,8 +422,17 @@ const ProjectAssignTable: React.FC = () => {
         const doerId = localStorage.getItem("EmpId");
         if (doerId) {
           const activeNode = getActiveNode(templateJson.nodes, doerId);
-          console.log(activeNode)
+          const completedNodes = getCompletedNodes(templateJson.nodes);
+          console.log('completedNodes', completedNodes)
+          setCompletedNodes(completedNodes);
           if (activeNode) {
+            if (activeNode.data.TaskBinding && activeNode.data.BindingOption === "formAndValueWithEditMode") {
+              let extraActive = completedNodes.find(node => node.id === activeNode.data.TaskBinding);
+              if (extraActive) {
+                activeNode.data.form = extraActive.data.form;
+                activeNode.data.blockValue = extraActive.data.blockValue;
+              }
+            }
             setActiveNode(activeNode);
             setActiveTaskId(item.id);
           }

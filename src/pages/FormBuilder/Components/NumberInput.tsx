@@ -46,7 +46,7 @@ const NumberInput: React.FC<Props> = ({
                         value={blockValue[block.property.id] || ''}
                         onChange={handleInputChange}  // Handle change with ID
                         placeholder={block.property.placeholder}
-                        disabled={editMode || block.property.disabled}  // Disable input if in edit mode
+                        disabled={editMode || block.property.disabled === 'true' ? true : false}  // Disable input if in edit mode
                         className={validationErrors[block.property.id] ? "is-invalid" : ""}
                     />
 

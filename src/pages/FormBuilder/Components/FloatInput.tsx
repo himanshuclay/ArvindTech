@@ -46,7 +46,7 @@ const FloatInput: React.FC<Props> = ({
     };
 
     const validationError = validationErrors[id];
-    const disabled = editMode ||block.property.disabled;
+    const disabled = editMode ||block.property.disabled === 'true' ? true : false;
 
     if (!isShow && !editMode) return null;
 

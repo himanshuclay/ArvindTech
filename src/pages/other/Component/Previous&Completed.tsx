@@ -64,7 +64,7 @@ const MessCards: React.FC<{ data: Task[] }> = ({ data }) => {
             color: '',
         },
         isShow: false,
-        disabled: false,
+        disabled: "false",
     })
     const [blockValue, setBlockValue] = useState({ ...blockData })
     useEffect(() => {

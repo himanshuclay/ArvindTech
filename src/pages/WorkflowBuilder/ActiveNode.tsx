@@ -15,6 +15,7 @@ import ASSIGN_TASK from "./DynamicSegment/ASSIGN_TASK";
 import axios from "axios";
 import config from "@/config";
 import { toast } from "react-toastify";
+// import { json } from "stream/consumers";
 
 const ActiveNode = ({ activeNode, activeTaskId, setActiveNode, completedNodes, setCompletedNodes }: { activeNode: any; activeTaskId: number; setActiveNode: (value: any) => void; completedNodes: any; setCompletedNodes: (value: any) => void; }) => {
     console.log('activeNode', activeNode)
@@ -54,7 +55,7 @@ const ActiveNode = ({ activeNode, activeTaskId, setActiveNode, completedNodes, s
             color: '',
         },
         isShow: false,
-        disabled: false,
+        disabled: 'false',
     })
     const [blockValue, setBlockValue] = useState<BLOCK_VALUE>(activeNode.data.blockValue ? activeNode.data.blockValue : {})
 
@@ -84,9 +85,9 @@ const ActiveNode = ({ activeNode, activeTaskId, setActiveNode, completedNodes, s
                 activeNode.data['completedBy'] = localStorage.getItem("EmpId");
                 activeNode.data['completedBy'] = localStorage.getItem("EmpId");
                 activeNode.data.form = dynamicComponent ? dynamicComponent : form;
-                // if (componentRefMap.current[dynamicComponent]) {
-                //     activeNode.data['blockValue'] = componentRefMap.current[dynamicComponent]?.[dynamicComponent]?.();
-                // }
+                if (componentRefMap.current[dynamicComponent]) {
+                    activeNode.data['blockValue'] = componentRefMap.current[dynamicComponent]?.[dynamicComponent]?.();
+                }
                 const query: any = {
                     id: activeTaskId,
                 }
@@ -256,6 +257,7 @@ const ActiveNode = ({ activeNode, activeTaskId, setActiveNode, completedNodes, s
                 </div>
 
             ))} */}
+            {JSON.stringify(blockValue)}
 
             {activeNode.data.label && (<div>{activeNode.data.label}{activeLoop ? activeLoop.split('-')[1] : ''}</div>)}
             <div className="my-2 position-relative">

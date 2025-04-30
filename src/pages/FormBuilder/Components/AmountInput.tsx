@@ -51,7 +51,7 @@ const AmountInput: React.FC<Props> = ({
                             value={blockValue[block.property.id] || ''}
                             onChange={handleInputChange}
                             placeholder={block.property.placeholder || 'Enter amount'}
-                            disabled={editMode || block.property.disabled}
+                            disabled={editMode || block.property.disabled === 'true' ? true : false}
                             className={validationErrors[block.property.id] ? 'is-invalid' : ''}
                             inputMode="decimal" // Mobile numeric keypad
                             pattern="^\d*\.?\d{0,2}$" // HTML5 validation

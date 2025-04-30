@@ -203,7 +203,7 @@ const [property, setProperty] = useState<PROPERTY>({
         color: '',
     },
     isShow: false,
-    disabled: false,
+    disabled: "false",
 })
     const [blockValue, setBlockValue] = useState({})
 
