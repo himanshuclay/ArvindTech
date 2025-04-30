@@ -38,6 +38,7 @@ import Paragraph from './Paragraph';
 import FloatInput from "./FloatInput";
 import { speak } from "@/utils/speak";
 import CheckboxInput from "./CheckboxInput";
+import Blocks from "../Blocks/Blocks";
 
 const componentsMap = {
     TextInput,
@@ -220,7 +221,9 @@ const Looper: React.FC<Props> = ({
         }
     };
 
-    const handleLoopBlocks = (action: string) => {
+    const handleLoopBlocks = (action: string, groupIndex?: number) => {
+        const loopBlockCount = block.property.loopBlocks?.length || 1;
+
         if (action === "ADD") {
             if (block.property.loopBlocks?.length) {
                 const newBlocks = block.property.loopBlocks.map(loopBlock => ({
@@ -230,40 +233,47 @@ const Looper: React.FC<Props> = ({
                         id: `${block.property.id}_${loopBlock.property.id}_${Date.now()}`, // ensure unique ID
                     }
                 }));
-    
+
                 setForm(prev => ({
                     ...prev,
                     blocks: prev.blocks.map(b =>
                         b.property.id === block.property.id
                             ? {
-                                  ...b,
-                                  property: {
-                                      ...b.property,
-                                      blocks: [...(b.property.blocks || []), ...newBlocks],
-                                  },
-                              }
+                                ...b,
+                                property: {
+                                    ...b.property,
+                                    blocks: [...(b.property.blocks || []), ...newBlocks],
+                                },
+                            }
                             : b
                     ),
                 }));
             }
-        } else if (action === "REMOVE") {
+        }
+
+        if (action === "REMOVE_GROUP" && typeof groupIndex === "number") {
+            const start = groupIndex * loopBlockCount;
+
             setForm(prev => ({
                 ...prev,
                 blocks: prev.blocks.map(b =>
                     b.property.id === block.property.id
                         ? {
-                              ...b,
-                              property: {
-                                  ...b.property,
-                                  blocks: b.property.blocks?.slice(0, -1) || [],
-                              },
-                          }
+                            ...b,
+                            property: {
+                                ...b.property,
+                                blocks: (b.property.blocks || []).filter(
+                                    (_, idx) => idx < start || idx >= start + loopBlockCount
+                                ),
+                            },
+                        }
                         : b
                 ),
             }));
         }
     };
-    
+
+
 
     return (
         <div>
@@ -274,6 +284,7 @@ const Looper: React.FC<Props> = ({
                             className={`${editMode ? "pointer-events-none select-none" : ""}`}
                         >
                             <button type="button" onClick={() => handleLoopBlocks('ADD')}>+</button>
+                            <button type="button" onClick={() => handleLoopBlocks('REMOVE')}>-</button>
                         </fieldset>
                     </div>
 
@@ -326,37 +337,68 @@ const Looper: React.FC<Props> = ({
                                     onDragOver={(e) => handleDragOver(e, "Looper")}
                                     onDragLeave={(e) => handleDragLeave(e, "Looper")}
                                 >
-                                    <div className="d-flex flex-wrap">
-                                        {block.property.blocks?.length === 0 ? (
+                                    <div className="d-flex flex-wrap flex-column gap-3 ">
+                                        {(block.property.blocks?.length ?? 0) === 0 ? (
                                             <p className="text-gray-400">Drag fields here...</p>
                                         ) : (
-                                            block.property.blocks?.map((loopBlock, index) => (
-                                                <div
-                                                    className={`col-lg-${loopBlock.property.size || "12"}`}
-                                                    key={loopBlock.property.id || index}
-                                                >
-                                                    <div
-                                                        className={`col-lg-12 p-2 rounded bg-gray-100 ${form.editMode ? "border cursor-pointer" : ""
-                                                            }`}
-                                                        onClick={(e) => handlePropertyClick(e, loopBlock)}
-                                                        style={loopBlock.property.advance}
-                                                    >
-                                                        <DynamicComponentRenderer
-                                                            form={form}
-                                                            setForm={setForm}
-                                                            componentType={loopBlock.is}
-                                                            block={loopBlock}
-                                                            handleChange={handleInnerChange}
-                                                            validationErrors={validationErrors}
-                                                            blockValue={blockValue}
-                                                            setBlockValue={setBlockValue}
-                                                        />
+                                            Array.from({
+                                                length: Math.ceil((block.property.blocks?.length ?? 0) / (block.property.loopBlocks?.length || 1)),
+                                            }).map((_, groupIndex) => {
+                                                const groupSize = block.property.loopBlocks?.length || 1;
+                                                const start = groupIndex * groupSize;
+                                                const end = start + groupSize;
+                                                const group = (block.property.blocks || []).slice(start, end);
+
+                                                return (
+                                                    <div key={groupIndex} className="border border-dashed border-blue-400 rounded p-2 mb-2 shadow-up">
+                                                        <div className="d-flex justify-content-between align-items-center mb-2">
+                                                            <span className="text-sm font-semibold">Group {groupIndex + 1}</span>
+                                                            <button
+                                                                type="button"
+                                                                className="btn btn-sm btn-danger"
+                                                                disabled={
+                                                                    Math.ceil((block.property.blocks?.length || 0) / (block.property.loopBlocks?.length || 1)) === 1
+                                                                }
+                                                                onClick={() => handleLoopBlocks("REMOVE_GROUP", groupIndex)}
+                                                            >
+                                                                Remove Group
+                                                            </button>
+                                                        </div>
+                                                        <div className="d-flex flex-wrap">
+                                                            {group.map((loopBlock, index) => (
+                                                                <div
+                                                                    className={`col-lg-${loopBlock.property.size || "12"}`}
+                                                                    key={loopBlock.property.id || index}
+                                                                >
+                                                                    <div
+                                                                        className={`col-lg-12 p-2 rounded bg-gray-100 ${form.editMode ? "border cursor-pointer" : ""}`}
+                                                                        onClick={(e) => handlePropertyClick(e, loopBlock)}
+                                                                        style={loopBlock.property.advance}
+                                                                    >
+                                                                        <DynamicComponentRenderer
+                                                                            form={form}
+                                                                            setForm={setForm}
+                                                                            componentType={loopBlock.is}
+                                                                            block={loopBlock}
+                                                                            handleChange={handleInnerChange}
+                                                                            validationErrors={validationErrors}
+                                                                            blockValue={blockValue}
+                                                                            setBlockValue={setBlockValue}
+                                                                        />
+                                                                    </div>
+                                                                </div>
+                                                            ))}
+                                                        </div>
                                                     </div>
-                                                </div>
-                                            ))
+
+
+                                                );
+                                            })
                                         )}
                                     </div>
-                                </div>
+
+
+                                    Select Output Labels                                </div>
                             )}
                         </>
                     )}
