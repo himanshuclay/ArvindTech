@@ -37,19 +37,13 @@ const getActiveNode = (nodes: Node[], id: string): Node | undefined => {
 };
 
 
-const getCompletedNodes = (workerData: WorkflowBuilderConfig, id: string, completedNodes: any[] = [], sourceHandle?: string): any[] => {
-    const currentNode = getSource(workerData, id, sourceHandle);
-
-    // Base case: stop recursion if no node is found or if the status is not "completed"
-    if (!currentNode || currentNode.data.status !== "completed") {
-        return completedNodes;
-    }
-
-    // Push the current node (or specific part of the node you need) into the completedNodes array
-    completedNodes.push(currentNode);
-
-    // Recursive call with the next node's ID
-    return getCompletedNodes(workerData, currentNode.data.nextNode.id, completedNodes, currentNode.data.nextNode.sourceHandle);
+const getCompletedNodes = (nodes: Node[]): Node[] => {
+    console.log('nodes', nodes)
+    const completedNode = nodes.filter(
+        (node) =>
+            node.data.status === "completed"
+    );
+    return completedNode;
 }
 
 const getBlockName = (blocks: any) => {
