@@ -246,6 +246,7 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges
                         ...node,
                         data: {
                             ...node.data,
+                            ...nodeSetting,
                             assignDoerType: nodeSetting.assignDoerType,
                             doer: nodeSetting.doer,
                             role: nodeSetting.role,
@@ -1007,7 +1008,7 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges
                                     <Form.Label>Task Name*</Form.Label>
                                     <Select
                                         options={previousTaskList}
-                                        value={previousTaskList.find(option => option.value === nodeSetting.doerTaskNumber)}
+                                        value={previousTaskList.find(option => option.value === nodeSetting.preTaskLabels)}
                                         onChange={(selectedOption) => {
                                             const selectedTaskNumber = selectedOption?.value || '';
                                             const matchedNode = nodes.find(
