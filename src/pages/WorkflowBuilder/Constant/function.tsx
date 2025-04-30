@@ -16,7 +16,6 @@ const getSource = (
     id: string,
     sourceHandle?: string
 ) => {
-    console.log('workflowData', workflowData)
     const start = workflowData.edges.find(e =>
         e.source === id && (sourceHandle ? e.sourceHandle === sourceHandle : true)
     );
@@ -100,10 +99,10 @@ const getPreviousTaskList = (
             result.push({ label: node.data.label, value: node.id });
             if (node.data.outputLabels && node.data.outputLabels.length > 1) {
                 node.data.outputLabels.map((outputLabel: string) => {
-                    return getPreviousTaskList(nodes, edges, node.id, targetId, result, outputLabel);
+                    // return getPreviousTaskList(nodes, edges, node.id, targetId, result, outputLabel);
                 })
             } else {
-                return getPreviousTaskList(nodes, edges, node.id, targetId, result);
+                // return getPreviousTaskList(nodes, edges, node.id, targetId, result);
             }
         }
     }

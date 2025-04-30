@@ -53,7 +53,7 @@ const FormBuilder: React.FC<FormBuilderProps> = ({ formDetails, handleClose, for
             color: '',
         },
         isShow: false,
-        disabled: false,
+        disabled: 'false',
     })
 
 
@@ -81,7 +81,7 @@ const FormBuilder: React.FC<FormBuilderProps> = ({ formDetails, handleClose, for
                 color: '',
             },
             isShow: false,
-            disabled: false,
+            disabled: 'false',
         });
     };
 

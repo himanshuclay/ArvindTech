@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from "react";
 import {
     BASIC_FIELD,
@@ -125,6 +126,7 @@ const Looper: React.FC<Props> = ({
                 [block.property.id]: initialValues,
             }));
         }
+        handleLoopBlocks('ADD')
     }, []);
 
     const handleDrop = (
