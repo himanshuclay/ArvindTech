@@ -71,6 +71,7 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges
     const outputLabels = data.outputLabels || Array(outputHandles).fill("").map((_, i) => `Out ${i + 1}`);
     const [previousTaskList, setPerviousTaskList] = useState<{ label: string, value: string }[]>([]);
     const [previousBlockList, setPerviousBlockList] = useState<{ label: string, value: string }[]>([]);
+    const [approvalOptions,] = useState<{ label: string, value: string }[]>(getAllBlockName(nodes, id, 'Select'));
     const [previousLoopingBlockList, setPerviousLoopingBlockList] = useState<{ label: string, value: string }[]>([]);
     const [previousOptionsList, setPerviousOptionsList] = useState<{ label: string, value: string }[]>([]);
     const [, setPerviousLoopingOptionsList] = useState<{ label: string, value: string }[]>([]);
@@ -371,6 +372,7 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges
         }
         if (nodeSetting.loopingSetting.start3) {
             const value = getAllBlockName(nodes, nodeSetting.loopingSetting.start3);
+            console.log("new", value);
             setPerviousLoopingBlockList(value);
             setNodeSetting(prev => ({
                 ...prev,
@@ -1032,7 +1034,6 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges
                                     />
                                 </Form.Group>
                             </Col>
-                            {JSON.stringify(nodeSetting.selectedOutputs)}
                             {nodeSetting.matchedOutputLabels?.length > 0 && (
                                 <Col lg={6}>
                                     <Form.Group>
@@ -1062,6 +1063,82 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges
                                     </Form.Group>
                                 </Col>
                             )}
+                        </Row>
+                        <hr />
+
+                        <Row>
+                            <p><strong>Previous block</strong></p>
+                            <Col lg={3}>
+                                <Form.Group>
+                                    <Form.Label>Block Name*</Form.Label>
+                                    <Select
+                                        options={approvalOptions} // Updated block list based on task number
+                                        // Ensure value is either a valid option object or undefined/null if no selection
+                                        value={nodeSetting.approvalSelect ? approvalOptions.find(option => option.value === nodeSetting.approvalSelect) : null}
+                                        onChange={(selectedOption) =>
+                                            setNodeSetting(prev => ({
+                                                ...prev,
+                                                approvalSelect: selectedOption ? selectedOption.value : '' // Ensure it's a string value
+                                            }))
+                                        }
+                                        placeholder="Select a Block"
+                                        isClearable
+                                    />
+                                </Form.Group>
+                            </Col>
+                            <Col lg={3}>
+                                <Form.Group>
+                                    <Form.Label>block options*</Form.Label>
+                                    <Select
+                                        options={getAllBlockOptions(nodes, id, nodeSetting.approvalSelect)} // Updated block list based on task number
+                                        // Ensure value is either a valid option object or undefined/null if no selection
+                                        value={nodeSetting.approvalOptions ? approvalOptions.find(option => option.value === nodeSetting.approvalOptions) : null}
+                                        onChange={(selectedOption) =>
+                                            setNodeSetting(prev => ({
+                                                ...prev,
+                                                approvalOptions: selectedOption ? selectedOption.value : '' // Ensure it's a string value
+                                            }))
+                                        }
+                                        placeholder="Select a Block"
+                                        isClearable
+                                    />
+                                </Form.Group>
+                            </Col>
+                            <Col lg={3}>
+                                <Form.Group>
+                                    <Form.Label>Select Task Binding*</Form.Label>
+                                    <Select
+                                        options={previousTaskList}
+                                        value={previousTaskList.find(option => option.value === nodeSetting.approvalTaskNumber)}
+                                        onChange={(selectedOption) =>
+                                            setNodeSetting(prev => ({ ...prev, approvalTaskNumber: selectedOption?.value || '' }))
+                                        }
+                                        placeholder="Select"
+                                        isClearable
+
+                                    />
+                                </Form.Group>
+                            </Col>
+                            {nodeSetting.approvalTaskNumber && (
+                                <Col lg={3}>
+                                    <Form.Group>
+                                        <Form.Label>Select Binding Option*</Form.Label>
+                                        <Select
+                                            options={TASK_BINDING_OPTION}
+                                            value={TASK_BINDING_OPTION.find(option => option.value === nodeSetting.approvalBindingTask)}
+                                            onChange={(selectedOption) =>
+                                                setNodeSetting(prev => ({ ...prev, approvalBindingTask: selectedOption?.value || '' }))
+                                            }
+                                            placeholder="Select"
+                                            isClearable
+
+                                        />
+                                    </Form.Group>
+                                </Col>
+                            )}
+                        </Row>
+                        <Row>
+
                         </Row>
                     </Modal.Body>
                     <Modal.Footer>
