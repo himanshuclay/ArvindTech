@@ -529,13 +529,13 @@ const WorkflowBuilder: React.FC = () => {
                     <div draggable onDragStart={(e) => handleDragStart(e, 'ADD_NODE')} style={{ padding: '10px', border: '1px solid #ccc', cursor: 'grab', marginBottom: '10px' }}>Drag to Add Node</div>
                     <div draggable onDragStart={(e) => handleDragStart(e, 'ADD_FORM')} style={{ padding: '10px', border: '1px solid #ccc', cursor: 'grab', marginBottom: '10px' }}>Drag to Add Node With Form</div>
                     <div draggable onDragStart={(e) => handleDragStart(e, 'STAFF_ALLOCATION_PLAN')} style={{ padding: '10px', border: '1px solid #ccc', cursor: 'grab', marginBottom: '10px' }}>Staff Allocation Plan</div>
-                    <div draggable onDragStart={(e) => handleDragStart(e, 'APPOINTMENT')} style={{ padding: '10px', border: '1px solid #ccc', cursor: 'grab', marginBottom: '10px' }}>Appointment</div>
+                    {/* <div draggable onDragStart={(e) => handleDragStart(e, 'APPOINTMENT')} style={{ padding: '10px', border: '1px solid #ccc', cursor: 'grab', marginBottom: '10px' }}>Appointment</div> */}
                     <div draggable onDragStart={(e) => handleDragStart(e, 'NEW_APPOINTMENT')} style={{ padding: '10px', border: '1px solid #ccc', cursor: 'grab', marginBottom: '10px' }}>New Appointment</div>
-                    <div draggable onDragStart={(e) => handleDragStart(e, 'OLD_STAFF_TRANSFER')} style={{ padding: '10px', border: '1px solid #ccc', cursor: 'grab', marginBottom: '10px' }}>Old Staff Transfer</div>
-                    <div draggable onDragStart={(e) => handleDragStart(e, 'INDUCTION')} style={{ padding: '10px', border: '1px solid #ccc', cursor: 'grab', marginBottom: '10px' }}>Induction</div>
-                    <div draggable onDragStart={(e) => handleDragStart(e, 'UPDATE_EMPLOYEE')} style={{ padding: '10px', border: '1px solid #ccc', cursor: 'grab', marginBottom: '10px' }}>Update Employee</div>
-                    <div draggable onDragStart={(e) => handleDragStart(e, 'APPOINTMENT_LETTER')} style={{ padding: '10px', border: '1px solid #ccc', cursor: 'grab', marginBottom: '10px' }}>Appointment Letter</div>
-                    <div draggable onDragStart={(e) => handleDragStart(e, 'ASSIGN_TASK')} style={{ padding: '10px', border: '1px solid #ccc', cursor: 'grab', marginBottom: '10px' }}>Assign Task</div>
+                    {/* <div draggable onDragStart={(e) => handleDragStart(e, 'OLD_STAFF_TRANSFER')} style={{ padding: '10px', border: '1px solid #ccc', cursor: 'grab', marginBottom: '10px' }}>Old Staff Transfer</div> */}
+                    {/* <div draggable onDragStart={(e) => handleDragStart(e, 'INDUCTION')} style={{ padding: '10px', border: '1px solid #ccc', cursor: 'grab', marginBottom: '10px' }}>Induction</div> */}
+                    {/* <div draggable onDragStart={(e) => handleDragStart(e, 'UPDATE_EMPLOYEE')} style={{ padding: '10px', border: '1px solid #ccc', cursor: 'grab', marginBottom: '10px' }}>Update Employee</div> */}
+                    {/* <div draggable onDragStart={(e) => handleDragStart(e, 'APPOINTMENT_LETTER')} style={{ padding: '10px', border: '1px solid #ccc', cursor: 'grab', marginBottom: '10px' }}>Appointment Letter</div> */}
+                    {/* <div draggable onDragStart={(e) => handleDragStart(e, 'ASSIGN_TASK')} style={{ padding: '10px', border: '1px solid #ccc', cursor: 'grab', marginBottom: '10px' }}>Assign Task</div> */}
                     <div draggable onDragStart={(e) => handleDragStart(e, 'BUSINESS_GROWTH_REVIEW')} style={{ padding: '10px', border: '1px solid #ccc', cursor: 'grab', marginBottom: '10px' }}>Business Growth Review</div>
                     <div draggable onDragStart={(e) => handleDragStart(e, 'SALARY_PROCESSING')} style={{ padding: '10px', border: '1px solid #ccc', cursor: 'grab', marginBottom: '10px' }}>Salary Processing</div>
                     {workflowBuilder.apiSetting.map((api) => (

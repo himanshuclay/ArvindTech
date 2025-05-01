@@ -142,7 +142,7 @@ const ActiveNode = ({ activeNode, activeTaskId, setActiveNode, completedNodes, s
                 }
                 console.log(query)
                 const response = await axios.post(
-                    `${config.API_URL_ACCOUNT}/ProcessInitiation/UpdateTemplateJson`,
+                    `${config.API_URL_ACCOUNT}/ProcessInitiation/UpdateTemplateJson1`,
                     query
                 );
                 if (response.data.isSuccess) {
