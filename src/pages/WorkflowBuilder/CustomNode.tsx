@@ -305,8 +305,13 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges
         if (!nodeSetting.assignDoerType || nodeSetting.assignDoerType.trim() === '') {
             return { border: '2px solid red' };
         }
-        if (isCompleteTask && data.completedBy == localStorage.getItem("EmpId")) {
+        if (isCompleteTask){
+            if(data.completedBy == localStorage.getItem("EmpId")) {
             return { border: '4px solid green' };
+            }
+            if(data.isActive == true){
+                return { border: '4px solid orange'};
+            }
         }
         return {};
     };

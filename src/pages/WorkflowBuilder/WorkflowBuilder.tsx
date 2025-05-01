@@ -37,9 +37,52 @@ import { extractRecursively } from './Constant/function';
 
 
 const initialNodes: Node[] = [
-    { id: '1', type: 'input', data: { label: 'Start Node', inputHandles: 1, outputHandles: 1 }, position: { x: 100, y: 100 } },
-    { id: '2', type: 'output', data: { label: 'End Node', inputHandles: 1, outputHandles: 1 }, position: { x: 500, y: 100 } },
-];
+    {
+      id: '1',
+      type: 'input',
+      data: {
+        label: 'Start Node',
+        inputHandles: 0,
+        outputHandles: 1
+      },
+      position: { x: 100, y: 100 },
+      style: {
+        backgroundColor: '#28a745', // green for start
+        color: '#fff',
+        borderRadius: '50%',
+        width: 100,
+        height: 100,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        fontWeight: 'bold',
+        border: '2px solid #1e7e34'
+      }
+    },
+    {
+      id: '2',
+      type: 'output',
+      data: {
+        label: 'End Node',
+        inputHandles: 1,
+        outputHandles: 0
+      },
+      position: { x: 500, y: 100 },
+      style: {
+        backgroundColor: '#6c757d', // gray for end
+        color: '#fff',
+        borderRadius: '50%',
+        width: 100,
+        height: 100,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        fontWeight: 'bold',
+        border: '2px solid #343a40'
+      }
+    }
+  ];
+  
 
 const initialEdges: Edge[] = [{ id: 'e1-1', source: '1', target: '2', animated: true, type: 'smoothstep' }];
 
