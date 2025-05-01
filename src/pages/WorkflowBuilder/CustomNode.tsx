@@ -71,7 +71,7 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges
     const outputLabels = data.outputLabels || Array(outputHandles).fill("").map((_, i) => `Out ${i + 1}`);
     const [previousTaskList, setPerviousTaskList] = useState<{ label: string, value: string }[]>([]);
     const [previousBlockList, setPerviousBlockList] = useState<{ label: string, value: string }[]>([]);
-    const [approvalOptions,] = useState<{ label: string, value: string }[]>(getAllBlockName(nodes, id, 'Select'));
+    const [approvalOptions,] = useState<{ label: string, value: string }[]>(isCompleteTask ? [] : getAllBlockName(nodes, id, 'Select'));
     const [previousLoopingBlockList, setPerviousLoopingBlockList] = useState<{ label: string, value: string }[]>([]);
     const [previousOptionsList, setPerviousOptionsList] = useState<{ label: string, value: string }[]>([]);
     const [, setPerviousLoopingOptionsList] = useState<{ label: string, value: string }[]>([]);
@@ -305,12 +305,12 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges
         if (!nodeSetting.assignDoerType || nodeSetting.assignDoerType.trim() === '') {
             return { border: '2px solid red' };
         }
-        if (isCompleteTask){
-            if(data.completedBy == localStorage.getItem("EmpId")) {
-            return { border: '4px solid green' };
+        if (isCompleteTask) {
+            if (data.completedBy == localStorage.getItem("EmpId")) {
+                return { border: '4px solid green' };
             }
-            if(data.isActive == true){
-                return { border: '4px solid orange'};
+            if (data.isActive == true) {
+                return { border: '4px solid orange' };
             }
         }
         return {};
@@ -1091,24 +1091,26 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges
                                     />
                                 </Form.Group>
                             </Col>
-                            <Col lg={3}>
-                                <Form.Group>
-                                    <Form.Label>block options*</Form.Label>
-                                    <Select
-                                        options={getAllBlockOptions(nodes, id, nodeSetting.approvalSelect)} // Updated block list based on task number
-                                        // Ensure value is either a valid option object or undefined/null if no selection
-                                        value={nodeSetting.approvalOptions ? approvalOptions.find(option => option.value === nodeSetting.approvalOptions) : null}
-                                        onChange={(selectedOption) =>
-                                            setNodeSetting(prev => ({
-                                                ...prev,
-                                                approvalOptions: selectedOption ? selectedOption.value : '' // Ensure it's a string value
-                                            }))
-                                        }
-                                        placeholder="Select a Block"
-                                        isClearable
-                                    />
-                                </Form.Group>
-                            </Col>
+                            {isCompleteTask ? <></> :
+                                <Col lg={3}>
+                                    <Form.Group>
+                                        <Form.Label>block options*</Form.Label>
+                                        <Select
+                                            options={getAllBlockOptions(nodes, id, nodeSetting.approvalSelect)} // Updated block list based on task number
+                                            // Ensure value is either a valid option object or undefined/null if no selection
+                                            value={nodeSetting.approvalOptions ? approvalOptions.find(option => option.value === nodeSetting.approvalOptions) : null}
+                                            onChange={(selectedOption) =>
+                                                setNodeSetting(prev => ({
+                                                    ...prev,
+                                                    approvalOptions: selectedOption ? selectedOption.value : '' // Ensure it's a string value
+                                                }))
+                                            }
+                                            placeholder="Select a Block"
+                                            isClearable
+                                        />
+                                    </Form.Group>
+                                </Col>
+                            }
                             <Col lg={3}>
                                 <Form.Group>
                                     <Form.Label>Select Task Binding*</Form.Label>
