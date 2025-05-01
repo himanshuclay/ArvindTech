@@ -35,6 +35,22 @@ const FIELD_LIST = [
         }
     },
     {
+        name: "Paragraph",
+        is: "Paragraph",
+        property: {
+            label: "Paragraph Label",
+            placeholder: "This is a read-only paragraph meant for displaying static information.",
+            required: "false",
+            advance: {
+                backgroundColor: '#fff',
+                color: '#000',
+            },
+            isShow: true,
+            disabled: false,
+            size: '12'
+        }
+    },    
+    {
         name: "Number Input",
         is: "NumberInput",
         property: {

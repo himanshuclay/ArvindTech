@@ -1029,7 +1029,6 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges
 
                                         placeholder="Select a Task"
                                         isClearable
-
                                     />
                                 </Form.Group>
                             </Col>
