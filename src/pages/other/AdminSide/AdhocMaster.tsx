@@ -231,7 +231,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({ formData, messName, showMessM
             color: '',
         },
         isShow: false,
-        disabled: false,
+        disabled: "false",
     })
     const [blockValue, setBlockValue] = useState({})
     useEffect(() => {

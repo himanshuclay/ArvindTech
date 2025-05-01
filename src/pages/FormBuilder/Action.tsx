@@ -39,7 +39,7 @@ const Action: React.FC<Props> = ({ actionProps }) => {
                 color: ''
             },
             isShow: false,
-            disabled: false,
+            disabled: "false",
         });
         // setProperty({ label: '', id: ''})
     }

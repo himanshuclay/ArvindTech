@@ -13,7 +13,8 @@ const FIELD_LIST = [
             },
             isShow: true,
             disabled: false,
-            size: '12'
+            size: '12',
+            value: '',
         }
     },
     {
@@ -169,6 +170,7 @@ const FIELD_LIST = [
             dateSelection: "none",
             dateFormate: 'Y-m-d',
             mode: 'single',
+            dateValue: '',
         }
     },
     {
@@ -266,7 +268,7 @@ const FIELD_LIST = [
             label: "Radio",
             placeholder: "placeholder",
             validation: "",
-            groupInput: '',
+            groupName: '',
             value: '',
             advance: {
                 backgroundColor: '#fff',

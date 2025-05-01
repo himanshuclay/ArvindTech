@@ -75,7 +75,7 @@ interface PROPERTY {
     options: OPTION[];
     advance: ADVANCE;
     isShow: boolean;
-    disabled: boolean;
+    disabled: string;
     startDateId?: string;
     endDateId?:string;
     size?:string;
@@ -94,6 +94,7 @@ interface PROPERTY {
     minAllowedDate?: string;
     type: string;
     isPermanent?: boolean;
+    dateValue?: string;
 }
 interface OPTION { label: string; value: string }
 interface BLOCK_VALUE {

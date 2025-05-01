@@ -21,7 +21,7 @@ const TextInput: React.FC<Props> = ({
 }) => {
 
     const isRequired = block.property.validation === "required";
-    const isDisabled = !!(block.property.disabled);
+    const isDisabled = block.property.disabled === 'true' ? true : false;
 
         const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
             const { value } = e.target;
@@ -44,11 +44,10 @@ const TextInput: React.FC<Props> = ({
                             <span className='text-danger'>*</span>
                         )}
                     </Form.Label>
-
                     <Form.Control
                         type="text"
                         name={block.property.id}
-                        value={blockValue[block.property.id] || ''}
+                        value={blockValue[block.property.id] || block.property.value || ''}
                         onChange={handleInputChange} // ✅ Fixed here
                         placeholder={block.property.placeholder}
                         disabled={isDisabled}

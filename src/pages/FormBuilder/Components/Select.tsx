@@ -47,7 +47,7 @@ const Select: React.FC<Props> = ({ block, handleChange, validationErrors = {}, e
                     name={block.property.id}
                     value={blockValue[block.property.id] || ''}
                     onChange={handleSelectChange}
-                    disabled={editMode}
+                    disabled={editMode || block.property.disabled === 'true' ? true : false}
                     className={validationErrors[block.property.id] ? "is-invalid" : ""}
                 >
                     <option value="">Please select</option>

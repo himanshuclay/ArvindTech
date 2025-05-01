@@ -20,11 +20,11 @@ const DateInput: React.FC<Props> = ({
     blockValue,
     setBlockValue
 }) => {
-    const { id, label, placeholder, required, disabled, isShow, dateFormate, mode } = block.property;
+    const { id, label, placeholder, validation, disabled, isShow, dateFormate, mode, dateValue } = block.property;
 
-    const isRequired = required === "true";
+    const isRequired = validation === "required";
     const isDisabled = !!(disabled || (!editMode && !isShow));
-    const value = blockValue[id] || undefined; // ✅ use undefined instead of null
+    const value = blockValue[id] || dateValue ||undefined; // ✅ use undefined instead of null
 
     // Type check for valid mode values
     const validModes: ("time" | "multiple" | "single" | "range")[] = ["time", "multiple", "single", "range"];
@@ -54,6 +54,7 @@ const DateInput: React.FC<Props> = ({
                 <>
                     <div className={`${editMode ? 'cursor-not-allowed' : ''}`}>
                         <fieldset className={`${editMode ? 'pointer-events-none select-none' : ''}`}>
+                            {JSON.stringify(isRequired)}
                             <Form.Group controlId={id} className="mb-3">
                                 <Form.Label>
                                     {label}

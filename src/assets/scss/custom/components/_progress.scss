@@ -1029,7 +1029,7 @@ input.numInput.cur-year:hover {
 }
 
 .custom-node {
-  border: 1px solid black;
+  border: 1px solid rgb(41, 106, 226);
   padding: 15px;
   border-radius: 8px;
   background: white;
@@ -1291,3 +1291,6 @@ input.numInput.cur-year:hover {
   height: calc(100vh - 150px);
   overflow-y: auto;
 }
+
+.shadow-up
+{box-shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px;}

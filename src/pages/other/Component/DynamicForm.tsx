@@ -179,7 +179,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
             color: '',
         },
         isShow: false,
-        disabled: false,
+        disabled: "false",
     })
     const [blockValue, setBlockValue] = useState({})
     useEffect(() => {

@@ -20,7 +20,7 @@ const AmountInput: React.FC<Props> = ({
     blockValue,
     setBlockValue
 }) => {
-    const isRequired = block.property.required === 'true';
+    const isRequired = block.property.validation === 'required';
 
     // Only allow numbers with optional 2 decimal places
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -51,7 +51,7 @@ const AmountInput: React.FC<Props> = ({
                             value={blockValue[block.property.id] || ''}
                             onChange={handleInputChange}
                             placeholder={block.property.placeholder || 'Enter amount'}
-                            disabled={editMode}
+                            disabled={editMode || block.property.disabled === 'true' ? true : false}
                             className={validationErrors[block.property.id] ? 'is-invalid' : ''}
                             inputMode="decimal" // Mobile numeric keypad
                             pattern="^\d*\.?\d{0,2}$" // HTML5 validation

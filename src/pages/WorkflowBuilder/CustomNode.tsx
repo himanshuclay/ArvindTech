@@ -89,7 +89,7 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges
         taskTimeOptions: data.taskTimeOptions || '',
         days: data.days || '',
         taskCreationType: data.taskCreationType || '',
-        time: data.time || '',
+        time: data.time || '2025-04-29T14:30:00.000Z',
         hours: data.hours || '',
         weeks: data.weeks || '',
         label: data.label || '',
@@ -184,7 +184,7 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges
             taskTimeOptions: data.taskTimeOptions || '',
             days: data.taskTime || '',
             taskCreationType: data.taskCreationType || '',
-            time: data.time || '',
+            time: data.time || '2025-04-29T14:30:00.000Z',
             role: data.role || '',
             hours: data.hours || '',
             weeks: data.weeks || '',
@@ -209,7 +209,6 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges
             { field: 'label', message: 'Please Enter Task Name.' },
             { field: 'taskNumber', message: 'Please Enter Task Number.' },
             { field: 'assignDoerType', message: 'Please Select Assign Doer Type.' },
-            { field: 'doer', message: 'Please Select Doer.' },
         ];
 
         for (const rule of validationRules) {
@@ -247,6 +246,7 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges
                         ...node,
                         data: {
                             ...node.data,
+                            ...nodeSetting,
                             assignDoerType: nodeSetting.assignDoerType,
                             doer: nodeSetting.doer,
                             role: nodeSetting.role,
@@ -317,6 +317,7 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges
         });
         if (typeof data.form != "string" && data.form?.blocks?.length) {
             const blockNames = getBlockName(data.form.blocks);
+            console.log('blockNames', blockNames)
             setBlockName(blockNames);
 
         } else {
@@ -500,6 +501,7 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges
                                             setNodeSetting(prev => ({ ...prev, assignDoerType: selectedOption?.value || '' }))
                                         }
                                         placeholder="Select Assign Doer Type"
+                                        isClearable
                                     />
                                 </Form.Group>
                             </Col>
@@ -514,6 +516,7 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges
                                                 setNodeSetting(prev => ({ ...prev, doer: selectedOption?.value || '' }))
                                             }
                                             placeholder="Select a Doer"
+                                            isClearable
                                         />
                                     </Form.Group>
                                 )}
@@ -546,6 +549,7 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges
                                                                     }));
                                                                 }}
                                                                 placeholder={`Select a Doer for ${project.projectName}`}
+                                                                isClearable
                                                             />
                                                         </Form.Group>
                                                     </div>
@@ -571,6 +575,7 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges
                                                     setNodeSetting(prev => ({ ...prev, doerTaskNumber: selectedOption?.value || '' }))
                                                 }
                                                 placeholder="Select a Task"
+                                                isClearable
                                             />
                                         </Form.Group>
                                     </Col>
@@ -590,6 +595,7 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges
                                                         }))
                                                     }
                                                     placeholder="Select a Block"
+                                                    isClearable
                                                 />
 
                                             </Form.Group>
@@ -634,6 +640,7 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges
                                                                             }));
                                                                         }}
                                                                         placeholder={`Select a Doer for ${project.projectName} ${options.value}`}
+                                                                        isClearable
                                                                     />
                                                                 </div>
                                                             ))}
@@ -655,6 +662,7 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges
                                             setNodeSetting(prev => ({ ...prev, taskTimeOptions: selectedOption?.value || '' }))
                                         }
                                         placeholder="Select Assign Doer Type"
+                                        isClearable
                                     />
                                 </Form.Group>
                             </Col>
@@ -697,6 +705,7 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges
                                                 setNodeSetting(prev => ({ ...prev, weeks: selectedOption?.value || '' }))
                                             }
                                             placeholder="Select Assign Doer Type"
+                                            isClearable
                                         />
                                     </Form.Group>
                                 </Col>
@@ -758,6 +767,8 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges
                                                 setNodeSetting(prev => ({ ...prev, taskCreationType: selectedOption?.value || '' }))
                                             }
                                             placeholder="Select Assign Doer Type"
+                                            isClearable
+
                                         />
                                     </Form.Group>
                                 </Col>
@@ -772,6 +783,8 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges
                                             setNodeSetting(prev => ({ ...prev, role: selectedOption?.value || '' }))
                                         }
                                         placeholder="Select a role"
+                                        isClearable
+
                                     />
                                 </Form.Group>
                             </Col>
@@ -785,6 +798,8 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges
                                             setNodeSetting(prev => ({ ...prev, TaskBinding: selectedOption?.value || '' }))
                                         }
                                         placeholder="Select a TaskBinding"
+                                        isClearable
+
                                     />
                                 </Form.Group>
                             </Col>
@@ -799,6 +814,8 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges
                                                 setNodeSetting(prev => ({ ...prev, BindingOption: selectedOption?.value || '' }))
                                             }
                                             placeholder="Select a BindingOption"
+                                            isClearable
+
                                         />
                                     </Form.Group>
                                 </Col>
@@ -816,6 +833,8 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges
                                             setNodeSetting(prev => ({ ...prev, loopingSetting: { ...prev.loopingSetting, start1: selectedOption?.value || '' } }))
                                         }
                                         placeholder="Select Start1"
+                                        isClearable
+
                                     />
                                 </Form.Group>
                             </Col>
@@ -828,6 +847,8 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges
                                             setNodeSetting(prev => ({ ...prev, loopingSetting: { ...prev.loopingSetting, start2: selectedOption?.value || '' } }))
                                         }
                                         placeholder="Select Start2"
+                                        isClearable
+
                                     />
                                 </Form.Group>
                             </Col>
@@ -840,6 +861,8 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges
                                             setNodeSetting(prev => ({ ...prev, loopingSetting: { ...prev.loopingSetting, start3: selectedOption?.value || '' } }))
                                         }
                                         placeholder="Select Start3"
+                                        isClearable
+
                                     />
                                 </Form.Group>
                             </Col>
@@ -856,6 +879,8 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges
                                             }))
                                         }
                                         placeholder="Select a Block"
+                                        isClearable
+
                                     />
                                 </Form.Group>
                             </Col>
@@ -936,6 +961,8 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges
                                                 }
                                                 placeholder="Select expiry Logic"
                                                 required
+                                                isClearable
+
                                             />
                                         </Form.Group>
 
@@ -969,6 +996,8 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges
                                         }
                                         placeholder="Select Sunday Logic"
                                         required
+                                        isClearable
+
                                     />
                                 </Form.Group>
                             </Col>
@@ -979,7 +1008,7 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges
                                     <Form.Label>Task Name*</Form.Label>
                                     <Select
                                         options={previousTaskList}
-                                        value={previousTaskList.find(option => option.value === nodeSetting.doerTaskNumber)}
+                                        value={previousTaskList.find(option => option.value === nodeSetting.preTaskLabels)}
                                         onChange={(selectedOption) => {
                                             const selectedTaskNumber = selectedOption?.value || '';
                                             const matchedNode = nodes.find(
@@ -999,11 +1028,13 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges
                                         }}
 
                                         placeholder="Select a Task"
+                                        isClearable
+
                                     />
                                 </Form.Group>
                             </Col>
                             {JSON.stringify(nodeSetting.selectedOutputs)}
-                          {nodeSetting.matchedOutputLabels?.length > 0 && (
+                            {nodeSetting.matchedOutputLabels?.length > 0 && (
                                 <Col lg={6}>
                                     <Form.Group>
                                         <Form.Label>Select Output Labels</Form.Label>
@@ -1089,6 +1120,8 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges
                                                 fetchColumnNames(newMasterName);
                                             }}
                                             placeholder={`Select a Master for ${block}`}
+                                            isClearable
+
                                         />
 
                                         {/* Display column select dropdown if the mastername is selected */}
@@ -1114,6 +1147,8 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges
                                                     }));
                                                 }}
                                                 placeholder={`Select a Column for ${block}`}
+                                                isClearable
+
                                             />
                                         )}
                                     </div>
