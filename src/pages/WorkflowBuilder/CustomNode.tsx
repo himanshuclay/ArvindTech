@@ -308,7 +308,7 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges
             return { border: '2px solid red' };
         }
         if (isCompleteTask) {
-            if (data.completedBy == localStorage.getItem("EmpId")) {
+            if (data.status === "completed" && data.completedBy == localStorage.getItem("EmpId")) {
                 return { border: '4px solid green' };
             }
             if (data.isActive == true) {
