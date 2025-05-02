@@ -7,7 +7,7 @@ const FIELD_LIST = [
         is: "TextInput",
         property: {
             type: "TextInput",
-            label: "Label",
+            label: "TextInput",
             placeholder: "placeholder",
             validation: "",
             advance: {
@@ -42,7 +42,7 @@ const FIELD_LIST = [
         is: "NumberInput",
         property: {
             type: "NumberInput",
-            label: "Label",
+            label: "NumberInput",
             placeholder: "placeholder",
             validation: "",
             advance: {
@@ -102,7 +102,7 @@ const FIELD_LIST = [
         is: "EmailInput",
         property: {
             type: "EmailInput",
-            label: "Label",
+            label: "EmailInput",
             placeholder: "placeholder",
             validation: "",
             advance: {
@@ -121,7 +121,7 @@ const FIELD_LIST = [
         is: "PhoneInput",
         property: {
             type: "PhoneInput",
-            label: "Label",
+            label: "PhoneInput",
             placeholder: "placeholder",
             validation: "",
             advance: {
@@ -140,7 +140,7 @@ const FIELD_LIST = [
         is: "Password",
         property: {
             type: "Password",
-            label: "Label",
+            label: "Password",
             placeholder: "placeholder",
             validation: "",
             advance: {
@@ -429,7 +429,21 @@ const CONFIGURE_SELECTION_LOGIC: {
             placeholder="Please Enter"
         />
     ),
-    NumberInput: () => null,
+    NumberInput: (
+        rule: any,
+        index: number,
+        handleRuleChange: (name: string, value: string[] | string, index: number) => void,
+        handleStart2: (rule: any) => { isShow: boolean; options: any[] },
+        fetchColumnNames: (id: string) => void
+    ) => (
+        <Form.Control
+            type="number"
+            name="start2"
+            value={rule.start2}
+            onChange={(e) => handleRuleChange('start2', e.target.value, index)}
+            placeholder="Please Enter"
+        />
+    ),
     EmailInput: () => null,
     PhoneInput: () => null,
     Password: () => null,
