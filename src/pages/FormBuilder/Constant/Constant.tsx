@@ -35,22 +35,6 @@ const FIELD_LIST = [
         }
     },
     {
-        name: "Paragraph",
-        is: "Paragraph",
-        property: {
-            label: "Paragraph Label",
-            placeholder: "This is a read-only paragraph meant for displaying static information.",
-            required: "false",
-            advance: {
-                backgroundColor: '#fff',
-                color: '#000',
-            },
-            isShow: true,
-            disabled: false,
-            size: '12'
-        }
-    },    
-    {
         name: "Number Input",
         is: "NumberInput",
         property: {
@@ -231,6 +215,7 @@ const FIELD_LIST = [
             isLooping: false,
             loopBlocks: [],
             blockCount: 0,
+            maxSelections: '',
         }
     },
     {
@@ -384,6 +369,37 @@ const OPTIONS_SUNDAY_LOGIC = [
 
 
 
+const CONFIGURE_SELECTION_LOGIC = {
+    Select: `<Select
+                name="start2"
+                isMulti
+                value={rule.start2.map((value) => ({
+                    label: handleStart2(rule).options.find(option => option.value === value)?.label || '',
+                    value
+                }))}
+                options={handleStart2(rule).options}
+                onChange={(selectedOptions) => {
+                    const selectedValues = selectedOptions.map((option: Option) => option.value);
+                    handleRuleChange( 'start2', selectedValues , index);
+                    selectedValues.forEach(value => fetchColumnNames(value));
+                }}
+                placeholder="Please select"
+            />`,
+    NumberInput: `ddd`,
+    TextInput: `'''`,
+    EmailInput: '',
+    PhoneInput: '',
+    Password: '',
+    DateInput: '',
+    FileUpload: '',
+    DateRange: '',
+    MultiSelectDropdown: '',
+    AmountInput: '',
+    FloatInput: '',
+    Paragraph: '',
+    CheckboxInput: '',
+}
+
 export {
     FIELD_LIST,
     START1,
@@ -394,5 +410,6 @@ export {
     END2,
     START3,
     EXPIRY_LOGIC,
-    OPTIONS_SUNDAY_LOGIC
+    OPTIONS_SUNDAY_LOGIC,
+    CONFIGURE_SELECTION_LOGIC
 }

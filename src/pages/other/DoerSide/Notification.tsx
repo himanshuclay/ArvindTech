@@ -116,6 +116,7 @@ const ProjectAssignTable: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [parsedCondition, setParsedCondition] = useState<string>('');
   const [taskCommonIDRow, setTaskCommonIdRow] = useState<number | null>(null);
+  const [pId, setPId] = useState<number>(0);
   const [show, setShow] = useState(false);
   const [showView, setShowView] = useState(false);
   const [showViewOutput, setShowViewOutput] = useState(false);
@@ -438,6 +439,7 @@ const ProjectAssignTable: React.FC = () => {
           }
         }
       }
+      setPId(item.id)
     } else if (item.task_Json) {
       setTaskCommonIdRow(taskCommonId);
       fetchPreData(taskCommonId);
@@ -1107,7 +1109,7 @@ const ProjectAssignTable: React.FC = () => {
                 <Background />
               </ReactFlow>
             </div> */}
-            <ActiveNode activeNode={activeNode} activeTaskId={activeTaskId} setActiveNode={setActiveNode} completedNodes={completedNodes} setCompletedNodes={setCompletedNodes} />
+            <ActiveNode activeNode={activeNode} activeTaskId={activeTaskId} setActiveNode={setActiveNode} completedNodes={completedNodes} setCompletedNodes={setCompletedNodes} pId={pId} />
           </Modal.Body>
         </Modal>
       )}

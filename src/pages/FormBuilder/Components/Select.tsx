@@ -50,7 +50,7 @@ const Select: React.FC<Props> = ({ block, handleChange, validationErrors = {}, e
                     disabled={editMode || block.property.disabled === 'true' ? true : false}
                     className={validationErrors[block.property.id] ? "is-invalid" : ""}
                 >
-                    <option value="">Please select</option>
+                    <option value="">{block.property.placeholder}</option>
                     {block.property.options?.map((option, index) => (
                         <option key={index} value={option.value}>
                             {option.label}

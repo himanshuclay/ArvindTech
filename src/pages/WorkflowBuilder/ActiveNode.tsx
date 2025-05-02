@@ -17,8 +17,21 @@ import config from "@/config";
 import { toast } from "react-toastify";
 // import { json } from "stream/consumers";
 
-const ActiveNode = ({ activeNode, activeTaskId, setActiveNode, completedNodes, setCompletedNodes }: { activeNode: any; activeTaskId: number; setActiveNode: (value: any) => void; completedNodes: any; setCompletedNodes: (value: any) => void; }) => {
+const ActiveNode = ({ activeNode, activeTaskId, setActiveNode, completedNodes, setCompletedNodes, pId }: { activeNode: any; activeTaskId: number; setActiveNode: (value: any) => void; completedNodes: any; setCompletedNodes: (value: any) => void; pId?: any }) => {
     console.log('activeNode', activeNode)
+    const [prevForm, setPrevForm] = useState<FIELD>({
+        name: '',
+        blocks: [],
+        blockCount: 0,
+        editMode: true,
+        rules: [],
+        configureSelectionLogics: [],
+        advance: {
+            backgroundColor: '',
+            color: '',
+        },
+    })
+    const [prevBlockValue, setPrevBlockValue] = useState<BLOCK_VALUE>({})
     const [form, setForm] = useState<FIELD>(
         activeNode.data?.form?.blocks?.length
             ? {
@@ -62,12 +75,33 @@ const ActiveNode = ({ activeNode, activeTaskId, setActiveNode, completedNodes, s
     const [loopSection,] = useState(activeNode.data.taskLoop?.loopID ? activeNode.data.taskLoop.loopBlockValue : []);
     const [activeLoop, setActiveLoop] = useState(loopSection.length ? loopSection[0] : '');
     const [validationErrors, setValidationErrors] = useState<{ [key: string]: string }>({});
+    const [preNodeId, setPreNodeId] = useState('');
+
+    const approvalLogic = async (nodeId: string,) => {
+        try {
+            const response = await axios.get(
+                `${config.API_URL_ACCOUNT}/ProcessInitiation/GetFormandBlockValue?nodeID=${nodeId}&ID=${pId}`);
+                setPreNodeId(nodeId);
+            if (response.data.isSuccess) {
+                let data = JSON.parse(response.data.formandBlockValue)
+                console.log(data)
+                setPrevBlockValue(data.blockValue);
+                setPrevForm(data.form);
+            }
+        } catch (error) {
+
+        }
+    }
 
     useEffect(() => {
         setForm((preForm) => ({
             ...preForm,
             editMode: false,
         }))
+        console.log(activeNode)
+        if (activeNode.data.approvalSelect != '') {
+            approvalLogic(activeNode.data.approvalTaskNumber);
+        }
     }, [])
     const handleSumbitTask = async () => {
         try {
@@ -94,16 +128,16 @@ const ActiveNode = ({ activeNode, activeTaskId, setActiveNode, completedNodes, s
                 // if (Array.isArray(activeNode.data.outputLabels) && activeNode.data.outputLabels.length > 1) {
                 //     activeNode.data.outputLabels.forEach((output: any) => {
                 //         const cleanedOutput = output.includes('.') ? output.split('.')[1] : output;
-                    
+
                 //         const isMatch = Object.values(activeNode.data.blockValue).includes(cleanedOutput);
-                    
+
                 //         if (isMatch) {
                 //             console.log('Matched output:', cleanedOutput);
                 //             query["outputLabel"] = cleanedOutput;
                 //         }
                 //     });
-                    
-                    
+
+
                 //     // const activeLabel = activeNode.data.blockValue?.typeOfAppointment;
                 //     // const matchedActiveLabel = activeNode.data.outputLabels.find(
                 //     //     (label: any) => label === activeLabel
@@ -135,6 +169,10 @@ const ActiveNode = ({ activeNode, activeTaskId, setActiveNode, completedNodes, s
                 // activeNode.data['nextNode']['id'] = activeNode.id;
                 // activeNode.data['nextNode']['sourceHandle'] = query.outputLabel;
                 query.jsonInput = JSON.stringify(activeNode)
+                if(blockValue[activeNode.data.approvalSelect] == activeNode.data.approvalOptions){
+                    query.prevBlockValue = JSON.stringify(prevBlockValue);
+                    query.preNodeId = preNodeId;
+                }
 
                 if (activeLoop) {
                     query.activeLoop = activeLoop;
@@ -142,9 +180,10 @@ const ActiveNode = ({ activeNode, activeTaskId, setActiveNode, completedNodes, s
                 }
                 console.log(query)
                 const response = await axios.post(
-                    `${config.API_URL_ACCOUNT}/ProcessInitiation/UpdateTemplateJson`,
+                    `${config.API_URL_ACCOUNT}/ProcessInitiation/UpdateTemplateJson1`,
                     query
                 );
+
                 if (response.data.isSuccess) {
                     toast.success(response.data.message);
                     setActiveNode("");
@@ -257,8 +296,24 @@ const ActiveNode = ({ activeNode, activeTaskId, setActiveNode, completedNodes, s
                 </div>
 
             ))} */}
-            {JSON.stringify(blockValue)}
-
+            {/* {JSON.stringify(blockValue)} */}
+            {blockValue[activeNode.data.approvalSelect] == activeNode.data.approvalOptions && (
+                <>{prevForm.name}
+                    {prevForm?.blocks?.length ? (
+                        <Editor
+                            form={prevForm}
+                            setForm={setPrevForm}
+                            property={property}
+                            setProperty={setProperty}
+                            blockValue={prevBlockValue}
+                            setBlockValue={setPrevBlockValue}
+                            isShowSave={false}
+                            validationErrorsList={validationErrors}
+                        />
+                        // <>{JSON.stringify(prevBlockValue)}</>
+                    ) : ''}
+                </>
+            )}
             {activeNode.data.label && (<div>{activeNode.data.label}{activeLoop ? activeLoop.split('-')[1] : ''}</div>)}
             <div className="my-2 position-relative">
                 {form?.blocks?.length ? (
@@ -273,6 +328,7 @@ const ActiveNode = ({ activeNode, activeTaskId, setActiveNode, completedNodes, s
                         validationErrorsList={validationErrors}
                     />
                 ) : ''}
+
                 {dynamicComponent && componentMap[dynamicComponent] && (
                     React.createElement(componentMap[dynamicComponent], {
                         ref: (instance: any) => {

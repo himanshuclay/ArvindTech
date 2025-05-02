@@ -95,6 +95,7 @@ interface PROPERTY {
     type: string;
     isPermanent?: boolean;
     dateValue?: string;
+    maxSelections?: number;
 }
 interface OPTION { label: string; value: string }
 interface BLOCK_VALUE {

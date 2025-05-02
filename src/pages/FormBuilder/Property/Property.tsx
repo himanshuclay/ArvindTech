@@ -332,6 +332,19 @@ const Property: React.FC<Props> = ({ form, setForm, property, setProperty, remov
                     />
                 </div>
             )}
+            {property.hasOwnProperty('maxSelections') && (
+                <div className='d-flex justify-content-between align-items-center mt-2'>
+                    <label className='col-6'>Max Selections</label>
+                    <input
+                        type="number"
+                        name="maxSelections"
+                        className="border p-2 rounded col-6"
+                        value={property.maxSelections}
+                        onChange={handleChange}
+                        placeholder="Enter Max Selections"
+                    />
+                </div>
+            )}
             {property.hasOwnProperty('dateValue') && (
                 <div className='d-flex justify-content-between align-items-center mt-2'>
                     <label className='col-6'>Value</label>

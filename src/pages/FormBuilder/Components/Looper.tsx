@@ -127,8 +127,11 @@ const Looper: React.FC<Props> = ({
                 [block.property.id]: initialValues,
             }));
         }
-        handleLoopBlocks('ADD')
-    }, []);
+        console.log(block.property.blocks?.length)
+        if(!block.property.blocks || block.property.blocks?.length < 1){
+            handleLoopBlocks('ADD')
+        }
+    }, [, editMode]);
 
     const handleDrop = (
         e: React.DragEvent<HTMLDivElement>,
@@ -283,8 +286,7 @@ const Looper: React.FC<Props> = ({
                         <fieldset
                             className={`${editMode ? "pointer-events-none select-none" : ""}`}
                         >
-                            <button type="button" onClick={() => handleLoopBlocks('ADD')}>+</button>
-                            <button type="button" onClick={() => handleLoopBlocks('REMOVE')}>-</button>
+                            <button type="button" onClick={() => handleLoopBlocks('ADD')} className="btn btn-sm btn-success">Add Group</button>
                         </fieldset>
                     </div>
 
@@ -396,9 +398,7 @@ const Looper: React.FC<Props> = ({
                                             })
                                         )}
                                     </div>
-
-
-                                    Select Output Labels                                </div>
+                                </div>
                             )}
                         </>
                     )}

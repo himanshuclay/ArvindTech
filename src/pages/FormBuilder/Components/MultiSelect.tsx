@@ -37,6 +37,11 @@ const MultiSelectDropdown: React.FC<Props> = ({
     const selectedOptions = options?.filter((opt) => selectedValues.includes(opt.value)) || [];
 
     const handleMultiSelectChange = (selected: any) => {
+        if (block.property.maxSelections && selected.length > block.property.maxSelections) {
+            alert(`You can only select a maximum of ${block.property.maxSelections} options.`);
+            return;
+        }
+
         const selectedValues = selected ? selected.map((opt: any) => opt.value) : [];
 
         setBlockValue((prevState) => ({
