@@ -185,7 +185,7 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges
             doer: data.doer || '',
             specificDate: data.specificDate || '',
             taskTimeOptions: data.taskTimeOptions || '',
-            days: data.taskTime || '',
+            days: data.days || '',
             taskCreationType: data.taskCreationType || '',
             time: data.time || '2025-04-29T14:30:00.000Z',
             role: data.role || '',
