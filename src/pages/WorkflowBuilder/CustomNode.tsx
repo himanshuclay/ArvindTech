@@ -378,17 +378,19 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges
             setPerviousOptionsList([]);
         }
         if (nodeSetting.loopingSetting.start3) {
-            const value = getAllBlockName(nodes, nodeSetting.loopingSetting.start3);
-            console.log("new", value);
-            setPerviousLoopingBlockList(value);
-            setNodeSetting(prev => ({
-                ...prev,
-                loopingSetting: {
-                    ...prev.loopingSetting,
-                    start4: '',
-                }
-            }));
-            setPerviousLoopingOptionsList([]);
+            if(nodes){
+                const value = getAllBlockName(nodes, nodeSetting.loopingSetting.start3);
+                console.log("new", value);
+                setPerviousLoopingBlockList(value);
+                setNodeSetting(prev => ({
+                    ...prev,
+                    loopingSetting: {
+                        ...prev.loopingSetting,
+                        start4: '',
+                    }
+                }));
+                setPerviousLoopingOptionsList([]);
+            }
         }
     }, [nodeSetting.doerTaskNumber, nodeSetting.loopingSetting.start3]); // Triggered whenever doerTaskNumber changes
 

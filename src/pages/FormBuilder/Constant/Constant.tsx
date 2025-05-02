@@ -1,3 +1,6 @@
+import Select from "react-select";
+import { Form } from 'react-bootstrap';
+
 const FIELD_LIST = [
     {
         name: "Text Input",
@@ -370,36 +373,100 @@ const OPTIONS_SUNDAY_LOGIC = [
 // const BLOCK_DROP_DOWN = ['Select', 'NumberInput']
 
 
-const CONFIGURE_SELECTION_LOGIC = {
-    Select: `<Select
-                name="start2"
-                isMulti
-                value={rule.start2.map((value) => ({
-                    label: handleStart2(rule).options.find(option => option.value === value)?.label || '',
-                    value
-                }))}
-                options={handleStart2(rule).options}
-                onChange={(selectedOptions) => {
-                    const selectedValues = selectedOptions.map((option: Option) => option.value);
-                    handleRuleChange( 'start2', selectedValues , index);
-                    selectedValues.forEach(value => fetchColumnNames(value));
-                }}
-                placeholder="Please select"
-            />`,
-    NumberInput: `ddd`,
-    TextInput: `'''`,
-    EmailInput: '',
-    PhoneInput: '',
-    Password: '',
-    DateInput: '',
-    FileUpload: '',
-    DateRange: '',
-    MultiSelectDropdown: '',
-    AmountInput: '',
-    FloatInput: '',
-    Paragraph: '',
-    CheckboxInput: '',
-}
+// const CONFIGURE_SELECTION_LOGIC = {
+//     Select: `<Select
+//                 name="start2"
+//                 isMulti
+//                 value={rule.start2.map((value) => ({
+//                     label: handleStart2(rule).options.find(option => option.value === value)?.label || '',
+//                     value
+//                 }))}
+//                 options={handleStart2(rule).options}
+//                 onChange={(selectedOptions) => {
+//                     const selectedValues = selectedOptions.map((option: Option) => option.value);
+//                     handleRuleChange( 'start2', selectedValues , index);
+//                     selectedValues.forEach(value => fetchColumnNames(value));
+//                 }}
+//                 placeholder="Please select"
+//             />`,
+//     NumberInput: `ddd`,
+//     TextInput: `'''`,
+//     EmailInput: '',
+//     PhoneInput: '',
+//     Password: '',
+//     DateInput: '',
+//     FileUpload: '',
+//     DateRange: '',
+//     MultiSelectDropdown: '',
+//     AmountInput: '',
+//     FloatInput: '',
+//     Paragraph: '',
+//     CheckboxInput: '',
+// }
+
+const CONFIGURE_SELECTION_LOGIC: {
+    [key: string]: (
+        rule: any,
+        index: number,
+        handleRuleChange: (...args: any[]) => void,
+        handleStart2: (...args: any[]) => { isShow: boolean; options: any[] },
+        fetchColumnNames: (...args: any[]) => void
+    ) => React.ReactNode;
+} = {
+    '': () => null,
+    TextInput: (
+        rule: any,
+        index: number,
+        handleRuleChange: (name: string, value: string[] | string, index: number) => void,
+        handleStart2: (rule: any) => { isShow: boolean; options: any[] },
+        fetchColumnNames: (id: string) => void
+    ) => (
+        <Form.Control
+            type="text"
+            name="start2"
+            value={rule.start2}
+            onChange={(e) => handleRuleChange('start2', e.target.value, index)}
+            placeholder="Please Enter"
+        />
+    ),
+    NumberInput: () => null,
+    EmailInput: () => null,
+    PhoneInput: () => null,
+    Password: () => null,
+    DateInput: () => null,
+    FileUpload: () => null,
+    DateRange: () => null,
+    MultiSelectDropdown: () => null,
+    AmountInput: () => null,
+    FloatInput: () => null,
+    Paragraph: () => null,
+    CheckboxInput: () => null,
+    Select: (
+        rule: any,
+        index: number,
+        handleRuleChange: (name: string, value: string[], index: number) => void,
+        handleStart2: (rule: any) => { isShow: boolean; options: any[] },
+        fetchColumnNames: (id: string) => void
+    ) => (
+        <Select
+            name="start2"
+            isMulti
+            value={rule.start2.map((value: any) => ({
+                label:
+                    handleStart2(rule).options.find((option: any) => option.value === value)?.label || '',
+                value,
+            }))}
+            options={handleStart2(rule).options}
+            onChange={(selectedOptions: any) => {
+                const selectedValues = selectedOptions.map((option: any) => option.value);
+                handleRuleChange('start2', selectedValues, index);
+                selectedValues.forEach((value: any) => fetchColumnNames(value));
+            }}
+            placeholder="Please select"
+        />
+    ),
+};
+
 
 export {
     FIELD_LIST,

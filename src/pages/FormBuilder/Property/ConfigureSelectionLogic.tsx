@@ -5,7 +5,7 @@ import { getBlockById } from '../Constant/Functions';
 import { CONFIGURE_SELECTION_LOGICS, FIELD } from '../Constant/Interface';
 import axios from 'axios';
 import config from '@/config';
-import Select from "react-select";
+import { CONFIGURE_SELECTION_LOGIC } from '../Constant/Constant';
 
 
 
@@ -56,7 +56,7 @@ const ConfigureSelectionLogic: React.FC<Props> = ({ configureSelectionLogic, set
                 updatedRules[index][name] = selectedValues;
                 return updatedRules;
             });
-        } else{
+        } else {
             // For other names (single select or input), just assign the value directly
             const selectedValues = Array.isArray(value) ? value[0] : value; // Ensure value is always an array
             setConfigureSelectionLogics(prevRules => {
@@ -113,6 +113,14 @@ const ConfigureSelectionLogic: React.FC<Props> = ({ configureSelectionLogic, set
         });
     }, [form.rules]);
 
+    const handleDynamicInput = (start1: string) => {
+        const block = form.blocks.find(block => block.property.id === start1)
+        if (block) {
+            return block.is
+        }
+        return ''
+    }
+
     return (
         <Modal show={configureSelectionLogic} onHide={handleClose} size="xl">
             <Modal.Header closeButton>
@@ -134,7 +142,7 @@ const ConfigureSelectionLogic: React.FC<Props> = ({ configureSelectionLogic, set
                                         <Form.Select
                                             name="start1"
                                             value={rule.start1}
-                                            onChange={(e) => handleRuleChange('start1', e.target.value, index, )}
+                                            onChange={(e) => handleRuleChange('start1', e.target.value, index,)}
                                         >
                                             <option value="">Please select</option>
                                             {handleStart1(rule).options.map((option, optionIndex) => (
@@ -147,29 +155,17 @@ const ConfigureSelectionLogic: React.FC<Props> = ({ configureSelectionLogic, set
                                 )}
 
                                 {/* START2 */}
-                                {handleStart2(rule).isShow && (
-                                    <Form.Group controlId={`rule-${index}-start2`} className="mr-1">
-                                        {/* Use react-select for multi-select */}
-                                        <Select
-                                            name="start2"
-                                            isMulti
-                                            value={rule.start2.map((value) => ({
-                                                label: handleStart2(rule).options.find(option => option.value === value)?.label || '',
-                                                value
-                                            }))}
-                                            options={handleStart2(rule).options}
-                                            onChange={(selectedOptions) => {
-                                                // Update the selected values as an array of strings
-                                                const selectedValues = selectedOptions.map((option: Option) => option.value);
-                                                handleRuleChange( 'start2', selectedValues , index);
-                                                // Optionally, fetch columns when the start2 value changes
-                                                selectedValues.forEach(value => fetchColumnNames(value));
-                                            }}
-                                            placeholder="Please select"
-                                        />
+                                <Form.Group controlId={`rule-${index}-start2`}>
+                                    {CONFIGURE_SELECTION_LOGIC[handleDynamicInput(rule.start1)](
+                                        rule,
+                                        index,
+                                        handleRuleChange,
+                                        handleStart2,
+                                        fetchColumnNames
+                                    )}
+                                </Form.Group>
 
-                                    </Form.Group>
-                                )}
+
                             </div>
                             <div className="col-1">
                                 <button onClick={() => handleRule('remove', index)} className="border">

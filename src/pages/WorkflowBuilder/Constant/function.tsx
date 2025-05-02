@@ -105,6 +105,8 @@ const getPreviousTaskList = (
 };
 
 const getAllBlockName = (nodes: Node[], id: string, selection?: string) => {
+    console.log(nodes)
+    console.log(id)
     const node = nodes.find(n => n.id == id);
     let blockNameList: { label: string, value: string }[] = [];
     if (node) {
