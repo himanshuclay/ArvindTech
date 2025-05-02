@@ -82,6 +82,7 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges
     };
 
     const [nodeSetting, setNodeSetting] = useState<NodeSetting>({
+        ...data,
         assignDoerType: data.assignDoerType || '',  // Preserve existing selection
         doer: data.doer || '',
         taskNumber: data.taskNumber || '',
@@ -179,6 +180,7 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges
 
     useEffect(() => {
         setNodeSetting({
+            ...data,
             assignDoerType: data.assignDoerType || '',
             doer: data.doer || '',
             specificDate: data.specificDate || '',
@@ -995,17 +997,18 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges
                                     <Select
                                         name="sundayLogic"
                                         options={OPTIONS_SUNDAY_LOGIC}
-                                        value={
-                                            OPTIONS_SUNDAY_LOGIC.find((opt) => opt.value === nodeSetting.sundayLogic) || null
-                                        }
+                                        value={OPTIONS_SUNDAY_LOGIC.find(opt => opt.value === nodeSetting.sundayLogic) || null}
                                         onChange={(selectedOption) =>
-                                            setNodeSetting(prev => ({ ...prev, sundayLogic: selectedOption?.value || '' }))
+                                            setNodeSetting(prev => ({
+                                                ...prev,
+                                                sundayLogic: selectedOption?.value || '' // Set the selected value or empty string
+                                            }))
                                         }
                                         placeholder="Select Sunday Logic"
                                         required
                                         isClearable
-
                                     />
+
                                 </Form.Group>
                             </Col>
                         </Row>
@@ -1028,9 +1031,6 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges
                                                 selectedOutputs: [],
                                                 matchedOutputLabels: outputLabels
                                             }));
-
-                                            console.log("Matched Node:", matchedNode);
-                                            console.log("Output Labels:", outputLabels);
 
                                         }}
 

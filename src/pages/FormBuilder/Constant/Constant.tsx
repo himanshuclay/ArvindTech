@@ -367,6 +367,7 @@ const OPTIONS_SUNDAY_LOGIC = [
     { value: 'Skip Creating task', label: 'Skip Creating task' },
 ]
 
+// const BLOCK_DROP_DOWN = ['Select', 'NumberInput']
 
 
 const CONFIGURE_SELECTION_LOGIC = {

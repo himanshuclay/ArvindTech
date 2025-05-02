@@ -60,6 +60,21 @@ const updatePropertyByID = (blocks: BASIC_FIELD[], id: string, property: PROPERT
     return updatedBlocks;
 };
 
+const SelectiveBlockDropDown = (blocks: BASIC_FIELD[], selective: string[]) => {
+    const options = blocks
+        .map((block) => {
+            if (selective.includes(block.is)) {
+                return {
+                    label: `${block.property.label} (${block.property.id})`,
+                    value: block.property.id,
+                };
+            }
+            return null; // Return null if not included in selective
+        })
+        .filter((option) => option !== null); // Filter out null values
+
+    return options;
+};
 
 
 
@@ -70,4 +85,5 @@ export {
     manageShowHide,
     manageBind,
     updatePropertyByID,
+    SelectiveBlockDropDown,
 }
