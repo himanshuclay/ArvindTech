@@ -444,15 +444,120 @@ const CONFIGURE_SELECTION_LOGIC: {
             placeholder="Please Enter"
         />
     ),
-    EmailInput: () => null,
-    PhoneInput: () => null,
-    Password: () => null,
-    DateInput: () => null,
-    FileUpload: () => null,
+    EmailInput: (
+        rule: any,
+        index: number,
+        handleRuleChange: (name: string, value: string[] | string, index: number) => void,
+        handleStart2: (rule: any) => { isShow: boolean; options: any[] },
+        fetchColumnNames: (id: string) => void
+    ) => 
+        (
+            <Form.Control
+                type="email"
+                name="start2"
+                value={rule.start2}
+                onChange={(e) => handleRuleChange('start2', e.target.value, index)}
+                placeholder="Please Enter"
+            />
+        ),
+    PhoneInput: (
+        rule: any,
+        index: number,
+        handleRuleChange: (name: string, value: string[] | string, index: number) => void,
+        handleStart2: (rule: any) => { isShow: boolean; options: any[] },
+        fetchColumnNames: (id: string) => void
+    ) => 
+        (
+            <Form.Control
+                type="phone"
+                name="start2"
+                value={rule.start2}
+                onChange={(e) => handleRuleChange('start2', e.target.value, index)}
+                placeholder="Please Enter"
+            />
+        ),
+    Password: (
+        rule: any,
+        index: number,
+        handleRuleChange: (name: string, value: string[] | string, index: number) => void,
+        handleStart2: (rule: any) => { isShow: boolean; options: any[] },
+        fetchColumnNames: (id: string) => void
+    ) => 
+        (
+            <Form.Control
+                type="password"
+                name="start2"
+                value={rule.start2}
+                onChange={(e) => handleRuleChange('start2', e.target.value, index)}
+                placeholder="Please Enter"
+            />
+        ),
+    DateInput: (
+        rule: any,
+        index: number,
+        handleRuleChange: (name: string, value: string[] | string, index: number) => void,
+        handleStart2: (rule: any) => { isShow: boolean; options: any[] },
+        fetchColumnNames: (id: string) => void
+    ) => 
+        (
+            <Form.Control
+                type="date"
+                name="start2"
+                value={rule.start2}
+                onChange={(e) => handleRuleChange('start2', e.target.value, index)}
+                placeholder="Please Enter"
+            />
+        ),
+    FileUpload: (
+        rule: any,
+        index: number,
+        handleRuleChange: (name: string, value: string[] | string, index: number) => void,
+        handleStart2: (rule: any) => { isShow: boolean; options: any[] },
+        fetchColumnNames: (id: string) => void
+    ) => 
+        (
+            <Form.Control
+                type="file"
+                name="start2"
+                value={rule.start2}
+                onChange={(e) => handleRuleChange('start2', e.target.value, index)}
+                placeholder="Please Enter"
+            />
+        ),
     DateRange: () => null,
     MultiSelectDropdown: () => null,
-    AmountInput: () => null,
-    FloatInput: () => null,
+    AmountInput: (
+        rule: any,
+        index: number,
+        handleRuleChange: (name: string, value: string[] | string, index: number) => void,
+        handleStart2: (rule: any) => { isShow: boolean; options: any[] },
+        fetchColumnNames: (id: string) => void
+    ) => 
+        (
+            <Form.Control
+                type="number"
+                name="start2"
+                value={rule.start2}
+                onChange={(e) => handleRuleChange('start2', e.target.value, index)}
+                placeholder="Please Enter"
+            />
+        ),
+    FloatInput: (
+        rule: any,
+        index: number,
+        handleRuleChange: (name: string, value: string[] | string, index: number) => void,
+        handleStart2: (rule: any) => { isShow: boolean; options: any[] },
+        fetchColumnNames: (id: string) => void
+    ) => 
+        (
+            <Form.Control
+                type="number"
+                name="start2"
+                value={rule.start2}
+                onChange={(e) => handleRuleChange('start2', e.target.value, index)}
+                placeholder="Please Enter"
+            />
+        ),
     Paragraph: () => null,
     CheckboxInput: () => null,
     Select: (
