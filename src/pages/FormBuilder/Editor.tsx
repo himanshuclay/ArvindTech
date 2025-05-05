@@ -35,7 +35,7 @@ interface EditorProps {
     expandedRow?: number | null;
     isShowSave?: boolean;
     isPreview?: boolean;
-    validationErrorsList?: {[key: string]: string};
+    validationErrorsList?: { [key: string]: string };
 }
 
 interface DynamicComponentProps {
@@ -129,23 +129,23 @@ const Editor: React.FC<EditorProps> = ({ form, setForm, property, setProperty, b
 
         form.blocks.forEach(block => {
             const { validation, value, label, id } = block.property;
-        
+
             // Trimmed value for consistency
             const trimmedValue = value?.toString().trim() || "";
-        
+
             if (validation === "required" && trimmedValue === "") {
                 errors[id] = `${label} is required`;
             }
-        
+
             if (validation === "nonNegativeInteger" && !/^\d+$/.test(trimmedValue)) {
                 errors[id] = `${label} must be a non-negative integer`;
             }
-        
+
             if (validation === "positiveIntegerGreaterZero" && !/^[1-9]\d*$/.test(trimmedValue)) {
                 errors[id] = `${label} must be a positive integer greater than zero`;
             }
         });
-        
+
 
         setValidationErrors(errors);
 
@@ -251,6 +251,7 @@ const Editor: React.FC<EditorProps> = ({ form, setForm, property, setProperty, b
                                 rule: rule
                             };
                         });
+                        console.log(updatedActions);
                         setTriggeredActions(updatedActions);
                     }
                 }
@@ -297,7 +298,7 @@ const Editor: React.FC<EditorProps> = ({ form, setForm, property, setProperty, b
         }
     };
     const someRule = () => {
-        // console.log('triggeredActions', form.blocks)
+        console.log('triggeredActions', triggeredActions)
         let formBlock = updateIsPermanentRecursively(triggeredActions);
         // if(formBlock.length){
         //     setForm(prevForm => ({
@@ -318,14 +319,35 @@ const Editor: React.FC<EditorProps> = ({ form, setForm, property, setProperty, b
                 }));
             } else if (action.type === 'bind' && action.bindBlock) {
                 const updatedBlockValue = manageBind(action.bindBlock, blockValue, action.rule);
-                console.log('updatedBlockValue', updatedBlockValue, action.bindBlock.is)
                 if (['Select', 'MultiSelectDropdown'].includes(action.bindBlock.is)) {
                     setForm(prevForm => ({
                         ...prevForm,
-                        blocks: prevForm.blocks.map(block =>
-                            block.property.id === action.bindBlock.property.id ? updatedBlockValue as BASIC_FIELD : block
-                        )
-                    }));
+                        blocks: prevForm.blocks.map(block => {
+                          if (block.property.blocks?.length) {
+                            const updatedLoopBlocks = block.property.blocks.map(loopBlock => {
+                                if (loopBlock.property.id.includes(action.bindBlock.property.id)) {
+                                return updatedBlockValue as BASIC_FIELD;
+                              }
+                              return loopBlock;
+                            });
+                      
+                            return {
+                              ...block,
+                              property: {
+                                ...block.property,
+                                blocks: updatedLoopBlocks
+                              }
+                            };
+                          }
+                      
+                          if (block.property.id === action.bindBlock.property.id) {
+                            return updatedBlockValue as BASIC_FIELD;
+                          }
+                      
+                          return block;
+                        })
+                      }));                      
+
                 } else {
                     setBlockValue(updatedBlockValue as BLOCK_VALUE);
                 }
@@ -353,10 +375,10 @@ const Editor: React.FC<EditorProps> = ({ form, setForm, property, setProperty, b
     }, [blockValue, triggeredActions]);
 
     useEffect(() => {
-        if(validationErrorsList){
+        if (validationErrorsList) {
             setValidationErrors(validationErrorsList);
         }
-    },[validationErrorsList])
+    }, [validationErrorsList])
 
 
     return (

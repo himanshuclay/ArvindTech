@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Button, Form, Modal } from 'react-bootstrap';
 import { END1, END2, START1 } from '../Constant/Constant';
-import { getBlockById } from '../Constant/Functions';
+import { fetchPossibleBlocks, getBlockById } from '../Constant/Functions';
 import { FIELD } from '../Constant/Interface';
 import axios from 'axios';
 import config from '@/config';
@@ -72,10 +72,11 @@ const Rule: React.FC<Props> = ({ showRule, setShowRule, form, setForm }) => {
 
     const handleStart2 = (rule: RULE) => {
         if (['BIND', 'IF', 'MAP'].includes(rule.start1)) {
-            const options: Option[] = form.blocks.map(block => ({
-                label: `${block.property.label} (${block.property.id})`,
-                value: block.property.id,
-            }));
+            // const options: Option[] = form.blocks.map(block => ({
+            //     label: `${block.property.label} (${block.property.id})`,
+            //     value: block.property.id,
+            // }));
+            const options: Option[] = fetchPossibleBlocks(form.blocks);
             return { isShow: true, options };
         }
         return { isShow: false, options: [] };
