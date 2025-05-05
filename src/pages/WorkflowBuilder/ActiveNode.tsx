@@ -71,8 +71,7 @@ const ActiveNode = ({ activeNode, activeTaskId, setActiveNode, completedNodes, s
         disabled: 'false',
     })
     const [blockValue, setBlockValue] = useState<BLOCK_VALUE>(activeNode.data.blockValue ? activeNode.data.blockValue : {})
-
-    const [loopSection,] = useState(activeNode.data.taskLoop?.loopID ? activeNode.data.taskLoop.loopBlockValue : []);
+    const [loopSection,] = useState(activeNode.data.taskLoop?.loopID ? JSON.parse(activeNode.data.taskLoop.loopBlockValue) : []);
     const [activeLoop, setActiveLoop] = useState(loopSection.length ? loopSection[0] : '');
     const [validationErrors, setValidationErrors] = useState<{ [key: string]: string }>({});
     const [preNodeId, setPreNodeId] = useState('');
@@ -169,7 +168,7 @@ const ActiveNode = ({ activeNode, activeTaskId, setActiveNode, completedNodes, s
                 // activeNode.data['nextNode']['id'] = activeNode.id;
                 // activeNode.data['nextNode']['sourceHandle'] = query.outputLabel;
                 query.jsonInput = JSON.stringify(activeNode)
-                if(blockValue[activeNode.data.approvalSelect] == activeNode.data.approvalOptions){
+                if (blockValue[activeNode.data.approvalSelect] == activeNode.data.approvalOptions) {
                     query.prevBlockValue = JSON.stringify(prevBlockValue);
                     query.preNodeId = preNodeId;
                 }
@@ -180,7 +179,7 @@ const ActiveNode = ({ activeNode, activeTaskId, setActiveNode, completedNodes, s
                 }
                 console.log(query)
                 const response = await axios.post(
-                    `${config.API_URL_ACCOUNT}/ProcessInitiation/UpdateTemplateJson`,
+                    `${config.API_URL_ACCOUNT}/ProcessInitiation/UpdateTemplateJson1`,
                     query
                 );
 
@@ -242,6 +241,10 @@ const ActiveNode = ({ activeNode, activeTaskId, setActiveNode, completedNodes, s
         // Check if index is greater than 0 (to avoid accessing negative index)
         if (index > 0) {
             setActiveLoop(loopSection[index - 1]);
+            const blockV = loopSection[index - 1];
+            if (blockV) {
+                setBlockValue(Object.values(blockV)[0] as BLOCK_VALUE);
+            }
         } else {
             // Optionally, you could set it to the last item if you want to cycle through the array
             // setActiveLoop(loopSection[loopSection.length - 1]);
@@ -255,6 +258,11 @@ const ActiveNode = ({ activeNode, activeTaskId, setActiveNode, completedNodes, s
         // Check if index is less than loopSection.length - 1 (to avoid accessing index out of bounds)
         if (index < loopSection.length - 1) {
             setActiveLoop(loopSection[index + 1]);
+            const blockV = loopSection[index + 1];
+            if (blockV) {
+                setBlockValue(Object.values(blockV)[0] as BLOCK_VALUE);
+            }
+
         } else {
             // Optionally, you could set it to the first item if you want to cycle through the array
             // setActiveLoop(loopSection[0]);
@@ -314,10 +322,15 @@ const ActiveNode = ({ activeNode, activeTaskId, setActiveNode, completedNodes, s
                     ) : ''}
                 </>
             )}
-            {activeNode.data.label && (<div>{activeNode.data.label}{activeLoop ? activeLoop.split('-')[1] : ''}</div>)}
+            {activeNode.data.label && (<div>
+                {/* {activeNode.data.label}{activeLoop ? activeLoop.split('-')[1] : ''} */}
+            </div>)
+            }
+            {JSON.stringify(blockValue)}
             <div className="my-2 position-relative">
                 {form?.blocks?.length ? (
                     <Editor
+                        // key={JSON.stringify(blockValue)} // forces remount on blockValue change
                         form={form}
                         setForm={setForm}
                         property={property}

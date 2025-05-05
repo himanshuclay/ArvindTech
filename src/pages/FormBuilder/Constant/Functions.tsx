@@ -2,22 +2,22 @@ import { BASIC_FIELD, BLOCK_VALUE, FIELD, OPTION, PROPERTY, RULE } from "./Inter
 
 const getBlockById = (form: FIELD, id: string): BASIC_FIELD | undefined => {
     for (const block of form.blocks) {
-      if (block.property.id === id) {
-        return block;
-      }
-  
-      if (block.property.loopBlocks?.length) {
-        for (const loopBlock of block.property.loopBlocks) {
-          if (loopBlock.property.id === id) {
-            return loopBlock;
-          }
+        if (block.property.id === id) {
+            return block;
         }
-      }
+
+        if (block.property.blocks?.length) {
+            for (const loopBlock of block.property.blocks) {
+                if (loopBlock.property.id.includes(id)) {
+                    return loopBlock;
+                }
+            }
+        }
     }
-  
+
     return undefined;
-  };
-  
+};
+
 
 const manageShowHide = (block: BASIC_FIELD, rule: RULE, blockValue: BLOCK_VALUE) => {
     if (blockValue[rule.start2] === rule.start3) {
@@ -95,23 +95,22 @@ const fetchPossibleBlocks = (
     blocks: BASIC_FIELD[],
     blockIndex: number = 0,
     result: any[] = []
-  ): any[] => {
+): any[] => {
     if (blockIndex >= blocks.length) return result;
-  
+
     const block = blocks[blockIndex];
-    console.log(block);
     if (block.property.loopBlocks?.length) {
-      fetchPossibleBlocks(block.property.loopBlocks, 0, result); // Recursively check nested blocks
+        fetchPossibleBlocks(block.property.loopBlocks, 0, result); // Recursively check nested blocks
     } else {
-      result.push({
-        label: `${block.property.label} (${block.property.id})`,
-        value: block.property.id,
-      });
+        result.push({
+            label: `${block.property.label} (${block.property.id})`,
+            value: block.property.id,
+        });
     }
-  
+
     return fetchPossibleBlocks(blocks, blockIndex + 1, result); // Continue with next sibling block
-  };
-  
+};
+
 
 
 

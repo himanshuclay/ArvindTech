@@ -261,7 +261,7 @@ const Editor: React.FC<EditorProps> = ({ form, setForm, property, setProperty, b
         };
         isFirstRun.current = true;
         fetchData();
-    }, [form.editMode]);
+    }, [form.editMode, localStorage.getItem('ifLoop')]);
 
 
     const [prevBlockValue, setPrevBlockValue] = useState<any>({});
@@ -319,6 +319,7 @@ const Editor: React.FC<EditorProps> = ({ form, setForm, property, setProperty, b
                 }));
             } else if (action.type === 'bind' && action.bindBlock) {
                 const updatedBlockValue = manageBind(action.bindBlock, blockValue, action.rule);
+                console.log(updatedBlockValue)
                 if (['Select', 'MultiSelectDropdown'].includes(action.bindBlock.is)) {
                     setForm(prevForm => ({
                         ...prevForm,
@@ -358,6 +359,12 @@ const Editor: React.FC<EditorProps> = ({ form, setForm, property, setProperty, b
     }
 
     useEffect(() => {
+        // alert('yeyeyehye')
+        someRule();
+
+    },[localStorage.getItem('ifLoop')])
+
+    useEffect(() => {
         if (!form.editMode) {
             if (isFirstRun.current) {
                 console.log('isFirstRun')
@@ -392,7 +399,7 @@ const Editor: React.FC<EditorProps> = ({ form, setForm, property, setProperty, b
             {/* {JSON.stringify(blockValue)} */}
             <fieldset disabled={isPreview}>
                 <div className='d-flex flex-wrap'>
-
+{JSON.stringify(form.rules)}
                     {form.blocks.length === 0 ? (
                         <p className="text-gray-400">Drag fields here...</p>
                     ) : (
@@ -418,6 +425,7 @@ const Editor: React.FC<EditorProps> = ({ form, setForm, property, setProperty, b
                                     onClick={() => handleProperty(block)}
                                     style={block.property.advance}
                                 >
+                                    {JSON.stringify(blockValue)}
                                     <DynamicComponentRenderer
                                         form={form}
                                         setForm={setForm}

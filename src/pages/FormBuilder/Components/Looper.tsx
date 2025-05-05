@@ -5,6 +5,7 @@ import {
     BLOCK_VALUE,
     FIELD,
     PROPERTY,
+    RULE,
 } from "../Constant/Interface";
 
 interface Props {
@@ -128,7 +129,7 @@ const Looper: React.FC<Props> = ({
             }));
         }
         console.log(block.property.blocks?.length)
-        if(!block.property.blocks || block.property.blocks?.length < 1){
+        if (!block.property.blocks || block.property.blocks?.length < 1) {
             handleLoopBlocks('ADD')
         }
     }, [, editMode]);
@@ -145,7 +146,7 @@ const Looper: React.FC<Props> = ({
         if (!fieldData || !dropZone) return;
 
         const droppedField: BASIC_FIELD = JSON.parse(fieldData);
-        droppedField.property.id = `Looper${block.property.blockCount ?? 1}`;
+        droppedField.property.id = `${block.property.id}_Looper${block.property.blockCount ?? 1}`;
 
         const updatedLoopBlocks: BASIC_FIELD[] = [
             ...(block.property.loopBlocks || []),
@@ -228,29 +229,54 @@ const Looper: React.FC<Props> = ({
         const loopBlockCount = block.property.loopBlocks?.length || 1;
 
         if (action === "ADD") {
-            if (block.property.loopBlocks?.length) {
-                const newBlocks = block.property.loopBlocks.map(loopBlock => ({
-                    ...loopBlock,
-                    property: {
-                        ...loopBlock.property,
-                        id: `${block.property.id}_${loopBlock.property.id}_${Date.now()}`, // ensure unique ID
-                    }
-                }));
+            const existingValue = localStorage.getItem('ifLoop');
+            const newValue = existingValue == 'true' ? 'false' : 'true';
+            localStorage.setItem('ifLoop', newValue);
 
+            if (block.property.loopBlocks?.length) {
+
+                const updatedRules: RULE[] = [];
+                const originalRules = [...form.rules]; // snapshot of original rules
+                
+                const nextIndex = block.property.blocks?.length ?? 0;
+                
+                const newBlocks = block.property.loopBlocks.map((loopBlock, idx) => {
+                    const newId = `${loopBlock.property.id}_${nextIndex + idx}`;
+                
+                    // Always check from the original rules snapshot
+                    originalRules
+                        .filter(rule => rule.start2 === loopBlock.property.id)
+                        .forEach(rule => {
+                            updatedRules.push({ ...rule, start2: newId });
+                        });
+                
+                    return {
+                        ...loopBlock,
+                        property: {
+                            ...loopBlock.property,
+                            id: newId,
+                        },
+                    };
+                });
+                
                 setForm(prev => ({
                     ...prev,
                     blocks: prev.blocks.map(b =>
                         b.property.id === block.property.id
                             ? {
-                                ...b,
-                                property: {
-                                    ...b.property,
-                                    blocks: [...(b.property.blocks || []), ...newBlocks],
-                                },
-                            }
+                                  ...b,
+                                  property: {
+                                      ...b.property,
+                                      blocks: [...(b.property.blocks || []), ...newBlocks],
+                                  },
+                              }
                             : b
                     ),
+                    rules: [...prev.rules, ...updatedRules], // 👈 Append to existing rules
                 }));
+                
+
+
             }
         }
 
@@ -343,59 +369,30 @@ const Looper: React.FC<Props> = ({
                                         {(block.property.blocks?.length ?? 0) === 0 ? (
                                             <p className="text-gray-400">Drag fields here...</p>
                                         ) : (
-                                            Array.from({
-                                                length: Math.ceil((block.property.blocks?.length ?? 0) / (block.property.loopBlocks?.length || 1)),
-                                            }).map((_, groupIndex) => {
-                                                const groupSize = block.property.loopBlocks?.length || 1;
-                                                const start = groupIndex * groupSize;
-                                                const end = start + groupSize;
-                                                const group = (block.property.blocks || []).slice(start, end);
-
-                                                return (
-                                                    <div key={groupIndex} className="border border-dashed border-blue-400 rounded p-2 mb-2 shadow-up">
-                                                        <div className="d-flex justify-content-between align-items-center mb-2">
-                                                            <span className="text-sm font-semibold">Group {groupIndex + 1}</span>
-                                                            <button
-                                                                type="button"
-                                                                className="btn btn-sm btn-danger"
-                                                                disabled={
-                                                                    Math.ceil((block.property.blocks?.length || 0) / (block.property.loopBlocks?.length || 1)) === 1
-                                                                }
-                                                                onClick={() => handleLoopBlocks("REMOVE_GROUP", groupIndex)}
-                                                            >
-                                                                Remove Group
-                                                            </button>
-                                                        </div>
-                                                        <div className="d-flex flex-wrap">
-                                                            {group.map((loopBlock, index) => (
-                                                                <div
-                                                                    className={`col-lg-${loopBlock.property.size || "12"}`}
-                                                                    key={loopBlock.property.id || index}
-                                                                >
-                                                                    <div
-                                                                        className={`col-lg-12 p-2 rounded bg-gray-100 ${form.editMode ? "border cursor-pointer" : ""}`}
-                                                                        onClick={(e) => handlePropertyClick(e, loopBlock)}
-                                                                        style={loopBlock.property.advance}
-                                                                    >
-                                                                        <DynamicComponentRenderer
-                                                                            form={form}
-                                                                            setForm={setForm}
-                                                                            componentType={loopBlock.is}
-                                                                            block={loopBlock}
-                                                                            handleChange={handleInnerChange}
-                                                                            validationErrors={validationErrors}
-                                                                            blockValue={blockValue}
-                                                                            setBlockValue={setBlockValue}
-                                                                        />
-                                                                    </div>
-                                                                </div>
-                                                            ))}
-                                                        </div>
+                                            block.property.blocks?.map((loopBlock, index) => (
+                                                <div
+                                                    className={`col-lg-${loopBlock.property.size || "12"}`}
+                                                    key={loopBlock.property.id || index}
+                                                >
+                                                    <div
+                                                        className={`col-lg-12 p-2 rounded bg-gray-100 ${form.editMode ? "border cursor-pointer" : ""
+                                                            }`}
+                                                        onClick={(e) => handlePropertyClick(e, loopBlock)}
+                                                        style={loopBlock.property.advance}
+                                                    >
+                                                        <DynamicComponentRenderer
+                                                            form={form}
+                                                            setForm={setForm}
+                                                            componentType={loopBlock.is}
+                                                            block={loopBlock}
+                                                            handleChange={handleInnerChange}
+                                                            validationErrors={validationErrors}
+                                                            blockValue={blockValue}
+                                                            setBlockValue={setBlockValue}
+                                                        />
                                                     </div>
-
-
-                                                );
-                                            })
+                                                </div>
+                                            ))
                                         )}
                                     </div>
                                 </div>
