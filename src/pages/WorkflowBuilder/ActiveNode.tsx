@@ -235,6 +235,24 @@ const ActiveNode = ({ activeNode, activeTaskId, setActiveNode, completedNodes, s
         ASSIGN_TASK,
     };
 
+    useEffect(() => {
+        console.log(activeLoop)
+        const index = loopSection.findIndex((loop: any) => loop === activeLoop);
+console.log(index)
+        // Check if index is greater than 0 (to avoid accessing negative index)
+        if (index >= 0) {
+            setActiveLoop(loopSection[index]);
+            const blockV = loopSection[index];
+            if (blockV) {
+                setBlockValue(Object.values(blockV)[0] as BLOCK_VALUE);
+            }
+        } else {
+            // Optionally, you could set it to the last item if you want to cycle through the array
+            // setActiveLoop(loopSection[loopSection.length - 1]);
+            console.log("Already at the first item");
+        }
+    },[activeLoop])
+
 
     const handlePrevious = () => {
         const index = loopSection.findIndex((loop: any) => loop === activeLoop);

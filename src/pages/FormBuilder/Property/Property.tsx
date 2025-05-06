@@ -332,6 +332,20 @@ const Property: React.FC<Props> = ({ form, setForm, property, setProperty, remov
                     </select>
                 </div>
             )}
+            {property.hasOwnProperty('tableConfiguration') && (
+                <div className='d-flex justify-content-between align-items-center mt-2'>
+                    <label className='col-6'>Configuration</label>
+                    <select
+                        name="tableConfiguration"
+                        className="border p-2 rounded col-6"
+                        value={property.tableConfiguration}
+                        onChange={handleChange}
+                    >
+                        <option value="">Please select</option>
+                        <option value="Rolling_Program_Material">Rolling_Program_Material</option>
+                    </select>
+                </div>
+            )}
             {property.hasOwnProperty('value') && (
                 <div className='d-flex justify-content-between align-items-center mt-2'>
                     <label className='col-6'>Value</label>

@@ -305,6 +305,27 @@ const FIELD_LIST = [
 
         }
     },
+    {
+        name: "TableInput",
+        is: "TableInput",
+        property: {
+            type: "TableInput",
+            label: "Table",
+            placeholder: "placeholder",
+            validation: "",
+            value: '',
+            advance: {
+                backgroundColor: '#fff',
+                color: '#000',
+
+            },
+            isShow: true,
+            disabled: false,
+            size: '12',
+            tableConfiguration: '',
+
+        }
+    },
 ]
 
 const START1 = [

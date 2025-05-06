@@ -20,6 +20,7 @@ import FloatInput from './Components/FloatInput';
 import Looper from './Components/Looper';
 import RadioInput from './Components/RadioInput';
 import CheckboxInput from './Components/CheckboxInput';
+import TableInput from './Components/TableInput';
 import { updateIsPermanentRecursively } from '../WorkflowBuilder/Constant/function';
 // import { speak } from '@/utils/speak';
 
@@ -67,6 +68,7 @@ const componentsMap = {
     RadioInput,
     Paragraph,
     CheckboxInput,
+    TableInput,
 };
 
 const DynamicComponentRenderer: React.FC<DynamicComponentProps> = ({ form, setForm, componentType, block, handleChange, validationErrors, blockValue, setBlockValue, setProperty }) => {
