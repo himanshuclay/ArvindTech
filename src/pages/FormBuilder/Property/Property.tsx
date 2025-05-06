@@ -241,6 +241,19 @@ const Property: React.FC<Props> = ({ form, setForm, property, setProperty, remov
                         <option value="Y-m-d">YYYY/MM/DD</option>
                         <option value="F, Y">M, YYYY(March, 2025)</option>
                         <option value="mmm/yy">MMM/YY</option>
+                        <option value="dd-mm-yyyy">d-m-Y</option>
+                        <option value="DD-MM-YYYY">D-m-Y</option>
+                        <option value="d-m-yyyy">j-n-Y</option>
+                        <option value="dd-mm-YYYY">d-m-Y</option>
+                        <option value="yyyy-mm-dd">Y-m-d</option>
+                        <option value="MM-DD-YYYY">m-d-Y</option>
+                        <option value="D, d M Y">D, d M Y</option>
+                        <option value="F j, Y">F j, Y</option>
+                        <option value="l, d F Y">l, d F Y</option>
+                        <option value="HH:MM">H:i</option>
+                        <option value="HH:MM:SS">H:i:S</option>
+                        <option value="YYYY-MM-DD HH:MM">Y-m-d H:i</option>
+                        <option value="dd-mm-yyyy HH:MM">d-m-Y H:i</option>
                     </select>
                 </div>
             )}
@@ -316,6 +329,23 @@ const Property: React.FC<Props> = ({ form, setForm, property, setProperty, remov
                     >
                         <option value="true">yes</option>
                         <option value="false">no</option>
+                    </select>
+                </div>
+            )}
+            {property.hasOwnProperty('tableConfiguration') && (
+                <div className='d-flex justify-content-between align-items-center mt-2'>
+                    <label className='col-6'>Configuration</label>
+                    <select
+                        name="tableConfiguration"
+                        className="border p-2 rounded col-6"
+                        value={property.tableConfiguration}
+                        onChange={handleChange}
+                    >
+                        <option value="">Please select</option>
+                        <option value="Rolling_Program_Material">Rolling_Program_Material</option>
+                        <option value="DemobManpowerTemplate">Demob Manpower Template</option>
+                        <option value="DemobMachineryTemplate">Demob Machinery Template</option>
+                        <option value="DemobCampTemplate">Demob Camp Template</option>
                     </select>
                 </div>
             )}

@@ -4,12 +4,12 @@ import { BASIC_FIELD, BLOCK_VALUE } from '../Constant/Interface';
 import Flatpickr from 'react-flatpickr';
 
 interface Props {
-     block: BASIC_FIELD;
-        handleChange: (e: React.ChangeEvent<HTMLInputElement>, id: string) => void;
-        validationErrors?: { [key: string]: string };
-        editMode?: boolean;
-        blockValue: BLOCK_VALUE;
-        setBlockValue: React.Dispatch<React.SetStateAction<BLOCK_VALUE>>;
+    block: BASIC_FIELD;
+    handleChange: (e: React.ChangeEvent<HTMLInputElement>, id: string) => void;
+    validationErrors?: { [key: string]: string };
+    editMode?: boolean;
+    blockValue: BLOCK_VALUE;
+    setBlockValue: React.Dispatch<React.SetStateAction<BLOCK_VALUE>>;
 }
 
 const DateInput: React.FC<Props> = ({
@@ -24,7 +24,7 @@ const DateInput: React.FC<Props> = ({
 
     const isRequired = validation === "required";
     const isDisabled = !!(disabled || (!editMode && !isShow));
-    const value = blockValue[id] || dateValue ||undefined; // ✅ use undefined instead of null
+    const value = blockValue[id] || dateValue || undefined; // ✅ use undefined instead of null
 
     // Type check for valid mode values
     const validModes: ("time" | "multiple" | "single" | "range")[] = ["time", "multiple", "single", "range"];
@@ -34,19 +34,19 @@ const DateInput: React.FC<Props> = ({
         const formattedDate = selectedDates.length > 0
             ? selectedDates[0].toISOString().split('T')[0]
             : '';
-    
+
         setBlockValue((prevState) => ({
             ...prevState,
             [id]: formattedDate,
         }));
-    
+
         const syntheticEvent = {
             target: { value: formattedDate }
         } as React.ChangeEvent<HTMLInputElement>;
-    
+
         handleChange(syntheticEvent, id);
     };
-    
+
 
     return (
         <div>
@@ -60,7 +60,6 @@ const DateInput: React.FC<Props> = ({
                                     {label}
                                     {isRequired && <span className='text-danger'>*</span>}
                                 </Form.Label>
-
                                 <Flatpickr
                                     name={id}
                                     value={value}
@@ -68,11 +67,10 @@ const DateInput: React.FC<Props> = ({
                                     placeholder={placeholder}
                                     disabled={isDisabled}
                                     options={{
-                                        enableTime: false,
+                                        enableTime: Boolean(/[HhGgi]/.test(dateFormate || "")),
                                         altInput: true,
                                         altFormat: dateFormate,
                                         dateFormat: "Y-m-d",
-                                        time_24hr: false,
                                         mode: dateMode,  // Use the validated dateMode here
                                         ...(block.property.dateSelection === 'futureDateOnly(includingToday)' && {
                                             minDate: new Date(),

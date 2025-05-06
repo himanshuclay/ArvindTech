@@ -12,6 +12,7 @@ import Select from "../Components/Select";
 import TextInput from "../Components/TextInput";
 import Paragraph from "../Components/Paragraph";
 import CheckboxInput from "../Components/CheckboxInput";
+import TableInput from "../Components/TableInput";
 
 const componentsMap = {
     TextInput,
@@ -28,6 +29,7 @@ const componentsMap = {
     FloatInput,
     Paragraph,
     CheckboxInput,
+    TableInput,
 };
 
 interface FIELD {
@@ -96,6 +98,7 @@ interface PROPERTY {
     isPermanent?: boolean;
     dateValue?: string;
     maxSelections?: number;
+    tableConfiguration?: string;
 }
 interface OPTION { label: string; value: string }
 interface BLOCK_VALUE {
@@ -117,6 +120,17 @@ interface LOGIC_ITEM{
     start2: string[];
     [key: string]: any;
 }
+
+export interface TableHeader {
+    key: string;
+    displayName: string;
+    disable?: boolean;
+    calculation?: {
+      operation: 'sum-subtract';
+      add: string[];
+      subtract?: string[];
+    };
+  }
 
 
 export type { FIELD, PROPERTY, BASIC_FIELD, RULE, BLOCK_VALUE, ADVANCE, OPTION, TRIGGER_ACTION, CONFIGURE_SELECTION_LOGICS, LOGIC_ITEM };

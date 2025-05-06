@@ -1033,6 +1033,7 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges
                                                 selectedOutputs: [],
                                                 matchedOutputLabels: outputLabels
                                             }));
+                                            console.log(matchedNode);
 
                                         }}
 
@@ -1041,6 +1042,7 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges
                                     />
                                 </Form.Group>
                             </Col>
+                            {JSON.stringify(nodeSetting.matchedOutputLabels)}
                             {nodeSetting.matchedOutputLabels?.length > 0 && (
                                 <Col lg={6}>
                                     <Form.Group>

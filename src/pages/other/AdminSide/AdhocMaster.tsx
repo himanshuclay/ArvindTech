@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { Table, Button, Collapse, Modal } from 'react-bootstrap';
 import axios from 'axios';
+import Select from 'react-select'
 import { Link } from 'react-router-dom';
 // import { FileUploader } from '@/components/FileUploader'
 import config from '@/config';
 import { FIELD, PROPERTY } from '@/pages/FormBuilder/Constant/Interface';
 import Editor from '@/pages/FormBuilder/Editor';
 import FormBuilder from '@/pages/FormBuilder/FormBuilder';
+
 
 
 // Define interface for form options
@@ -38,7 +40,10 @@ interface MessManager {
     value: string;
     label: string;
 }
-
+interface Role {
+    id: string;
+    roleName: string;
+}
 // Interface for API response structure
 interface Template {
     id: number;
@@ -59,6 +64,10 @@ const AdhocMaster: React.FC = () => {
     const [error, setError] = useState<string | null>(null);
     const [expandedRow, setExpandedRow] = useState<number | null>(null); // For row expansion
     const [formDetails, setFormDetails] = useState<any>();
+    const [showDoerModal, setShowDoerModal] = useState<boolean>(false);
+    const [selectedForm, setSelectedForm] = useState<Template | null>(null);
+    const [roleOptions, setRoleOptions] = useState<{ label: string; value: string }[]>([]);
+    const [selectedRoles, setSelectedRoles] = useState<{ label: string; value: string }[]>([]);
     // const [selectedManager, setSelectedManager] = useState<string>(''); // Manager select state
 
     // Placeholder for mess managers
@@ -66,6 +75,12 @@ const AdhocMaster: React.FC = () => {
         { value: 'manager1', label: 'Manager 1' },
         { value: 'manager2', label: 'Manager 2' },
     ];
+
+    const handleDoerAdd = (item: Template) => {
+        setSelectedForm(item);
+        setShowDoerModal(true);
+    };
+
 
     // Fetch API data
     const fetchTemplates = async () => {
@@ -116,6 +131,22 @@ const AdhocMaster: React.FC = () => {
 
     }
 
+    const fetchRoleOptions = async () => {
+        try {
+            const response = await axios.get(`${config.API_URL_APPLICATION}/CommonDropdown/GetRoleMasterList`);
+            if (response.data.isSuccess) {
+                const options = response.data.roleMasterLists.map((role: Role) => ({
+                    label: role.roleName,
+                    value: role.id.toString(),
+                }));
+                setRoleOptions(options);
+            }
+        } catch (error) {
+            console.error('Failed to fetch roles:', error);
+        }
+    };
+
+
     const handleClose = () => {
         setFormDetails(null);
         fetchTemplates();
@@ -126,12 +157,16 @@ const AdhocMaster: React.FC = () => {
             <div className="d-flex bg-white p-2 my-2 justify-content-between align-items-center fs-20">
                 <span><i className="ri-file-list-line me-2"></i><span className='fw-bold test-nowrap'>Form List</span></span>
                 <div className="d-flex">
-                    <Link to='/pages/FormBuilder'>
+                    <Link className='me-2' to='/pages/FormBuilder'>
                         <Button variant="primary" className="">
                             Add Form
                         </Button>
                     </Link>
-
+                    <Link to='/pages/AdhocConfig'>
+                        <Button variant="primary" className="">
+                            Configuration
+                        </Button>
+                    </Link>
                 </div>
             </div>
             <Table className='bg-white mt-3' striped bordered hover>
@@ -157,26 +192,29 @@ const AdhocMaster: React.FC = () => {
                                     <Button onClick={() => toggleExpandRow(item.id)} className='me-2'>
                                         {expandedRow === item.id ? <i className="ri-eye-fill"></i> : <i className="ri-eye-off-fill"></i>}
                                     </Button>
-                                    <Button onClick={() => handleEdit(item)}>
-                                    <i className="ri-file-edit-fill"></i>
+                                    <Button onClick={() => handleEdit(item)} className='me-2'>
+                                        <i className="ri-file-edit-fill"></i>
+                                    </Button>
+                                    <Button onClick={() => handleDoerAdd(item)}>
+                                        <i className="ri-user-settings-fill"></i>
                                     </Button>
                                 </td>
                             </tr>
                             <tr>
                                 <td colSpan={5}>
                                     {expandedRow === item.id && (
-                                    <Collapse in={expandedRow === item.id}>
-                                        <div>
-                                            {/* Parse and pass the form data from JSON to the dynamic form */}
-                                            <DynamicForm
-                                                formData={JSON.parse(item.templateJson)}
-                                                messName={item.formName}
-                                                showMessManagerSelect={true} // You can add logic to show/hide this
-                                                messManagers={messManagers}
-                                                expandedRow={expandedRow}
-                                            />
-                                        </div>
-                                    </Collapse>
+                                        <Collapse in={expandedRow === item.id}>
+                                            <div>
+                                                {/* Parse and pass the form data from JSON to the dynamic form */}
+                                                <DynamicForm
+                                                    formData={JSON.parse(item.templateJson)}
+                                                    messName={item.formName}
+                                                    showMessManagerSelect={true} // You can add logic to show/hide this
+                                                    messManagers={messManagers}
+                                                    expandedRow={expandedRow}
+                                                />
+                                            </div>
+                                        </Collapse>
                                     )}
                                 </td>
                             </tr>
@@ -184,6 +222,44 @@ const AdhocMaster: React.FC = () => {
                     ))}
                 </tbody>
             </Table>
+            <Modal show={showDoerModal} onHide={() => setShowDoerModal(false)}>
+                <Modal.Header closeButton>
+                    <Modal.Title>Assign Doers</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <label className="form-label">Select Doers</label>
+                    <Select
+                        isMulti
+                        options={roleOptions}
+                        value={selectedRoles}
+                        onMenuOpen={async () => {
+                            if (roleOptions.length === 0) {
+                                await fetchRoleOptions();
+                            }
+                        }}
+                        onChange={(selected) => setSelectedRoles(selected as any)}
+                    />
+
+
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="secondary" onClick={() => setShowDoerModal(false)}>
+                        Cancel
+                    </Button>
+                    <Button
+                        variant="primary"
+                        onClick={() => {
+                            const doer = selectedRoles.map((r) => r.value);
+                            console.log('Saved Doers for form:', selectedForm?.formName, '->', doer);
+                            // TODO: Post or save the doer array wherever needed
+                            setShowDoerModal(false);
+                        }}
+                    >
+                        Save Doers
+                    </Button>
+                </Modal.Footer>
+            </Modal>
+
             {formDetails && (
                 <Modal show={true} onHide={handleClose} size="xl">
                     <Modal.Header closeButton>
@@ -239,7 +315,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({ formData, messName, showMessM
             ...preForm,
             editMode: false,
         }))
-    },[])
+    }, [])
 
 
     // const handleSelectMessImpChange = (e: React.ChangeEvent<HTMLSelectElement>) => {

@@ -4,6 +4,7 @@ import { Route, RouteProps } from 'react-router-dom'
 // components
 import PrivateRoute from './PrivateRoute'
 import AdhocMaster from '@/pages/other/AdminSide/AdhocMaster.tsx'
+import AdhocConfig from '@/pages/other/AdminSide/AdhocConfig.tsx'
 import ModulesMaster from '@/pages/other/ModulesMaster/ModulesMaster.tsx'
 import { MODULES_MASTER } from './ModulesMaster.tsx'
 import WorkflowBuilderList from '@/pages/WorkflowBuilder/WorkflowBuilderList.tsx'
@@ -327,6 +328,12 @@ const customPagesRoutes = {
 			path: '/pages/AdhocMaster',
 			name: 'Adhoc Master',
 			element: <AdhocMaster />,
+			route: PrivateRoute,
+		},
+		{
+			path: '/pages/AdhocConfig',
+			name: 'Adhoc Configuration',
+			element: <AdhocConfig />,
 			route: PrivateRoute,
 		},
 		{

@@ -23,16 +23,16 @@ const TextInput: React.FC<Props> = ({
     const isRequired = block.property.validation === "required";
     const isDisabled = block.property.disabled === 'true' ? true : false;
 
-        const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-            const { value } = e.target;
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const { value } = e.target;
 
-            setBlockValue((prevState) => ({
-                ...prevState,
-                [block.property.id]: value,
-            }));
+        setBlockValue((prevState) => ({
+            ...prevState,
+            [block.property.id]: value,
+        }));
 
-            handleChange(e, block.property.id);
-        };
+        handleChange(e, block.property.id);
+    };
 
     return (
         <div>
@@ -40,15 +40,14 @@ const TextInput: React.FC<Props> = ({
                 <Form.Group controlId={block.property.id} className="mb-3">
                     <Form.Label>
                         {block.property.label}
-                        {isRequired && (
-                            <span className='text-danger'>*</span>
-                        )}
+                        {isRequired && <span className='text-danger'>*</span>}
                     </Form.Label>
+
                     <Form.Control
-                        type="text"
+                        as="textarea" // ✅ Correct usage
                         name={block.property.id}
-                        value={blockValue[block.property.id]  || ''}
-                        onChange={handleInputChange} // ✅ Fixed here
+                        value={blockValue[block.property.id] || ''}
+                        onChange={handleInputChange}
                         placeholder={block.property.placeholder}
                         disabled={isDisabled}
                         className={validationErrors[block.property.id] ? "is-invalid" : ""}
@@ -62,6 +61,7 @@ const TextInput: React.FC<Props> = ({
                 </Form.Group>
             )}
         </div>
+
     );
 };
 

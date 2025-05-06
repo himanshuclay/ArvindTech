@@ -1,5 +1,6 @@
 import Select from "react-select";
 import { Form } from 'react-bootstrap';
+import { TableHeader } from "./Interface";
 
 const FIELD_LIST = [
     {
@@ -305,6 +306,27 @@ const FIELD_LIST = [
 
         }
     },
+    {
+        name: "TableInput",
+        is: "TableInput",
+        property: {
+            type: "TableInput",
+            label: "Table",
+            placeholder: "placeholder",
+            validation: "",
+            value: '',
+            advance: {
+                backgroundColor: '#fff',
+                color: '#000',
+
+            },
+            isShow: true,
+            disabled: false,
+            size: '12',
+            tableConfiguration: '',
+
+        }
+    },
 ]
 
 const START1 = [
@@ -444,15 +466,120 @@ const CONFIGURE_SELECTION_LOGIC: {
             placeholder="Please Enter"
         />
     ),
-    EmailInput: () => null,
-    PhoneInput: () => null,
-    Password: () => null,
-    DateInput: () => null,
-    FileUpload: () => null,
+    EmailInput: (
+        rule: any,
+        index: number,
+        handleRuleChange: (name: string, value: string[] | string, index: number) => void,
+        handleStart2: (rule: any) => { isShow: boolean; options: any[] },
+        fetchColumnNames: (id: string) => void
+    ) =>
+    (
+        <Form.Control
+            type="email"
+            name="start2"
+            value={rule.start2}
+            onChange={(e) => handleRuleChange('start2', e.target.value, index)}
+            placeholder="Please Enter"
+        />
+    ),
+    PhoneInput: (
+        rule: any,
+        index: number,
+        handleRuleChange: (name: string, value: string[] | string, index: number) => void,
+        handleStart2: (rule: any) => { isShow: boolean; options: any[] },
+        fetchColumnNames: (id: string) => void
+    ) =>
+    (
+        <Form.Control
+            type="phone"
+            name="start2"
+            value={rule.start2}
+            onChange={(e) => handleRuleChange('start2', e.target.value, index)}
+            placeholder="Please Enter"
+        />
+    ),
+    Password: (
+        rule: any,
+        index: number,
+        handleRuleChange: (name: string, value: string[] | string, index: number) => void,
+        handleStart2: (rule: any) => { isShow: boolean; options: any[] },
+        fetchColumnNames: (id: string) => void
+    ) =>
+    (
+        <Form.Control
+            type="password"
+            name="start2"
+            value={rule.start2}
+            onChange={(e) => handleRuleChange('start2', e.target.value, index)}
+            placeholder="Please Enter"
+        />
+    ),
+    DateInput: (
+        rule: any,
+        index: number,
+        handleRuleChange: (name: string, value: string[] | string, index: number) => void,
+        handleStart2: (rule: any) => { isShow: boolean; options: any[] },
+        fetchColumnNames: (id: string) => void
+    ) =>
+    (
+        <Form.Control
+            type="date"
+            name="start2"
+            value={rule.start2}
+            onChange={(e) => handleRuleChange('start2', e.target.value, index)}
+            placeholder="Please Enter"
+        />
+    ),
+    FileUpload: (
+        rule: any,
+        index: number,
+        handleRuleChange: (name: string, value: string[] | string, index: number) => void,
+        handleStart2: (rule: any) => { isShow: boolean; options: any[] },
+        fetchColumnNames: (id: string) => void
+    ) =>
+    (
+        <Form.Control
+            type="file"
+            name="start2"
+            value={rule.start2}
+            onChange={(e) => handleRuleChange('start2', e.target.value, index)}
+            placeholder="Please Enter"
+        />
+    ),
     DateRange: () => null,
     MultiSelectDropdown: () => null,
-    AmountInput: () => null,
-    FloatInput: () => null,
+    AmountInput: (
+        rule: any,
+        index: number,
+        handleRuleChange: (name: string, value: string[] | string, index: number) => void,
+        handleStart2: (rule: any) => { isShow: boolean; options: any[] },
+        fetchColumnNames: (id: string) => void
+    ) =>
+    (
+        <Form.Control
+            type="number"
+            name="start2"
+            value={rule.start2}
+            onChange={(e) => handleRuleChange('start2', e.target.value, index)}
+            placeholder="Please Enter"
+        />
+    ),
+    FloatInput: (
+        rule: any,
+        index: number,
+        handleRuleChange: (name: string, value: string[] | string, index: number) => void,
+        handleStart2: (rule: any) => { isShow: boolean; options: any[] },
+        fetchColumnNames: (id: string) => void
+    ) =>
+    (
+        <Form.Control
+            type="number"
+            name="start2"
+            value={rule.start2}
+            onChange={(e) => handleRuleChange('start2', e.target.value, index)}
+            placeholder="Please Enter"
+        />
+    ),
     Paragraph: () => null,
     CheckboxInput: () => null,
     Select: (
@@ -482,6 +609,111 @@ const CONFIGURE_SELECTION_LOGIC: {
 };
 
 
+  
+
+
+
+export const TABLE_INPUT_HEADERS: { [key: string]: TableHeader[] } = {
+    Rolling_Program_Material: [
+        { key: "SNo", displayName: "S No", disable: true },
+        { key: "MaterialGroup", displayName: "Material Group" },
+        { key: "MaterialName", displayName: "Material Name" },
+        { key: "Specification", displayName: "Specification" },
+        { key: "AnyOtherSpectification", displayName: "Any Other Spectification" },
+        { key: "Unit", displayName: "Unit" },
+        { key: "CoreCategory", displayName: "Core Category" },
+        { key: "TotalProjectRequirement", displayName: "Total Project Requirement" },
+        { key: "TotalTransferMaterialofpreviousmonth", displayName: "Total Transfer Material of previous month" },
+        { key: "TotalMatreialReceivedason", displayName: "Total Matreial Received as on" },
+        { key: "ClosingBalanceERPason", displayName: "Closing Balance (ERP)as on" },
+        { key: "IMSQty(Physical)ason", displayName: "IMS Qty (Physical) as on" },
+        { key: "ClosingQty(Physical)ason", displayName: "Closing Qty (Physical) as on" },
+        { key: "SteelWorkinProgressCutBentason", displayName: "Steel Work in Progress (Cut & Bent) as on" },
+        { key: "SteelProjectedoutfromconcretebutnotmeasuredason", displayName: "Steel Projected out from concrete but not measured as on" },
+        { key: "ConsumptionDuring1", displayName: "Consumption During" },
+        { key: "ConsumptionDuring2", displayName: "Consumption During" },
+        { key: "ConsumptionDuring3", displayName: "Consumption During" },
+        {
+            key: "RequirementasperPlanningAfterAddingScrap/wastage/ClosingBalanceDuring(AutoCalculateField)",
+            displayName: "Requirement as per Planning After Adding Scrap/ wastage/ Closing Balance During (Auto Calculate Field)",
+            calculation: {
+                operation: "sum-subtract",
+                add: ["ConsumptionDuring1", "ConsumptionDuring2", "ConsumptionDuring3", "SteelWorkinProgressCutBentason", "SteelProjectedoutfromconcretebutnotmeasuredason"],
+                subtract: ["ClosingBalanceERPason"]
+            }
+        },
+        { key: "RequirementofStockAsperNew3_Month_Policy", displayName: "Requirement of Stock As per New 3_Month_Policy" },
+        { key: "InProcessPRQty", displayName: "In Process PR Qty" },
+        { key: "InProcessPOQty", displayName: "In Process PO Qty" },
+        { key: "InProcessPRQty[Editable]", displayName: "In Process PR Qty[Editable]" },
+        { key: "InProcessPOQty[Editable]", displayName: "In Process PO Qty[Editable]" },
+        { key: "ProposedRequirement", displayName: "Proposed Requirement" },
+    ],
+    DemobManpowerTemplate: [
+        { key: "Project", displayName: "Project" },
+        { key: "Month", displayName: "Month" },
+        { key: "PercentageofWorkDone", displayName: "Percentage of Work Done" },
+        { key: "UID", displayName: "UID" },
+        { key: "EmployeeID", displayName: "Employee ID" },
+        { key: "EmployeeName", displayName: "Employee Name" },
+        { key: "Designation", displayName: "Designation" },
+        { key: "EmployeeMasterStatus", displayName: "Employee Master Status" },
+        { key: "DemobTemplateStatus1", displayName: "Demob Template Status" },
+        { key: "ReleaseDate1", displayName: "Release Date" },
+        { key: "DemobTemplateStatus2", displayName: "Demob Template Status" },
+        { key: "ReleaseDate2", displayName: "Release Date" },
+        { key: "DemobTemplateStatus3", displayName: "Demob Template Status" },
+        { key: "ReleaseDate3", displayName: "Release Date" }
+      ],
+      DemobMachineryTemplate: [
+        { key: "Project", displayName: "Project" },
+        { key: "Month", displayName: "Month" },
+        { key: "PercentageofWorkDone", displayName: "Percentage of Work Done" },
+        { key: "UID", displayName: "UID" },
+        { key: "AssetID", displayName: "Asset ID" },
+        { key: "AssetCategory", displayName: "Asset Category" },
+        { key: "AssetGroup", displayName: "Asset Group" },
+        { key: "AssetName", displayName: "Asset Name" },
+        { key: "Specification", displayName: "Specification" },
+        { key: "AssetMake", displayName: "Asset Make" },
+        { key: "CurrentOwnership1", displayName: "Current Ownership" },
+        { key: "CurrentOwnership2", displayName: "Current Ownership" },
+        { key: "DemobAssetTemplateStatus1", displayName: "Demob Asset Template Status" },
+        { key: "ReleaseDate1", displayName: "Release Date" },
+        { key: "AssetTrackingMasterStatus1", displayName: "Asset Tracking Master Status" },
+        { key: "DemobAssetTemplateStatus2", displayName: "Demob Asset Template Status" },
+        { key: "ReleaseDate2", displayName: "Release Date" },
+        { key: "AssetTrackingMasterStatus2", displayName: "Asset Tracking Master Status" },
+        { key: "DemobAssetTemplateStatus3", displayName: "Demob Asset Template Status" },
+        { key: "ReleaseDate3", displayName: "Release Date" }
+      ],
+      DemobCampTemplate: [
+        { key: "Project", displayName: "Project" },
+        { key: "Quarter", displayName: "Quarter" },
+        { key: "PercentageofWorkDone", displayName: "Percentage of Work Done" },
+        { key: "UID", displayName: "UID" },
+        { key: "CampID", displayName: "CampID" },
+        { key: "CampName", displayName: "Camp Name" },
+        { key: "CampStatus", displayName: "Camp Status" },
+        { key: "TemplateCampStatus1", displayName: "Template Camp Status" },
+        { key: "A_ProposedReductioninCampAreaisApproved1", displayName: "A. Proposed Reduction in Camp Area is Approved" },
+        { key: "B_ReductionisExecuted1", displayName: "B. Reduction is Executed" },
+        { key: "C_HandoverofCampAreaisDone1", displayName: "C. Handover of Camp Area is Done" },
+        { key: "TemplateCampStatus2", displayName: "Template Camp Status" },
+        { key: "A_ProposedReductioninCampAreaisApproved2", displayName: "A. Proposed Reduction in Camp Area is Approved" },
+        { key: "B_ReductionisExecuted2", displayName: "B. Reduction is Executed" },
+        { key: "C_HandoverofCampAreaisDone2", displayName: "C. Handover of Camp Area is Done" },
+        { key: "FinalizationCompletedbyManagement", displayName: "Finalization Completed by Management" },
+        { key: "NOCReceivedfromLandOwner", displayName: "NOC Received from Land Owner" }
+      ],
+    '': [
+        { key: "label", displayName: "Label" },
+        { key: "input", displayName: "Input" },
+        { key: "error", displayName: "Error" },
+    ]
+};
+
+
 export {
     FIELD_LIST,
     START1,
@@ -493,5 +725,5 @@ export {
     START3,
     EXPIRY_LOGIC,
     OPTIONS_SUNDAY_LOGIC,
-    CONFIGURE_SELECTION_LOGIC
+    CONFIGURE_SELECTION_LOGIC,
 }
