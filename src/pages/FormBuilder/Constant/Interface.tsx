@@ -121,6 +121,17 @@ interface LOGIC_ITEM{
     [key: string]: any;
 }
 
+export interface TableHeader {
+    key: string;
+    displayName: string;
+    disable?: boolean;
+    calculation?: {
+      operation: 'sum-subtract';
+      add: string[];
+      subtract?: string[];
+    };
+  }
+
 
 export type { FIELD, PROPERTY, BASIC_FIELD, RULE, BLOCK_VALUE, ADVANCE, OPTION, TRIGGER_ACTION, CONFIGURE_SELECTION_LOGICS, LOGIC_ITEM };
 

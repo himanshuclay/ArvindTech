@@ -1,5 +1,6 @@
 import Select from "react-select";
 import { Form } from 'react-bootstrap';
+import { TableHeader } from "./Interface";
 
 const FIELD_LIST = [
     {
@@ -471,80 +472,80 @@ const CONFIGURE_SELECTION_LOGIC: {
         handleRuleChange: (name: string, value: string[] | string, index: number) => void,
         handleStart2: (rule: any) => { isShow: boolean; options: any[] },
         fetchColumnNames: (id: string) => void
-    ) => 
-        (
-            <Form.Control
-                type="email"
-                name="start2"
-                value={rule.start2}
-                onChange={(e) => handleRuleChange('start2', e.target.value, index)}
-                placeholder="Please Enter"
-            />
-        ),
+    ) =>
+    (
+        <Form.Control
+            type="email"
+            name="start2"
+            value={rule.start2}
+            onChange={(e) => handleRuleChange('start2', e.target.value, index)}
+            placeholder="Please Enter"
+        />
+    ),
     PhoneInput: (
         rule: any,
         index: number,
         handleRuleChange: (name: string, value: string[] | string, index: number) => void,
         handleStart2: (rule: any) => { isShow: boolean; options: any[] },
         fetchColumnNames: (id: string) => void
-    ) => 
-        (
-            <Form.Control
-                type="phone"
-                name="start2"
-                value={rule.start2}
-                onChange={(e) => handleRuleChange('start2', e.target.value, index)}
-                placeholder="Please Enter"
-            />
-        ),
+    ) =>
+    (
+        <Form.Control
+            type="phone"
+            name="start2"
+            value={rule.start2}
+            onChange={(e) => handleRuleChange('start2', e.target.value, index)}
+            placeholder="Please Enter"
+        />
+    ),
     Password: (
         rule: any,
         index: number,
         handleRuleChange: (name: string, value: string[] | string, index: number) => void,
         handleStart2: (rule: any) => { isShow: boolean; options: any[] },
         fetchColumnNames: (id: string) => void
-    ) => 
-        (
-            <Form.Control
-                type="password"
-                name="start2"
-                value={rule.start2}
-                onChange={(e) => handleRuleChange('start2', e.target.value, index)}
-                placeholder="Please Enter"
-            />
-        ),
+    ) =>
+    (
+        <Form.Control
+            type="password"
+            name="start2"
+            value={rule.start2}
+            onChange={(e) => handleRuleChange('start2', e.target.value, index)}
+            placeholder="Please Enter"
+        />
+    ),
     DateInput: (
         rule: any,
         index: number,
         handleRuleChange: (name: string, value: string[] | string, index: number) => void,
         handleStart2: (rule: any) => { isShow: boolean; options: any[] },
         fetchColumnNames: (id: string) => void
-    ) => 
-        (
-            <Form.Control
-                type="date"
-                name="start2"
-                value={rule.start2}
-                onChange={(e) => handleRuleChange('start2', e.target.value, index)}
-                placeholder="Please Enter"
-            />
-        ),
+    ) =>
+    (
+        <Form.Control
+            type="date"
+            name="start2"
+            value={rule.start2}
+            onChange={(e) => handleRuleChange('start2', e.target.value, index)}
+            placeholder="Please Enter"
+        />
+    ),
     FileUpload: (
         rule: any,
         index: number,
         handleRuleChange: (name: string, value: string[] | string, index: number) => void,
         handleStart2: (rule: any) => { isShow: boolean; options: any[] },
         fetchColumnNames: (id: string) => void
-    ) => 
-        (
-            <Form.Control
-                type="file"
-                name="start2"
-                value={rule.start2}
-                onChange={(e) => handleRuleChange('start2', e.target.value, index)}
-                placeholder="Please Enter"
-            />
-        ),
+    ) =>
+    (
+        <Form.Control
+            type="file"
+            name="start2"
+            value={rule.start2}
+            onChange={(e) => handleRuleChange('start2', e.target.value, index)}
+            placeholder="Please Enter"
+        />
+    ),
     DateRange: () => null,
     MultiSelectDropdown: () => null,
     AmountInput: (
@@ -553,32 +554,32 @@ const CONFIGURE_SELECTION_LOGIC: {
         handleRuleChange: (name: string, value: string[] | string, index: number) => void,
         handleStart2: (rule: any) => { isShow: boolean; options: any[] },
         fetchColumnNames: (id: string) => void
-    ) => 
-        (
-            <Form.Control
-                type="number"
-                name="start2"
-                value={rule.start2}
-                onChange={(e) => handleRuleChange('start2', e.target.value, index)}
-                placeholder="Please Enter"
-            />
-        ),
+    ) =>
+    (
+        <Form.Control
+            type="number"
+            name="start2"
+            value={rule.start2}
+            onChange={(e) => handleRuleChange('start2', e.target.value, index)}
+            placeholder="Please Enter"
+        />
+    ),
     FloatInput: (
         rule: any,
         index: number,
         handleRuleChange: (name: string, value: string[] | string, index: number) => void,
         handleStart2: (rule: any) => { isShow: boolean; options: any[] },
         fetchColumnNames: (id: string) => void
-    ) => 
-        (
-            <Form.Control
-                type="number"
-                name="start2"
-                value={rule.start2}
-                onChange={(e) => handleRuleChange('start2', e.target.value, index)}
-                placeholder="Please Enter"
-            />
-        ),
+    ) =>
+    (
+        <Form.Control
+            type="number"
+            name="start2"
+            value={rule.start2}
+            onChange={(e) => handleRuleChange('start2', e.target.value, index)}
+            placeholder="Please Enter"
+        />
+    ),
     Paragraph: () => null,
     CheckboxInput: () => null,
     Select: (
@@ -608,6 +609,54 @@ const CONFIGURE_SELECTION_LOGIC: {
 };
 
 
+  
+
+
+
+export const TABLE_INPUT_HEADERS: { [key: string]: TableHeader[] } = {
+    Rolling_Program_Material: [
+        { key: "SNo", displayName: "S No", disable: true },
+        { key: "MaterialGroup", displayName: "Material Group" },
+        { key: "MaterialName", displayName: "Material Name" },
+        { key: "Specification", displayName: "Specification" },
+        { key: "AnyOtherSpectification", displayName: "Any Other Spectification" },
+        { key: "Unit", displayName: "Unit" },
+        { key: "CoreCategory", displayName: "Core Category" },
+        { key: "TotalProjectRequirement", displayName: "Total Project Requirement" },
+        { key: "TotalTransferMaterialofpreviousmonth", displayName: "Total Transfer Material of previous month" },
+        { key: "TotalMatreialReceivedason", displayName: "Total Matreial Received as on" },
+        { key: "ClosingBalanceERPason", displayName: "Closing Balance (ERP)as on" },
+        { key: "IMSQty(Physical)ason", displayName: "IMS Qty (Physical) as on" },
+        { key: "ClosingQty(Physical)ason", displayName: "Closing Qty (Physical) as on" },
+        { key: "SteelWorkinProgressCutBentason", displayName: "Steel Work in Progress (Cut & Bent) as on" },
+        { key: "SteelProjectedoutfromconcretebutnotmeasuredason", displayName: "Steel Projected out from concrete but not measured as on" },
+        { key: "ConsumptionDuring1", displayName: "Consumption During" },
+        { key: "ConsumptionDuring2", displayName: "Consumption During" },
+        { key: "ConsumptionDuring3", displayName: "Consumption During" },
+        {
+            key: "RequirementasperPlanningAfterAddingScrap/wastage/ClosingBalanceDuring(AutoCalculateField)",
+            displayName: "Requirement as per Planning After Adding Scrap/ wastage/ Closing Balance During (Auto Calculate Field)",
+            calculation: {
+                operation: "sum-subtract",
+                add: ["ConsumptionDuring1", "ConsumptionDuring2", "ConsumptionDuring3", "SteelWorkinProgressCutBentason", "SteelProjectedoutfromconcretebutnotmeasuredason"],
+                subtract: ["ClosingBalanceERPason"]
+            }
+        },
+        { key: "RequirementofStockAsperNew3_Month_Policy", displayName: "Requirement of Stock As per New 3_Month_Policy" },
+        { key: "InProcessPRQty", displayName: "In Process PR Qty" },
+        { key: "InProcessPOQty", displayName: "In Process PO Qty" },
+        { key: "InProcessPRQty[Editable]", displayName: "In Process PR Qty[Editable]" },
+        { key: "InProcessPOQty[Editable]", displayName: "In Process PO Qty[Editable]" },
+        { key: "ProposedRequirement", displayName: "Proposed Requirement" },
+    ],
+    '': [
+        { key: "label", displayName: "Label" },
+        { key: "input", displayName: "Input" },
+        { key: "error", displayName: "Error" },
+    ]
+};
+
+
 export {
     FIELD_LIST,
     START1,
@@ -619,5 +668,5 @@ export {
     START3,
     EXPIRY_LOGIC,
     OPTIONS_SUNDAY_LOGIC,
-    CONFIGURE_SELECTION_LOGIC
+    CONFIGURE_SELECTION_LOGIC,
 }

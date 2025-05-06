@@ -1,6 +1,7 @@
 import React from 'react';
 import { Table, Form } from 'react-bootstrap';
-import { BASIC_FIELD, BLOCK_VALUE } from '../Constant/Interface';
+import { BASIC_FIELD, BLOCK_VALUE, TableHeader } from '../Constant/Interface';
+import { TABLE_INPUT_HEADERS } from '../Constant/Constant';
 
 interface Props {
     block: BASIC_FIELD;
@@ -20,59 +21,90 @@ const TableInput: React.FC<Props> = ({
     setBlockValue
 }) => {
 
-    const isRequired = block.property.validation === "required";
-    const isDisabled = block.property.disabled === 'true' ? true : false;
+    const isDisabled = block.property.disabled === 'true';
+    const tableName = block.property.tableConfiguration || '';
 
-    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const headers = TABLE_INPUT_HEADERS[tableName] || TABLE_INPUT_HEADERS[''];
+
+    const handleInputChange = (
+        e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+        key: string
+    ) => {
         const { value } = e.target;
 
         setBlockValue((prevState) => ({
             ...prevState,
-            [block.property.id]: value,
+            [key]: value,
         }));
 
-        handleChange(e, block.property.id);
+        handleChange(e as React.ChangeEvent<HTMLInputElement>, key); // force-cast if needed
     };
+
+    const calculateValue = (calculation: TableHeader["calculation"]): string => {
+        if (!calculation) return '';
+      
+        const addTotal = (calculation.add || []).reduce((total, key) => {
+          const rawValue = blockValue[key];
+          const val = parseFloat(Array.isArray(rawValue) ? rawValue.join('') : rawValue || '0');
+          return total + (isNaN(val) ? 0 : val);
+        }, 0);
+      
+        const subtractTotal = (calculation.subtract || []).reduce((total, key) => {
+          const rawValue = blockValue[key];
+          const val = parseFloat(Array.isArray(rawValue) ? rawValue.join('') : rawValue || '0');
+          return total + (isNaN(val) ? 0 : val);
+        }, 0);
+      
+        const result = addTotal - subtractTotal;
+        return result.toFixed(2);
+      };
+      
+      
+
+
 
     return (
         <Table bordered responsive>
-            {JSON.stringify(block.property)}
             <thead>
                 <tr>
-                    <th>Label</th>
-                    <th>Input</th>
-                    <th>Error</th>
+                    {headers.map((header) => (
+                        <th key={header.key}>{header.displayName}</th>
+                    ))}
                 </tr>
             </thead>
             <tbody>
                 {(block.property.isShow || block.property.isPermanent || editMode) && (
                     <tr>
-                        <td>
-                            {block.property.label}
-                            {isRequired && (
-                                <span className='text-danger'>*</span>
-                            )}
-                        </td>
-                        <td>
-                            <Form.Group controlId={block.property.id} className="mb-3">
-                                <Form.Control
-                                    type="text"
-                                    name={block.property.id}
-                                    value={blockValue[block.property.id] || ''}
-                                    onChange={handleInputChange} 
-                                    placeholder={block.property.placeholder}
-                                    disabled={isDisabled}
-                                    className={validationErrors[block.property.id] ? "is-invalid" : ""}
-                                />
-                            </Form.Group>
-                        </td>
-                        <td>
-                            {validationErrors[block.property.id] && (
-                                <Form.Text className="text-danger">
-                                    {validationErrors[block.property.id]}
-                                </Form.Text>
-                            )}
-                        </td>
+                        {headers.map((header) => (
+                            <td key={header.key}>
+                                {header.disable || header.calculation ? (
+                                    <div className="pt-2">
+                                        {header.calculation
+                                            ? calculateValue(header.calculation)
+                                            : blockValue[header.key] || ''}
+                                    </div>
+                                ) : (
+                                    <Form.Group controlId={header.key} className="mb-0">
+                                        <Form.Control
+                                            type="text"
+                                            name={header.key}
+                                            value={blockValue[header.key] || ''}
+                                            onChange={(e) => handleInputChange(e, header.key)}
+                                            placeholder={header.displayName}
+                                            disabled={isDisabled}
+                                            className={validationErrors[header.key] ? "is-invalid" : ""}
+                                        />
+                                        {validationErrors[header.key] && (
+                                            <Form.Text className="text-danger">
+                                                {validationErrors[header.key]}
+                                            </Form.Text>
+                                        )}
+                                    </Form.Group>
+                                )}
+                            </td>
+
+
+                        ))}
                     </tr>
                 )}
             </tbody>
