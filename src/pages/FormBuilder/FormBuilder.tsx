@@ -200,7 +200,7 @@ const FormBuilder: React.FC<FormBuilderProps> = ({ formDetails, handleClose, for
                                 <Blocks form={form} setForm={setForm} />
                             </div>
                         )}
-                        <div className="w-100">
+                        <div className="w-100" style={{maxWidth: '58.333%'}}>
                             <Editor form={form} setForm={setForm} property={property} setProperty={setProperty} blockValue={blockValue} setBlockValue={setBlockValue} />
                         </div>
                         {form.editMode && property.id && (

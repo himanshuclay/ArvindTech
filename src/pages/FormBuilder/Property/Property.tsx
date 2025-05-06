@@ -343,6 +343,9 @@ const Property: React.FC<Props> = ({ form, setForm, property, setProperty, remov
                     >
                         <option value="">Please select</option>
                         <option value="Rolling_Program_Material">Rolling_Program_Material</option>
+                        <option value="DemobManpowerTemplate">Demob Manpower Template</option>
+                        <option value="DemobMachineryTemplate">Demob Machinery Template</option>
+                        <option value="DemobCampTemplate">Demob Camp Template</option>
                     </select>
                 </div>
             )}
