@@ -1,12 +1,13 @@
 import axios from 'axios';
 import { useState, useEffect } from 'react';
-import { Button, Pagination, Table, Container, Row, Col, Alert, Form, DropdownButton } from 'react-bootstrap';
+import { Button, Pagination, Table, Container, Row, Col, Alert, Form, DropdownButton, Modal } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import config from '@/config';
 // import Select from 'react-select';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
+import Select from 'react-select';
 
 
 
@@ -47,8 +48,8 @@ interface Mess {
     createdDate: string,
     createdBy: string,
     updatedDate: string,
-    updatedBy: string
-
+    updatedBy: string,
+    projectName: string[],
 }
 
 interface Column {
@@ -70,6 +71,7 @@ interface Column {
 
 
 const MaterialMaster = () => {
+    type OptionType = { value: string; label: string }; // value = id, label = projectName
     const role = localStorage.getItem('role');
 
     const [messes, setMesses] = useState<Mess[]>([]);
@@ -80,6 +82,11 @@ const MaterialMaster = () => {
     // const [messList, setMessList] = useState<MessList[]>([]);
     // const [projectList, setProjectList] = useState<ModuleProjectList[]>([])
     const [searchTriggered] = useState(false);
+    const [showProjectModal, setShowProjectModal] = useState(false);
+    const [selectedMessId, setSelectedMessId] = useState<number | null>(null);
+    const [projectList, setProjectList] = useState<OptionType[]>([]);
+    const [selectedProjects, setSelectedProjects] = useState<OptionType[]>([]);
+
 
 
 
@@ -135,6 +142,7 @@ const MaterialMaster = () => {
         { id: 'createdBy', label: 'createdBy', visible: true },
         { id: 'updatedDate', label: 'updatedDate', visible: true },
         { id: 'updatedBy', label: 'updatedBy', visible: true },
+        { id: 'projectName', label: 'projectName', visible: true },
 
     ]);
 
@@ -146,6 +154,27 @@ const MaterialMaster = () => {
         setColumns(reorderedColumns);
     };
     // ==============================================================
+
+
+    const handleOpenProjectModal = async (messId: number) => {
+        setSelectedMessId(messId);
+        setShowProjectModal(true);
+      
+        try {
+          const response = await axios.get(`${config.API_URL_APPLICATION}/CommonDropdown/GetProjectList`);
+          const projectArray = response.data?.projectListResponses || [];
+      
+          const formatted = projectArray.map((proj: any) => ({
+            value: proj.id,             // Project ID will be stored
+            label: proj.projectName     // Project Name will be shown in dropdown
+          }));
+      
+          setProjectList(formatted);
+        } catch (error) {
+          console.error("Failed to fetch project list", error);
+        }
+      };
+      
 
 
 
@@ -504,6 +533,14 @@ const MaterialMaster = () => {
                                                         </Button>
                                                     </Link>
                                                     </td>)}
+                                                {(role === 'Admin' || role === 'DME') && (
+                                                    <td>
+                                                        <Button variant="secondary" size="sm" onClick={() => handleOpenProjectModal(item.id)}>
+                                                            Add Project
+                                                        </Button>
+                                                    </td>
+                                                )}
+
                                             </tr>
                                         ))
                                     ) : (
@@ -529,6 +566,48 @@ const MaterialMaster = () => {
                 </div>
             </>
             )}
+
+            <Modal show={showProjectModal} onHide={() => setShowProjectModal(false)}>
+                <Modal.Header closeButton>
+                    <Modal.Title>Select Projects</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <Form.Group>
+                        <Form.Label>Projects</Form.Label>
+                        <Select
+                            isMulti
+                            options={projectList}
+                            value={selectedProjects}
+                            onChange={(selected) => setSelectedProjects(selected as OptionType[])}
+                            placeholder="Select Projects"
+                        />
+                    </Form.Group>
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="secondary" onClick={() => setShowProjectModal(false)}>
+                        Cancel
+                    </Button>
+                    <Button
+                        variant="primary"
+                        onClick={() => {
+                            setMesses((prev) =>
+                                prev.map((m) =>
+                                    m.id === selectedMessId
+                                        ? { ...m, projectName: selectedProjects.map((p) => p.value) } // Store only IDs
+                                        : m
+                                )
+                            );
+                            setShowProjectModal(false);
+                            setSelectedProjects([]);
+                        }}
+                    >
+                        Save
+                    </Button>
+
+
+                </Modal.Footer>
+            </Modal>
+
 
             <div className="d-flex justify-content-center align-items-center bg-white w-20 rounded-5 m-auto py-1 pb-1 my-2 pagination-rounded">
                 <Pagination >
