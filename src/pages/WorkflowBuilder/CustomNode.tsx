@@ -8,7 +8,7 @@ import { ASSIGN_DOER_TYPE, LOOPING_SETTING_START1, LOOPING_SETTING_START2, TASK_
 import Flatpickr from 'react-flatpickr';
 // import { speak } from "@/utils/speak";
 import { APPOINTMENT, NEW_APPOINTMENT } from "./Constant/Binding";
-import { getAllBlockName, getAllBlockOptions, getBlockName, getPreviousTaskList } from "./Constant/function";
+import { fetchTableFields, getAllBlockName, getAllBlockOptions, getBlockName, getPreviousTaskList } from "./Constant/function";
 import { toast } from "react-toastify";
 import { speak } from "@/utils/speak";
 import { EXPIRY_LOGIC, OPTIONS_SUNDAY_LOGIC } from "../FormBuilder/Constant/Constant";
@@ -110,6 +110,7 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges
     const [doerList, setDoerList] = useState<{ value: string; label: string }[]>([]);
     const [roleList, setRoleList] = useState<{ value: string; label: string }[]>([]);
     const [projectList, setProjectList] = useState<{ id: string; projectName: string }[]>([]);
+    const [tableColumns, setTableColumns] = useState<{ value: string; label: string }[]>([]);
 
     const [isStartNode, setIsStartNode] = useState(false);
     const [mastersLists, setMasterLists] = useState<Option[]>([]);
@@ -381,9 +382,8 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges
             setPerviousOptionsList([]);
         }
         if (nodeSetting.loopingSetting.start3) {
-            if(nodes){
+            if (nodes) {
                 const value = getAllBlockName(nodes, nodeSetting.loopingSetting.start3);
-                console.log("new", value);
                 setPerviousLoopingBlockList(value);
                 setNodeSetting(prev => ({
                     ...prev,
@@ -395,7 +395,19 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges
                 setPerviousLoopingOptionsList([]);
             }
         }
-    }, [nodeSetting.doerTaskNumber, nodeSetting.loopingSetting.start3]); // Triggered whenever doerTaskNumber changes
+        if (nodeSetting.parallerTaskNumber) {
+            if (nodes) {
+                const value = getAllBlockName(nodes, nodeSetting.parallerTaskNumber);
+                console.log(value)
+                setPerviousLoopingBlockList(value);
+                setNodeSetting(prev => ({
+                    ...prev,
+                    parallerTaskBlockName: ''
+                }));
+                setPerviousLoopingOptionsList([]);
+            }
+        }
+    }, [nodeSetting.doerTaskNumber, nodeSetting.loopingSetting.start3, nodeSetting.parallerTaskNumber]); // Triggered whenever doerTaskNumber changes
 
 
     useEffect(() => {
@@ -452,6 +464,26 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges
     //     console.log('Cloned node:', clonedNode);
     // };
 
+    useEffect(() => {
+        if (nodeSetting.parallerTaskBlockName) {
+            const column = fetchTableFields(
+                nodes,
+                nodeSetting.parallerTaskNumber,
+                nodeSetting.parallerTaskBlockName
+            );
+
+            if (column) {
+                const dropdownOptions = column.map((col: { key: string; displayName: string }) => ({
+                    value: col.key,
+                    label: col.displayName
+                }));
+
+                console.log(dropdownOptions);
+                setTableColumns(dropdownOptions);
+            }
+
+        }
+    }, [nodeSetting.parallerTaskBlockName])
 
 
     return (
@@ -1045,7 +1077,6 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges
                                     />
                                 </Form.Group>
                             </Col>
-                            {JSON.stringify(nodeSetting.matchedOutputLabels)}
                             {nodeSetting.matchedOutputLabels?.length > 0 && (
                                 <Col lg={6}>
                                     <Form.Group>
@@ -1152,7 +1183,58 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges
                             )}
                         </Row>
                         <Row>
+                            <p><strong>Parallel Task Configuration</strong></p>
+                            <Col lg={3}>
+                                <Form.Group>
+                                    <Form.Label>Select Task Binding*</Form.Label>
+                                    <Select
+                                        options={previousTaskList}
+                                        value={previousTaskList.find(option => option.value === nodeSetting.parallerTaskNumber)}
+                                        onChange={(selectedOption) =>
+                                            setNodeSetting(prev => ({ ...prev, parallerTaskNumber: selectedOption?.value || '' }))
+                                        }
+                                        placeholder="Select"
+                                        isClearable
 
+                                    />
+                                </Form.Group>
+                            </Col>
+                            {nodeSetting.parallerTaskNumber && (
+                                <Col lg={3}>
+                                    <Form.Group>
+                                        <Select
+                                            options={previousLoopingBlockList}
+                                            value={nodeSetting.parallerTaskBlockName ? previousLoopingBlockList.find(option => option.value === nodeSetting.parallerTaskBlockName) : null}
+                                            onChange={(selectedOption) =>
+                                                setNodeSetting(prev => ({
+                                                    ...prev,
+                                                    parallerTaskBlockName: selectedOption?.value || ''
+                                                }))
+                                            }
+                                            placeholder="Select a Block"
+                                            isClearable
+                                        />
+                                    </Form.Group>
+                                </Col>
+                            )}
+                            {nodeSetting.parallerTaskBlockName && (
+                                <Col lg={3}>
+                                    <Form.Group>
+                                        <Select
+                                            options={tableColumns}
+                                            value={nodeSetting.parallerTaskTableColumn ? tableColumns.find(option => option.value === nodeSetting.parallerTaskTableColumn) : null}
+                                            onChange={(selectedOption) =>
+                                                setNodeSetting(prev => ({
+                                                    ...prev,
+                                                    parallerTaskTableColumn: selectedOption?.value || ''
+                                                }))
+                                            }
+                                            placeholder="Select a Block"
+                                            isClearable
+                                        />
+                                    </Form.Group>
+                                </Col>
+                            )}
                         </Row>
                     </Modal.Body>
                     <Modal.Footer>

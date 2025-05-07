@@ -1,3 +1,4 @@
+import { TABLE_INPUT_HEADERS } from "@/pages/FormBuilder/Constant/Constant";
 import { BASIC_FIELD, LOGIC_ITEM, TRIGGER_ACTION } from "@/pages/FormBuilder/Constant/Interface";
 import { Edge, Node } from "reactflow";
 interface APISetting {
@@ -109,21 +110,28 @@ const getPreviousTaskList = (
 };
 
 
-const getAllBlockName = (nodes: Node[], id: string, selection?: string) => {
-    console.log(nodes)
-    console.log(id)
-    const node = nodes.find(n => n.id == id);
-    let blockNameList: { label: string, value: string }[] = [];
-    if (node) {
-        if (typeof node?.data.form === "string") {
+const getAllBlockName = (
+    nodes: Node[],
+    id: string,
+    selection?: string,
+    blockNameList: { label: string; value: string }[] = []
+): { label: string; value: string }[] => {
 
-        } else {
-            const blockName = getBlockNameOptions(node?.data.form.blocks, selection);
-            blockNameList = blockName;
+    const node = nodes.find(n => n.id === id);
+
+    if (node) {
+        if (node.data.TaskBinding && node.data.BindingOption === "formAndValueWithEditMode") {
+            blockNameList = getAllBlockName(nodes, node.data.TaskBinding, selection, blockNameList);
+        }
+
+        if (typeof node?.data.form !== "string") {
+            blockNameList = getBlockNameOptions(node?.data.form.blocks, selection);
         }
     }
+
     return blockNameList;
-}
+};
+
 
 const getAllBlockOptions = (nodes: Node[], taskNumber: string, blockId: string) => {
     const node = nodes.find(n => n.id == taskNumber);
@@ -140,6 +148,37 @@ const getAllBlockOptions = (nodes: Node[], taskNumber: string, blockId: string) 
     }
     return blockOptions;
 }
+
+const fetchTableFields = (
+    nodes: Node[],
+    parallerTaskNumber: string,
+    parallerTaskBlockName: string
+  ): any => {
+    const node = nodes.find(n => n.id === parallerTaskNumber);
+  
+    // Recursive case: if form is still a string, follow the binding
+    if (typeof node?.data?.form === "string") {
+      if (node.data.TaskBinding && node.data.BindingOption === "formAndValueWithEditMode") {
+        return fetchTableFields(nodes, node.data.TaskBinding, parallerTaskBlockName);
+      }
+      return null;
+    }
+  
+    // Find the block
+    const block = node?.data?.form?.blocks?.find(
+      (b: any) => b.property.id === parallerTaskBlockName
+    );
+  
+    if (!block || !block.property?.tableConfiguration) return null;
+  
+    // Extract the table fields
+    const tableField = TABLE_INPUT_HEADERS[block.property.tableConfiguration];
+  
+    return tableField || null;
+  };
+  
+  
+  
 
 const updateIsPermanentRecursively = (
     triggeredActions: TRIGGER_ACTION[],
@@ -181,4 +220,5 @@ export {
     getAllBlockOptions,
     extractRecursively,
     updateIsPermanentRecursively,
+    fetchTableFields,
 }
