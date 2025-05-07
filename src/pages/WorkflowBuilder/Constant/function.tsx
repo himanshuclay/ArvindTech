@@ -77,6 +77,7 @@ const getPreviousTaskList = (
     targetId: string,
     result: { label: string; value: string }[] = [],
     outputLabel?: string,
+    visited: Set<string> = new Set()
 ): { label: string; value: string }[] => {
     const workflowData = {
         edges,
@@ -86,23 +87,27 @@ const getPreviousTaskList = (
 
     const node = getSource(workflowData, edgeId, outputLabel);
 
-    if (node) {
+    if (node && !visited.has(node.id)) {
+        visited.add(node.id);
+
         if (node.id == '2' || node.id === targetId) {
             return result;
         } else {
             result.push({ label: node.data.label, value: node.id });
+
             if (node.data.outputLabels && node.data.outputLabels.length > 1) {
-                node.data.outputLabels.map((outputLabel: string) => {
-                    return getPreviousTaskList(nodes, edges, node.id, targetId, result, outputLabel);
-                })
+                node.data.outputLabels.forEach((outputLabel: string) => {
+                    getPreviousTaskList(nodes, edges, node.id, targetId, result, outputLabel, visited);
+                });
             } else {
-                return getPreviousTaskList(nodes, edges, node.id, targetId, result);
+                getPreviousTaskList(nodes, edges, node.id, targetId, result, undefined, visited);
             }
         }
     }
 
     return result;
 };
+
 
 const getAllBlockName = (nodes: Node[], id: string, selection?: string) => {
     console.log(nodes)
@@ -143,7 +148,7 @@ const updateIsPermanentRecursively = (
     if (index >= triggeredActions.length) return triggeredActions;
 
     const currentBlock = triggeredActions[index];
-    
+
     if (currentBlock.block && currentBlock.block.property.hasOwnProperty('isPermanent')) {
         currentBlock.block.property.isPermanent = false;
     }
