@@ -130,6 +130,7 @@ export interface TableHeader {
       add: string[];
       subtract?: string[];
     };
+    autoFill?: string;
   }
 
 

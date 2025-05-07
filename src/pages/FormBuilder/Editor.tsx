@@ -401,7 +401,6 @@ const Editor: React.FC<EditorProps> = ({ form, setForm, property, setProperty, b
             {/* {JSON.stringify(blockValue)} */}
             <fieldset disabled={isPreview}>
                 <div className='d-flex flex-wrap'>
-{JSON.stringify(form.rules)}
                     {form.blocks.length === 0 ? (
                         <p className="text-gray-400">Drag fields here...</p>
                     ) : (
@@ -427,7 +426,6 @@ const Editor: React.FC<EditorProps> = ({ form, setForm, property, setProperty, b
                                     onClick={() => handleProperty(block)}
                                     style={block.property.advance}
                                 >
-                                    {JSON.stringify(blockValue)}
                                     <DynamicComponentRenderer
                                         form={form}
                                         setForm={setForm}

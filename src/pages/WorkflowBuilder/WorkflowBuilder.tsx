@@ -450,6 +450,7 @@ const WorkflowBuilder: React.FC = () => {
         try {
             console.log(id)
             const response = await axios.get(`${config.API_URL_ACCOUNT}/WorkflowBuilder/GetWorkflowBuilder?ID=${id}`);
+            console.log(response)
             if (response.data.isSuccess) {
                 const fetchedModule = response.data.workflowBuilderLists[0];
                 setName(fetchedModule.name);

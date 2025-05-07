@@ -314,6 +314,9 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges
             if (data.isActive == true) {
                 return { border: '4px solid orange' };
             }
+            if (data.isPlanned == true) {
+                return { border: '4px solid yellow' };
+            }
         }
         return {};
     };

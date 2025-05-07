@@ -1,6 +1,7 @@
 import Select from "react-select";
 import { Form } from 'react-bootstrap';
 import { TableHeader } from "./Interface";
+import config from "@/config";
 
 const FIELD_LIST = [
     {
@@ -609,24 +610,30 @@ const CONFIGURE_SELECTION_LOGIC: {
 };
 
 
-  
+
+
+export const TABLE_APIS = (projectId: string): Record<string, [string, string]> => ({
+    Rolling_Program_Material: [
+        `${config.API_URL_APPLICATION1}/MaterialMaster/GetMaterial/${projectId}`,
+        'materialMasters'
+    ]
+});
 
 
 
 export const TABLE_INPUT_HEADERS: { [key: string]: TableHeader[] } = {
     Rolling_Program_Material: [
-        { key: "SNo", displayName: "S No", disable: true },
-        { key: "MaterialGroup", displayName: "Material Group" },
-        { key: "MaterialName", displayName: "Material Name" },
+        { key: "MaterialGroup", displayName: "Material Group", autoFill: 'materialGroupName' },
+        { key: "MaterialName", displayName: "Material Name", autoFill: 'materialName' },
         { key: "Specification", displayName: "Specification" },
         { key: "AnyOtherSpectification", displayName: "Any Other Spectification" },
-        { key: "Unit", displayName: "Unit" },
-        { key: "CoreCategory", displayName: "Core Category" },
+        { key: "Unit", displayName: "Unit", autoFill: 'unit' },
+        { key: "CoreCategory", displayName: "Core Category", autoFill: 'coreCategory' },
         { key: "TotalProjectRequirement", displayName: "Total Project Requirement" },
         { key: "TotalTransferMaterialofpreviousmonth", displayName: "Total Transfer Material of previous month" },
         { key: "TotalMatreialReceivedason", displayName: "Total Matreial Received as on" },
         { key: "ClosingBalanceERPason", displayName: "Closing Balance (ERP)as on" },
-        { key: "IMSQty(Physical)ason", displayName: "IMS Qty (Physical) as on" },
+        { key: "IMSQty(Physical)ason", displayName: "IMS Qty (Physical) as on", autoFill: '' },
         { key: "ClosingQty(Physical)ason", displayName: "Closing Qty (Physical) as on" },
         { key: "SteelWorkinProgressCutBentason", displayName: "Steel Work in Progress (Cut & Bent) as on" },
         { key: "SteelProjectedoutfromconcretebutnotmeasuredason", displayName: "Steel Projected out from concrete but not measured as on" },

@@ -70,7 +70,7 @@ const ActiveNode = ({ activeNode, activeTaskId, setActiveNode, completedNodes, s
         isShow: false,
         disabled: 'false',
     })
-    console.log(activeNode.data.taskLoop.loopBlockValue);
+    // console.log(activeNode.data.taskLoop.loopBlockValue);
     const [blockValue, setBlockValue] = useState<BLOCK_VALUE>(activeNode.data.blockValue ? activeNode.data.blockValue : {})
     const [loopSection,] = useState(activeNode.data.taskLoop?.loopID ? JSON.parse(activeNode.data.taskLoop.loopBlockValue) : []);
     const [activeLoop, setActiveLoop] = useState(loopSection.length ? loopSection[0] : '');
@@ -345,7 +345,6 @@ console.log(index)
                 {/* {activeNode.data.label}{activeLoop ? activeLoop.split('-')[1] : ''} */}
             </div>)
             }
-            {JSON.stringify(blockValue)}
             <div className="my-2 position-relative">
                 {form?.blocks?.length ? (
                     <Editor
