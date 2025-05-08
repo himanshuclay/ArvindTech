@@ -1,13 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { Table, Button, Collapse, Modal } from 'react-bootstrap';
+import { Table, Button, Modal } from 'react-bootstrap';
 import axios from 'axios';
-import Select from 'react-select'
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 // import { FileUploader } from '@/components/FileUploader'
 import config from '@/config';
-import { FIELD, PROPERTY } from '@/pages/FormBuilder/Constant/Interface';
-import Editor from '@/pages/FormBuilder/Editor';
 import FormBuilder from '@/pages/FormBuilder/FormBuilder';
+import { toast } from 'react-toastify';
 
 
 
@@ -36,25 +34,16 @@ import FormBuilder from '@/pages/FormBuilder/FormBuilder';
 // }
 
 // Interface for mess manager dropdown options
-interface MessManager {
-    value: string;
-    label: string;
-}
-interface Role {
-    id: string;
-    roleName: string;
-}
+
 // Interface for API response structure
 interface Template {
-    id: number;
-    formName: string;
-    templateJson: string;
+    processID: string, nodeID: string, formID: string,
 }
 
 interface ApiResponse {
     isSuccess: boolean;
     message: string;
-    getTemplateJsons: Template[];
+    matchedConfigs: Template[];
 }
 
 // Main component
@@ -62,29 +51,22 @@ const Adhoc: React.FC = () => {
     const [data, setData] = useState<Template[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
-    const [expandedRow, setExpandedRow] = useState<number | null>(null); // For row expansion
     const [formDetails, setFormDetails] = useState<any>();
-    const [showDoerModal, setShowDoerModal] = useState<boolean>(false);
-    const [selectedForm, setSelectedForm] = useState<Template | null>(null);
-    const [roleOptions, setRoleOptions] = useState<{ label: string; value: string }[]>([]);
-    const [selectedRoles, setSelectedRoles] = useState<{ label: string; value: string }[]>([]);
     // const [selectedManager, setSelectedManager] = useState<string>(''); // Manager select state
+    const navigate = useNavigate();
 
     // Placeholder for mess managers
-    const messManagers: MessManager[] = [
-        { value: 'manager1', label: 'Manager 1' },
-        { value: 'manager2', label: 'Manager 2' },
-    ];
+
 
 
 
     // Fetch API data
     const fetchTemplates = async () => {
         try {
-            const response = await axios.get<ApiResponse>(`${config.API_URL_ACCOUNT}/ProcessTaskMaster/GetTemplateJson`);
+            const response = await axios.get<ApiResponse>(`${config.API_URL_ACCOUNT}/ProcessInitiation/GetConfiguration?DoerID=${localStorage.getItem("EmpId")}`);
             console.log('response', response)
             if (response.data.isSuccess) {
-                setData(response.data.getTemplateJsons);
+                setData(response.data.matchedConfigs);
             } else {
                 setError('Failed to fetch templates');
             }
@@ -99,7 +81,7 @@ const Adhoc: React.FC = () => {
         fetchTemplates();
     }, []);
 
-  
+
 
     if (loading) {
         return <p>Loading...</p>;
@@ -109,25 +91,31 @@ const Adhoc: React.FC = () => {
         return <p>Error: {error}</p>;
     }
 
-    const initiation = (form: any) => {
+    const initiation = async (form: any) => {
         console.log(form)
+        const payload = {
+                    moduleName: form.processID.split('.')[0],
+                    taskNumber: form.processID,
+                    nodeId: form.nodeID,
+                    createdBy: localStorage.getItem("EmpId"),
+                };
+                console.log(payload)
+                try {
+                    await axios.post(`${config.API_URL_ACCOUNT}/ProcessInitiation/ManualProcessTaskInitiation`, payload);
+                    navigate('/pages/ProcessInitiation', {
+                        state: {
+                            successMessage: "Process Initiated successfully!",
+                        }
+                    });
+        
+                } catch (error: any) {
+                    toast.error(error);
+                    console.error('Error submitting module:', error);
+                }
 
     }
 
-    const fetchRoleOptions = async () => {
-        try {
-            const response = await axios.get(`${config.API_URL_APPLICATION}/CommonDropdown/GetRoleMasterList`);
-            if (response.data.isSuccess) {
-                const options = response.data.roleMasterLists.map((role: Role) => ({
-                    label: role.roleName,
-                    value: role.id.toString(),
-                }));
-                setRoleOptions(options);
-            }
-        } catch (error) {
-            console.error('Failed to fetch roles:', error);
-        }
-    };
+
 
 
     const handleClose = () => {
@@ -156,92 +144,31 @@ const Adhoc: React.FC = () => {
                 <thead>
                     <tr>
                         <th>Sr.no</th>
-                        <th>Form Name</th>
-                        <th>Task Type</th>
-                        <th>Planned Date</th>
+                        <th>Process</th>
+                        <th>Form</th>
+                        <th>Node</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody>
                     {data.map((item, index) => (
-                        <React.Fragment key={item.id}>
+                        <React.Fragment key={index}>
                             <tr>
                                 <td>{index + 1}</td>
-                                <td>{item.formName}</td>
-                                {/* Assuming `taskType` and `plannedDate` can be extracted or handled */}
-                                <td>Task Type Here</td>
-                                <td>Planned Date Here</td>
+                                <td>{item.processID}</td>
+                                <td>{item.formID}</td>
+                                <td>{item.nodeID}</td>
                                 <td>
                                     <Button onClick={() => initiation(item)} className='me-2'>
-                                         <i className="ri-presentation-line"></i>
+                                        <i className="ri-presentation-line"></i>
                                     </Button>
-                                    {/* <Button onClick={() => handleEdit(item)} className='me-2'>
-                                        <i className="ri-file-edit-fill"></i>
-                                    </Button>
-                                    <Button onClick={() => handleDoerAdd(item)}>
-                                        <i className="ri-user-settings-fill"></i>
-                                    </Button> */}
-                                </td>
-                            </tr>
-                            <tr>
-                                <td colSpan={5}>
-                                    {expandedRow === item.id && (
-                                        <Collapse in={expandedRow === item.id}>
-                                            <div>
-                                                {/* Parse and pass the form data from JSON to the dynamic form */}
-                                                <DynamicForm
-                                                    formData={JSON.parse(item.templateJson)}
-                                                    messName={item.formName}
-                                                    showMessManagerSelect={true} // You can add logic to show/hide this
-                                                    messManagers={messManagers}
-                                                    expandedRow={expandedRow}
-                                                />
-                                            </div>
-                                        </Collapse>
-                                    )}
                                 </td>
                             </tr>
                         </React.Fragment>
                     ))}
                 </tbody>
             </Table>
-            <Modal show={showDoerModal} onHide={() => setShowDoerModal(false)}>
-                <Modal.Header closeButton>
-                    <Modal.Title>Assign Doers</Modal.Title>
-                </Modal.Header>
-                <Modal.Body>
-                    <label className="form-label">Select Doers</label>
-                    <Select
-                        isMulti
-                        options={roleOptions}
-                        value={selectedRoles}
-                        onMenuOpen={async () => {
-                            if (roleOptions.length === 0) {
-                                await fetchRoleOptions();
-                            }
-                        }}
-                        onChange={(selected) => setSelectedRoles(selected as any)}
-                    />
-
-
-                </Modal.Body>
-                <Modal.Footer>
-                    <Button variant="secondary" onClick={() => setShowDoerModal(false)}>
-                        Cancel
-                    </Button>
-                    <Button
-                        variant="primary"
-                        onClick={() => {
-                            const doer = selectedRoles.map((r) => r.value);
-                            console.log('Saved Doers for form:', selectedForm?.formName, '->', doer);
-                            // TODO: Post or save the doer array wherever needed
-                            setShowDoerModal(false);
-                        }}
-                    >
-                        Save Doers
-                    </Button>
-                </Modal.Footer>
-            </Modal>
+            
 
             {formDetails && (
                 <Modal show={true} onHide={handleClose} size="xl">
@@ -258,63 +185,5 @@ const Adhoc: React.FC = () => {
 };
 
 
-// Dynamic form component
-interface DynamicFormProps {
-    formData: FIELD;
-    messName: string;
-    showMessManagerSelect: boolean;
-    messManagers: MessManager[];
-    expandedRow: number | null;
-}
-
-const DynamicForm: React.FC<DynamicFormProps> = ({ formData, messName, showMessManagerSelect, messManagers, expandedRow }) => {
-    // const [formState, setFormState] = useState<{ [key: string]: any }>({});
-
-    // const handleChange = (inputId: string, value: any) => {
-    //     setFormState(prevState => ({
-    //         ...prevState,
-    //         [inputId]: value,
-    //     }));
-    // };
-    const [form, setForm] = useState<FIELD>({ ...formData, editMode: true });
-    const [property, setProperty] = useState<PROPERTY>({
-        label: '',
-        id: '',
-        placeholder: '',
-        value: '',
-        type: '',
-        required: "false",
-        options: [{ label: '', value: '' }],
-        advance: {
-            backgroundColor: '',
-            color: '',
-        },
-        isShow: false,
-        disabled: "false",
-    })
-    const [blockValue, setBlockValue] = useState({})
-    useEffect(() => {
-        setForm((preForm) => ({
-            ...preForm,
-            editMode: false,
-        }))
-    }, [])
-
-
-    // const handleSelectMessImpChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    //   // Update the manager state here
-    // };
-
-    return (
-        <React.Fragment>
-            <h5>Please Update data for <span className='text-primary'>{messName}</span></h5>
-            <div className="my-task">
-                {formData?.blocks?.length && (
-                    <Editor form={form} setForm={setForm} property={property} setProperty={setProperty} blockValue={blockValue} setBlockValue={setBlockValue} expandedRow={expandedRow} />
-                )}
-            </div>
-        </React.Fragment>
-    );
-};
 
 export default Adhoc;

@@ -156,6 +156,7 @@ const AdhocMaster: React.FC = () => {
     const handleSaveRole = async() => {
         const doer = selectedRoles.map((r) => r.value);
         setShowDoerModal(false);
+        // setSelectedRoles([]);
         const response = await axios.post(`${config.API_URL_ACCOUNT}/ProcessInitiation/UpdateTemplateRoles`,{
             id: selectedId,
             roles: JSON.stringify(doer),
