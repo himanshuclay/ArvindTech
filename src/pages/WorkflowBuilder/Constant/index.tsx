@@ -46,6 +46,8 @@ const ASSIGN_DOER_TYPE = [
     { label: 'Fixed Doer', value: 'fixedDoer' },
     { label: 'Project With Doer', value: 'projectWithDoer' },
     { label: 'Project With Form Input', value: 'projectWithFormInput' },
+    { label: 'Identifier', value: 'Identifier' },
+    
 ];
 const TIME_MANAGEMENT_OPTION = [
     { label: 'Only Days', value: 'onlyDays' },

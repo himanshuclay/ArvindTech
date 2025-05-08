@@ -164,6 +164,36 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges
         }
     };
 
+    type IdentifierOption = {
+        label: string; // identifierName
+        value: string; // identifierValue
+    };
+
+    const [identifierList, setIdentifierList] = useState<IdentifierOption[]>([]);
+
+    console.log(identifierList);
+
+    useEffect(() => {
+        const fetchIdentifiers = async () => {
+            try {
+                const response = await axios.get(`${config.API_URL_APPLICATION}/IdentifierMaster/GetIdentifier`);
+                const list = response.data?.identifierLists || [];
+
+                const formatted = list.map((item: any) => ({
+                    label: item.identifierName,
+                    value: item.identifierValue
+                }));
+
+                setIdentifierList(formatted);
+            } catch (error) {
+                console.error("Failed to fetch identifier list", error);
+            }
+        };
+
+        fetchIdentifiers();
+    }, []);
+
+
 
 
     useEffect(() => {
@@ -551,8 +581,33 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges
                                     />
                                 </Form.Group>
                             </Col>
-                            <Col lg={3}>
-                                {nodeSetting.assignDoerType === 'fixedDoer' && (
+                            {nodeSetting.assignDoerType === "Identifier" &&
+                                (
+                                    <Col lg={3}>
+                                        <Form.Group>
+                                            <Form.Label>Select Identifier</Form.Label>
+                                            <Select
+                                                options={identifierList}
+                                                value={identifierList.find(
+                                                    option => option.value === nodeSetting.identifierValue
+                                                )}
+                                                onChange={(selectedOption) =>
+                                                    setNodeSetting(prev => ({
+                                                        ...prev,
+                                                        identifierName: selectedOption?.label || '',
+                                                        identifierValue: selectedOption?.value || '',
+                                                    }))
+                                                }
+                                                placeholder="Select Assign Doer Type"
+                                                isClearable
+                                            />
+                                        </Form.Group>
+                                    </Col>
+                                )
+                            }
+                            {nodeSetting.assignDoerType === 'fixedDoer' && (
+                                <Col lg={3}>
+
                                     <Form.Group>
                                         <Form.Label>Assign Doer*</Form.Label>
                                         <Select
@@ -565,8 +620,9 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges
                                             isClearable
                                         />
                                     </Form.Group>
-                                )}
-                            </Col>
+
+                                </Col>
+                            )}
                             {nodeSetting.assignDoerType === 'projectWithDoer' && (
                                 <Form.Group>
                                     <Form.Label>Project With Doer</Form.Label>

@@ -15,6 +15,11 @@ interface DROP_DOWN {
     name: string;
 }
 
+// interface TEMPLATE_DROP_DOWN {
+//     id: string;
+//     templatesName: string;
+// }
+
 const AdhocConfig: React.FC = () => {
     const [configurations, setConfigurations] = useState<Configuration[]>([]);
     const [formOptions, setFormOptions] = useState<{ label: string; value: string }[]>([]);
@@ -63,7 +68,7 @@ const AdhocConfig: React.FC = () => {
     // Fetch dropdown data and format options for react-select
     const getInitialDropDown = async () => {
         try {
-            const response = await axios.get(`${config.API_URL_ACCOUNT}/WorkflowBuilder/GetDynamicDropdown`);
+            const response = await axios.get(`${config.API_URL_APPLICATION}/CommonDropdown/GetAllTemplatesList`);
 
             if (response.data.isSuccess) {
                 const newConfigurations = response.data.processDropdowns.map((p: DROP_DOWN) => ({
@@ -76,7 +81,7 @@ const AdhocConfig: React.FC = () => {
                 setConfigurations(newConfigurations);
 
                 setFormOptions(
-                    response.data.workflowDropdowns.map((w: DROP_DOWN) => ({
+                    response.data.templatesLists.map((w: DROP_DOWN) => ({
                         label: w.name,
                         value: w.id,
                     }))
