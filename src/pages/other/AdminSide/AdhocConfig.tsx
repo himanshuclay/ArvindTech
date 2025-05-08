@@ -77,10 +77,10 @@ const AdhocConfig: React.FC = () => {
                 const newConfigurations = response.data.processDropdowns.map((p: DROP_DOWN) => ({
                     processId: p.id,
                     nodes: p.nodes,
-                    formId: JSON.parse(response.data.templateDropdowns[1].configurations)?.find(
+                    formId: response.data.templateDropdowns[1] && JSON.parse(response.data.templateDropdowns[1].configurations)?.find(
                         (config: any) => config.processId === p.id
                     )?.formId || "",
-                    nodeId: JSON.parse(response.data.templateDropdowns[1].configurations)?.find(
+                    nodeId: response.data.templateDropdowns[1] && JSON.parse(response.data.templateDropdowns[1].configurations)?.find(
                         (config: any) => config.processId === p.id
                     )?.nodeId || "",
                 }));
