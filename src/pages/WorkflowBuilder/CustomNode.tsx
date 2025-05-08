@@ -519,6 +519,9 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges
     return (
         <div className="custom-node" style={getBorderStyle()}>
             {/* Settings Icon */}
+            <div className="task-badge">
+                {nodeSetting.taskNumber}
+            </div>
             <div className="settings-button">
                 {typeof data.form != "string" && (
                     <button className="setting-button-design" onClick={(e) => { e.stopPropagation(); setShowBinding(!showBinding); }} disabled={isCompleteTask}>
@@ -582,7 +585,7 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges
                                 </Form.Group>
                             </Col>
                             {nodeSetting.assignDoerType === "Identifier" &&
-                                (                                    
+                                (
                                     <Col lg={3}>
                                         <Form.Group>
                                             <Form.Label>Select Identifier</Form.Label>
@@ -1434,7 +1437,7 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges
                 )}
             </Modal>
 
-            {nodeSetting.taskNumber}
+
 
 
             {/* Input Handles */}

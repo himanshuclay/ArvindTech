@@ -1056,6 +1056,21 @@ input.numInput.cur-year:hover {
   cursor: pointer;
 }
 
+.task-badge {
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  padding: 3px 6px;
+  background-color: #001f61;
+  color: #fff;
+  border-top-left-radius: 7px;
+}
+
 .setting-button-design {
   background: none;
   border: none;
