@@ -60,6 +60,7 @@ const Rule: React.FC<Props> = ({ showRule, setShowRule, form, setForm }) => {
             updatedRules[index][field] = value;
             return updatedRules;
         });
+        console.log("see this", rules);
     };
 
     const saveChanges = () => {
@@ -91,6 +92,7 @@ const Rule: React.FC<Props> = ({ showRule, setShowRule, form, setForm }) => {
             // }
         } else if (rule.start1 === 'IF' && rule.start2) {
             let block = getBlockById(form, rule.start2);
+            console.log(block);
             if (block?.is === 'Select') {
                 return { isShow: true, options: block.property.options }
             }
@@ -134,26 +136,33 @@ const Rule: React.FC<Props> = ({ showRule, setShowRule, form, setForm }) => {
         if (['IF', 'MAP'].includes(rule.start1)) {
             if (['THEN', 'WHERE'].includes(rule.end1)) {
                 if (rule.end2) {
-                    const options: Option[] = form.blocks
-                        .filter(block => block.property.id !== rule.start2) // Filter blocks based on the condition
+                    // Fetch all possible blocks, including nested loopBlocks
+                    const options: Option[] = fetchPossibleBlocks(form.blocks)
+                        .filter(option => option.value !== rule.start2) // Exclude the selected start2 block
                         .map(block => ({
-                            label: `${block.property.label} (${block.property.id})`,
-                            value: block.property.id,
+                            label: block.label,
+                            value: block.value,
                         }));
-
-                    return { isShow: true, options };
+        
+                    // Ensure options are populated before showing
+                    if (options.length > 0) {
+                        return { isShow: true, options };
+                    }
                 }
             }
-        } else if (['BIND'].includes(rule.start1)){
+        } else if (['BIND'].includes(rule.start1)) {
             if (['FILTER'].includes(rule.end1)) {
                 if (['STATUS'].includes(rule.end2)) {
-                    const options: Option[] = END2.ON_GOING || [];
+                    // Handle specific case for status filter
+                    const options: Option[] = END2.ON_GOING || []; // Handle dynamic status options
                     return { isShow: true, options };
                 }
             }
         }
-        return { isShow: false, options: [] };
-    }
+    
+        return { isShow: false, options: [] }; // Hide if none of the conditions match
+    };
+    
 
 
     const fetchColumnNames = async (id: string) => {

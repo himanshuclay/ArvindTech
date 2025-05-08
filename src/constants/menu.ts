@@ -161,6 +161,12 @@ const MENU_ITEMS: MenuItemTypes[] = [
 				parentKey: 'FormMaster',
 			},
 			{
+				key: 'Adhoc',
+				label: 'Adhoc',
+				url: '/pages/Adhoc',
+				parentKey: 'FormMaster',
+			},
+			{
 				key: 'Template Master',
 				label: 'Template Master',
 				url: '/pages/WorkflowBuilderList',

@@ -155,7 +155,7 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges
         try {
             const response = await fetch(`${config.API_URL_APPLICATION}/CommonDropdown/GetProjectList`);
             const result = await response.json();
-            // console.log(result)
+            console.log(result)
             if (result.isSuccess) {
                 setProjectList(result.projectListResponses);
             }
@@ -178,7 +178,7 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges
             try {
                 const response = await axios.get(`${config.API_URL_APPLICATION}/IdentifierMaster/GetIdentifier`);
                 const list = response.data?.identifierLists || [];
-
+                console.log(response)
                 const formatted = list.map((item: any) => ({
                     label: item.identifierName,
                     value: item.identifierValue
@@ -582,8 +582,7 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges
                                 </Form.Group>
                             </Col>
                             {nodeSetting.assignDoerType === "Identifier" &&
-                                (
-                                    
+                                (                                    
                                     <Col lg={3}>
                                         <Form.Group>
                                             <Form.Label>Select Identifier</Form.Label>
@@ -606,6 +605,47 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges
                                     </Col>
                                 )
                             }
+                            {nodeSetting.identifierValue && (
+                                <>
+                                    {projectList.length > 0 ? (
+                                        projectList.map((project, index) => (
+                                            <>
+                                                {nodeSetting.identifierValue.includes(project.projectName) && (
+                                                    <Col lg={3}>
+                                                        <div key={index} style={{ marginBottom: '1rem' }}>
+                                                            <Form.Group>
+                                                                <Form.Control
+                                                                    type="text"
+                                                                    value={project.projectName}
+                                                                    readOnly
+                                                                    style={{ marginBottom: '0.5rem' }}
+                                                                />
+                                                                <Select
+                                                                    options={doerList}
+                                                                    value={doerList.find(option => option.value === nodeSetting.doerAssignList?.[project.projectName])} // Use projectName as key
+                                                                    onChange={(selectedOption) => {
+                                                                        setNodeSetting(prev => ({
+                                                                            ...prev,
+                                                                            doerAssignList: {
+                                                                                ...prev.doerAssignList, // Spread existing doerAssignList
+                                                                                [project.projectName]: selectedOption?.value || '' // Assign doer to this project
+                                                                            }
+                                                                        }));
+                                                                    }}
+                                                                    placeholder={`Select a Doer for ${project.projectName}`}
+                                                                    isClearable
+                                                                />
+                                                            </Form.Group>
+                                                        </div>
+                                                    </Col>
+                                                )}
+                                            </>
+                                        ))
+                                    ) : (
+                                        <div>No projects available</div>
+                                    )}
+                                </>
+                            )}
                             {nodeSetting.assignDoerType === 'fixedDoer' && (
                                 <Col lg={3}>
 
@@ -1394,7 +1434,7 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges
                 )}
             </Modal>
 
-
+            {nodeSetting.taskNumber}
 
 
             {/* Input Handles */}

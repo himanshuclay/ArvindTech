@@ -15,6 +15,7 @@ import ProcessRelation from '@/pages/ProcessConfiguration/ProcessRelation.tsx'
 import OtherTask from '@/pages/other/AdminSide/TrackTask/OtherTask.tsx'
 import Modules from '@/pages/other/DoerSide/Modules.tsx'
 import Process from '@/pages/other/DoerSide/Process.tsx'
+import Adhoc from '@/pages/other/AdminSide/Adhoc.tsx'
 // import FormBuilder from '@/pages/FormBuilder/FormBuilder.tsx'
 
 // lazy load all the views
@@ -328,6 +329,12 @@ const customPagesRoutes = {
 			path: '/pages/AdhocMaster',
 			name: 'Adhoc Master',
 			element: <AdhocMaster />,
+			route: PrivateRoute,
+		},
+		{
+			path: '/pages/Adhoc',
+			name: 'Adhoc',
+			element: <Adhoc />,
 			route: PrivateRoute,
 		},
 		{

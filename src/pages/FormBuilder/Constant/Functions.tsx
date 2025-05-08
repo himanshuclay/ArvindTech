@@ -5,9 +5,9 @@ const getBlockById = (form: FIELD, id: string): BASIC_FIELD | undefined => {
         if (block.property.id === id) {
             return block;
         }
-
-        if (block.property.blocks?.length) {
-            for (const loopBlock of block.property.blocks) {
+        console.log(block.property);
+        if (block.property.loopBlocks?.length) {
+            for (const loopBlock of block.property.loopBlocks) {
                 if (loopBlock.property.id.includes(id)) {
                     return loopBlock;
                 }
@@ -19,15 +19,27 @@ const getBlockById = (form: FIELD, id: string): BASIC_FIELD | undefined => {
 };
 
 
-const manageShowHide = (block: BASIC_FIELD, rule: RULE, blockValue: BLOCK_VALUE) => {
+const manageShowHide = (block: BASIC_FIELD, rule: RULE, blockValue: BLOCK_VALUE): BASIC_FIELD => {
+    // If rule.start2 exists in blockValue and matches rule.start3, show the block and set it as permanent
     if (blockValue[rule.start2] === rule.start3) {
         block.property.isShow = true;
-        block.property.isPermanent = true;
+        block.property.isPermanent = true;  // Mark as permanent
     } else {
         block.property.isShow = false;
+        block.property.isPermanent = false; // Hide block if condition not met
     }
+
+    // If the block has nested loop blocks, apply show/hide logic recursively to the loop blocks
+    if (block.property.loopBlocks) {
+        block.property.loopBlocks.forEach((loopBlock) => {
+            manageShowHide(loopBlock, rule, blockValue); // Recursively handle nested loop blocks
+        });
+    }
+    
     return block;
-}
+};
+
+
 interface Rule {
     rule: RULE;
     value: string | OPTION[];

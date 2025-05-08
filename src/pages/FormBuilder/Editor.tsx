@@ -280,6 +280,7 @@ const Editor: React.FC<EditorProps> = ({ form, setForm, property, setProperty, b
                 `${config.API_URL_APPLICATION}/FormBuilder/GetPartiallyBindValue`,
                 query
             );
+            console.log(response);
             response.data.rules.map((rule: any) => {
                 rule.rule = JSON.parse(rule.rule);
                 const bindBlock = getBlockById(form, rule.rule.start2);
@@ -287,9 +288,33 @@ const Editor: React.FC<EditorProps> = ({ form, setForm, property, setProperty, b
                 if (bindBlock && bindBlock.is === 'Select') {
                     setForm(prevForm => ({
                         ...prevForm,
-                        blocks: prevForm.blocks.map(block =>
-                            block.property.id === bindBlock.property.id ? updatedBlockValue as BASIC_FIELD : block
-                        )
+                        // blocks: prevForm.blocks.map(block =>
+                        //     block.property.id === bindBlock.property.id ? updatedBlockValue as BASIC_FIELD : block
+                        // )
+                        blocks: prevForm.blocks.map(block => {
+                            if (block.property.blocks?.length) {
+                                const updatedLoopBlocks = block.property.blocks.map(loopBlock => {
+                                    if (loopBlock.property.id.includes(bindBlock.property.id)) {
+                                        return updatedBlockValue as BASIC_FIELD;
+                                    }
+                                    return loopBlock;
+                                });
+    
+                                return {
+                                    ...block,
+                                    property: {
+                                        ...block.property,
+                                        blocks: updatedLoopBlocks
+                                    }
+                                };
+                            }
+    
+                            if (block.property.id === bindBlock.property.id) {
+                                return updatedBlockValue as BASIC_FIELD;
+                            }
+    
+                            return block;
+                        })
                     }));
                 } else {
                     setBlockValue(updatedBlockValue as BLOCK_VALUE);
@@ -310,15 +335,36 @@ const Editor: React.FC<EditorProps> = ({ form, setForm, property, setProperty, b
         // }
         console.log('triggeredActions', formBlock)
         formBlock.forEach(action => {
-            if (action.type === 'show_hide' && action.block) {
+            if (action.type === 'show_hide' && (action.block || action.bindBlock)) {
                 const updatedBlock = manageShowHide(action.block, action.rule.rule, blockValue) as BASIC_FIELD;
-                console.log('updatedBlock', updatedBlock)
                 setForm(prevForm => ({
                     ...prevForm,
-                    blocks: prevForm.blocks.map(block =>
-                        block.property.id === updatedBlock.property.id ? updatedBlock : block
-                    )
+                    blocks: prevForm.blocks.map(block => {
+                        if (block.property.blocks?.length) {
+                            const updatedLoopBlocks = block.property.blocks.map(loopBlock => {
+                                if (loopBlock.property.id.includes(action.block.property.id)) {
+                                    return updatedBlock as BASIC_FIELD;
+                                }
+                                return loopBlock;
+                            });
+
+                            return {
+                                ...block,
+                                property: {
+                                    ...block.property,
+                                    blocks: updatedLoopBlocks
+                                }
+                            };
+                        }
+
+                        if (block.property.id === action.block.property.id) {
+                            return updatedBlock as BASIC_FIELD;
+                        }
+
+                        return block;
+                    })
                 }));
+
             } else if (action.type === 'bind' && action.bindBlock) {
                 const updatedBlockValue = manageBind(action.bindBlock, blockValue, action.rule);
                 console.log(updatedBlockValue)
@@ -326,30 +372,30 @@ const Editor: React.FC<EditorProps> = ({ form, setForm, property, setProperty, b
                     setForm(prevForm => ({
                         ...prevForm,
                         blocks: prevForm.blocks.map(block => {
-                          if (block.property.blocks?.length) {
-                            const updatedLoopBlocks = block.property.blocks.map(loopBlock => {
-                                if (loopBlock.property.id.includes(action.bindBlock.property.id)) {
+                            if (block.property.blocks?.length) {
+                                const updatedLoopBlocks = block.property.blocks.map(loopBlock => {
+                                    if (loopBlock.property.id.includes(action.bindBlock.property.id)) {
+                                        return updatedBlockValue as BASIC_FIELD;
+                                    }
+                                    return loopBlock;
+                                });
+
+                                return {
+                                    ...block,
+                                    property: {
+                                        ...block.property,
+                                        blocks: updatedLoopBlocks
+                                    }
+                                };
+                            }
+
+                            if (block.property.id === action.bindBlock.property.id) {
                                 return updatedBlockValue as BASIC_FIELD;
-                              }
-                              return loopBlock;
-                            });
-                      
-                            return {
-                              ...block,
-                              property: {
-                                ...block.property,
-                                blocks: updatedLoopBlocks
-                              }
-                            };
-                          }
-                      
-                          if (block.property.id === action.bindBlock.property.id) {
-                            return updatedBlockValue as BASIC_FIELD;
-                          }
-                      
-                          return block;
+                            }
+
+                            return block;
                         })
-                      }));                      
+                    }));
 
                 } else {
                     setBlockValue(updatedBlockValue as BLOCK_VALUE);
@@ -364,7 +410,7 @@ const Editor: React.FC<EditorProps> = ({ form, setForm, property, setProperty, b
         // alert('yeyeyehye')
         someRule();
 
-    },[localStorage.getItem('ifLoop')])
+    }, [localStorage.getItem('ifLoop')])
 
     useEffect(() => {
         if (!form.editMode) {
