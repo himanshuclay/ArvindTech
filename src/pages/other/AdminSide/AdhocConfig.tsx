@@ -8,11 +8,14 @@ import { Table, Form, Button, Card, Spinner } from "react-bootstrap";
 interface Configuration {
     processId: string;
     formId: string;
+    nodeId: string;
+    nodes: [{ label: string, value: string }];
 }
 
 interface DROP_DOWN {
     id: string;
     name: string;
+    nodes: string[];
 }
 
 // interface TEMPLATE_DROP_DOWN {
@@ -48,7 +51,7 @@ const AdhocConfig: React.FC = () => {
         try {
             setLoading(true);
             const response = await axios.post(`${config.API_URL_ACCOUNT}/WorkflowBuilder/InsertUpdateTemplate`, {
-                id: 1,
+                id: 2,
                 configurations: JSON.stringify(configurations),
             });
 
@@ -69,15 +72,18 @@ const AdhocConfig: React.FC = () => {
     const getInitialDropDown = async () => {
         try {
             const response = await axios.get(`${config.API_URL_APPLICATION}/CommonDropdown/GetAllTemplatesList`);
-
+            console.log(response)
             if (response.data.isSuccess) {
                 const newConfigurations = response.data.processDropdowns.map((p: DROP_DOWN) => ({
                     processId: p.id,
-                    workflowId: JSON.parse(response.data.templateDropdowns[0].configurations)?.find(
+                    nodes: p.nodes,
+                    formId: JSON.parse(response.data.templateDropdowns[1].configurations)?.find(
                         (config: any) => config.processId === p.id
-                    )?.workflowId || "",
+                    )?.formId || "",
+                    nodeId: JSON.parse(response.data.templateDropdowns[1].configurations)?.find(
+                        (config: any) => config.processId === p.id
+                    )?.nodeId || "",
                 }));
-
                 setConfigurations(newConfigurations);
 
                 setFormOptions(
@@ -118,8 +124,9 @@ const AdhocConfig: React.FC = () => {
                         <Table responsive bordered hover className="text-center align-middle">
                             <thead className="table-light">
                                 <tr>
-                                    <th style={{ width: "40%" }}>Process Name</th>
-                                    <th style={{ width: "50%" }}>Form Name</th>
+                                    <th style={{ width: "30%" }}>Process Name</th>
+                                    <th style={{ width: "30%" }}>Form Name</th>
+                                    <th style={{ width: "40%" }}>Nodes</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -136,6 +143,18 @@ const AdhocConfig: React.FC = () => {
                                                 placeholder="Select Form"
                                                 isClearable
                                             />
+                                        </td>
+                                        <td>
+                                            {config.nodes.length ?
+                                                <Select
+                                                    options={config.nodes}
+                                                    value={config.nodes.find(w => w.value === config.nodeId) || null}
+                                                    onChange={selectedOption => handleConfigurationChange(index, "nodeId", selectedOption)}
+                                                    placeholder="Select Form"
+                                                    isClearable
+                                                />
+
+                                                : ''}
                                         </td>
                                     </tr>
                                 ))}

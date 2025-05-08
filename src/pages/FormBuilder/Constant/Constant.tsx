@@ -614,7 +614,7 @@ const CONFIGURE_SELECTION_LOGIC: {
 
 export const TABLE_APIS = (projectId: string): Record<string, [string, string]> => ({
     Rolling_Program_Material: [
-        `${config.API_URL_APPLICATION1}/MaterialMaster/GetMaterial/${projectId}`,
+        `${config.API_URL_APPLICATION1}/MaterialMaster/GetMaterial`,
         'materialMasters'
     ]
 });

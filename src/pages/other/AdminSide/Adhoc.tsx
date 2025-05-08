@@ -8,7 +8,6 @@ import config from '@/config';
 import { FIELD, PROPERTY } from '@/pages/FormBuilder/Constant/Interface';
 import Editor from '@/pages/FormBuilder/Editor';
 import FormBuilder from '@/pages/FormBuilder/FormBuilder';
-import { toast } from 'react-toastify';
 
 
 
@@ -59,14 +58,14 @@ interface ApiResponse {
 }
 
 // Main component
-const AdhocMaster: React.FC = () => {
+const Adhoc: React.FC = () => {
     const [data, setData] = useState<Template[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
     const [expandedRow, setExpandedRow] = useState<number | null>(null); // For row expansion
     const [formDetails, setFormDetails] = useState<any>();
     const [showDoerModal, setShowDoerModal] = useState<boolean>(false);
-    const [selectedId, setSelectedId] = useState<number | null>(null);
+    const [selectedForm, setSelectedForm] = useState<Template | null>(null);
     const [roleOptions, setRoleOptions] = useState<{ label: string; value: string }[]>([]);
     const [selectedRoles, setSelectedRoles] = useState<{ label: string; value: string }[]>([]);
     // const [selectedManager, setSelectedManager] = useState<string>(''); // Manager select state
@@ -77,10 +76,6 @@ const AdhocMaster: React.FC = () => {
         { value: 'manager2', label: 'Manager 2' },
     ];
 
-    const handleDoerAdd = (item: Template) => {
-        setSelectedId(item.id);
-        setShowDoerModal(true);
-    };
 
 
     // Fetch API data
@@ -104,20 +99,7 @@ const AdhocMaster: React.FC = () => {
         fetchTemplates();
     }, []);
 
-    // Toggle expanded row
-    const toggleExpandRow = (id: number) => {
-        setExpandedRow(expandedRow === id ? null : id);
-    };
-
-    // Handle form input change
-    // const handleChange = (inputId: string, value: any) => {
-    //   // You can manage form input state here
-    // };
-
-    // // Handle manager select change
-    // const handleSelectMessImpChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    //   setSelectedManager(e.target.value);
-    // };
+  
 
     if (loading) {
         return <p>Loading...</p>;
@@ -127,8 +109,8 @@ const AdhocMaster: React.FC = () => {
         return <p>Error: {error}</p>;
     }
 
-    const handleEdit = (form: any) => {
-        setFormDetails(form);
+    const initiation = (form: any) => {
+        console.log(form)
 
     }
 
@@ -153,33 +135,21 @@ const AdhocMaster: React.FC = () => {
         fetchTemplates();
     }
 
-    const handleSaveRole = async() => {
-        const doer = selectedRoles.map((r) => r.value);
-        setShowDoerModal(false);
-        const response = await axios.post(`${config.API_URL_ACCOUNT}/ProcessInitiation/UpdateTemplateRoles`,{
-            id: selectedId,
-            roles: JSON.stringify(doer),
-        });
-        if(response.data.isSuccess){
-            toast.success(response.data.message)
-        }
-    }
-
     return (
         <>
             <div className="d-flex bg-white p-2 my-2 justify-content-between align-items-center fs-20">
-                <span><i className="ri-file-list-line me-2"></i><span className='fw-bold test-nowrap'>Form List</span></span>
+                <span><i className="ri-file-list-line me-2"></i><span className='fw-bold test-nowrap'>Adhoc</span></span>
                 <div className="d-flex">
-                    <Link className='me-2' to='/pages/FormBuilder'>
+                    {/* <Link className='me-2' to='/pages/FormBuilder'>
                         <Button variant="primary" className="">
-                            Add Form
+                            Adhoc
                         </Button>
                     </Link>
                     <Link to='/pages/AdhocConfig'>
                         <Button variant="primary" className="">
                             Configuration
                         </Button>
-                    </Link>
+                    </Link> */}
                 </div>
             </div>
             <Table className='bg-white mt-3' striped bordered hover>
@@ -202,15 +172,15 @@ const AdhocMaster: React.FC = () => {
                                 <td>Task Type Here</td>
                                 <td>Planned Date Here</td>
                                 <td>
-                                    <Button onClick={() => toggleExpandRow(item.id)} className='me-2'>
-                                        {expandedRow === item.id ? <i className="ri-eye-fill"></i> : <i className="ri-eye-off-fill"></i>}
+                                    <Button onClick={() => initiation(item)} className='me-2'>
+                                         <i className="ri-presentation-line"></i>
                                     </Button>
-                                    <Button onClick={() => handleEdit(item)} className='me-2'>
+                                    {/* <Button onClick={() => handleEdit(item)} className='me-2'>
                                         <i className="ri-file-edit-fill"></i>
                                     </Button>
                                     <Button onClick={() => handleDoerAdd(item)}>
                                         <i className="ri-user-settings-fill"></i>
-                                    </Button>
+                                    </Button> */}
                                 </td>
                             </tr>
                             <tr>
@@ -262,7 +232,10 @@ const AdhocMaster: React.FC = () => {
                     <Button
                         variant="primary"
                         onClick={() => {
-                            handleSaveRole()
+                            const doer = selectedRoles.map((r) => r.value);
+                            console.log('Saved Doers for form:', selectedForm?.formName, '->', doer);
+                            // TODO: Post or save the doer array wherever needed
+                            setShowDoerModal(false);
                         }}
                     >
                         Save Doers
@@ -344,4 +317,4 @@ const DynamicForm: React.FC<DynamicFormProps> = ({ formData, messName, showMessM
     );
 };
 
-export default AdhocMaster;
+export default Adhoc;

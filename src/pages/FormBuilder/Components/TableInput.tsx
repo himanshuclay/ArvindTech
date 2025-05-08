@@ -67,6 +67,7 @@ const TableInput: React.FC<Props> = ({
     const fetch = async (tableName: string, projectId: string) => {
         const [apiUrl, dataKey] = TABLE_APIS(projectId)[tableName];
         const response = await axios.get(apiUrl);
+        console.log(response)
         if (response.data.isSuccess) {
             setRows(response.data[dataKey]);
         }
