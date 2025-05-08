@@ -92,26 +92,28 @@ const Adhoc: React.FC = () => {
     }
 
     const initiation = async (form: any) => {
-        console.log(form)
+            
+
+        return;
         const payload = {
-                    moduleName: form.processID.split('.')[0],
-                    taskNumber: form.processID,
-                    nodeId: form.nodeID,
-                    createdBy: localStorage.getItem("EmpId"),
-                };
-                console.log(payload)
-                try {
-                    await axios.post(`${config.API_URL_ACCOUNT}/ProcessInitiation/ManualProcessTaskInitiation`, payload);
-                    navigate('/pages/ProcessInitiation', {
-                        state: {
-                            successMessage: "Process Initiated successfully!",
-                        }
-                    });
-        
-                } catch (error: any) {
-                    toast.error(error);
-                    console.error('Error submitting module:', error);
+            moduleName: form.processID.split('.')[0],
+            taskNumber: form.processID,
+            nodeId: form.nodeID,
+            createdBy: localStorage.getItem("EmpId"),
+        };
+        console.log(payload)
+        try {
+            await axios.post(`${config.API_URL_ACCOUNT}/ProcessInitiation/ManualProcessTaskInitiation`, payload);
+            navigate('/pages/ProcessInitiation', {
+                state: {
+                    successMessage: "Process Initiated successfully!",
                 }
+            });
+
+        } catch (error: any) {
+            toast.error(error);
+            console.error('Error submitting module:', error);
+        }
 
     }
 
@@ -168,7 +170,7 @@ const Adhoc: React.FC = () => {
                     ))}
                 </tbody>
             </Table>
-            
+
 
             {formDetails && (
                 <Modal show={true} onHide={handleClose} size="xl">

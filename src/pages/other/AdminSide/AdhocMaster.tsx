@@ -50,6 +50,7 @@ interface Template {
     id: number;
     formName: string;
     templateJson: string;
+    roles: string;
 }
 
 interface ApiResponse {
@@ -67,6 +68,7 @@ const AdhocMaster: React.FC = () => {
     const [formDetails, setFormDetails] = useState<any>();
     const [showDoerModal, setShowDoerModal] = useState<boolean>(false);
     const [selectedId, setSelectedId] = useState<number | null>(null);
+    const [selectedRole, setSelectedRole] = useState<string | null>(null);
     const [roleOptions, setRoleOptions] = useState<{ label: string; value: string }[]>([]);
     const [selectedRoles, setSelectedRoles] = useState<{ label: string; value: string }[]>([]);
     // const [selectedManager, setSelectedManager] = useState<string>(''); // Manager select state
@@ -79,7 +81,10 @@ const AdhocMaster: React.FC = () => {
 
     const handleDoerAdd = (item: Template) => {
         setSelectedId(item.id);
+        setSelectedRole(item.roles);
         setShowDoerModal(true);
+        console.log(item)
+
     };
 
 
@@ -87,7 +92,6 @@ const AdhocMaster: React.FC = () => {
     const fetchTemplates = async () => {
         try {
             const response = await axios.get<ApiResponse>(`${config.API_URL_ACCOUNT}/ProcessTaskMaster/GetTemplateJson`);
-            console.log('response', response)
             if (response.data.isSuccess) {
                 setData(response.data.getTemplateJsons);
             } else {
@@ -141,6 +145,12 @@ const AdhocMaster: React.FC = () => {
                     value: role.id.toString(),
                 }));
                 setRoleOptions(options);
+
+                const parsedValues = selectedRole ? JSON.parse(selectedRole) : []; // ["62"]
+                console.log(roleOptions)
+                const matchedRoles = options.filter((role: any) => parsedValues.includes(role.value));
+                console.log(matchedRoles)
+                setSelectedRoles(matchedRoles);
             }
         } catch (error) {
             console.error('Failed to fetch roles:', error);
@@ -148,20 +158,22 @@ const AdhocMaster: React.FC = () => {
     };
 
 
+
+
     const handleClose = () => {
         setFormDetails(null);
         fetchTemplates();
     }
 
-    const handleSaveRole = async() => {
+    const handleSaveRole = async () => {
         const doer = selectedRoles.map((r) => r.value);
         setShowDoerModal(false);
         // setSelectedRoles([]);
-        const response = await axios.post(`${config.API_URL_ACCOUNT}/ProcessInitiation/UpdateTemplateRoles`,{
+        const response = await axios.post(`${config.API_URL_ACCOUNT}/ProcessInitiation/UpdateTemplateRoles`, {
             id: selectedId,
             roles: JSON.stringify(doer),
         });
-        if(response.data.isSuccess){
+        if (response.data.isSuccess) {
             toast.success(response.data.message)
         }
     }
@@ -242,6 +254,7 @@ const AdhocMaster: React.FC = () => {
                 </Modal.Header>
                 <Modal.Body>
                     <label className="form-label">Select Doers</label>
+                    {JSON.stringify(selectedRoles)}
                     <Select
                         isMulti
                         options={roleOptions}
