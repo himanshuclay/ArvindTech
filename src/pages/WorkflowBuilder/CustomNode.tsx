@@ -12,6 +12,8 @@ import { fetchTableFields, getAllBlockName, getAllBlockOptions, getBlockName, ge
 import { toast } from "react-toastify";
 import { speak } from "@/utils/speak";
 import { EXPIRY_LOGIC, OPTIONS_SUNDAY_LOGIC } from "../FormBuilder/Constant/Constant";
+import { FIELD, PROPERTY } from "../FormBuilder/Constant/Interface";
+import Editor from "../FormBuilder/Editor";
 
 interface DROP_DOWN {
     empId: string;
@@ -171,7 +173,35 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges
 
     const [identifierList, setIdentifierList] = useState<IdentifierOption[]>([]);
 
-    console.log(identifierList);
+
+    const [form, setForm] = useState<FIELD>({
+            name: '',
+            blocks: [],
+            blockCount: 0,
+            editMode: false,
+            rules: [],
+            configureSelectionLogics: [],
+            advance: {
+                backgroundColor: '',
+                color: '',
+            }
+        });
+        const [property, setProperty] = useState<PROPERTY>({
+            label: '',
+            id: '',
+            placeholder: '',
+            value: '',
+            type: '',
+            required: "false",
+            options: [{ label: '', value: '' }],
+            advance: {
+                backgroundColor: '',
+                color: '',
+            },
+            isShow: false,
+            disabled: "false",
+        })
+        const [blockValue, setBlockValue] = useState({})
 
     useEffect(() => {
         const fetchIdentifiers = async () => {
@@ -516,6 +546,26 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges
     }, [nodeSetting.parallerTaskBlockName])
 
 
+    const handleAdhocForm = (event: any) => {
+        event.stopPropagation();
+        setForm(JSON.parse(data.Adhoc.form))
+        setBlockValue(JSON.parse(data.Adhoc.blockValue))
+    }
+
+    const handleClose = () => {
+        setForm({
+            name: '',
+            blocks: [],
+            blockCount: 0,
+            editMode: false,
+            rules: [],
+            configureSelectionLogics: [],
+            advance: {
+                backgroundColor: '',
+                color: '',
+            }
+        })
+    }
     return (
         <div className="custom-node" style={getBorderStyle()}>
             {/* Settings Icon */}
@@ -1463,8 +1513,24 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges
                 </div>
             )}
 
-            <button className="adhoc-btn"><span><i className="ri-tools-fill me-1"></i></span>adhoc</button>
+            {data.Adhoc && (
+                <button className="adhoc-btn" onClick={(e) => handleAdhocForm(e)}><span><i className="ri-tools-fill me-1"></i></span>adhoc</button>
+            )}
+            <Modal
+                size="xl"
+                className="p-3"
+                show={!!form?.blocks?.length}
+                placement="end"
+                onHide={handleClose}>
+                <Modal.Header closeButton className=" ">
+                    <Modal.Title className="text-dark">Task Details</Modal.Title>
+                </Modal.Header>
 
+                <div>
+                    <Editor form={form} setForm={setForm} property={property} setProperty={setProperty} blockValue={blockValue} setBlockValue={setBlockValue} isShowSave={false}  isPreview={true}  />
+                </div>
+
+            </Modal>
         </div>
     );
 };

@@ -6,6 +6,8 @@ import { useNavigate } from 'react-router-dom';
 import config from '@/config';
 import FormBuilder from '@/pages/FormBuilder/FormBuilder';
 import { toast } from 'react-toastify';
+import { FIELD, PROPERTY } from '@/pages/FormBuilder/Constant/Interface';
+import Editor from '@/pages/FormBuilder/Editor';
 
 
 
@@ -52,11 +54,40 @@ const Adhoc: React.FC = () => {
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
     const [formDetails, setFormDetails] = useState<any>();
+    const [activeForm, setActiveForm] = useState<Template>();
     // const [selectedManager, setSelectedManager] = useState<string>(''); // Manager select state
     const navigate = useNavigate();
 
     // Placeholder for mess managers
 
+    const [form, setForm] = useState<FIELD>({
+        name: '',
+        blocks: [],
+        blockCount: 0,
+        editMode: false,
+        rules: [],
+        configureSelectionLogics: [],
+        advance: {
+            backgroundColor: '',
+            color: '',
+        }
+    });
+    const [property, setProperty] = useState<PROPERTY>({
+        label: '',
+        id: '',
+        placeholder: '',
+        value: '',
+        type: '',
+        required: "false",
+        options: [{ label: '', value: '' }],
+        advance: {
+            backgroundColor: '',
+            color: '',
+        },
+        isShow: false,
+        disabled: "false",
+    })
+    const [blockValue, setBlockValue] = useState({})
 
 
 
@@ -92,27 +123,14 @@ const Adhoc: React.FC = () => {
     }
 
     const initiation = async (form: any) => {
-            
-
-        return;
-        const payload = {
-            moduleName: form.processID.split('.')[0],
-            taskNumber: form.processID,
-            nodeId: form.nodeID,
-            createdBy: localStorage.getItem("EmpId"),
-        };
-        console.log(payload)
-        try {
-            await axios.post(`${config.API_URL_ACCOUNT}/ProcessInitiation/ManualProcessTaskInitiation`, payload);
-            navigate('/pages/ProcessInitiation', {
-                state: {
-                    successMessage: "Process Initiated successfully!",
-                }
+        setActiveForm(form);
+        const response = await axios.get(`${config.API_URL_ACCOUNT}/ProcessTaskMaster/GetTemplateJson?id=${form.formID}`);
+        console.log(response)
+        if (response.data.isSuccess) {
+            setForm({
+                ...JSON.parse(response.data.getTemplateJsons[0].templateJson),
+                editMode: false,
             });
-
-        } catch (error: any) {
-            toast.error(error);
-            console.error('Error submitting module:', error);
         }
 
     }
@@ -123,6 +141,46 @@ const Adhoc: React.FC = () => {
     const handleClose = () => {
         setFormDetails(null);
         fetchTemplates();
+        setForm({
+            name: '',
+            blocks: [],
+            blockCount: 0,
+            editMode: false,
+            rules: [],
+            configureSelectionLogics: [],
+            advance: {
+                backgroundColor: '',
+                color: '',
+            }
+        })
+    }
+
+    const handleAdhocForm = async () => {
+        if (activeForm) {
+            const payload = {
+                moduleName: activeForm.processID.split('.')[0],
+                taskNumber: activeForm.processID,
+                nodeId: activeForm.nodeID,
+                adhoc: {
+                    blockValue: JSON.stringify(blockValue),
+                    form: JSON.stringify(form),
+                },
+                createdBy: localStorage.getItem("EmpId"),
+            };
+            console.log(payload)
+            try {
+                await axios.post(`${config.API_URL_ACCOUNT}/ProcessInitiation/ManualProcessTaskInitiation`, payload);
+                navigate('/pages/ProcessInitiation', {
+                    state: {
+                        successMessage: "Process Initiated successfully!",
+                    }
+                });
+
+            } catch (error: any) {
+                toast.error(error);
+                console.error('Error submitting module:', error);
+            }
+        }
     }
 
     return (
@@ -182,6 +240,23 @@ const Adhoc: React.FC = () => {
                     </Modal.Body>
                 </Modal>
             )}
+
+            <Modal
+                size="xl"
+                className="p-3"
+                show={!!form?.blocks?.length}
+                placement="end"
+                onHide={handleClose}>
+                <Modal.Header closeButton className=" ">
+                    <Modal.Title className="text-dark">Task Details11</Modal.Title>
+                </Modal.Header>
+
+                <div>
+                    <Editor form={form} setForm={setForm} property={property} setProperty={setProperty} blockValue={blockValue} setBlockValue={setBlockValue} isShowSave={false} />
+                    <button type='button' onClick={(event) => handleAdhocForm()}>Save2</button>
+                </div>
+
+            </Modal>
         </>
     );
 };

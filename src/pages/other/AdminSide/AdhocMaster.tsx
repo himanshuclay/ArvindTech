@@ -160,9 +160,31 @@ const AdhocMaster: React.FC = () => {
 
     }
 
+    // const fetchRoleOptions = async () => {
+    //     try {
+    //         const response = await axios.get(`${config.API_URL_APPLICATION}/CommonDropdown/GetRoleMasterList`);
+    //         if (response.data.isSuccess) {
+    //             const options = response.data.roleMasterLists.map((role: Role) => ({
+    //                 label: role.roleName,
+    //                 value: role.id.toString(),
+    //             }));
+    //             setRoleOptions(options);
+    //             const parsedValues = selectedRole ? JSON.parse(selectedRole) : []; // ["62"]
+    //             const matchedRoles = options.filter((role: any) => parsedValues.includes(role.value));
+    //             setSelectedRoles(matchedRoles);
+    //         }
+    //     } catch (error) {
+    //         console.error('Failed to fetch roles:', error);
+    //     }
+    // };
+
+
+
+
     const handleClose = () => {
         setFormDetails(null);
         fetchTemplates();
+        setSelectedRoles([]);
     }
 
     const handleSaveRole = async () => {
@@ -248,13 +270,12 @@ const AdhocMaster: React.FC = () => {
                     ))}
                 </tbody>
             </Table>
-            <Modal show={showDoerModal} onHide={() => setShowDoerModal(false)}>
+            <Modal show={showDoerModal} onHide={() => {setShowDoerModal(false),setSelectedRoles([])}}>
                 <Modal.Header closeButton>
                     <Modal.Title>Assign Doers</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
                     <label className="form-label">Select Doers</label>
-                    {JSON.stringify(selectedRoles)}
                     <Select
                         isMulti
                         options={roleOptions}
@@ -266,7 +287,7 @@ const AdhocMaster: React.FC = () => {
 
                 </Modal.Body>
                 <Modal.Footer>
-                    <Button variant="secondary" onClick={() => setShowDoerModal(false)}>
+                    <Button variant="secondary" onClick={() => {setShowDoerModal(false),setSelectedRoles([])}}>
                         Cancel
                     </Button>
                     <Button
