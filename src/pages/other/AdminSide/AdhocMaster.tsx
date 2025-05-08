@@ -68,7 +68,7 @@ const AdhocMaster: React.FC = () => {
     const [formDetails, setFormDetails] = useState<any>();
     const [showDoerModal, setShowDoerModal] = useState<boolean>(false);
     const [selectedId, setSelectedId] = useState<number | null>(null);
-    const [selectedRole, setSelectedRole] = useState<string | null>(null);
+    const [, setSelectedRole] = useState<string | null>(null);
     const [roleOptions, setRoleOptions] = useState<{ label: string; value: string }[]>([]);
     const [selectedRoles, setSelectedRoles] = useState<{ label: string; value: string }[]>([]);
     // const [selectedManager, setSelectedManager] = useState<string>(''); // Manager select state
@@ -79,13 +79,14 @@ const AdhocMaster: React.FC = () => {
         { value: 'manager2', label: 'Manager 2' },
     ];
 
-    const handleDoerAdd = (item: Template) => {
+    const handleDoerAdd = async (item: Template) => {
         setSelectedId(item.id);
-        setSelectedRole(item.roles);
+        setSelectedRole(item.roles); // still storing raw string
+        const parsedRoles = item.roles ? JSON.parse(item.roles) : []; // ["62", "63"]
+        await fetchRoleOptions(parsedRoles); // pass parsed array to match roles
         setShowDoerModal(true);
-        console.log(item)
-
     };
+    
 
 
     // Fetch API data
@@ -103,9 +104,32 @@ const AdhocMaster: React.FC = () => {
             setLoading(false);
         }
     };
+
+    const fetchRoleOptions = async (preSelected: string[] = []) => {
+        try {
+            const response = await axios.get(`${config.API_URL_APPLICATION}/CommonDropdown/GetRoleMasterList`);
+            if (response.data.isSuccess) {
+                const options = response.data.roleMasterLists.map((role: Role) => ({
+                    label: role.roleName,
+                    value: role.id.toString(),
+                }));
+                setRoleOptions(options);
+    
+                if (preSelected.length) {
+                    const matched = options.filter((role:any) => preSelected.includes(role.value));
+                    setSelectedRoles(matched);
+                }
+            }
+        } catch (error) {
+            console.error('Failed to fetch roles:', error);
+        }
+    };
+    
+
     useEffect(() => {
 
         fetchTemplates();
+        fetchRoleOptions();
     }, []);
 
     // Toggle expanded row
@@ -135,30 +159,6 @@ const AdhocMaster: React.FC = () => {
         setFormDetails(form);
 
     }
-
-    const fetchRoleOptions = async () => {
-        try {
-            const response = await axios.get(`${config.API_URL_APPLICATION}/CommonDropdown/GetRoleMasterList`);
-            if (response.data.isSuccess) {
-                const options = response.data.roleMasterLists.map((role: Role) => ({
-                    label: role.roleName,
-                    value: role.id.toString(),
-                }));
-                setRoleOptions(options);
-
-                const parsedValues = selectedRole ? JSON.parse(selectedRole) : []; // ["62"]
-                console.log(roleOptions)
-                const matchedRoles = options.filter((role: any) => parsedValues.includes(role.value));
-                console.log(matchedRoles)
-                setSelectedRoles(matchedRoles);
-            }
-        } catch (error) {
-            console.error('Failed to fetch roles:', error);
-        }
-    };
-
-
-
 
     const handleClose = () => {
         setFormDetails(null);
@@ -259,12 +259,8 @@ const AdhocMaster: React.FC = () => {
                         isMulti
                         options={roleOptions}
                         value={selectedRoles}
-                        onMenuOpen={async () => {
-                            if (roleOptions.length === 0) {
-                                await fetchRoleOptions();
-                            }
-                        }}
                         onChange={(selected) => setSelectedRoles(selected as any)}
+                        placeholder="Select Role(s)"
                     />
 
 
