@@ -583,6 +583,7 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges
                             </Col>
                             {nodeSetting.assignDoerType === "Identifier" &&
                                 (
+                                    
                                     <Col lg={3}>
                                         <Form.Group>
                                             <Form.Label>Select Identifier</Form.Label>
