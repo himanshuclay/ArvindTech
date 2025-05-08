@@ -1463,6 +1463,8 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges
                 </div>
             )}
 
+            <button className="adhoc-btn"><span><i className="ri-tools-fill me-1"></i></span>adhoc</button>
+
         </div>
     );
 };
