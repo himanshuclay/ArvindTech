@@ -54,7 +54,6 @@ const DateInput: React.FC<Props> = ({
                 <>
                     <div className={`${editMode ? 'cursor-not-allowed' : ''}`}>
                         <fieldset className={`${editMode ? 'pointer-events-none select-none' : ''}`}>
-                            {JSON.stringify(isRequired)}
                             <Form.Group controlId={id} className="mb-3">
                                 <Form.Label>
                                     {label}
