@@ -43,7 +43,6 @@ const Select: React.FC<Props> = ({ block, handleChange, validationErrors = {}, e
                         <span className='text-danger'>*</span>
                     )}
                 </Form.Label>
-                {JSON.stringify(block.property.id)}
                 <Form.Select
                     name={block.property.id}
                     value={blockValue[block.property.id] || ''}
