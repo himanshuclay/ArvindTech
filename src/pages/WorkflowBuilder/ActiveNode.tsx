@@ -77,11 +77,42 @@ const ActiveNode = ({ activeNode, activeTaskId, setActiveNode, completedNodes, s
     const [validationErrors, setValidationErrors] = useState<{ [key: string]: string }>({});
     const [preNodeId, setPreNodeId] = useState('');
 
+
+    const [adhocForm, setAdhocForm] = useState<FIELD>(activeNode.data.Adhoc ? JSON.parse(activeNode.data.Adhoc.form) : {
+        name: '',
+        blocks: [],
+        blockCount: 0,
+        editMode: false,
+        rules: [],
+        configureSelectionLogics: [],
+        advance: {
+            backgroundColor: '',
+            color: '',
+        }
+    });
+    // const [adhocProperty, setAdhocProperty] = useState<PROPERTY>({
+    //     label: '',
+    //     id: '',
+    //     placeholder: '',
+    //     value: '',
+    //     type: '',
+    //     required: "false",
+    //     options: [{ label: '', value: '' }],
+    //     advance: {
+    //         backgroundColor: '',
+    //         color: '',
+    //     },
+    //     isShow: false,
+    //     disabled: "false",
+    // })
+    const [AdhocBlockValue, setAdhocBlockValue] = useState(activeNode.data.Adhoc ? JSON.parse(activeNode.data.Adhoc.blockValue) :{})
+
+
     const approvalLogic = async (nodeId: string,) => {
         try {
             const response = await axios.get(
                 `${config.API_URL_ACCOUNT}/ProcessInitiation/GetFormandBlockValue?nodeID=${nodeId}&ID=${pId}`);
-                setPreNodeId(nodeId);
+            setPreNodeId(nodeId);
             if (response.data.isSuccess) {
                 let data = JSON.parse(response.data.formandBlockValue)
                 console.log(data)
@@ -108,9 +139,17 @@ const ActiveNode = ({ activeNode, activeTaskId, setActiveNode, completedNodes, s
             const errors: { [key: string]: string } = {};
 
             form.blocks.forEach(block => {
-                if (block.property.validation === "required" && (!block.property.value || block.property.value.trim() === "")) {
-                    errors[block.property.id] = `${block.property.label} is required`;
+                if (block.property.validation === "required") {
+                    const value = blockValue[block.property.id];
+
+                    // Check if value is a string and perform trim, or handle array case
+                    if (typeof value === 'string' && value.trim() === "") {
+                        errors[block.property.id] = `${block.property.label} is required`;
+                    } else if (Array.isArray(value) && value.length === 0) {
+                        errors[block.property.id] = `${block.property.label} is required`;
+                    }
                 }
+
             });
             setValidationErrors(errors);
             if (Object.keys(errors).length === 0) {
@@ -238,7 +277,7 @@ const ActiveNode = ({ activeNode, activeTaskId, setActiveNode, completedNodes, s
     useEffect(() => {
         console.log(activeLoop)
         const index = loopSection.findIndex((loop: any) => loop === activeLoop);
-console.log(index)
+        console.log(index)
         // Check if index is greater than 0 (to avoid accessing negative index)
         if (index >= 0) {
             setActiveLoop(loopSection[index]);
@@ -251,7 +290,7 @@ console.log(index)
             // setActiveLoop(loopSection[loopSection.length - 1]);
             console.log("Already at the first item");
         }
-    },[activeLoop])
+    }, [activeLoop])
 
 
     const handlePrevious = () => {
@@ -359,6 +398,22 @@ console.log(index)
                         validationErrorsList={validationErrors}
                     />
                 ) : ''}
+
+                {/* <Modal
+                    size="xl"
+                    className="p-3"
+                    show={!!form?.blocks?.length}
+                    placement="end"
+                    onHide={handleClose}>
+                    <Modal.Header closeButton className=" ">
+                        <Modal.Title className="text-dark">Task Details</Modal.Title>
+                    </Modal.Header> */}
+
+                <div>
+                    <Editor form={adhocForm} setForm={setAdhocForm} property={property} setProperty={setProperty} blockValue={AdhocBlockValue} setBlockValue={setAdhocBlockValue} isShowSave={false} isPreview={true} />
+                </div>
+
+                {/* </Modal> */}
 
                 {dynamicComponent && componentMap[dynamicComponent] && (
                     React.createElement(componentMap[dynamicComponent], {
