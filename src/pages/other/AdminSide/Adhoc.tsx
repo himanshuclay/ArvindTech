@@ -253,7 +253,9 @@ const Adhoc: React.FC = () => {
 
                 <div>
                     <Editor form={form} setForm={setForm} property={property} setProperty={setProperty} blockValue={blockValue} setBlockValue={setBlockValue} isShowSave={false} />
-                    <button type='button' onClick={(event) => handleAdhocForm()}>Save2</button>
+                    <div className="my-2 d-flex justify-content-end px-2">
+                        <button className='btn btn-primary' type='button' onClick={(event) => handleAdhocForm()}>Save</button>
+                    </div>
                 </div>
 
             </Modal>
