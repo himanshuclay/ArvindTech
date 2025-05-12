@@ -39,7 +39,7 @@ import Editor from '@/pages/FormBuilder/Editor';
 
 // Interface for API response structure
 interface Template {
-    processID: string, nodeID: string, formID: string, blockId: string, nodesId: string[]
+    processID: string, nodeID: string, formID: string, blockID: string, nodesID: string[]
 }
 
 interface ApiResponse {
@@ -165,8 +165,8 @@ const Adhoc: React.FC = () => {
                     blockValue: JSON.stringify(blockValue),
                     form: JSON.stringify(form),
                 },
-                nodesId: activeForm.nodesId,
-                blockId: activeForm.blockId,
+                nodesId: activeForm.nodesID,
+                blockId: activeForm.blockID,
                 createdBy: localStorage.getItem("EmpId"),
             };
             console.log(payload)
