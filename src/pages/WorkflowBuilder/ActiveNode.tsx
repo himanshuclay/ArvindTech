@@ -105,7 +105,7 @@ const ActiveNode = ({ activeNode, activeTaskId, setActiveNode, completedNodes, s
     //     isShow: false,
     //     disabled: "false",
     // })
-    const [AdhocBlockValue, setAdhocBlockValue] = useState(activeNode.data.Adhoc ? JSON.parse(activeNode.data.Adhoc.blockValue) :{})
+    const [AdhocBlockValue, setAdhocBlockValue] = useState(activeNode.data.Adhoc ? JSON.parse(activeNode.data.Adhoc.blockValue) : {})
 
 
     const approvalLogic = async (nodeId: string,) => {
@@ -134,7 +134,7 @@ const ActiveNode = ({ activeNode, activeTaskId, setActiveNode, completedNodes, s
             approvalLogic(activeNode.data.approvalTaskNumber);
         }
     }, [])
-    const handleSumbitTask = async () => {
+    const handleSubmitTask = async () => {
         try {
             const errors: { [key: string]: string } = {};
 
@@ -408,13 +408,13 @@ const ActiveNode = ({ activeNode, activeTaskId, setActiveNode, completedNodes, s
                     <Modal.Header closeButton className=" ">
                         <Modal.Title className="text-dark">Task Details</Modal.Title>
                     </Modal.Header> */}
-
-                <div>
-                    <Editor form={adhocForm} setForm={setAdhocForm} property={property} setProperty={setProperty} blockValue={AdhocBlockValue} setBlockValue={setAdhocBlockValue} isShowSave={false} isPreview={true} />
-                </div>
+                {adhocForm.blocks.length > 0 && (
+                    <div>
+                        <Editor form={adhocForm} setForm={setAdhocForm} property={property} setProperty={setProperty} blockValue={AdhocBlockValue} setBlockValue={setAdhocBlockValue} isShowSave={false} isPreview={true} />
+                    </div>
+                )}
 
                 {/* </Modal> */}
-
                 {dynamicComponent && componentMap[dynamicComponent] && (
                     React.createElement(componentMap[dynamicComponent], {
                         ref: (instance: any) => {
@@ -425,16 +425,30 @@ const ActiveNode = ({ activeNode, activeTaskId, setActiveNode, completedNodes, s
                         blockValue: blockValue
                     })
                 )}
-                {loopSection.length && (
+                {loopSection.length ? (
                     <button className="position-absolute top-50" type="button" onClick={handlePrevious}><i className="ri-arrow-left-wide-line"></i></button>
-                )}
-                {loopSection.length && (
+                ):''}
+                {loopSection.length ? (
                     <button className="position-absolute top-50 end-0" type="button" onClick={handleNext}><i className="ri-arrow-right-wide-line"></i></button>
-                )}
+                ):''}
             </div>
-            <div className="d-flex justify-content-end p-3">
-                <button className="btn btn-primary" type="button" onClick={handleSumbitTask}>Save</button>
+            <div className="d-flex justify-content-end px-3">
+                {/* Save as Draft Button with Remix Icon */}
+                <button className="btn btn-secondary mr-2" type="button" >
+                    <i className="ri-save-line mr-1"></i>Save as Draft
+                </button>
+
+                {/* Save Button with Remix Icon */}
+                <button className="btn btn-primary mr-2" type="button" onClick={handleSubmitTask}>
+                    <i className="ri-file-line mr-1"></i>Save
+                </button>
+
+                {/* Reset Button with Remix Icon */}
+                <button className="btn btn-danger" type="button">
+                    <i className="ri-refresh-line mr-1"></i>Reset
+                </button>
             </div>
+
         </div>
     )
 }
