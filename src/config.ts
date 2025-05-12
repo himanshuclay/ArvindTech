@@ -11,9 +11,6 @@ const config = {
 	API_URL_APPLICATION1: process.env.REACT_APP_API_URL || 'https://arvind.api1.clay.in/api',
 	API_URL_ACCOUNT: process.env.REACT_APP_API_URL || 'https://arvindo-api.clay.in/api',
 
-
-
-
 }
 
 export default config
