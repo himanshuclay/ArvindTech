@@ -467,7 +467,19 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges
                 setPerviousLoopingOptionsList([]);
             }
         }
-    }, [nodeSetting.doerTaskNumber, nodeSetting.loopingSetting.start3, nodeSetting.parallerTaskNumber]); // Triggered whenever doerTaskNumber changes
+        if (nodeSetting.previousTask) {
+            if (nodes) {
+                const value = getAllBlockName(nodes, nodeSetting.previousTask, 'DateInput');
+                console.log(value)
+                setPerviousLoopingBlockList(value);
+                setNodeSetting(prev => ({
+                    ...prev,
+                    parallerTaskBlockName: ''
+                }));
+                setPerviousLoopingOptionsList([]);
+            }
+        }
+    }, [nodeSetting.doerTaskNumber, nodeSetting.loopingSetting.start3, nodeSetting.parallerTaskNumber, nodeSetting.previousTask]); // Triggered whenever doerTaskNumber changes
 
 
     useEffect(() => {
@@ -1016,6 +1028,41 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges
                                     </Form.Group>
                                 </Col>
                             )}
+                        </Row>
+                        <hr />
+                        <p><strong>Conditional Planned date from previous task</strong></p>
+                        <Row>
+                        <Col lg={3}>
+                                <Form.Group>
+                                    <Select
+                                        options={previousTaskList}
+                                        value={previousTaskList.find(option => option.value === nodeSetting.previousTask)}
+                                        onChange={(selectedOption) =>
+                                            setNodeSetting(prev => ({ ...prev, previousTask: selectedOption?.value || ''}))
+                                        }
+                                        placeholder="Select Start3"
+                                        isClearable
+
+                                    />
+                                </Form.Group>
+                            </Col>
+                            <Col lg={3}>
+                                <Form.Group>
+                                    <Select
+                                        options={previousLoopingBlockList} // Updated block list based on task number
+                                        // Ensure value is either a valid option object or undefined/null if no selection
+                                        value={nodeSetting.previousTask ? previousLoopingBlockList.find(option => option.value === nodeSetting.dateBindData) : null}
+                                        onChange={(selectedOption) =>
+                                            setNodeSetting(prev => ({
+                                                ...prev, dateBindData: selectedOption?.value || ''
+                                            }))
+                                        }
+                                        placeholder="Select a Block"
+                                        isClearable
+
+                                    />
+                                </Form.Group>
+                            </Col>
                         </Row>
                         <hr />
                         <p><strong>Looping Setting (Rules)</strong></p>

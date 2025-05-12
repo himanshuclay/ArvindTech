@@ -177,8 +177,6 @@ const fetchTableFields = (
     return tableField || null;
   };
   
-  
-  
 
 const updateIsPermanentRecursively = (
     triggeredActions: TRIGGER_ACTION[],
