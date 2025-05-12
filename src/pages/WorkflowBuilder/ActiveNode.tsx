@@ -134,27 +134,28 @@ const ActiveNode = ({ activeNode, activeTaskId, setActiveNode, completedNodes, s
             approvalLogic(activeNode.data.approvalTaskNumber);
         }
     }, [])
-    const handleSubmitTask = async () => {
+    const handleSubmitTask = async (status: string) => {
         try {
             const errors: { [key: string]: string } = {};
+            if (status) {
+                form.blocks.forEach(block => {
+                    if (block.property.validation === "required") {
+                        const value = blockValue[block.property.id];
 
-            form.blocks.forEach(block => {
-                if (block.property.validation === "required") {
-                    const value = blockValue[block.property.id];
-
-                    // Check if value is a string and perform trim, or handle array case
-                    if (typeof value === 'string' && value.trim() === "") {
-                        errors[block.property.id] = `${block.property.label} is required`;
-                    } else if (Array.isArray(value) && value.length === 0) {
-                        errors[block.property.id] = `${block.property.label} is required`;
+                        // Check if value is a string and perform trim, or handle array case
+                        if (typeof value === 'string' && value.trim() === "") {
+                            errors[block.property.id] = `${block.property.label} is required`;
+                        } else if (Array.isArray(value) && value.length === 0) {
+                            errors[block.property.id] = `${block.property.label} is required`;
+                        }
                     }
-                }
 
-            });
+                });
+            }
             setValidationErrors(errors);
             if (Object.keys(errors).length === 0) {
                 activeNode.data['blockValue'] = blockValue;
-                activeNode.data['status'] = "completed";
+                activeNode.data['status'] = status;
                 activeNode.data['completedBy'] = localStorage.getItem("EmpId");
                 activeNode.data['completedBy'] = localStorage.getItem("EmpId");
                 activeNode.data.form = dynamicComponent ? dynamicComponent : form;
@@ -222,7 +223,7 @@ const ActiveNode = ({ activeNode, activeTaskId, setActiveNode, completedNodes, s
                     `${config.API_URL_ACCOUNT}/ProcessInitiation/UpdateTemplateJson1`,
                     query
                 );
-
+                
                 if (response.data.isSuccess) {
                     toast.success(response.data.message);
                     setActiveNode("");
@@ -230,10 +231,10 @@ const ActiveNode = ({ activeNode, activeTaskId, setActiveNode, completedNodes, s
             } else {
                 console.log('Validation Errors:', errors);
             }
-
-
-
-
+            
+            
+            
+            
         } catch (error) {
             console.log(error)
         }
@@ -242,20 +243,20 @@ const ActiveNode = ({ activeNode, activeTaskId, setActiveNode, completedNodes, s
         // Debugging: log the current completedNodes
         console.log('completedNodes', completedNodes);
         if (completedNodes.length) {
-
+            
             // Ensure that `completeNode.data` and `completeNode.data.form` exist
             const updatedNodes = completedNodes.map((completeNode: any) => ({
                 ...completeNode,
                 data: {
                     ...completeNode.data, // Ensure completeNode.data is spread
-
-
+                    
+                    
                 }
             }));
-
+            
             // Debugging: log the updatedNodes
             console.log(updatedNodes);
-
+            
             // Update state with the new array of completed nodes
             setCompletedNodes(updatedNodes);
         }
@@ -273,7 +274,7 @@ const ActiveNode = ({ activeNode, activeTaskId, setActiveNode, completedNodes, s
         APPOINTMENT_LETTER,
         ASSIGN_TASK,
     };
-
+    
     useEffect(() => {
         console.log(activeLoop)
         const index = loopSection.findIndex((loop: any) => loop === activeLoop);
@@ -291,11 +292,11 @@ const ActiveNode = ({ activeNode, activeTaskId, setActiveNode, completedNodes, s
             console.log("Already at the first item");
         }
     }, [activeLoop])
-
-
+    
+    
     const handlePrevious = () => {
         const index = loopSection.findIndex((loop: any) => loop === activeLoop);
-
+        
         // Check if index is greater than 0 (to avoid accessing negative index)
         if (index > 0) {
             setActiveLoop(loopSection[index - 1]);
@@ -309,10 +310,10 @@ const ActiveNode = ({ activeNode, activeTaskId, setActiveNode, completedNodes, s
             console.log("Already at the first item");
         }
     }
-
+    
     const handleNext = () => {
         const index = loopSection.findIndex((loop: any) => loop === activeLoop);
-
+        
         // Check if index is less than loopSection.length - 1 (to avoid accessing index out of bounds)
         if (index < loopSection.length - 1) {
             setActiveLoop(loopSection[index + 1]);
@@ -327,8 +328,14 @@ const ActiveNode = ({ activeNode, activeTaskId, setActiveNode, completedNodes, s
             console.log("Already at the last item");
         }
     }
-
-
+    
+    const handleRestForm = async () => {
+        const response = await axios.get(
+            `${config.API_URL_ACCOUNT}/ProcessInitiation/UpdateStatusAndBlockValue?InitiationID=${activeTaskId}&NodeID=${activeNode.id}`);
+        console.log(response)
+    }
+    
+    
     return (
         <div>
             {/* {completedNodes.map((completeNode: any, index: number) => (
@@ -427,24 +434,24 @@ const ActiveNode = ({ activeNode, activeTaskId, setActiveNode, completedNodes, s
                 )}
                 {loopSection.length ? (
                     <button className="position-absolute top-50" type="button" onClick={handlePrevious}><i className="ri-arrow-left-wide-line"></i></button>
-                ):''}
+                ) : ''}
                 {loopSection.length ? (
                     <button className="position-absolute top-50 end-0" type="button" onClick={handleNext}><i className="ri-arrow-right-wide-line"></i></button>
-                ):''}
+                ) : ''}
             </div>
             <div className="d-flex justify-content-end px-3">
                 {/* Save as Draft Button with Remix Icon */}
-                <button className="btn btn-secondary mr-2" type="button" >
+                <button className="btn btn-secondary mr-2" type="button" onClick={() => handleSubmitTask('')}>
                     <i className="ri-save-line mr-1"></i>Save as Draft
                 </button>
 
                 {/* Save Button with Remix Icon */}
-                <button className="btn btn-primary mr-2" type="button" onClick={handleSubmitTask}>
+                <button className="btn btn-primary mr-2" type="button" onClick={() => handleSubmitTask('completed')}>
                     <i className="ri-file-line mr-1"></i>Save
                 </button>
 
                 {/* Reset Button with Remix Icon */}
-                <button className="btn btn-danger" type="button">
+                <button className="btn btn-danger" type="button" onClick={() => handleRestForm()}>
                     <i className="ri-refresh-line mr-1"></i>Reset
                 </button>
             </div>

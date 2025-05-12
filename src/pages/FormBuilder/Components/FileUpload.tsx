@@ -24,28 +24,25 @@ const FileUpload: React.FC<Props> = ({
     const isDisabled = !!(block.property.disabled);
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
-
-        if (file) {
+        const filePath = e.target.value; // This will be "C:\\fakepath\\filename.ext"
+        
+        if (filePath) {
             setBlockValue((prevState) => ({
                 ...prevState,
-                [block.property.id]: JSON.stringify(file), // only the file name gets stored
+                [block.property.id]: filePath, // ✅ Store the fake path
             }));
-
-            handleChange(e as unknown as React.ChangeEvent<HTMLInputElement>, block.property.id);
+    
+            handleChange(e, block.property.id);
         }
     };
+    
 
 
     const getFileName = () => {
-        const file: any = blockValue[block.property.id];
-
-        if (file instanceof File) {
-            return file.name;
-        }
-
-        return file || '';
+        return blockValue[block.property.id] || '';
     };
+
+
 
 
     return (
@@ -66,6 +63,7 @@ const FileUpload: React.FC<Props> = ({
                         disabled={isDisabled}
                         className={validationErrors[block.property.id] ? "is-invalid" : ""}
                     />
+
 
                     {getFileName() && (
                         <Form.Text className="d-block mt-2">
