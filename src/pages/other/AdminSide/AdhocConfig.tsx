@@ -5,43 +5,90 @@ import { toast } from "react-toastify";
 import Select from "react-select";
 import { Table, Form, Button, Card, Spinner } from "react-bootstrap";
 
+interface BlockOption {
+    label: string;
+    value: string;
+}
+
+interface SelectBlock {
+    label: string;
+    value: string;
+    blockOptions?: BlockOption[];
+}
+
+interface FormOption {
+    label: string;
+    value: string;
+    selectBlocks?: SelectBlock[];
+}
+
 interface Configuration {
     processId: string;
     formId: string;
     nodeId: string;
-    nodes: [{ label: string, value: string }];
+    nodes: { label: string; value: string }[];
+    blockId: string;
+    formBlocks?: SelectBlock[];
+    blockOptions?: BlockOption[];
+    nodeIds?: string[];
+    nodesId?: string[];
+    [key: string]: any;
 }
 
 interface DROP_DOWN {
     id: string;
     name: string;
     nodes: string[];
+    selectBlocks: SelectBlock[];
 }
-
-// interface TEMPLATE_DROP_DOWN {
-//     id: string;
-//     templatesName: string;
-// }
 
 const AdhocConfig: React.FC = () => {
     const [configurations, setConfigurations] = useState<Configuration[]>([]);
-    const [formOptions, setFormOptions] = useState<{ label: string; value: string }[]>([]);
+    const [formOptions, setFormOptions] = useState<FormOption[]>([]);
     const [loading, setLoading] = useState(false);
 
-    // Update configuration using react-select
-    const handleConfigurationChange = (
+    type NodeChangeOption = {
+        blockValue: string;
+        selectedNode: { label: string; value: string } | null;
+      };
+      
+      const handleConfigurationChange = (
         index: number,
-        key: keyof Configuration,
-        selectedOption: { value: string } | null
-    ) => {
-        const value = selectedOption ? selectedOption.value : "";
-        const updatedConfigurations = configurations.map((config, i) =>
-            i === index ? { ...config, [key]: value } : config
-        );
+        key: keyof Configuration | string,
+        selectedOption: FormOption | { value: string } | NodeChangeOption | null
+      ) => {
+        const updatedConfigurations = [...configurations];
+        const config = updatedConfigurations[index];
+      
+        if (typeof key === "string" && key.startsWith("nodeId")) {
+          const idx = parseInt(key.replace("nodeId", ""), 10);
+          if (!isNaN(idx)) {
+            config.nodeIds = config.nodeIds || [];
+            config.nodesId = config.nodesId || [];
+          
+            const selectedNode = (selectedOption as NodeChangeOption)?.selectedNode;
+            const blockValue = (selectedOption as NodeChangeOption)?.blockValue;
+          
+            config.nodeIds[idx] = selectedNode?.value || "";
+            config.nodesId[idx] = `${selectedNode?.value || ""}_${blockValue || ""}`;
+          }
+          
+        } else if (key === "formId") {
+          config.formId = (selectedOption as FormOption)?.value || "";
+          config.formBlocks = (selectedOption as FormOption)?.selectBlocks || [];
+          config.blockId = "";
+          config.blockOptions = [];
+          config.nodeIds = [];
+        } else if (key === "blockId") {
+          config.blockId = (selectedOption as { value: string })?.value || "";
+        } else {
+          config[key] = (selectedOption as { value: string })?.value || "";
+        }
+      
         setConfigurations(updatedConfigurations);
-    };
+      };
+      
 
-    // Save configurations
     const handleSaveConfiguration = async () => {
         if (configurations.length === 0) {
             toast.warn("No configurations to save.");
@@ -68,28 +115,42 @@ const AdhocConfig: React.FC = () => {
         }
     };
 
-    // Fetch dropdown data and format options for react-select
     const getInitialDropDown = async () => {
         try {
             const response = await axios.get(`${config.API_URL_APPLICATION}/CommonDropdown/GetAllTemplatesList`);
-            console.log(response)
+
             if (response.data.isSuccess) {
-                const newConfigurations = response.data.processDropdowns.map((p: DROP_DOWN) => ({
-                    processId: p.id,
-                    nodes: p.nodes,
-                    formId: response.data.templateDropdowns[1] && JSON.parse(response.data.templateDropdowns[1].configurations)?.find(
-                        (config: any) => config.processId === p.id
-                    )?.formId || "",
-                    nodeId: response.data.templateDropdowns[1] && JSON.parse(response.data.templateDropdowns[1].configurations)?.find(
-                        (config: any) => config.processId === p.id
-                    )?.nodeId || "",
-                }));
+                const templateList: DROP_DOWN[] = response.data.templatesLists;
+
+                const newConfigurations = response.data.processDropdowns.map((p: DROP_DOWN) => {
+                    const existingConfig = response.data.templateDropdowns[1] &&
+                        JSON.parse(response.data.templateDropdowns[1].configurations)?.find(
+                            (config: any) => config.processId === p.id
+                        );
+
+                    const selectedTemplate = templateList.find(t => t.id === existingConfig?.formId);
+
+                    return {
+                        processId: p.id,
+                        nodes: p.nodes,
+                        formId: existingConfig?.formId || "",
+                        nodeId: existingConfig?.nodeId || "",
+                        blockId: existingConfig?.blockId || "",
+                        formBlocks: selectedTemplate?.selectBlocks || [],
+                        blockOptions: selectedTemplate?.selectBlocks?.find(
+                            b => b.value === existingConfig?.blockId
+                        )?.blockOptions || [],
+                        nodeIds: existingConfig?.nodeIds || []
+                    };
+                });
+
                 setConfigurations(newConfigurations);
 
                 setFormOptions(
-                    response.data.templatesLists.map((w: DROP_DOWN) => ({
+                    templateList.map(w => ({
                         label: w.name,
                         value: w.id,
+                        selectBlocks: w.selectBlocks,
                     }))
                 );
             }
@@ -99,13 +160,26 @@ const AdhocConfig: React.FC = () => {
         }
     };
 
+
+    const handleBlockChange = (index: number, selection: SelectBlock[]) => {
+        const updated = [...configurations];
+        updated[index].formBlocks = selection;
+        setConfigurations(updated);
+    };
+
+    const handleNodes = (index: number, selection: BlockOption[]) => {
+        const updated = [...configurations];
+        updated[index].blockOptions = selection;
+        updated[index].nodeIds = new Array(selection.length).fill("");
+        setConfigurations(updated);
+    };
+
     useEffect(() => {
         getInitialDropDown();
     }, []);
 
     return (
         <div className="container mt-4">
-            {/* Fixed Header and Save Button */}
             <div className="sticky-header">
                 <h3 className="text-center mb-0">Form Configuration</h3>
                 <div className="text-center mt-2">
@@ -115,7 +189,6 @@ const AdhocConfig: React.FC = () => {
                 </div>
             </div>
 
-            {/* Configurations Table */}
             {configurations.length === 0 ? (
                 <p className="text-center text-muted mt-4">No configurations added.</p>
             ) : (
@@ -124,9 +197,10 @@ const AdhocConfig: React.FC = () => {
                         <Table responsive bordered hover className="text-center align-middle">
                             <thead className="table-light">
                                 <tr>
-                                    <th style={{ width: "30%" }}>Process Name</th>
-                                    <th style={{ width: "30%" }}>Form Name</th>
-                                    <th style={{ width: "40%" }}>Nodes</th>
+                                    <th>Process Name</th>
+                                    <th>Form Name</th>
+                                    <th>Nodes</th>
+                                    <th>Blocks</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -139,22 +213,80 @@ const AdhocConfig: React.FC = () => {
                                             <Select
                                                 options={formOptions}
                                                 value={formOptions.find(w => w.value === config.formId) || null}
-                                                onChange={selectedOption => handleConfigurationChange(index, "formId", selectedOption)}
+                                                onChange={(selectedOption: FormOption | null) => {
+                                                    handleConfigurationChange(index, "formId", selectedOption);
+                                                    if (selectedOption?.selectBlocks) {
+                                                        handleBlockChange(index, selectedOption.selectBlocks);
+                                                    }
+                                                }}
                                                 placeholder="Select Form"
                                                 isClearable
                                             />
                                         </td>
                                         <td>
-                                            {config.nodes.length ?
+                                            {config.blockOptions?.length ? (
+                                                <>
+                                                    {config.blockOptions.map((node, nodeIndex) => {
+                                                        const selectedNodeValue = config.nodeIds?.[nodeIndex] || "";
+                                                        const selectedNode = config.nodes.find(n => n.value === selectedNodeValue) || null;
+
+                                                        return (
+                                                            <div key={nodeIndex} className="mb-2">
+                                                                <Form.Control
+                                                                    type="text"
+                                                                    value={node.label}
+                                                                    disabled
+                                                                    className="mb-1"
+                                                                />
+                                                                <Select
+                                                                    options={config.nodes}
+                                                                    value={selectedNode}
+                                                                    onChange={selectedOption =>
+                                                                        handleConfigurationChange(index, `nodeId${nodeIndex}`, {
+                                                                            blockValue: node.value,
+                                                                            selectedNode: selectedOption
+                                                                        })
+                                                                    }
+                                                                    placeholder="Select Node"
+                                                                    isClearable
+                                                                />
+
+                                                            </div>
+                                                        );
+                                                    })}
+
+
+                                                </>
+                                            ) : config.nodes.length ? (
+                                                // <>{JSON.stringify(config.nodes)}</>
                                                 <Select
                                                     options={config.nodes}
                                                     value={config.nodes.find(w => w.value === config.nodeId) || null}
                                                     onChange={selectedOption => handleConfigurationChange(index, "nodeId", selectedOption)}
-                                                    placeholder="Select Form"
+                                                    placeholder="Select Node"
                                                     isClearable
                                                 />
-
-                                                : ''}
+                                            ) : (
+                                                ""
+                                            )}
+                                        </td>
+                                        <td>
+                                            {config.formBlocks?.length ? (
+                                                <Select
+                                                    options={config.formBlocks}
+                                                    value={config.formBlocks.find(w => w.value === config.blockId) || null}
+                                                    onChange={(selectedOption: SelectBlock | null) => {
+                                                        handleConfigurationChange(index, "blockId", selectedOption);
+                                                        if (selectedOption?.blockOptions) {
+                                                            handleNodes(index, selectedOption.blockOptions);
+                                                        }
+                                                    }}
+                                                    placeholder="Select Block"
+                                                    isClearable
+                                                />
+                                            ) : (
+                                                ""
+                                            )}
                                         </td>
                                     </tr>
                                 ))}

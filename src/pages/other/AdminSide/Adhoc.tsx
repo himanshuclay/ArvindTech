@@ -39,7 +39,7 @@ import Editor from '@/pages/FormBuilder/Editor';
 
 // Interface for API response structure
 interface Template {
-    processID: string, nodeID: string, formID: string,
+    processID: string, nodeID: string, formID: string, blockId: string, nodesId: string[]
 }
 
 interface ApiResponse {
@@ -165,6 +165,8 @@ const Adhoc: React.FC = () => {
                     blockValue: JSON.stringify(blockValue),
                     form: JSON.stringify(form),
                 },
+                nodesId: activeForm.nodesId,
+                blockId: activeForm.blockId,
                 createdBy: localStorage.getItem("EmpId"),
             };
             console.log(payload)
@@ -252,6 +254,7 @@ const Adhoc: React.FC = () => {
                 </Modal.Header>
 
                 <div>
+                    {JSON.stringify(blockValue)}
                     <Editor form={form} setForm={setForm} property={property} setProperty={setProperty} blockValue={blockValue} setBlockValue={setBlockValue} isShowSave={false} />
                     <div className="my-2 d-flex justify-content-end px-2">
                         <button className='btn btn-primary' type='button' onClick={(event) => handleAdhocForm()}>Save</button>

@@ -18,7 +18,7 @@ import { BLOCK_VALUE, FIELD } from '@/pages/FormBuilder/Constant/Interface';
 import { Node } from 'reactflow';
 // import ReactFlow, { Background, Controls, Edge, MiniMap, Node, useEdgesState, useNodesState } from 'reactflow';
 import ActiveNode from '@/pages/WorkflowBuilder/ActiveNode';
-import { getActiveNode, getCompletedNodes } from '@/pages/WorkflowBuilder/Constant/function';
+import { getActiveNode, getCompletedNodes, getFilterTasks } from '@/pages/WorkflowBuilder/Constant/function';
 // import { getActiveNode, getCompletedNodes } from '@/pages/WorkflowBuilder/Constant/function';
 
 // import CustomNode from '@/pages/WorkflowBuilder/CustomNode';
@@ -828,8 +828,9 @@ const ProjectAssignTable: React.FC = () => {
                                       </>
                                     ) : (
                                       <>
-                                        {item[col.id as keyof ProjectAssignListWithDoer]}
+                                        {getFilterTasks(item)?.[col.id] ?? ''}
                                       </>
+
                                     )
                                 }
                               </div>

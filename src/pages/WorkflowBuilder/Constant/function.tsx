@@ -153,27 +153,27 @@ const fetchTableFields = (
     nodes: Node[],
     parallerTaskNumber: string,
     parallerTaskBlockName: string
-  ): any => {
+): any => {
     const node = nodes.find(n => n.id === parallerTaskNumber);
-  
+
     // Recursive case: if form is still a string, follow the binding
     if (typeof node?.data?.form === "string") {
-      if (node.data.TaskBinding && node.data.BindingOption === "formAndValueWithEditMode") {
-        return fetchTableFields(nodes, node.data.TaskBinding, parallerTaskBlockName);
-      }
-      return null;
+        if (node.data.TaskBinding && node.data.BindingOption === "formAndValueWithEditMode") {
+            return fetchTableFields(nodes, node.data.TaskBinding, parallerTaskBlockName);
+        }
+        return null;
     }
-  
+
     // Find the block
     const block = node?.data?.form?.blocks?.find(
-      (b: any) => b.property.id === parallerTaskBlockName
+        (b: any) => b.property.id === parallerTaskBlockName
     );
-  
+
     if (!block || !block.property?.tableConfiguration) return null;
-  
+
     // Extract the table fields
     const tableField = TABLE_INPUT_HEADERS[block.property.tableConfiguration];
-  
+
     return tableField || null;
   };
   
@@ -208,6 +208,48 @@ const extractRecursively = (data: LOGIC_ITEM[], index = 0, acc: string[] = []): 
     return extractRecursively(data, index + 1, acc);
 };
 
+// const getFilterTasks = (item: any) => {
+//     try {
+//         const templateJson = JSON.parse(item.templateJson);
+//         const nodes = templateJson.nodes || [];
+//         const activeNode = nodes.find((n: any) => n.data.isActive && localStorage.getItem("EmpId") === n.data.activeDoer);
+
+//         if (activeNode) {
+//             return {
+//                 taskName: activeNode.data.label,
+//                 task_Number: item.processID + activeNode.data.taskNumber
+//             };
+//         }
+
+//         return null;
+//     } catch (error) {
+//         console.error("Failed to parse templateJson or process task:", error);
+//         return null;
+//     }
+// };
+
+const getFilterTasks = (item: any): { [key: string]: any } => {
+    try {
+        const templateJson = JSON.parse(item.templateJson);
+        const nodes = templateJson.nodes || [];
+        const activeNode = nodes.find((n: any) =>  localStorage.getItem("EmpId") === n.data.activeDoer);
+
+        if (activeNode) {
+            return {
+                taskName: activeNode.data.label,
+                task_Number: item.processID +'.'+ activeNode.data.taskNumber
+            };
+        }
+
+        return {};
+    } catch (error) {
+        console.error("Failed to parse templateJson or process task:", error);
+        return {};
+    }
+};
+
+
+
 
 export {
     getActiveNode,
@@ -219,4 +261,5 @@ export {
     extractRecursively,
     updateIsPermanentRecursively,
     fetchTableFields,
+    getFilterTasks,
 }

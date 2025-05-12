@@ -29,7 +29,7 @@ const FileUpload: React.FC<Props> = ({
         if (file) {
             setBlockValue((prevState) => ({
                 ...prevState,
-                [block.property.id]: file.name, // only the file name gets stored
+                [block.property.id]: JSON.stringify(file), // only the file name gets stored
             }));
 
             handleChange(e as unknown as React.ChangeEvent<HTMLInputElement>, block.property.id);
