@@ -175,33 +175,33 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges
 
 
     const [form, setForm] = useState<FIELD>({
-            name: '',
-            blocks: [],
-            blockCount: 0,
-            editMode: false,
-            rules: [],
-            configureSelectionLogics: [],
-            advance: {
-                backgroundColor: '',
-                color: '',
-            }
-        });
-        const [property, setProperty] = useState<PROPERTY>({
-            label: '',
-            id: '',
-            placeholder: '',
-            value: '',
-            type: '',
-            required: "false",
-            options: [{ label: '', value: '' }],
-            advance: {
-                backgroundColor: '',
-                color: '',
-            },
-            isShow: false,
-            disabled: "false",
-        })
-        const [blockValue, setBlockValue] = useState({})
+        name: '',
+        blocks: [],
+        blockCount: 0,
+        editMode: false,
+        rules: [],
+        configureSelectionLogics: [],
+        advance: {
+            backgroundColor: '',
+            color: '',
+        }
+    });
+    const [property, setProperty] = useState<PROPERTY>({
+        label: '',
+        id: '',
+        placeholder: '',
+        value: '',
+        type: '',
+        required: "false",
+        options: [{ label: '', value: '' }],
+        advance: {
+            backgroundColor: '',
+            color: '',
+        },
+        isShow: false,
+        disabled: "false",
+    })
+    const [blockValue, setBlockValue] = useState({})
 
     useEffect(() => {
         const fetchIdentifiers = async () => {
@@ -1032,13 +1032,13 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges
                         <hr />
                         <p><strong>Conditional Planned date from previous task</strong></p>
                         <Row>
-                        <Col lg={3}>
+                            <Col lg={3}>
                                 <Form.Group>
                                     <Select
                                         options={previousTaskList}
                                         value={previousTaskList.find(option => option.value === nodeSetting.previousTask)}
                                         onChange={(selectedOption) =>
-                                            setNodeSetting(prev => ({ ...prev, previousTask: selectedOption?.value || ''}))
+                                            setNodeSetting(prev => ({ ...prev, previousTask: selectedOption?.value || '' }))
                                         }
                                         placeholder="Select Start3"
                                         isClearable
@@ -1159,6 +1159,8 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges
                             </Col>
                         </Row>
                         <hr />
+
+
 
                         <Row className=" mx-1 ">
                             <p><strong>Expiry Logic</strong></p>
@@ -1305,6 +1307,24 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges
                             )}
                         </Row>
                         <hr />
+                        <Row>
+                        <p><strong>Is Approval Task</strong></p>
+                            <div
+                                className={`toggle-switch ${nodeSetting.isApprovalTask ? 'active' : ''}`}
+                                onClick={() =>
+                                    setNodeSetting(prev => ({
+                                        ...prev,
+                                        isApprovalTask: !prev.isApprovalTask
+                                    }))
+                                }
+                            >
+                                <div className="toggle-circle"></div>
+                                <span className="toggle-text">
+                                    {nodeSetting.isApprovalTask ? 'Yes' : 'No'}
+                                </span>
+                            </div>
+
+                        </Row>
 
                         <Row>
                             <p><strong>Previous block</strong></p>
@@ -1575,7 +1595,7 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges
                 </Modal.Header>
 
                 <div>
-                    <Editor form={form} setForm={setForm} property={property} setProperty={setProperty} blockValue={blockValue} setBlockValue={setBlockValue} isShowSave={false}  isPreview={true}  />
+                    <Editor form={form} setForm={setForm} property={property} setProperty={setProperty} blockValue={blockValue} setBlockValue={setBlockValue} isShowSave={false} isPreview={true} />
                 </div>
 
             </Modal>

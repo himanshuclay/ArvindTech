@@ -220,7 +220,7 @@ const ActiveNode = ({ activeNode, activeTaskId, setActiveNode, completedNodes, s
                 }
                 console.log(query)
                 const response = await axios.post(
-                    `${config.API_URL_ACCOUNT}/ProcessInitiation/UpdateTemplateJson1`,
+                    `${config.API_URL_ACCOUNT}/ProcessInitiation/UpdateTemplateJson`,
                     query
                 );
                 
@@ -230,11 +230,7 @@ const ActiveNode = ({ activeNode, activeTaskId, setActiveNode, completedNodes, s
                 }
             } else {
                 console.log('Validation Errors:', errors);
-            }
-            
-            
-            
-            
+            }            
         } catch (error) {
             console.log(error)
         }
@@ -440,6 +436,11 @@ const ActiveNode = ({ activeNode, activeTaskId, setActiveNode, completedNodes, s
                 ) : ''}
             </div>
             <div className="d-flex justify-content-end px-3">
+                {/* Reset Button with Remix Icon */}
+                <button className="btn btn-danger mr-2" type="button" onClick={() => handleRestForm()}>
+                    <i className="ri-refresh-line mr-1"></i>Reset
+                </button>
+
                 {/* Save as Draft Button with Remix Icon */}
                 <button className="btn btn-secondary mr-2" type="button" onClick={() => handleSubmitTask('')}>
                     <i className="ri-save-line mr-1"></i>Save as Draft
@@ -448,11 +449,6 @@ const ActiveNode = ({ activeNode, activeTaskId, setActiveNode, completedNodes, s
                 {/* Save Button with Remix Icon */}
                 <button className="btn btn-primary mr-2" type="button" onClick={() => handleSubmitTask('completed')}>
                     <i className="ri-file-line mr-1"></i>Save
-                </button>
-
-                {/* Reset Button with Remix Icon */}
-                <button className="btn btn-danger" type="button" onClick={() => handleRestForm()}>
-                    <i className="ri-refresh-line mr-1"></i>Reset
                 </button>
             </div>
 

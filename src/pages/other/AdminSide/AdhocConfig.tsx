@@ -50,44 +50,44 @@ const AdhocConfig: React.FC = () => {
     type NodeChangeOption = {
         blockValue: string;
         selectedNode: { label: string; value: string } | null;
-      };
-      
-      const handleConfigurationChange = (
+    };
+
+    const handleConfigurationChange = (
         index: number,
         key: keyof Configuration | string,
         selectedOption: FormOption | { value: string } | NodeChangeOption | null
-      ) => {
+    ) => {
         const updatedConfigurations = [...configurations];
         const config = updatedConfigurations[index];
-      
+
         if (typeof key === "string" && key.startsWith("nodeId")) {
-          const idx = parseInt(key.replace("nodeId", ""), 10);
-          if (!isNaN(idx)) {
-            config.nodeIds = config.nodeIds || [];
-            config.nodesId = config.nodesId || [];
-          
-            const selectedNode = (selectedOption as NodeChangeOption)?.selectedNode;
-            const blockValue = (selectedOption as NodeChangeOption)?.blockValue;
-          
-            config.nodeIds[idx] = selectedNode?.value || "";
-            config.nodesId[idx] = `${selectedNode?.value || ""}_${blockValue || ""}`;
-          }
-          
+            const idx = parseInt(key.replace("nodeId", ""), 10);
+            if (!isNaN(idx)) {
+                config.nodeIds = config.nodeIds || [];
+                config.nodesId = config.nodesId || [];
+
+                const selectedNode = (selectedOption as NodeChangeOption)?.selectedNode;
+                const blockValue = (selectedOption as NodeChangeOption)?.blockValue;
+
+                config.nodeIds[idx] = selectedNode?.value || "";
+                config.nodesId[idx] = `${selectedNode?.value || ""}_${blockValue || ""}`;
+            }
+
         } else if (key === "formId") {
-          config.formId = (selectedOption as FormOption)?.value || "";
-          config.formBlocks = (selectedOption as FormOption)?.selectBlocks || [];
-          config.blockId = "";
-          config.blockOptions = [];
-          config.nodeIds = [];
+            config.formId = (selectedOption as FormOption)?.value || "";
+            config.formBlocks = (selectedOption as FormOption)?.selectBlocks || [];
+            config.blockId = "";
+            config.blockOptions = [];
+            config.nodeIds = [];
         } else if (key === "blockId") {
-          config.blockId = (selectedOption as { value: string })?.value || "";
+            config.blockId = (selectedOption as { value: string })?.value || "";
         } else {
-          config[key] = (selectedOption as { value: string })?.value || "";
+            config[key] = (selectedOption as { value: string })?.value || "";
         }
-      
+
         setConfigurations(updatedConfigurations);
-      };
-      
+    };
+
 
     const handleSaveConfiguration = async () => {
         if (configurations.length === 0) {
@@ -199,17 +199,17 @@ const AdhocConfig: React.FC = () => {
                                 <tr>
                                     <th>Process Name</th>
                                     <th>Form Name</th>
-                                    <th>Nodes</th>
-                                    <th>Blocks</th>
+                                    <th>Decider Input</th>
+                                    <th>Defined Task</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {configurations.map((config, index) => (
                                     <tr key={index}>
-                                        <td>
+                                        <td className="col-3 align-top">
                                             <Form.Control type="text" value={config.processId} disabled />
                                         </td>
-                                        <td>
+                                        <td className="col-3 align-top">
                                             <Select
                                                 options={formOptions}
                                                 value={formOptions.find(w => w.value === config.formId) || null}
@@ -223,7 +223,25 @@ const AdhocConfig: React.FC = () => {
                                                 isClearable
                                             />
                                         </td>
-                                        <td>
+                                        <td className="col-3 align-top">
+                                            {config.formBlocks?.length ? (
+                                                <Select
+                                                    options={config.formBlocks}
+                                                    value={config.formBlocks.find(w => w.value === config.blockId) || null}
+                                                    onChange={(selectedOption: SelectBlock | null) => {
+                                                        handleConfigurationChange(index, "blockId", selectedOption);
+                                                        if (selectedOption?.blockOptions) {
+                                                            handleNodes(index, selectedOption.blockOptions);
+                                                        }
+                                                    }}
+                                                    placeholder="Select Block"
+                                                    isClearable
+                                                />
+                                            ) : (
+                                                ""
+                                            )}
+                                        </td>
+                                        <td className="col-12 align-top">
                                             {config.blockOptions?.length ? (
                                                 <>
                                                     {config.blockOptions.map((node, nodeIndex) => {
@@ -264,24 +282,6 @@ const AdhocConfig: React.FC = () => {
                                                     value={config.nodes.find(w => w.value === config.nodeId) || null}
                                                     onChange={selectedOption => handleConfigurationChange(index, "nodeId", selectedOption)}
                                                     placeholder="Select Node"
-                                                    isClearable
-                                                />
-                                            ) : (
-                                                ""
-                                            )}
-                                        </td>
-                                        <td>
-                                            {config.formBlocks?.length ? (
-                                                <Select
-                                                    options={config.formBlocks}
-                                                    value={config.formBlocks.find(w => w.value === config.blockId) || null}
-                                                    onChange={(selectedOption: SelectBlock | null) => {
-                                                        handleConfigurationChange(index, "blockId", selectedOption);
-                                                        if (selectedOption?.blockOptions) {
-                                                            handleNodes(index, selectedOption.blockOptions);
-                                                        }
-                                                    }}
-                                                    placeholder="Select Block"
                                                     isClearable
                                                 />
                                             ) : (
