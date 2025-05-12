@@ -40,6 +40,7 @@ import FloatInput from "./FloatInput";
 import { speak } from "@/utils/speak";
 import CheckboxInput from "./CheckboxInput";
 import TableInput from "./TableInput";
+import TextArea from "./TextArea";
 // import Blocks from "../Blocks/Blocks";
 
 const componentsMap = {
@@ -58,6 +59,7 @@ const componentsMap = {
     Paragraph,
     CheckboxInput,
     TableInput,
+    TextArea,
 };
 
 interface DynamicComponentProps {
