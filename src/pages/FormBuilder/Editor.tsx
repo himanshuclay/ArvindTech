@@ -22,6 +22,7 @@ import RadioInput from './Components/RadioInput';
 import CheckboxInput from './Components/CheckboxInput';
 import TableInput from './Components/TableInput';
 import { updateIsPermanentRecursively } from '../WorkflowBuilder/Constant/function';
+import TextArea from './Components/TextArea';
 // import { speak } from '@/utils/speak';
 
 
@@ -37,6 +38,7 @@ interface EditorProps {
     isShowSave?: boolean;
     isPreview?: boolean;
     validationErrorsList?: { [key: string]: string };
+    pId?: number;
 }
 
 interface DynamicComponentProps {
@@ -49,6 +51,7 @@ interface DynamicComponentProps {
     validationErrors: { [key: string]: string };
     blockValue: BLOCK_VALUE;
     setBlockValue: React.Dispatch<React.SetStateAction<BLOCK_VALUE>>;
+    pId?: number
 }
 
 const componentsMap = {
@@ -69,9 +72,10 @@ const componentsMap = {
     Paragraph,
     CheckboxInput,
     TableInput,
+    TextArea,
 };
 
-const DynamicComponentRenderer: React.FC<DynamicComponentProps> = ({ form, setForm, componentType, block, handleChange, validationErrors, blockValue, setBlockValue, setProperty }) => {
+const DynamicComponentRenderer: React.FC<DynamicComponentProps> = ({ form, setForm, componentType, block, handleChange, validationErrors, blockValue, setBlockValue, setProperty, pId }) => {
     const ComponentToRender = componentsMap[componentType];
     if (!ComponentToRender) {
         return <p>Component not found!</p>;
@@ -91,13 +95,14 @@ const DynamicComponentRenderer: React.FC<DynamicComponentProps> = ({ form, setFo
             form={form}
             setForm={setForm}
             setProperty={setProperty}
+            pId={pId}
         />
         //     </fieldset>
         // </div>
     );
 };
 
-const Editor: React.FC<EditorProps> = ({ form, setForm, property, setProperty, blockValue, setBlockValue, expandedRow, isShowSave = true, isPreview = false, validationErrorsList }) => {
+const Editor: React.FC<EditorProps> = ({ form, setForm, property, setProperty, blockValue, setBlockValue, expandedRow, isShowSave = true, isPreview = false, validationErrorsList, pId }) => {
     const [validationErrors, setValidationErrors] = useState<{ [key: string]: string }>({});
     const [triggeredActions, setTriggeredActions] = useState<TRIGGER_ACTION[]>([]);
     const [draggingOver, setDraggingOver] = useState<{ [key: string]: boolean }>({});  // Track if drag is over a zone
@@ -482,6 +487,7 @@ const Editor: React.FC<EditorProps> = ({ form, setForm, property, setProperty, b
                                         validationErrors={validationErrors}
                                         blockValue={blockValue}
                                         setBlockValue={setBlockValue}
+                                        pId={pId}
                                     />
                                 </div>
                                 {form.editMode && (

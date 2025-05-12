@@ -11,7 +11,7 @@ interface Props {
     setBlockValue: React.Dispatch<React.SetStateAction<BLOCK_VALUE>>;
 }
 
-const TextInput: React.FC<Props> = ({
+const TextArea: React.FC<Props> = ({
     block,
     handleChange,
     validationErrors = {},
@@ -65,4 +65,4 @@ const TextInput: React.FC<Props> = ({
     );
 };
 
-export default TextInput;
+export default TextArea;

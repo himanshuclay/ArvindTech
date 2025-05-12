@@ -399,6 +399,7 @@ const ActiveNode = ({ activeNode, activeTaskId, setActiveNode, completedNodes, s
                         setBlockValue={setBlockValue}
                         isShowSave={false}
                         validationErrorsList={validationErrors}
+                        pId={pId}
                     />
                 ) : ''}
 

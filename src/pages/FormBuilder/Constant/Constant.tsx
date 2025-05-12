@@ -328,6 +328,27 @@ const FIELD_LIST = [
 
         }
     },
+    {
+        name: "TextArea",
+        is: "TextArea",
+        property: {
+            type: "TextArea",
+            label: "Textarea",
+            placeholder: "placeholder",
+            validation: "",
+            value: '',
+            advance: {
+                backgroundColor: '#fff',
+                color: '#000',
+
+            },
+            isShow: true,
+            disabled: false,
+            size: '12',
+            tableConfiguration: '',
+
+        }
+    },
 ]
 
 const START1 = [
