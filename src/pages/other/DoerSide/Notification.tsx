@@ -202,11 +202,13 @@ const ProjectAssignTable: React.FC = () => {
 
   // both are required to make dragable column of table 
   const [columns, setColumns] = useState<Column[]>([
+    { id: 'uuid', label: 'Process uUID', visible: true },
     { id: 'task_Number', label: 'Task', visible: true },
     { id: 'taskName', label: 'Task Name', visible: true },
     { id: 'projectName', label: 'Project', visible: true },
     { id: 'planDate', label: 'Planned', visible: true },
     { id: 'isCompleted', label: 'Status', visible: true },
+
   ]);
 
 
