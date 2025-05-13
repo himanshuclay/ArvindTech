@@ -389,7 +389,7 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges
         });
         if (typeof data.form != "string" && data.form?.blocks?.length) {
             const blockNames = getBlockName(data.form.blocks);
-            console.log('blockNames', blockNames)
+            // console.log('blockNames', blockNames)
             setBlockName(blockNames);
 
         } else {
