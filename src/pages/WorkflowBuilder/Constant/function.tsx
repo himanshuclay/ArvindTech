@@ -247,12 +247,13 @@ const getFilterTasks = (item: any): { [key: string]: any } => {
         const templateJson = JSON.parse(item.templateJson);
         const nodes = templateJson.nodes || [];
         const activeNode = nodes.find((n: any) => localStorage.getItem("EmpId") === n.data.activeDoer);
+        console.log(activeNode);
 
         if (activeNode) {
             return {
+                ...item,
                 taskName: activeNode.data.label,
                 task_Number: item.processID + '.' + activeNode.data.taskNumber,
-                ...item
             };
         }
 
