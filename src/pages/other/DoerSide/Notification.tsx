@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 // import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import axios from 'axios';
-import { Button, Table, Container, Row, Col, Alert, Collapse, Pagination, Form, ButtonGroup, Modal } from 'react-bootstrap'; // Assuming DynamicForm is in the same directory
+import { Button, Table, Container, Row, Col, Alert, Collapse, Pagination, Form, ButtonGroup, Modal, Popover, OverlayTrigger } from 'react-bootstrap'; // Assuming DynamicForm is in the same directory
 import { format } from 'date-fns';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import DynamicForm from '../Component/DynamicForm';
@@ -19,6 +19,7 @@ import { Node } from 'reactflow';
 // import ReactFlow, { Background, Controls, Edge, MiniMap, Node, useEdgesState, useNodesState } from 'reactflow';
 import ActiveNode from '@/pages/WorkflowBuilder/ActiveNode';
 import { getActiveNode, getCompletedNodes, getFilterTasks } from '@/pages/WorkflowBuilder/Constant/function';
+import { INITIATION_DATA } from '@/pages/FormBuilder/Constant/Constant';
 // import { getActiveNode, getCompletedNodes } from '@/pages/WorkflowBuilder/Constant/function';
 
 // import CustomNode from '@/pages/WorkflowBuilder/CustomNode';
@@ -73,6 +74,7 @@ interface ProjectAssignListWithDoer {
   problemSolverMobileNumber: number;
   blockValue: BLOCK_VALUE;
   form_Json: FIELD;
+  templateJson: string; 
 
 }
 interface Input {
@@ -202,11 +204,13 @@ const ProjectAssignTable: React.FC = () => {
 
   // both are required to make dragable column of table 
   const [columns, setColumns] = useState<Column[]>([
+    { id: 'uuid', label: 'Process uUID', visible: true },
     { id: 'task_Number', label: 'Task', visible: true },
     { id: 'taskName', label: 'Task Name', visible: true },
     { id: 'projectName', label: 'Project', visible: true },
     { id: 'planDate', label: 'Planned', visible: true },
     { id: 'isCompleted', label: 'Status', visible: true },
+
   ]);
 
 
@@ -829,6 +833,7 @@ const ProjectAssignTable: React.FC = () => {
                                     ) : (
                                       <>
                                         {getFilterTasks(item)?.[col.id] ?? ''}
+                                        {/* {JSON.stringify(getFilterTasks(item))} */}
                                       </>
 
                                     )
@@ -979,6 +984,28 @@ const ProjectAssignTable: React.FC = () => {
 
                                       </Col>
                                     }
+                                    <div>
+                                      <OverlayTrigger
+                                        trigger="click"
+                                        placement="bottom"
+                                        overlay={
+                                          <Popover id="popover-basic">
+                                            <Popover.Body>
+                                              {INITIATION_DATA[item.processID] ? (
+                                                INITIATION_DATA[item.processID].map((field, index) => (
+                                                  <div key={index}>{index+1} - {field}</div>
+                                                ))
+                                              ) : (
+                                                <div>No data available for this processID</div>
+                                              )}
+                                            </Popover.Body>
+                                          </Popover>
+                                        }
+                                      >
+                                        <span className='fw-bold cursor-pointer'> <i className="ri-eye-line mr-1"></i>View Intiation Data</span>
+                                      </OverlayTrigger>
+                                    </div>
+
 
                                     {/* <Col lg={4}>
                                       <tr>
@@ -1027,9 +1054,19 @@ const ProjectAssignTable: React.FC = () => {
                                         <span className='text-primary me-2 cursor-pointer fw-bold' onClick={() => handleViewEditOutput(item.taskCommonId)}>View Output</span>
                                         <span className='text-primary cursor-pointer me-2 fw-bold' onClick={() => handleViewEdit(item.taskCommonId)}>Hierarchy  View</span>
                                         <span className='text-primary me-2 fw-bold'>Help</span>
-                                        <Button className='ms-auto ' onClick={() => handleEdit(item.taskCommonId, item.condition_Json, item)}>
-                                          Finish
+                                        <Button className='ms-auto' onClick={() => handleEdit(item.taskCommonId, item.condition_Json, item)}>
+                                          {
+                                            (() => {
+                                              const templateJson = JSON.parse(item.templateJson);
+                                              const doerId = localStorage.getItem("EmpId");
+                                              if(doerId){
+                                                const activeNode = getActiveNode(templateJson.nodes, doerId);
+                                                return activeNode ? 'Finish' : 'Planned';
+                                              }
+                                            })()
+                                          }
                                         </Button>
+
                                       </div>
                                     </Col>
                                   </Row>

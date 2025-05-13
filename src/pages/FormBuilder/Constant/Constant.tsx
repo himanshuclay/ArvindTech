@@ -692,8 +692,8 @@ export const TABLE_INPUT_HEADERS: { [key: string]: TableHeader[] } = {
         { key: "ReleaseDate2", displayName: "Release Date" },
         { key: "DemobTemplateStatus3", displayName: "Demob Template Status" },
         { key: "ReleaseDate3", displayName: "Release Date" }
-      ],
-      DemobMachineryTemplate: [
+    ],
+    DemobMachineryTemplate: [
         { key: "Project", displayName: "Project" },
         { key: "Month", displayName: "Month" },
         { key: "PercentageofWorkDone", displayName: "Percentage of Work Done" },
@@ -714,8 +714,8 @@ export const TABLE_INPUT_HEADERS: { [key: string]: TableHeader[] } = {
         { key: "AssetTrackingMasterStatus2", displayName: "Asset Tracking Master Status" },
         { key: "DemobAssetTemplateStatus3", displayName: "Demob Asset Template Status" },
         { key: "ReleaseDate3", displayName: "Release Date" }
-      ],
-      DemobCampTemplate: [
+    ],
+    DemobCampTemplate: [
         { key: "Project", displayName: "Project" },
         { key: "Quarter", displayName: "Quarter" },
         { key: "PercentageofWorkDone", displayName: "Percentage of Work Done" },
@@ -733,7 +733,7 @@ export const TABLE_INPUT_HEADERS: { [key: string]: TableHeader[] } = {
         { key: "C_HandoverofCampAreaisDone2", displayName: "C. Handover of Camp Area is Done" },
         { key: "FinalizationCompletedbyManagement", displayName: "Finalization Completed by Management" },
         { key: "NOCReceivedfromLandOwner", displayName: "NOC Received from Land Owner" }
-      ],
+    ],
     '': [
         { key: "label", displayName: "Label" },
         { key: "input", displayName: "Input" },
@@ -741,6 +741,214 @@ export const TABLE_INPUT_HEADERS: { [key: string]: TableHeader[] } = {
     ]
 };
 
+export const APPROVAL = {
+    "id": "4",
+    "type": "custom",
+    "data": {
+        "label": "Approval console",
+        "handles": 1,
+        "form": {
+            "name": "Approval console",
+            "blocks": [
+                {
+                    "name": "Select",
+                    "is": "Select",
+                    "property": {
+                        "type": "Select",
+                        "label": "Approval",
+                        "placeholder": "placeholder",
+                        "validation": "",
+                        "options": [
+                            {
+                                "label": "Approve",
+                                "value": "Approve"
+                            },
+                            {
+                                "label": "Reject",
+                                "value": "Reject"
+                            },
+                            {
+                                "label": "Amidment",
+                                "value": "Amidment"
+                            }
+                        ],
+                        "advance": {
+                            "backgroundColor": "#fff",
+                            "color": "#000"
+                        },
+                        "isShow": true,
+                        "disabled": false,
+                        "size": "12",
+                        "id": "Block_1"
+                    }
+                }
+            ],
+            "editMode": true,
+            "blockCount": 1,
+            "rules": [],
+            "configureSelectionLogics": [
+                {
+                    "start1": "Block_1",
+                    "start2": [
+                        "Approve",
+                        "Reject",
+                        "Amidment"
+                    ],
+                    "start3": "",
+                    "start4": "",
+                    "end1": "",
+                    "end2": "",
+                    "end3": ""
+                }
+            ],
+            "advance": {
+                "backgroundColor": "",
+                "color": ""
+            }
+        },
+        "taskNumber": "T2",
+        "inputHandles": 1,
+        "outputHandles": [
+            "Approve",
+            "Reject",
+            "Amidment"
+        ],
+        "outputLabels": [
+            "Block_1.Approve",
+            "Block_1.Reject",
+            "Block_1.Amidment"
+        ],
+        "assignDoerType": "fixedDoer",
+        "doer": "LLP03299",
+        "specificDate": "",
+        "taskTimeOptions": "onlyDays",
+        "days": "",
+        "taskCreationType": "actual",
+        "time": "2025-04-29T14:30:00.000Z",
+        "role": "",
+        "hours": "",
+        "weeks": "",
+        "doerAssignList": {},
+        "bindingValues": {},
+        "doerTaskNumber": "",
+        "doerBlockName": "",
+        "TaskBinding": "",
+        "BindingOption": "",
+        "loopingSetting": {},
+        "problemSolver": "",
+        "isExpirable": "",
+        "taskOutputlables": "",
+        "approvalSelect": "Block_1",
+        "approvalOptions": "Amidment",
+        "approvalTaskNumber": "3",
+        "approvalBindingTask": "formAndValueWithEditMode",
+        "isApprovalTask": true
+    },
+    "position": {
+        "x": 278.00570011986804,
+        "y": 404.8552508527786
+    },
+    "width": 200,
+    "height": 204,
+    "selected": true,
+    "positionAbsolute": {
+        "x": 278.00570011986804,
+        "y": 404.8552508527786
+    },
+    "dragging": false
+}
+
+const INITIATION_DATA: Record<string, string[]> = {
+"BD.02":["TenderID", "TenderStatus", "NotificationDate", "TenderLink", "Country", "State", "WorkName", "DeptPrincipleEmployerID", "DeptPrincipleEmployerName", "ContractType", "EstimatedCost", "DocPurchaseDeadline", "InitialBidSubmitDate", "CompletionPeriod", "TenderReferredBy", "ExecutorCompany", "EnteredByEmpID", "EnteredByEmpName", "EntryDate", "HandlingType", "ExecutionModel", "Client_JVName"],
+"BD.03":["TenderID", "TenderStatus", "WorkName", "StatusLastUpdatedDate", "DeptPrincipleEmployerName", "ATBid", "L1BidderName", "L1Bid"],
+"BD.05":["ContractualWorkValue", "ContractualStartDate", "ContractualCompletionDate"],
+"BD.06":["RevisedContractualWorkValue", "ContractualStartDate", "ContractualCompletionDate", "ValueRecorded", "TotalWorkDoneValueuptoPreviousMonth", "PercentageofWorkDone"],
+"BTS.02":["ID", "EntryDate", "ProjectName", "VendorNameAndCode", "Item", "BillAgainst", "No", "Date", "Rate", "BillStartMonth", "BillMonth"],
+"BTS.03":["ID", "EntryDate", "ProjectName", "VendorNameAndCode", "Item", "BillAgainst", "No", "Date", "Rate", "BillStartMonth", "BillMonth"],
+"BTS.04":["ProjectName"],
+"BTS.05":["ID", "BTSID", "BillEntryDate", "ProjectName", "Client_JVName", "ReceiptType", "No", "Amount", "Date", "PaymentRequestedFor", "PaymentDueDate"],
+"BTS.06":["ID", "BTSID", "ProjectName", "Client_JVName", "VendorName", "FRorIOMNumber", "FRDate", "RetentionHoldAmount"],
+"BTS.07":["BTSID", "ProjectName", "VendorNameAndCode", "BillDate", "GSTHoldAmount", "GSTMonth"],
+"BTS.08":["ProjectName"],
+"BTS.09":["ProjectName"],
+"BTS.10":["ProjectName"],
+"BTS.11":["BTSID", "BillEntryDate", "ProjectName", "ClientJVName", "ReceiptType", "VendorName", "FRorIOMNumber"],
+"PROC.01":["ProjectName","Client_JVName"],
+"PROC.02":["ProjectName","Client_JVName"],
+"PROC.03":["PONumber", "ProjectName", "VendorName", "Material_MachineryBBEJName", "Specification", "ScheduledQty", "VehicleRequiredByDate"],
+"PROC.04":["ReqID", "ProjectName", "StructureID", "StructureType", "TypeofDesign", "PierorSpanorChainageNo", "DrawingBoardCategory", "CompletionDate", "DTNID", "InitiationType"],
+"PROC.05":["TypeofAsset", "NameofAsset", "UploadRequisitionSlip", "Requestedby", "RequestDate"],
+"PROC.06":["Red", "FlaggedDate", "ProjectName", "Material", "Unit", "MinQty", "CurrentQty", "Status", "IMSType", "MaterialCustodian"],
+"PROC.07":["ProjectName"],
+"PROC.08":["ProjectName"],
+"HR.01":["ProjectName","ID"],
+"HR.02":["ID", "EntryDate", "Project", "Department", "CoreDesignation", "SpecializedDesignation", "Source", "Count", "RequestedBy"],
+"HR.03":["ID", "EntryDate", "Project", "Department", "CoreDesignation", "SpecializedDesignation", "Source", "Count", "RequestedBy"],
+"HR.04":["EmployeeID", "EmployeeName", "Project", "DateOfJoining", "RecordCreationDate", "DLRequired"],
+"HR.05":["EmpID", "EmployeeName", "ProjectName", "FitnessValidity"],
+"HR.06":["EmpID", "EmployeeName", "CurrentProjectName", "Designation", "DateOfJoining"],
+"HR.08":["ProjectName","ID","ProjectType"],
+"HR.09":["ProjectName","ID"],
+"HR.10":["ProjectName","ID"],
+"HR.12":["CreatedDate", "ProjectName", "LicenseAgreementType", "UpdatedDate", "ExpiryDate", "UID"],
+"HR.13":["ID", "AssetCode", "AssetName", "CurrentProject", "AssetOwnership", "AssetCondition"],
+"MECH.01":["ProjectName", "ID", "Source"],
+"MECH.02":["ProjectName", "AssetName", "AssetOwnership", "AssetStatus", "ID", "AssetCode"],
+"MECH.03":["ProjectName", "AssetName", "AssetOwnership", "AssetStatus", "ID", "AssetCode"],
+"MECH.04":["ProjectName", "AssetName", "AssetOwnership", "AssetStatus", "ID", "AssetCode"],
+"MECH.05":["ProjectName", "AssetName", "AssetOwnership", "AssetStatus", "ID", "AssetCode"],
+"MECH.06":["ProjectName", "AssetName", "AssetOwnership", "AssetStatus", "ID", "AssetCode"],
+"MECH.07":["ProjectName", "AssetName", "AssetOwnership", "AssetStatus", "ID", "AssetCode"],
+"MECH.08":["ProjectName", "AssetName", "AssetOwnership", "AssetStatus", "ID", "AssetCode"],
+"MECH.09":["ProjectName","ID"],
+"MECH.10":["ProjectName", "AssetName", "AssetOwnership", "AssetStatus", "ID","AssetCode","ReasonOfBreakdown"],
+"MECH.11":["ID"],
+"MECH.12":["ProjectName", "AssetName", "AssetOwnership", "ExpiryDate", "CurrentProject", "ID"],
+"MECH.13":["ProjectName", "VendorNameAndCode", "Item", "Specification", "AssetCategory", "AssetGroup", "AssetMake", "AssetOwnership", "DateOfDeployment", "ID"],
+"DDPS.03":["ProjectName"],
+"DDPS.04":["ProjectName"],
+"DDPS.05":["ProjectName"],
+"DDPS.06":["34.ID", "34.ProjectName", "34.SafetyPerson", "34.AssignDate", "34.ObservationType", "34.Observation", "34.Site_ExactLocation", "34.ResponsibleContractor", "34.Recommendation", "34.TargetDate", "34.AllocatedLineIncharge", "34.SeverityRateLevel", "34.UploadPhotoGraph"],
+"MOB.01":["TenderID", "ContractType", "ExecutionModel", "ExecutorCompany", "WorkName", "State", "StatusLastUpdatedDate", "Client_JVID", "Client_JVName"],
+"MOB.02":["ProjectName", "Client_JVName", "ContractType", "WorkName", "ProjectInchargeName", "ProjectCoordinatorName"],
+"MOB.03":["ProjectName", "Client_JVName", "NameOfWork", "ContractualStartDate"],
+"MOB.04":["ProjectName", "WorkStartDate"],
+"MOB.05":["ID", "ProjectName", "WorkStartDate"],
+"MOB.06":["ProjectName", "WorkStartDate"],
+"MOB.07":["ProjectName", "WorkStartDate"],
+"MOB.08":["ProjectName", "WorkStartDate"],
+"MOB.09":["ProjectName", "WorkStartDate"],
+"MOB.10":["ProjectName", "WorkStartDate"],
+"MOB.11":["ProjectName", "WorkStartDate"],
+"MOB.12":["ProjectName", "WorkStartDate"],
+"MOB.13":["ProjectName", "WorkStartDate"],
+"MOB.14":["ProjectName", "WorkStartDate"],
+"MOB.15":["ProjectName", "WorkStartDate"],
+"MOB.16":["ProjectName", "WorkStartDate"],
+"MOB.17":["ProjectName", "WorkStartDate"],
+"MOB.18":["ProjectName", "WorkStartDate"],
+"MOB.19":["ProjectName", "WorkStartDate"],
+"MOB.20":["ProjectName", "WorkStartDate"],
+"MOB.21":["TenderID", "ProjectName", "WorkStartDate"],
+"MOB.22":["TenderID", "ProjectName", "WorkStartDate"],
+"MOB.23":["ProjectName", "WorkStartDate"],
+"MOB.24":["ProjectName", "WorkStartDate"],
+"MOB.25":["ID", "ProjectName", "WorkStartDate", "GradeType", "TypeofCement"],
+"MOB.26":["ProjectName", "StructureName"],
+"MOB.27":["ProjectName", "StructureName"],
+"MOB.28":["ProjectName", "StructureName"],
+"MOB.29":["ProjectName", "StructureName", "PreliminaryWork", "PreliminaryWorkID"],
+"MOB.30":["ProjectName", "RequirementID", "RequirementName"],
+"MOB.31":["ProjectName", "WorkStartDate", "ContractualCompletionDate"],
+"MOB.32":["ProjectName", "WorkStartDate", "ContractualCompletionDate"],
+"MOB.33":["ProjectName","ComplianceType","ID"],
+"PRW.03":["SearchTeamMemberName", "SearchTeamMemberEmployeeID", "BilledProject", "BundleBilledAmount", "BundleID", "DateHandedtoPRWTeam"],
+"PRW.04":["ProjectName","ProjectType","ID"],
+"PRW.05":["ProjectName","ProjectType","ID"],
+"PRW.06":["ProjectName","ProjectType","ID"],
+"PRW.07":["ReqID", "ProjectName", "ContractorID", "ContractorName", "ContractorContactNumber", "NoofManpower", "DateofDeployment"],
+
+}
 
 export {
     FIELD_LIST,
@@ -754,4 +962,5 @@ export {
     EXPIRY_LOGIC,
     OPTIONS_SUNDAY_LOGIC,
     CONFIGURE_SELECTION_LOGIC,
+    INITIATION_DATA,
 }

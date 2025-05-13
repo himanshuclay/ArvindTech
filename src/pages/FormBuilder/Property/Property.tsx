@@ -198,6 +198,7 @@ const Property: React.FC<Props> = ({ form, setForm, property, setProperty, remov
                             </>
                         )}
                     </select>
+                    {JSON.stringify(property.validation)}
                 </div>
             )}
             {property.dateSelection && ["notThisDate", "anyPastDateWithNotBeyondPastDate", "anyFutureDateWithNotBeyondFutureDate", "blockWeek", "blockMonth", "blockYear"].includes(property.dateSelection) && (

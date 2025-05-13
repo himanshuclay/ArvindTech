@@ -227,14 +227,13 @@ const ProcessInitiation = () => {
                                             <Col lg={4}>
                                                 <Form.Group controlId="ModuleName">
                                                     <Form.Label>Module Name</Form.Label>
-
                                                     <Select
                                                         name="ModuleName"
-                                                        value={moduleList.find(item => item.moduleName === ModuleName) || null} // handle null
-                                                        onChange={(selectedOption) => setModuleName(selectedOption ? selectedOption.moduleName : "")} // null check
+                                                        value={moduleList.find(item => item.moduleID === ModuleName) || null} // handle null
+                                                        onChange={(selectedOption) => setModuleName(selectedOption ? selectedOption.moduleID : "")} // null check
                                                         options={moduleList}
                                                         getOptionLabel={(item) => item.moduleName}
-                                                        getOptionValue={(item) => item.moduleName}
+                                                        getOptionValue={(item) => item.moduleID}
                                                         isSearchable={true}
                                                         placeholder="Select Module Name"
                                                         className="h45"

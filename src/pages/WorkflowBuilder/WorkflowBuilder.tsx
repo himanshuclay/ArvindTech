@@ -34,55 +34,56 @@ import CustomNode from './CustomNode';
 import BUSINESS_GROWTH_REVIEW from './DynamicSegment/BUSINESS_GROWTH_REVIEW';
 import SALARY_PROCESSING from './DynamicSegment/SELARY_PROCESSING';
 import { extractRecursively } from './Constant/function';
+import { APPROVAL } from '../FormBuilder/Constant/Constant';
 
 
 const initialNodes: Node[] = [
     {
-      id: '1',
-      type: 'input',
-      data: {
-        label: 'Start Node',
-        inputHandles: 0,
-        outputHandles: 1
-      },
-      position: { x: 100, y: 100 },
-      style: {
-        backgroundColor: '#28a745', // green for start
-        color: '#fff',
-        borderRadius: '50%',
-        width: 100,
-        height: 100,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        fontWeight: 'bold',
-        border: '2px solid #1e7e34'
-      }
+        id: '1',
+        type: 'input',
+        data: {
+            label: 'Start Node',
+            inputHandles: 0,
+            outputHandles: 1
+        },
+        position: { x: 100, y: 100 },
+        style: {
+            backgroundColor: '#28a745', // green for start
+            color: '#fff',
+            borderRadius: '50%',
+            width: 100,
+            height: 100,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontWeight: 'bold',
+            border: '2px solid #1e7e34'
+        }
     },
     {
-      id: '2',
-      type: 'output',
-      data: {
-        label: 'End Node',
-        inputHandles: 1,
-        outputHandles: 0
-      },
-      position: { x: 500, y: 100 },
-      style: {
-        backgroundColor: '#6c757d', // gray for end
-        color: '#fff',
-        borderRadius: '50%',
-        width: 100,
-        height: 100,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        fontWeight: 'bold',
-        border: '2px solid #343a40'
-      }
+        id: '2',
+        type: 'output',
+        data: {
+            label: 'End Node',
+            inputHandles: 1,
+            outputHandles: 0
+        },
+        position: { x: 500, y: 100 },
+        style: {
+            backgroundColor: '#6c757d', // gray for end
+            color: '#fff',
+            borderRadius: '50%',
+            width: 100,
+            height: 100,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontWeight: 'bold',
+            border: '2px solid #343a40'
+        }
     }
-  ];
-  
+];
+
 
 const initialEdges: Edge[] = [{ id: 'e1-1', source: '1', target: '2', animated: true, type: 'smoothstep' }];
 
@@ -259,6 +260,21 @@ const WorkflowBuilder: React.FC = () => {
         const action = e.dataTransfer.getData('ACTION');
         if (action === 'ADD_NODE') {
             addNewNode(50, 50, '', action);
+        } else if (action === 'APPROVAL') {
+            addNewNode(50, 50, '', action);
+            const updatedNodes = (prevNodes: any) =>
+                prevNodes.map((node: any) => ({
+                    ...node,
+                    data: APPROVAL["data"],
+                }));
+
+            setNodes(updatedNodes);
+
+            setWorkflowBuilder((prevWorkflowBuilder) => ({
+                ...prevWorkflowBuilder,
+                nodes: updatedNodes(prevWorkflowBuilder.nodes),
+            }));
+
         } else if (action === 'ADD_FORM') {
             setShowFormBuilder(true);
             setIsAddFormBuilder(true);
@@ -571,6 +587,7 @@ const WorkflowBuilder: React.FC = () => {
                         </Modal.Body>
                     </Modal>
                     <div draggable onDragStart={(e) => handleDragStart(e, 'ADD_NODE')} style={{ padding: '10px', border: '1px solid #ccc', cursor: 'grab', marginBottom: '10px' }}>Drag to Add Node</div>
+                    <div draggable onDragStart={(e) => handleDragStart(e, 'APPROVAL')} style={{ padding: '10px', border: '1px solid #ccc', cursor: 'grab', marginBottom: '10px' }}>Approval</div>
                     <div draggable onDragStart={(e) => handleDragStart(e, 'ADD_FORM')} style={{ padding: '10px', border: '1px solid #ccc', cursor: 'grab', marginBottom: '10px' }}>Drag to Add Node With Form</div>
                     <div draggable onDragStart={(e) => handleDragStart(e, 'STAFF_ALLOCATION_PLAN')} style={{ padding: '10px', border: '1px solid #ccc', cursor: 'grab', marginBottom: '10px' }}>Staff Allocation Plan</div>
                     {/* <div draggable onDragStart={(e) => handleDragStart(e, 'APPOINTMENT')} style={{ padding: '10px', border: '1px solid #ccc', cursor: 'grab', marginBottom: '10px' }}>Appointment</div> */}
@@ -605,10 +622,10 @@ const WorkflowBuilder: React.FC = () => {
                             <Modal.Title>Confirm Deletion</Modal.Title>
                         </Modal.Header>
                         <Modal.Body>
-                            Are you sure you want to delete this 
+                            Are you sure you want to delete this
                         </Modal.Body>
                         <Modal.Footer>
-                            <Button variant="secondary" onClick= {()=> {setConfirmation(false), setShowFormBuilder(false);}}>
+                            <Button variant="secondary" onClick={() => { setConfirmation(false), setShowFormBuilder(false); }}>
                                 No
                             </Button>
                             <Button

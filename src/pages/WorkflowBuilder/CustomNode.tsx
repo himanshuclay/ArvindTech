@@ -389,7 +389,7 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges
         });
         if (typeof data.form != "string" && data.form?.blocks?.length) {
             const blockNames = getBlockName(data.form.blocks);
-            console.log('blockNames', blockNames)
+            // console.log('blockNames', blockNames)
             setBlockName(blockNames);
 
         } else {
@@ -504,6 +504,37 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges
             edges: prevWorkflowBuilder.edges.filter((edge: any) => edge.source !== id && edge.target !== id) // 🔹 Remove related edges
         }));
     }
+
+    const addNewBlock = (block: any) => {
+        // Add new block logic
+        setNodeSetting((prev) => ({
+            ...prev,
+            bindingValues: {
+                ...prev.bindingValues,
+                [block]: {
+                    master: '',
+                    column: '',
+                },
+            },
+        }));
+        setBlockName((prev) => [...prev, block]);
+    };
+
+    const removeBlock = (index: any) => {
+        // Remove block logic
+        const updatedBlockNames = blockName.filter((_, idx) => idx !== index);
+        setNodeSetting((prev) => {
+            const updatedBindingValues = { ...prev.bindingValues };
+            delete updatedBindingValues[blockName[index]];
+            return {
+                ...prev,
+                bindingValues: updatedBindingValues,
+            };
+        });
+        setBlockName(updatedBlockNames);
+    };
+
+
 
     // const cloneNode = () => {
     //     // Find the node to clone
@@ -1308,7 +1339,7 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges
                         </Row>
                         <hr />
                         <Row>
-                        <p><strong>Is Approval Task</strong></p>
+                            <p><strong>Is Approval Task</strong></p>
                             <div
                                 className={`toggle-switch ${nodeSetting.isApprovalTask ? 'active' : ''}`}
                                 onClick={() =>
@@ -1351,9 +1382,8 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges
                                     <Form.Group>
                                         <Form.Label>block options*</Form.Label>
                                         <Select
-                                            options={getAllBlockOptions(nodes, id, nodeSetting.approvalSelect)} // Updated block list based on task number
-                                            // Ensure value is either a valid option object or undefined/null if no selection
-                                            value={nodeSetting.approvalOptions ? approvalOptions.find(option => option.value === nodeSetting.approvalOptions) : null}
+                                            options={getAllBlockOptions(nodes, id, nodeSetting.approvalSelect)}
+                                            value={nodeSetting.approvalOptions ? getAllBlockOptions(nodes, id, nodeSetting.approvalSelect).find(option => option.value === nodeSetting.approvalOptions) : null}
                                             onChange={(selectedOption) =>
                                                 setNodeSetting(prev => ({
                                                     ...prev,
@@ -1471,6 +1501,8 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges
                             <Modal.Title>Binding Forms to Masters</Modal.Title>
                         </Modal.Header>
                         <Modal.Body>
+                            {/* Map through block names and display inputs */}
+                            {JSON.stringify(blockName)}
                             {blockName?.map((block, index) => {
                                 const currentBindingValue = nodeSetting.bindingValues?.[block];
                                 const masterName = currentBindingValue?.master;
@@ -1478,74 +1510,89 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges
 
                                 return (
                                     <div key={index} style={{ marginBottom: '1rem' }}>
-                                        <Form.Control
-                                            type="text"
-                                            value={block}
-                                            readOnly
-                                            style={{ marginBottom: '0.5rem' }}
-                                        />
+                                        <Row>
+                                            <Col lg="10" md="10">
+                                                {/* Block Name Display */}
+                                                <Form.Control
+                                                    type="text"
+                                                    value={block}
+                                                    readOnly
+                                                    style={{
+                                                        marginBottom: '0.5rem',
+                                                        fontWeight: 'bold',
+                                                        textAlign: 'center',
+                                                    }}
+                                                />
+                                                {/* Display the master name select dropdown */}
+                                                <Select
+                                                    options={mastersLists}
+                                                    value={mastersLists.find((option) => option.value === masterName) || null}
+                                                    onChange={(selectedOption) => {
+                                                        const newMasterName = selectedOption?.value || '';
 
-                                        {/* Display the master name part */}
-
-                                        <Select
-                                            options={mastersLists}
-                                            value={mastersLists.find((option) => option.value === masterName) || null}
-                                            onChange={(selectedOption) => {
-                                                const newMasterName = selectedOption?.value || '';
-
-                                                // Update the binding value and fetch columns
-                                                setNodeSetting((prev) => ({
-                                                    ...prev,
-                                                    bindingValues: {
-                                                        ...prev.bindingValues,
-                                                        [block]: {
-                                                            master: newMasterName,
-                                                            column: columnName || '',
-                                                        },
-                                                    },
-                                                }));
-
-                                                // Fetch columns for the selected master name
-                                                fetchColumnNames(newMasterName);
-                                            }}
-                                            placeholder={`Select a Master for ${block}`}
-                                            isClearable
-
-                                        />
-
-                                        {/* Display column select dropdown if the mastername is selected */}
-                                        {masterName && columnLists[masterName] && (
-                                            <Select
-                                                options={columnLists[masterName] || []}
-                                                value={columnLists[masterName]?.find(
-                                                    (option) => option.value === columnName
-                                                )}
-                                                onChange={(selectedOption) => {
-                                                    const newColumnName = selectedOption?.value || '';
-
-                                                    // Update the column value in bindingValues
-                                                    setNodeSetting((prev) => ({
-                                                        ...prev,
-                                                        bindingValues: {
-                                                            ...prev.bindingValues,
-                                                            [block]: {
-                                                                column: newColumnName,
-                                                                master: masterName || '',
+                                                        // Update binding values and fetch columns
+                                                        setNodeSetting((prev) => ({
+                                                            ...prev,
+                                                            bindingValues: {
+                                                                ...prev.bindingValues,
+                                                                [block]: {
+                                                                    master: newMasterName,
+                                                                    column: columnName || '',
+                                                                },
                                                             },
-                                                        },
-                                                    }));
-                                                }}
-                                                placeholder={`Select a Column for ${block}`}
-                                                isClearable
+                                                        }));
 
-                                            />
-                                        )}
+                                                        fetchColumnNames(newMasterName);
+                                                    }}
+                                                    placeholder={`Select a Master for ${block}`}
+                                                    isClearable
+                                                />
+                                                {/* Display column select dropdown if master name is selected */}
+                                                {masterName && columnLists[masterName] && (
+                                                    <Select
+                                                        options={columnLists[masterName] || []}
+                                                        value={columnLists[masterName]?.find((option) => option.value === columnName)}
+                                                        onChange={(selectedOption) => {
+                                                            const newColumnName = selectedOption?.value || '';
+
+                                                            // Update the column value in bindingValues
+                                                            setNodeSetting((prev) => ({
+                                                                ...prev,
+                                                                bindingValues: {
+                                                                    ...prev.bindingValues,
+                                                                    [block]: {
+                                                                        column: newColumnName,
+                                                                        master: masterName || '',
+                                                                    },
+                                                                },
+                                                            }));
+                                                        }}
+                                                        placeholder={`Select a Column for ${block}`}
+                                                        isClearable
+                                                    />
+                                                )}
+                                            </Col>
+                                            <Col className="d-flex align-items-center">
+                                                {/* Plus Icon to add a new block at the bottom */}
+                                                <div className="action-btn bg-primary cursor-pointer" onClick={() => addNewBlock(block)}>
+                                                    <i className="ri-add-fill text-white fs-4"></i>
+                                                </div>
+                                                {index > 0 && (
+                                                    <div className="action-btn bg-secondary ms-2 cursor-pointer" onClick={() => removeBlock(index)}>
+                                                       <i className="ri-close-large-line text-white"></i>
+                                                    </div>
+                                                )}
+                                            </Col>
+
+                                        </Row>
                                     </div>
                                 );
                             })}
                         </Modal.Body>
                         <Modal.Footer>
-                            <button className="close-button" onClick={() => setShowBinding(false)}>Close</button>
+                            <button className="close-button" onClick={() => setShowBinding(false)}>
+                                Close
+                            </button>
                             <button className="save-button" onClick={handleSaveDoer}>
                                 Save
                             </button>

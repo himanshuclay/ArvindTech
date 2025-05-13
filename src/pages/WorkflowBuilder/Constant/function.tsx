@@ -48,9 +48,23 @@ const getCompletedNodes = (nodes: Node[]): Node[] => {
 }
 
 const getBlockName = (blocks: any) => {
-    const blockName = blocks.map((block: any) => block.property.label);
-    return blockName;
+    const blockNames = blocks.map((block: any) => {
+        if (block.property.loopBlocks) {
+            const loopBlockNames = block.property.loopBlocks.map((loopBlock: any) => {
+                return loopBlock.property.label + '_' + loopBlock.property.id;
+            });
+            return loopBlockNames; // Return an array of loop block names
+        } else {
+            return block.property.label + '_' + block.property.id;
+        }
+    });
+    
+    // Flatten the array and return a single array of strings
+    return blockNames.flat();
 }
+
+
+
 
 type BlockNameOption = {
     label: string;
@@ -175,8 +189,8 @@ const fetchTableFields = (
     const tableField = TABLE_INPUT_HEADERS[block.property.tableConfiguration];
 
     return tableField || null;
-  };
-  
+};
+
 
 const updateIsPermanentRecursively = (
     triggeredActions: TRIGGER_ACTION[],
@@ -232,16 +246,18 @@ const getFilterTasks = (item: any): { [key: string]: any } => {
     try {
         const templateJson = JSON.parse(item.templateJson);
         const nodes = templateJson.nodes || [];
-        const activeNode = nodes.find((n: any) =>  localStorage.getItem("EmpId") === n.data.activeDoer);
+        const activeNode = nodes.find((n: any) => localStorage.getItem("EmpId") === n.data.activeDoer);
+        console.log(activeNode);
 
         if (activeNode) {
             return {
+                ...item,
                 taskName: activeNode.data.label,
-                task_Number: item.processID +'.'+ activeNode.data.taskNumber
+                task_Number: item.processID + '.' + activeNode.data.taskNumber,
             };
         }
 
-        return {};
+        return { ...item };
     } catch (error) {
         console.error("Failed to parse templateJson or process task:", error);
         return {};
