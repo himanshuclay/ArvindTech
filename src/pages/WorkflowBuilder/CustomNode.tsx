@@ -1382,9 +1382,8 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges
                                     <Form.Group>
                                         <Form.Label>block options*</Form.Label>
                                         <Select
-                                            options={getAllBlockOptions(nodes, id, nodeSetting.approvalSelect)} // Updated block list based on task number
-                                            // Ensure value is either a valid option object or undefined/null if no selection
-                                            value={nodeSetting.approvalOptions ? approvalOptions.find(option => option.value === nodeSetting.approvalOptions) : null}
+                                            options={getAllBlockOptions(nodes, id, nodeSetting.approvalSelect)}
+                                            value={nodeSetting.approvalOptions ? getAllBlockOptions(nodes, id, nodeSetting.approvalSelect).find(option => option.value === nodeSetting.approvalOptions) : null}
                                             onChange={(selectedOption) =>
                                                 setNodeSetting(prev => ({
                                                     ...prev,

@@ -74,6 +74,7 @@ interface ProjectAssignListWithDoer {
   problemSolverMobileNumber: number;
   blockValue: BLOCK_VALUE;
   form_Json: FIELD;
+  templateJson: string; 
 
 }
 interface Input {
@@ -1053,9 +1054,19 @@ const ProjectAssignTable: React.FC = () => {
                                         <span className='text-primary me-2 cursor-pointer fw-bold' onClick={() => handleViewEditOutput(item.taskCommonId)}>View Output</span>
                                         <span className='text-primary cursor-pointer me-2 fw-bold' onClick={() => handleViewEdit(item.taskCommonId)}>Hierarchy  View</span>
                                         <span className='text-primary me-2 fw-bold'>Help</span>
-                                        <Button className='ms-auto ' onClick={() => handleEdit(item.taskCommonId, item.condition_Json, item)}>
-                                          Finish
+                                        <Button className='ms-auto' onClick={() => handleEdit(item.taskCommonId, item.condition_Json, item)}>
+                                          {
+                                            (() => {
+                                              const templateJson = JSON.parse(item.templateJson);
+                                              const doerId = localStorage.getItem("EmpId");
+                                              if(doerId){
+                                                const activeNode = getActiveNode(templateJson.nodes, doerId);
+                                                return activeNode ? 'Finish' : 'Planned';
+                                              }
+                                            })()
+                                          }
                                         </Button>
+
                                       </div>
                                     </Col>
                                   </Row>
