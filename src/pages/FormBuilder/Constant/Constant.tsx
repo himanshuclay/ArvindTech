@@ -692,8 +692,8 @@ export const TABLE_INPUT_HEADERS: { [key: string]: TableHeader[] } = {
         { key: "ReleaseDate2", displayName: "Release Date" },
         { key: "DemobTemplateStatus3", displayName: "Demob Template Status" },
         { key: "ReleaseDate3", displayName: "Release Date" }
-      ],
-      DemobMachineryTemplate: [
+    ],
+    DemobMachineryTemplate: [
         { key: "Project", displayName: "Project" },
         { key: "Month", displayName: "Month" },
         { key: "PercentageofWorkDone", displayName: "Percentage of Work Done" },
@@ -714,8 +714,8 @@ export const TABLE_INPUT_HEADERS: { [key: string]: TableHeader[] } = {
         { key: "AssetTrackingMasterStatus2", displayName: "Asset Tracking Master Status" },
         { key: "DemobAssetTemplateStatus3", displayName: "Demob Asset Template Status" },
         { key: "ReleaseDate3", displayName: "Release Date" }
-      ],
-      DemobCampTemplate: [
+    ],
+    DemobCampTemplate: [
         { key: "Project", displayName: "Project" },
         { key: "Quarter", displayName: "Quarter" },
         { key: "PercentageofWorkDone", displayName: "Percentage of Work Done" },
@@ -733,7 +733,7 @@ export const TABLE_INPUT_HEADERS: { [key: string]: TableHeader[] } = {
         { key: "C_HandoverofCampAreaisDone2", displayName: "C. Handover of Camp Area is Done" },
         { key: "FinalizationCompletedbyManagement", displayName: "Finalization Completed by Management" },
         { key: "NOCReceivedfromLandOwner", displayName: "NOC Received from Land Owner" }
-      ],
+    ],
     '': [
         { key: "label", displayName: "Label" },
         { key: "input", displayName: "Input" },
@@ -741,6 +741,122 @@ export const TABLE_INPUT_HEADERS: { [key: string]: TableHeader[] } = {
     ]
 };
 
+export const APPROVAL = {
+    "id": "4",
+    "type": "custom",
+    "data": {
+        "label": "Approval console",
+        "handles": 1,
+        "form": {
+            "name": "Approval console",
+            "blocks": [
+                {
+                    "name": "Select",
+                    "is": "Select",
+                    "property": {
+                        "type": "Select",
+                        "label": "Approval",
+                        "placeholder": "placeholder",
+                        "validation": "",
+                        "options": [
+                            {
+                                "label": "Approve",
+                                "value": "Approve"
+                            },
+                            {
+                                "label": "Reject",
+                                "value": "Reject"
+                            },
+                            {
+                                "label": "Amidment",
+                                "value": "Amidment"
+                            }
+                        ],
+                        "advance": {
+                            "backgroundColor": "#fff",
+                            "color": "#000"
+                        },
+                        "isShow": true,
+                        "disabled": false,
+                        "size": "12",
+                        "id": "Block_1"
+                    }
+                }
+            ],
+            "editMode": true,
+            "blockCount": 1,
+            "rules": [],
+            "configureSelectionLogics": [
+                {
+                    "start1": "Block_1",
+                    "start2": [
+                        "Approve",
+                        "Reject",
+                        "Amidment"
+                    ],
+                    "start3": "",
+                    "start4": "",
+                    "end1": "",
+                    "end2": "",
+                    "end3": ""
+                }
+            ],
+            "advance": {
+                "backgroundColor": "",
+                "color": ""
+            }
+        },
+        "taskNumber": "T2",
+        "inputHandles": 1,
+        "outputHandles": [
+            "Approve",
+            "Reject",
+            "Amidment"
+        ],
+        "outputLabels": [
+            "Block_1.Approve",
+            "Block_1.Reject",
+            "Block_1.Amidment"
+        ],
+        "assignDoerType": "fixedDoer",
+        "doer": "LLP03299",
+        "specificDate": "",
+        "taskTimeOptions": "onlyDays",
+        "days": "",
+        "taskCreationType": "actual",
+        "time": "2025-04-29T14:30:00.000Z",
+        "role": "",
+        "hours": "",
+        "weeks": "",
+        "doerAssignList": {},
+        "bindingValues": {},
+        "doerTaskNumber": "",
+        "doerBlockName": "",
+        "TaskBinding": "",
+        "BindingOption": "",
+        "loopingSetting": {},
+        "problemSolver": "",
+        "isExpirable": "",
+        "taskOutputlables": "",
+        "approvalSelect": "Block_1",
+        "approvalOptions": "Amidment",
+        "approvalTaskNumber": "3",
+        "approvalBindingTask": "formAndValueWithEditMode",
+        "isApprovalTask": true
+    },
+    "position": {
+        "x": 278.00570011986804,
+        "y": 404.8552508527786
+    },
+    "width": 200,
+    "height": 204,
+    "selected": true,
+    "positionAbsolute": {
+        "x": 278.00570011986804,
+        "y": 404.8552508527786
+    },
+    "dragging": false
+}
 
 export {
     FIELD_LIST,
