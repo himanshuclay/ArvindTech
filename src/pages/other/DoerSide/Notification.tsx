@@ -831,6 +831,7 @@ const ProjectAssignTable: React.FC = () => {
                                     ) : (
                                       <>
                                         {getFilterTasks(item)?.[col.id] ?? ''}
+                                        {/* {JSON.stringify(getFilterTasks(item))} */}
                                       </>
 
                                     )

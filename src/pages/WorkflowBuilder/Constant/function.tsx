@@ -237,11 +237,12 @@ const getFilterTasks = (item: any): { [key: string]: any } => {
         if (activeNode) {
             return {
                 taskName: activeNode.data.label,
-                task_Number: item.processID +'.'+ activeNode.data.taskNumber
+                task_Number: item.processID +'.'+ activeNode.data.taskNumber,
+                ...item
             };
         }
 
-        return {};
+        return {...item};
     } catch (error) {
         console.error("Failed to parse templateJson or process task:", error);
         return {};
