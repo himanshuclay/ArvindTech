@@ -241,20 +241,19 @@ const Property: React.FC<Props> = ({ form, setForm, property, setProperty, remov
                         <option value="none">None</option>
                         <option value="Y-m-d">YYYY/MM/DD</option>
                         <option value="F, Y">M, YYYY(March, 2025)</option>
-                        <option value="mmm/yy">MMM/YY</option>
-                        <option value="dd-mm-yyyy">d-m-Y</option>
-                        <option value="DD-MM-YYYY">D-m-Y</option>
-                        <option value="d-m-yyyy">j-n-Y</option>
-                        <option value="dd-mm-YYYY">d-m-Y</option>
-                        <option value="yyyy-mm-dd">Y-m-d</option>
-                        <option value="MM-DD-YYYY">m-d-Y</option>
+                        <option value="m/y">MMM/YY</option>
+                        <option value="d-m-y">d-m-Y</option>
+                        <option value="D-M-Y">D-m-Y</option>
+                        <option value="d-m-y">j-n-Y</option>
+                        <option value="y-m-d">Y-m-d</option>
+                        <option value="M-D-Y">m-d-Y</option>
                         <option value="D, d M Y">D, d M Y</option>
                         <option value="F j, Y">F j, Y</option>
                         <option value="l, d F Y">l, d F Y</option>
-                        <option value="HH:MM">H:i</option>
-                        <option value="HH:MM:SS">H:i:S</option>
-                        <option value="YYYY-MM-DD HH:MM">Y-m-d H:i</option>
-                        <option value="dd-mm-yyyy HH:MM">d-m-Y H:i</option>
+                        <option value="H:M">H:i</option>
+                        <option value="H:M:S">H:i:S</option>
+                        <option value="Y-M-D H:M">Y-m-d H:i</option>
+                        <option value="d-m-y H:M">d-m-Y H:i</option>
                     </select>
                 </div>
             )}
