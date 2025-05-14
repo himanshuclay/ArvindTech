@@ -340,8 +340,9 @@ const Editor: React.FC<EditorProps> = ({ form, setForm, property, setProperty, b
         // }
         console.log('triggeredActions', formBlock)
         formBlock.forEach(action => {
+            console.log(action);
             if (action.type === 'show_hide' && (action.block || action.bindBlock)) {
-                const updatedBlock = manageShowHide(action.block, action.rule.rule, blockValue) as BASIC_FIELD;
+                const updatedBlock = manageShowHide(action.block ?? action.bindBlock, action.rule.rule, blockValue) as BASIC_FIELD;
                 setForm(prevForm => ({
                     ...prevForm,
                     blocks: prevForm.blocks.map(block => {
@@ -362,7 +363,11 @@ const Editor: React.FC<EditorProps> = ({ form, setForm, property, setProperty, b
                             };
                         }
 
-                        if (block.property.id === action.block.property.id) {
+                        if (action.block && block.property.id === action.block.property.id) {
+                            return updatedBlock as BASIC_FIELD;
+                        }
+
+                        else if (action.bindBlock && block.property.id === action.bindBlock.property.id) {
                             return updatedBlock as BASIC_FIELD;
                         }
 

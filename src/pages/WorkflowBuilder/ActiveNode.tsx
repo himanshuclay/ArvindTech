@@ -220,7 +220,7 @@ const ActiveNode = ({ activeNode, activeTaskId, setActiveNode, completedNodes, s
                 }
                 console.log(query)
                 const response = await axios.post(
-                    `${config.API_URL_ACCOUNT}/ProcessInitiation/UpdateTemplateJson1`,
+                    `${config.API_URL_ACCOUNT}/ProcessInitiation/UpdateTemplateJson`,
                     query
                 );
                 
@@ -334,7 +334,7 @@ const ActiveNode = ({ activeNode, activeTaskId, setActiveNode, completedNodes, s
     
     return (
         <div>
-            {/* {completedNodes.map((completeNode: any, index: number) => (
+            {completedNodes.map((completeNode: any, index: number) => (
                 <div>
                     <React.Fragment key={index}>
                         {completeNode.data.form?.blocks?.length ? (
@@ -364,7 +364,7 @@ const ActiveNode = ({ activeNode, activeTaskId, setActiveNode, completedNodes, s
                     <hr />
                 </div>
 
-            ))} */}
+            ))}
             {/* {JSON.stringify(blockValue)} */}
             {blockValue[activeNode.data.approvalSelect] == activeNode.data.approvalOptions && (
                 <>{prevForm.name}
