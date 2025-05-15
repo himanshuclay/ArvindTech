@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import Editor from "../FormBuilder/Editor";
-import { BLOCK_VALUE, FIELD, PROPERTY } from "../FormBuilder/Constant/Interface";
+import { BASIC_FIELD, BLOCK_VALUE, FIELD, PROPERTY } from "../FormBuilder/Constant/Interface";
 // import axios from "axios";
 // import config from "@/config";
 // import { toast } from "react-toastify";
@@ -110,14 +110,16 @@ const ActiveNode = ({ activeNode, activeTaskId, setActiveNode, completedNodes, s
 
     const approvalLogic = async (nodeId: string,) => {
         try {
-            const response = await axios.get(
-                `${config.API_URL_ACCOUNT}/ProcessInitiation/GetFormandBlockValue?nodeID=${nodeId}&ID=${pId}`);
-            setPreNodeId(nodeId);
-            if (response.data.isSuccess) {
-                let data = JSON.parse(response.data.formandBlockValue)
-                console.log(data)
-                setPrevBlockValue(data.blockValue);
-                setPrevForm(data.form);
+            if(nodeId){
+                const response = await axios.get(
+                    `${config.API_URL_ACCOUNT}/ProcessInitiation/GetFormandBlockValue?nodeID=${nodeId}&ID=${pId}`);
+                setPreNodeId(nodeId);
+                if (response.data.isSuccess) {
+                    let data = JSON.parse(response.data.formandBlockValue)
+                    console.log(data)
+                    setPrevBlockValue(data.blockValue);
+                    setPrevForm(data.form);
+                }
             }
         } catch (error) {
 
@@ -134,13 +136,25 @@ const ActiveNode = ({ activeNode, activeTaskId, setActiveNode, completedNodes, s
             approvalLogic(activeNode.data.approvalTaskNumber);
         }
     }, [])
+
+    const handleDublicacyCheker = async (block: BASIC_FIELD, value: string | string[]) => {
+        if (block.property.validation === "duplicacyChecker") {
+            const response = await axios.get(
+                `${config.API_URL_ACCOUNT}/ProcessInitiation/CheckData?MasterID=${block.property.masterID}&ColumnName=${block.property.ColumnID}&Value=${value}`);
+            if (response.data.isSuccess) {
+                return `This ${block.property.ColumnID} is ${response.data.message}`;
+            }
+        }
+        return ''
+    }
+
     const handleSubmitTask = async (status: string) => {
         try {
             const errors: { [key: string]: string } = {};
             if (status) {
-                form.blocks.forEach(block => {
+                for (const block of form.blocks) {
+                    const value = blockValue[block.property.id];
                     if (block.property.validation === "required") {
-                        const value = blockValue[block.property.id];
 
                         // Check if value is a string and perform trim, or handle array case
                         if (typeof value === 'string' && value.trim() === "") {
@@ -149,8 +163,12 @@ const ActiveNode = ({ activeNode, activeTaskId, setActiveNode, completedNodes, s
                             errors[block.property.id] = `${block.property.label} is required`;
                         }
                     }
-
-                });
+                    // Duplicacy check
+                    const duplicacyError = await handleDublicacyCheker(block, value);
+                    if (duplicacyError) {
+                        errors[block.property.id] = duplicacyError;
+                    }
+                };
             }
             setValidationErrors(errors);
             if (Object.keys(errors).length === 0) {
@@ -165,49 +183,7 @@ const ActiveNode = ({ activeNode, activeTaskId, setActiveNode, completedNodes, s
                 const query: any = {
                     id: activeTaskId,
                 }
-                // if (Array.isArray(activeNode.data.outputLabels) && activeNode.data.outputLabels.length > 1) {
-                //     activeNode.data.outputLabels.forEach((output: any) => {
-                //         const cleanedOutput = output.includes('.') ? output.split('.')[1] : output;
 
-                //         const isMatch = Object.values(activeNode.data.blockValue).includes(cleanedOutput);
-
-                //         if (isMatch) {
-                //             console.log('Matched output:', cleanedOutput);
-                //             query["outputLabel"] = cleanedOutput;
-                //         }
-                //     });
-
-
-                //     // const activeLabel = activeNode.data.blockValue?.typeOfAppointment;
-                //     // const matchedActiveLabel = activeNode.data.outputLabels.find(
-                //     //     (label: any) => label === activeLabel
-                //     // );
-
-                //     // if (matchedActiveLabel) {
-                //     //     // Direct match in the active node
-                //     //     query["outputLabel"] = matchedActiveLabel;
-
-                //     // } else {
-                //     //     // Try matching against completed nodes
-                //     //     for (const completeNode of completedNodes) {
-                //     //         const completedLabel = completeNode.data.blockValue?.typeOfAppointment;
-                //     //         console.log(completedLabel, activeNode.data.outputLabels)
-                //     //         const matched = activeNode.data.outputLabels.find(
-                //     //             (label: any) => label === completedLabel
-                //     //         );
-                //     //         console.log(matched)
-                //     //         if (matched) {
-                //     //             query["outputLabel"] = matched;
-                //     //             break; // ✅ Exit loop once match is found
-                //     //         }
-                //     //     }
-                //     // }
-                // }
-
-                // console.log('query', query);
-                // activeNode.data['nextNode'] = {};
-                // activeNode.data['nextNode']['id'] = activeNode.id;
-                // activeNode.data['nextNode']['sourceHandle'] = query.outputLabel;
                 query.jsonInput = JSON.stringify(activeNode)
                 if (blockValue[activeNode.data.approvalSelect] == activeNode.data.approvalOptions) {
                     query.prevBlockValue = JSON.stringify(prevBlockValue);
@@ -223,14 +199,14 @@ const ActiveNode = ({ activeNode, activeTaskId, setActiveNode, completedNodes, s
                     `${config.API_URL_ACCOUNT}/ProcessInitiation/UpdateTemplateJson`,
                     query
                 );
-                
+
                 if (response.data.isSuccess) {
                     toast.success(response.data.message);
                     setActiveNode("");
                 }
             } else {
                 console.log('Validation Errors:', errors);
-            }            
+            }
         } catch (error) {
             console.log(error)
         }
@@ -239,20 +215,20 @@ const ActiveNode = ({ activeNode, activeTaskId, setActiveNode, completedNodes, s
         // Debugging: log the current completedNodes
         console.log('completedNodes', completedNodes);
         if (completedNodes.length) {
-            
+
             // Ensure that `completeNode.data` and `completeNode.data.form` exist
             const updatedNodes = completedNodes.map((completeNode: any) => ({
                 ...completeNode,
                 data: {
                     ...completeNode.data, // Ensure completeNode.data is spread
-                    
-                    
+
+
                 }
             }));
-            
+
             // Debugging: log the updatedNodes
             console.log(updatedNodes);
-            
+
             // Update state with the new array of completed nodes
             setCompletedNodes(updatedNodes);
         }
@@ -270,7 +246,7 @@ const ActiveNode = ({ activeNode, activeTaskId, setActiveNode, completedNodes, s
         APPOINTMENT_LETTER,
         ASSIGN_TASK,
     };
-    
+
     useEffect(() => {
         console.log(activeLoop)
         const index = loopSection.findIndex((loop: any) => loop === activeLoop);
@@ -288,13 +264,13 @@ const ActiveNode = ({ activeNode, activeTaskId, setActiveNode, completedNodes, s
             console.log("Already at the first item");
         }
     }, [activeLoop])
-    
-    
+
+
     const handlePrevious = () => {
         console.log(loopSection);
 
         const index = loopSection.findIndex((loop: any) => loop === activeLoop);
-        
+
         // Check if index is greater than 0 (to avoid accessing negative index)
         if (index > 0) {
             setActiveLoop(loopSection[index - 1]);
@@ -308,11 +284,11 @@ const ActiveNode = ({ activeNode, activeTaskId, setActiveNode, completedNodes, s
             console.log("Already at the first item");
         }
     }
-    
+
     const handleNext = () => {
         console.log(loopSection);
         const index = loopSection.findIndex((loop: any) => loop === activeLoop);
-        
+
         // Check if index is less than loopSection.length - 1 (to avoid accessing index out of bounds)
         if (index < loopSection.length - 1) {
             setActiveLoop(loopSection[index + 1]);
@@ -327,14 +303,14 @@ const ActiveNode = ({ activeNode, activeTaskId, setActiveNode, completedNodes, s
             console.log("Already at the last item");
         }
     }
-    
+
     const handleRestForm = async () => {
         const response = await axios.get(
             `${config.API_URL_ACCOUNT}/ProcessInitiation/UpdateStatusAndBlockValue?InitiationID=${activeTaskId}&NodeID=${activeNode.id}`);
         console.log(response)
     }
-    
-    
+
+
     return (
         <div>
             {completedNodes.map((completeNode: any, index: number) => (

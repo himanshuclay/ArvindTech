@@ -48,9 +48,9 @@ const TextInput: React.FC<Props> = ({
                         type="text"
                         name={block.property.id}
                         value={blockValue[block.property.id] || block.property.value || ''}
-                        onChange={() => handleInputChange} // ✅ Fixed here
+                        onChange={handleInputChange} // ✅ Fixed here
                         placeholder={block.property.placeholder}
-                        disabled={isDisabled || editMode}
+                        disabled={isDisabled}
                         className={validationErrors[block.property.id] ? "is-invalid" : ""}
                     />
 
