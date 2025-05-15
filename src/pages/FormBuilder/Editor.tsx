@@ -6,7 +6,6 @@ import { BASIC_FIELD, BLOCK_VALUE, FIELD, PROPERTY, RULE, TRIGGER_ACTION } from 
 import TextInput from './Components/TextInput';
 import Paragraph from './Components/Paragraph';
 import TimeInput from './Components/TimeInput';
-import TextArea from './Components/TextArea'
 import NumberInput from './Components/NumberInput';
 import EmailInput from './Components/EmailInput';
 import PhoneInput from './Components/PhoneInput';
