@@ -40,6 +40,23 @@ const FIELD_LIST = [
         }
     },
     {
+        name: "Text Area",
+        is: "TextArea",
+        property: {
+            type: "TextArea",
+            label: "TextArea label",
+            placeholder: "Please fill the data",
+            validation: "",
+            advance: {
+                backgroundColor: '#fff',
+                color: '#000',
+            },
+            isShow: true,
+            disabled: false,
+            size: '12'
+        }
+    },
+    {
         name: "Number Input",
         is: "NumberInput",
         property: {
@@ -162,6 +179,28 @@ const FIELD_LIST = [
         property: {
             type: "DateInput",
             label: "DateInput",
+            placeholder: "placeholder",
+            validation: "",
+            advance: {
+                backgroundColor: '#fff',
+                color: '#000',
+
+            },
+            isShow: true,
+            disabled: false,
+            size: '12',
+            dateSelection: "none",
+            dateFormate: 'Y-m-d',
+            mode: 'single',
+            dateValue: '',
+        }
+    },
+    {
+        name: "TimeInput",
+        is: "TimeInput",
+        property: {
+            type: "TimeInput",
+            label: "TimeInput",
             placeholder: "placeholder",
             validation: "",
             advance: {

@@ -291,6 +291,8 @@ const ActiveNode = ({ activeNode, activeTaskId, setActiveNode, completedNodes, s
     
     
     const handlePrevious = () => {
+        console.log(loopSection);
+
         const index = loopSection.findIndex((loop: any) => loop === activeLoop);
         
         // Check if index is greater than 0 (to avoid accessing negative index)
@@ -308,6 +310,7 @@ const ActiveNode = ({ activeNode, activeTaskId, setActiveNode, completedNodes, s
     }
     
     const handleNext = () => {
+        console.log(loopSection);
         const index = loopSection.findIndex((loop: any) => loop === activeLoop);
         
         // Check if index is less than loopSection.length - 1 (to avoid accessing index out of bounds)
