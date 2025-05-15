@@ -46,7 +46,8 @@ const DateInput: React.FC<Props> = ({
 
         handleChange(syntheticEvent, id);
     };
-
+    const enableTime = dateFormate ? /[HhGgi]/.test(dateFormate) : false;
+    
 
     return (
         <div>
@@ -66,7 +67,7 @@ const DateInput: React.FC<Props> = ({
                                     placeholder={placeholder}
                                     disabled={isDisabled}
                                     options={{
-                                        // enableTime: Boolean(/[HhGgi]/.test(dateFormate || "")),
+                                        enableTime: enableTime,
                                         altInput: true,
                                         altFormat: dateFormate,
                                         dateFormat: "Y-m-d",

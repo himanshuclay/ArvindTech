@@ -307,16 +307,16 @@ return (
                     <option value="m/y">MMM/YY</option>
                     <option value="d-m-y">d-m-Y</option>
                     <option value="D-M-Y">D-m-Y</option>
-                    <option value="d-m-y">j-n-Y</option>
+                    <option value="j-n-Y">j-n-Y</option>
                     <option value="y-m-d">Y-m-d</option>
                     <option value="M-D-Y">m-d-Y</option>
                     <option value="D, d M Y">D, d M Y</option>
                     <option value="F j, Y">F j, Y</option>
                     <option value="l, d F Y">l, d F Y</option>
-                    <option value="H:M">H:i</option>
-                    <option value="H:M:S">H:i:S</option>
-                    <option value="Y-M-D H:M">Y-m-d H:i</option>
-                    <option value="d-m-y H:M">d-m-Y H:i</option>
+                    <option value="H:M">H:M</option>
+                    <option value="H:M:S">H:M:S</option>
+                    <option value="Y-M-D H:M">Y-M-D H:M</option>
+                    <option value="d-m-y H:M">d-m-Y H:M</option>
                 </select>
             </div>
         )}
