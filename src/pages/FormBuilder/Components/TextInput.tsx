@@ -47,7 +47,7 @@ const TextInput: React.FC<Props> = ({
                     <Form.Control
                         type="text"
                         name={block.property.id}
-                        value={blockValue[block.property.id]  || ''}
+                        value={blockValue[block.property.id] || block.property.value || ''}
                         onChange={handleInputChange} // ✅ Fixed here
                         placeholder={block.property.placeholder}
                         disabled={isDisabled}
