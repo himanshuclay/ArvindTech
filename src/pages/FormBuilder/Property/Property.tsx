@@ -224,7 +224,7 @@ return (
                             <option value="positiveIntegerGreaterZero">Positive Integer Greater Zero</option>
                         </>
                     )}
-                    {['Select', 'MultiSelect', 'TextInput', 'FloatInput'].includes(property.type) && (
+                    {['Select', 'MultiSelectDropdown', 'TextInput', 'FloatInput'].includes(property.type) && (
                         <>
                             <option value="duplicacyChecker">Duplicacy Checker</option>
                         </>

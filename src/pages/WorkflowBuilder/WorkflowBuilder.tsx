@@ -588,7 +588,7 @@ const WorkflowBuilder: React.FC = () => {
                     </Modal>
                     <div draggable onDragStart={(e) => handleDragStart(e, 'ADD_NODE')} style={{ padding: '10px', border: '1px solid #ccc', cursor: 'grab', marginBottom: '10px' }}>Drag to Add Node</div>
                     <div draggable onDragStart={(e) => handleDragStart(e, 'APPROVAL')} style={{ padding: '10px', border: '1px solid #ccc', cursor: 'grab', marginBottom: '10px' }}>Approval</div>
-                    <div draggable onDragStart={(e) => handleDragStart(e, 'ADD_FORM')} style={{ padding: '10px', border: '1px solid #ccc', cursor: 'grab', marginBottom: '10px' }}>Drag to Add Node With Form</div>
+                    <div draggable onDragStart={(e) => handleDragStart(e, 'ADD_FORM')} style={{ padding: '10px', border: '1px solid #ccc', cursor: 'grab', marginBottom: '10px' }}>Drag to Add Task with Input</div>
                     <div draggable onDragStart={(e) => handleDragStart(e, 'STAFF_ALLOCATION_PLAN')} style={{ padding: '10px', border: '1px solid #ccc', cursor: 'grab', marginBottom: '10px' }}>Staff Allocation Plan</div>
                     {/* <div draggable onDragStart={(e) => handleDragStart(e, 'APPOINTMENT')} style={{ padding: '10px', border: '1px solid #ccc', cursor: 'grab', marginBottom: '10px' }}>Appointment</div> */}
                     <div draggable onDragStart={(e) => handleDragStart(e, 'NEW_APPOINTMENT')} style={{ padding: '10px', border: '1px solid #ccc', cursor: 'grab', marginBottom: '10px' }}>New Appointment</div>

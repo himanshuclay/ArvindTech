@@ -196,7 +196,7 @@ const ProjectAssignTable: React.FC = () => {
           `${config.API_URL_ACCOUNT}/ProcessInitiation/GetFilterTask`,
           {
             params: {
-              Flag: 2,
+              Flag: 12,
               DoerId: role,
               PageIndex: currentPage, // Adding pagination support
             },
