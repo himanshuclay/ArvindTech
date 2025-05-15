@@ -157,9 +157,9 @@ const ActiveNode = ({ activeNode, activeTaskId, setActiveNode, completedNodes, s
                     if (block.property.validation === "required") {
 
                         // Check if value is a string and perform trim, or handle array case
-                        if (typeof value === 'string' && value.trim() === "") {
+                        if ((typeof value === 'string' && value.trim() === "") || value == undefined) {
                             errors[block.property.id] = `${block.property.label} is required`;
-                        } else if (Array.isArray(value) && value.length === 0) {
+                        } else if ((Array.isArray(value) && value.length === 0) || value == undefined) {
                             errors[block.property.id] = `${block.property.label} is required`;
                         }
                     }
@@ -170,6 +170,7 @@ const ActiveNode = ({ activeNode, activeTaskId, setActiveNode, completedNodes, s
                     }
                 };
             }
+            console.log(errors);
             setValidationErrors(errors);
             if (Object.keys(errors).length === 0) {
                 activeNode.data['blockValue'] = blockValue;

@@ -109,6 +109,7 @@ interface dropDownList {
   empID: string;
   empName: string;
   name: string;
+  id: string;
 }
 const ProjectAssignTable: React.FC = () => {
   const [data, setData] = useState<ProjectAssignListWithDoer[]>([]);
@@ -126,17 +127,17 @@ const ProjectAssignTable: React.FC = () => {
   const [, setSearchTriggered] = useState(false);
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
-  const [projectList,] = useState<dropDownList[]>([]);
+  const [projectList, setProjectList] = useState<dropDownList[]>([]);
   const [projectName, setProjectName] = useState('');
   const [options, setOptions] = useState('');
-  const [moduleList,] = useState<dropDownList[]>([]);
   const [moduleID, setModuleID] = useState('');
   const [ModuleName, setModuleName] = useState('');
-  const [processList,] = useState<dropDownList[]>([]);
+  const [processList, setProcessList] = useState<dropDownList[]>([]);
   const [ProcessName, setProcessName] = useState('');
-  const [taskNumberList,] = useState<dropDownList[]>([]);
+  const [taskNumberList, setTaskNumberList] = useState<dropDownList[]>([]);
   const [taskNumberName, setTaskNumberName] = useState('');
   const [activeTaskId, setActiveTaskId] = useState(0);
+  const [moduleList, setModuleList] = useState<dropDownList[]>([]);
   // const [doerList, ] = useState<dropDownList[]>([]);
   const [, setDoerName] = useState('');
   // const [nodes, setNodes] = useNodesState([]);
@@ -245,9 +246,76 @@ const ProjectAssignTable: React.FC = () => {
       setLoading(false);
     }
   };
-  useEffect(() => {
+  const fetchProjects = async () => {
+    try {
+      const response = await axios.get(`${config.API_URL_APPLICATION}/CommonDropdown/GetProjectList`);
+      if (response.data.isSuccess) {
+        const mappedProjects = response.data.projectListResponses.map((project: any) => ({
+          id: project.id,
+          name: project.projectName
+        }));
+        setProjectList(mappedProjects);
+      }
+    } catch (error) {
+      console.error("Error fetching project list:", error);
+    }
+  };
 
+  const fetchModules = async () => {
+    try {
+      const response = await axios.get(`${config.API_URL_APPLICATION}/CommonDropdown/GetModuleList`);
+      if (response.data.isSuccess) {
+        const mappedModules = response.data.moduleNameListResponses.map((module: any) => ({
+          id: module.id,
+          moduleID: module.moduleID,
+          moduleName: module.moduleName
+        }));
+        setModuleList(mappedModules);
+      }
+    } catch (error) {
+      console.error("Error fetching module list:", error);
+    }
+  };
+
+  const fetchTaskList = async () => {
+    try {
+      const response = await axios.get(`${config.API_URL_APPLICATION}/CommonDropdown/GetTaskList`);
+      if (response.data.isSuccess) {
+        const mappedTasks = response.data.taskList.map((task: any) => ({
+          id: task.id,
+          taskID: task.taskID
+        }));
+        setTaskNumberList(mappedTasks);
+      }
+    } catch (error) {
+      console.error("Error fetching task list:", error);
+    }
+  };
+
+  const fetchProcessName = async () => {
+    try {
+      const response = await axios.get(
+        `${config.API_URL_APPLICATION}/CommonDropdown/GetProcessNameByModuleName?ModuleName=${moduleID}`
+      );
+      if (response.data.isSuccess) {
+        setProcessList(response.data.processListResponses);
+      } else {
+        console.error("API Error:", response.data.message);
+      }
+    } catch (error) {
+      console.error("Error fetching process list:", error);
+    }
+  };
+  useEffect(() => {
+    if (moduleID) {
+      fetchProcessName();
+    }
+  }, [moduleID]);
+  useEffect(() => {
+    fetchProjects();
     fetchData();
+    fetchModules();
+    fetchTaskList();
   }, [location.pathname, currentPage]);
   const handleClear = async () => {
     setDoerName('');
@@ -496,6 +564,7 @@ const ProjectAssignTable: React.FC = () => {
   ];
 
 
+
   function calculatePlannedDate(createdDate: string): string {
     const parsedDate = new Date(createdDate);
     if (isNaN(parsedDate.getTime())) {
@@ -549,7 +618,7 @@ const ProjectAssignTable: React.FC = () => {
         ...search,
         flag: 1,
         taskCommonId: 0,
-        doerId:role,
+        doerId: role,
         id: 0,
         pageIndex: 1,
         projectId: "",
@@ -646,19 +715,24 @@ const ProjectAssignTable: React.FC = () => {
                 <Form.Label>Select Project</Form.Label>
                 <Select
                   name="projectName"
-                  value={projectList.find(item => item.name === projectName) || null}
+                  value={projectList.find(item => item.id === search.projectID) || null}
                   onChange={(selectedOption) => {
-                    setProjectName(selectedOption ? selectedOption.name : "")
+                    if (selectedOption) {
+                      setSearch((prev) => ({ ...prev, projectID: selectedOption.id }));
+                    }
                   }}
                   options={projectList}
                   getOptionLabel={(item) => item.name}
-                  getOptionValue={(item) => item.name}
-                  isSearchable={true}
+                  getOptionValue={(item) => item.id}
+                  // isSearchable={true}
                   placeholder="Select Project Name"
                   className="h45"
+                  isClearable
+
                 />
               </Form.Group>
             </Col>
+
             {/* <Col lg={3}>
                                 <Form.Group controlId="ModuleName">
                                     <Form.Label>Sort  By</Form.Label>
@@ -688,6 +762,8 @@ const ProjectAssignTable: React.FC = () => {
                   value={optionsDataAccesLevel.find(option => option.value === options) || null}
                   onChange={(selectedOption) => setOptions(selectedOption?.value || '')}
                   placeholder="Select Any Option"
+                  isClearable
+
                 />
               </Form.Group>
             </Col>
@@ -696,11 +772,15 @@ const ProjectAssignTable: React.FC = () => {
                 <Form.Label>Select Module</Form.Label>
                 <Select
                   name="ModuleName"
-                  value={moduleList.find(item => item.moduleID === moduleID) || null}
+                  value={moduleList.find(item => item.moduleID === search.moduleID) || null}
                   onChange={(selectedOption) => {
-                    setModuleName(selectedOption ? selectedOption.moduleName : ""),
-                      setModuleID(selectedOption ? selectedOption.moduleID : "")
-
+                    if (selectedOption) {
+                      setSearch((prev) => ({ ...prev, moduleID: selectedOption.moduleID }));
+                      setModuleID(selectedOption.moduleID);
+                    } else {
+                      setSearch((prev) => ({ ...prev, moduleID: "" }));
+                      setModuleID("");
+                    }
                   }}
                   options={moduleList}
                   getOptionLabel={(item) => item.moduleName}
@@ -708,16 +788,27 @@ const ProjectAssignTable: React.FC = () => {
                   isSearchable={true}
                   placeholder="Select Module Name"
                   className="h45"
+                  isClearable
+
                 />
+
               </Form.Group>
             </Col>
+
             <Col lg={3}>
               <Form.Group controlId="ModuleOwnerName">
                 <Form.Label>Select Process</Form.Label>
                 <Select
                   name="ModuleOwnerName"
-                  value={processList.find(item => item.processID === ProcessName) || null}
-                  onChange={(selectedOption) => setProcessName(selectedOption ? selectedOption.processID : "")}
+                  value={
+                    processList.find((item) => item.processID === search.processID) || null
+                  }
+                  onChange={(selectedOption) => {
+                    setSearch((prev) => ({
+                      ...prev,
+                      processID: selectedOption?.processID || "",
+                    }));
+                  }}
                   options={processList}
                   getOptionLabel={(item) => item.processName}
                   getOptionValue={(item) => item.processID}
@@ -725,26 +816,55 @@ const ProjectAssignTable: React.FC = () => {
                   placeholder="Select Process Name"
                   className="h45"
                   isDisabled={!ModuleName}
+                  isClearable
+
                 />
               </Form.Group>
             </Col>
 
-            <Col lg={3} className="">
+            <Col lg={3}>
+              <Form.Group controlId="TaskInput">
+                <Form.Label>Task Input</Form.Label>
+                <Form.Control
+                  type="text"
+                  name="TaskInput"
+                  value={search.blockValue} // ✅ fixed
+                  onChange={(e) =>
+                    setSearch((prev) => ({ ...prev, blockValue: e.target.value }))
+                  }
+                  placeholder="Enter Task Input"
+                  className="h45"
+                />
+              </Form.Group>
+            </Col>
+
+            <Col lg={3}>
               <Form.Group controlId="searchTaskNumber">
-                <Form.Label>Select Task </Form.Label>
+                <Form.Label>Select Task</Form.Label>
                 <Select
                   name="searchTaskNumber"
-                  value={taskNumberList.find(item => item.taskID === taskNumberName) || null}
-                  onChange={(selectedOption) => setTaskNumberName(selectedOption ? selectedOption.taskID : "")}
+                  value={
+                    taskNumberList.find((item) => item.taskID === search.taskID) || null
+                  }
+                  onChange={(selectedOption) =>
+                    setSearch((prev) => ({
+                      ...prev,
+                      taskID: selectedOption?.taskID || "",
+                    }))
+                  }
                   options={taskNumberList}
                   getOptionLabel={(item) => item.taskID}
                   getOptionValue={(item) => item.taskID}
                   isSearchable={true}
                   placeholder="Select Task Number"
                   className="h45"
+                  isClearable
+
                 />
               </Form.Group>
             </Col>
+
+
             <Col lg={3}>
               <Form.Group controlId="uuid">
                 <Form.Label>Process UUID</Form.Label>
@@ -759,9 +879,6 @@ const ProjectAssignTable: React.FC = () => {
                 />
               </Form.Group>
             </Col>
-
-
-
 
 
             <Col lg={3} className="align-items-end d-flex justify-content-end mt-2">

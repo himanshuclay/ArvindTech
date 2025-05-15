@@ -1061,7 +1061,7 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges
                             )}
                         </Row>
                         <hr />
-                        <p><strong>Conditional Planned date from previous task</strong></p>
+                        <p><strong>Time Management Only for Date Input </strong></p>
                         <Row>
                             <Col lg={3}>
                                 <Form.Group>
