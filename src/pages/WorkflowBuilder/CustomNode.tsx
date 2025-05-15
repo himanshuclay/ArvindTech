@@ -1377,13 +1377,13 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges
                                     />
                                 </Form.Group>
                             </Col>
-                            {isCompleteTask ? <></> :
+                            {isCompleteTask ? <></> : nodeSetting.approvalSelect ? 
                                 <Col lg={3}>
                                     <Form.Group>
                                         <Form.Label>block options*</Form.Label>
                                         <Select
                                             options={getAllBlockOptions(nodes, id, nodeSetting.approvalSelect)}
-                                            value={nodeSetting.approvalOptions ? getAllBlockOptions(nodes, id, nodeSetting.approvalSelect).find(option => option.value === nodeSetting.approvalOptions) : null}
+                                            value={nodeSetting.approvalOptions ? getAllBlockOptions(nodes, id, nodeSetting.approvalSelect)?.find(option => option.value === nodeSetting.approvalOptions) : null}
                                             onChange={(selectedOption) =>
                                                 setNodeSetting(prev => ({
                                                     ...prev,
@@ -1395,6 +1395,7 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges
                                         />
                                     </Form.Group>
                                 </Col>
+                            :''
                             }
                             <Col lg={3}>
                                 <Form.Group>

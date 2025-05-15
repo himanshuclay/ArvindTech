@@ -261,20 +261,22 @@ const WorkflowBuilder: React.FC = () => {
         if (action === 'ADD_NODE') {
             addNewNode(50, 50, '', action);
         } else if (action === 'APPROVAL') {
-            addNewNode(50, 50, '', action);
-            const updatedNodes = (prevNodes: any) =>
-                prevNodes.map((node: any) => ({
-                    ...node,
-                    data: APPROVAL["data"],
-                }));
-
-            setNodes(updatedNodes);
-
+            let newNodeID = addNewNode(50, 50, '', action);
+            setNodes((prevNodes) =>
+                prevNodes.map((node) =>
+                    node.id === newNodeID
+                        ? { ...node, data: APPROVAL["data"] }
+                        : node
+                )
+            );
             setWorkflowBuilder((prevWorkflowBuilder) => ({
                 ...prevWorkflowBuilder,
-                nodes: updatedNodes(prevWorkflowBuilder.nodes),
+                nodes: prevWorkflowBuilder.nodes.map((node) =>
+                    node.id === newNodeID
+                        ? { ...node, data: APPROVAL["data"] }
+                        : node
+                ),
             }));
-
         } else if (action === 'ADD_FORM') {
             setShowFormBuilder(true);
             setIsAddFormBuilder(true);

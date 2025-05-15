@@ -74,7 +74,7 @@ interface ProjectAssignListWithDoer {
   problemSolverMobileNumber: number;
   blockValue: BLOCK_VALUE;
   form_Json: FIELD;
-  templateJson: string; 
+  templateJson: string;
 
 }
 interface Input {
@@ -159,6 +159,9 @@ const ProjectAssignTable: React.FC = () => {
   const [activeNode, setActiveNode] = useState<Node | "">("");
   const [completedNodes, setCompletedNodes] = useState<Node[] | "">("");
 
+  const [search, setSearch] = useState<{ [key: string]: string }>({});
+
+
   // useEffect(() => {
   //   if (workflowData) {
   //     // getActiveNode(workflowData);
@@ -185,18 +188,7 @@ const ProjectAssignTable: React.FC = () => {
   // }, [workflowData])
 
 
-  const handleClear = async () => {
-    setDoerName('');
-    setTaskNumberName('');
-    setProcessName('');
-    setModuleID('');
-    setProjectName('');
-    setEndDate('');
-    setOptions('');
-    setStartDate('');
-    setCurrentPage(1);
-    setSearchTriggered(false);
-  };
+
 
   const toggleExpandRow = (id: number) => {
     setExpandedRow(expandedRow === id ? null : id);
@@ -224,40 +216,55 @@ const ProjectAssignTable: React.FC = () => {
   // ==============================================================
   const location = useLocation();
 
-  useEffect(() => {
-    const fetchData = async () => {
-      setLoading(true);
-      try {
-        const role = localStorage.getItem('EmpId') || '';
-        const response = await axios.get(
-          `${config.API_URL_ACCOUNT}/ProcessInitiation/GetFilterTask`,
-          {
-            params: {
-              Flag: 1,
-              DoerId: role,
-              Id: 0,
-              PageIndex: currentPage,
-            },
-          }
-        );
-
-        if (response.data && response.data.isSuccess) {
-          const fetchedData = response.data.getFilterTasks || [];
-          setData(fetchedData);
-          setTotalPages(Math.ceil(response.data.totalCount / 10));
-        } else {
-          console.error('API Response Error:', response.data?.message || 'Unknown error');
+  const fetchData = async () => {
+    setLoading(true);
+    try {
+      const role = localStorage.getItem('EmpId') || '';
+      const response = await axios.get(
+        `${config.API_URL_ACCOUNT}/ProcessInitiation/GetFilterTask`,
+        {
+          params: {
+            Flag: 1,
+            DoerId: role,
+            Id: 0,
+            PageIndex: currentPage,
+          },
         }
-      } catch (error) {
-        toast.error('Error fetching data');
-      } finally {
-        setLoading(false);
+      );
+
+      if (response.data && response.data.isSuccess) {
+        const fetchedData = response.data.getFilterTasks || [];
+        setData(fetchedData);
+        setTotalPages(Math.ceil(response.data.totalCount / 10));
+      } else {
+        console.error('API Response Error:', response.data?.message || 'Unknown error');
       }
-    };
+    } catch (error) {
+      toast.error('Error fetching data');
+    } finally {
+      setLoading(false);
+    }
+  };
+  useEffect(() => {
 
     fetchData();
   }, [location.pathname, currentPage]);
-
+  const handleClear = async () => {
+    setDoerName('');
+    setTaskNumberName('');
+    setProcessName('');
+    setModuleID('');
+    setProjectName('');
+    setEndDate('');
+    setOptions('');
+    setStartDate('');
+    setCurrentPage(1);
+    setSearchTriggered(false);
+    setSearch({
+      uuid: ''
+    });
+    fetchData();
+  };
 
   const fetchPreData = async (taskCommonId: number) => {
     try {
@@ -533,6 +540,30 @@ const ProjectAssignTable: React.FC = () => {
   const handleCloseActiveForm = () => {
     setActiveNode("")
   }
+
+  const handleSearch = async () => {
+    const role = localStorage.getItem('EmpId') || '';
+    const response = await axios.post(
+      `${config.API_URL_ACCOUNT}/ProcessInitiation/SearchFilterTask`,
+      {
+        ...search,
+        flag: 1,
+        taskCommonId: 0,
+        doerId:role,
+        id: 0,
+        pageIndex: 1,
+        projectId: "",
+        projectName: ""
+      }
+    );
+    if (response.data && response.data.isSuccess) {
+      const fetchedData = response.data.getFilterTasks || [];
+      setData(fetchedData);
+      setTotalPages(Math.ceil(response.data.totalCount / 10));
+    } else {
+      console.error('API Response Error:', response.data?.message || 'Unknown error');
+    }
+  }
   // const nodeTypes = useMemo(() => ({
   //   custom: (props: any) => <CustomNode {...props} setNodes={setNodes} edges={edges} isCompleteTask={true} />,
   // }), [setNodes, edges]);  // ✅ Include edges in dependencies
@@ -577,6 +608,7 @@ const ProjectAssignTable: React.FC = () => {
             e.preventDefault();
             setCurrentPage(1);
             setSearchTriggered(true);
+            handleSearch();
           }}
         >
           <Row>
@@ -713,6 +745,21 @@ const ProjectAssignTable: React.FC = () => {
                 />
               </Form.Group>
             </Col>
+            <Col lg={3}>
+              <Form.Group controlId="uuid">
+                <Form.Label>Process UUID</Form.Label>
+                <Form.Control
+                  type="text"
+                  name="uuid"
+                  value={search.uuid} // ✅ fixed
+                  onChange={(e) =>
+                    setSearch((prev) => ({ ...prev, uuid: e.target.value }))
+                  }
+                  placeholder="Enter Process ID"
+                />
+              </Form.Group>
+            </Col>
+
 
 
 
@@ -993,7 +1040,7 @@ const ProjectAssignTable: React.FC = () => {
                                             <Popover.Body>
                                               {INITIATION_DATA[item.processID] ? (
                                                 INITIATION_DATA[item.processID].map((field, index) => (
-                                                  <div key={index}>{index+1} - {field}</div>
+                                                  <div key={index}>{index + 1} - {field}</div>
                                                 ))
                                               ) : (
                                                 <div>No data available for this processID</div>
@@ -1059,7 +1106,7 @@ const ProjectAssignTable: React.FC = () => {
                                             (() => {
                                               const templateJson = JSON.parse(item.templateJson);
                                               const doerId = localStorage.getItem("EmpId");
-                                              if(doerId){
+                                              if (doerId) {
                                                 const activeNode = getActiveNode(templateJson.nodes, doerId);
                                                 return activeNode ? 'Finish' : 'Planned';
                                               }

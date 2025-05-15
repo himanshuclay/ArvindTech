@@ -29,8 +29,8 @@ const Select: React.FC<Props> = ({ block, handleChange, validationErrors = {}, e
     const handleDublicacyCheker = async (e: React.ChangeEvent<HTMLSelectElement>) => {
         if (block.property.validation === "duplicacyChecker") {
             const { value } = e.target;
-            const response = await axios.post(
-                `${config.API_URL_ACCOUNT}/ProcessInitination/CheckData`, { value: value, masterId: block.property.masterID, columnName: block.property.ColumnID });
+            const response = await axios.get(
+                `${config.API_URL_ACCOUNT}/ProcessInitiation/CheckData?MasterID=${block.property.masterID}&ColumnName=${block.property.ColumnID}&Value=${value}`);
             console.log(response)
         }
     }
