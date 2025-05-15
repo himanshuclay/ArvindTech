@@ -4,7 +4,7 @@ import Editor from './Editor';
 import Property from './Property/Property';
 import Action from './Action';
 import Rule from './Property/Rule';
-import { FIELD, PROPERTY } from './Constant/Interface';
+import { BASIC_FIELD, FIELD, PROPERTY } from './Constant/Interface';
 import axios from 'axios';
 import config from '@/config';
 import { toast } from 'react-toastify';
@@ -64,10 +64,33 @@ const FormBuilder: React.FC<FormBuilderProps> = ({ formDetails, handleClose, for
 
 
     const removeFormBlock = (blockId: string) => {
-        setForm((prevForm) => ({
-            ...prevForm,
-            blocks: prevForm.blocks.filter((block) => block.property.id !== blockId),
-        }));
+        setForm((prevForm) => {
+            const updatedBlocks = prevForm.blocks
+              .map((block) => {
+                if (block.property.loopBlocks?.length) {
+                  return {
+                    ...block,
+                    property: {
+                      ...block.property,
+                      loopBlocks: block.property.loopBlocks.filter(
+                        (loopBlock) => loopBlock.property.id !== blockId
+                      ),
+                    },
+                  };
+                } else if (block.property.id !== blockId) {
+                  return block;
+                }
+                return null;
+              })
+              .filter((block): block is BASIC_FIELD => block !== null); // type narrowing
+          
+            return {
+              ...prevForm,
+              blocks: updatedBlocks,
+            };
+          });
+          
+          
         setProperty({
             label: '',
             id: '',

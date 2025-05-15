@@ -46,6 +46,7 @@ interface DynamicComponentProps {
     block: BASIC_FIELD;
     form: FIELD;
     setForm: React.Dispatch<React.SetStateAction<FIELD>>;
+    property: PROPERTY,
     setProperty: React.Dispatch<React.SetStateAction<PROPERTY>>;
     handleChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>, id: string) => void;
     validationErrors: { [key: string]: string };
@@ -75,7 +76,7 @@ const componentsMap = {
     TextArea,
 };
 
-const DynamicComponentRenderer: React.FC<DynamicComponentProps> = ({ form, setForm, componentType, block, handleChange, validationErrors, blockValue, setBlockValue, setProperty, pId }) => {
+const DynamicComponentRenderer: React.FC<DynamicComponentProps> = ({ form, setForm, componentType, block, handleChange, validationErrors, blockValue, setBlockValue, setProperty, property, pId }) => {
     const ComponentToRender = componentsMap[componentType];
     if (!ComponentToRender) {
         return <p>Component not found!</p>;
@@ -95,6 +96,7 @@ const DynamicComponentRenderer: React.FC<DynamicComponentProps> = ({ form, setFo
             form={form}
             setForm={setForm}
             setProperty={setProperty}
+            property={property}
             pId={pId}
         />
         //     </fieldset>
@@ -481,6 +483,7 @@ const Editor: React.FC<EditorProps> = ({ form, setForm, property, setProperty, b
                                     <DynamicComponentRenderer
                                         form={form}
                                         setForm={setForm}
+                                        property={property}
                                         setProperty={setProperty}
                                         componentType={block.is}
                                         block={block}
