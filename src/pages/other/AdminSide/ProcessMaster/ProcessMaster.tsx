@@ -343,17 +343,17 @@ const ModuleMaster = () => {
 								<Select
 									name="ModuleName"
 									value={
-										moduleList.find((item) => item.moduleName === ModuleName) ||
+										moduleList.find((item) => item.moduleID === ModuleName) ||
 										null
 									} // handle null
 									onChange={(selectedOption) =>
 										setModuleName(
-											selectedOption ? selectedOption.moduleName : ''
+											selectedOption ? selectedOption.moduleID : ''
 										)
 									} // null check
 									options={moduleList}
 									getOptionLabel={(item) => item.moduleName}
-									getOptionValue={(item) => item.moduleName}
+									getOptionValue={(item) => item.moduleID}
 									isSearchable={true}
 									placeholder="Select Module Name"
 									className="h45"

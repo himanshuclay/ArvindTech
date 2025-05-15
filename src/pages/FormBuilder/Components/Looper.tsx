@@ -21,6 +21,7 @@ interface Props {
     form: FIELD;
     setForm: React.Dispatch<React.SetStateAction<FIELD>>;
     setProperty: React.Dispatch<React.SetStateAction<PROPERTY>>;
+    property: PROPERTY;
 }
 
 
@@ -115,6 +116,7 @@ const Looper: React.FC<Props> = ({
     form,
     setForm,
     setProperty,
+    property,
 }) => {
     const [, setValidationErrors] = useState<{ [key: string]: string }>({});
 
@@ -241,19 +243,19 @@ const Looper: React.FC<Props> = ({
 
                 const updatedRules: RULE[] = [];
                 const originalRules = [...form.rules]; // snapshot of original rules
-                
+
                 const nextIndex = block.property.blocks?.length ?? 0;
-                
+
                 const newBlocks = block.property.loopBlocks.map((loopBlock, idx) => {
                     const newId = `${loopBlock.property.id}_${nextIndex + idx}`;
-                
+
                     // Always check from the original rules snapshot
                     originalRules
                         .filter(rule => rule.start2 === loopBlock.property.id)
                         .forEach(rule => {
                             updatedRules.push({ ...rule, start2: newId });
                         });
-                
+
                     return {
                         ...loopBlock,
                         property: {
@@ -262,23 +264,23 @@ const Looper: React.FC<Props> = ({
                         },
                     };
                 });
-                
+
                 setForm(prev => ({
                     ...prev,
                     blocks: prev.blocks.map(b =>
                         b.property.id === block.property.id
                             ? {
-                                  ...b,
-                                  property: {
-                                      ...b.property,
-                                      blocks: [...(b.property.blocks || []), ...newBlocks],
-                                  },
-                              }
+                                ...b,
+                                property: {
+                                    ...b.property,
+                                    blocks: [...(b.property.blocks || []), ...newBlocks],
+                                },
+                            }
                             : b
                     ),
                     rules: [...prev.rules, ...updatedRules], // 👈 Append to existing rules
                 }));
-                
+
 
 
             }
@@ -340,8 +342,8 @@ const Looper: React.FC<Props> = ({
                                                     key={loopBlock.property.id || index}
                                                 >
                                                     <div
-                                                        className={`col-lg-12 p-2 rounded bg-gray-100 ${form.editMode ? "border cursor-pointer" : ""
-                                                            }`}
+                                                        className={`col-lg-12 p-2 rounded bg-gray-100 ${form.editMode ? 'border cursor-pointer' : ''} ${loopBlock.property.id === property.id ? 'border-green' : ''}`}
+
                                                         onClick={(e) => handlePropertyClick(e, loopBlock)}
                                                         style={loopBlock.property.advance}
                                                     >

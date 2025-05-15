@@ -1,6 +1,8 @@
 import React, { useEffect } from 'react';
 import { Form } from 'react-bootstrap';
 import { BASIC_FIELD, BLOCK_VALUE } from '../Constant/Interface';
+import axios from 'axios';
+import config from '@/config';
 
 
 interface Props {
@@ -24,53 +26,62 @@ const Select: React.FC<Props> = ({ block, handleChange, validationErrors = {}, e
         handleChange(e as unknown as React.ChangeEvent<HTMLInputElement>, block.property.id);
     };
 
+    const handleDublicacyCheker = async (e: React.ChangeEvent<HTMLSelectElement>) => {
+        if (block.property.validation === "duplicacyChecker") {
+            const { value } = e.target;
+            const response = await axios.post(
+                `${config.API_URL_ACCOUNT}/ProcessInitination/CheckData`, { value: value, masterId: block.property.masterID, columnName: block.property.ColumnID });
+            console.log(response)
+        }
+    }
+
     useEffect(() => {
-        if(block.property.value){
+        if (block.property.value) {
             setBlockValue((prevState) => ({
                 ...prevState,
                 [block.property.id]: block.property.value,
             }))
         }
-    },[])
+    }, [])
 
     return (
         <div>
-            {(block.property.isShow || editMode ||  block.property.isPermanent) && (
-            <Form.Group controlId={block.property.id} className="mb-3">
-                <Form.Label>
-                    {block.property.label}
-                    {isRequired && (
-                        <span className='text-danger'>*</span>
+            {(block.property.isShow || editMode || block.property.isPermanent) && (
+                <Form.Group controlId={block.property.id} className="mb-3">
+                    <Form.Label>
+                        {block.property.label}
+                        {isRequired && (
+                            <span className='text-danger'>*</span>
+                        )}
+                    </Form.Label>
+                    <Form.Select
+                        name={block.property.id}
+                        value={blockValue[block.property.id] || ''}
+                        onChange={(e) => { handleSelectChange(e), handleDublicacyCheker(e) }}
+                        disabled={editMode || block.property.disabled === 'true' ? true : false}
+                        className={validationErrors[block.property.id] ? "is-invalid" : ""}
+                    >
+                        <option value="">{block.property.placeholder}</option>
+                        {block.property.options?.map((option, index) => (
+                            <option key={index} value={option.value}>
+                                {option.label}
+                            </option>
+                        ))}
+                    </Form.Select>
+
+                    {/* Display validation error if it exists */}
+                    {validationErrors[block.property.id] && (
+                        <Form.Text className="text-danger">{validationErrors[block.property.id]}</Form.Text>
                     )}
-                </Form.Label>
-                <Form.Select
-                    name={block.property.id}
-                    value={blockValue[block.property.id] || ''}
-                    onChange={handleSelectChange}
-                    disabled={editMode || block.property.disabled === 'true' ? true : false}
-                    className={validationErrors[block.property.id] ? "is-invalid" : ""}
-                >
-                    <option value="">{block.property.placeholder}</option>
-                    {block.property.options?.map((option, index) => (
-                        <option key={index} value={option.value}>
-                            {option.label}
-                        </option>
-                    ))}
-                </Form.Select>
 
-                {/* Display validation error if it exists */}
-                {validationErrors[block.property.id] && (
-                    <Form.Text className="text-danger">{validationErrors[block.property.id]}</Form.Text>
-                )}
-
-                {(block.property.options as any[])?.length === 0 && (
-                    <div className="cursor-pointer" style={{ pointerEvents: 'all' }}>
-                        <a data-tooltip-id="tooltip" data-tooltip-content="Add Option First!">
-                            <i className="ri-information-line" style={{ color: '#ff0000' }}></i>
-                        </a>
-                    </div>
-                )}
-            </Form.Group>
+                    {(block.property.options as any[])?.length === 0 && (
+                        <div className="cursor-pointer" style={{ pointerEvents: 'all' }}>
+                            <a data-tooltip-id="tooltip" data-tooltip-content="Add Option First!">
+                                <i className="ri-information-line" style={{ color: '#ff0000' }}></i>
+                            </a>
+                        </div>
+                    )}
+                </Form.Group>
             )}
         </div>
     );

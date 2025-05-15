@@ -302,6 +302,13 @@ const MENU_ITEMS: MenuItemTypes[] = [
 				parentKey: 'TaskAdmin',
 			},
 			{
+				key: 'adhocRequest',
+				label: 'Adhoc Request',
+				url: '/pages/admin/adhocRequest',
+				icon: 'ri-slideshow-line',
+				parentKey: 'TaskAdmin',
+			},
+			{
 				key: 'ExpireTask',
 				label: 'Expired Tasks',
 				url: '/pages/ExpireTask',

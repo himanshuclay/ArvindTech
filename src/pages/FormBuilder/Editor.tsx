@@ -5,6 +5,7 @@ import { getBlockById, manageBind, manageShowHide } from './Constant/Functions';
 import { BASIC_FIELD, BLOCK_VALUE, FIELD, PROPERTY, RULE, TRIGGER_ACTION } from './Constant/Interface';
 import TextInput from './Components/TextInput';
 import Paragraph from './Components/Paragraph';
+import TimeInput from './Components/TimeInput';
 import NumberInput from './Components/NumberInput';
 import EmailInput from './Components/EmailInput';
 import PhoneInput from './Components/PhoneInput';
@@ -46,6 +47,7 @@ interface DynamicComponentProps {
     block: BASIC_FIELD;
     form: FIELD;
     setForm: React.Dispatch<React.SetStateAction<FIELD>>;
+    property: PROPERTY,
     setProperty: React.Dispatch<React.SetStateAction<PROPERTY>>;
     handleChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>, id: string) => void;
     validationErrors: { [key: string]: string };
@@ -70,12 +72,13 @@ const componentsMap = {
     Looper,
     RadioInput,
     Paragraph,
+    TimeInput,
     CheckboxInput,
     TableInput,
     TextArea,
 };
 
-const DynamicComponentRenderer: React.FC<DynamicComponentProps> = ({ form, setForm, componentType, block, handleChange, validationErrors, blockValue, setBlockValue, setProperty, pId }) => {
+const DynamicComponentRenderer: React.FC<DynamicComponentProps> = ({ form, setForm, componentType, block, handleChange, validationErrors, blockValue, setBlockValue, setProperty, property, pId }) => {
     const ComponentToRender = componentsMap[componentType];
     if (!ComponentToRender) {
         return <p>Component not found!</p>;
@@ -95,6 +98,7 @@ const DynamicComponentRenderer: React.FC<DynamicComponentProps> = ({ form, setFo
             form={form}
             setForm={setForm}
             setProperty={setProperty}
+            property={property}
             pId={pId}
         />
         //     </fieldset>
@@ -340,6 +344,7 @@ const Editor: React.FC<EditorProps> = ({ form, setForm, property, setProperty, b
         // }
         console.log('triggeredActions', formBlock)
         formBlock.forEach(action => {
+            console.log(action);
             if (action.type === 'show_hide' && (action.block || action.bindBlock)) {
                 const updatedBlock = manageShowHide(action.block, action.rule.rule, blockValue) as BASIC_FIELD;
                 setForm(prevForm => ({
@@ -362,7 +367,7 @@ const Editor: React.FC<EditorProps> = ({ form, setForm, property, setProperty, b
                             };
                         }
 
-                        if (block.property.id === action.block.property.id) {
+                        if ( block.property.id === action.block.property.id) {
                             return updatedBlock as BASIC_FIELD;
                         }
 
@@ -480,6 +485,7 @@ const Editor: React.FC<EditorProps> = ({ form, setForm, property, setProperty, b
                                     <DynamicComponentRenderer
                                         form={form}
                                         setForm={setForm}
+                                        property={property}
                                         setProperty={setProperty}
                                         componentType={block.is}
                                         block={block}

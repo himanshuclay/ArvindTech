@@ -220,7 +220,7 @@ const ActiveNode = ({ activeNode, activeTaskId, setActiveNode, completedNodes, s
                 }
                 console.log(query)
                 const response = await axios.post(
-                    `${config.API_URL_ACCOUNT}/ProcessInitiation/UpdateTemplateJson1`,
+                    `${config.API_URL_ACCOUNT}/ProcessInitiation/UpdateTemplateJson`,
                     query
                 );
                 
@@ -291,6 +291,8 @@ const ActiveNode = ({ activeNode, activeTaskId, setActiveNode, completedNodes, s
     
     
     const handlePrevious = () => {
+        console.log(loopSection);
+
         const index = loopSection.findIndex((loop: any) => loop === activeLoop);
         
         // Check if index is greater than 0 (to avoid accessing negative index)
@@ -308,6 +310,7 @@ const ActiveNode = ({ activeNode, activeTaskId, setActiveNode, completedNodes, s
     }
     
     const handleNext = () => {
+        console.log(loopSection);
         const index = loopSection.findIndex((loop: any) => loop === activeLoop);
         
         // Check if index is less than loopSection.length - 1 (to avoid accessing index out of bounds)
@@ -334,7 +337,7 @@ const ActiveNode = ({ activeNode, activeTaskId, setActiveNode, completedNodes, s
     
     return (
         <div>
-            {/* {completedNodes.map((completeNode: any, index: number) => (
+            {completedNodes.map((completeNode: any, index: number) => (
                 <div>
                     <React.Fragment key={index}>
                         {completeNode.data.form?.blocks?.length ? (
@@ -364,7 +367,7 @@ const ActiveNode = ({ activeNode, activeTaskId, setActiveNode, completedNodes, s
                     <hr />
                 </div>
 
-            ))} */}
+            ))}
             {/* {JSON.stringify(blockValue)} */}
             {blockValue[activeNode.data.approvalSelect] == activeNode.data.approvalOptions && (
                 <>{prevForm.name}

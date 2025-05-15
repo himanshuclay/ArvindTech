@@ -53,6 +53,7 @@ const ChkTaskMaster = React.lazy(() => import('../pages/other/ChkTaskMaster.tsx'
 const ChecklistMaster = React.lazy(() => import('../pages/other/ChecklistCollection.tsx'))
 const CompletedTask = React.lazy(() => import('../pages/other/DoerSide/CompletedTask.tsx'))
 const TaskPlanned = React.lazy(() => import('../pages/other/TaskPlanned.tsx'))
+const AdhocRequest = React.lazy(() => import('../pages/other/DoerSide/AdhocRequest.tsx'))
 const ExpireTask = React.lazy(() => import('../pages/other/DoerSide/ExpireTask.tsx'))
 const PendingTask = React.lazy(() => import('../pages/other/DoerSide/PendingTask.tsx'))
 const RunningTask = React.lazy(() => import('../pages/other/RunningTask.tsx'))
@@ -301,6 +302,12 @@ const customPagesRoutes = {
 			path: '/pages/admin/plannedTask',
 			name: 'TaskPlanned',
 			element: <TaskPlanned />,
+			route: PrivateRoute,
+		},
+		{
+			path: '/pages/admin/adhocRequest',
+			name: 'AdhocRequest',
+			element: <AdhocRequest />,
 			route: PrivateRoute,
 		},
 		{

@@ -102,6 +102,7 @@ interface PROPERTY {
     maxSelections?: number;
     tableConfiguration?: string;
     multiple? : boolean;
+    [key: string]: any;
 }
 interface OPTION { label: string; value: string }
 interface BLOCK_VALUE {
