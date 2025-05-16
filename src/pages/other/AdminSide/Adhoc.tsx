@@ -171,7 +171,7 @@ const Adhoc: React.FC = () => {
             };
             console.log(payload)
             try {
-                let response = await axios.post(`${config.API_URL_ACCOUNT}/ProcessInitiation/ManualProcessTaskInitiation1`, payload);
+                let response = await axios.post(`${config.API_URL_ACCOUNT}/ProcessInitiation/ManualProcessTaskInitiation`, payload);
                 if(response.data.isSuccess){
                     navigate('/pages/ProcessInitiation', {
                         state: {
