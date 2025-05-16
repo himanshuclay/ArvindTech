@@ -719,17 +719,20 @@ const ProjectAssignTable: React.FC = () => {
                   onChange={(selectedOption) => {
                     if (selectedOption) {
                       setSearch((prev) => ({ ...prev, projectID: selectedOption.id }));
+                    }else {
+                      setSearch((prev) => ({ ...prev, projectID: "" }));
+                      // setModuleID("");
                     }
                   }}
                   options={projectList}
                   getOptionLabel={(item) => item.name}
                   getOptionValue={(item) => item.id}
-                  // isSearchable={true}
+                  isSearchable={true}
                   placeholder="Select Project Name"
                   className="h45"
                   isClearable
-
                 />
+
               </Form.Group>
             </Col>
 
@@ -763,6 +766,7 @@ const ProjectAssignTable: React.FC = () => {
                   onChange={(selectedOption) => setOptions(selectedOption?.value || '')}
                   placeholder="Select Any Option"
                   isClearable
+                  isSearchable={true}
 
                 />
               </Form.Group>
