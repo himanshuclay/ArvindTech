@@ -505,13 +505,13 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges
         }));
     }
 
-    const addNewBlock = (block: any) => {
+    const addNewBlock = (block: any, index: number) => {
         // Add new block logic
         setNodeSetting((prev) => ({
             ...prev,
             bindingValues: {
                 ...prev.bindingValues,
-                [block]: {
+                [index+'-'+block]: {
                     master: '',
                     column: '',
                 },
@@ -1503,9 +1503,9 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges
                         </Modal.Header>
                         <Modal.Body>
                             {/* Map through block names and display inputs */}
-                            {JSON.stringify(blockName)}
+                            {/* {JSON.stringify(nodeSetting.bindingValues)} */}
                             {blockName?.map((block, index) => {
-                                const currentBindingValue = nodeSetting.bindingValues?.[block];
+                                const currentBindingValue = nodeSetting.bindingValues?.[index+'-'+block];
                                 const masterName = currentBindingValue?.master;
                                 const columnName = currentBindingValue?.column;
 
@@ -1525,6 +1525,7 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges
                                                     }}
                                                 />
                                                 {/* Display the master name select dropdown */}
+                                                {/* {JSON.stringify(masterName)} */}
                                                 <Select
                                                     options={mastersLists}
                                                     value={mastersLists.find((option) => option.value === masterName) || null}
@@ -1536,7 +1537,7 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges
                                                             ...prev,
                                                             bindingValues: {
                                                                 ...prev.bindingValues,
-                                                                [block]: {
+                                                                [index+'-'+block]: {
                                                                     master: newMasterName,
                                                                     column: columnName || '',
                                                                 },
@@ -1561,7 +1562,7 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges
                                                                 ...prev,
                                                                 bindingValues: {
                                                                     ...prev.bindingValues,
-                                                                    [block]: {
+                                                                    [index+'-'+block]: {
                                                                         column: newColumnName,
                                                                         master: masterName || '',
                                                                     },
@@ -1575,7 +1576,7 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges
                                             </Col>
                                             <Col className="d-flex align-items-center">
                                                 {/* Plus Icon to add a new block at the bottom */}
-                                                <div className="action-btn bg-primary cursor-pointer" onClick={() => addNewBlock(block)}>
+                                                <div className="action-btn bg-primary cursor-pointer" onClick={() => addNewBlock(block, index)}>
                                                     <i className="ri-add-fill text-white fs-4"></i>
                                                 </div>
                                                 {index > 0 && (

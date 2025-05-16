@@ -844,12 +844,12 @@ const ProjectAssignTable: React.FC = () => {
                 <Select
                   name="searchTaskNumber"
                   value={
-                    taskNumberList.find((item) => item.taskID === search.taskID) || null
+                    taskNumberList.find((item) => item.taskID === search.task_Number) || null
                   }
                   onChange={(selectedOption) =>
                     setSearch((prev) => ({
                       ...prev,
-                      taskID: selectedOption?.taskID || "",
+                      task_Number: selectedOption?.taskID || "",
                     }))
                   }
                   options={taskNumberList}

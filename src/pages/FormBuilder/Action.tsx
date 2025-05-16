@@ -101,45 +101,60 @@ const Action: React.FC<Props> = ({ actionProps }) => {
     }, [showBinding])
 
     const fetchColumnNames = async (masterName: string) => {
-            if (!fetchedMastersRef.current.has(masterName)) {
-                try {
-                    const response = await axios.get(`${config.API_URL_APPLICATION}/FormBuilder/GetColumnList`, { params: { id: masterName } });
-                    setColumnLists((prev) => ({ ...prev, [masterName]: response.data.columnFormLists }));
-                    fetchedMastersRef.current.add(masterName); // Mark this master as fetched
-                } catch (error) {
-                    console.error('Error fetching columns:', error);
-                }
+        if (!fetchedMastersRef.current.has(masterName)) {
+            try {
+                const response = await axios.get(`${config.API_URL_APPLICATION}/FormBuilder/GetColumnList`, { params: { id: masterName } });
+                setColumnLists((prev) => ({ ...prev, [masterName]: response.data.columnFormLists }));
+                fetchedMastersRef.current.add(masterName); // Mark this master as fetched
+            } catch (error) {
+                console.error('Error fetching columns:', error);
             }
-        };
+        }
+    };
 
-        const addNewBlock = (block: any) => {
-            // Add new block logic
-            actionProps.setForm((prev) => ({
-                ...prev,
-                bindingValues: {
-                    ...prev.bindingValues,
-                    [block]: {
-                        master: '',
-                        column: '',
-                    },
+    // const addNewBlock = (block: any) => {
+    //     // Add new block logic
+    //     actionProps.setForm((prev) => ({
+    //         ...prev,
+    //         bindingValues: {
+    //             ...prev.bindingValues,
+    //             [block]: {
+    //                 master: '',
+    //                 column: '',
+    //             },
+    //         },
+    //     }));
+    //     setBlockName((prev) => [...prev, block]);
+    // };
+
+    const addNewBlock = (block: any, index: number) => {
+        // Add new block logic
+         actionProps.setForm((prev) => ({
+            ...prev,
+            bindingValues: {
+                ...prev.bindingValues,
+                [index + '-' + block]: {
+                    master: '',
+                    column: '',
                 },
-            }));
-            setBlockName((prev) => [...prev, block]);
-        };
-    
-        const removeBlock = (index: any) => {
-            // Remove block logic
-            const updatedBlockNames = blockName.filter((_, idx) => idx !== index);
-            actionProps.setForm((prev) => {
-                const updatedBindingValues = { ...prev.bindingValues };
-                delete updatedBindingValues[blockName[index]];
-                return {
-                    ...prev,
-                    bindingValues: updatedBindingValues,
-                };
-            });
-            setBlockName(updatedBlockNames);
-        };
+            },
+        }));
+        setBlockName((prev) => [...prev, block]);
+    };
+
+    const removeBlock = (index: any) => {
+        // Remove block logic
+        const updatedBlockNames = blockName.filter((_, idx) => idx !== index);
+        actionProps.setForm((prev) => {
+            const updatedBindingValues = { ...prev.bindingValues };
+            delete updatedBindingValues[blockName[index]];
+            return {
+                ...prev,
+                bindingValues: updatedBindingValues,
+            };
+        });
+        setBlockName(updatedBlockNames);
+    };
 
     return (
 
@@ -203,7 +218,7 @@ const Action: React.FC<Props> = ({ actionProps }) => {
                     </Modal.Header>
                     <Modal.Body>
                         {blockName?.map((block, index) => {
-                            const currentBindingValue = actionProps.form.bindingValues?.[block];
+                            const currentBindingValue = actionProps.form.bindingValues?.[index+'-'+block];
                             const masterName = currentBindingValue?.master;
                             const columnName = currentBindingValue?.column;
 
@@ -231,7 +246,7 @@ const Action: React.FC<Props> = ({ actionProps }) => {
                                                         ...prev,
                                                         bindingValues: {
                                                             ...prev.bindingValues,
-                                                            [block]: {
+                                                            [index+'-'+block]: {
                                                                 master: newMasterName,
                                                                 column: columnName || '',
                                                             },
@@ -255,7 +270,7 @@ const Action: React.FC<Props> = ({ actionProps }) => {
                                                             ...prev,
                                                             bindingValues: {
                                                                 ...prev.bindingValues,
-                                                                [block]: {
+                                                                [index+'-'+block]: {
                                                                     column: newColumnName,
                                                                     master: masterName || '',
                                                                 },
@@ -268,7 +283,7 @@ const Action: React.FC<Props> = ({ actionProps }) => {
                                             )}
                                         </Col>
                                         <Col className="d-flex align-items-center">
-                                            <div className="action-btn bg-primary cursor-pointer" onClick={() => addNewBlock(block)}>
+                                            <div className="action-btn bg-primary cursor-pointer" onClick={() => addNewBlock(block, index)}>
                                                 <i className="ri-add-fill text-white fs-4"></i>
                                             </div>
                                             {index > 0 && (
