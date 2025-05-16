@@ -309,7 +309,6 @@ const Looper: React.FC<Props> = ({
     };
 
 
-
     return (
         <div>
             {(block.property.isShow || editMode) && (
@@ -377,28 +376,35 @@ const Looper: React.FC<Props> = ({
                                             <p className="text-gray-400">Drag fields here...</p>
                                         ) : (
                                             block.property.blocks?.map((loopBlock, index) => (
-                                                <div
-                                                    className={`col-lg-${loopBlock.property.size || "12"}`}
-                                                    key={loopBlock.property.id || index}
-                                                >
+                                                <>
+                                                    {index % (block.property.loopBlocks?.length || 1) == 0 && (
+                                                        <button type="button" onClick={() => handleLoopBlocks('REMOVE_GROUP', index)} className="btn btn-sm btn-success">-</button>
+                                                    )}
                                                     <div
-                                                        className={`col-lg-12 p-2 rounded bg-gray-100 ${form.editMode ? "border cursor-pointer" : ""
-                                                            }`}
-                                                        onClick={(e) => handlePropertyClick(e, loopBlock)}
-                                                        style={loopBlock.property.advance}
+                                                        className={`col-lg-${loopBlock.property.size || "12"}`}
+                                                        key={loopBlock.property.id || index}
                                                     >
-                                                        <DynamicComponentRenderer
-                                                            form={form}
-                                                            setForm={setForm}
-                                                            componentType={loopBlock.is}
-                                                            block={loopBlock}
-                                                            handleChange={handleInnerChange}
-                                                            validationErrors={validationErrors}
-                                                            blockValue={blockValue}
-                                                            setBlockValue={setBlockValue}
-                                                        />
+                                                        <div
+                                                            className={`col-lg-12 p-2 rounded bg-gray-100 ${form.editMode ? "border cursor-pointer" : ""
+                                                                }`}
+                                                            onClick={(e) => handlePropertyClick(e, loopBlock)}
+                                                            style={loopBlock.property.advance}
+                                                        >
+                                                            <DynamicComponentRenderer
+                                                                form={form}
+                                                                setForm={setForm}
+                                                                componentType={loopBlock.is}
+                                                                block={loopBlock}
+                                                                handleChange={handleInnerChange}
+                                                                validationErrors={validationErrors}
+                                                                blockValue={blockValue}
+                                                                setBlockValue={setBlockValue}
+                                                            />
+                                                        </div>
                                                     </div>
-                                                </div>
+
+
+                                                </>
                                             ))
                                         )}
                                     </div>
