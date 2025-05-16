@@ -171,12 +171,14 @@ const Adhoc: React.FC = () => {
             };
             console.log(payload)
             try {
-                await axios.post(`${config.API_URL_ACCOUNT}/ProcessInitiation/ManualProcessTaskInitiation`, payload);
-                navigate('/pages/ProcessInitiation', {
-                    state: {
-                        successMessage: "Process Initiated successfully!",
-                    }
-                });
+                let response = await axios.post(`${config.API_URL_ACCOUNT}/ProcessInitiation/ManualProcessTaskInitiation1`, payload);
+                if(response.data.isSuccess){
+                    navigate('/pages/ProcessInitiation', {
+                        state: {
+                            successMessage: "Process Initiated successfully!",
+                        }
+                    });
+                }
 
             } catch (error: any) {
                 toast.error(error);
@@ -254,7 +256,7 @@ const Adhoc: React.FC = () => {
                 </Modal.Header>
 
                 <div>
-                    {JSON.stringify(blockValue)}
+                    {/* {JSON.stringify(blockValue)} */}
                     <Editor form={form} setForm={setForm} property={property} setProperty={setProperty} blockValue={blockValue} setBlockValue={setBlockValue} isShowSave={false} />
                     <div className="my-2 d-flex justify-content-end px-2">
                         <button className='btn btn-primary' type='button' onClick={(event) => handleAdhocForm()}>Save</button>
