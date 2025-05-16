@@ -371,6 +371,7 @@ const Looper: React.FC<Props> = ({
                                     onDragOver={(e) => handleDragOver(e, "Looper")}
                                     onDragLeave={(e) => handleDragLeave(e, "Looper")}
                                 >
+                                    {JSON.stringify(block.property.blocks)}
                                     <div className="d-flex flex-wrap flex-column gap-3 ">
                                         {(block.property.blocks?.length ?? 0) === 0 ? (
                                             <p className="text-gray-400">Drag fields here...</p>

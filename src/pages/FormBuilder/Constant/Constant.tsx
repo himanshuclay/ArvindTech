@@ -267,6 +267,10 @@ const FIELD_LIST = [
         is: "Looper",
         property: {
             type: "Looper",
+            label: "Looper",
+            placeholder: "placeholder",
+            validation: "",
+            options: [],
 
             advance: {
                 backgroundColor: '#fff',
@@ -275,6 +279,8 @@ const FIELD_LIST = [
             },
             isShow: true,
             disabled: false,
+            size: '12',
+            isLooping: "true",
             loopBlocks: [],
             blockCount: 0,
         }
