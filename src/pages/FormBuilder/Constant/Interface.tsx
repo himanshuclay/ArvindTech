@@ -42,6 +42,7 @@ interface FIELD {
     rules: RULE[];
     configureSelectionLogics: CONFIGURE_SELECTION_LOGICS[];
     advance: ADVANCE;
+    bindingValues?: any;
 }
 
 interface BASIC_FIELD {
