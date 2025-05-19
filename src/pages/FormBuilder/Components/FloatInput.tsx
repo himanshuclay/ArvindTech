@@ -1,6 +1,8 @@
 import React from 'react';
 import { Form, InputGroup } from 'react-bootstrap';
 import { PROPERTY } from '../Constant/Interface';
+import axios from 'axios';
+import config from '@/config';
 
 // Interfaces for the props
 interface Props {
@@ -45,8 +47,20 @@ const FloatInput: React.FC<Props> = ({
         }
     };
 
+    const handleDublicacyCheker = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (block.property.validation === "duplicacyChecker") {
+            const { value } = e.target;
+            const response = await axios.get(
+                `${config.API_URL_ACCOUNT}/ProcessInitiation/CheckData?MasterID=${block.property.masterID}&ColumnName=${block.property.ColumnID}&Value=${value}`);
+            console.log(response)
+            if(response.data.isSuccess){
+                validationErrors[id] = `${block.property.label} is ${response.data.message}`;
+            }
+        }
+    }
+
     const validationError = validationErrors[id];
-    const disabled = editMode ||block.property.disabled === 'true' ? true : false;
+    const disabled = editMode || block.property.disabled === 'true' ? true : false;
 
     if (!isShow && !editMode) return null;
 
@@ -61,7 +75,10 @@ const FloatInput: React.FC<Props> = ({
                     type="text"
                     name={id}
                     value={value}
-                    onChange={handleFloatChange}
+                    onChange={(e: React.ChangeEvent<any>) => {
+                        handleFloatChange(e);
+                        handleDublicacyCheker(e);
+                    }}
                     placeholder={placeholder}
                     disabled={disabled}
                     className={validationError ? 'is-invalid' : ''}

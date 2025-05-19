@@ -181,6 +181,7 @@ const WorkflowBuilder: React.FC = () => {
     //     },
     //     [setEdges]
     // );
+    
     const onConnect = useCallback(
         (params: Connection) => {
             setEdges((existingEdges) => {
@@ -261,20 +262,22 @@ const WorkflowBuilder: React.FC = () => {
         if (action === 'ADD_NODE') {
             addNewNode(50, 50, '', action);
         } else if (action === 'APPROVAL') {
-            addNewNode(50, 50, '', action);
-            const updatedNodes = (prevNodes: any) =>
-                prevNodes.map((node: any) => ({
-                    ...node,
-                    data: APPROVAL["data"],
-                }));
-
-            setNodes(updatedNodes);
-
+            let newNodeID = addNewNode(50, 50, '', action);
+            setNodes((prevNodes) =>
+                prevNodes.map((node) =>
+                    node.id === newNodeID
+                        ? { ...node, data: APPROVAL["data"] }
+                        : node
+                )
+            );
             setWorkflowBuilder((prevWorkflowBuilder) => ({
                 ...prevWorkflowBuilder,
-                nodes: updatedNodes(prevWorkflowBuilder.nodes),
+                nodes: prevWorkflowBuilder.nodes.map((node) =>
+                    node.id === newNodeID
+                        ? { ...node, data: APPROVAL["data"] }
+                        : node
+                ),
             }));
-
         } else if (action === 'ADD_FORM') {
             setShowFormBuilder(true);
             setIsAddFormBuilder(true);
@@ -296,9 +299,37 @@ const WorkflowBuilder: React.FC = () => {
         e.preventDefault();
     };
 
+    // const handleEdgeClick = (_event: React.MouseEvent, edge: Edge) => {
+    //     setSelectedEdge(edge);
+    // };
     const handleEdgeClick = (_event: React.MouseEvent, edge: Edge) => {
         setSelectedEdge(edge);
+    
+        setEdges((prevEdges) =>
+            prevEdges.map((e) =>
+                e.id === edge.id
+                    ? {
+                          ...e,
+                          style: {
+                              ...e.style,
+                              stroke: '#FF0000', // 🔴 Highlight color (red)
+                              strokeWidth: 3,
+                              strokeDasharray: '0', // remove dash for highlight
+                          },
+                      }
+                    : {
+                          ...e,
+                          style: {
+                              ...e.style,
+                              stroke: '#777777',
+                              strokeWidth: 2,
+                              strokeDasharray: '5,5',
+                          },
+                      }
+            )
+        );
     };
+    
 
     const handleKeyDown = (event: KeyboardEvent) => {
         if (event.key === 'Delete') {

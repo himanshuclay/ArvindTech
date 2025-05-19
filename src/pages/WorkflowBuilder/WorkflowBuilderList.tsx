@@ -45,6 +45,7 @@ const WorkflowBuilderList = () => {
   const [searchTriggered,] = useState(false);
   const [templateName, setTemplateName] = useState('');
   const [templateList, setTemplateList] = useState<string[]>([]);
+  const [search, setSearch] = useState<{ [key: string]: string }>({});
 
 
 
@@ -176,7 +177,40 @@ const WorkflowBuilderList = () => {
   const handleClear = () => {
     setTemplateName('');
     setCurrentPage(1);
+    setSearch({
+      name: ''
+    });
+    handleSearch();
+
   };
+
+  const handleSearchName = async () => {
+    try {
+      const params = new URLSearchParams({
+        ...search,
+        PageIndex: "1"
+      });
+
+      const response = await axios.get(
+        `${config.API_URL_ACCOUNT}/WorkflowBuilder/GetWorkflowBuilderByName?${params.toString()}`
+      );
+
+      console.log(response);
+
+      if (response.data && response.data.isSuccess) {
+        const fetchedData = response.data.workflowBuilderLists || [];
+        console.log(fetchedData)
+        setMesses(fetchedData);
+        setTotalPages(Math.ceil(response.data.totalCount / 10));
+      } else {
+        console.error('API Response Error:', response.data?.message || 'Unknown error');
+      }
+    } catch (error) {
+      console.error('Request failed:', error);
+    }
+  };
+
+
 
   return (
     <>
@@ -210,7 +244,7 @@ const WorkflowBuilderList = () => {
       <div className="bg-white p-2 pb-2">
         <Form onSubmit={(e) => {
           e.preventDefault();
-          handleSearch();
+          handleSearchName();
           setCurrentPage(1);
         }}>
           <Row>
@@ -218,13 +252,14 @@ const WorkflowBuilderList = () => {
               <Form.Group controlId="ModuleDisplayName">
                 <Form.Label>Template Name</Form.Label>
 
-                <Select
-                  name="searchProjectName"
-                  value={templateList.find(item => item === templateName) || null} // handle null
-                  onChange={(selectedOption) => setTemplateName(selectedOption ? selectedOption : "")} // null check
-                  options={templateList}
-                  isSearchable={true}
-                  placeholder="Select Template Name"
+                <Form.Control
+                  type="text"
+                  name="TaskInput"
+                  value={search.name} // ✅ fixed
+                  onChange={(e) =>
+                    setSearch((prev) => ({ ...prev, name: e.target.value }))
+                  }
+                  placeholder="Enter Task Input"
                   className="h45"
                 />
               </Form.Group>

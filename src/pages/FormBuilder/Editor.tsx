@@ -24,6 +24,7 @@ import CheckboxInput from './Components/CheckboxInput';
 import TableInput from './Components/TableInput';
 import { updateIsPermanentRecursively } from '../WorkflowBuilder/Constant/function';
 import TextArea from './Components/TextArea';
+import Modal from './Components/Modal';
 // import { speak } from '@/utils/speak';
 
 
@@ -76,6 +77,7 @@ const componentsMap = {
     CheckboxInput,
     TableInput,
     TextArea,
+    Modal,
 };
 
 const DynamicComponentRenderer: React.FC<DynamicComponentProps> = ({ form, setForm, componentType, block, handleChange, validationErrors, blockValue, setBlockValue, setProperty, property, pId }) => {

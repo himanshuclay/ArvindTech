@@ -141,6 +141,7 @@ const FormBuilder: React.FC<FormBuilderProps> = ({ formDetails, handleClose, for
                 toast.info("Please Fill Form Name");
                 return;
             }
+            console.log(form)
             const payload = {
                 formName: form.name,
                 templateJson: JSON.stringify(form),

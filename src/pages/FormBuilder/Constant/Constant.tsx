@@ -368,11 +368,11 @@ const FIELD_LIST = [
         }
     },
     {
-        name: "TextArea",
-        is: "TextArea",
+        name: "Modal",
+        is: "Modal",
         property: {
-            type: "TextArea",
-            label: "Textarea",
+            type: "Modal",
+            label: "Table",
             placeholder: "placeholder",
             validation: "",
             value: '',
@@ -384,10 +384,9 @@ const FIELD_LIST = [
             isShow: true,
             disabled: false,
             size: '12',
-            tableConfiguration: '',
-
+            modalConfiguration: '',
         }
-    },
+    }
 ]
 
 const START1 = [

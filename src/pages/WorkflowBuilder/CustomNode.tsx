@@ -505,13 +505,13 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges
         }));
     }
 
-    const addNewBlock = (block: any) => {
+    const addNewBlock = (block: any, index: number) => {
         // Add new block logic
         setNodeSetting((prev) => ({
             ...prev,
             bindingValues: {
                 ...prev.bindingValues,
-                [block]: {
+                [index+'-'+block]: {
                     master: '',
                     column: '',
                 },
@@ -609,6 +609,14 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges
             }
         })
     }
+
+    const handleRestForm = async (e: any) => {
+        e.stopPropagation();
+        const response = await axios.get(
+            `${config.API_URL_ACCOUNT}/ProcessInitiation/UpdateStatusAndBlockValue?InitiationID=${id}&NodeID=${id}`);
+        console.log(response)
+    }
+
     return (
         <div className="custom-node" style={getBorderStyle()}>
             {/* Settings Icon */}
@@ -1061,7 +1069,7 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges
                             )}
                         </Row>
                         <hr />
-                        <p><strong>Conditional Planned date from previous task</strong></p>
+                        <p><strong>Time Management Only for Date Input </strong></p>
                         <Row>
                             <Col lg={3}>
                                 <Form.Group>
@@ -1377,13 +1385,13 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges
                                     />
                                 </Form.Group>
                             </Col>
-                            {isCompleteTask ? <></> :
+                            {isCompleteTask ? <></> : nodeSetting.approvalSelect ? 
                                 <Col lg={3}>
                                     <Form.Group>
                                         <Form.Label>block options*</Form.Label>
                                         <Select
                                             options={getAllBlockOptions(nodes, id, nodeSetting.approvalSelect)}
-                                            value={nodeSetting.approvalOptions ? getAllBlockOptions(nodes, id, nodeSetting.approvalSelect).find(option => option.value === nodeSetting.approvalOptions) : null}
+                                            value={nodeSetting.approvalOptions ? getAllBlockOptions(nodes, id, nodeSetting.approvalSelect)?.find(option => option.value === nodeSetting.approvalOptions) : null}
                                             onChange={(selectedOption) =>
                                                 setNodeSetting(prev => ({
                                                     ...prev,
@@ -1395,6 +1403,7 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges
                                         />
                                     </Form.Group>
                                 </Col>
+                            :''
                             }
                             <Col lg={3}>
                                 <Form.Group>
@@ -1502,9 +1511,9 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges
                         </Modal.Header>
                         <Modal.Body>
                             {/* Map through block names and display inputs */}
-                            {JSON.stringify(blockName)}
+                            {/* {JSON.stringify(nodeSetting.bindingValues)} */}
                             {blockName?.map((block, index) => {
-                                const currentBindingValue = nodeSetting.bindingValues?.[block];
+                                const currentBindingValue = nodeSetting.bindingValues?.[index+'-'+block];
                                 const masterName = currentBindingValue?.master;
                                 const columnName = currentBindingValue?.column;
 
@@ -1524,6 +1533,7 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges
                                                     }}
                                                 />
                                                 {/* Display the master name select dropdown */}
+                                                {/* {JSON.stringify(masterName)} */}
                                                 <Select
                                                     options={mastersLists}
                                                     value={mastersLists.find((option) => option.value === masterName) || null}
@@ -1535,7 +1545,7 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges
                                                             ...prev,
                                                             bindingValues: {
                                                                 ...prev.bindingValues,
-                                                                [block]: {
+                                                                [index+'-'+block]: {
                                                                     master: newMasterName,
                                                                     column: columnName || '',
                                                                 },
@@ -1560,7 +1570,7 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges
                                                                 ...prev,
                                                                 bindingValues: {
                                                                     ...prev.bindingValues,
-                                                                    [block]: {
+                                                                    [index+'-'+block]: {
                                                                         column: newColumnName,
                                                                         master: masterName || '',
                                                                     },
@@ -1574,7 +1584,7 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges
                                             </Col>
                                             <Col className="d-flex align-items-center">
                                                 {/* Plus Icon to add a new block at the bottom */}
-                                                <div className="action-btn bg-primary cursor-pointer" onClick={() => addNewBlock(block)}>
+                                                <div className="action-btn bg-primary cursor-pointer" onClick={() => addNewBlock(block, index)}>
                                                     <i className="ri-add-fill text-white fs-4"></i>
                                                 </div>
                                                 {index > 0 && (
@@ -1631,6 +1641,10 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges
             {data.Adhoc && (
                 <button className="adhoc-btn" onClick={(e) => handleAdhocForm(e)}><span><i className="ri-tools-fill me-1"></i></span>adhoc</button>
             )}
+             {/* Reset Button with Remix Icon */}
+             <button className="btn btn-danger mr-2" type="button" onClick={(e) => handleRestForm(e)}>
+                    <i className="ri-refresh-line mr-1"></i>Reset
+                </button>
             <Modal
                 size="xl"
                 className="p-3"
