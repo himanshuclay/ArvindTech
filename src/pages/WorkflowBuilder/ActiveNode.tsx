@@ -155,7 +155,7 @@ const ActiveNode = ({ activeNode, activeTaskId, setActiveNode, completedNodes, s
                 for (const block of form.blocks) {
                     const value = blockValue[block.property.id];
                     if (block.property.validation === "required") {
-
+ 
                         // Check if value is a string and perform trim, or handle array case
                         if ((typeof value === 'string' && value.trim() === "") || value == undefined) {
                             errors[block.property.id] = `${block.property.label} is required`;
