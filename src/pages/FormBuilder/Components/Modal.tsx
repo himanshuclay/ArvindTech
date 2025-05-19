@@ -37,7 +37,9 @@ const Modal: React.FC<Props> = ({
 
     return (
         <div>
-            <Adhoc/>
+            {block.property.modalConfiguration === 'Adhoc_Inititition' ?
+                <Adhoc />
+                : 'please select property first'}
         </div>
     );
 };

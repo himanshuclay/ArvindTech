@@ -405,7 +405,7 @@ return (
                     onChange={handleChange}
                 >
                     <option value="">Please select</option>
-                    <option value="Adoch_Inititition">Adoch_Inititition</option>
+                    <option value="Adhoc_Inititition">Adhoc_Inititition</option>
                 </select>
             </div>
         )}
