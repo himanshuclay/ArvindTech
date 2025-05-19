@@ -1,5 +1,5 @@
 import React from 'react';
-import { Form, InputGroup } from 'react-bootstrap';
+// import { Form, InputGroup } from 'react-bootstrap';
 import { BASIC_FIELD, BLOCK_VALUE } from '../Constant/Interface';
 import Adhoc from '@/pages/other/AdminSide/Adhoc';
 
@@ -21,19 +21,19 @@ const Modal: React.FC<Props> = ({
     blockValue,
     setBlockValue
 }) => {
-    const isRequired = block.property.validation === 'required';
+    // const isRequired = block.property.validation === 'required';
 
     // Only allow numbers with optional 2 decimal places
-    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const { value } = e.target;
+    // const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    //     const { value } = e.target;
 
-        setBlockValue((prevState) => ({
-            ...prevState,
-            [block.property.id]: value,
-        }));
+    //     setBlockValue((prevState) => ({
+    //         ...prevState,
+    //         [block.property.id]: value,
+    //     }));
 
-        handleChange(e, block.property.id);
-    };
+    //     handleChange(e, block.property.id);
+    // };
 
     return (
         <div>
