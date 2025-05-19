@@ -366,6 +366,26 @@ const FIELD_LIST = [
             tableConfiguration: '',
 
         }
+    },
+    {
+        name: "Modal",
+        is: "Modal",
+        property: {
+            type: "Modal",
+            label: "Table",
+            placeholder: "placeholder",
+            validation: "",
+            value: '',
+            advance: {
+                backgroundColor: '#fff',
+                color: '#000',
+
+            },
+            isShow: true,
+            disabled: false,
+            size: '12',
+            modalConfiguration: '',
+        }
     }
 ]
 

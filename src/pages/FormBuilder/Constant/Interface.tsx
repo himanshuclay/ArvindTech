@@ -14,6 +14,7 @@ import Paragraph from "../Components/Paragraph";
 import CheckboxInput from "../Components/CheckboxInput";
 import TableInput from "../Components/TableInput";
 import TextArea from "../Components/TextArea";
+import Modal from "../Components/Modal";
 
 const componentsMap = {
     TextInput,
@@ -32,6 +33,7 @@ const componentsMap = {
     CheckboxInput,
     TableInput,
     TextArea,
+    Modal
 };
 
 interface FIELD {

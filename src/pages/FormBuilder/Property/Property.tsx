@@ -395,6 +395,20 @@ return (
                 </select>
             </div>
         )}
+        {property.hasOwnProperty('modalConfiguration') && (
+            <div className='d-flex justify-content-between align-items-center mt-2'>
+                <label className='col-6'>Configuration</label>
+                <select
+                    name="modalConfiguration"
+                    className="border p-2 rounded col-6"
+                    value={property.modalConfiguration}
+                    onChange={handleChange}
+                >
+                    <option value="">Please select</option>
+                    <option value="Adoch_Inititition">Adoch_Inititition</option>
+                </select>
+            </div>
+        )}
         {property.hasOwnProperty('tableConfiguration') && (
             <div className='d-flex justify-content-between align-items-center mt-2'>
                 <label className='col-6'>Configuration</label>

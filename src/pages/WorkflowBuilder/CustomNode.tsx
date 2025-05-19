@@ -609,6 +609,14 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges
             }
         })
     }
+
+    const handleRestForm = async (e: any) => {
+        e.stopPropagation();
+        const response = await axios.get(
+            `${config.API_URL_ACCOUNT}/ProcessInitiation/UpdateStatusAndBlockValue?InitiationID=${id}&NodeID=${id}`);
+        console.log(response)
+    }
+
     return (
         <div className="custom-node" style={getBorderStyle()}>
             {/* Settings Icon */}
@@ -1633,6 +1641,10 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges
             {data.Adhoc && (
                 <button className="adhoc-btn" onClick={(e) => handleAdhocForm(e)}><span><i className="ri-tools-fill me-1"></i></span>adhoc</button>
             )}
+             {/* Reset Button with Remix Icon */}
+             <button className="btn btn-danger mr-2" type="button" onClick={(e) => handleRestForm(e)}>
+                    <i className="ri-refresh-line mr-1"></i>Reset
+                </button>
             <Modal
                 size="xl"
                 className="p-3"
