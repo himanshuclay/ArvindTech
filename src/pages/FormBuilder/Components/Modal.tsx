@@ -1,6 +1,7 @@
 import React from 'react';
 import { Form, InputGroup } from 'react-bootstrap';
 import { BASIC_FIELD, BLOCK_VALUE } from '../Constant/Interface';
+import Adhoc from '@/pages/other/AdminSide/Adhoc';
 
 interface Props {
     block: BASIC_FIELD;
@@ -36,8 +37,7 @@ const Modal: React.FC<Props> = ({
 
     return (
         <div>
-            <button></button>
-            
+            <Adhoc/>
         </div>
     );
 };
