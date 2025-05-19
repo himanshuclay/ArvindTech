@@ -30,22 +30,23 @@ const DateInput: React.FC<Props> = ({
     const validModes: ("time" | "multiple" | "single" | "range")[] = ["time", "multiple", "single", "range"];
     const dateMode: "time" | "multiple" | "single" | "range" | undefined = validModes.includes(mode as "time" | "multiple" | "single" | "range") ? (mode as "time" | "multiple" | "single" | "range") : "single";
 
-    const handleDateChange = (selectedDates: Date[]) => {
-        const formattedDate = selectedDates.length > 0
-            ? selectedDates[0].toISOString().split('T')[0]
-            : '';
+const handleDateChange = (selectedDates: Date[]) => {
+    const formattedDate = selectedDates.length > 0
+        ? selectedDates[0].toLocaleDateString('en-CA')
+        : '';
 
-        setBlockValue((prevState) => ({
-            ...prevState,
-            [id]: formattedDate,
-        }));
+    setBlockValue((prevState) => ({
+        ...prevState,
+        [id]: formattedDate,
+    }));
 
-        const syntheticEvent = {
-            target: { value: formattedDate }
-        } as React.ChangeEvent<HTMLInputElement>;
+    const syntheticEvent = {
+        target: { value: formattedDate }
+    } as React.ChangeEvent<HTMLInputElement>;
 
-        handleChange(syntheticEvent, id);
-    };
+    handleChange(syntheticEvent, id);
+};
+
     const enableTime = dateFormate ? /[HhGgi]/.test(dateFormate) : false;
     
 
