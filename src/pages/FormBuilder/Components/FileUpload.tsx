@@ -45,14 +45,18 @@ const FileUpload: React.FC<Props> = ({
         const { files } = e.target as HTMLInputElement;
         if (!files || files.length === 0) return;
 
-        console.log("Uploading files...");
-
         const formData = new FormData();
+
         Array.from(files).forEach((file: File) => {
+            console.log('file', file.name);
             formData.append('FileDetails', file);
         });
 
-        formData.append('ProcessInitiationID', JSON.stringify(pId));
+
+        // ✅ Append other fields
+        formData.append('ProcessInitiationID', String(pId)); // no need to stringify a number
+        formData.append('TaskCommonID', '0'); // if always 0 or dynamically passed, use String(...)
+
 
         try {
             const response = await axios.post(

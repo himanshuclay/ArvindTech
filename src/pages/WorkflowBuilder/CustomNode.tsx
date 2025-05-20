@@ -105,7 +105,7 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges
         BindingOption: data.BindingOption || '',
         loopingSetting: data.loopingSetting || {},
         problemSolver: data.problemSolver || '',
-        isExpirable: data.isExpirable || '',
+        isExpirable: data.isExpirable || false,
         taskOutputlables: data.taskOutputlables || '',
     });
 
@@ -262,7 +262,7 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges
             BindingOption: data.BindingOption || '',
             loopingSetting: data.loopingSetting || {},
             problemSolver: data.problemSolver || '',
-            isExpirable: data.isExpirable || '',
+            isExpirable: data.isExpirable || false,
             taskOutputlables: data.taskOutputlables || '',
         });
     }, [data]);

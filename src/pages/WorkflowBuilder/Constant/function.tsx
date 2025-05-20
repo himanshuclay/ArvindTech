@@ -254,6 +254,7 @@ const getFilterTasks = (item: any): { [key: string]: any } => {
                 ...item,
                 taskName: activeNode.data.label,
                 task_Number: item.processID + '.' + activeNode.data.taskNumber,
+                ...activeNode.data,
             };
         }
 

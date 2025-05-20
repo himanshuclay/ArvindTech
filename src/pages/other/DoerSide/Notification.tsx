@@ -246,6 +246,7 @@ const ProjectAssignTable: React.FC = () => {
       setLoading(false);
     }
   };
+
   const fetchProjects = async () => {
     try {
       const response = await axios.get(`${config.API_URL_APPLICATION}/CommonDropdown/GetProjectList`);
@@ -535,16 +536,14 @@ const ProjectAssignTable: React.FC = () => {
 
   };
 
-  let conditionArray = [];
-  try {
-    if (data[0]?.condition_Json) {
-      conditionArray = JSON.parse(data[0].condition_Json);
-    }
-  } catch (error) {
-    console.error("Failed to parse condition_Json:", error);
-  }
-  const expiryLogic = conditionArray[0]?.expiryLogic;
-  const expirationTime = conditionArray[0]?.expirationTime;
+  // let conditionArray = [];
+  // try {
+  //   if (data[0]?.condition_Json) {
+  //     conditionArray = JSON.parse(data[0].condition_Json);
+  //   }
+  // } catch (error) {
+  //   console.error("Failed to parse condition_Json:", error);
+  // }
 
 
 
@@ -719,7 +718,7 @@ const ProjectAssignTable: React.FC = () => {
                   onChange={(selectedOption) => {
                     if (selectedOption) {
                       setSearch((prev) => ({ ...prev, projectID: selectedOption.id }));
-                    }else {
+                    } else {
                       setSearch((prev) => ({ ...prev, projectID: "" }));
                       // setModuleID("");
                     }
@@ -1064,7 +1063,7 @@ const ProjectAssignTable: React.FC = () => {
                                         <tbody>
                                           <tr>
                                             <td><h5 className='text-nowrap'>Task Name :</h5></td>
-                                            <td>  <h5 className='text-primary'>{item.taskName}</h5></td>
+                                            <td>  <h5 className='text-primary'>{getFilterTasks(item)?.['taskName']}</h5></td>
                                           </tr>
                                           <tr>
                                             <td><h5>Link :</h5></td>
@@ -1097,25 +1096,27 @@ const ProjectAssignTable: React.FC = () => {
                                         <tbody>
                                           <tr>
                                             <td><h5>Problem Solver :</h5></td>
-                                            <td>
-                                              <h5 className='text-primary'> {item.problemSolver}</h5>
-                                              {item.problemSolverMobileNumber ?
-                                                <p className=' fw-normal m-0'><a href={`tel:${item.problemSolverMobileNumber}`}>
-                                                  <i className="ri-phone-fill"></i> {item.problemSolverMobileNumber}</a></p> : ""
-                                              }
-                                            </td>
+                                            <DoerInfoCell item={item} />
+
+
                                           </tr>
                                           <tr>
                                             <td><h5>Expiry Logic :</h5></td>
                                             <td>
-                                              <h5 className='text-primary'> {expiryLogic === "Expire On Defined Time" ? `${expirationTime} Hr` : (expiryLogic || 'N/A')}</h5>
+                                              <h5 className='text-primary'>{(() => {
+                                                const rawDate = getFilterTasks(item)?.['newExpiryDate'];
+                                                return rawDate
+                                                  ? format(new Date(rawDate), 'dd-MMM-yyyy HH:mm')
+                                                  : '—';
+                                              })()}
+                                              </h5>
                                             </td>
 
                                           </tr>
                                           <tr>
                                             <td><h5>Sunday Logic:</h5></td>
                                             <td><h5 className="text-primary">
-                                              {JSON.parse(item.condition_Json || "[]")[0]?.sundayLogic || "N/A"}
+                                              {getFilterTasks(item)?.['sundayLogic']}
                                             </h5></td>
                                           </tr>
 
@@ -1207,7 +1208,7 @@ const ProjectAssignTable: React.FC = () => {
                                   <Row>
                                     <Col lg={3} className='mt-2'>
                                       <td><h5>Created Date :</h5></td>
-                                      <td><h5 className='text-primary'>{format(new Date(item.createdDate), 'dd-MMM-yyyy HH:mm')}</h5></td>
+                                      <td><h5 className='text-primary'>{format(new Date(getFilterTasks(item)?.['createdDate']), 'dd-MMM-yyyy HH:mm')}</h5></td>
                                     </Col>
                                     <Col lg={3} className='mt-2'>
                                       <td><h5>Extended Date :</h5></td>
@@ -1323,6 +1324,52 @@ const ProjectAssignTable: React.FC = () => {
 
   );
 };
+
+
+interface Props {
+  item: any;
+}
+
+const DoerInfoCell: React.FC<Props> = ({ item }) => {
+  const [phone, setPhone] = useState<string | null>(null);
+  const problemSolver = getFilterTasks(item)['problemSolver'];
+
+  useEffect(() => {
+    const fetchPhone = async () => {
+      try {
+        const response = await axios.get(
+          `${config.API_URL_APPLICATION}/EmployeeMaster/GetContactNumber?EmpID=${problemSolver}`
+        );
+        console.log(response)
+        if (response.data.isSuccess) {
+          setPhone(response.data?.contactNumber || null); // Adjust based on actual response
+        }
+      } catch (error) {
+        toast.error('Error fetching contact number');
+      } finally {
+      }
+    };
+
+    if (problemSolver) {
+      fetchPhone();
+    }
+  }, [problemSolver]);
+
+  return (
+    <td>
+      <h5 className='text-primary'>{problemSolver}</h5>
+      {phone && (
+        <p className='fw-normal m-0'>
+          <a href={`tel:${phone}`}>
+            <i className='ri-phone-fill'></i> {phone}
+          </a>
+        </p>
+      )}
+    </td>
+  );
+};
+
+
 
 export default ProjectAssignTable;
 

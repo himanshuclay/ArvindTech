@@ -13,7 +13,7 @@ export default defineConfig({
       'Cache-Control': 'no-store',
       'Pragma': 'no-cache',
       'Referrer-Policy': 'strict-origin-when-cross-origin'
-    }
+    },
   },
   define: { 'process.env': {} },
   resolve: {
