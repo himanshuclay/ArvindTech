@@ -133,7 +133,7 @@ const ProjectAssignTable: React.FC = () => {
   const [, setProjectName] = useState('');
   const [options, setOptions] = useState('');
   const [isShowHelpModel, setIsShowHelpModel] = useState(false);
-  const [isShowHelpId, setIsShowHelpId] = useState('');
+  const [isShowHelpId, setIsShowHelpId] = useState<any>();
   const [help, setHelp] = useState<{ [key: string]: string }>({});
   const [moduleID, setModuleID] = useState('');
   const [ModuleName,] = useState('');
@@ -680,24 +680,40 @@ const ProjectAssignTable: React.FC = () => {
 
   const handleShowHelp = (item: any) => {
     setIsShowHelpModel(true);
-    setIsShowHelpId(item.id)
+    setIsShowHelpId(getFilterTasks(item))
+
   }
 
-  const handleHelpSave = async () => {
+  const handleHelpSave = async (e: React.FormEvent) => {
+    e.preventDefault();
     try {
+      const empId = localStorage.getItem("EmpId");
+
       const response = await axios.post(
         `${config.API_URL_APPLICATION}/HelpMaster/InsertHelpMaster`,
         {
-          "nodeID": isShowHelpId,
+          nodeID: JSON.stringify(isShowHelpId?.id),
+          nodeName: isShowHelpId?.label,
           ...help,
-          "empID": localStorage.getItem("EmpId"),
-          "createdBy": localStorage.getItem("EmpId"),
+          empID: empId,
+          createdBy: empId,
         }
       );
-      console.log(response)
+
+      if (response.data.isSuccess) {
+        // Handle success (e.g., show toast, close modal)
+        console.log("Help submitted successfully");
+        setIsShowHelpModel(false)
+        setIsShowHelpId('');
+        toast.success(response.data.message)
+      } else {
+        // Handle failure
+        console.warn("Submission failed", response.data.message);
+      }
     } catch (error) {
-      console.log(error)
+      console.error("Error submitting help:", error);
     }
+
   }
   return (
 
@@ -1307,7 +1323,7 @@ const ProjectAssignTable: React.FC = () => {
             <Modal.Title>Help Request</Modal.Title>
           </Modal.Header>
           <Modal.Body>
-            <Form onSubmit={handleHelpSave}>
+            <Form onSubmit={(e) => handleHelpSave(e)}>
               <Form.Group controlId="formProblem">
                 <Form.Label>Problem</Form.Label>
                 <Form.Control
