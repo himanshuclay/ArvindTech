@@ -1,14 +1,17 @@
 import { Offcanvas, Row, Col, Container, Alert } from 'react-bootstrap';
 import axios from "axios";
 import config from "@/config";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { getPlannedDate } from '../PlanDateFunction';
+import ReactFlow, { Background, Controls, MiniMap, useEdgesState, useNodesState } from 'reactflow';
+import CustomNode from '@/pages/WorkflowBuilder/CustomNode';
 
 
 interface ProcessCanvasProps {
     showView: boolean;
     setShowView: (show: boolean) => void;
     id: any; // Ensure this is defined as a string
+    hierarchyView?: any;
 }
 
 
@@ -33,22 +36,25 @@ interface ApiResponse {
     getFilterTasks: HeirarchyViewData[];
 }
 
-const HeirarchyView: React.FC<ProcessCanvasProps> = ({ showView, setShowView, id }) => {
+const HeirarchyView: React.FC<ProcessCanvasProps> = ({ showView, setShowView, id, hierarchyView }) => {
 
     const [preData, setPreData] = useState<HeirarchyViewData[]>([]);
     const [loading, setLoading] = useState<boolean>(false);
+    const [nodes, setNodes] = useNodesState([]);
+    const [edges, setEdges] = useEdgesState([]);
 
-
-
+    const nodeTypes = useMemo(() => ({
+        custom: (props: any) => <CustomNode {...props} setNodes={setNodes} edges={edges} isCompleteTask={true} />,
+    }), [setNodes, edges]);  // ✅ Include edges in dependencies
 
     useEffect(() => {
-        const fetchData = async () => {
-            if (id) {
-                await fetchPreData(id);
-            }
-        };
-        fetchData();
-    }, [id]);
+        if (hierarchyView.templateJson) {
+            const templateJson = JSON.parse(hierarchyView.templateJson);
+            console.log(templateJson)
+            setNodes(templateJson.nodes);
+            setEdges(templateJson.edges);
+        }
+    }, [hierarchyView]);
 
     const fetchPreData = async (taskCommonId: number) => {
         try {
@@ -108,7 +114,7 @@ const HeirarchyView: React.FC<ProcessCanvasProps> = ({ showView, setShowView, id
                     <Offcanvas.Title className="text-dark"> Tasks History</Offcanvas.Title>
                 </Offcanvas.Header>
                 <Offcanvas.Body>
-                    {loading ? (
+                    {/* {loading ? (
                         <div className="loader-container d-flex flex-column align-tasks-center justify-content-center">
                             <div className="loader"></div>
                             <div className="mt-3 text-muted">Please Wait...</div>
@@ -144,7 +150,7 @@ const HeirarchyView: React.FC<ProcessCanvasProps> = ({ showView, setShowView, id
                                                             {/* {task.task_Number.split(".")[2] === "T1" && (
                                                                     calculatePlannedDate(task.createdDate)
                                                                 ) : (
-                                                                )} */}
+                                                                )}
                                                             {getPlannedDate(task.createdDate, task.planDate)}
                                                         </h5></td>
                                                     </tr>
@@ -157,20 +163,30 @@ const HeirarchyView: React.FC<ProcessCanvasProps> = ({ showView, setShowView, id
                                         </Col>
                                     ))}
                                 </Row>
-                            ) : (
-                                <Container className="mt-5">
-                                    <Row className="justify-content-center">
-                                        <Col xs={12} md={8} lg={6}>
-                                            <Alert variant="info" className="text-center">
-                                                <h4>No Data Found</h4>
-                                                <p>You currently don't have any data available.</p>
-                                            </Alert>
-                                        </Col>
-                                    </Row>
-                                </Container>
-                            )}
+                            ) : ( */}
+                                <div className='col-12' style={{ height: 'calc(100vh - 200px)', position: 'relative' }}>
+                                    {/* {JSON.stringify(nodes)} */}
+                                    <ReactFlow
+                                        nodes={nodes}
+                                        edges={edges}
+                                        // onNodesChange={handleNodesChange}
+                                        // onEdgesChange={onEdgesChange}
+                                        // onConnect={onConnect}
+                                        nodeTypes={nodeTypes}
+                                        fitView
+                                        // onDrop={handleDrop}
+                                        // onDragOver={handleDragOver}
+                                        // onEdgeClick={handleEdgeClick}
+                                        // onNodeClick={onNodeClick}
+                                    >
+                                        <MiniMap />
+                                        <Controls />
+                                        <Background />
+                                    </ReactFlow>
+                                </div>
+                            {/* )}
                         </>
-                    )}
+                    )} */}
                 </Offcanvas.Body>
 
             </Offcanvas>

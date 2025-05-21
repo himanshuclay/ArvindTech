@@ -399,6 +399,11 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges
         // if (!nodeSetting.assignDoerType) {
         //   speak("Please assign a doer type for this node.");
         // }
+        Object.entries(data.bindingValues).forEach(([key, value]: [string, any]) => {
+            if (value?.master !== undefined) {
+              fetchColumnNames(value.master);
+            }
+          });          
     }, []); // when settings modal opens
 
     // Using a ref to track if the columns for a master have been fetched
@@ -1621,6 +1626,7 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges
 
             {/* Main Label */}
             <div className="node-label">{data.label}</div>
+            <div className="node-label">{data.taskCreationType === 'planned' ? 'P2P' : 'A2P'}</div>
 
             {/* Output Handles */}
             <div className="output-container">
