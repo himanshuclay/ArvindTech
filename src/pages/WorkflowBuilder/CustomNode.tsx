@@ -64,7 +64,7 @@ type NodeSetting = {
     [key: string]: any;
 };
 
-const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges, setWorkflowBuilder, setSelectedNode }: { data: any; id: string; setNodes: any; edges: any[], isCompleteTask: boolean, nodes: any[], setEdges: any; setWorkflowBuilder: any; setSelectedNode: any }) => {
+const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges, setWorkflowBuilder, setSelectedNode, pId, handleCloses }: { data: any; id: string; setNodes: any; edges: any[], isCompleteTask: boolean, nodes: any[], setEdges: any; setWorkflowBuilder: any; setSelectedNode: any, pId?: string, handleCloses?: any }) => {
     const [showSettings, setShowSettings] = useState(false);
     const [showBinding, setShowBinding] = useState(false);
     const [loading, setLoading] = useState(false);
@@ -618,8 +618,13 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges
     const handleRestForm = async (e: any) => {
         e.stopPropagation();
         const response = await axios.get(
-            `${config.API_URL_ACCOUNT}/ProcessInitiation/UpdateStatusAndBlockValue?InitiationID=${id}&NodeID=${id}`);
+            `${config.API_URL_ACCOUNT}/ProcessInitiation/UpdateStatusAndBlockValue?InitiationID=${pId}&NodeID=${id}`);
         console.log(response)
+        if(response.data.isSuccess){
+            toast.success(response.data.message)
+            handleCloses();
+
+        }
     }
 
     return (
