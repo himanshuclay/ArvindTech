@@ -76,7 +76,7 @@ const AdhocMaster: React.FC = () => {
     const [showDoerModal, setShowDoerModal] = useState<boolean>(false);
     const [selectedId, setSelectedId] = useState<number | null>(null);
     const [, setSelectedRole] = useState<string | null>(null);
-    const [roleOptions, setRoleOptions] = useState<{ label: string; value: string }[]>([]);
+    const [, setRoleOptions] = useState<{ label: string; value: string }[]>([]);
     const [selectedRoles, setSelectedRoles] = useState<{ label: string; value: string }[]>([]);
     const [doerList, setDoerList] = useState<{ value: string; label: string }[]>([]);
 

@@ -1,8 +1,8 @@
-import { Offcanvas, Row, Col, Container, Alert } from 'react-bootstrap';
-import axios from "axios";
-import config from "@/config";
-import { useEffect, useMemo, useState } from "react";
-import { getPlannedDate } from '../PlanDateFunction';
+import { Offcanvas, } from 'react-bootstrap';
+// import axios from "axios";
+// import config from "@/config";
+import { useEffect, useMemo } from "react";
+// import { getPlannedDate } from '../PlanDateFunction';
 import ReactFlow, { Background, Controls, MiniMap, useEdgesState, useNodesState } from 'reactflow';
 import CustomNode from '@/pages/WorkflowBuilder/CustomNode';
 
@@ -17,29 +17,29 @@ interface ProcessCanvasProps {
 
 
 
-interface HeirarchyViewData {
-    id: number;
-    taskName: string;
-    task_Number: string;
-    doerName: string;
-    problem_Solver: string;
-    planDate: string;
-    roleName: string;
-    doerNumber: string;
-    isCompleted: string;
-    createdDate: any;
-}
+// interface HeirarchyViewData {
+//     id: number;
+//     taskName: string;
+//     task_Number: string;
+//     doerName: string;
+//     problem_Solver: string;
+//     planDate: string;
+//     roleName: string;
+//     doerNumber: string;
+//     isCompleted: string;
+//     createdDate: any;
+// }
 
-interface ApiResponse {
-    isSuccess: boolean;
-    message: string;
-    getFilterTasks: HeirarchyViewData[];
-}
+// interface ApiResponse {
+//     isSuccess: boolean;
+//     message: string;
+//     getFilterTasks: HeirarchyViewData[];
+// }
 
 const HeirarchyView: React.FC<ProcessCanvasProps> = ({ showView, setShowView, id, hierarchyView }) => {
 
-    const [preData, setPreData] = useState<HeirarchyViewData[]>([]);
-    const [loading, setLoading] = useState<boolean>(false);
+    // const [preData, setPreData] = useState<HeirarchyViewData[]>([]);
+    // const [loading, setLoading] = useState<boolean>(false);
     const [nodes, setNodes] = useNodesState([]);
     const [edges, setEdges] = useEdgesState([]);
 
@@ -56,30 +56,30 @@ const HeirarchyView: React.FC<ProcessCanvasProps> = ({ showView, setShowView, id
         }
     }, [hierarchyView]);
 
-    const fetchPreData = async (taskCommonId: number) => {
-        try {
-            const flag = 5;
-            const response = await axios.get<ApiResponse>(
-                `${config.API_URL_ACCOUNT}/ProcessInitiation/GetFilterTask?TaskCommonId=${taskCommonId}&Flag=${flag}`
-            );
+    // const fetchPreData = async (taskCommonId: number) => {
+    //     try {
+    //         const flag = 5;
+    //         const response = await axios.get<ApiResponse>(
+    //             `${config.API_URL_ACCOUNT}/ProcessInitiation/GetFilterTask?TaskCommonId=${taskCommonId}&Flag=${flag}`
+    //         );
 
-            if (response.data && response.data.isSuccess) {
-                const fetchedData = response.data.getFilterTasks || [];
-                setPreData(fetchedData)
+    //         if (response.data && response.data.isSuccess) {
+    //             const fetchedData = response.data.getFilterTasks || [];
+    //             setPreData(fetchedData)
 
-            } else {
-                console.error('API Response Error:', response.data?.message || 'Unknown error');
-            }
-        } catch (error) {
-            if (axios.isAxiosError(error)) {
-                console.error('Axios Error:', error.message);
-            } else {
-                console.error('Unexpected Error:', error);
-            }
-        } finally {
-            setLoading(false);
-        }
-    };
+    //         } else {
+    //             console.error('API Response Error:', response.data?.message || 'Unknown error');
+    //         }
+    //     } catch (error) {
+    //         if (axios.isAxiosError(error)) {
+    //             console.error('Axios Error:', error.message);
+    //         } else {
+    //             console.error('Unexpected Error:', error);
+    //         }
+    //     } finally {
+    //         setLoading(false);
+    //     }
+    // };
 
 
 
@@ -105,7 +105,7 @@ const HeirarchyView: React.FC<ProcessCanvasProps> = ({ showView, setShowView, id
     // }
 
 
-    console.log(preData)
+    // console.log(preData)
 
     return (
         <div>
