@@ -110,7 +110,7 @@ const ActiveNode = ({ activeNode, activeTaskId, setActiveNode, completedNodes, s
 
     const approvalLogic = async (nodeId: string,) => {
         try {
-            if(nodeId){
+            if (nodeId) {
                 const response = await axios.get(
                     `${config.API_URL_ACCOUNT}/ProcessInitiation/GetFormandBlockValue?nodeID=${nodeId}&ID=${pId}`);
                 setPreNodeId(nodeId);
@@ -154,8 +154,9 @@ const ActiveNode = ({ activeNode, activeTaskId, setActiveNode, completedNodes, s
             if (status) {
                 for (const block of form.blocks) {
                     const value = blockValue[block.property.id];
-                    if (block.property.validation === "required") {
- 
+                    console.log(block.property)
+                    if (block.property.isPermanent && block.property.isShow && block.property.validation === "required") {
+
                         // Check if value is a string and perform trim, or handle array case
                         if ((typeof value === 'string' && value.trim() === "") || value == undefined) {
                             errors[block.property.id] = `${block.property.label} is required`;

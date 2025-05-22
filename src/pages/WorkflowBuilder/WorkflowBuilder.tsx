@@ -128,7 +128,7 @@ const WorkflowBuilder: React.FC = () => {
     });
 
     const nodeTypes = useMemo(() => ({
-        custom: (props: any) => <CustomNode {...props} setNodes={setNodes} edges={edges} nodes={nodes} setEdges={setEdges} setWorkflowBuilder={setWorkflowBuilder} setSelectedNode={setSelectedNode} />,
+        custom: (props: any) => <CustomNode {...props} setNodes={setNodes} edges={edges} nodes={nodes} setEdges={setEdges} setWorkflowBuilder={setWorkflowBuilder} setSelectedNode={setSelectedNode} isRest={false}/>,
     }), [setNodes, edges]);
 
     const [formBuilder, setFormBuilder] = useState<FIELD>({
@@ -218,11 +218,6 @@ const WorkflowBuilder: React.FC = () => {
         },
         [setEdges]
     );
-
-    console.log("these are nodes", nodes);
-
-
-
 
     const addNewNode = (x: number, y: number, form?: any, action?: string) => {
         const newNode: Node = {

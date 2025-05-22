@@ -174,7 +174,7 @@ const ProjectAssignTable: React.FC = () => {
   }, []);
 
   const nodeTypes = useMemo(() => ({
-    custom: (props: any) => <CustomNode {...props} setNodes={setNodes} edges={edges} isCompleteTask={true} />,
+    custom: (props: any) => <CustomNode {...props} setNodes={setNodes} edges={edges} isCompleteTask={true} isRest={false} />,
   }), [setNodes, edges]);  // ✅ Include edges in dependencies
 
   const handleOnDragEnd = (result: any) => {

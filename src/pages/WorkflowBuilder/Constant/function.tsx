@@ -132,6 +132,7 @@ const getAllBlockName = (
 ): { label: string; value: string }[] => {
 
     const node = nodes.find(n => n.id === id);
+    console.log(node)
 
     if (node) {
         if (node.data.TaskBinding && node.data.BindingOption === "formAndValueWithEditMode") {
@@ -246,7 +247,7 @@ const getFilterTasks = (item: any): { [key: string]: any } => {
     try {
         const templateJson = JSON.parse(item.templateJson);
         const nodes = templateJson.nodes || [];
-        const activeNode = nodes.find((n: any) => localStorage.getItem("EmpId") === n.data.activeDoer);
+        const activeNode = nodes.find((n: any) => localStorage.getItem("EmpId") === n.data.activeDoer && n.data.status != "completed" && n.data.isActive);
         console.log(activeNode);
 
         if (activeNode) {

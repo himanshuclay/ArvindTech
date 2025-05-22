@@ -59,6 +59,13 @@ interface ApiResponse {
     getTemplateJsons: Template[];
 }
 
+interface DROP_DOWN {
+    empId: string;
+    employeeName: string;
+    id?: string;
+    identifier?: string;
+}
+
 // Main component
 const AdhocMaster: React.FC = () => {
     const [data, setData] = useState<Template[]>([]);
@@ -69,8 +76,10 @@ const AdhocMaster: React.FC = () => {
     const [showDoerModal, setShowDoerModal] = useState<boolean>(false);
     const [selectedId, setSelectedId] = useState<number | null>(null);
     const [, setSelectedRole] = useState<string | null>(null);
-    const [roleOptions, setRoleOptions] = useState<{ label: string; value: string }[]>([]);
+    const [, setRoleOptions] = useState<{ label: string; value: string }[]>([]);
     const [selectedRoles, setSelectedRoles] = useState<{ label: string; value: string }[]>([]);
+    const [doerList, setDoerList] = useState<{ value: string; label: string }[]>([]);
+
     // const [selectedManager, setSelectedManager] = useState<string>(''); // Manager select state
 
     // Placeholder for mess managers
@@ -86,7 +95,7 @@ const AdhocMaster: React.FC = () => {
         await fetchRoleOptions(parsedRoles); // pass parsed array to match roles
         setShowDoerModal(true);
     };
-    
+
 
 
     // Fetch API data
@@ -104,6 +113,19 @@ const AdhocMaster: React.FC = () => {
             setLoading(false);
         }
     };
+    const getDoerList = async () => {
+        try {
+            const response = await axios.get(`${config.API_URL_APPLICATION}/CommonDropdown/GetEmployeeListWithId`);
+            if (response.data.isSuccess) {
+                setDoerList(response.data.employeeLists.map((w: DROP_DOWN) => ({
+                    value: w.empId,
+                    label: w.employeeName,
+                })));
+            }
+        } catch (error) {
+            console.error("Error fetching doer list:", error);
+        }
+    };
 
     const fetchRoleOptions = async (preSelected: string[] = []) => {
         try {
@@ -114,9 +136,9 @@ const AdhocMaster: React.FC = () => {
                     value: role.id.toString(),
                 }));
                 setRoleOptions(options);
-    
+
                 if (preSelected.length) {
-                    const matched = options.filter((role:any) => preSelected.includes(role.value));
+                    const matched = options.filter((role: any) => preSelected.includes(role.value));
                     setSelectedRoles(matched);
                 }
             }
@@ -124,12 +146,13 @@ const AdhocMaster: React.FC = () => {
             console.error('Failed to fetch roles:', error);
         }
     };
-    
+
 
     useEffect(() => {
 
         fetchTemplates();
         fetchRoleOptions();
+        getDoerList();
     }, []);
 
     // Toggle expanded row
@@ -270,7 +293,7 @@ const AdhocMaster: React.FC = () => {
                     ))}
                 </tbody>
             </Table>
-            <Modal show={showDoerModal} onHide={() => {setShowDoerModal(false),setSelectedRoles([])}}>
+            <Modal show={showDoerModal} onHide={() => { setShowDoerModal(false), setSelectedRoles([]) }}>
                 <Modal.Header closeButton>
                     <Modal.Title>Assign Doers</Modal.Title>
                 </Modal.Header>
@@ -278,7 +301,7 @@ const AdhocMaster: React.FC = () => {
                     <label className="form-label">Select Doers</label>
                     <Select
                         isMulti
-                        options={roleOptions}
+                        options={doerList}
                         value={selectedRoles}
                         onChange={(selected) => setSelectedRoles(selected as any)}
                         placeholder="Select Role(s)"
@@ -287,7 +310,7 @@ const AdhocMaster: React.FC = () => {
 
                 </Modal.Body>
                 <Modal.Footer>
-                    <Button variant="secondary" onClick={() => {setShowDoerModal(false),setSelectedRoles([])}}>
+                    <Button variant="secondary" onClick={() => { setShowDoerModal(false), setSelectedRoles([]) }}>
                         Cancel
                     </Button>
                     <Button

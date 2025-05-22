@@ -64,7 +64,7 @@ type NodeSetting = {
     [key: string]: any;
 };
 
-const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges, setWorkflowBuilder, setSelectedNode }: { data: any; id: string; setNodes: any; edges: any[], isCompleteTask: boolean, nodes: any[], setEdges: any; setWorkflowBuilder: any; setSelectedNode: any }) => {
+const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges, setWorkflowBuilder, setSelectedNode, pId, handleCloses, isRest }: { data: any; id: string; setNodes: any; edges: any[], isCompleteTask: boolean, nodes: any[], setEdges: any; setWorkflowBuilder: any; setSelectedNode: any, pId?: string, handleCloses?: any, isRest: boolean }) => {
     const [showSettings, setShowSettings] = useState(false);
     const [showBinding, setShowBinding] = useState(false);
     const [loading, setLoading] = useState(false);
@@ -399,6 +399,13 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges
         // if (!nodeSetting.assignDoerType) {
         //   speak("Please assign a doer type for this node.");
         // }
+        if(data.bindingValues && data.bindingValues.length){
+            Object.entries(data.bindingValues).forEach(([key, value]: [string, any]) => {
+                if (value?.master !== undefined) {
+                    fetchColumnNames(value.master);
+                }
+            });
+        }
     }, []); // when settings modal opens
 
     // Using a ref to track if the columns for a master have been fetched
@@ -433,13 +440,16 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges
 
     useEffect(() => {
         if (nodeSetting.doerTaskNumber) {
-            const value = getAllBlockName(nodes, nodeSetting.doerTaskNumber, 'Select');
-            setPerviousBlockList(value);
-            setNodeSetting(prev => ({
-                ...prev,
-                doerBlockName: '', // Reset block name to empty string
-            }));
-            setPerviousOptionsList([]);
+            console.log(nodes)
+            if (nodes) {
+                const value = getAllBlockName(nodes, nodeSetting.doerTaskNumber, 'Select');
+                setPerviousBlockList(value);
+                setNodeSetting(prev => ({
+                    ...prev,
+                    doerBlockName: '', // Reset block name to empty string
+                }));
+                setPerviousOptionsList([]);
+            }
         }
         if (nodeSetting.loopingSetting.start3) {
             if (nodes) {
@@ -511,7 +521,7 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges
             ...prev,
             bindingValues: {
                 ...prev.bindingValues,
-                [index+'-'+block]: {
+                [index + '-' + block]: {
                     master: '',
                     column: '',
                 },
@@ -613,8 +623,13 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges
     const handleRestForm = async (e: any) => {
         e.stopPropagation();
         const response = await axios.get(
-            `${config.API_URL_ACCOUNT}/ProcessInitiation/UpdateStatusAndBlockValue?InitiationID=${id}&NodeID=${id}`);
+            `${config.API_URL_ACCOUNT}/ProcessInitiation/UpdateStatusAndBlockValue?InitiationID=${pId}&NodeID=${id}`);
         console.log(response)
+        if (response.data.isSuccess) {
+            toast.success(response.data.message)
+            handleCloses();
+
+        }
     }
 
     return (
@@ -1385,7 +1400,7 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges
                                     />
                                 </Form.Group>
                             </Col>
-                            {isCompleteTask ? <></> : nodeSetting.approvalSelect ? 
+                            {isCompleteTask ? <></> : nodeSetting.approvalSelect ?
                                 <Col lg={3}>
                                     <Form.Group>
                                         <Form.Label>block options*</Form.Label>
@@ -1403,7 +1418,7 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges
                                         />
                                     </Form.Group>
                                 </Col>
-                            :''
+                                : ''
                             }
                             <Col lg={3}>
                                 <Form.Group>
@@ -1513,7 +1528,7 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges
                             {/* Map through block names and display inputs */}
                             {/* {JSON.stringify(nodeSetting.bindingValues)} */}
                             {blockName?.map((block, index) => {
-                                const currentBindingValue = nodeSetting.bindingValues?.[index+'-'+block];
+                                const currentBindingValue = nodeSetting.bindingValues?.[index + '-' + block];
                                 const masterName = currentBindingValue?.master;
                                 const columnName = currentBindingValue?.column;
 
@@ -1545,7 +1560,7 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges
                                                             ...prev,
                                                             bindingValues: {
                                                                 ...prev.bindingValues,
-                                                                [index+'-'+block]: {
+                                                                [index + '-' + block]: {
                                                                     master: newMasterName,
                                                                     column: columnName || '',
                                                                 },
@@ -1570,7 +1585,7 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges
                                                                 ...prev,
                                                                 bindingValues: {
                                                                     ...prev.bindingValues,
-                                                                    [index+'-'+block]: {
+                                                                    [index + '-' + block]: {
                                                                         column: newColumnName,
                                                                         master: masterName || '',
                                                                     },
@@ -1589,7 +1604,7 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges
                                                 </div>
                                                 {index > 0 && (
                                                     <div className="action-btn bg-secondary ms-2 cursor-pointer" onClick={() => removeBlock(index)}>
-                                                       <i className="ri-close-large-line text-white"></i>
+                                                        <i className="ri-close-large-line text-white"></i>
                                                     </div>
                                                 )}
                                             </Col>
@@ -1621,6 +1636,7 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges
 
             {/* Main Label */}
             <div className="node-label">{data.label}</div>
+            <div className="node-label">{data.taskCreationType === 'planned' ? 'P2P' : 'A2P'}</div>
 
             {/* Output Handles */}
             <div className="output-container">
@@ -1641,10 +1657,15 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges
             {data.Adhoc && (
                 <button className="adhoc-btn" onClick={(e) => handleAdhocForm(e)}><span><i className="ri-tools-fill me-1"></i></span>adhoc</button>
             )}
-             {/* Reset Button with Remix Icon */}
-             <button className="btn btn-danger mr-2" type="button" onClick={(e) => handleRestForm(e)}>
-                    <i className="ri-refresh-line mr-1"></i>Reset
-                </button>
+            {isRest && (
+                <>
+                    <button className="btn btn-danger mr-2" type="button" onClick={(e) => handleRestForm(e)}>
+                        <i className="ri-refresh-line mr-1"></i>Reset
+                    </button>
+                </>
+            )}
+
+
             <Modal
                 size="xl"
                 className="p-3"
@@ -1660,7 +1681,7 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges
                 </div>
 
             </Modal>
-        </div>
+        </div >
     );
 };
 

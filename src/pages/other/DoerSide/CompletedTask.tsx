@@ -81,6 +81,7 @@ const ProjectAssignTable: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(1)
   const [totalPages, setTotalPages] = useState(1)
   const [nodes, setNodes] = useNodesState([]);
+  const [pId, setPId] = useState('');
   const [edges, setEdges] = useEdgesState([]);
 
   const [, setSelectedNode] = useState<Node | null>(null);
@@ -174,7 +175,7 @@ const ProjectAssignTable: React.FC = () => {
   }, []);
 
   const nodeTypes = useMemo(() => ({
-    custom: (props: any) => <CustomNode {...props} setNodes={setNodes} edges={edges} isCompleteTask={true} />,
+    custom: (props: any) => <CustomNode {...props} setNodes={setNodes} edges={edges} isCompleteTask={true} pId={pId} handleCloses={handleClose} isRest={false} />,
   }), [setNodes, edges]);  // ✅ Include edges in dependencies
 
   const handleOnDragEnd = (result: any) => {
@@ -360,6 +361,7 @@ const ProjectAssignTable: React.FC = () => {
     if (item.templateJson) {
       const templateJson = JSON.parse(item.templateJson);
       console.log(templateJson)
+      setPId(item.id);
       setNodes(templateJson.nodes);
       setEdges(templateJson.edges);
     }

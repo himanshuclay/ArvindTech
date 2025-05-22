@@ -124,12 +124,17 @@ const ProjectAssignTable: React.FC = () => {
   const [showView, setShowView] = useState(false);
   const [showViewOutput, setShowViewOutput] = useState(false);
   const [manageId, setManageID] = useState<number>();
+  const [hierarchyView, setHierarchyView] = useState('');
+  const [editOutput, setEditOutput] = useState('');
   const [, setSearchTriggered] = useState(false);
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
   const [projectList, setProjectList] = useState<dropDownList[]>([]);
   const [, setProjectName] = useState('');
   const [options, setOptions] = useState('');
+  const [isShowHelpModel, setIsShowHelpModel] = useState(false);
+  const [isShowHelpId, setIsShowHelpId] = useState<any>();
+  const [help, setHelp] = useState<{ [key: string]: string }>({});
   const [moduleID, setModuleID] = useState('');
   const [ModuleName,] = useState('');
   const [processList, setProcessList] = useState<dropDownList[]>([]);
@@ -232,6 +237,7 @@ const ProjectAssignTable: React.FC = () => {
           },
         }
       );
+      console.log(response)
 
       if (response.data && response.data.isSuccess) {
         const fetchedData = response.data.getFilterTasks || [];
@@ -592,6 +598,14 @@ const ProjectAssignTable: React.FC = () => {
     setManageID(id)
 
   };
+  const handleHierarchyView = (item: any) => {
+    setHierarchyView(item)
+
+  };
+  const handleEditOutput = (item: any) => {
+    setEditOutput(item.id)
+
+  };
   const handleViewEditOutput = (taskCommonId: any) => {
     handleShowviewOutput();
     fetchPreData(taskCommonId);
@@ -664,6 +678,44 @@ const ProjectAssignTable: React.FC = () => {
   //     // }
   //   }
   // }, []);
+
+  const handleShowHelp = (item: any) => {
+    setIsShowHelpModel(true);
+    setIsShowHelpId(getFilterTasks(item))
+
+  }
+
+  const handleHelpSave = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      const empId = localStorage.getItem("EmpId");
+
+      const response = await axios.post(
+        `${config.API_URL_APPLICATION}/HelpMaster/InsertHelpMaster`,
+        {
+          nodeID: JSON.stringify(isShowHelpId?.id),
+          nodeName: isShowHelpId?.label,
+          ...help,
+          empID: empId,
+          createdBy: empId,
+        }
+      );
+
+      if (response.data.isSuccess) {
+        // Handle success (e.g., show toast, close modal)
+        console.log("Help submitted successfully");
+        setIsShowHelpModel(false)
+        setIsShowHelpId('');
+        toast.success(response.data.message)
+      } else {
+        // Handle failure
+        console.warn("Submission failed", response.data.message);
+      }
+    } catch (error) {
+      console.error("Error submitting help:", error);
+    }
+
+  }
   return (
 
     <>
@@ -1077,7 +1129,7 @@ const ProjectAssignTable: React.FC = () => {
                                           <tr>
                                             <td><h5>Doer :</h5></td>
                                             <td>
-                                              <h5 className='text-primary'> {item.doerName}</h5>
+                                              <h5 className='text-primary'> {getFilterTasks(item)?.['activeDoer']}</h5>
                                               {item.doerNumber ?
                                                 <p className='fw-normal m-0'><a href={`tel:${item.doerNumber}`}>
                                                   <i className="ri-phone-fill"></i> {item.doerNumber}</a></p> : ""
@@ -1086,7 +1138,7 @@ const ProjectAssignTable: React.FC = () => {
                                           </tr>
                                           <tr>
                                             <td><h5>Role :</h5></td>
-                                            <td><h5 className='text-primary'> {item.roleName}</h5></td>
+                                            <td><h5 className='text-primary'> {getFilterTasks(item)?.['role']}</h5></td>
                                           </tr>
                                         </tbody>
                                       </table>
@@ -1220,9 +1272,9 @@ const ProjectAssignTable: React.FC = () => {
                                     </Col>
                                     <Col lg={3} className=''>
                                       <div className=' d-flex justify-content-end align-items-center'>
-                                        <span className='text-primary me-2 cursor-pointer fw-bold' onClick={() => handleViewEditOutput(item.taskCommonId)}>View Output</span>
-                                        <span className='text-primary cursor-pointer me-2 fw-bold' onClick={() => handleViewEdit(item.taskCommonId)}>Hierarchy  View</span>
-                                        <span className='text-primary me-2 fw-bold'>Help</span>
+                                        <span className='text-primary me-2 cursor-pointer fw-bold' onClick={() => { handleViewEditOutput(item.taskCommonId), handleEditOutput(item) }}>View Output</span>
+                                        <span className='text-primary cursor-pointer me-2 fw-bold' onClick={() => { handleViewEdit(item.taskCommonId), handleHierarchyView(item) }}>Hierarchy  View</span>
+                                        <span className='text-primary me-2 fw-bold' onClick={() => handleShowHelp(item)}>Help</span>
                                         <Button className='ms-auto' onClick={() => handleEdit(item.taskCommonId, item.condition_Json, item)}>
                                           {
                                             (() => {
@@ -1265,8 +1317,54 @@ const ProjectAssignTable: React.FC = () => {
             </DragDropContext>
           </>
         )}
-        <HeirarchyView showView={showView} setShowView={setShowView} id={manageId} />
-        <ViewOutput showViewOutput={showViewOutput} setShowViewOutput={setShowViewOutput} preData={preData} />
+        <HeirarchyView showView={showView} setShowView={setShowView} id={manageId} hierarchyView={hierarchyView} />
+        <ViewOutput showViewOutput={showViewOutput} setShowViewOutput={setShowViewOutput} preData={preData} editOutput={editOutput} />
+        <Modal show={isShowHelpModel} onHide={() => setIsShowHelpModel(false)} centered>
+          <Modal.Header closeButton>
+            <Modal.Title>Help Request</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            <Form onSubmit={(e) => handleHelpSave(e)}>
+              <Form.Group controlId="formProblem">
+                <Form.Label>Problem</Form.Label>
+                <Form.Control
+                  type="text"
+                  name="problem"
+                  placeholder="Describe your problem"
+                  value={help.problem}
+                  onChange={(e) =>
+                    setHelp((prev) => ({ ...prev, problem: e.target.value }))
+                  }
+                  required
+                />
+              </Form.Group>
+
+              <Form.Group controlId="formDescription" className="mt-3">
+                <Form.Label>Description</Form.Label>
+                <Form.Control
+                  as="textarea"
+                  rows={4}
+                  name="issueDescription"
+                  placeholder="Provide a detailed description of the issue"
+                  value={help.issueDescription}
+                  onChange={(e) =>
+                    setHelp((prev) => ({ ...prev, issueDescription: e.target.value }))
+                  }
+                  required
+                />
+              </Form.Group>
+
+              <div className="mt-4 d-flex justify-content-end">
+                <Button variant="secondary" onClick={() => setIsShowHelpModel(false)} className="me-2">
+                  Close
+                </Button>
+                <Button variant="primary" type="submit">
+                  Submit
+                </Button>
+              </div>
+            </Form>
+          </Modal.Body>
+        </Modal>
 
       </div>
       <div className="d-flex justify-content-center align-items-center bg-white w-20 rounded-5 m-auto py-1 pb-1 my-2 pagination-rounded">
