@@ -44,11 +44,11 @@ const HeirarchyView: React.FC<ProcessCanvasProps> = ({ showView, setShowView, id
     const [edges, setEdges] = useEdgesState([]);
 
     const nodeTypes = useMemo(() => ({
-        custom: (props: any) => <CustomNode {...props} setNodes={setNodes} edges={edges} isCompleteTask={true} />,
+        custom: (props: any) => <CustomNode {...props} setNodes={setNodes} edges={edges} isCompleteTask={true} isRest={false} />,
     }), [setNodes, edges]);  // ✅ Include edges in dependencies
 
     useEffect(() => {
-        if (hierarchyView.templateJson) {
+        if (hierarchyView && hierarchyView.templateJson) {
             const templateJson = JSON.parse(hierarchyView.templateJson);
             console.log(templateJson)
             setNodes(templateJson.nodes);

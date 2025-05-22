@@ -237,6 +237,7 @@ const ProjectAssignTable: React.FC = () => {
           },
         }
       );
+      console.log(response)
 
       if (response.data && response.data.isSuccess) {
         const fetchedData = response.data.getFilterTasks || [];
