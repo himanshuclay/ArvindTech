@@ -132,6 +132,7 @@ const getAllBlockName = (
 ): { label: string; value: string }[] => {
 
     const node = nodes.find(n => n.id === id);
+    console.log(node)
 
     if (node) {
         if (node.data.TaskBinding && node.data.BindingOption === "formAndValueWithEditMode") {

@@ -438,13 +438,16 @@ const CustomNode = ({ data, id, setNodes, edges, isCompleteTask, nodes, setEdges
 
     useEffect(() => {
         if (nodeSetting.doerTaskNumber) {
-            const value = getAllBlockName(nodes, nodeSetting.doerTaskNumber, 'Select');
-            setPerviousBlockList(value);
-            setNodeSetting(prev => ({
-                ...prev,
-                doerBlockName: '', // Reset block name to empty string
-            }));
-            setPerviousOptionsList([]);
+            console.log(nodes)
+            if(nodes){
+                const value = getAllBlockName(nodes, nodeSetting.doerTaskNumber, 'Select');
+                setPerviousBlockList(value);
+                setNodeSetting(prev => ({
+                    ...prev,
+                    doerBlockName: '', // Reset block name to empty string
+                }));
+                setPerviousOptionsList([]);
+            }
         }
         if (nodeSetting.loopingSetting.start3) {
             if (nodes) {
