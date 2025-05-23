@@ -30,7 +30,6 @@ const getActiveNode = (nodes: Node[], id: string): Node | undefined => {
     const activeNode = nodes.find(
         (node) =>
             node.data.activeDoer === id &&
-            node.data.isActive &&
             (node.data?.status || node.data.status !== "completed")
     );
     console.log(activeNode)
