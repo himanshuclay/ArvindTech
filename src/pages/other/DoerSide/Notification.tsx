@@ -1414,7 +1414,7 @@ const ProjectAssignTable: React.FC = () => {
                 <Background />
               </ReactFlow>
             </div> */}
-            <ActiveNode activeNode={activeNode} activeTaskId={activeTaskId} setActiveNode={setActiveNode} completedNodes={completedNodes} setCompletedNodes={setCompletedNodes} pId={pId} />
+            <ActiveNode activeNode={activeNode} activeTaskId={activeTaskId} setActiveNode={setActiveNode} completedNodes={completedNodes} setCompletedNodes={setCompletedNodes} pId={pId} fetchData={fetchData} />
           </Modal.Body>
         </Modal>
       )}

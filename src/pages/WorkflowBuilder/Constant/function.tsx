@@ -30,6 +30,7 @@ const getActiveNode = (nodes: Node[], id: string): Node | undefined => {
     const activeNode = nodes.find(
         (node) =>
             node.data.activeDoer === id &&
+            node.data.isActive &&
             (node.data?.status || node.data.status !== "completed")
     );
     console.log(activeNode)
@@ -246,7 +247,7 @@ const getFilterTasks = (item: any): { [key: string]: any } => {
     try {
         const templateJson = JSON.parse(item.templateJson);
         const nodes = templateJson.nodes || [];
-        const activeNode = nodes.find((n: any) => localStorage.getItem("EmpId") === n.data.activeDoer && n.data.status != "completed" && n.data.isActive);
+        const activeNode = nodes.find((n: any) => localStorage.getItem("EmpId") === n.data.activeDoer && n.data.status != "completed");
         console.log(activeNode);
 
         if (activeNode) {

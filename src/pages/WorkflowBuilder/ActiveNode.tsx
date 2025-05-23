@@ -17,8 +17,8 @@ import config from "@/config";
 import { toast } from "react-toastify";
 // import { json } from "stream/consumers";
 
-const ActiveNode = ({ activeNode, activeTaskId, setActiveNode, completedNodes, setCompletedNodes, pId }: { activeNode: any; activeTaskId: number; setActiveNode: (value: any) => void; completedNodes: any; setCompletedNodes: (value: any) => void; pId?: any }) => {
-    console.log('activeNode', activeNode)
+const ActiveNode = ({ activeNode, activeTaskId, setActiveNode, completedNodes, setCompletedNodes, pId, fetchData }: { activeNode: any; activeTaskId: number; setActiveNode: (value: any) => void; completedNodes: any; setCompletedNodes: (value: any) => void; pId?: any; fetchData?: () => void; }) => {
+
     const [prevForm, setPrevForm] = useState<FIELD>({
         name: '',
         blocks: [],
@@ -205,6 +205,7 @@ const ActiveNode = ({ activeNode, activeTaskId, setActiveNode, completedNodes, s
                 if (response.data.isSuccess) {
                     toast.success(response.data.message);
                     setActiveNode("");
+                    fetchData?.();
                 }
             } else {
                 console.log('Validation Errors:', errors);
