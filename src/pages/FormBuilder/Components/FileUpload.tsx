@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Form } from 'react-bootstrap';
 import { BASIC_FIELD, BLOCK_VALUE } from '../Constant/Interface';
 import axios from 'axios';
 import config from '@/config';
+import { toast } from 'react-toastify';
 
 interface Props {
     block: BASIC_FIELD;
@@ -26,6 +27,7 @@ const FileUpload: React.FC<Props> = ({
     const isRequired = block.property.validation === "required";
     const isDisabled = !!(block.property.disabled);
     const isMultiple = !!block.property.multiple; // add `multiple` flag in block.property if not already
+    const [files, setFiles] = useState<string[]>([]);
 
     const handleFileChange = (e: React.ChangeEvent<any>) => {
         const files = e.target.files;
@@ -66,12 +68,33 @@ const FileUpload: React.FC<Props> = ({
                     headers: { 'Content-Type': 'multipart/form-data' },
                 }
             );
-            // if(response.data.isS)
-            console.log(response)
+            if (response.data.isSuccess) {
+                toast.success(response.data.message);
+                block.property['uploadFile'] = JSON.stringify(response.data.files);
+                setFiles(response.data.files);
+                setBlockValue((prevState) => ({
+                    ...prevState,
+                    [block.property.id]: isMultiple ? response.data.files : response.data.files[0],
+                }));
+        
+                handleChange(e, block.property.id);
+            }
         } catch (error) {
             console.error('Error uploading files:', error);
         }
     };
+
+    useEffect(() => {
+        const fileData = blockValue[block.property.id];
+        if (Array.isArray(fileData)) {
+            setFiles(fileData);
+        } else if (fileData) {
+            setFiles([fileData]);
+        } else {
+            setFiles([]);
+        }
+    }, [blockValue[block.property.id]]);
+    
 
     const getFileName = () => {
         const fileData = blockValue[block.property.id];
@@ -107,6 +130,14 @@ const FileUpload: React.FC<Props> = ({
                             Selected file{isMultiple ? 's' : ''}: <strong>{getFileName()}</strong>
                         </Form.Text>
                     )}
+                    {files.length && files.map((url: string, idx: number) => (
+                        <div key={idx}>
+                            <a href={url} target="_blank" rel="noopener noreferrer" download>
+                                Download File {idx + 1}
+                            </a>
+                        </div>
+                    ))}
+
 
                     {validationErrors[block.property.id] && (
                         <Form.Text className="text-danger">
