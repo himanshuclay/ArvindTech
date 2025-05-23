@@ -243,11 +243,16 @@ const extractRecursively = (data: LOGIC_ITEM[], index = 0, acc: string[] = []): 
 //     }
 // };
 
-const getFilterTasks = (item: any): { [key: string]: any } => {
+const getFilterTasks = (item: any, status?: string): { [key: string]: any, status?: string } => {
     try {
         const templateJson = JSON.parse(item.templateJson);
         const nodes = templateJson.nodes || [];
-        const activeNode = nodes.find((n: any) => localStorage.getItem("EmpId") === n.data.activeDoer && n.data.status != "completed");
+        let activeNode;
+        if(status === "completed"){
+            activeNode = nodes.find((n: any) => localStorage.getItem("EmpId") === n.data.activeDoer);
+        }else{
+            activeNode = nodes.find((n: any) => localStorage.getItem("EmpId") === n.data.activeDoer && n.data.status != "completed");
+        }
         console.log(activeNode);
 
         if (activeNode) {

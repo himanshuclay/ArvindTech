@@ -66,6 +66,7 @@ const FileUpload: React.FC<Props> = ({
                     headers: { 'Content-Type': 'multipart/form-data' },
                 }
             );
+            // if(response.data.isS)
             console.log(response)
         } catch (error) {
             console.error('Error uploading files:', error);

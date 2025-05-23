@@ -19,6 +19,7 @@ import UPDATE_EMPLOYEE from '@/pages/WorkflowBuilder/DynamicSegment/UPDATE_EMPLO
 import APPOINTMENT_LETTER from '@/pages/WorkflowBuilder/DynamicSegment/APPOINTMENT_LETTER';
 import ASSIGN_TASK from '@/pages/WorkflowBuilder/DynamicSegment/ASSIGN_TASK';
 import Editor from '@/pages/FormBuilder/Editor';
+import { getFilterTasks } from '@/pages/WorkflowBuilder/Constant/function';
 // import CustomNode from '@/pages/WorkflowBuilder/CustomNode';
 
 
@@ -107,12 +108,12 @@ const ProjectAssignTable: React.FC = () => {
     required: "false",
     options: [{ label: '', value: '' }],
     advance: {
-        backgroundColor: '',
-        color: '',
+      backgroundColor: '',
+      color: '',
     },
     isShow: false,
     disabled: "false",
-})
+  })
   const [, setIsAddFormBuilder] = useState(false);
   const [dynamicComponent, setDynamicComponent] = useState<string>('');
 
@@ -446,14 +447,14 @@ const ProjectAssignTable: React.FC = () => {
         <Modal.Body>
           {formBuilder?.blocks?.length ? (
             <Editor
-            form={formBuilder}
-            setForm={setFormBuilder}
-            property={property}
-            setProperty={setProperty}
-            blockValue={blockValue}
-            setBlockValue={setBlockValue}
-            isShowSave={false}
-            isPreview={true}
+              form={formBuilder}
+              setForm={setFormBuilder}
+              property={property}
+              setProperty={setProperty}
+              blockValue={blockValue}
+              setBlockValue={setBlockValue}
+              isShowSave={false}
+              isPreview={true}
             />
           ) : ''}
         </Modal.Body>
@@ -591,7 +592,8 @@ const ProjectAssignTable: React.FC = () => {
                                           <>{format(new Date(item.completedDate), 'dd-MMM-yyyy HH:mm')}</>
                                         ) :
                                           (
-                                            <>{item[col.id as keyof typeof item]}</>
+                                            <>{getFilterTasks(item, 'completed')?.[col.id] ?? ''}
+                                            </>
                                           )}
                                 </div>
                               </td>
